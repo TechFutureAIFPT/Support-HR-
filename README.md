@@ -24,8 +24,7 @@
 
 ### 📁 **Thư mục chính**
 ```
-```
-stempe-/
+Support-HR-/
 ├── 📁 components/              # React Components
 │   ├── 📁 layout/              # Layout Components
 │   │   ├── Footer.tsx
@@ -44,7 +43,7 @@ stempe-/
 │   │       ├── CVUpload.tsx
 │   │       ├── ExpandedContent.tsx
 │   │       └── AnalysisResults.tsx
-│   ├── 📁 ui/              # UI Components
+│   ├── 📁 ui/                 # UI Components
 │   │   ├── 📁 charts-stats/       # Charts & Statistics
 │   │   │   ├── CacheStats.tsx
 │   │   │   ├── CompactCacheStats.tsx
@@ -65,14 +64,18 @@ stempe-/
 │   │   │   ├── Logo.tsx
 │   │   │   ├── Partners.tsx
 │   │   │   └── ProgressBar.tsx
-│   │   ├── 📁 history-cache/     # History & Cache UI
+│   │   ├── 📁 history-cache/      # History & Cache UI
 │   │   │   ├── CompactCVFilterHistory.tsx
 │   │   │   ├── HistoryModal.tsx
 │   │   │   └── JDTemplatesModal.tsx
 │   │   ├── 📁 candidate/          # Candidate Components
 │   │   │   └── CandidateCard.tsx
-│   │   └── 📁 sync/               # Sync Components
-│   │       └── SyncNotification.tsx
+│   │   ├── 📁 sync/               # Sync Components
+│   │   │   └── SyncNotification.tsx
+│   │   └── 📁 theme/              # Theme System
+│   │       ├── ThemeProvider.tsx
+│   │       ├── tokens.ts
+│   │       └── index.ts
 │   ├── 📁 pages/              # Pages
 │   │   ├── 📁 main/               # Main Pages
 │   │   │   ├── HomePage.tsx
@@ -96,86 +99,88 @@ stempe-/
 │   │   │   └── DeploymentReadyPage.tsx
 │   │   └── 📁 auth/               # Authentication Pages
 │   │       └── LoginPage.tsx
-│   ├── 📁 shared/             # Shared Components
-│   │   ├── ChatBubble.tsx
-│   │   ├── PageTransition.tsx
-│   │   └── ScreenerHeader.tsx
-│   └── 📁 responsive/          # Responsive Components
-│       ├── useDeviceDetection.ts
-│       ├── index.ts
-│       ├── 📁 desktop/
-│       │   └── DesktopLayout.tsx
-│       ├── 📁 tablet/
-│       │   └── TabletLayout.tsx
-│       └── 📁 mobile/
-│           ├── MobileLayout.tsx
-│           └── MobileBottomNav.tsx
+│   └── 📁 shared/             # Shared Components
+│       ├── ChatBubble.tsx
+│       ├── PageTransition.tsx
+│       ├── ScreenerHeader.tsx
+│       └── 📁 responsive/         # Responsive Layout System
+│           ├── useDeviceDetection.ts
+│           ├── index.ts
+│           ├── 📁 desktop/
+│           │   └── DesktopLayout.tsx
+│           ├── 📁 tablet/
+│           │   └── TabletLayout.tsx
+│           └── 📁 mobile/
+│               ├── MobileLayout.tsx
+│               └── MobileBottomNav.tsx
 │
 ├── 📁 services/                # Business Logic Services
-│   ├── 📁 ai-ml/            # AI & Machine Learning
-│   │   ├── 📁 models/                  # AI Models
-│   │   │   ├── 📁 gemini/              # Gemini AI (chính — OpenAI là fallback)
-│   │   │   │   ├── gemini-core.ts     # Core: API key rotation, generateContentWithFallback
-│   │   │   │   ├── gemini-analyze.ts  # CV Analysis pipeline + 5 nâng cấp tích hợp
+│   ├── firebase.ts             # Firebase configuration
+│   ├── 📁 ai-ml/              # AI & Machine Learning
+│   │   ├── skillGraph.ts              # Skill Graph: transferable skills
+│   │   ├── companyTiering.ts         # Company/Institution tiering
+│   │   ├── industryDetector.ts        # Industry detection
+│   │   ├── industryService.ts         # Entry point re-export
+│   │   ├── 📁 models/                 # AI Model Integrations
+│   │   │   ├── 📁 gemini/             # Gemini AI (chính — OpenAI là fallback)
+│   │   │   │   ├── gemini-core.ts         # API key rotation, fallback logic
+│   │   │   │   ├── gemini-analyze.ts      # CV Analysis pipeline
 │   │   │   │   ├── gemini-hard-filters.ts # Hard filter extraction
-│   │   │   │   ├── gemini-chatbot.ts  # AI chatbot advisor
-│   │   │   │   └── geminiService.ts   # Entry point re-export
-│   │   │   └── 📁 openai/            # OpenAI (chỉ chạy khi Gemini thất bại)
-│   │   │       ├── openai-core.ts     # OpenAI API wrapper
-│   │   │       ├── openai-analyze.ts # CV analysis via OpenAI
-│   │   │       ├── openai-hard-filters.ts # Hard filter via OpenAI
-│   │   │       ├── openai-chatbot.ts # Chatbot via OpenAI
-│   │   │       └── openaiService.ts  # Entry point re-export
-│   │   │
+│   │   │   │   ├── gemini-chatbot.ts      # AI chatbot advisor
+│   │   │   │   └── geminiService.ts       # Entry point re-export
+│   │   │   └── 📁 openai/             # OpenAI (fallback khi Gemini thất bại)
+│   │   │       ├── openai-core.ts
+│   │   │       ├── openai-analyze.ts
+│   │   │       ├── openai-hard-filters.ts
+│   │   │       ├── openai-chatbot.ts
+│   │   │       └── openaiService.ts
 │   │   ├── 📁 algorithms/             # Thuật toán chấm điểm
-│   │   │   ├── 📁 extraction/          # Trích xuất JD & câu hỏi phỏng vấn
-│   │   │   │   ├── requirementsExtractor.ts # Trích xuất yêu cầu từ JD
-│   │   │   │   └── interviewQuestionService.ts # Sinh câu hỏi phỏng vấn
+│   │   │   ├── 📁 extraction/         # Trích xuất JD & câu hỏi phỏng vấn
+│   │   │   │   ├── requirementsExtractor.ts
+│   │   │   │   └── interviewQuestionService.ts
 │   │   │   ├── 📁 matching/           # Engine đối sánh kinh nghiệm
-│   │   │   │   ├── experienceMatch.ts # Thuật toán đối sánh kinh nghiệm
-│   │   │   │   ├── matchEngine.ts    # Matching algorithms
-│   │   │   │   └── deterministicScoring.ts # Chấm điểm deterministic
+│   │   │   │   ├── experienceMatch.ts
+│   │   │   │   ├── matchEngine.ts
+│   │   │   │   └── deterministicScoring.ts
 │   │   │   ├── 📁 soft-skills/        # ② Kỹ năng mềm định lượng
-│   │   │   │   ├── actionVerbAnalyzer.ts # Action Verbs: chủ động vs thụ động
-│   │   │   │   ├── starAnalyzer.ts    # STAR format detection
-│   │   │   │   ├── tenureAnalyzer.ts  # Loyalty/Tenure Index
+│   │   │   │   ├── actionVerbAnalyzer.ts
+│   │   │   │   ├── starAnalyzer.ts
+│   │   │   │   ├── tenureAnalyzer.ts
 │   │   │   │   └── softSkillsService.ts
 │   │   │   ├── 📁 dynamic-weighting/  # ① Trọng số động
-│   │   │   │   ├── dynamicBoost.ts    # Dynamic Boost: thành tựu bù đắp thiếu sót
-│   │   │   │   ├── careerVelocity.ts # Career Velocity: tốc độ thăng tiến
-│   │   │   │   ├── weightingEngine.ts # Contextual weighting + final score
+│   │   │   │   ├── dynamicBoost.ts
+│   │   │   │   ├── careerVelocity.ts
+│   │   │   │   ├── weightingEngine.ts
 │   │   │   │   └── dynamicWeightingService.ts
 │   │   │   ├── 📁 ai-debiasing/       # ④ Đạo đức AI & chống thiên kiến
-│   │   │   │   └── debiasingService.ts # Blind CV scoring + bias alert
+│   │   │   │   └── debiasingService.ts
 │   │   │   └── 📁 feedback-loop/      # ⑤ Vòng lặp học máy
-│   │   │       └── feedbackLoopService.ts # Feedback + weight self-adjustment
-│   │   │
-│   │   └── 📁 embeddings/             # ③ Điểm tương đồng chuyên ngành
-│   │       ├── skillGraph.ts          # Skill Graph: transferable skills
-│   │       ├── companyTiering.ts      # Company/Institution tiering
-│   │       ├── industryDetector.ts     # Industry detection
-│   │       ├── industryEmbeddingService.ts # Industry CV embedding & similarity
-│   │       └── industryService.ts      # Entry point re-export
-│   └── 📁 auth/                     # Authentication Services
-│       ├── authService.ts           # Firebase auth
-│       └── authTypes.ts           # Auth type definitions
-│   ├── 📁 data-sync/     # Data & Sync Services
-│   │   ├── userProfileService.ts       # User profile management
-│   │   ├── dataSyncService.ts         # Cross-device sync
-│   │   └── institutionsData.ts         # Institution data
-│   ├── 📁 history-cache/    # History & Caching
-│   │   ├── historyService.ts           # Analysis history
-│   │   ├── analysisHistory.ts          # CV filter history
-│   │   ├── analysisCache.ts           # Performance caching
-│   │   └── cacheService.ts           # Cache management
-│   ├── 📁 salary-analysis/     # Salary Analysis
-│   │   └── salaryAnalysisService.ts    # Market salary comparison
-│   ├── 📁 audit/           # Audit & Control
-│   │   ├── auditService.ts           # Audit logging
-│   │   └── scoringWorker.ts          # Scoring background worker
-│   └── 📁 file-processing/    # File Processing
-│       ├── ocrService.ts               # OCR for images/PDFs
-│       └── googleDriveService.ts        # Google Drive integration
+│   │   │       └── feedbackLoopService.ts
+│   │   └── 📁 embedding-vector/       # ③ Vector Embeddings
+│   │       ├── 📁 indexer/
+│   │       │   └── embedData.ts       # CLI: tạo vector embedding cho data/
+│   │       ├── 📁 similarity/
+│   │       └── 📁 types/
+│   ├── 📁 auth/                   # Authentication Services
+│   │   ├── authService.ts
+│   │   └── authTypes.ts
+│   ├── 📁 data-sync/              # Data & Sync Services
+│   │   ├── userProfileService.ts
+│   │   ├── dataSyncService.ts
+│   │   └── institutionsData.ts
+│   ├── 📁 history-cache/          # History & Caching
+│   │   ├── historyService.ts
+│   │   ├── analysisHistory.ts
+│   │   ├── analysisCache.ts
+│   │   └── cacheService.ts
+│   ├── 📁 salary-analysis/        # Salary Analysis
+│   │   └── salaryAnalysisService.ts
+│   └── 📁 file-processing/        # File Processing
+│       ├── ocrService.ts
+│       └── googleDriveService.ts
+│
+├── 📁 api/                     # Serverless API (Vercel Functions)
+│   └── openai-chat.ts          # OpenAI chat proxy endpoint
 │
 ├── 📁 assets/                  # Static Assets & Types
 │   ├── constants.ts            # App constants & configurations
@@ -188,8 +193,7 @@ stempe-/
 ├── 📁 config/                  # Configuration Files
 │   ├── vite.config.ts          # Vite build configuration
 │   ├── tsconfig.json           # TypeScript configuration
-│   ├── tailwind.config.js      # Tailwind CSS configuration
-│   └── vercel.json             # Vercel deployment config
+│   └── tailwind.config.js      # Tailwind CSS configuration
 │
 ├── 📁 public/                  # Public Assets (served from root /)
 │   ├── 📁 data/                # Static data files
@@ -207,17 +211,14 @@ stempe-/
 │   ├── ARCHITECTURE.md         # System architecture documentation
 │   └── ALGORITHMS.md           # AI algorithms documentation
 │
-├── 📁 utils/                   # Utility Scripts
-│   ├── embedData.ts            # Data embedding script
-│   └── tsconfig.json           # Utils-specific TypeScript config
+├── 📁 src/                     # Application Entry Points
+│   ├── App.tsx                 # Main application component
+│   └── index.tsx               # Application entry point
 │
-├── 📁 src/                     # Source Configuration
-│   └── firebase.ts             # Firebase configuration
-│
-├── App.tsx                     # Main application component
-├── index.tsx                   # Application entry point
 ├── index.html                  # HTML template
 ├── package.json                # Project dependencies & scripts
+├── package-lock.json           # Dependency lock file
+├── vercel.json                 # Vercel deployment config
 ├── .gitignore                  # Git ignore rules
 └── README.md                   # This file
 ```
@@ -356,7 +357,7 @@ Dự án được chia thành 3 phần tài liệu chính để dễ dàng theo 
 ##  Cài đặt
 
 ### **Yêu cầu hệ thống**
--   **Node.js**: >= 20.x < 21.x
+-   **Node.js**: >= 24.x
 -   **npm**: >= 10.9.0
 -   **Modern Browser**: Chrome, Firefox, Safari, Edge
 
@@ -418,7 +419,7 @@ npm run preview
 Ứng dụng sẽ chạy tại: **http://localhost:5173**
 
 ### **Tăng cường dữ liệu AI (Data Embedding)**
-Công cụ CLI `utils/embedData.ts` giúp tạo vector embedding cho toàn bộ thư mục data/ để phục vụ các tác vụ truy vấn ngữ nghĩa hoặc huấn luyện nội bộ.
+Công cụ CLI `services/ai-ml/embedding-vector/indexer/embedData.ts` giúp tạo vector embedding cho toàn bộ thư mục data/ để phục vụ các tác vụ truy vấn ngữ nghĩa hoặc huấn luyện nội bộ.
 
 ```bash
 # Tạo embedding cho toàn bộ data (yêu cầu GEMINI_API_KEY hoặc VITE_GEMINI_API_KEY_x)
@@ -428,7 +429,7 @@ npm run embed:data
 npm run embed:data -- --limit 10 --filter marketing
 
 # Dry-run/simulation (không gọi API, hữu ích khi test CI)
-npx tsx utils/embedData.ts --simulate --limit 2
+npx tsx services/ai-ml/embedding-vector/indexer/embedData.ts --simulate --limit 2
 ```
 
 ---
