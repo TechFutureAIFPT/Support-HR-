@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { signInWithGoogle, signUpWithEmail, signInWithEmail, sendResetPassword, mapFirebaseError } from '../../../services/auth/authService';
+import { signInWithGoogle, signUpWithEmail, signInWithEmail, sendResetPassword, mapFirebaseError, linkGoogleAfterPasswordSignIn } from '../../../services/auth/authService';
 import type { AuthUser } from '../../../services/auth/authTypes';
 
 interface LoginPageProps {
@@ -68,6 +68,17 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
   const [resetSent, setResetSent] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
   const [showReset, setShowReset] = useState(false);
+  // Link modal: khi Google login gặp email đã tồn tại theo email/password
+  const [linkModal, setLinkModal] = useState<{
+    open: boolean;
+    email: string;
+    password: string;
+    pendingCred: any;
+    error: string;
+    loading: boolean;
+  }>({
+    open: false, email: '', password: '', pendingCred: null, error: '', loading: false,
+  });
   const [particles] = useState(() =>
     Array.from({ length: 40 }, (_, i) => ({
       id: i,
@@ -214,9 +225,30 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
       const user = await signInWithGoogle();
       runSuccessAnimation(user);
     } catch (err: any) {
-      setAuthError(mapFirebaseError(err.code));
+      if (err.code === 'auth/link-required') {
+        // Mở modal yêu cầu nhập mật khẩu cũ để link tài khoản
+        setLinkModal({ open: true, email: err.email, password: '', pendingCred: err.pendingCred, error: '', loading: false });
+      } else {
+        setAuthError(mapFirebaseError(err.code));
+      }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleLinkAccount = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!linkModal.password) {
+      setLinkModal(prev => ({ ...prev, error: 'Vui lòng nhập mật khẩu.' }));
+      return;
+    }
+    setLinkModal(prev => ({ ...prev, loading: true, error: '' }));
+    try {
+      const user = await linkGoogleAfterPasswordSignIn(linkModal.email, linkModal.password, linkModal.pendingCred);
+      setLinkModal({ open: false, email: '', password: '', pendingCred: null, error: '', loading: false });
+      runSuccessAnimation(user);
+    } catch (err: any) {
+      setLinkModal(prev => ({ ...prev, loading: false, error: mapFirebaseError(err.code) }));
     }
   };
 
@@ -626,6 +658,67 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
                 Mở trên YouTube
               </a>
             </div>
+          </div>
+        </div>
+      )}
+      {/* ── LINK ACCOUNT MODAL ─────────────────────────────── */}
+      {linkModal.open && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+            onClick={() => setLinkModal(prev => ({ ...prev, open: false }))}
+          />
+
+          {/* Modal card */}
+          <div className="relative w-full max-w-sm rounded-2xl border border-white/[0.1] backdrop-blur-xl p-6 shadow-2xl shadow-black/60"
+            style={{ background: 'linear-gradient(160deg, #0d1629 0%, #111827 100%)' }}>
+
+            {/* Icon */}
+            <div className="flex justify-center mb-4">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500/20 to-cyan-500/20 border border-indigo-500/30 flex items-center justify-center">
+                <i className="fa-solid fa-link-slash text-indigo-400 text-xl" />
+              </div>
+            </div>
+
+            <h3 className="text-white font-bold text-base text-center mb-1">Liên kết tài khoản</h3>
+            <p className="text-slate-400 text-[12px] text-center mb-5 leading-relaxed">
+              Email <span className="text-cyan-400 font-semibold">{linkModal.email}</span>{' '}
+              đã được đăng ký bằng mật khẩu. Nhập mật khẩu để liên kết với Google và dùng chung 1 tài khoản.
+            </p>
+
+            <form onSubmit={handleLinkAccount} className="space-y-3.5">
+              <div>
+                <label className="block text-[11px] font-semibold mb-1.5" style={{ color: '#94a3b8' }}>Mật khẩu hiện tại</label>
+                <input
+                  type="password"
+                  autoFocus
+                  value={linkModal.password}
+                  onChange={e => setLinkModal(prev => ({ ...prev, password: e.target.value, error: '' }))}
+                  placeholder="Nhập mật khẩu của bạn"
+                  className="w-full px-3.5 py-2.5 rounded-xl text-sm text-white placeholder:text-slate-600 focus:outline-none transition-all border border-slate-700/60 focus:border-indigo-500/50"
+                  style={{ background: 'rgba(255,255,255,0.04)' }}
+                />
+                {linkModal.error && <p className="text-red-400 text-[10px] mt-1">{linkModal.error}</p>}
+              </div>
+
+              <button
+                type="submit"
+                disabled={linkModal.loading}
+                className="w-full py-3 rounded-xl text-sm font-bold text-white transition-all hover:-translate-y-0.5 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', boxShadow: '0 4px 16px rgba(99,102,241,0.3)' }}
+              >
+                {linkModal.loading ? 'Đang liên kết...' : 'Xác nhận & Liên kết'}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setLinkModal(prev => ({ ...prev, open: false }))}
+                className="w-full py-2 text-[11px] text-slate-600 hover:text-slate-400 transition-colors"
+              >
+                Hủy
+              </button>
+            </form>
           </div>
         </div>
       )}

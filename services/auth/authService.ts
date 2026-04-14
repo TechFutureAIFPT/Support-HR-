@@ -7,8 +7,11 @@ import {
   onAuthStateChanged,
   updateProfile,
   linkWithPopup,
+  linkWithCredential,
+  fetchSignInMethodsForEmail,
   sendPasswordResetEmail,
   type User as FirebaseUser,
+  type AuthCredential,
 } from 'firebase/auth';
 import {
   doc,
@@ -48,6 +51,10 @@ function mapFirebaseError(code: string): string {
     'auth/network-request-failed': 'Lỗi mạng. Kiểm tra kết nối và thử lại.',
     'auth/invalid-credential': 'Email hoặc mật khẩu không đúng.',
     'auth/operation-not-allowed': 'Đăng nhập bằng email chưa được bật. Liên hệ hỗ trợ.',
+    'auth/account-exists-with-different-credential': 'Email này đã được đăng ký theo cách khác. Đang liên kết tài khoản...',
+    'auth/credential-already-in-use': 'Tài khoản Google này đã được liên kết với một tài khoản khác.',
+    'auth/provider-already-linked': 'Tài khoản Google đã được liên kết rồi.',
+    'auth/requires-recent-login': 'Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại để tiếp tục.',
   };
   return map[code] || 'Đã xảy ra lỗi. Vui lòng thử lại.';
 }
@@ -107,9 +114,46 @@ export async function signInWithGoogle(): Promise<AuthUser> {
   const provider = new GoogleAuthProvider();
   provider.addScope('https://www.googleapis.com/auth/drive.readonly');
 
-  const result = await signInWithPopup(auth, provider);
-  await ensureFirestoreProfile(result.user, 'google');
+  try {
+    const result = await signInWithPopup(auth, provider);
+    await ensureFirestoreProfile(result.user, 'google');
+    return toAuthUser(result.user, 'google');
+  } catch (err: any) {
+    // Nếu email đã tồn tại dưới dạng email/password → link Google vào tài khoản đó
+    if (err.code === 'auth/account-exists-with-different-credential') {
+      const email: string = err.customData?.email ?? '';
+      const pendingCred: AuthCredential = GoogleAuthProvider.credentialFromError(err)!;
 
+      // Kiểm tra xem email này dùng phương thức đăng nhập nào
+      const methods = await fetchSignInMethodsForEmail(auth, email);
+
+      if (methods.includes('password')) {
+        // Yêu cầu user nhập mật khẩu để xác thực tài khoản email/password trước
+        const error = new Error('LINK_REQUIRED') as any;
+        error.code = 'auth/link-required';
+        error.email = email;
+        error.pendingCred = pendingCred;
+        throw error;
+      }
+    }
+    throw err;
+  }
+}
+
+/**
+ * Link Google vào tài khoản email/password đang tồn tại.
+ * Gọi hàm này sau khi user nhập mật khẩu để xác thực.
+ */
+export async function linkGoogleAfterPasswordSignIn(
+  email: string,
+  password: string,
+  pendingCred: AuthCredential,
+): Promise<AuthUser> {
+  // Đăng nhập bằng email/password trước
+  const result = await signInWithEmailAndPassword(auth, email, password);
+  // Link Google credential vào tài khoản này
+  await linkWithCredential(result.user, pendingCred);
+  await ensureFirestoreProfile(result.user, 'google');
   return toAuthUser(result.user, 'google');
 }
 
