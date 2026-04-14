@@ -1,0 +1,172 @@
+{
+  "hash": "69b3223a",
+  "configHash": "5527a430",
+  "lockfileHash": "d19be09c",
+  "browserHash": "9931091d",
+  "optimized": {
+    "react": {
+      "src": "../../node_modules/react/index.js",
+      "file": "react.js",
+      "fileHash": "97340c23",
+      "needsInterop": true
+    },
+    "react-dom": {
+      "src": "../../node_modules/react-dom/index.js",
+      "file": "react-dom.js",
+      "fileHash": "aec29fdb",
+      "needsInterop": true
+    },
+    "react/jsx-dev-runtime": {
+      "src": "../../node_modules/react/jsx-dev-runtime.js",
+      "file": "react_jsx-dev-runtime.js",
+      "fileHash": "85be7989",
+      "needsInterop": true
+    },
+    "react/jsx-runtime": {
+      "src": "../../node_modules/react/jsx-runtime.js",
+      "file": "react_jsx-runtime.js",
+      "fileHash": "12aa31d4",
+      "needsInterop": true
+    },
+    "@google/genai": {
+      "src": "../../node_modules/@google/genai/dist/web/index.mjs",
+      "file": "@google_genai.js",
+      "fileHash": "c8f5aafc",
+      "needsInterop": false
+    },
+    "@google/generative-ai": {
+      "src": "../../node_modules/@google/generative-ai/dist/index.mjs",
+      "file": "@google_generative-ai.js",
+      "fileHash": "1a6bb07d",
+      "needsInterop": false
+    },
+    "@vercel/analytics/react": {
+      "src": "../../node_modules/@vercel/analytics/dist/react/index.mjs",
+      "file": "@vercel_analytics_react.js",
+      "fileHash": "799fec89",
+      "needsInterop": false
+    },
+    "@vercel/speed-insights/react": {
+      "src": "../../node_modules/@vercel/speed-insights/dist/react/index.mjs",
+      "file": "@vercel_speed-insights_react.js",
+      "fileHash": "772d8c12",
+      "needsInterop": false
+    },
+    "firebase/analytics": {
+      "src": "../../node_modules/firebase/analytics/dist/esm/index.esm.js",
+      "file": "firebase_analytics.js",
+      "fileHash": "7f4ff116",
+      "needsInterop": false
+    },
+    "firebase/app": {
+      "src": "../../node_modules/firebase/app/dist/esm/index.esm.js",
+      "file": "firebase_app.js",
+      "fileHash": "9b295a93",
+      "needsInterop": false
+    },
+    "firebase/app-check": {
+      "src": "../../node_modules/firebase/app-check/dist/esm/index.esm.js",
+      "file": "firebase_app-check.js",
+      "fileHash": "36971fd3",
+      "needsInterop": false
+    },
+    "firebase/auth": {
+      "src": "../../node_modules/firebase/auth/dist/esm/index.esm.js",
+      "file": "firebase_auth.js",
+      "fileHash": "0b0fb4ef",
+      "needsInterop": false
+    },
+    "firebase/firestore": {
+      "src": "../../node_modules/firebase/firestore/dist/esm/index.esm.js",
+      "file": "firebase_firestore.js",
+      "fileHash": "9669f069",
+      "needsInterop": false
+    },
+    "lodash.debounce": {
+      "src": "../../node_modules/lodash.debounce/index.js",
+      "file": "lodash__debounce.js",
+      "fileHash": "fd4eddba",
+      "needsInterop": true
+    },
+    "lucide-react": {
+      "src": "../../node_modules/lucide-react/dist/esm/lucide-react.js",
+      "file": "lucide-react.js",
+      "fileHash": "778cd07c",
+      "needsInterop": false
+    },
+    "mammoth": {
+      "src": "../../node_modules/mammoth/lib/index.js",
+      "file": "mammoth.js",
+      "fileHash": "a348166e",
+      "needsInterop": true
+    },
+    "p-queue": {
+      "src": "../../node_modules/p-queue/dist/index.js",
+      "file": "p-queue.js",
+      "fileHash": "bb73da1f",
+      "needsInterop": false
+    },
+    "pdfjs-dist": {
+      "src": "../../node_modules/pdfjs-dist/build/pdf.mjs",
+      "file": "pdfjs-dist.js",
+      "fileHash": "92c406cd",
+      "needsInterop": false
+    },
+    "react-dom/client": {
+      "src": "../../node_modules/react-dom/client.js",
+      "file": "react-dom_client.js",
+      "fileHash": "992491a3",
+      "needsInterop": true
+    },
+    "react-router-dom": {
+      "src": "../../node_modules/react-router-dom/dist/index.mjs",
+      "file": "react-router-dom.js",
+      "fileHash": "acdc9029",
+      "needsInterop": false
+    },
+    "recharts": {
+      "src": "../../node_modules/recharts/es6/index.js",
+      "file": "recharts.js",
+      "fileHash": "59ff95e5",
+      "needsInterop": false
+    },
+    "tesseract.js": {
+      "src": "../../node_modules/tesseract.js/src/index.js",
+      "file": "tesseract__js.js",
+      "fileHash": "9fb254a7",
+      "needsInterop": true
+    },
+    "web-vitals": {
+      "src": "../../node_modules/web-vitals/dist/web-vitals.js",
+      "file": "web-vitals.js",
+      "fileHash": "3b722530",
+      "needsInterop": false
+    }
+  },
+  "chunks": {
+    "http-BS37DNE4": {
+      "file": "http-BS37DNE4.js"
+    },
+    "https-V6I6WUTD": {
+      "file": "https-V6I6WUTD.js"
+    },
+    "url-D7NJLSYG": {
+      "file": "url-D7NJLSYG.js"
+    },
+    "fs-DWFS4JPU": {
+      "file": "fs-DWFS4JPU.js"
+    },
+    "chunk-6MJDDA44": {
+      "file": "chunk-6MJDDA44.js"
+    },
+    "chunk-SG7LWSWQ": {
+      "file": "chunk-SG7LWSWQ.js"
+    },
+    "chunk-S5QMWCJI": {
+      "file": "chunk-S5QMWCJI.js"
+    },
+    "chunk-OL46QLBJ": {
+      "file": "chunk-OL46QLBJ.js"
+    }
+  }
+}
