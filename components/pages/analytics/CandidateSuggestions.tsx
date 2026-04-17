@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Send, Bot, User, Sparkles, ChevronDown, ChevronUp, Check, Plus, FileText, Users, Lightbulb, MessageSquare, ArrowUp, X, Copy, CheckCheck, Loader2 } from 'lucide-react';
 import type { Candidate, AnalysisRunData } from '../../../assets/types';
 import { getChatbotAdvice } from '../../../services/ai-ml/models/gemini/geminiService';
+import SelectedCandidatesPage from './SelectedCandidatesPage';
 
 const SELECTED_IDS_KEY = 'supporthr.selectedCandidateIds';
 
@@ -70,7 +71,7 @@ const CandidateSuggestions: React.FC<CandidateSuggestionsProps> = ({ candidates,
       return raw ? new Set(JSON.parse(raw)) : new Set();
     } catch { return new Set(); }
   });
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<'chatbot' | 'selected'>('chatbot');
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [expandedMsg, setExpandedMsg] = useState<number | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -188,8 +189,8 @@ const CandidateSuggestions: React.FC<CandidateSuggestionsProps> = ({ candidates,
 
   if (!candidates || candidates.length === 0) {
     return (
-      <div className="flex h-full min-h-0 w-full flex-1 flex-col items-center justify-center bg-gradient-to-br from-[#0a0e1a] via-[#0d1220] to-[#0a0e1a] px-4 text-center">
-        <div className="mb-6 flex h-24 w-24 items-center justify-center border border-slate-800/60 bg-[#0B1628] shadow-2xl shadow-black/30">
+      <div className="flex h-full min-h-0 w-full flex-1 flex-col items-center justify-center bg-gradient-to-br from-[#0B192C] via-[#11213A] to-[#0B192C] px-4 text-center">
+        <div className="mb-6 flex h-24 w-24 items-center justify-center border border-slate-800/60 bg-[#11213A] shadow-2xl shadow-black/30">
           <Bot className="w-10 h-10 text-slate-600" />
         </div>
         <h2 className="mb-3 text-2xl font-bold text-white">Chưa có dữ liệu ứng viên</h2>
@@ -199,51 +200,86 @@ const CandidateSuggestions: React.FC<CandidateSuggestionsProps> = ({ candidates,
   }
 
   return (
-    <div className="flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden bg-gradient-to-br from-[#0a0e1a] via-[#0d1220] to-[#0a0e1a]">
-      {/* Wrapper: chat + sidebar cùng flex-row để sidebar chiếm không gian khi mở */}
-      <div className="flex min-h-0 flex-1 overflow-hidden">
-
-      {/* ── Chat Area ─────────────────────────────────────────── */}
-      <div className="flex min-h-0 min-w-0 flex-col flex-1 transition-all duration-300">
-
-        {/* Chat Header */}
-        <div className="shrink-0 border-b border-slate-800/50 bg-[#0a0e1a]/90 backdrop-blur-xl px-4 pb-3 md:px-6 md:pb-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3.5">
-              <div className="relative">
-                <div className="w-11 h-11 bg-gradient-to-br from-blue-500/20 to-blue-600/20 border border-blue-500/30 flex items-center justify-center shadow-lg shadow-blue-500/10">
-                  <Bot className="w-5 h-5 text-blue-400" />
+    <div className="flex h-full flex-col overflow-hidden bg-gradient-to-br from-[#0B192C] via-[#11213A] to-[#0B192C]">
+      {/* ── Unified Global Header ─────────────────────────────────── */}
+      <div className="shrink-0 flex items-center justify-between border-b border-slate-800/50 bg-[#0B192C]/90 backdrop-blur-xl px-4 py-3 md:px-6 md:py-4">
+        {/* Left: Dynamic Content */}
+        <div className="flex items-center gap-3.5 flex-1 min-w-0 pr-4">
+          {activeTab === 'chatbot' ? (
+            <>
+              <div className="relative flex-shrink-0">
+                <div className="w-10 h-10 md:w-11 md:h-11 bg-gradient-to-br from-blue-500/20 to-blue-600/20 border border-blue-500/30 flex items-center justify-center shadow-lg shadow-blue-500/10">
+                  <Bot className="w-4 h-4 md:w-5 md:h-5 text-blue-400" />
                 </div>
-                <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-blue-400 rounded-full border-2 border-[#0a0e1a] shadow-[0_0_8px_rgba(96,165,250,0.6)]" />
+                <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 md:w-3.5 md:h-3.5 bg-blue-400 rounded-full border-2 border-[#0B192C] shadow-[0_0_8px_rgba(96,165,250,0.6)]" />
               </div>
-              <div>
-                <h1 className="text-base font-bold text-white leading-tight">Trợ lý tuyển dụng AI</h1>
+              <div className="min-w-0">
+                <h1 className="text-sm md:text-base font-bold text-white leading-tight truncate">Trợ lý tuyển dụng AI</h1>
                 <div className="flex items-center gap-2 mt-0.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-blue-400 inline-block shadow-[0_0_6px_rgba(96,165,250,0.6)]" />
-                  <span className="text-[10px] text-blue-400 font-medium">Đang hoạt động</span>
-                  <span className="text-[10px] text-slate-600">·</span>
-                  <span className="text-[10px] text-slate-500">{jobPosition}</span>
+                  <span className="text-[10px] text-blue-400 font-medium whitespace-nowrap">Đang hoạt động</span>
+                  <span className="text-[10px] text-slate-600 hidden sm:inline">·</span>
+                  <span className="text-[10px] text-slate-500 truncate hidden sm:inline">{jobPosition}</span>
                 </div>
               </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setSidebarOpen(!sidebarOpen)}
-                className={`w-9 h-9 border transition-all flex items-center justify-center ${
-                  sidebarOpen
-                    ? 'bg-blue-500/15 border-blue-500/30 text-blue-400'
-                    : 'bg-slate-800/60 border-slate-700/50 text-slate-500 hover:text-slate-300 hover:bg-slate-700'
-                }`}
-                title="Danh sách ứng viên"
-              >
-                <Users className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
+            </>
+          ) : (
+            <>
+              <div className="w-10 h-10 md:w-11 md:h-11 flex-shrink-0 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 border border-emerald-500/30 flex items-center justify-center shadow-lg shadow-emerald-500/10">
+                <Users className="w-4 h-4 md:w-5 md:h-5 text-emerald-400" />
+              </div>
+              <div className="min-w-0">
+                <h1 className="text-sm md:text-base font-bold text-white leading-tight truncate">Ứng viên đã chọn</h1>
+                <div className="flex items-center gap-2 mt-0.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block shadow-[0_0_6px_rgba(52,211,153,0.5)]" />
+                  <span className="text-[10px] text-emerald-400 font-medium whitespace-nowrap">{selectedIds.size} ứng viên</span>
+                  {jobPosition && (
+                    <>
+                      <span className="text-[10px] text-slate-600 hidden sm:inline">·</span>
+                      <span className="text-[10px] text-slate-500 truncate hidden sm:inline">{jobPosition}</span>
+                    </>
+                  )}
+                </div>
+              </div>
+            </>
+          )}
         </div>
 
+        {/* Right: View Switcher */}
+        <div className="flex-shrink-0 flex items-center bg-[#11213A] p-1 rounded-lg border border-slate-700/50">
+          <button 
+            onClick={() => setActiveTab('chatbot')} 
+            className={`flex items-center gap-1.5 px-3 md:px-4 py-1.5 text-xs font-bold rounded-md transition-all ${
+              activeTab === 'chatbot' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/80'
+            }`}
+          >
+            <MessageSquare className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Chatbot AI</span><span className="sm:hidden">AI</span>
+          </button>
+          <button 
+            onClick={() => setActiveTab('selected')} 
+            className={`flex items-center gap-1.5 px-3 md:px-4 py-1.5 text-xs font-bold rounded-md transition-all ${
+              activeTab === 'selected' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/80'
+            }`}
+          >
+            <Users className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Đã chọn</span><span className="sm:hidden">Đã chọn</span>
+            {selectedIds.size > 0 && (
+              <span className={`ml-1 flex h-4 w-4 items-center justify-center rounded-sm text-[9px] ${
+                activeTab === 'selected' ? 'bg-white/25 text-white' : 'bg-slate-700 text-slate-300'
+              }`}>
+                {selectedIds.size}
+              </span>
+            )}
+          </button>
+        </div>
+      </div>
+
+      <div className="flex min-h-0 flex-1 overflow-hidden relative">
+        {activeTab === 'chatbot' ? (
+          <div className="flex h-full w-full">
+            <div className="flex min-h-0 min-w-0 flex-col flex-1 transition-all duration-300">
+
         {/* Quick Actions */}
-        <div className="shrink-0 border-b border-slate-800/50 bg-[#0a0e1a]/50 px-4 pb-3 md:px-6 md:pb-3">
+        <div className="shrink-0 border-b border-slate-800/50 bg-[#0B192C]/50 px-4 py-3 md:px-6 md:py-3">
           <div className="flex items-center gap-2 mb-2">
             <Sparkles className="w-3 h-3 text-blue-400" />
             <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Gợi ý nhanh</span>
@@ -273,15 +309,25 @@ const CandidateSuggestions: React.FC<CandidateSuggestionsProps> = ({ candidates,
                 <div className={`max-w-[88%] p-4 shadow-xl transition-all ${
                   isUser
                     ? 'bg-gradient-to-br from-blue-600 to-blue-700 text-white shadow-blue-900/30'
-                    : 'bg-gradient-to-br from-[#0d1420] to-[#0a1020] border border-slate-800/60 text-slate-200 shadow-black/30'
+                    : 'bg-gradient-to-br from-[#11213A] to-[#0B192C] border border-slate-800/60 text-slate-200 shadow-black/30'
                 }`}>
-                  {!isUser && (
+                  {!isUser ? (
                     <div className="flex items-center gap-2 mb-3 pb-2.5 border-b border-slate-800/40">
                       <div className="w-7 h-7 bg-blue-500/15 flex items-center justify-center">
                         <Bot className="w-3.5 h-3.5 text-blue-400" />
                       </div>
                       <span className="text-xs font-bold text-slate-300">Support HR AI</span>
                       <span className="ml-auto text-[9px] text-slate-600">
+                        {msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) : ''}
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 mb-3 pb-2.5 border-b border-blue-500/30">
+                      <div className="w-7 h-7 bg-white/20 flex items-center justify-center rounded-none">
+                        <User className="w-3.5 h-3.5 text-white" />
+                      </div>
+                      <span className="text-xs font-bold text-white">Bạn</span>
+                      <span className="ml-auto text-[9px] text-blue-200">
                         {msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) : ''}
                       </span>
                     </div>
@@ -394,7 +440,7 @@ const CandidateSuggestions: React.FC<CandidateSuggestionsProps> = ({ candidates,
 
           {isLoading && (
             <div className="flex justify-start">
-              <div className="bg-gradient-to-br from-[#0d1420] to-[#0a1020] border border-slate-800/60 text-slate-200 p-5 flex flex-col gap-3 shadow-xl shadow-black/20 max-w-md">
+              <div className="bg-gradient-to-br from-[#11213A] to-[#0B192C] border border-slate-800/60 text-slate-200 p-5 flex flex-col gap-3 shadow-xl shadow-black/20 max-w-md">
                 <div className="flex items-center gap-3">
                   <div className="w-7 h-7 bg-blue-500/15 flex items-center justify-center">
                     <Bot className="w-3.5 h-3.5 text-blue-400" />
@@ -418,9 +464,9 @@ const CandidateSuggestions: React.FC<CandidateSuggestionsProps> = ({ candidates,
         </div>
 
         {/* Input Area */}
-        <div className="shrink-0 border-t border-slate-800/50 bg-[#0a0e1a]/90 backdrop-blur-xl px-4 py-4 md:px-6">
+        <div className="shrink-0 border-t border-slate-800/50 bg-[#0B192C]/90 backdrop-blur-xl px-4 py-4 md:px-6">
           <div className="relative">
-            <div className="flex items-center gap-3 bg-gradient-to-br from-[#0d1420] to-[#0a1020] border border-slate-700/50 px-4 py-3 focus-within:border-blue-500/50 focus-within:shadow-[0_0_0_3px_rgba(59,130,246,0.1)] transition-all">
+            <div className="flex items-center gap-3 bg-gradient-to-br from-[#11213A] to-[#0B192C] border border-slate-700/50 px-4 py-3 focus-within:border-blue-500/50 focus-within:shadow-[0_0_0_3px_rgba(59,130,246,0.1)] transition-all">
               <Bot className="w-4 h-4 text-slate-600 flex-shrink-0" />
               <textarea
                 ref={inputRef}
@@ -459,91 +505,16 @@ const CandidateSuggestions: React.FC<CandidateSuggestionsProps> = ({ candidates,
           </div>
         </div>
       </div>
-
-      {/* ── Candidate Sidebar ────────────────────────────────── */}
-      {sidebarOpen && (
-        <div className="flex h-full min-h-0 w-full shrink-0 flex-col overflow-hidden border-t border-slate-800/50 bg-[#0a0e1a] md:w-[320px] md:border-l md:border-t-0">
-          <div className="flex shrink-0 items-center justify-between border-b border-slate-800/50 px-4 py-4">
-            <div>
-              <h4 className="text-sm font-bold text-white flex items-center gap-2">
-                <FileText className="w-4 h-4 text-blue-400" />
-                Ứng viên đã chọn
-              </h4>
-              <p className="text-[10px] text-slate-500 mt-0.5">{selectedIds.size} / {candidates.filter(c => c.status === 'SUCCESS').length} ứng viên</p>
-            </div>
-            {selectedIds.size > 0 && (
-              <div className="w-8 h-8 bg-blue-500/15 border border-blue-500/30 text-blue-400 flex items-center justify-center text-xs font-black shadow-lg shadow-blue-500/10">
-                {selectedIds.size}
-              </div>
-            )}
           </div>
-
-          <div className="custom-scrollbar min-h-0 flex-1 space-y-2 overflow-y-auto p-3">
-            {selectedIds.size === 0 ? (
-              <div className="flex min-h-[14rem] flex-col items-center justify-center p-4 text-center">
-                <div className="w-14 h-14 bg-slate-800/60 border border-slate-700/40 flex items-center justify-center mb-4 shadow-lg">
-                  <Users className="w-6 h-6 text-slate-600" />
-                </div>
-                <p className="text-xs text-slate-500 font-medium">Chưa có ứng viên nào được chọn</p>
-                <p className="text-[10px] text-slate-600 mt-1 leading-relaxed">Trò chuyện với AI và bấm "Chọn" để thêm vào danh sách</p>
-              </div>
-            ) : (
-              Array.from(selectedIds).map(id => {
-                const c = candidates.find(cand => cand.id === id);
-                if (!c) return null;
-                return (
-                  <div key={id} className="p-3.5 bg-gradient-to-br from-[#0d1420] to-[#0a1020] border border-slate-800/60 relative group hover:border-blue-500/30 transition-all shadow-lg shadow-black/10">
-                    <button
-                      onClick={() => handleToggleSelect(id)}
-                      className="absolute top-2.5 right-2.5 w-7 h-7 bg-slate-800/80 hover:bg-red-500/20 text-slate-500 hover:text-red-400 flex items-center justify-center transition-all border border-slate-700/40 hover:border-red-500/30"
-                      title="Bỏ chọn"
-                    >
-                      <X className="w-3.5 h-3.5" />
-                    </button>
-                    <div className="flex items-center gap-2.5 mb-2.5 pr-7">
-                      <div className={`w-9 h-9 flex items-center justify-center text-xs font-black ${
-                        c.analysis?.['Hạng'] === 'A' ? 'bg-blue-500/20 text-blue-400' :
-                        c.analysis?.['Hạng'] === 'B' ? 'bg-blue-500/20 text-blue-400' :
-                        'bg-blue-500/20 text-blue-400'
-                      }`}>
-                        {getInitials(c.candidateName || '')}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-bold text-white truncate pr-4">{c.candidateName}</p>
-                        <p className="text-[10px] text-slate-400 truncate">{c.jobTitle || '—'}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <GradeBadge grade={c.analysis?.['Hạng']} />
-                      <span className="px-2 py-0.5 text-[10px] font-bold bg-slate-800/80 text-slate-300 border border-slate-700/40">
-                        Điểm: <span className="text-white">{c.analysis?.['Tổng điểm']}</span>
-                      </span>
-                      <span className="text-[10px] text-slate-500">{c.experienceLevel || '—'}</span>
-                    </div>
-                    {c.email && (
-                      <p className="text-[10px] text-blue-400 mt-2 truncate">{c.email}</p>
-                    )}
-                  </div>
-                );
-              })
-            )}
+    ) : (
+          <div className="flex h-full w-full">
+            <SelectedCandidatesPage candidates={candidates} jobPosition={jobPosition} />
           </div>
-
-          <div className="shrink-0 border-t border-slate-800/50 p-3 md:p-4 bg-[#0a0e1a]/80">
-            <button
-              onClick={exportSelectedToCSV}
-              disabled={selectedIds.size === 0}
-              className="w-full py-3 text-sm font-bold flex items-center justify-center gap-2.5 transition-all bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-indigo-500 text-white shadow-lg shadow-blue-600/20 disabled:opacity-30 disabled:cursor-not-allowed border border-blue-400/20 hover:shadow-blue-500/30"
-            >
-              <FileText className="w-4 h-4" />
-              Xuất danh sách ({selectedIds.size})
-            </button>
-          </div>
-        </div>
-      )}
-      </div>{/* end wrapper flex-row */}
+        )}
+      </div>{/* end wrapper relative */}
     </div>
   );
 };
 
 export default CandidateSuggestions;
+

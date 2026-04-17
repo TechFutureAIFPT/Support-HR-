@@ -118,99 +118,82 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({ onGetStarted, onF
   return (
     <div
       className={`
-        relative flex h-[100dvh] max-h-[100dvh] w-full flex-col overflow-hidden bg-[#040814]
+        relative flex h-[100dvh] max-h-[100dvh] w-full flex-col overflow-hidden bg-[#0B192C]
         transition-all duration-700
         ${mounted ? 'opacity-100' : 'opacity-0'}
       `}
     >
-      <div
-        className="pointer-events-none absolute inset-0 opacity-[0.025]"
-        style={{
-          backgroundImage:
-            'linear-gradient(rgba(255,255,255,1px),transparent 1px),linear-gradient(90deg,rgba(255,255,255,1px),transparent 1px)',
-          backgroundSize: '40px 40px',
-          maskImage: 'radial-gradient(ellipse at 50% 35%, black 8%, transparent 65%)',
-        }}
-      />
-      <div className="pointer-events-none absolute -top-40 -right-40 h-[420px] w-[420px] rounded-full bg-cyan-700/[0.07] blur-[100px]" />
-      <div className="pointer-events-none absolute -bottom-40 -left-40 h-[380px] w-[380px] rounded-full bg-violet-700/[0.06] blur-[100px]" />
+      {/* Minimal Background Gradients */}
+      <div className="absolute top-[-20%] left-[20%] h-[50%] w-[60%] -full bg-blue-500/[0.03] blur-[100px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-10%] h-[40%] w-[40%] -full bg-purple-500/[0.04] blur-[120px] pointer-events-none" />
 
-      <div className="relative z-10 mx-auto flex min-h-0 w-full max-w-md flex-1 flex-col justify-center px-4 py-2 sm:max-w-lg sm:px-5">
+      <div className="relative z-10 mx-auto flex h-full w-full max-w-4xl flex-1 flex-col justify-center px-4 py-8 sm:px-6">
         <div
-          className={`flex flex-col items-center gap-1.5 transition-all duration-700 ${
-            mounted ? 'translate-y-0 opacity-100' : 'translate-y-3 opacity-0'
+          className={`mx-auto flex w-full max-w-2xl flex-col transition-all duration-700 ease-out ${
+            mounted ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
           }`}
         >
-          <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-white/10 bg-black">
-              <img src="/images/logos/logo.jpg" alt="SupportHR" className="h-full w-full object-cover" />
+          {/* Header Section */}
+          <div className="mb-10 flex flex-col items-center text-center">
+            <div className="mb-6 flex h-12 w-12 items-center justify-center overflow-hidden  border border-white/10 bg-[#0B192C] shadow-sm ring-1 ring-inset ring-white/5">
+              <img src="/images/logos/logo.jpg" alt="SupportHR" className="h-[70%] w-[70%] object-cover  shadow-md" />
             </div>
-            <div className="min-w-0 text-left">
-              <p className="text-xs font-bold leading-none text-white sm:text-sm">SupportHR</p>
-              <p className="mt-0.5 text-[8px] font-semibold uppercase tracking-[0.12em] text-cyan-400/90 sm:text-[9px]">
-                Recruitment Intelligence
-              </p>
-            </div>
+            
+            <h1 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl lg:text-4xl">
+              Bắt đầu sàng lọc
+            </h1>
+            <p className="mt-3 text-sm font-medium text-neutral-400 sm:text-base max-w-md">
+              Chọn nguồn tải lên JD và CV để AI tự động trích xuất tiêu chí và đánh giá mức độ phù hợp.
+            </p>
           </div>
 
-          <h1 className="text-center text-lg font-black tracking-tight text-white sm:text-xl">
-            Bắt đầu sàng lọc ứng viên
-          </h1>
-          <p className="mx-auto max-w-[19rem] text-center text-[11px] leading-snug text-slate-400 sm:max-w-sm sm:text-xs">
-            <span className="font-medium text-violet-400">Tải file</span>,{' '}
-            <span className="font-medium text-cyan-400">nhập tay</span> hoặc{' '}
-            <span className="font-medium text-emerald-400/90">Google Drive</span> — AI sẽ phân tích JD.
-          </p>
-
-          <div
-            className={`mt-2 w-full transition-all duration-700 delay-100 ${
-              mounted ? 'translate-y-0 opacity-100' : 'translate-y-3 opacity-0'
-            }`}
-          >
-            <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
+          {/* Action Cards (Sleek Horizontal Layout) */}
+          <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-3">
+            {/* Tải file */}
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="flex flex-col items-center gap-1 rounded-lg border border-slate-700/50 bg-slate-800/35 px-1.5 py-2 text-center transition-all hover:border-violet-400/40 hover:bg-violet-500/5 active:scale-[0.99] sm:rounded-xl sm:px-2 sm:py-2.5"
+              className="group flex flex-col items-start gap-4  border border-white/5 bg-white/[0.02] p-5 text-left transition-all duration-200 hover:border-white/10 hover:bg-white/[0.04]"
             >
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-violet-600 to-purple-600 shadow-sm shadow-violet-900/30 sm:h-9 sm:w-9 sm:rounded-xl">
-                <i className="fa-solid fa-folder-open text-xs text-white sm:text-sm" />
+              <div className="flex h-10 w-10 items-center justify-center -full bg-blue-500/10 text-blue-400 ring-1 ring-inset ring-blue-500/20 transition-all duration-300 group-hover:scale-105 group-hover:bg-blue-500/20">
+                <i className="fa-solid fa-file-arrow-up text-lg" />
               </div>
               <div>
-                <p className="text-[10px] font-bold leading-tight text-slate-100 sm:text-[11px]">Tải file</p>
-                <p className="mt-px text-[8px] leading-tight text-slate-500 sm:text-[9px]">PDF, DOCX, ảnh</p>
+                <h3 className="text-sm font-semibold text-slate-200">Máy tính</h3>
+                <p className="mt-1 text-xs text-neutral-500">Tải file PDF, DOCX</p>
               </div>
             </button>
 
+            {/* Nhập tay */}
             <button
               type="button"
               onClick={onGetStarted}
-              className="flex flex-col items-center gap-1 rounded-lg border border-slate-700/50 bg-slate-800/35 px-1.5 py-2 text-center transition-all hover:border-cyan-400/40 hover:bg-cyan-500/5 active:scale-[0.99] sm:rounded-xl sm:px-2 sm:py-2.5"
+              className="group flex flex-col items-start gap-4  border border-white/5 bg-white/[0.02] p-5 text-left transition-all duration-200 hover:border-white/10 hover:bg-white/[0.04]"
             >
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-600 to-blue-600 shadow-sm shadow-cyan-900/30 sm:h-9 sm:w-9 sm:rounded-xl">
-                <i className="fa-solid fa-keyboard text-xs text-white sm:text-sm" />
+              <div className="flex h-10 w-10 items-center justify-center -full bg-purple-500/10 text-purple-400 ring-1 ring-inset ring-purple-500/20 transition-all duration-300 group-hover:scale-105 group-hover:bg-purple-500/20">
+                <i className="fa-solid fa-align-left text-lg" />
               </div>
               <div>
-                <p className="text-[10px] font-bold leading-tight text-slate-100 sm:text-[11px]">Nhập tay</p>
-                <p className="mt-px text-[8px] leading-tight text-slate-500 sm:text-[9px]">Dán nội dung JD</p>
+                <h3 className="text-sm font-semibold text-slate-200">Nhập tay</h3>
+                <p className="mt-1 text-xs text-neutral-500">Dán trực tiếp văn bản</p>
               </div>
             </button>
 
+            {/* Google Drive */}
             <button
               type="button"
               onClick={handleGoogleDrive}
               disabled={isProcessing}
-              className="flex flex-col items-center gap-1 rounded-lg border border-slate-700/50 bg-slate-800/35 px-1.5 py-2 text-center transition-all hover:border-emerald-400/40 hover:bg-emerald-500/5 active:scale-[0.99] disabled:opacity-50 sm:rounded-xl sm:px-2 sm:py-2.5"
+              className="group flex flex-col items-start gap-4  border border-white/5 bg-white/[0.02] p-5 text-left transition-all duration-200 hover:border-white/10 hover:bg-white/[0.04] disabled:opacity-50 disabled:hover:scale-100 disabled:hover:border-white/5 disabled:hover:bg-white/[0.02]"
             >
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-600 to-green-600 shadow-sm shadow-emerald-900/30 sm:h-9 sm:w-9 sm:rounded-xl">
-                <i className="fa-brands fa-google-drive text-xs text-white sm:text-sm" />
+              <div className="flex h-10 w-10 items-center justify-center -full bg-emerald-500/10 text-emerald-400 ring-1 ring-inset ring-emerald-500/20 transition-all duration-300 group-hover:scale-105 group-hover:bg-emerald-500/20">
+                <i className="fa-brands fa-google-drive text-lg" />
               </div>
               <div>
-                <p className="text-[10px] font-bold leading-tight text-slate-100 sm:text-[11px]">Google Drive</p>
-                <p className="mt-px text-[8px] leading-tight text-slate-500 sm:text-[9px]">Mở file trên Drive</p>
+                <h3 className="text-sm font-semibold text-slate-200">Drive</h3>
+                <p className="mt-1 text-xs text-neutral-500">Lấy file trực tuyến</p>
               </div>
             </button>
-            </div>
           </div>
 
           <input
@@ -220,41 +203,45 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({ onGetStarted, onF
             accept=".pdf,.docx,.png,.jpg,.jpeg"
             onChange={handleFileChange}
           />
-        </div>
 
-        {errorMsg && (
-          <div className="mt-2 flex items-start gap-2 rounded-lg border border-red-500/25 bg-red-500/10 px-3 py-1.5 text-left text-xs text-red-300">
-            <i className="fa-solid fa-circle-exclamation mt-0.5 shrink-0 text-[10px]" />
-            <span className="min-w-0 flex-1 leading-snug">{errorMsg}</span>
-            <button
-              type="button"
-              onClick={() => setErrorMsg('')}
-              className="shrink-0 opacity-60 hover:opacity-100"
-              aria-label="Đóng"
-            >
-              <i className="fa-solid fa-xmark text-[10px]" />
-            </button>
+          {errorMsg && (
+            <div className={`mt-6 flex w-full items-start gap-3  border border-red-500/20 bg-red-500/10 p-3 text-left text-sm text-red-200 transition-all duration-300 animate-in fade-in`}>
+              <div className="flex shrink-0 items-center justify-center text-red-400 mt-0.5">
+                <i className="fa-solid fa-circle-exclamation text-xs" />
+              </div>
+              <span className="min-w-0 flex-1 leading-snug">{errorMsg}</span>
+              <button
+                type="button"
+                onClick={() => setErrorMsg('')}
+                className="shrink-0  p-1 opacity-60 transition-opacity hover:bg-red-500/20 hover:opacity-100"
+              >
+                <i className="fa-solid fa-xmark text-xs" />
+              </button>
+            </div>
+          )}
+
+          <div className="mt-10 mx-auto flex max-w-fit items-center gap-2 -full border border-white/5 bg-white/[0.02] px-4 py-2">
+            <i className="fa-solid fa-lightbulb text-[10px] text-amber-500"></i>
+            <p className="text-[11px] font-medium text-neutral-400">
+              Mẹo: Chia nhỏ các đầu mục (vị trí, yêu cầu, kỹ năng) để AI chấm điểm chuẩn xác hơn.
+            </p>
           </div>
-        )}
-
-        <p className="mt-1.5 text-center text-[9px] leading-tight text-slate-600 sm:text-[10px]">
-          JD có mục rõ ràng (vị trí, yêu cầu, kinh nghiệm) giúp AI chính xác hơn.
-        </p>
+        </div>
       </div>
 
       {isProcessing && (
         <div
           className={`fixed inset-0 z-50 flex flex-col items-center justify-center transition-all duration-500 ${
-            isProcessing ? 'bg-[#040814]/70 opacity-100 backdrop-blur-sm' : 'pointer-events-none opacity-0'
+            isProcessing ? 'bg-[#0B192C]/70 opacity-100 backdrop-blur-sm' : 'pointer-events-none opacity-0'
           }`}
         >
-          <div className="mx-4 w-full max-w-sm rounded-2xl border border-slate-700/60 bg-[#0B1628] p-8 text-center shadow-2xl shadow-black/60">
+          <div className="mx-4 w-full max-w-sm  border border-slate-700/60 bg-[#0B192C] p-8 text-center shadow-2xl shadow-black/60">
             <div className="relative mx-auto mb-5 h-16 w-16">
               <div
-                className="absolute inset-0 animate-ping rounded-full border-2 border-cyan-500/20"
+                className="absolute inset-0 animate-ping -full border-2 border-cyan-500/20"
                 style={{ animationDuration: '2s' }}
               />
-              <div className="relative flex h-full w-full items-center justify-center rounded-full border border-slate-600/40 bg-gradient-to-br from-indigo-600/30 to-cyan-600/30">
+              <div className="relative flex h-full w-full items-center justify-center -full border border-slate-600/40 bg-gradient-to-br from-indigo-600/30 to-cyan-600/30">
                 <i className="fa-solid fa-brain animate-pulse text-xl text-cyan-300" />
               </div>
             </div>
@@ -269,7 +256,7 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({ onGetStarted, onF
                   }`}
                 >
                   <div
-                    className={`flex h-3.5 w-3.5 items-center justify-center rounded-full border transition-all ${
+                    className={`flex h-3.5 w-3.5 items-center justify-center -full border transition-all ${
                       processingStep === idx
                         ? 'border-cyan-400 bg-cyan-400/20'
                         : processingStep > idx
@@ -280,18 +267,18 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({ onGetStarted, onF
                     {processingStep > idx ? (
                       <i className="fa-solid fa-check text-[7px] text-emerald-400" />
                     ) : processingStep === idx ? (
-                      <div className="h-1.5 w-1.5 animate-pulse rounded-full bg-cyan-400" />
+                      <div className="h-1.5 w-1.5 animate-pulse -full bg-cyan-400" />
                     ) : (
-                      <div className="h-1 w-1 rounded-full bg-slate-600" />
+                      <div className="h-1 w-1 -full bg-slate-600" />
                     )}
                   </div>
                   {step}
                 </div>
               ))}
             </div>
-            <div className="h-1 overflow-hidden rounded-full bg-slate-800/80">
+            <div className="h-1 overflow-hidden -full bg-slate-800/80">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-cyan-500 to-indigo-500 transition-[width] duration-500 ease-out"
+                className="h-full -full bg-gradient-to-r from-cyan-500 to-indigo-500 transition-[width] duration-500 ease-out"
                 style={{ width: `${((processingStep + 1) / PROCESSING_STEPS.length) * 100}%` }}
               />
             </div>
@@ -303,3 +290,6 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({ onGetStarted, onF
 };
 
 export default CVScreenerWelcome;
+
+
+

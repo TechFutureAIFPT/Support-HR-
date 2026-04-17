@@ -2363,7 +2363,7 @@ select:focus-visible {
 /* --- Screener overall container --- */
 .dark .module-pane,
 .dark #module-jd {
-  background: rgba(4, 8, 18, 0.98);
+  background: #0B192C;
 }
 .light #module-jd,
 .light .module-pane {

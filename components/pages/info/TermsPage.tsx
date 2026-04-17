@@ -299,7 +299,7 @@ const TermsPage: React.FC = () => {
       {/* Top nav */}
       <div className="relative z-20 flex items-center justify-between px-6 py-4 border-b border-white/5">
         <div className="flex items-center gap-3">
-          <Link to="/" className="w-9 h-9 rounded-xl bg-[#0B1628] border border-slate-800/60 flex items-center justify-center overflow-hidden shadow-lg">
+          <Link to="/" className="w-9 h-9 rounded-xl bg-[#11213A] border border-slate-800/60 flex items-center justify-center overflow-hidden shadow-lg">
             <img src="/images/logos/logo.jpg" alt="SupportHR" className="w-full h-full object-cover" />
           </Link>
           <div>
@@ -309,7 +309,7 @@ const TermsPage: React.FC = () => {
         </div>
         <div className="flex items-center gap-2">
           <Link to="/privacy-policy" className="text-xs text-slate-400 hover:text-cyan-400 transition-colors px-3 py-1.5 rounded-lg hover:bg-white/5">Chính sách bảo mật</Link>
-          <Link to="/" className="w-8 h-8 rounded-lg bg-[#0B1628] border border-slate-800/60 flex items-center justify-center text-slate-400 hover:text-cyan-400 hover:border-cyan-500/30 transition-all">
+          <Link to="/" className="w-8 h-8 rounded-lg bg-[#11213A] border border-slate-800/60 flex items-center justify-center text-slate-400 hover:text-cyan-400 hover:border-cyan-500/30 transition-all">
             <i className="fa-solid fa-house text-[10px]" />
           </Link>
         </div>
@@ -390,7 +390,7 @@ const TermsPage: React.FC = () => {
 
           {/* Content */}
           <div className="flex-1 min-w-0">
-            <div className="bg-[#0B1628]/80 border border-white/[0.06] rounded-2xl p-5 backdrop-blur-xl">
+            <div className="bg-[#11213A]/80 border border-white/[0.06] rounded-2xl p-5 backdrop-blur-xl">
               {/* Section title */}
               <div className="flex items-center gap-3 mb-4">
                 <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${
@@ -415,3 +415,4 @@ const TermsPage: React.FC = () => {
 };
 
 export default TermsPage;
+

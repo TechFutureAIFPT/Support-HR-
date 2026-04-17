@@ -135,8 +135,8 @@ const DetailedAnalyticsPage: React.FC<DetailedAnalyticsPageProps> = ({ candidate
 
   if (!analyticsData) {
     return (
-      <div className="flex h-full min-h-0 w-full flex-1 flex-col items-center justify-center bg-gradient-to-br from-[#0a0e1a] via-[#0d1220] to-[#0a0e1a] px-4 text-center">
-        <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-3xl border border-slate-800/60 bg-[#0B1628] shadow-2xl shadow-black/30">
+      <div className="flex h-full min-h-0 w-full flex-1 flex-col items-center justify-center bg-gradient-to-br from-[#0B192C] via-[#11213A] to-[#0B192C] px-4 text-center">
+        <div className="mb-6 flex h-24 w-24 items-center justify-center  border border-slate-800/60 bg-[#11213A] shadow-2xl shadow-black/30">
           <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#475569" strokeWidth="1.5" className="text-slate-600">
             <path d="M3 3v18h18" strokeLinecap="round" strokeLinejoin="round"/>
             <path d="M18 17V9" strokeLinecap="round" strokeLinejoin="round"/>
@@ -148,7 +148,7 @@ const DetailedAnalyticsPage: React.FC<DetailedAnalyticsPageProps> = ({ candidate
         <p className="max-w-sm text-sm text-slate-400 leading-relaxed">Vui lòng chạy phân tích CV trước để xem báo cáo chi tiết và biểu đồ thống kê.</p>
         <button
           onClick={() => navigate('/jd')}
-          className="mt-6 flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-semibold text-sm shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/30 transition-all hover:-translate-y-0.5"
+          className="mt-6 flex items-center gap-2 px-6 py-3  bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-semibold text-sm shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/30 transition-all hover:-translate-y-0.5"
         >
           <i className="fa-solid fa-arrow-right text-xs"></i>
           Bắt đầu phân tích
@@ -185,25 +185,25 @@ const DetailedAnalyticsPage: React.FC<DetailedAnalyticsPageProps> = ({ candidate
   ];
 
   return (
-    <div className="flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden bg-gradient-to-br from-[#0a0e1a] via-[#0d1220] to-[#0a0e1a]">
+    <div className="flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden bg-gradient-to-br from-[#0B192C] via-[#11213A] to-[#0B192C]">
 
       {/* ── Header Bar (đồng bộ) ─────────────────────────────── */}
-      <div className="shrink-0 border-b border-slate-800/60 bg-[#0a0e1a]/90 backdrop-blur-xl px-4 py-3">
+      <div className="shrink-0 border-b border-slate-800/60 bg-[#0B192C]/90 backdrop-blur-xl px-4 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
               onClick={() => navigate('/jd')}
-              className="w-9 h-9 rounded-xl bg-slate-800/60 border border-slate-700/50 flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-700 transition-all"
+              className="w-9 h-9  bg-slate-800/60 border border-slate-700/50 flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-700 transition-all"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500/20 to-violet-500/20 border border-indigo-500/30 flex items-center justify-center shadow-lg shadow-indigo-500/10">
+            <div className="w-10 h-10  bg-gradient-to-br from-indigo-500/20 to-violet-500/20 border border-indigo-500/30 flex items-center justify-center shadow-lg shadow-indigo-500/10">
               <TrendingUp className="w-5 h-5 text-indigo-400" />
             </div>
             <div>
               <h1 className="text-sm font-bold text-white leading-tight">
                 Phân tích chi tiết
-                <span className="ml-2 px-2 py-0.5 rounded-lg text-[10px] font-semibold bg-indigo-500/15 border border-indigo-500/20 text-indigo-300">
+                <span className="ml-2 px-2 py-0.5  text-[10px] font-semibold bg-indigo-500/15 border border-indigo-500/20 text-indigo-300">
                   {jobPosition}
                 </span>
               </h1>
@@ -223,7 +223,7 @@ const DetailedAnalyticsPage: React.FC<DetailedAnalyticsPageProps> = ({ candidate
           <div className="flex items-center gap-2">
             <button
               onClick={() => navigate('/chatbot')}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-500/20 transition-all border border-indigo-400/20"
+              className="flex items-center gap-2 px-4 py-2  text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-500/20 transition-all border border-indigo-400/20"
             >
               <Zap className="w-3.5 h-3.5" />
               Gợi ý ứng viên
@@ -231,7 +231,7 @@ const DetailedAnalyticsPage: React.FC<DetailedAnalyticsPageProps> = ({ candidate
             <button
               onClick={handleCompleteProcess}
               disabled={isSaving}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-500/20 disabled:opacity-40 disabled:cursor-not-allowed transition-all border border-emerald-400/20"
+              className="flex items-center gap-2 px-4 py-2  text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-500/20 disabled:opacity-40 disabled:cursor-not-allowed transition-all border border-emerald-400/20"
             >
               <Save className="w-3.5 h-3.5" />
               {isSaving ? 'Đang lưu...' : 'Lưu & Hoàn tất'}
@@ -241,19 +241,19 @@ const DetailedAnalyticsPage: React.FC<DetailedAnalyticsPageProps> = ({ candidate
       </div>
 
       {/* Background decoration */}
-      <div className="pointer-events-none absolute top-0 right-0 w-[600px] h-[400px] bg-gradient-to-bl from-indigo-500/5 via-violet-500/3 to-transparent rounded-full blur-3xl" />
-      <div className="pointer-events-none absolute bottom-0 left-0 w-[500px] h-[300px] bg-gradient-to-tr from-emerald-500/5 via-cyan-500/3 to-transparent rounded-full blur-3xl" />
+      <div className="pointer-events-none absolute top-0 right-0 w-[600px] h-[400px] bg-gradient-to-bl from-indigo-500/5 via-violet-500/3 to-transparent -full blur-3xl" />
+      <div className="pointer-events-none absolute bottom-0 left-0 w-[500px] h-[300px] bg-gradient-to-tr from-emerald-500/5 via-cyan-500/3 to-transparent -full blur-3xl" />
 
       <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto px-4 pb-6 pt-3 md:px-6 md:pt-5">
         <div className="mx-auto max-w-[1400px] space-y-5">
 
           {/* ── Summary Stats Cards ───────────────────────────────── */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-            <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#0d1420] to-[#0a1020] border border-slate-800/60 p-5 hover:border-indigo-500/30 transition-all duration-300 shadow-xl shadow-black/20">
-              <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-500/5 rounded-full blur-3xl translate-x-1/2 -translate-y-1/2 transition-all duration-500 group-hover:bg-indigo-500/10" />
+            <div className="group relative overflow-hidden  bg-gradient-to-br from-[#11213A] to-[#0B192C] border border-slate-800/60 p-5 hover:border-indigo-500/30 transition-all duration-300 shadow-xl shadow-black/20">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-500/5 -full blur-3xl translate-x-1/2 -translate-y-1/2 transition-all duration-500 group-hover:bg-indigo-500/10" />
               <div className="flex items-center justify-between mb-3">
                 <span className="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Tổng ứng viên</span>
-                <div className="w-9 h-9 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center shadow-lg shadow-indigo-500/5">
+                <div className="w-9 h-9  bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center shadow-lg shadow-indigo-500/5">
                   <Users className="w-4 h-4 text-indigo-400" />
                 </div>
               </div>
@@ -263,11 +263,11 @@ const DetailedAnalyticsPage: React.FC<DetailedAnalyticsPageProps> = ({ candidate
               </div>
             </div>
 
-            <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#0d1420] to-[#0a1020] border border-emerald-500/20 p-5 hover:border-emerald-500/40 transition-all duration-300 shadow-xl shadow-emerald-500/5">
-              <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full blur-3xl translate-x-1/2 -translate-y-1/2 transition-all duration-500 group-hover:bg-emerald-500/10" />
+            <div className="group relative overflow-hidden  bg-gradient-to-br from-[#11213A] to-[#0B192C] border border-emerald-500/20 p-5 hover:border-emerald-500/40 transition-all duration-300 shadow-xl shadow-emerald-500/5">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 -full blur-3xl translate-x-1/2 -translate-y-1/2 transition-all duration-500 group-hover:bg-emerald-500/10" />
               <div className="flex items-center justify-between mb-3">
                 <span className="text-[10px] text-emerald-400 uppercase tracking-wider font-bold">Hạng A</span>
-                <div className="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shadow-lg shadow-emerald-500/5">
+                <div className="w-9 h-9  bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shadow-lg shadow-emerald-500/5">
                   <Crown className="w-4 h-4 text-emerald-400" />
                 </div>
               </div>
@@ -278,11 +278,11 @@ const DetailedAnalyticsPage: React.FC<DetailedAnalyticsPageProps> = ({ candidate
               </div>
             </div>
 
-            <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#0d1420] to-[#0a1020] border border-blue-500/20 p-5 hover:border-blue-500/40 transition-all duration-300 shadow-xl shadow-blue-500/5">
-              <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/5 rounded-full blur-3xl translate-x-1/2 -translate-y-1/2 transition-all duration-500 group-hover:bg-blue-500/10" />
+            <div className="group relative overflow-hidden  bg-gradient-to-br from-[#11213A] to-[#0B192C] border border-blue-500/20 p-5 hover:border-blue-500/40 transition-all duration-300 shadow-xl shadow-blue-500/5">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/5 -full blur-3xl translate-x-1/2 -translate-y-1/2 transition-all duration-500 group-hover:bg-blue-500/10" />
               <div className="flex items-center justify-between mb-3">
                 <span className="text-[10px] text-blue-400 uppercase tracking-wider font-bold">Hạng B</span>
-                <div className="w-9 h-9 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center shadow-lg shadow-blue-500/5">
+                <div className="w-9 h-9  bg-blue-500/10 border border-blue-500/20 flex items-center justify-center shadow-lg shadow-blue-500/5">
                   <Star className="w-4 h-4 text-blue-400" />
                 </div>
               </div>
@@ -293,11 +293,11 @@ const DetailedAnalyticsPage: React.FC<DetailedAnalyticsPageProps> = ({ candidate
               </div>
             </div>
 
-            <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#0d1420] to-[#0a1020] border border-amber-500/20 p-5 hover:border-amber-500/40 transition-all duration-300 shadow-xl shadow-amber-500/5">
-              <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/5 rounded-full blur-3xl translate-x-1/2 -translate-y-1/2 transition-all duration-500 group-hover:bg-amber-500/10" />
+            <div className="group relative overflow-hidden  bg-gradient-to-br from-[#11213A] to-[#0B192C] border border-amber-500/20 p-5 hover:border-amber-500/40 transition-all duration-300 shadow-xl shadow-amber-500/5">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/5 -full blur-3xl translate-x-1/2 -translate-y-1/2 transition-all duration-500 group-hover:bg-amber-500/10" />
               <div className="flex items-center justify-between mb-3">
                 <span className="text-[10px] text-amber-400 uppercase tracking-wider font-bold">Trung bình</span>
-                <div className="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shadow-lg shadow-amber-500/5">
+                <div className="w-9 h-9  bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shadow-lg shadow-amber-500/5">
                   <Award className="w-4 h-4 text-amber-400" />
                 </div>
               </div>
@@ -310,10 +310,10 @@ const DetailedAnalyticsPage: React.FC<DetailedAnalyticsPageProps> = ({ candidate
 
           {/* ── Top Performers ─────────────────────────────────── */}
           {analyticsData.topPerformers.length > 0 && (
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#0d1420] to-[#0a1020] border border-slate-800/60 p-5 shadow-xl shadow-black/20">
-              <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-bl from-violet-500/5 to-transparent rounded-full blur-3xl" />
+            <div className="relative overflow-hidden  bg-gradient-to-br from-[#11213A] to-[#0B192C] border border-slate-800/60 p-5 shadow-xl shadow-black/20">
+              <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-bl from-violet-500/5 to-transparent -full blur-3xl" />
               <div className="flex items-center gap-3 mb-5">
-                <div className="w-9 h-9 rounded-xl bg-violet-500/15 border border-violet-500/30 flex items-center justify-center">
+                <div className="w-9 h-9  bg-violet-500/15 border border-violet-500/30 flex items-center justify-center">
                   <Crown className="w-4 h-4 text-violet-400" />
                 </div>
                 <div>
@@ -323,17 +323,17 @@ const DetailedAnalyticsPage: React.FC<DetailedAnalyticsPageProps> = ({ candidate
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
                 {analyticsData.topPerformers.map((c, idx) => (
-                  <div key={c.id} className={`relative overflow-hidden rounded-xl border p-3.5 transition-all duration-300 hover:-translate-y-1 ${
+                  <div key={c.id} className={`relative overflow-hidden  border p-3.5 transition-all duration-300 hover:-translate-y-1 ${
                     idx === 0 ? 'bg-gradient-to-br from-amber-500/10 to-orange-500/5 border-amber-500/30 shadow-lg shadow-amber-500/5' :
                     'bg-slate-800/30 border-slate-700/40 hover:border-slate-600'
                   }`}>
                     {idx === 0 && (
-                      <div className="absolute top-0 right-0 w-8 h-8 bg-amber-500/20 rounded-bl-xl flex items-center justify-center">
+                      <div className="absolute top-0 right-0 w-8 h-8 bg-amber-500/20 -bl-xl flex items-center justify-center">
                         <Crown className="w-3.5 h-3.5 text-amber-400" />
                       </div>
                     )}
                     <div className="flex items-center gap-2 mb-2">
-                      <div className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-black ${
+                      <div className={`w-7 h-7  flex items-center justify-center text-xs font-black ${
                         idx === 0 ? 'bg-amber-500/20 text-amber-400' :
                         idx === 1 ? 'bg-slate-400/20 text-slate-300' :
                         idx === 2 ? 'bg-orange-600/20 text-orange-400' :
@@ -347,7 +347,7 @@ const DetailedAnalyticsPage: React.FC<DetailedAnalyticsPageProps> = ({ candidate
                       </div>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className={`px-2 py-0.5 rounded-lg text-[9px] font-bold ${
+                      <span className={`px-2 py-0.5  text-[9px] font-bold ${
                         c.analysis?.['Hạng'] === 'A' ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/20' :
                         c.analysis?.['Hạng'] === 'B' ? 'bg-blue-500/15 text-blue-400 border border-blue-500/20' :
                         'bg-amber-500/15 text-amber-400 border border-amber-500/20'
@@ -363,10 +363,10 @@ const DetailedAnalyticsPage: React.FC<DetailedAnalyticsPageProps> = ({ candidate
           )}
 
           {/* ── Charts Section ──────────────────────────────────── */}
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#0d1420] to-[#0a1020] border border-slate-800/60 shadow-xl shadow-black/20">
+          <div className="relative overflow-hidden  bg-gradient-to-br from-[#11213A] to-[#0B192C] border border-slate-800/60 shadow-xl shadow-black/20">
             <div className="flex items-center justify-between px-5 py-4 border-b border-slate-800/60">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-indigo-500/15 border border-indigo-500/30 flex items-center justify-center">
+                <div className="w-9 h-9  bg-indigo-500/15 border border-indigo-500/30 flex items-center justify-center">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#818cf8" strokeWidth="2">
                     <path d="M3 3v18h18M7 16v-4M11 16v-8M15 16v-6M19 16v-3"/>
                   </svg>
@@ -376,12 +376,12 @@ const DetailedAnalyticsPage: React.FC<DetailedAnalyticsPageProps> = ({ candidate
                   <p className="text-[10px] text-slate-500">Trực quan hóa dữ liệu ứng viên</p>
                 </div>
               </div>
-              <div className="flex items-center gap-1 bg-slate-800/50 p-1 rounded-xl border border-slate-700/40">
+              <div className="flex items-center gap-1 bg-slate-800/50 p-1  border border-slate-700/40">
                 {CHART_TABS.map(tab => (
                   <button
                     key={tab.key}
                     onClick={() => setActiveChart(tab.key)}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all ${
+                    className={`flex items-center gap-1.5 px-3 py-1.5  text-[11px] font-semibold transition-all ${
                       activeChart === tab.key
                         ? 'bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 shadow-sm'
                         : 'text-slate-500 hover:text-slate-300 hover:bg-slate-700/50'
@@ -413,7 +413,7 @@ const DetailedAnalyticsPage: React.FC<DetailedAnalyticsPageProps> = ({ candidate
                     <div className="flex items-center justify-center gap-4 mt-2">
                       {gradeData.map(item => (
                         <div key={item.name} className="flex items-center gap-2">
-                          <div className="w-2.5 h-2.5 rounded-full" style={{ background: item.color, boxShadow: `0 0 8px ${item.color}60` }} />
+                          <div className="w-2.5 h-2.5 -full" style={{ background: item.color, boxShadow: `0 0 8px ${item.color}60` }} />
                           <span className="text-[11px] text-slate-400 font-medium">{item.name}</span>
                           <span className="text-[11px] text-slate-500">({item.value})</span>
                         </div>
@@ -425,8 +425,8 @@ const DetailedAnalyticsPage: React.FC<DetailedAnalyticsPageProps> = ({ candidate
                       const Icon = item.icon;
                       const pct = Math.round((item.value / analyticsData.totalCandidates) * 100);
                       return (
-                        <div key={item.name} className="flex items-center gap-3 p-3 rounded-xl bg-slate-800/30 border border-slate-700/40 hover:border-slate-600 transition-all">
-                          <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: `${item.color}15` }}>
+                        <div key={item.name} className="flex items-center gap-3 p-3  bg-slate-800/30 border border-slate-700/40 hover:border-slate-600 transition-all">
+                          <div className="w-10 h-10  flex items-center justify-center" style={{ background: `${item.color}15` }}>
                             <Icon className="w-5 h-5" style={{ color: item.color }} />
                           </div>
                           <div className="flex-1">
@@ -434,8 +434,8 @@ const DetailedAnalyticsPage: React.FC<DetailedAnalyticsPageProps> = ({ candidate
                               <span className="text-sm font-bold text-white">{item.name}</span>
                               <span className="text-sm font-black" style={{ color: item.color }}>{pct}%</span>
                             </div>
-                            <div className="h-1.5 rounded-full bg-slate-800 overflow-hidden">
-                              <div className="h-full rounded-full transition-all duration-700" style={{ width: `${pct}%`, background: `linear-gradient(90deg, ${item.color}, ${item.color}80)` }} />
+                            <div className="h-1.5 -full bg-slate-800 overflow-hidden">
+                              <div className="h-full -full transition-all duration-700" style={{ width: `${pct}%`, background: `linear-gradient(90deg, ${item.color}, ${item.color}80)` }} />
                             </div>
                           </div>
                         </div>
@@ -502,9 +502,9 @@ const DetailedAnalyticsPage: React.FC<DetailedAnalyticsPageProps> = ({ candidate
           </div>
 
           {/* ── Detailed Criteria Table ────────────────────────── */}
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#0d1420] to-[#0a1020] border border-slate-800/60 shadow-xl shadow-black/20">
+          <div className="relative overflow-hidden  bg-gradient-to-br from-[#11213A] to-[#0B192C] border border-slate-800/60 shadow-xl shadow-black/20">
             <div className="flex items-center gap-3 px-5 py-4 border-b border-slate-800/60">
-              <div className="w-9 h-9 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center">
+              <div className="w-9 h-9  bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#34d399" strokeWidth="2">
                   <path d="M3 6h18M3 12h18M3 18h18" strokeLinecap="round"/>
                 </svg>
@@ -530,7 +530,7 @@ const DetailedAnalyticsPage: React.FC<DetailedAnalyticsPageProps> = ({ candidate
                       <tr key={criteria.fullCriterion} className="hover:bg-slate-800/20 transition-colors group">
                         <td className="py-3.5 px-4 pl-5">
                           <div className="flex items-center gap-2.5">
-                            <span className="w-5 h-5 rounded-md bg-slate-800/80 text-[9px] font-black text-slate-500 flex items-center justify-center group-hover:bg-indigo-500/20 group-hover:text-indigo-400 transition-all">
+                            <span className="w-5 h-5  bg-slate-800/80 text-[9px] font-black text-slate-500 flex items-center justify-center group-hover:bg-indigo-500/20 group-hover:text-indigo-400 transition-all">
                               {idx + 1}
                             </span>
                             <span className="text-sm text-slate-200 font-medium">{criteria.fullCriterion}</span>
@@ -538,13 +538,13 @@ const DetailedAnalyticsPage: React.FC<DetailedAnalyticsPageProps> = ({ candidate
                         </td>
                         <td className="py-3.5 px-4">
                           <div className="flex items-center gap-2">
-                            <span className={`px-2.5 py-1 rounded-lg text-xs font-bold ${
+                            <span className={`px-2.5 py-1  text-xs font-bold ${
                               criteria.average >= 80 ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/25 shadow-[0_0_12px_rgba(16,185,129,0.1)]' :
                               criteria.average >= 60 ? 'bg-blue-500/15 text-blue-400 border border-blue-500/25 shadow-[0_0_12px_rgba(59,130,246,0.1)]' :
                               'bg-red-500/15 text-red-400 border border-red-500/25 shadow-[0_0_12px_rgba(244,63,94,0.1)]'
                             }`}>{criteria.average}</span>
-                            <div className="w-16 h-1.5 rounded-full bg-slate-800 overflow-hidden">
-                              <div className="h-full rounded-full transition-all" style={{
+                            <div className="w-16 h-1.5 -full bg-slate-800 overflow-hidden">
+                              <div className="h-full -full transition-all" style={{
                                 width: `${criteria.average}%`,
                                 background: criteria.average >= 80 ? 'linear-gradient(90deg,#10b981,#34d399)' : criteria.average >= 60 ? 'linear-gradient(90deg,#3b82f6,#60a5fa)' : 'linear-gradient(90deg,#ef4444,#f87171)'
                               }} />
@@ -565,15 +565,15 @@ const DetailedAnalyticsPage: React.FC<DetailedAnalyticsPageProps> = ({ candidate
                         </td>
                         <td className="py-3.5 px-4">
                           {criteria.average >= 80 ? (
-                            <span className="inline-flex items-center gap-1 text-[10px] text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20 font-bold">
+                            <span className="inline-flex items-center gap-1 text-[10px] text-emerald-400 bg-emerald-500/10 px-2.5 py-1  border border-emerald-500/20 font-bold">
                               <i className="fa-solid fa-thumbs-up text-[9px]"></i> Tốt
                             </span>
                           ) : criteria.average >= 60 ? (
-                            <span className="inline-flex items-center gap-1 text-[10px] text-blue-400 bg-blue-500/10 px-2.5 py-1 rounded-lg border border-blue-500/20 font-bold">
+                            <span className="inline-flex items-center gap-1 text-[10px] text-blue-400 bg-blue-500/10 px-2.5 py-1  border border-blue-500/20 font-bold">
                               <i className="fa-solid fa-minus text-[9px]"></i> Khá
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1 text-[10px] text-red-400 bg-red-500/10 px-2.5 py-1 rounded-lg border border-red-500/20 font-bold">
+                            <span className="inline-flex items-center gap-1 text-[10px] text-red-400 bg-red-500/10 px-2.5 py-1  border border-red-500/20 font-bold">
                               <i className="fa-solid fa-triangle-exclamation text-[9px]"></i> Cần cải thiện
                             </span>
                           )}
@@ -585,17 +585,6 @@ const DetailedAnalyticsPage: React.FC<DetailedAnalyticsPageProps> = ({ candidate
             </div>
           </div>
 
-          {/* ── Bottom CTA ──────────────────────────────────────── */}
-          <div className="flex justify-center pt-1 pb-2">
-            <button
-              onClick={handleCompleteProcess}
-              disabled={isSaving}
-              className="flex items-center gap-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 px-10 py-4 text-sm font-bold text-white shadow-2xl shadow-emerald-500/20 transition-all hover:-translate-y-1 hover:shadow-emerald-500/30 disabled:cursor-not-allowed disabled:opacity-50 border border-emerald-400/20"
-            >
-              <Save className="w-5 h-5" />
-              {isSaving ? 'Đang lưu...' : 'Lưu & Hoàn tất phân tích'}
-            </button>
-          </div>
         </div>
       </div>
     </div>
@@ -603,3 +592,5 @@ const DetailedAnalyticsPage: React.FC<DetailedAnalyticsPageProps> = ({ candidate
 };
 
 export default DetailedAnalyticsPage;
+
+

@@ -6,7 +6,7 @@
 import React, { useState } from 'react';
 import {
   Briefcase, SlidersHorizontal, Upload, Sparkles,
-  PieChart, MessageSquare, LogOut, ChevronDown, UserCheck,
+  PieChart, MessageSquare, LogOut, ChevronDown, UserCheck, FileText, Brain
 } from 'lucide-react';
 import type { AppStep } from '../../assets/types';
 
@@ -70,8 +70,9 @@ const TOOL_ITEMS: Array<{
     icon: PieChart,      color: '#60a5fa', bgActive: 'rgba(96,165,250,0.1)' },   // tokens.dark.primary
   { key: 'chatbot',    label: 'Gợi ý ứng viên AI',  sub: 'AI Recruitment Assistant',
     icon: MessageSquare, color: '#60a5fa', bgActive: 'rgba(96,165,250,0.1)' },   // tokens.dark.primary
-  { key: 'selected',   label: 'Ứng viên đã chọn', sub: 'Shortlist candidates',
-    icon: UserCheck,     color: '#34d399', bgActive: 'rgba(52,211,153,0.1)' },   // emerald — shortlist
+
+  { key: 'feedback',   label: 'Huấn luyện AI', sub: 'AI Feedback & Training',
+    icon: Brain,         color: '#f43f5e', bgActive: 'rgba(244,63,94,0.1)' },    // rose
 ];
 
 // ── Helpers ────────────────────────────────────────────────────────────────
@@ -80,7 +81,7 @@ const isStepEnabled = (step: AppStep, completedSteps: AppStep[]): boolean => {
   if (step === 'weights') return completedSteps.includes('jd');
   if (step === 'upload') return completedSteps.includes('jd') && completedSteps.includes('weights');
   if (step === 'analysis') return completedSteps.includes('jd') && completedSteps.includes('weights') && completedSteps.includes('upload');
-  if (step === 'dashboard' || step === 'chatbot' || step === 'selected') return completedSteps.includes('upload');
+  if (step === 'dashboard' || step === 'chatbot' || step === 'feedback') return completedSteps.includes('upload');
   return false;
 };
 
@@ -227,7 +228,6 @@ const AccountPanel: React.FC<{
   onShowSettings?: () => void;
   onShowHistory?: () => void;
 }> = ({ completedSteps, userEmail, userAvatar: avatar, userName: name, onLogout, onLoginRequest, onShowSettings, onShowHistory }) => {
-  const [showMenu, setShowMenu] = useState(false);
   const [localAvatar, setLocalAvatar] = useState<string | null>(null);
   const [localName, setLocalName]     = useState<string>('');
 
@@ -312,123 +312,65 @@ const AccountPanel: React.FC<{
   }
 
   return (
-    <div className="relative">
-      <button
-        type="button"
-        onClick={() => setShowMenu(!showMenu)}
-        className="w-full flex items-center gap-2.5  px-3 py-2.5 text-left transition-all hover:brightness-110 active:scale-[0.995]"
-        style={{
-          background: showMenu ? 'rgba(255,255,255,0.07)' : 'rgba(255,255,255,0.05)',
-          border: `1px solid ${showMenu ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.08)'}`,
-        }}
-      >
-        {/* Avatar */}
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden  border border-white/10">
-          {effectiveAvatar ? (
-            <img src={effectiveAvatar} alt="" className="h-full w-full object-cover" />
-          ) : (
-            <div className={`flex h-full w-full items-center justify-center bg-gradient-to-br ${getAvatarGradient(userEmail)} text-white text-xs font-black`}>
-              {getInitials(effectiveName || userEmail)}
-            </div>
+    <div
+      className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left transition-all"
+      style={{
+        background: 'rgba(255,255,255,0.03)',
+      }}
+    >
+      {/* Avatar */}
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden border border-white/10 rounded-md">
+        {effectiveAvatar ? (
+          <img src={effectiveAvatar} alt="" className="h-full w-full object-cover" />
+        ) : (
+          <div className={`flex h-full w-full items-center justify-center bg-gradient-to-br ${getAvatarGradient(userEmail)} text-white text-xs font-black`}>
+            {getInitials(effectiveName || userEmail)}
+          </div>
+        )}
+      </div>
+
+      {/* Info */}
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-[12px] font-bold leading-tight" style={{ color: C.text }}>
+          {effectiveName || userEmail.split('@')[0]}
+        </p>
+        <div className="flex items-center gap-1.5 mt-0.5">
+          <span className="flex items-center gap-1">
+            <span className="h-1.5 w-1.5 rounded-full bg-blue-400" />
+            <span className="text-[9px] font-medium" style={{ color: C.text3 }}>Online</span>
+          </span>
+          {analysisDone && (
+            <span
+              className="px-1.5 py-px text-[8px] font-bold rounded-sm"
+              style={{ background: 'rgba(59,130,246,0.15)', color: '#60a5fa' }}
+            >
+              HR Pro
+            </span>
           )}
         </div>
+      </div>
 
-        {/* Info */}
-        <div className="min-w-0 flex-1">
-          <p className="truncate text-[12px] font-bold leading-tight" style={{ color: C.text }}>
-            {effectiveName || userEmail.split('@')[0]}
-          </p>
-          <div className="flex items-center gap-1.5 mt-0.5">
-            <span className="flex items-center gap-1">
-              <span className="h-1.5 w-1.5  bg-blue-400" />
-              <span className="text-[9px] font-medium" style={{ color: C.text3 }}>Online</span>
-            </span>
-            {analysisDone && (
-              <span
-                className=" px-1.5 py-px text-[8px] font-bold"
-                style={{ background: 'rgba(59,130,246,0.15)', color: '#60a5fa' }}
-              >
-                HR Pro
-              </span>
-            )}
-          </div>
-        </div>
-
-        <ChevronDown
-          size={14}
-          className="shrink-0 transition-transform duration-200"
-          style={{ color: C.text3, transform: showMenu ? 'rotate(180deg)' : undefined }}
-        />
-      </button>
-
-      {/* Dropdown */}
-      {showMenu && (
-        <>
-          <div className="fixed inset-0 z-40" onClick={() => setShowMenu(false)} />
-          <div
-            className="absolute bottom-full left-0 right-0 z-50 mb-2 overflow-hidden  shadow-2xl"
-            style={{
-              background: C.bg4,
-              border: '1px solid rgba(255,255,255,0.1)',
-              boxShadow: '0 -8px 32px rgba(0,0,0,0.4)',
-            }}
+      {/* Actions */}
+      <div className="flex items-center gap-1 shrink-0">
+        {onShowSettings && (
+          <button
+            type="button"
+            title="Mẫu JD & Lịch sử"
+            onClick={(e) => { e.stopPropagation(); onShowSettings(); }}
+            className="flex h-8 w-8 items-center justify-center rounded-md transition-all hover:bg-white/10 text-slate-400 hover:text-blue-400"
           >
-            <div
-              className="flex items-center gap-3 border-b px-4 py-3"
-              style={{ borderColor: 'rgba(255,255,255,0.07)', background: 'rgba(255,255,255,0.03)' }}
-            >
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden  border border-white/10">
-                {effectiveAvatar ? (
-                  <img src={effectiveAvatar} alt="" className="h-full w-full object-cover" />
-                ) : (
-                  <div className={`flex h-full w-full items-center justify-center bg-gradient-to-br ${getAvatarGradient(userEmail)} text-sm font-black text-white`}>
-                    {getInitials(effectiveName || userEmail)}
-                  </div>
-                )}
-              </div>
-              <div className="min-w-0">
-                <p className="truncate text-sm font-bold" style={{ color: C.text }}>{effectiveName || userEmail.split('@')[0]}</p>
-                <p className="truncate text-[11px]" style={{ color: C.text2 }}>{userEmail}</p>
-              </div>
-            </div>
-
-            <div className="p-1.5">
-              {onShowSettings && (
-                <button
-                  type="button"
-                  onClick={() => { setShowMenu(false); onShowSettings(); }}
-                  className="flex w-full items-center gap-2.5  px-3 py-2.5 text-left text-[12px] transition-colors hover:bg-white/5"
-                  style={{ color: C.text2 }}
-                >
-                  <i className="fa-solid fa-file-invoice w-4 text-center text-[11px]" style={{ color: '#60a5fa' }} />
-                  Mau JD da luu
-                </button>
-              )}
-              {onShowHistory && (
-                <button
-                  type="button"
-                  onClick={() => { setShowMenu(false); onShowHistory(); }}
-                  className="flex w-full items-center gap-2.5  px-3 py-2.5 text-left text-[12px] transition-colors hover:bg-white/5"
-                  style={{ color: C.text2 }}
-                >
-                  <i className="fa-solid fa-clock-rotate-left w-4 text-center text-[11px]" style={{ color: '#3b82f6' }} />
-                  Lich su sang loc
-                </button>
-              )}
-              <div className="my-1 h-px" style={{ background: 'rgba(255,255,255,0.07)' }} />
-              <button
-                type="button"
-                onClick={() => { setShowMenu(false); onLogout?.(); }}
-                className="flex w-full items-center gap-2.5  px-3 py-2.5 text-left text-[12px] transition-colors hover:bg-white/5"
-                style={{ color: '#f87171' }}
-              >
-                <LogOut size={14} className="shrink-0" />
-                Dang xuat
-              </button>
-            </div>
-          </div>
-        </>
-      )}
+            <FileText size={15} strokeWidth={2.5} />
+          </button>
+        )}
+        <button
+          type="button"
+          title="Đăng xuất"
+          onClick={(e) => { e.stopPropagation(); onLogout?.(); }}
+          className="flex h-8 w-8 items-center justify-center rounded-md transition-all hover:bg-white/10 text-slate-400 hover:text-red-400"
+        >
+          <LogOut size={15} strokeWidth={2.5} />
+        </button>
+      </div>
     </div>
   );
 };

@@ -11,9 +11,9 @@ const AnalysisResults = lazy(() => import('../../../components/features/cv-manag
 const ModuleLoader = () => (
   <div className="flex flex-col items-center justify-center h-40 gap-4">
     <div className="relative w-10 h-10">
-      <div className="absolute inset-0 rounded-full border-[3px] border-transparent border-t-cyan-400 border-r-cyan-400/40 animate-spin"
+      <div className="absolute inset-0 -full border-[3px] border-transparent border-t-cyan-400 border-r-cyan-400/40 animate-spin"
         style={{ animationDuration: '0.8s' }} />
-      <div className="absolute inset-1.5 rounded-full border-[3px] border-transparent border-b-indigo-400 border-l-indigo-400/40 animate-spin"
+      <div className="absolute inset-1.5 -full border-[3px] border-transparent border-b-indigo-400 border-l-indigo-400/40 animate-spin"
         style={{ animationDuration: '1.2s', animationDirection: 'reverse' }} />
     </div>
     <span className="text-[10px] uppercase tracking-[0.3em] font-semibold animate-pulse text-slate-600">
@@ -79,7 +79,7 @@ const ScreenerPage: React.FC<ScreenerPageProps> = (props) => {
   }
 
   return (
-    <div className="flex h-full flex-1 flex-col overflow-hidden bg-[#040814]">
+    <div className="flex h-full flex-1 flex-col overflow-hidden bg-[#0B192C]">
       {activeStep === 'jd' && (
         <JDMetaToolbar
           jdText={props.jdText}
@@ -182,3 +182,6 @@ const ScreenerPage: React.FC<ScreenerPageProps> = (props) => {
 };
 
 export default ScreenerPage;
+
+
+

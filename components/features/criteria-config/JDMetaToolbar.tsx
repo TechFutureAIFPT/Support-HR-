@@ -62,7 +62,7 @@ const JDMetaToolbar: React.FC<JDMetaToolbarProps> = ({
     <div
       className="shrink-0 border-b"
       style={{
-        background: 'linear-gradient(180deg, #0c1628 0%, #0a1220 100%)',
+        background: 'linear-gradient(180deg, #11213A 0%, #0B192C 100%)',
         borderColor: 'rgba(99,102,241,0.18)',
       }}
       role="region"
@@ -75,7 +75,7 @@ const JDMetaToolbar: React.FC<JDMetaToolbarProps> = ({
       >
         {/* Accent bar */}
         <div
-          className="h-8 w-[3px] rounded-full shrink-0"
+          className="h-8 w-[3px] -full shrink-0"
           style={{ background: 'linear-gradient(180deg, #6366f1, #3b82f6)' }}
         />
 
@@ -111,7 +111,7 @@ const JDMetaToolbar: React.FC<JDMetaToolbarProps> = ({
             <button
               type="button"
               onClick={onBackToWelcome}
-              className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[10px] font-semibold transition-all hover:brightness-110"
+              className="flex items-center gap-1.5  px-3 py-1.5 text-[10px] font-semibold transition-all hover:brightness-110"
               style={{
                 background: 'rgba(255,255,255,0.05)',
                 border: '1px solid rgba(255,255,255,0.08)',
@@ -126,7 +126,7 @@ const JDMetaToolbar: React.FC<JDMetaToolbarProps> = ({
             type="button"
             onClick={handleSummarizeJD}
             disabled={isSummarizing || jdText.trim().length < 200}
-            className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[10px] font-semibold transition-all hover:brightness-110 disabled:opacity-40"
+            className="flex items-center gap-1.5  px-3 py-1.5 text-[10px] font-semibold transition-all hover:brightness-110 disabled:opacity-40"
             style={{
               background: 'rgba(139,92,246,0.12)',
               border: '1px solid rgba(139,92,246,0.25)',
@@ -134,7 +134,7 @@ const JDMetaToolbar: React.FC<JDMetaToolbarProps> = ({
             }}
           >
             {isSummarizing ? (
-              <span className="h-3 w-3 rounded-full border-2 border-purple-800 border-t-purple-400 animate-spin" />
+              <span className="h-3 w-3 -full border-2 border-purple-800 border-t-purple-400 animate-spin" />
             ) : (
               <i className="fa-solid fa-wand-magic-sparkles text-[9px]" />
             )}
@@ -144,7 +144,7 @@ const JDMetaToolbar: React.FC<JDMetaToolbarProps> = ({
             type="button"
             onClick={onComplete}
             disabled={!isCompleteEnabled}
-            className="flex items-center gap-1.5 rounded-lg px-4 py-1.5 text-[10px] font-bold transition-all hover:brightness-110 disabled:opacity-30"
+            className="flex items-center gap-1.5  px-4 py-1.5 text-[10px] font-bold transition-all hover:brightness-110 disabled:opacity-30"
             style={
               isCompleteEnabled
                 ? {
@@ -170,7 +170,7 @@ const JDMetaToolbar: React.FC<JDMetaToolbarProps> = ({
       <div className="flex flex-wrap items-center gap-2 px-4 py-2.5">
         {/* Vị trí */}
         <div
-          className="flex items-center gap-2 rounded-lg px-3 py-2 transition-all"
+          className="flex items-center gap-2  px-3 py-2 transition-all"
           style={{
             background: 'rgba(255,255,255,0.04)',
             border: '1px solid rgba(255,255,255,0.08)',
@@ -192,7 +192,7 @@ const JDMetaToolbar: React.FC<JDMetaToolbarProps> = ({
 
         {/* Công ty */}
         <div
-          className="flex items-center gap-2 rounded-lg px-3 py-2 transition-all"
+          className="flex items-center gap-2  px-3 py-2 transition-all"
           style={{
             background: 'rgba(255,255,255,0.04)',
             border: '1px solid rgba(255,255,255,0.08)',
@@ -214,7 +214,7 @@ const JDMetaToolbar: React.FC<JDMetaToolbarProps> = ({
 
         {/* Ngành */}
         <div
-          className="flex items-center gap-2 rounded-lg px-3 py-2 transition-all"
+          className="flex items-center gap-2  px-3 py-2 transition-all"
           style={{
             background: 'rgba(255,255,255,0.04)',
             border: '1px solid rgba(255,255,255,0.08)',
@@ -242,7 +242,7 @@ const JDMetaToolbar: React.FC<JDMetaToolbarProps> = ({
 
         {/* Lương */}
         <div
-          className="flex items-center gap-2 rounded-lg px-3 py-2 transition-all"
+          className="flex items-center gap-2  px-3 py-2 transition-all"
           style={{
             background: 'rgba(255,255,255,0.04)',
             border: '1px solid rgba(255,255,255,0.08)',
@@ -264,7 +264,7 @@ const JDMetaToolbar: React.FC<JDMetaToolbarProps> = ({
 
         {/* Kinh nghiệm */}
         <div
-          className="flex items-center gap-2 rounded-lg px-3 py-2 transition-all"
+          className="flex items-center gap-2  px-3 py-2 transition-all"
           style={{
             background: 'rgba(255,255,255,0.04)',
             border: '1px solid rgba(255,255,255,0.08)',
@@ -289,7 +289,7 @@ const JDMetaToolbar: React.FC<JDMetaToolbarProps> = ({
       {(summarizeMsg || summarizeError) && (
         <div className="px-4 pb-2">
           <div
-            className="flex items-center gap-2 rounded-lg px-3 py-2 text-[11px] font-medium"
+            className="flex items-center gap-2  px-3 py-2 text-[11px] font-medium"
             style={
               summarizeMsg
                 ? { background: 'rgba(34,211,238,0.08)', border: '1px solid rgba(34,211,238,0.2)', color: '#22d3ee' }
@@ -306,3 +306,7 @@ const JDMetaToolbar: React.FC<JDMetaToolbarProps> = ({
 };
 
 export default JDMetaToolbar;
+
+
+
+

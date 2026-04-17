@@ -108,7 +108,7 @@ const JDInput: React.FC<JDInputProps> = ({
       >
         {/* Job Position */}
         <div
-          className="group flex min-w-[150px] flex-1 items-center rounded-lg px-3 py-2 transition-all focus-within:ring-1"
+          className="group flex min-w-[150px] flex-1 items-center  px-3 py-2 transition-all focus-within:ring-1"
           style={toolbarFieldStyle}
         >
           <i className="fa-solid fa-briefcase text-xs transition-colors group-focus-within:text-purple-400" style={{ color: '#475569' }} />
@@ -124,7 +124,7 @@ const JDInput: React.FC<JDInputProps> = ({
 
         {/* Company */}
         <div
-          className="group flex min-w-[130px] flex-1 items-center rounded-lg px-3 py-2 transition-all focus-within:ring-1"
+          className="group flex min-w-[130px] flex-1 items-center  px-3 py-2 transition-all focus-within:ring-1"
           style={toolbarFieldStyle}
         >
           <i className="fa-regular fa-building text-xs transition-colors group-focus-within:text-purple-400" style={{ color: '#475569' }} />
@@ -138,7 +138,7 @@ const JDInput: React.FC<JDInputProps> = ({
 
         {/* Industry */}
         <div
-          className="group flex min-w-[130px] flex-1 items-center rounded-lg px-3 py-2 transition-all focus-within:ring-1"
+          className="group flex min-w-[130px] flex-1 items-center  px-3 py-2 transition-all focus-within:ring-1"
           style={toolbarFieldStyle}
         >
           <i className="fa-solid fa-layer-group text-xs transition-colors group-focus-within:text-purple-400" style={{ color: '#475569' }} />
@@ -160,7 +160,7 @@ const JDInput: React.FC<JDInputProps> = ({
 
         {/* Salary */}
         <div
-          className="group flex min-w-[120px] flex-1 items-center rounded-lg px-3 py-2 transition-all focus-within:ring-1"
+          className="group flex min-w-[120px] flex-1 items-center  px-3 py-2 transition-all focus-within:ring-1"
           style={toolbarFieldStyle}
         >
           <i className="fa-solid fa-money-bill text-xs transition-colors group-focus-within:text-purple-400" style={{ color: '#475569' }} />
@@ -179,11 +179,11 @@ const JDInput: React.FC<JDInputProps> = ({
           <button
             onClick={handleSummarizeJD}
             disabled={isSummarizing || jdText.trim().length < 200}
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition-all hover:bg-white/5 hover:text-purple-400 disabled:opacity-40"
+            className="flex h-8 w-8 items-center justify-center  text-slate-500 transition-all hover:bg-white/5 hover:text-purple-400 disabled:opacity-40"
             title="Toi uu hoa bang AI"
           >
             {isSummarizing ? (
-              <div className="h-4 w-4 animate-spin rounded-full border-2 border-slate-700 border-t-purple-400" />
+              <div className="h-4 w-4 animate-spin -full border-2 border-slate-700 border-t-purple-400" />
             ) : (
               <i className="fa-solid fa-wand-magic-sparkles text-sm" />
             )}
@@ -192,7 +192,7 @@ const JDInput: React.FC<JDInputProps> = ({
           {onBackToWelcome && (
             <button
               onClick={onBackToWelcome}
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition-all hover:bg-white/5 hover:text-indigo-400"
+              className="flex h-8 w-8 items-center justify-center  text-slate-500 transition-all hover:bg-white/5 hover:text-indigo-400"
               title="Quay lai tai file"
             >
               <i className="fa-solid fa-file-arrow-up text-xs" />
@@ -202,7 +202,7 @@ const JDInput: React.FC<JDInputProps> = ({
           <button
             onClick={onComplete}
             disabled={!isCompleteEnabled}
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition-all hover:bg-white/5 hover:text-white disabled:opacity-30"
+            className="flex h-8 w-8 items-center justify-center  text-slate-500 transition-all hover:bg-white/5 hover:text-white disabled:opacity-30"
             style={isCompleteEnabled ? { background: 'rgba(99,102,241,0.15)', color: '#818cf8' } : {}}
             title="Ke tiep"
           >
@@ -231,7 +231,7 @@ const JDInput: React.FC<JDInputProps> = ({
         {/* Success toast */}
         {summarizeMsg && !isSummarizing && (
           <div
-            className="animate-in fade-in slide-in-from-bottom-2 absolute bottom-6 left-6 flex items-center gap-2.5 rounded-xl px-4 py-2.5 text-sm font-medium shadow-2xl"
+            className="animate-in fade-in slide-in-from-bottom-2 absolute bottom-6 left-6 flex items-center gap-2.5  px-4 py-2.5 text-sm font-medium shadow-2xl"
             style={{
               background: 'rgba(15,23,42,0.95)',
               border: '1px solid rgba(34,211,238,0.25)',
@@ -247,7 +247,7 @@ const JDInput: React.FC<JDInputProps> = ({
         {/* Error toast */}
         {summarizeError && (
           <div
-            className="animate-in fade-in slide-in-from-bottom-2 absolute bottom-6 left-6 flex items-center gap-2.5 rounded-xl px-4 py-2.5 text-sm font-medium shadow-2xl"
+            className="animate-in fade-in slide-in-from-bottom-2 absolute bottom-6 left-6 flex items-center gap-2.5  px-4 py-2.5 text-sm font-medium shadow-2xl"
             style={{
               background: 'rgba(15,23,42,0.95)',
               border: '1px solid rgba(248,113,113,0.25)',
@@ -265,3 +265,7 @@ const JDInput: React.FC<JDInputProps> = ({
 };
 
 export default JDInput;
+
+
+
+

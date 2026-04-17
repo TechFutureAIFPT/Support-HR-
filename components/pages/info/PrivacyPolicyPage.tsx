@@ -270,7 +270,7 @@ const PrivacyPolicyPage: React.FC = () => {
       {/* Top nav */}
       <div className="relative z-20 flex items-center justify-between px-6 py-4 border-b border-white/5">
         <div className="flex items-center gap-3">
-          <Link to="/" className="w-9 h-9 rounded-xl bg-[#0B1628] border border-slate-800/60 flex items-center justify-center overflow-hidden shadow-lg">
+          <Link to="/" className="w-9 h-9 rounded-xl bg-[#11213A] border border-slate-800/60 flex items-center justify-center overflow-hidden shadow-lg">
             <img src="/images/logos/logo.jpg" alt="SupportHR" className="w-full h-full object-cover" />
           </Link>
           <div>
@@ -280,7 +280,7 @@ const PrivacyPolicyPage: React.FC = () => {
         </div>
         <div className="flex items-center gap-2">
           <Link to="/terms" className="text-xs text-slate-400 hover:text-cyan-400 transition-colors px-3 py-1.5 rounded-lg hover:bg-white/5">Điều khoản sử dụng</Link>
-          <Link to="/" className="w-8 h-8 rounded-lg bg-[#0B1628] border border-slate-800/60 flex items-center justify-center text-slate-400 hover:text-cyan-400 hover:border-cyan-500/30 transition-all">
+          <Link to="/" className="w-8 h-8 rounded-lg bg-[#11213A] border border-slate-800/60 flex items-center justify-center text-slate-400 hover:text-cyan-400 hover:border-cyan-500/30 transition-all">
             <i className="fa-solid fa-house text-[10px]" />
           </Link>
         </div>
@@ -289,7 +289,7 @@ const PrivacyPolicyPage: React.FC = () => {
       {/* Page header */}
       <div className={`relative z-10 px-6 pt-8 pb-4 text-center transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
         <div className="flex justify-center mb-3">
-          <div className="w-12 h-12 rounded-2xl bg-[#0B1628] border border-slate-800/60 flex items-center justify-center overflow-hidden shadow-xl shadow-black/30">
+          <div className="w-12 h-12 rounded-2xl bg-[#11213A] border border-slate-800/60 flex items-center justify-center overflow-hidden shadow-xl shadow-black/30">
             <img src="/images/logos/logo.jpg" alt="SupportHR" className="w-full h-full object-cover" />
           </div>
         </div>
@@ -366,7 +366,7 @@ const PrivacyPolicyPage: React.FC = () => {
 
           {/* Content */}
           <div className="flex-1 min-w-0">
-            <div className="bg-[#0B1628]/80 border border-white/[0.06] rounded-2xl p-5 backdrop-blur-xl">
+            <div className="bg-[#11213A]/80 border border-white/[0.06] rounded-2xl p-5 backdrop-blur-xl">
               {/* Section title */}
               <div className="flex items-center gap-3 mb-4">
                 <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${
@@ -390,3 +390,4 @@ const PrivacyPolicyPage: React.FC = () => {
 };
 
 export default PrivacyPolicyPage;
+

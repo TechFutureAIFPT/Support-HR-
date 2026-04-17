@@ -7,16 +7,17 @@ interface CVFilterHistoryEntry {
   timestamp: number;
   date: string; // Formatted date string
   jobPosition?: string;
+  industry?: string;
 }
 
 class CVFilterHistoryService {
   private readonly STORAGE_KEY = 'cvFilterHistory';
-  private readonly MAX_HISTORY_ENTRIES = 30;
+  private readonly MAX_HISTORY_ENTRIES = 100;
 
   /**
    * Add a new CV filter entry to history
    */
-  addFilterSession(jobPosition: string): void {
+  addFilterSession(jobPosition: string, industry: string = 'Khác'): void {
     const entry: CVFilterHistoryEntry = {
       timestamp: Date.now(),
       date: new Date().toLocaleString('vi-VN', {
@@ -26,7 +27,8 @@ class CVFilterHistoryService {
         hour: '2-digit',
         minute: '2-digit'
       }),
-      jobPosition: jobPosition || 'Không rõ vị trí'
+      jobPosition: jobPosition || 'Không rõ vị trí',
+      industry: industry || 'Khác'
     };
 
     const history = this.getHistory();
@@ -62,6 +64,15 @@ class CVFilterHistoryService {
     } catch (error) {
       console.warn('Failed to save CV filter history:', error);
     }
+  }
+
+  /**
+   * Delete specific history entries by their timestamps
+   */
+  deleteHistoryEntries(timestamps: number[]): void {
+    const history = this.getHistory();
+    const updatedHistory = history.filter(entry => !timestamps.includes(entry.timestamp));
+    this.saveHistory(updatedHistory);
   }
 
   /**
@@ -126,7 +137,7 @@ class CVFilterHistoryService {
    * Get recent history (last 15 entries)
    */
   getRecentHistory(): CVFilterHistoryEntry[] {
-    return this.getHistory().slice(0, 15);
+    return this.getHistory();
   }
 }
 

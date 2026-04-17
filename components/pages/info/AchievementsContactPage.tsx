@@ -33,7 +33,7 @@ const AchievementsContactPage: React.FC = () => {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {achievements.map((item, index) => (
-              <div key={index} className="bg-[#0B1628] rounded-2xl border border-slate-800/60 overflow-hidden group hover:border-amber-500/30 transition-all duration-300 hover:shadow-xl hover:shadow-amber-900/10">
+              <div key={index} className="bg-[#11213A] rounded-2xl border border-slate-800/60 overflow-hidden group hover:border-amber-500/30 transition-all duration-300 hover:shadow-xl hover:shadow-amber-900/10">
                 <div className="aspect-square overflow-hidden">
                   <img
                     src={item.src}
@@ -41,7 +41,7 @@ const AchievementsContactPage: React.FC = () => {
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                 </div>
-                <div className="p-4 bg-[#0B1628]">
+                <div className="p-4 bg-[#11213A]">
                   <h3 className="text-sm font-bold text-white text-center">{item.alt}</h3>
                 </div>
               </div>
@@ -57,7 +57,7 @@ const AchievementsContactPage: React.FC = () => {
             </div>
             <h2 className="text-xl font-bold text-white">Liên hệ</h2>
           </div>
-          <div className="bg-[#0B1628] rounded-2xl border border-slate-800/60 overflow-hidden">
+          <div className="bg-[#11213A] rounded-2xl border border-slate-800/60 overflow-hidden">
             <div className="aspect-[3/2] sm:aspect-[4/1] overflow-hidden">
               <img
                 src={contactImage}
@@ -65,7 +65,7 @@ const AchievementsContactPage: React.FC = () => {
                 className="w-full h-full object-cover"
               />
             </div>
-            <div className="p-5 bg-[#0B1628]">
+            <div className="p-5 bg-[#11213A]">
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {[
                   { icon: 'fa-phone', label: 'Điện thoại', value: '0899 280 108', color: 'text-emerald-400', border: 'hover:border-emerald-500/30' },
@@ -95,3 +95,4 @@ const AchievementsContactPage: React.FC = () => {
 };
 
 export default AchievementsContactPage;
+

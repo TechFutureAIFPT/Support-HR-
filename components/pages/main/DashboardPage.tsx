@@ -129,7 +129,7 @@ const DashboardPage: React.FC = () => {
   if (!analysisData) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
-        <div className="mb-6 w-24 h-24 rounded-3xl bg-gradient-to-br from-[#0d1420] to-[#0a1020] border border-slate-800/60 flex items-center justify-center shadow-2xl shadow-black/30">
+        <div className="mb-6 w-24 h-24 rounded-3xl bg-gradient-to-br from-[#11213A] to-[#0B192C] border border-slate-800/60 flex items-center justify-center shadow-2xl shadow-black/30">
           <Briefcase className="w-10 h-10 text-slate-600" />
         </div>
         <h2 className="text-2xl font-bold text-white mb-3">Chưa có dữ liệu phân tích</h2>
@@ -220,7 +220,7 @@ const DashboardPage: React.FC = () => {
 
       {/* ── Summary Stats ───────────────────────────────────────── */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-        <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#0d1420] to-[#0a1020] border border-slate-800/60 p-4 hover:border-indigo-500/30 transition-all duration-300 shadow-xl shadow-black/10">
+        <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#11213A] to-[#0B192C] border border-slate-800/60 p-4 hover:border-indigo-500/30 transition-all duration-300 shadow-xl shadow-black/10">
           <div className="absolute top-0 right-0 w-20 h-20 bg-indigo-500/5 rounded-full blur-2xl translate-x-1/3 -translate-y-1/3 transition-all group-hover:bg-indigo-500/10" />
           <div className="flex items-center justify-between mb-3">
             <span className="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Tổng CV</span>
@@ -237,7 +237,7 @@ const DashboardPage: React.FC = () => {
           )}
         </div>
 
-        <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#0d1420] to-[#0a1020] border border-emerald-500/20 p-4 hover:border-emerald-500/40 transition-all duration-300 shadow-xl shadow-emerald-500/5">
+        <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#11213A] to-[#0B192C] border border-emerald-500/20 p-4 hover:border-emerald-500/40 transition-all duration-300 shadow-xl shadow-emerald-500/5">
           <div className="absolute top-0 right-0 w-20 h-20 bg-emerald-500/5 rounded-full blur-2xl translate-x-1/3 -translate-y-1/3 transition-all group-hover:bg-emerald-500/10" />
           <div className="flex items-center justify-between mb-3">
             <span className="text-[10px] text-emerald-400/80 uppercase tracking-wider font-bold">Hạng A</span>
@@ -252,7 +252,7 @@ const DashboardPage: React.FC = () => {
           </div>
         </div>
 
-        <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#0d1420] to-[#0a1020] border border-blue-500/20 p-4 hover:border-blue-500/40 transition-all duration-300 shadow-xl shadow-blue-500/5">
+        <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#11213A] to-[#0B192C] border border-blue-500/20 p-4 hover:border-blue-500/40 transition-all duration-300 shadow-xl shadow-blue-500/5">
           <div className="absolute top-0 right-0 w-20 h-20 bg-blue-500/5 rounded-full blur-2xl translate-x-1/3 -translate-y-1/3 transition-all group-hover:bg-blue-500/10" />
           <div className="flex items-center justify-between mb-3">
             <span className="text-[10px] text-blue-400/80 uppercase tracking-wider font-bold">Hạng B</span>
@@ -266,7 +266,7 @@ const DashboardPage: React.FC = () => {
           </div>
         </div>
 
-        <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#0d1420] to-[#0a1020] border border-amber-500/20 p-4 hover:border-amber-500/40 transition-all duration-300 shadow-xl shadow-amber-500/5">
+        <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#11213A] to-[#0B192C] border border-amber-500/20 p-4 hover:border-amber-500/40 transition-all duration-300 shadow-xl shadow-amber-500/5">
           <div className="absolute top-0 right-0 w-20 h-20 bg-amber-500/5 rounded-full blur-2xl translate-x-1/3 -translate-y-1/3 transition-all group-hover:bg-amber-500/10" />
           <div className="flex items-center justify-between mb-3">
             <span className="text-[10px] text-amber-400/80 uppercase tracking-wider font-bold">Hạng C</span>
@@ -280,7 +280,7 @@ const DashboardPage: React.FC = () => {
           </div>
         </div>
 
-        <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#0d1420] to-[#0a1020] border border-red-500/20 p-4 hover:border-red-500/40 transition-all duration-300 shadow-xl shadow-red-500/5">
+        <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#11213A] to-[#0B192C] border border-red-500/20 p-4 hover:border-red-500/40 transition-all duration-300 shadow-xl shadow-red-500/5">
           <div className="absolute top-0 right-0 w-20 h-20 bg-red-500/5 rounded-full blur-2xl translate-x-1/3 -translate-y-1/3 transition-all group-hover:bg-red-500/10" />
           <div className="flex items-center justify-between mb-3">
             <span className="text-[10px] text-red-400/80 uppercase tracking-wider font-bold">Lỗi / Không đạt</span>
@@ -305,7 +305,7 @@ const DashboardPage: React.FC = () => {
             placeholder="Tìm theo tên, chức danh, email..."
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
-            className="w-full sm:w-72 pl-9 pr-4 py-2.5 bg-gradient-to-br from-[#0d1420] to-[#0a1020] border border-slate-800/80 rounded-xl text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-indigo-500/50 transition-all shadow-lg shadow-black/20"
+            className="w-full sm:w-72 pl-9 pr-4 py-2.5 bg-gradient-to-br from-[#11213A] to-[#0B192C] border border-slate-800/80 rounded-xl text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-indigo-500/50 transition-all shadow-lg shadow-black/20"
           />
           {searchTerm && (
             <button onClick={() => setSearchTerm('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300">
@@ -315,7 +315,7 @@ const DashboardPage: React.FC = () => {
         </div>
 
         {/* Filter tabs */}
-        <div className="flex items-center gap-1 bg-[#0d1420]/80 backdrop-blur-sm p-1 rounded-xl border border-slate-800/60 overflow-x-auto shadow-lg shadow-black/10">
+        <div className="flex items-center gap-1 bg-[#11213A]/80 backdrop-blur-sm p-1 rounded-xl border border-slate-800/60 overflow-x-auto shadow-lg shadow-black/10">
           {FILTER_TABS.map(tab => {
             const count = tab.key === 'all' ? summaryData.total
               : tab.key === 'A' ? summaryData.countA
@@ -365,7 +365,7 @@ const DashboardPage: React.FC = () => {
 
       {/* ── Candidate List ─────────────────────────────────────── */}
       {filteredCandidates.length === 0 ? (
-        <div className="text-center py-20 bg-gradient-to-br from-[#0d1420]/40 to-[#0a1020]/40 rounded-2xl border border-slate-800/60">
+        <div className="text-center py-20 bg-gradient-to-br from-[#11213A]/40 to-[#0B192C]/40 rounded-2xl border border-slate-800/60">
           <div className="w-16 h-16 rounded-2xl bg-slate-800/60 border border-slate-700/40 flex items-center justify-center mx-auto mb-4 shadow-lg">
             <Users className="w-7 h-7 text-slate-600" />
           </div>
@@ -416,3 +416,4 @@ const DashboardPage: React.FC = () => {
 };
 
 export default DashboardPage;
+

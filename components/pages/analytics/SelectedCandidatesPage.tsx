@@ -149,54 +149,11 @@ const SelectedCandidatesPage: React.FC<SelectedCandidatesPageProps> = ({ candida
     : 0;
 
   return (
-    <div className="flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden bg-gradient-to-br from-[#0a0e1a] via-[#0d1220] to-[#0a0e1a]">
+    <div className="flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden bg-gradient-to-br from-[#0B192C] via-[#11213A] to-[#0B192C]">
 
-      {/* ── Header ─────────────────────────────────────── */}
-      <div className="shrink-0 border-b border-slate-800/50 bg-[#0a0e1a]/90 backdrop-blur-xl px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3.5">
-            <div className="w-11 h-11 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 border border-emerald-500/30 flex items-center justify-center shadow-lg shadow-emerald-500/10">
-              <Users className="w-5 h-5 text-emerald-400" />
-            </div>
-            <div>
-              <h1 className="text-base font-bold text-white leading-tight">Ứng viên đã chọn</h1>
-              <div className="flex items-center gap-2 mt-0.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block shadow-[0_0_6px_rgba(52,211,153,0.5)]" />
-                <span className="text-[10px] text-emerald-400 font-medium">{selectedCandidates.length} ứng viên</span>
-                {jobPosition && (
-                  <>
-                    <span className="text-[10px] text-slate-600">·</span>
-                    <span className="text-[10px] text-slate-500">{jobPosition}</span>
-                  </>
-                )}
-              </div>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            {selectedCandidates.length > 0 && (
-              <button
-                onClick={clearAll}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-semibold border border-red-500/20 bg-red-500/5 text-red-400 hover:bg-red-500/10 hover:border-red-500/30 transition-all"
-                title="Xóa tất cả"
-              >
-                <X className="w-3 h-3" /> Xóa tất cả
-              </button>
-            )}
-            <button
-              onClick={exportToCSV}
-              disabled={selectedCandidates.length === 0}
-              className="flex items-center gap-1.5 px-4 py-2 text-[12px] font-bold bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white transition-all shadow-lg shadow-emerald-900/30 disabled:opacity-30 disabled:cursor-not-allowed border border-emerald-400/20"
-            >
-              {exportMsg ? <CheckCheck className="w-3.5 h-3.5" /> : <FileText className="w-3.5 h-3.5" />}
-              {exportMsg ? 'Đã xuất!' : `Xuất CSV (${selectedCandidates.length})`}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* ── Summary Stats ──────────────────────────────── */}
+      {/* ── Actions & Summary Stats ──────────────────────────────── */}
       {selectedCandidates.length > 0 && (
-        <div className="shrink-0 border-b border-slate-800/40 bg-[#0a0e1a]/60 px-6 py-3">
+        <div className="shrink-0 flex items-center justify-between border-b border-slate-800/40 bg-[#0B192C]/60 px-6 py-3">
           <div className="flex items-center gap-6 flex-wrap">
             <div className="flex items-center gap-2">
               <span className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider">Điểm TB</span>
@@ -221,13 +178,30 @@ const SelectedCandidatesPage: React.FC<SelectedCandidatesPageProps> = ({ candida
               )}
             </div>
           </div>
+          
+          <div className="flex items-center gap-2">
+            <button
+              onClick={clearAll}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-semibold border border-red-500/20 bg-red-500/5 text-red-400 hover:bg-red-500/10 hover:border-red-500/30 transition-all"
+              title="Xóa tất cả"
+            >
+              <X className="w-3 h-3" />
+            </button>
+            <button
+              onClick={exportToCSV}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white transition-all shadow shadow-emerald-900/30 border border-emerald-400/20"
+            >
+              {exportMsg ? <CheckCheck className="w-3.5 h-3.5" /> : <FileText className="w-3.5 h-3.5" />}
+              {exportMsg ? 'Đã xuất!' : `Xuất CSV (${selectedCandidates.length})`}
+            </button>
+          </div>
         </div>
       )}
 
       {/* ── Empty state ────────────────────────────────── */}
       {selectedCandidates.length === 0 ? (
         <div className="flex flex-1 flex-col items-center justify-center p-8 text-center">
-          <div className="w-24 h-24 bg-[#0B1628] border border-slate-800/60 flex items-center justify-center mb-6 shadow-2xl shadow-black/30">
+          <div className="w-24 h-24 bg-[#11213A] border border-slate-800/60 flex items-center justify-center mb-6 shadow-2xl shadow-black/30">
             <Users className="w-10 h-10 text-slate-600" />
           </div>
           <h2 className="text-xl font-bold text-white mb-2">Chưa có ứng viên nào được chọn</h2>
@@ -239,7 +213,7 @@ const SelectedCandidatesPage: React.FC<SelectedCandidatesPageProps> = ({ candida
       ) : (
         <>
           {/* ── Sort bar ─────────────────────────────── */}
-          <div className="shrink-0 bg-[#0a0e1a]/70 border-b border-slate-800/40 px-6 py-2 flex items-center gap-2">
+          <div className="shrink-0 bg-[#0B192C]/70 border-b border-slate-800/40 px-6 py-2 flex items-center gap-2">
             <span className="text-[10px] text-slate-600 font-semibold uppercase tracking-wider mr-1">Sắp xếp:</span>
             {(['score', 'grade', 'name'] as const).map(f => (
               <button
@@ -352,3 +326,4 @@ const SelectedCandidatesPage: React.FC<SelectedCandidatesPageProps> = ({ candida
 };
 
 export default SelectedCandidatesPage;
+
