@@ -87,7 +87,7 @@ const HistoryPage: React.FC<HistoryPageProps> = ({ userEmail, onRestore }) => {
 
         <div className="flex items-center gap-2">
           {/* Time filter tabs */}
-          <div className="flex bg-[#0B1628] p-1 rounded-xl border border-slate-800/60">
+          <div className="flex bg-[#11213A] p-1 rounded-xl border border-slate-800/60">
             {TIME_FILTERS.map(tf => (
               <button
                 key={tf.key}
@@ -123,7 +123,7 @@ const HistoryPage: React.FC<HistoryPageProps> = ({ userEmail, onRestore }) => {
 
       {/* ── Empty state ─────────────────────────────────────── */}
       {filtered.length === 0 && (
-        <div className="text-center py-24 bg-[#0B1628]/40 rounded-2xl border border-slate-800/60 border-dashed">
+        <div className="text-center py-24 bg-[#11213A]/40 rounded-2xl border border-slate-800/60 border-dashed">
           <div className="w-16 h-16 rounded-2xl bg-slate-800/60 flex items-center justify-center mx-auto mb-4">
             <i className="fa-solid fa-box-open text-2xl text-slate-600"></i>
           </div>
@@ -139,7 +139,7 @@ const HistoryPage: React.FC<HistoryPageProps> = ({ userEmail, onRestore }) => {
         {filtered.map(item => (
           <div
             key={item.id}
-            className="group bg-[#0B1628] border border-slate-800/60 hover:border-cyan-500/30 rounded-2xl p-5 cursor-pointer transition-all duration-300 hover:shadow-xl hover:shadow-cyan-900/10"
+            className="group bg-[#11213A] border border-slate-800/60 hover:border-cyan-500/30 rounded-2xl p-5 cursor-pointer transition-all duration-300 hover:shadow-xl hover:shadow-cyan-900/10"
             onClick={() => setSelected(item)}
           >
             {/* Card header */}
@@ -237,7 +237,7 @@ const HistoryPage: React.FC<HistoryPageProps> = ({ userEmail, onRestore }) => {
           onClick={() => setSelected(null)}
         >
           <div
-            className="w-full max-w-5xl bg-[#0B1628] border border-slate-800/60 rounded-2xl shadow-2xl flex flex-col max-h-[90vh] animate-fade-in overflow-hidden"
+            className="w-full max-w-5xl bg-[#11213A] border border-slate-800/60 rounded-2xl shadow-2xl flex flex-col max-h-[90vh] animate-fade-in overflow-hidden"
             onClick={e => e.stopPropagation()}
           >
             {/* Modal header */}
@@ -426,3 +426,4 @@ const HistoryPage: React.FC<HistoryPageProps> = ({ userEmail, onRestore }) => {
 };
 
 export default HistoryPage;
+

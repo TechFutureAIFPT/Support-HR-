@@ -27,12 +27,12 @@ const HardFilterPanel: React.FC<HardFilterPanelProps> = ({ hardFilters, setHardF
     };
 
     const inputClasses = (isMandatory: boolean, valuePresent: boolean) =>
-        `w-full border backdrop-blur-sm rounded-xl px-4 py-3 text-xs placeholder-slate-500/70 transition-all duration-300 focus:outline-none focus:ring-4 appearance-none shadow-inner ${
+        `w-full border backdrop-blur-sm rounded-none-none px-4 py-3 text-xs placeholder-slate-500/70 transition-all duration-300 focus:outline-none focus:ring-4 appearance-none shadow-inner ${
             isMandatory
                 ? valuePresent
-                    ? 'bg-[#0A0F1C]/80 border-indigo-500/40 hover:border-indigo-400 focus:border-indigo-400 focus:ring-indigo-500/10 text-slate-200'
-                    : 'bg-[#0A0F1C]/80 border-rose-500/40 bg-rose-500/5 hover:border-rose-500 focus:border-rose-400 focus:ring-rose-500/10 text-slate-200'
-                : 'bg-[#0A0F1C]/80 border-slate-700/60 hover:border-slate-600 focus:border-indigo-500/50 focus:ring-indigo-500/10 text-slate-200'
+                    ? 'bg-[#0B192C] border-indigo-500/40 hover:border-indigo-400 focus:border-indigo-400 focus:ring-indigo-500/10 text-slate-200'
+                    : 'bg-[#0B192C] border-rose-500/40 bg-rose-500/5 hover:border-rose-500 focus:border-rose-400 focus:ring-rose-500/10 text-slate-200'
+                : 'bg-[#0B192C] border-slate-700/60 hover:border-slate-600 focus:border-indigo-500/50 focus:ring-indigo-500/10 text-slate-200'
         }`;
 
     const selectFieldConfigs: Array<{
@@ -139,7 +139,7 @@ const HardFilterPanel: React.FC<HardFilterPanelProps> = ({ hardFilters, setHardF
                     id={id}
                     checked={isChecked}
                     onChange={handleMandatoryChange}
-                    className="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer transition-all duration-300 ease-in-out border-transparent top-0.5 shadow-[0_2px_5px_rgba(0,0,0,0.2)]"
+                    className="toggle-checkbox absolute block w-5 h-5 rounded-none-full bg-white border-4 appearance-none cursor-pointer transition-all duration-300 ease-in-out border-transparent top-0.5 shadow-[0_2px_5px_rgba(0,0,0,0.2)]"
                     style={{
                         transform: isChecked ? 'translateX(100%)' : 'translateX(0)',
                         zIndex: 10,
@@ -149,7 +149,7 @@ const HardFilterPanel: React.FC<HardFilterPanelProps> = ({ hardFilters, setHardF
                 />
                 <label
                     htmlFor={id}
-                    className={`toggle-label block overflow-hidden h-6 rounded-full cursor-pointer transition-all duration-300 ease-in-out border ${isChecked ? 'bg-indigo-500/80 border-indigo-400 shadow-[inset_0_0_10px_rgba(0,0,0,0.2)]' : 'bg-slate-800 border-slate-700 group-hover:bg-slate-700'}`}
+                    className={`toggle-label block overflow-hidden h-6 rounded-none-full cursor-pointer transition-all duration-300 ease-in-out border ${isChecked ? 'bg-indigo-500/80 border-indigo-400 shadow-[inset_0_0_10px_rgba(0,0,0,0.2)]' : 'bg-[#0B192C] border-slate-700 group-hover:bg-slate-700'}`}
                 />
             </div>
         </div>
@@ -161,13 +161,13 @@ const HardFilterPanel: React.FC<HardFilterPanelProps> = ({ hardFilters, setHardF
         const Icon = config.icon;
 
         return (
-            <div key={config.id} className={`relative isolate flex flex-col gap-3 p-5 rounded-2xl border transition-all duration-300 overflow-hidden group ${
+            <div key={config.id} className={`relative isolate flex flex-col gap-3 p-5 rounded-none-none border transition-all duration-300 overflow-hidden group ${
                 isMandatory
                 ? 'border-indigo-500/40 bg-indigo-950/20 shadow-[0_4px_20px_-10px_rgba(99,102,241,0.15)] hover:border-indigo-400/60 hover:bg-indigo-950/30'
-                : 'border-slate-800/80 bg-slate-900/30 hover:border-slate-700 hover:bg-slate-800/40 hover:shadow-lg'
+                : 'border-slate-800/80 bg-transparent hover:border-slate-700 hover:bg-transparent hover:shadow-lg'
             }`}>
                 {isMandatory && (
-                    <div className="absolute top-0 right-0 -mr-8 -mt-8 w-20 h-20 rounded-full blur-2xl pointer-events-none transition-opacity duration-300 opacity-50 group-hover:opacity-100" style={{ background: `${config.color}20` }} />
+                    <div className="absolute top-0 right-0 -mr-8 -mt-8 w-20 h-20 rounded-none-full blur-2xl pointer-events-none transition-opacity duration-300 opacity-50 group-hover:opacity-100" style={{ background: `${config.color}20` }} />
                 )}
                 {isMandatory && (
                     <div className="absolute top-0 left-0 w-full h-[1.5px] bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-500 opacity-70" />
@@ -175,10 +175,10 @@ const HardFilterPanel: React.FC<HardFilterPanelProps> = ({ hardFilters, setHardF
 
                 <div className="flex items-center justify-between z-10">
                     <label htmlFor={config.id} className="text-[12px] font-bold tracking-wide flex items-center gap-2.5 text-slate-200">
-                        <div className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300 border ${
+                        <div className={`w-9 h-9 rounded-none-none flex items-center justify-center transition-all duration-300 border ${
                             isMandatory
                             ? `bg-${config.colorBg}-500/15 text-${config.colorBg}-400 border-${config.colorBg}-500/30 shadow-[0_0_12px_rgba(99,102,241,0.15)] ring-1 ring-inset`
-                            : 'bg-slate-800 text-slate-400 group-hover:bg-slate-700 group-hover:text-slate-300 ring-1 ring-inset ring-slate-700/50'
+                            : 'bg-[#0B192C] text-slate-400 group-hover:bg-slate-700 group-hover:text-slate-300 ring-1 ring-inset ring-slate-700/50'
                         }`}
                         style={isMandatory ? { background: `${config.color}15`, borderColor: `${config.color}30`, color: config.color, boxShadow: `0 0 12px ${config.color}15`, border: `1px solid ${config.color}30` } : {}}>
                             <Icon className="text-xs" />
@@ -196,12 +196,12 @@ const HardFilterPanel: React.FC<HardFilterPanelProps> = ({ hardFilters, setHardF
                         className={inputClasses(Boolean(isMandatory), hasCurrentValue)}
                     >
                         {config.options.map((option) => (
-                            <option key={option.value ?? option.label} value={option.value} className="bg-slate-900 text-slate-200">
+                            <option key={option.value ?? option.label} value={option.value} className="bg-[#0B192C] text-slate-200">
                                 {option.label}
                             </option>
                         ))}
                     </select>
-                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none w-5 h-5 flex items-center justify-center rounded bg-slate-800/60">
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none w-5 h-5 flex items-center justify-center rounded-none bg-transparent">
                         <i className="fa-solid fa-chevron-down text-[9px] text-slate-400" />
                     </div>
                 </div>
@@ -213,19 +213,19 @@ const HardFilterPanel: React.FC<HardFilterPanelProps> = ({ hardFilters, setHardF
         <div className="space-y-8 pb-10 w-full animate-fade-in">
 
             {/* Elegant Header Card */}
-            <div className="relative overflow-hidden flex items-start gap-4 p-5 rounded-2xl border border-indigo-500/30 bg-gradient-to-br from-indigo-950/40 to-slate-900/60 shadow-xl shadow-indigo-500/5">
-                <div className="absolute top-0 right-0 w-56 h-56 bg-indigo-500/8 rounded-full blur-3xl pointer-events-none translate-x-1/3 -translate-y-1/3" />
-                <div className="absolute bottom-0 left-6 w-40 h-40 bg-violet-500/8 rounded-full blur-3xl pointer-events-none translate-y-1/2" />
+            <div className="relative overflow-hidden flex items-start gap-4 p-5 rounded-none-none border border-indigo-500/30 bg-gradient-to-br from-indigo-950/40 to-slate-900/60 shadow-xl shadow-indigo-500/5">
+                <div className="absolute top-0 right-0 w-56 h-56 bg-indigo-500/8 rounded-none-full blur-3xl pointer-events-none translate-x-1/3 -translate-y-1/3" />
+                <div className="absolute bottom-0 left-6 w-40 h-40 bg-violet-500/8 rounded-none-full blur-3xl pointer-events-none translate-y-1/2" />
                 <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-indigo-500/40 to-transparent" />
 
                 <div className="relative z-10 flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-indigo-500/20 flex items-center justify-center border border-indigo-500/30 text-indigo-400 shadow-[0_0_20px_rgba(99,102,241,0.2)] shrink-0">
+                    <div className="w-12 h-12 rounded-none-none bg-indigo-500/20 flex items-center justify-center border border-indigo-500/30 text-indigo-400 shadow-[0_0_20px_rgba(99,102,241,0.2)] shrink-0">
                         <Sparkles className="w-5 h-5" />
                     </div>
                     <div className="mt-0.5">
                         <h4 className="text-[14px] font-bold text-white mb-1.5 tracking-wide flex items-center gap-2">
                            Bộ lọc cứng (Hard Filters)
-                           <span className="px-2 py-0.5 rounded-lg bg-indigo-500/20 text-[9px] text-indigo-300 border border-indigo-500/30 uppercase tracking-widest font-bold shadow-lg">Quan trọng</span>
+                           <span className="px-2 py-0.5 rounded-none-none bg-indigo-500/20 text-[9px] text-indigo-300 border border-indigo-500/30 uppercase tracking-widest font-bold shadow-lg">Quan trọng</span>
                         </h4>
                         <p className="text-[12px] text-slate-400 leading-relaxed max-w-2xl">
                            Thiết lập các điều kiện tiên quyết. Hồ sơ không đáp ứng các tiêu chí được chọn là <span className="text-indigo-400 font-semibold">Bắt buộc</span> sẽ bị AI từ chối tự động.
@@ -237,7 +237,7 @@ const HardFilterPanel: React.FC<HardFilterPanelProps> = ({ hardFilters, setHardF
             {/* Group 1: Basic Info */}
             <div className="relative">
                 <div className="flex items-center gap-3 mb-5">
-                    <div className="w-9 h-9 rounded-xl bg-indigo-500/15 border border-indigo-500/30 flex items-center justify-center">
+                    <div className="w-9 h-9 rounded-none-none bg-indigo-500/15 border border-indigo-500/30 flex items-center justify-center">
                         <Layers className="w-4 h-4 text-indigo-400" />
                     </div>
                     <div>
@@ -254,7 +254,7 @@ const HardFilterPanel: React.FC<HardFilterPanelProps> = ({ hardFilters, setHardF
             {/* Group 2: Context & Quality */}
             <div className="relative">
                 <div className="flex items-center gap-3 mb-5">
-                    <div className="w-9 h-9 rounded-xl bg-violet-500/15 border border-violet-500/30 flex items-center justify-center">
+                    <div className="w-9 h-9 rounded-none-none bg-violet-500/15 border border-violet-500/30 flex items-center justify-center">
                         <Award className="w-4 h-4 text-violet-400" />
                     </div>
                     <div>
@@ -266,18 +266,18 @@ const HardFilterPanel: React.FC<HardFilterPanelProps> = ({ hardFilters, setHardF
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
 
                     {/* Industry */}
-                    <div className={`relative isolate flex flex-col gap-3 p-5 rounded-2xl border transition-all duration-300 overflow-hidden group ${
+                    <div className={`relative isolate flex flex-col gap-3 p-5 rounded-none-none border transition-all duration-300 overflow-hidden group ${
                         hardFilters.industryMandatory
                         ? 'border-indigo-500/40 bg-indigo-950/20 shadow-[0_4px_20px_-10px_rgba(99,102,241,0.15)] hover:border-indigo-400/60 hover:bg-indigo-950/30'
-                        : 'border-slate-800/80 bg-slate-900/30 hover:border-slate-700 hover:bg-slate-800/40 hover:shadow-lg'
+                        : 'border-slate-800/80 bg-transparent hover:border-slate-700 hover:bg-transparent hover:shadow-lg'
                     }`}>
                         {hardFilters.industryMandatory && <div className="absolute top-0 left-0 w-full h-[1.5px] bg-gradient-to-r from-indigo-500 to-purple-500 opacity-70" />}
                         <div className="flex items-center justify-between z-10">
                             <label htmlFor="industry" className="text-[12px] font-bold tracking-wide flex items-center gap-2.5 text-slate-200">
-                                <div className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300 border ${
+                                <div className={`w-9 h-9 rounded-none-none flex items-center justify-center transition-all duration-300 border ${
                                     hardFilters.industryMandatory
                                     ? 'bg-indigo-500/15 text-indigo-400 border-indigo-500/30 shadow-[0_0_12px_rgba(99,102,241,0.15)]'
-                                    : 'bg-slate-800 text-slate-400 group-hover:bg-slate-700 group-hover:text-slate-300 ring-1 ring-inset ring-slate-700/50'
+                                    : 'bg-[#0B192C] text-slate-400 group-hover:bg-slate-700 group-hover:text-slate-300 ring-1 ring-inset ring-slate-700/50'
                                 }`}>
                                     <i className="fa-solid fa-industry text-xs"></i>
                                 </div>
@@ -296,18 +296,18 @@ const HardFilterPanel: React.FC<HardFilterPanelProps> = ({ hardFilters, setHardF
                     </div>
 
                     {/* Language */}
-                    <div className={`relative isolate flex flex-col gap-3 p-5 rounded-2xl border transition-all duration-300 overflow-hidden group ${
+                    <div className={`relative isolate flex flex-col gap-3 p-5 rounded-none-none border transition-all duration-300 overflow-hidden group ${
                         hardFilters.languageMandatory
                         ? 'border-indigo-500/40 bg-indigo-950/20 shadow-[0_4px_20px_-10px_rgba(99,102,241,0.15)] hover:border-indigo-400/60 hover:bg-indigo-950/30'
-                        : 'border-slate-800/80 bg-slate-900/30 hover:border-slate-700 hover:bg-slate-800/40 hover:shadow-lg'
+                        : 'border-slate-800/80 bg-transparent hover:border-slate-700 hover:bg-transparent hover:shadow-lg'
                     }`}>
                         {hardFilters.languageMandatory && <div className="absolute top-0 left-0 w-full h-[1.5px] bg-gradient-to-r from-indigo-500 to-purple-500 opacity-70" />}
                         <div className="flex items-center justify-between z-10">
                             <label htmlFor="language" className="text-[12px] font-bold tracking-wide flex items-center gap-2.5 text-slate-200">
-                                <div className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300 border ${
+                                <div className={`w-9 h-9 rounded-none-none flex items-center justify-center transition-all duration-300 border ${
                                     hardFilters.languageMandatory
                                     ? 'bg-indigo-500/15 text-indigo-400 border-indigo-500/30 shadow-[0_0_12px_rgba(99,102,241,0.15)]'
-                                    : 'bg-slate-800 text-slate-400 group-hover:bg-slate-700 group-hover:text-slate-300 ring-1 ring-inset ring-slate-700/50'
+                                    : 'bg-[#0B192C] text-slate-400 group-hover:bg-slate-700 group-hover:text-slate-300 ring-1 ring-inset ring-slate-700/50'
                                 }`}>
                                     <i className="fa-solid fa-language text-xs"></i>
                                 </div>
@@ -331,13 +331,13 @@ const HardFilterPanel: React.FC<HardFilterPanelProps> = ({ hardFilters, setHardF
                                     onChange={handleChange}
                                     className={`${inputClasses(false, hasValue(hardFilters.languageLevel))} h-full pl-2 pr-6 text-[11px]`}
                                 >
-                                    <option value="" className="bg-slate-900 text-slate-400">Độ</option>
-                                    <option value="B1" className="bg-slate-900 text-slate-200">B1</option>
-                                    <option value="B2" className="bg-slate-900 text-slate-200">B2</option>
-                                    <option value="C1" className="bg-slate-900 text-slate-200">C1</option>
-                                    <option value="C2" className="bg-slate-900 text-slate-200">C2</option>
+                                    <option value="" className="bg-[#0B192C] text-slate-400">Độ</option>
+                                    <option value="B1" className="bg-[#0B192C] text-slate-200">B1</option>
+                                    <option value="B2" className="bg-[#0B192C] text-slate-200">B2</option>
+                                    <option value="C1" className="bg-[#0B192C] text-slate-200">C1</option>
+                                    <option value="C2" className="bg-[#0B192C] text-slate-200">C2</option>
                                 </select>
-                                <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none w-4 h-4 flex items-center justify-center rounded bg-slate-800/50">
+                                <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none w-4 h-4 flex items-center justify-center rounded-none bg-transparent">
                                     <i className="fa-solid fa-chevron-down text-[9px] text-slate-400" />
                                 </div>
                             </div>
@@ -345,18 +345,18 @@ const HardFilterPanel: React.FC<HardFilterPanelProps> = ({ hardFilters, setHardF
                     </div>
 
                     {/* Education */}
-                    <div className={`relative isolate flex flex-col gap-3 p-5 rounded-2xl border transition-all duration-300 overflow-hidden group ${
+                    <div className={`relative isolate flex flex-col gap-3 p-5 rounded-none-none border transition-all duration-300 overflow-hidden group ${
                         hardFilters.educationMandatory
                         ? 'border-indigo-500/40 bg-indigo-950/20 shadow-[0_4px_20px_-10px_rgba(99,102,241,0.15)] hover:border-indigo-400/60 hover:bg-indigo-950/30'
-                        : 'border-slate-800/80 bg-slate-900/30 hover:border-slate-700 hover:bg-slate-800/40 hover:shadow-lg'
+                        : 'border-slate-800/80 bg-transparent hover:border-slate-700 hover:bg-transparent hover:shadow-lg'
                     }`}>
                         {hardFilters.educationMandatory && <div className="absolute top-0 left-0 w-full h-[1.5px] bg-gradient-to-r from-indigo-500 to-purple-500 opacity-70" />}
                         <div className="flex items-center justify-between z-10">
                             <label htmlFor="education" className="text-[12px] font-bold tracking-wide flex items-center gap-2.5 text-slate-200">
-                                <div className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300 border ${
+                                <div className={`w-9 h-9 rounded-none-none flex items-center justify-center transition-all duration-300 border ${
                                     hardFilters.educationMandatory
                                     ? 'bg-indigo-500/15 text-indigo-400 border-indigo-500/30 shadow-[0_0_12px_rgba(99,102,241,0.15)]'
-                                    : 'bg-slate-800 text-slate-400 group-hover:bg-slate-700 group-hover:text-slate-300 ring-1 ring-inset ring-slate-700/50'
+                                    : 'bg-[#0B192C] text-slate-400 group-hover:bg-slate-700 group-hover:text-slate-300 ring-1 ring-inset ring-slate-700/50'
                                 }`}>
                                     <GraduationCap className="text-xs" />
                                 </div>
@@ -371,32 +371,32 @@ const HardFilterPanel: React.FC<HardFilterPanelProps> = ({ hardFilters, setHardF
                                 onChange={handleChange}
                                 className={inputClasses(hardFilters.educationMandatory, hasValue(hardFilters.education))}
                             >
-                                <option value="" className="bg-slate-900 text-slate-400">Không yêu cầu</option>
-                                <option value="High School" className="bg-slate-900">Tốt nghiệp THPT</option>
-                                <option value="Associate" className="bg-slate-900">Cao đẳng</option>
-                                <option value="Bachelor" className="bg-slate-900">Cử nhân</option>
-                                <option value="Master" className="bg-slate-900">Thạc sĩ</option>
-                                <option value="PhD" className="bg-slate-900">Tiến sĩ</option>
+                                <option value="" className="bg-[#0B192C] text-slate-400">Không yêu cầu</option>
+                                <option value="High School" className="bg-[#0B192C]">Tốt nghiệp THPT</option>
+                                <option value="Associate" className="bg-[#0B192C]">Cao đẳng</option>
+                                <option value="Bachelor" className="bg-[#0B192C]">Cử nhân</option>
+                                <option value="Master" className="bg-[#0B192C]">Thạc sĩ</option>
+                                <option value="PhD" className="bg-[#0B192C]">Tiến sĩ</option>
                             </select>
-                            <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none w-4 h-4 flex items-center justify-center rounded bg-slate-800/50">
+                            <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none w-4 h-4 flex items-center justify-center rounded-none bg-transparent">
                                 <i className="fa-solid fa-chevron-down text-[9px] text-slate-400" />
                             </div>
                         </div>
                     </div>
 
                     {/* Certificates */}
-                    <div className={`relative isolate flex flex-col gap-3 p-5 rounded-2xl border transition-all duration-300 overflow-hidden group ${
+                    <div className={`relative isolate flex flex-col gap-3 p-5 rounded-none-none border transition-all duration-300 overflow-hidden group ${
                         hardFilters.certificatesMandatory
                         ? 'border-indigo-500/40 bg-indigo-950/20 shadow-[0_4px_20px_-10px_rgba(99,102,241,0.15)] hover:border-indigo-400/60 hover:bg-indigo-950/30'
-                        : 'border-slate-800/80 bg-slate-900/30 hover:border-slate-700 hover:bg-slate-800/40 hover:shadow-lg'
+                        : 'border-slate-800/80 bg-transparent hover:border-slate-700 hover:bg-transparent hover:shadow-lg'
                     }`}>
                         {hardFilters.certificatesMandatory && <div className="absolute top-0 left-0 w-full h-[1.5px] bg-gradient-to-r from-indigo-500 to-purple-500 opacity-70" />}
                         <div className="flex items-center justify-between z-10">
                             <label htmlFor="certificates" className="text-[12px] font-bold tracking-wide flex items-center gap-2.5 text-slate-200">
-                                <div className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300 border ${
+                                <div className={`w-9 h-9 rounded-none-none flex items-center justify-center transition-all duration-300 border ${
                                     hardFilters.certificatesMandatory
                                     ? 'bg-indigo-500/15 text-indigo-400 border-indigo-500/30 shadow-[0_0_12px_rgba(99,102,241,0.15)]'
-                                    : 'bg-slate-800 text-slate-400 group-hover:bg-slate-700 group-hover:text-slate-300 ring-1 ring-inset ring-slate-700/50'
+                                    : 'bg-[#0B192C] text-slate-400 group-hover:bg-slate-700 group-hover:text-slate-300 ring-1 ring-inset ring-slate-700/50'
                                 }`}>
                                     <Award className="text-xs" />
                                 </div>
@@ -419,7 +419,7 @@ const HardFilterPanel: React.FC<HardFilterPanelProps> = ({ hardFilters, setHardF
             {/* Group 3: Salary */}
             <div className="relative">
                 <div className="flex items-center gap-3 mb-5">
-                    <div className="w-9 h-9 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center">
+                    <div className="w-9 h-9 rounded-none-none bg-amber-500/15 border border-amber-500/30 flex items-center justify-center">
                         <Coins className="w-4 h-4 text-amber-400" />
                     </div>
                     <div>
@@ -428,20 +428,20 @@ const HardFilterPanel: React.FC<HardFilterPanelProps> = ({ hardFilters, setHardF
                     </div>
                     <div className="h-px flex-1 bg-gradient-to-r from-slate-800 to-slate-800/30 ml-2" />
                 </div>
-                <div className={`relative isolate flex flex-col gap-4 p-6 rounded-2xl border transition-all duration-300 overflow-hidden group ${
+                <div className={`relative isolate flex flex-col gap-4 p-6 rounded-none-none border transition-all duration-300 overflow-hidden group ${
                     hardFilters.salaryMandatory
                     ? 'border-amber-500/40 bg-amber-950/15 shadow-[0_4px_20px_-10px_rgba(245,158,11,0.1)] hover:border-amber-400/60 hover:bg-amber-950/20'
-                    : 'border-slate-800/80 bg-slate-900/30 hover:border-slate-700 hover:bg-slate-800/40 hover:shadow-lg'
+                    : 'border-slate-800/80 bg-transparent hover:border-slate-700 hover:bg-transparent hover:shadow-lg'
                 }`}>
-                     {hardFilters.salaryMandatory && <div className="absolute top-0 right-0 -mr-8 -mt-8 w-20 h-20 rounded-full blur-2xl pointer-events-none" style={{ background: 'rgba(245,158,11,0.1)' }} />}
+                     {hardFilters.salaryMandatory && <div className="absolute top-0 right-0 -mr-8 -mt-8 w-20 h-20 rounded-none-full blur-2xl pointer-events-none" style={{ background: 'rgba(245,158,11,0.1)' }} />}
                      {hardFilters.salaryMandatory && <div className="absolute top-0 left-0 w-full h-[1.5px] bg-gradient-to-r from-amber-500 to-orange-500 opacity-70" />}
 
                      <div className="flex items-center justify-between z-10 flex-col sm:flex-row gap-3">
                         <label htmlFor="salary" className="text-[12px] font-bold tracking-wide flex items-center gap-2.5 text-slate-200">
-                            <div className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300 border ${
+                            <div className={`w-9 h-9 rounded-none-none flex items-center justify-center transition-all duration-300 border ${
                                 hardFilters.salaryMandatory
                                 ? 'bg-amber-500/15 text-amber-400 border-amber-500/30 shadow-[0_0_12px_rgba(245,158,11,0.15)]'
-                                : 'bg-slate-800 text-slate-400 group-hover:bg-slate-700 group-hover:text-slate-300 ring-1 ring-inset ring-slate-700/50'
+                                : 'bg-[#0B192C] text-slate-400 group-hover:bg-slate-700 group-hover:text-slate-300 ring-1 ring-inset ring-slate-700/50'
                             }`}>
                                 <Coins className="text-xs" />
                             </div>
@@ -487,3 +487,5 @@ const HardFilterPanel: React.FC<HardFilterPanelProps> = ({ hardFilters, setHardF
 };
 
 export default HardFilterPanel;
+
+

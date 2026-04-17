@@ -34,11 +34,11 @@ const Loader: React.FC<{ message: string }> = ({ message }) => {
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-8 px-4 py-12 text-center min-h-[min(60vh,100%)]">
       <div className="relative">
-        <div className="absolute inset-0 rounded-full animate-ping opacity-20 bg-gradient-to-r from-cyan-500 to-indigo-500" style={{ animationDuration: '1.8s' }} />
-        <div className="absolute -inset-4 rounded-full opacity-10 bg-gradient-to-r from-cyan-500 to-indigo-500 blur-lg" />
+        <div className="absolute inset-0 -full animate-ping opacity-20 bg-gradient-to-r from-cyan-500 to-indigo-500" style={{ animationDuration: '1.8s' }} />
+        <div className="absolute -inset-4 -full opacity-10 bg-gradient-to-r from-cyan-500 to-indigo-500 blur-lg" />
         <div className="relative w-20 h-20">
-          <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-cyan-400 border-r-cyan-400/50 animate-spin" style={{ animationDuration: '0.9s' }} />
-          <div className="absolute inset-2 rounded-full border-4 border-transparent border-b-indigo-400 border-l-indigo-400/50 animate-spin" style={{ animationDuration: '1.4s', animationDirection: 'reverse' }} />
+          <div className="absolute inset-0 -full border-4 border-transparent border-t-cyan-400 border-r-cyan-400/50 animate-spin" style={{ animationDuration: '0.9s' }} />
+          <div className="absolute inset-2 -full border-4 border-transparent border-b-indigo-400 border-l-indigo-400/50 animate-spin" style={{ animationDuration: '1.4s', animationDirection: 'reverse' }} />
           <div className="absolute inset-0 flex items-center justify-center">
             <i className="fa-solid fa-robot text-xl text-indigo-400 animate-pulse" style={{ animationDuration: '2s' }} />
           </div>
@@ -51,10 +51,10 @@ const Loader: React.FC<{ message: string }> = ({ message }) => {
         </h3>
         <p className="text-sm text-slate-400">Vui lòng chờ trong giây lát.</p>
       </div>
-      <div className="flex items-center gap-6 rounded-2xl border border-slate-700/60 bg-slate-900/60 px-6 py-4">
+      <div className="flex items-center gap-6  border border-slate-700/60 bg-slate-900/60 px-6 py-4">
         {steps.map((step, i) => (
           <div key={i} className="flex flex-col items-center gap-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-800">
+            <div className="flex h-10 w-10 items-center justify-center  bg-slate-800">
               <i className={`fa-solid ${step.icon} text-sm ${step.color} ${dots % 3 === i ? 'animate-bounce' : ''}`} />
             </div>
             <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">{step.label}</span>
@@ -167,7 +167,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMes
         <div className="flex flex-1 flex-col items-center justify-center px-4 py-16 text-center md:py-20">
           <div className="relative mb-6 inline-block">
             <i className="fa-solid fa-chart-line text-5xl text-slate-600 md:text-6xl"></i>
-            <div className="absolute -top-2 -right-2 h-4 w-4 rounded-full bg-blue-500"></div>
+            <div className="absolute -top-2 -right-2 h-4 w-4 -full bg-blue-500"></div>
           </div>
           <h3 className="mb-3 text-2xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">Sẵn Sàng Phân Tích</h3>
           <p className="mx-auto max-w-md text-lg leading-relaxed text-slate-400">Kết quả AI sẽ xuất hiện ở đây sau khi bạn cung cấp mô tả công việc và các tệp CV.</p>
@@ -177,12 +177,12 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMes
   }
 
   return (
-    <section id="module-analysis" className="module-pane active relative flex h-full min-h-0 w-full flex-1 flex-col" style={{ background: 'linear-gradient(180deg, #0a1220 0%, #0d1628 100%)' }}>
+    <section id="module-analysis" className="module-pane active relative flex h-full min-h-0 w-full flex-1 flex-col" style={{ background: 'linear-gradient(180deg, #0B192C 0%, #0d1628 100%)' }}>
       <div className="relative z-10 flex min-h-0 flex-1 flex-col p-4 lg:p-5">
 
         {/* ── Campaign header ─────────────────────────── */}
         <div
-          className="mb-3 flex w-full shrink-0 flex-col justify-between gap-4 rounded-2xl p-4 lg:flex-row lg:items-center"
+          className="mb-3 flex w-full shrink-0 flex-col justify-between gap-4  p-4 lg:flex-row lg:items-center"
           style={{ background: 'linear-gradient(180deg, rgba(12,22,40,0.9) 0%, rgba(10,18,32,0.9) 100%)', border: '1px solid rgba(99,102,241,0.15)' }}
         >
           <div className="min-w-0 flex-1">
@@ -197,30 +197,30 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMes
           <div className="flex shrink-0 flex-col items-start gap-3 lg:flex-row lg:items-center">
             {/* Grade badges */}
             <div className="flex items-center gap-2">
-              <div className="rounded-lg px-3 py-1.5 text-xs font-bold" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#94a3b8' }}>
+              <div className=" px-3 py-1.5 text-xs font-bold" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#94a3b8' }}>
                 Tổng: {summaryData.total}
               </div>
-              <div className="rounded-lg px-3 py-1.5 text-xs font-bold" style={{ background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)', color: '#34d399' }}>
+              <div className=" px-3 py-1.5 text-xs font-bold" style={{ background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)', color: '#34d399' }}>
                 A: {summaryData.countA}
               </div>
-              <div className="rounded-lg px-3 py-1.5 text-xs font-bold" style={{ background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.2)', color: '#60a5fa' }}>
+              <div className=" px-3 py-1.5 text-xs font-bold" style={{ background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.2)', color: '#60a5fa' }}>
                 B: {summaryData.countB}
               </div>
-              <div className="rounded-lg px-3 py-1.5 text-xs font-bold" style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', color: '#f87171' }}>
+              <div className=" px-3 py-1.5 text-xs font-bold" style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', color: '#f87171' }}>
                 C/Lỗi: {summaryData.countC}
               </div>
             </div>
             <div className="flex w-full items-center gap-2 lg:w-auto">
               <button
                 onClick={() => { if (setActiveStep) setActiveStep('dashboard'); if (markStepAsCompleted) markStepAsCompleted('analysis'); navigate('/detailed-analytics'); }}
-                className="flex flex-1 items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition-all lg:flex-none"
+                className="flex flex-1 items-center justify-center gap-2  px-4 py-2 text-sm font-semibold transition-all lg:flex-none"
                 style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#94a3b8' }}
               >
                 Thống Kê
               </button>
               <button
                 onClick={() => { if (setActiveStep) setActiveStep('chatbot'); if (markStepAsCompleted) markStepAsCompleted('analysis'); navigate('/chatbot'); }}
-                className="flex flex-1 items-center justify-center gap-2 rounded-xl px-5 py-2 text-sm font-bold transition-all lg:flex-none"
+                className="flex flex-1 items-center justify-center gap-2  px-5 py-2 text-sm font-bold transition-all lg:flex-none"
                 style={{ background: 'linear-gradient(135deg, #4f46e5, #6366f1)', border: '1px solid rgba(99,102,241,0.35)', color: '#fff', boxShadow: '0 4px 15px rgba(99,102,241,0.2)' }}
               >
                 Gợi Ý Ứng Viên
@@ -238,7 +238,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMes
             { label: 'Hạng B', value: summaryData.countB, accent: 'rgba(59,130,246,0.08)', border: 'rgba(59,130,246,0.15)', text: '#60a5fa' },
             { label: 'Hạng C/Lỗi', value: summaryData.countC, accent: 'rgba(239,68,68,0.08)', border: 'rgba(239,68,68,0.15)', text: '#f87171' }
           ].map(card => (
-            <div key={card.label} className="rounded-2xl p-4" style={{ background: card.accent, border: `1px solid ${card.border}` }}>
+            <div key={card.label} className=" p-4" style={{ background: card.accent, border: `1px solid ${card.border}` }}>
               <p className="text-[9px] uppercase tracking-[0.2em] font-bold" style={{ color: '#475569' }}>{card.label}</p>
               <p className="text-4xl font-black mt-2" style={{ color: card.text }}>{card.value}</p>
             </div>
@@ -247,7 +247,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMes
 
         {/* ── Filter bar ─────────────────────────────── */}
         <div
-          className="mb-3 shrink-0 rounded-2xl p-4"
+          className="mb-3 shrink-0  p-4"
           style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}
         >
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
@@ -258,7 +258,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMes
                 placeholder="Tìm theo tên, chức danh..."
                 value={searchTerm}
                 onChange={e => handleSearchChange(e.target.value)}
-                className="w-full rounded-xl pl-10 pr-4 py-3 text-sm outline-none transition-all"
+                className="w-full  pl-10 pr-4 py-3 text-sm outline-none transition-all"
                 style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#cbd5e1' }}
               />
             </div>
@@ -273,7 +273,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMes
                 <button
                   key={chip.value}
                   onClick={() => setFilter(chip.value)}
-                  className="rounded-full px-4 py-1.5 text-sm font-medium transition"
+                  className="-full px-4 py-1.5 text-sm font-medium transition"
                   style={filter === chip.value ? { background: chip.active.bg, color: chip.active.color, border: '1px solid transparent' } : { background: chip.inactive.bg, color: chip.inactive.color, border: `1px solid ${(chip.inactive as any).border || 'rgba(255,255,255,0.08)'}` }}
                 >
                   {chip.label}
@@ -287,7 +287,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMes
                   id="sort-by"
                   value={sortBy}
                   onChange={e => setSortBy(e.target.value as 'score' | 'jdFit')}
-                  className="cursor-pointer appearance-none rounded-full py-2 pl-4 pr-10 font-semibold outline-none"
+                  className="cursor-pointer appearance-none -full py-2 pl-4 pr-10 font-semibold outline-none"
                   style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#94a3b8' }}
                 >
                   <option value="score">Điểm Tổng</option>
@@ -300,7 +300,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMes
         </div>
 
         {/* ── Results table ───────────────────────────── */}
-        <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden " style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
 
           {/* Desktop */}
           <div className="custom-scrollbar hidden min-h-0 flex-1 overflow-y-auto md:block">
@@ -331,7 +331,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMes
                         <td className="px-5 py-3 font-medium" style={{ color: '#475569' }}>#{index + 1}</td>
                         <td className="px-5 py-3 font-medium" style={{ color: '#cbd5e1' }}>{candidate.candidateName || 'Chưa xác định'}</td>
                         <td className="px-5 py-3">
-                          <span className="rounded-full px-2.5 py-1 text-xs font-bold" style={
+                          <span className="-full px-2.5 py-1 text-xs font-bold" style={
                             candidate.status === 'FAILED'
                               ? { background: 'rgba(255,255,255,0.05)', color: '#475569' }
                               : grade === 'A'
@@ -370,7 +370,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMes
               const overallScore = candidate.status === 'FAILED' ? 0 : (candidate.analysis?.['Tổng điểm'] || 0);
               const jdFitScore = candidate.status === 'FAILED' ? 0 : parseInt(candidate.analysis?.['Chi tiết']?.find(i => i['Tiêu chí'].startsWith('Phù hợp JD'))?.['Điểm'].split('/')[0] || '0', 10);
               return (
-                <div key={candidate.id} className="rounded-xl p-4 transition-all" style={{ background: isSelected ? 'rgba(99,102,241,0.06)' : 'rgba(255,255,255,0.03)', border: `1px solid ${isSelected ? 'rgba(99,102,241,0.25)' : 'rgba(255,255,255,0.06)'}` }}>
+                <div key={candidate.id} className=" p-4 transition-all" style={{ background: isSelected ? 'rgba(99,102,241,0.06)' : 'rgba(255,255,255,0.03)', border: `1px solid ${isSelected ? 'rgba(99,102,241,0.25)' : 'rgba(255,255,255,0.06)'}` }}>
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-3">
                       <span className="text-sm font-medium" style={{ color: '#475569' }}>#{index + 1}</span>
@@ -379,7 +379,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMes
                         <p className="mt-0.5 max-w-[180px] truncate text-xs" style={{ color: '#475569' }}>{candidate.jobTitle || 'Chưa có chức danh'}</p>
                       </div>
                     </div>
-                    <span className="shrink-0 rounded-full px-2.5 py-1 text-xs font-bold" style={
+                    <span className="shrink-0 -full px-2.5 py-1 text-xs font-bold" style={
                       candidate.status === 'FAILED'
                         ? { background: 'rgba(255,255,255,0.05)', color: '#475569' }
                         : grade === 'A'
@@ -390,16 +390,16 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMes
                     }>{grade}</span>
                   </div>
                   <div className="mt-3 grid grid-cols-2 gap-2">
-                    <div className="rounded-lg p-2" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}>
+                    <div className=" p-2" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}>
                       <p className="mb-1 text-xs" style={{ color: '#475569' }}>Điểm tổng</p><p className="text-lg font-semibold" style={{ color: '#cbd5e1' }}>{overallScore}</p>
                     </div>
-                    <div className="rounded-lg p-2" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}>
+                    <div className=" p-2" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}>
                       <p className="mb-1 text-xs" style={{ color: '#475569' }}>Phù hợp JD</p><p className="text-lg font-semibold" style={{ color: '#cbd5e1' }}>{jdFitScore}%</p>
                     </div>
                   </div>
                   <div className="mt-3 flex items-center justify-between" style={{ borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '12px' }}>
                     <span className="max-w-[150px] truncate text-xs" style={{ color: '#475569' }}>{candidate.fileName}</span>
-                    <button onClick={() => handleExpandCandidate(candidate.id)} className="flex items-center gap-1 rounded px-2 py-1 text-xs font-medium transition" style={{ color: 'rgba(99,102,241,0.6)' }}>
+                    <button onClick={() => handleExpandCandidate(candidate.id)} className="flex items-center gap-1  px-2 py-1 text-xs font-medium transition" style={{ color: 'rgba(99,102,241,0.6)' }}>
                       {expandedCandidate === candidate.id ? 'Thu gọn' : 'Chi tiết'} ▾
                     </button>
                   </div>
@@ -416,15 +416,15 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMes
       {/* ── Expand modal ──────────────────────────────── */}
       {expandedCandidate && results.find(c => c.id === expandedCandidate) && typeof document !== 'undefined' && createPortal(
         <div className="fixed inset-0 flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-200" style={{ background: 'rgba(0,0,0,0.65)', zIndex: 99999 }}>
-          <div className="flex h-full max-h-[95vh] w-full max-w-7xl flex-col overflow-hidden rounded-2xl" style={{ background: 'linear-gradient(180deg, #0d1420 0%, #0a1220 100%)', border: '1px solid rgba(99,102,241,0.15)', boxShadow: '0 0 60px rgba(99,102,241,0.1)' }}>
+          <div className="flex h-full max-h-[95vh] w-full max-w-7xl flex-col overflow-hidden " style={{ background: 'linear-gradient(180deg, #11213A 0%, #0B192C 100%)', border: '1px solid rgba(99,102,241,0.15)', boxShadow: '0 0 60px rgba(99,102,241,0.1)' }}>
             <div className="flex shrink-0 items-center justify-between p-5" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
               <div className="flex items-center gap-3">
-                <div className="h-8 w-[3px] rounded-full shrink-0" style={{ background: 'linear-gradient(180deg, #6366f1, #8b5cf6)' }} />
+                <div className="h-8 w-[3px] -full shrink-0" style={{ background: 'linear-gradient(180deg, #6366f1, #8b5cf6)' }} />
                 <h3 className="text-xl font-bold lg:text-2xl" style={{ color: '#f1f5f9' }}>
                   Kết quả chi tiết: {results.find(c => c.id === expandedCandidate)?.candidateName}
                 </h3>
               </div>
-              <button onClick={() => setExpandedCandidate(null)} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition" style={{ color: '#475569' }}
+              <button onClick={() => setExpandedCandidate(null)} className="flex h-10 w-10 shrink-0 items-center justify-center -full transition" style={{ color: '#475569' }}
                 onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.06)'; (e.currentTarget as HTMLElement).style.color = '#94a3b8'; }}
                 onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.color = '#475569'; }}>
                 ×
@@ -447,3 +447,6 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMes
 };
 
 export default AnalysisResults;
+
+
+

@@ -172,5 +172,4 @@ export async function signOut(): Promise<void> {
 export async function sendResetPassword(email: string): Promise<void> {
   await sendPasswordResetEmail(auth, email);
 }
-
 export { mapFirebaseError };

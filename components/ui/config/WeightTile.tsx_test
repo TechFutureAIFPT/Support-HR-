@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState, useEffect } from 'react';
+﻿import React, { useMemo, useRef, useState, useEffect } from 'react';
 import type { MainCriterion, WeightCriteria } from '../../../assets/types';
 
 interface WeightTileProps {
@@ -76,7 +76,7 @@ const WeightTile: React.FC<WeightTileProps> = ({ criterion, setWeights, isExpand
                         style={{ width: `${Math.min(total, 100)}%` }}
                     ></div>
                  </div>
-                 <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Tổng {total}%</span>
+                 <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Tá»•ng {total}%</span>
               </div>
             </div>
         </div>

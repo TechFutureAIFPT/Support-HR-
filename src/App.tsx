@@ -32,6 +32,7 @@ const DetailedAnalyticsPage = lazy(() => import('../components/pages/analytics/D
 const PrivacyPolicyPage = lazy(() => import('../components/pages/info/PrivacyPolicyPage'));
 const TermsPage = lazy(() => import('../components/pages/info/TermsPage'));
 const SelectedCandidatesPage = lazy(() => import('../components/pages/analytics/SelectedCandidatesPage'));
+const AIFeedbackPage = lazy(() => import('../components/pages/main/AIFeedbackPage'));
 import CandidateSuggestions from '../components/pages/analytics/CandidateSuggestions';
 // HistoryPage removed from UI (still saving to Firestore silently)
 import { saveHistorySession } from '../services/history-cache/historyService';
@@ -362,7 +363,8 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
         // Save to CV filter history (always enabled)
         try {
           cvFilterHistoryService.addFilterSession(
-            jobPosition || 'Không rõ vị trí'
+            jobPosition || 'Không rõ vị trí',
+            hardFilters.industry || 'Khác'
           );
         } catch (error) {
           console.warn('Failed to save filter history:', error);
@@ -392,7 +394,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
       case '/dashboard': return 'dashboard';
       case '/detailed-analytics': return 'dashboard'; // Show dashboard as active for detailed analytics page
       case '/chatbot': return 'chatbot';
-      case '/selected': return 'selected';
+      case '/feedback': return 'feedback';
       case '/':
       default:
         return 'home';
@@ -443,7 +445,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
       analysis: '/analysis',
       dashboard: '/detailed-analytics',
       chatbot: '/chatbot',
-      selected: '/selected',
+      feedback: '/feedback',
       process: '/process'
     };
     if (pathMap[step]) navigate(pathMap[step]!);
@@ -487,7 +489,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
   };
 
   return (
-    <div className={`min-h-screen text-slate-900 flex flex-col overflow-x-hidden ${className || ''}`}>
+    <div className={`h-[100dvh] bg-[#0B1120] text-slate-900 flex flex-col overflow-hidden ${className || ''}`}>
       {!isHomeView && (
         <div className="hidden md:block">
           <Sidebar
@@ -545,12 +547,12 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
             : 'ml-0 w-full'
         }`}
       >
-        {activeStep !== 'home' && activeStep !== 'jd' && activeStep !== 'weights' && activeStep !== 'upload' && activeStep !== 'analysis' && activeStep !== 'dashboard' && (
-          <div className="pt-4">
+        {(activeStep === 'jd' || activeStep === 'weights' || activeStep === 'upload' || activeStep === 'analysis') && (
+          <div className="pt-4 md:hidden">
             <ProgressBar activeStep={activeStep} completedSteps={completedSteps} />
           </div>
         )}
-        <div className={`flex h-full min-h-0 w-full flex-1 flex-col overflow-x-hidden ${(activeStep === 'home' || activeStep === 'jd' || activeStep === 'weights' || activeStep === 'upload' || activeStep === 'analysis' || activeStep === 'dashboard' || activeStep === 'chatbot' || activeStep === 'selected') ? '' : 'max-w-7xl px-4 sm:px-6 lg:px-8 mx-auto py-2'} ${(activeStep === 'home' || activeStep === 'jd' || activeStep === 'weights' || activeStep === 'upload' || activeStep === 'analysis' || activeStep === 'dashboard' || activeStep === 'chatbot' || activeStep === 'selected') ? '' : 'py-2'}`}>
+        <div className={`flex h-full min-h-0 w-full flex-1 flex-col ${(activeStep === 'home' || activeStep === 'jd' || activeStep === 'weights' || activeStep === 'upload' || activeStep === 'analysis' || activeStep === 'dashboard' || activeStep === 'chatbot' || activeStep === 'feedback') ? 'overflow-hidden' : 'max-w-7xl px-4 sm:px-6 lg:px-8 mx-auto py-4 overflow-y-auto custom-scrollbar'}`}>
           <Suspense fallback={<div className="flex flex-col justify-center items-center h-64 gap-3"><div className="relative w-10 h-10"><div className="absolute inset-0 rounded-full border-[3px] border-transparent border-t-cyan-400 border-r-cyan-400/40 animate-spin" style={{ animationDuration: '0.8s' }} /><div className="absolute inset-1.5 rounded-full border-[3px] border-transparent border-b-indigo-400 border-l-indigo-400/40 animate-spin" style={{ animationDuration: '1.2s', animationDirection: 'reverse' }} /></div></div>}>
             <Routes>
               <Route path="/" element={<HomePage setActiveStep={setActiveStep} isLoggedIn={isLoggedIn} onLoginRequest={onLoginRequest} completedSteps={completedSteps} userName={userName} userEmail={userEmail} />} />
@@ -561,7 +563,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
 
               <Route path="/detailed-analytics" element={isLoggedIn ? <DetailedAnalyticsPage candidates={analysisResults} jobPosition={jobPosition} onReset={onResetRequest} /> : <HomePage setActiveStep={setActiveStep} isLoggedIn={isLoggedIn} onLoginRequest={onLoginRequest} completedSteps={completedSteps} userName={userName} userEmail={userEmail} />} />
               <Route path="/chatbot" element={isLoggedIn ? <CandidateSuggestions candidates={analysisResults} jobPosition={jobPosition} /> : <HomePage setActiveStep={setActiveStep} isLoggedIn={isLoggedIn} onLoginRequest={onLoginRequest} completedSteps={completedSteps} userName={userName} userEmail={userEmail} />} />
-              <Route path="/selected" element={isLoggedIn ? <SelectedCandidatesPage candidates={analysisResults} jobPosition={jobPosition} /> : <HomePage setActiveStep={setActiveStep} isLoggedIn={isLoggedIn} onLoginRequest={onLoginRequest} completedSteps={completedSteps} userName={userName} userEmail={userEmail} />} />
+              <Route path="/feedback" element={isLoggedIn ? <AIFeedbackPage candidates={analysisResults} /> : <HomePage setActiveStep={setActiveStep} isLoggedIn={isLoggedIn} onLoginRequest={onLoginRequest} completedSteps={completedSteps} userName={userName} userEmail={userEmail} />} />
               <Route path="/process" element={<ProcessPage />} />
               <Route path="/contact-ready" element={<DeploymentReadyPage />} />
               <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />

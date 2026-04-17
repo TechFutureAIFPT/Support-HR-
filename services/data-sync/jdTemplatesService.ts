@@ -40,11 +40,39 @@ export class JDTemplatesService {
     try {
       const q = query(
         collection(db, JD_TEMPLATES_COLLECTION),
-        where('uid', '==', user.uid),
-        orderBy('updatedAt', 'desc')
+        where('uid', '==', user.uid)
       );
       const snap = await getDocs(q);
-      return snap.docs.map(d => ({ id: d.id, ...d.data() } as UserJDTemplate));
+      const results = snap.docs.map(d => ({ id: d.id, ...d.data() } as UserJDTemplate));
+      
+      // Sort in memory by updatedAt descending
+      results.sort((a, b) => {
+        const timeA = a.updatedAt?.seconds || 0;
+        const timeB = b.updatedAt?.seconds || 0;
+        return timeB - timeA;
+      });
+
+      // Lọc bỏ các mẫu trùng tên (giữ lại mẫu cập nhật gần nhất) và xóa trên database
+      const uniqueResults: UserJDTemplate[] = [];
+      const seenNames = new Set<string>();
+      const duplicatesToDelete: string[] = [];
+
+      for (const t of results) {
+        if (!seenNames.has(t.name)) {
+          seenNames.add(t.name);
+          uniqueResults.push(t);
+        } else {
+          duplicatesToDelete.push(t.id);
+        }
+      }
+
+      // Xóa các bản phụ trên nền background
+      if (duplicatesToDelete.length > 0) {
+        Promise.all(duplicatesToDelete.map(id => deleteDoc(doc(db, JD_TEMPLATES_COLLECTION, id))))
+          .catch(err => console.error('Error auto-cleaning duplicate templates:', err));
+      }
+
+      return uniqueResults;
     } catch (error) {
       console.error('JDTemplatesService.getUserTemplates error:', error);
       return [];

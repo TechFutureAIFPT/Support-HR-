@@ -48,7 +48,7 @@ const DeploymentReadyPage: React.FC = () => {
           </a>
           <a
             href="mailto:support@supporthr.vn"
-            className="w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-3.5 rounded-2xl bg-[#0B1628] border border-slate-800/60 text-slate-300 font-semibold text-sm hover:border-cyan-500/30 hover:text-cyan-300 transition-all"
+            className="w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-3.5 rounded-2xl bg-[#11213A] border border-slate-800/60 text-slate-300 font-semibold text-sm hover:border-cyan-500/30 hover:text-cyan-300 transition-all"
           >
             <i className="fa-solid fa-envelope text-slate-400"></i>
             Gửi email
@@ -62,7 +62,7 @@ const DeploymentReadyPage: React.FC = () => {
             { value: 'AI 95%+', label: 'Độ chính xác', icon: 'fa-brain', color: 'text-cyan-400' },
             { value: '< 5ph', label: 'Triển khai', icon: 'fa-bolt', color: 'text-amber-400' },
           ].map(stat => (
-            <div key={stat.label} className="bg-[#0B1628] rounded-2xl border border-slate-800/60 p-4">
+            <div key={stat.label} className="bg-[#11213A] rounded-2xl border border-slate-800/60 p-4">
               <i className={`fa-solid ${stat.icon} ${stat.color} text-base mb-2`}></i>
               <p className="text-sm font-black text-white">{stat.value}</p>
               <p className="text-[10px] text-slate-600 mt-0.5">{stat.label}</p>
@@ -80,7 +80,7 @@ const DeploymentReadyPage: React.FC = () => {
                 href={social.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`group flex flex-col items-center gap-2.5 p-4 rounded-2xl border border-slate-800/60 bg-[#0B1628] ${social.color} ${social.border} transition-all duration-200`}
+                className={`group flex flex-col items-center gap-2.5 p-4 rounded-2xl border border-slate-800/60 bg-[#11213A] ${social.color} ${social.border} transition-all duration-200`}
               >
                 <div className="w-10 h-10 rounded-xl bg-slate-800/80 flex items-center justify-center group-hover:scale-105 transition-transform">
                   <i className={`${social.icon} text-xl`}></i>
@@ -96,3 +96,4 @@ const DeploymentReadyPage: React.FC = () => {
 };
 
 export default DeploymentReadyPage;
+

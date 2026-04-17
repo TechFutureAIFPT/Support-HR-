@@ -1,4 +1,5 @@
 import React, { useState, useCallback, memo, useMemo } from 'react';
+import { UploadCloud, FileText, Upload } from 'lucide-react';
 import type { Candidate, HardFilters, WeightCriteria, AppStep } from '../../../assets/types';
 import { analyzeCVs } from '../../../services/ai-ml/models/gemini/geminiService';
 import { googleDriveService } from '../../../services/file-processing/googleDriveService';
@@ -176,15 +177,15 @@ const CVUpload: React.FC<CVUploadProps> = memo((props) => {
   }, [setCvFiles]);
 
   return (
-    <section id="module-upload" className="module-pane active relative w-full h-[calc(100vh)] min-h-[400px] flex flex-col" style={{ background: 'linear-gradient(180deg, #0a1220 0%, #0d1628 100%)' }}>
-      <div className="absolute top-0 right-0 w-64 h-64 rounded-full blur-3xl pointer-events-none" style={{ background: 'rgba(99,102,241,0.06)' }} />
-      <div className="absolute bottom-0 left-0 w-64 h-64 rounded-full blur-3xl pointer-events-none" style={{ background: 'rgba(59,130,246,0.05)' }} />
+    <section id="module-upload" className="module-pane active relative w-full h-[calc(100vh)] min-h-[400px] flex flex-col bg-[#0B192C]">
+      <div className="absolute top-0 right-0 w-64 h-64 rounded-none blur-3xl pointer-events-none" style={{ background: 'rgba(99,102,241,0.06)' }} />
+      <div className="absolute bottom-0 left-0 w-64 h-64 rounded-none blur-3xl pointer-events-none" style={{ background: 'rgba(59,130,246,0.05)' }} />
 
       {/* ── Header ──────────────────────────────────────────── */}
       <div
         className="shrink-0 border-b"
         style={{
-          background: 'linear-gradient(180deg, #0c1628 0%, #0a1220 100%)',
+          background: 'linear-gradient(180deg, #11213A 0%, #0B192C 100%)',
           borderColor: 'rgba(99,102,241,0.18)',
         }}
       >
@@ -195,7 +196,7 @@ const CVUpload: React.FC<CVUploadProps> = memo((props) => {
         >
           {/* Accent bar */}
           <div
-            className="h-8 w-[3px] rounded-full shrink-0"
+            className="h-8 w-[3px] -full shrink-0"
             style={{ background: 'linear-gradient(180deg, #3b82f6, #6366f1)' }}
           />
 
@@ -224,7 +225,7 @@ const CVUpload: React.FC<CVUploadProps> = memo((props) => {
           {/* Status badges */}
           <div className="ml-auto flex items-center gap-2 shrink-0">
             <div
-              className="px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider"
+              className="px-3 py-1.5  text-[10px] font-bold uppercase tracking-wider"
               style={
                 completedSteps.includes('jd')
                   ? { background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.25)', color: '#34d399' }
@@ -234,7 +235,7 @@ const CVUpload: React.FC<CVUploadProps> = memo((props) => {
               JD {completedSteps.includes('jd') ? '✓' : '○'}
             </div>
             <div
-              className="px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider"
+              className="px-3 py-1.5  text-[10px] font-bold uppercase tracking-wider"
               style={
                 completedSteps.includes('weights')
                   ? { background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.25)', color: '#34d399' }
@@ -244,7 +245,7 @@ const CVUpload: React.FC<CVUploadProps> = memo((props) => {
               Trọng số {completedSteps.includes('weights') ? '✓' : '○'}
             </div>
             <div
-              className="px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider"
+              className="px-3 py-1.5  text-[10px] font-bold uppercase tracking-wider"
               style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#94a3b8' }}
             >
               {cvFiles.length} / {MAX_CV_PER_BATCH} CV
@@ -257,36 +258,40 @@ const CVUpload: React.FC<CVUploadProps> = memo((props) => {
       <div className="flex flex-1 overflow-hidden relative z-10 w-full">
         <div className="w-full h-full p-4 lg:p-6 lg:px-8 overflow-y-auto custom-scrollbar">
 
-          <div className="grid lg:grid-cols-12 gap-6">
+          <div className="grid lg:grid-cols-12 gap-6 h-full min-h-[500px]">
             {/* Left Column: Upload & Actions (5 cols) */}
-            <div className="lg:col-span-5 space-y-4">
+            <div className="lg:col-span-5 flex flex-col h-full gap-4">
               {/* Upload Zone */}
-              <div className="relative group">
-                 <div className="relative rounded-xl p-6 text-center" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
+              <div className="relative group flex-1 flex flex-col">
+                 <div className="relative flex-1 flex flex-col p-6 text-center justify-center items-center transition-all bg-[#11213A] border-2 border-dashed border-indigo-500/20 hover:border-indigo-500/40 hover:bg-indigo-500/5">
                      <div
-                       className="w-16 h-16 mx-auto rounded-2xl mb-4"
+                       className="w-16 h-16 mx-auto mb-6 flex items-center justify-center transition-transform duration-300 group-hover:scale-110 group-hover:-translate-y-1 shadow-lg shadow-indigo-500/10"
                        style={{ background: 'linear-gradient(135deg, rgba(99,102,241,0.15), rgba(59,130,246,0.1))', border: '1px solid rgba(99,102,241,0.2)' }}
-                     />
-                     <h4 className="text-base font-medium mb-0.5 text-white">Kéo thả hoặc chọn file</h4>
-                     <p className="text-[10px] mb-3" style={{ color: '#475569' }}>PDF, DOCX, PNG, JPG (Tối đa {MAX_CV_PER_BATCH} file)</p>
+                     >
+                        <UploadCloud className="w-8 h-8 text-indigo-400" />
+                     </div>
+                     <h4 className="text-lg font-bold mb-1.5 text-white flex items-center gap-2">
+                        Kéo thả hoặc chọn file
+                     </h4>
+                     <p className="text-[10px] mb-6" style={{ color: '#475569' }}>PDF, DOCX, PNG, JPG (Tối đa {MAX_CV_PER_BATCH} file)</p>
 
                     {/* Upload Buttons */}
-                    <div className="flex flex-col gap-2">
+                    <div className="flex flex-col gap-2 w-full mt-auto">
                         {!showUploadOptions ? (
                             <button
                                 onClick={() => setShowUploadOptions(true)}
-                                className="w-full py-3 rounded-xl text-white font-semibold text-sm transition-all"
+                                className="w-full py-3  text-white font-semibold text-sm transition-all"
                                 style={{ background: 'linear-gradient(135deg, #4f46e5, #6366f1)', border: '1px solid rgba(99,102,241,0.3)', boxShadow: '0 4px 15px rgba(99,102,241,0.2)' }}
                             >
                                 Tải CV lên
                             </button>
                         ) : (
                             <div className="grid grid-cols-2 gap-2 animate-in fade-in zoom-in duration-200">
-                                <label className="cursor-pointer py-2.5 rounded-xl text-sm font-medium flex items-center justify-center gap-2 transition-all" style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.2)', color: '#818cf8' }}>
+                                <label className="cursor-pointer py-2.5  text-sm font-medium flex items-center justify-center gap-2 transition-all" style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.2)', color: '#818cf8' }}>
                                     Từ máy
                                     <input type="file" multiple accept=".pdf,.docx,.png,.jpg,.jpeg" className="hidden" onChange={handleFileChange} />
                                 </label>
-                                <button onClick={handleGoogleDriveSelect} className="py-2.5 rounded-xl text-sm font-medium flex items-center justify-center gap-2 transition-all" style={{ background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)', color: '#34d399' }}>
+                                <button onClick={handleGoogleDriveSelect} className="py-2.5  text-sm font-medium flex items-center justify-center gap-2 transition-all" style={{ background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)', color: '#34d399' }}>
                                     Google Drive
                                 </button>
                                 <button onClick={() => setShowUploadOptions(false)} className="col-span-2 py-1 text-xs" style={{ color: '#475569' }}>Hủy bỏ</button>
@@ -300,7 +305,7 @@ const CVUpload: React.FC<CVUploadProps> = memo((props) => {
               <button
                 onClick={handleAnalyzeClick}
                 disabled={cvFiles.length === 0 || !readyForAnalysis}
-                className="w-full py-3 rounded-xl font-bold text-base transition-all flex items-center justify-center gap-3"
+                className="w-full py-3  font-bold text-base transition-all flex items-center justify-center gap-3"
                 style={
                   cvFiles.length > 0 && readyForAnalysis
                     ? { background: 'linear-gradient(135deg, #4f46e5, #6366f1)', border: '1px solid rgba(99,102,241,0.35)', color: '#fff', boxShadow: '0 4px 20px rgba(99,102,241,0.25)' }
@@ -313,14 +318,14 @@ const CVUpload: React.FC<CVUploadProps> = memo((props) => {
 
               {/* Error Message */}
               {error && (
-                <div className="p-3 rounded-xl flex items-start gap-3" style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.2)' }}>
-                  <div className="h-full w-[3px] rounded-full shrink-0" style={{ background: '#ef4444' }} />
+                <div className="p-3  flex items-start gap-3" style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.2)' }}>
+                  <div className="h-full w-[3px] -full shrink-0" style={{ background: '#ef4444' }} />
                   <p className="text-xs font-medium" style={{ color: '#fca5a5' }}>{error}</p>
                 </div>
               )}
 
               {/* Mini Checklist */}
-              <div className="rounded-xl p-4" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+              <div className=" p-4" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
                 <h5 className="text-[10px] font-bold uppercase tracking-wider mb-3" style={{ color: '#475569' }}>Yêu cầu trước khi phân tích</h5>
                 <ul className="space-y-2 text-xs">
                    <li className="flex items-center gap-2" style={{ color: completedSteps.includes('jd') ? '#34d399' : '#475569' }}>
@@ -337,21 +342,21 @@ const CVUpload: React.FC<CVUploadProps> = memo((props) => {
             </div>
 
             {/* Right Column: File List (7 cols) */}
-            <div className="lg:col-span-7 flex flex-col rounded-xl overflow-hidden" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+            <div className="lg:col-span-7 flex flex-col h-full overflow-hidden" style={{ background: '#11213A', border: '1px solid rgba(255,255,255,0.06)' }}>
                <div className="p-4 flex items-center justify-between" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
                   <h4 className="font-medium text-sm text-white">Danh sách hồ sơ</h4>
                   <div className="flex items-center gap-2">
-                    <label className="cursor-pointer text-xs transition-colors flex items-center gap-1 px-2 py-1 rounded" style={{ color: '#818cf8' }} title="Thêm từ máy tính">
+                    <label className="cursor-pointer text-xs transition-colors flex items-center gap-1 px-2 py-1 " style={{ color: '#818cf8' }} title="Thêm từ máy tính">
                         <input type="file" multiple accept=".pdf,.docx,.png,.jpg,.jpeg" className="hidden" onChange={handleFileChange} />
                         Thêm file
                     </label>
-                    <button onClick={handleGoogleDriveSelect} className="text-xs transition-colors flex items-center gap-1 px-2 py-1 rounded" style={{ color: '#34d399' }} title="Thêm từ Google Drive">
+                    <button onClick={handleGoogleDriveSelect} className="text-xs transition-colors flex items-center gap-1 px-2 py-1 " style={{ color: '#34d399' }} title="Thêm từ Google Drive">
                         Google Drive
                     </button>
                     {cvFiles.length > 0 && (
                         <>
                             <div className="w-px h-4" style={{ background: 'rgba(255,255,255,0.08)' }} />
-                            <button onClick={handleClearFiles} className="text-xs transition-colors px-2 py-1 rounded" style={{ color: '#f87171' }}>
+                            <button onClick={handleClearFiles} className="text-xs transition-colors px-2 py-1 " style={{ color: '#f87171' }}>
                             Xóa tất cả
                             </button>
                         </>
@@ -359,22 +364,22 @@ const CVUpload: React.FC<CVUploadProps> = memo((props) => {
                   </div>
                </div>
 
-               <div className="overflow-y-auto p-3 custom-scrollbar" style={{ maxHeight: '420px', minHeight: '140px' }}>
+               <div className="flex-1 overflow-y-auto p-3 custom-scrollbar" style={{ minHeight: '140px' }}>
                   {cvFiles.length === 0 ? (
                      <div className="h-full flex flex-col items-center justify-center space-y-3 py-12" style={{ color: '#334155' }}>
-                        <div className="w-12 h-12 rounded-2xl" style={{ background: 'rgba(255,255,255,0.04)' }} />
+                        <div className="w-12 h-12 " style={{ background: 'rgba(255,255,255,0.04)' }} />
                         <p className="text-sm">Chưa có CV nào được chọn</p>
                     </div>
                   ) : (
                     <div className="grid gap-2">
                       {cvFiles.map((file, index) => (
-                        <div key={`${file.name}-${index}`} className="group flex items-center gap-3 p-3 rounded-xl transition-all" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                           <div className="w-8 h-8 rounded-lg shrink-0" style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.15)' }} />
+                        <div key={`${file.name}-${index}`} className="group flex items-center gap-3 p-3  transition-all" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                           <div className="w-8 h-8  shrink-0" style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.15)' }} />
                            <div className="flex-1 min-w-0">
                              <p className="text-sm truncate" style={{ color: '#cbd5e1' }}>{file.name}</p>
                              <p className="text-[10px]" style={{ color: '#475569' }}>{(file.size / 1024).toFixed(1)} KB</p>
                            </div>
-                           <button onClick={() => handleRemoveFile(index)} className="w-8 h-8 flex items-center justify-center rounded-full transition-colors" style={{ color: '#475569' }}
+                           <button onClick={() => handleRemoveFile(index)} className="w-8 h-8 flex items-center justify-center -full transition-colors" style={{ color: '#475569' }}
                              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(239,68,68,0.1)'; (e.currentTarget as HTMLElement).style.color = '#f87171'; }}
                              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.color = '#475569'; }}>
                              ×
@@ -400,3 +405,7 @@ const CVUpload: React.FC<CVUploadProps> = memo((props) => {
 CVUpload.displayName = 'CVUpload';
 
 export default CVUpload;
+
+
+
+

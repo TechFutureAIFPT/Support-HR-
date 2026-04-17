@@ -99,7 +99,7 @@ const ProcessPage: React.FC<ProcessPageProps> = ({ isIntroMode = false, onStart 
             <div key={index} className="flex items-center gap-0">
               {/* Left: content */}
               <div className="flex-1 flex justify-end pr-6">
-                <div className={`bg-[#0B1628] border ${step.borderColor} rounded-2xl p-5 w-full max-w-md transition-all duration-300 hover:shadow-xl ${step.glowColor} group`}>
+                <div className={`bg-[#11213A] border ${step.borderColor} rounded-2xl p-5 w-full max-w-md transition-all duration-300 hover:shadow-xl ${step.glowColor} group`}>
                   <div className="flex items-center justify-between mb-3">
                     <h3 className={`text-base font-bold ${step.color}`}>{step.title}</h3>
                     <span className={`text-[10px] font-black ${step.color} opacity-60`}>{step.step}</span>
@@ -130,7 +130,7 @@ const ProcessPage: React.FC<ProcessPageProps> = ({ isIntroMode = false, onStart 
           { label: 'Xử lý', value: 'Hàng loạt', icon: 'fa-infinity', color: 'text-cyan-400' },
           { label: 'Độ chính xác', value: 'AI 95%+', icon: 'fa-brain', color: 'text-emerald-400' },
         ].map(stat => (
-          <div key={stat.label} className="bg-[#0B1628] rounded-2xl border border-slate-800/60 p-4 text-center">
+          <div key={stat.label} className="bg-[#11213A] rounded-2xl border border-slate-800/60 p-4 text-center">
             <i className={`fa-solid ${stat.icon} ${stat.color} text-base mb-2`}></i>
             <p className="text-xs font-bold text-white">{stat.value}</p>
             <p className="text-[10px] text-slate-600 mt-0.5">{stat.label}</p>
@@ -155,3 +155,4 @@ const ProcessPage: React.FC<ProcessPageProps> = ({ isIntroMode = false, onStart 
 };
 
 export default ProcessPage;
+

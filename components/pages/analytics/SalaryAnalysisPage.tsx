@@ -40,7 +40,7 @@ const SalaryAnalysisPage: React.FC<SalaryAnalysisPageProps> = ({ candidates, jdT
 
         {/* ── Candidate Selection ─────────────────────────────── */}
         {candidates && candidates.length > 0 && (
-          <div className="lg:col-span-1 bg-[#0B1628] rounded-2xl border border-slate-800/60 overflow-hidden">
+          <div className="lg:col-span-1 bg-[#11213A] rounded-2xl border border-slate-800/60 overflow-hidden">
             <div className="px-4 py-3.5 border-b border-slate-800/60 bg-slate-900/50">
               <h2 className="text-sm font-bold text-white flex items-center gap-2">
                 <i className="fa-solid fa-users text-cyan-400 text-xs"></i>
@@ -103,7 +103,7 @@ const SalaryAnalysisPage: React.FC<SalaryAnalysisPageProps> = ({ candidates, jdT
 
       {/* ── Analysis History ────────────────────────────────────── */}
       {analysisResults.length > 0 && (
-        <div className="bg-[#0B1628] rounded-2xl border border-slate-800/60 overflow-hidden">
+        <div className="bg-[#11213A] rounded-2xl border border-slate-800/60 overflow-hidden">
           <div className="px-4 py-3.5 border-b border-slate-800/60 bg-slate-900/50">
             <h2 className="text-sm font-bold text-white flex items-center gap-2">
               <i className="fa-solid fa-clock-rotate-left text-amber-400 text-xs"></i>
@@ -144,7 +144,7 @@ const SalaryAnalysisPage: React.FC<SalaryAnalysisPageProps> = ({ candidates, jdT
       )}
 
       {/* ── Usage Guide ─────────────────────────────────────────── */}
-      <div className="bg-[#0B1628] rounded-2xl border border-slate-800/60 p-5">
+      <div className="bg-[#11213A] rounded-2xl border border-slate-800/60 p-5">
         <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
           <i className="fa-solid fa-circle-info text-cyan-400 text-xs"></i>
           Hướng dẫn sử dụng
@@ -173,3 +173,4 @@ const SalaryAnalysisPage: React.FC<SalaryAnalysisPageProps> = ({ candidates, jdT
 };
 
 export default SalaryAnalysisPage;
+

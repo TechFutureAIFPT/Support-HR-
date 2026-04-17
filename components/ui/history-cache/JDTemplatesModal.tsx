@@ -1,6 +1,8 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { JDTemplatesService, UserJDTemplate, CreateJDTemplateInput } from '../../../services/data-sync/jdTemplatesService';
 import { auth } from '../../../services/firebase';
+import { analysisCacheService } from '../../../services/history-cache/analysisCache';
+import { cvFilterHistoryService } from '../../../services/history-cache/analysisHistory';
 
 // ─── Public interface for App.tsx ─────────────────────────────────────────────
 export interface JDTemplate {
@@ -168,6 +170,16 @@ const TemplateForm: React.FC<TemplateFormProps> = ({ initial, onSave, onCancel, 
 
 // ─── Main Modal ───────────────────────────────────────────────────────────────
 const JDTemplatesModal: React.FC<JDTemplatesModalProps> = ({ isOpen, onClose, onSelectTemplate }) => {
+  const [activeTab, setActiveTab] = useState<'jd' | 'history'>('jd');
+  const [cacheStats, setCacheStats] = useState({ size: 0, hitRate: 0, oldestEntry: 0, newestEntry: 0 });
+  const [historyStats, setHistoryStats] = useState({ totalSessions: 0, lastSession: null as string | null, thisWeekCount: 0, thisMonthCount: 0 });
+  const [recentHistory, setRecentHistory] = useState<any[]>([]);
+
+  const [historySearchTerm, setHistorySearchTerm] = useState('');
+  const [historyTimeFilter, setHistoryTimeFilter] = useState('Tất cả');
+  const [historyIndustryFilter, setHistoryIndustryFilter] = useState('Tất cả');
+  const [selectedHistoryIds, setSelectedHistoryIds] = useState<number[]>([]);
+
   const [templates, setTemplates] = useState<UserJDTemplate[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -212,12 +224,109 @@ const JDTemplatesModal: React.FC<JDTemplatesModalProps> = ({ isOpen, onClose, on
     }
   }, [isOpen, loadTemplates]);
 
+  useEffect(() => {
+    if (isOpen && activeTab === 'history') {
+      setCacheStats(analysisCacheService.getCacheStats());
+      setHistoryStats(cvFilterHistoryService.getHistoryStats());
+      setRecentHistory(cvFilterHistoryService.getRecentHistory());
+    }
+  }, [isOpen, activeTab]);
+
+  const handleClearCache = () => {
+    if (window.confirm('Bạn có chắc muốn xóa toàn bộ cache? Điều này sẽ làm chậm các lần phân tích tiếp theo.')) {
+      analysisCacheService.clearCache();
+      setCacheStats({ size: 0, hitRate: 0, oldestEntry: 0, newestEntry: 0 });
+    }
+  };
+
+  const handleDeleteSelectedHistory = () => {
+    if (selectedHistoryIds.length === 0) {
+      if (window.confirm('Bạn có chắc muốn xóa toàn bộ lịch sử lọc CV? Hành động này không thể hoàn tác.')) {
+        cvFilterHistoryService.clearHistory();
+        setHistoryStats({ totalSessions: 0, lastSession: null, thisWeekCount: 0, thisMonthCount: 0 });
+        setRecentHistory([]);
+        setSelectedHistoryIds([]);
+      }
+    } else {
+      if (window.confirm(`Bạn có chắc muốn xóa ${selectedHistoryIds.length} mục đã chọn?`)) {
+        cvFilterHistoryService.deleteHistoryEntries(selectedHistoryIds);
+        refreshHistoryStats();
+        setSelectedHistoryIds([]);
+      }
+    }
+  };
+
+  const refreshStats = () => setCacheStats(analysisCacheService.getCacheStats());
+  const refreshHistoryStats = () => {
+    setHistoryStats(cvFilterHistoryService.getHistoryStats());
+    setRecentHistory(cvFilterHistoryService.getRecentHistory());
+  };
+
+  const formatDate = (timestamp: number) => {
+    if (!timestamp) return 'N/A';
+    return new Date(timestamp).toLocaleString('vi-VN');
+  };
+
+  const getCacheSizeColor = (size: number) => {
+    if (size < 20) return 'text-green-400';
+    if (size < 50) return 'text-yellow-400';
+    return 'text-red-400';
+  };
+
   // ── Category list ──────────────────────────────────────────────────────────
   const categories = ['Tất cả', ...Array.from(new Set(templates.map(t => t.category)))];
 
+  // ── History Filters ────────────────────────────────────────────────────────
+  const historyIndustries = useMemo(() => {
+    return ['Tất cả', ...Array.from(new Set(recentHistory.map(h => h.industry || 'Khác')))];
+  }, [recentHistory]);
+
+  const suggestedHistoryPositions = useMemo(() => {
+    return Array.from(new Set(recentHistory.map(h => h.jobPosition).filter(Boolean))) as string[];
+  }, [recentHistory]);
+
+  const filteredHistory = useMemo(() => {
+    return recentHistory.filter(h => {
+      // time filter
+      if (historyTimeFilter === 'Hôm nay') {
+        const startOfToday = new Date().setHours(0, 0, 0, 0);
+        if (h.timestamp < startOfToday) return false;
+      } else if (historyTimeFilter === 'Tuần này') {
+        const oneWeekAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
+        if (h.timestamp < oneWeekAgo) return false;
+      } else if (historyTimeFilter === 'Tháng này') {
+        const oneMonthAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
+        if (h.timestamp < oneMonthAgo) return false;
+      } else if (historyTimeFilter === '3 tháng qua') {
+        const threeMonthsAgo = Date.now() - (90 * 24 * 60 * 60 * 1000);
+        if (h.timestamp < threeMonthsAgo) return false;
+      } else if (historyTimeFilter === '6 tháng qua') {
+        const sixMonthsAgo = Date.now() - (180 * 24 * 60 * 60 * 1000);
+        if (h.timestamp < sixMonthsAgo) return false;
+      } else if (historyTimeFilter === 'Năm nay') {
+        const startOfYear = new Date(new Date().getFullYear(), 0, 1).getTime();
+        if (h.timestamp < startOfYear) return false;
+      }
+      
+      // industry filter
+      if (historyIndustryFilter !== 'Tất cả') {
+         if ((h.industry || 'Khác') !== historyIndustryFilter) return false;
+      }
+
+      // position search
+      if (historySearchTerm && !h.jobPosition?.toLowerCase().includes(historySearchTerm.toLowerCase())) {
+         return false;
+      }
+
+      return true;
+    });
+  }, [recentHistory, historyTimeFilter, historyIndustryFilter, historySearchTerm]);
+
   const filtered = templates.filter(t => {
     const q = searchTerm.toLowerCase();
-    const matchSearch = t.name.toLowerCase().includes(q) || t.jobPosition.toLowerCase().includes(q) || t.category.toLowerCase().includes(q);
+    const matchSearch = (t.name || '').toLowerCase().includes(q) || 
+                        (t.jobPosition || '').toLowerCase().includes(q) || 
+                        (t.category || '').toLowerCase().includes(q);
     const matchCat = selectedCategory === 'Tất cả' || t.category === selectedCategory;
     return matchSearch && matchCat;
   });
@@ -318,18 +427,24 @@ const JDTemplatesModal: React.FC<JDTemplatesModalProps> = ({ isOpen, onClose, on
                 </button>
               )}
               <div className="w-8 h-8 rounded-lg bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center">
-                <i className="fa-solid fa-file-invoice text-indigo-400 text-sm" />
+                <i className={`fa-solid ${activeTab === 'jd' ? 'fa-file-invoice text-indigo-400' : 'fa-clock-rotate-left text-green-400'} text-sm`} />
               </div>
               <div>
                 <h2 className="text-base font-bold text-white">
-                  {view === 'list' && 'Mẫu JD của bạn'}
+                  {activeTab === 'jd' && view === 'list' && 'Mẫu JD của bạn'}
+                  {activeTab === 'history' && view === 'list' && 'Lịch sử & Thống kê'}
                   {view === 'create' && 'Tạo mẫu JD mới'}
                   {view === 'edit' && 'Chỉnh sửa mẫu JD'}
                   {view === 'confirm-delete' && 'Xác nhận xóa'}
                 </h2>
-                {view === 'list' && (
+                {activeTab === 'jd' && view === 'list' && (
                   <p className="text-[11px] text-slate-500">
                     {templates.length} mẫu • Riêng tư cho tài khoản của bạn
+                  </p>
+                )}
+                {activeTab === 'history' && view === 'list' && (
+                  <p className="text-[11px] text-slate-500">
+                    Theo dõi lịch sử và các phiên sàng lọc ứng viên của bạn
                   </p>
                 )}
               </div>
@@ -343,10 +458,27 @@ const JDTemplatesModal: React.FC<JDTemplatesModalProps> = ({ isOpen, onClose, on
           </div>
 
           {/* ── Body ────────────────────────────────────────────────────── */}
-          <div className="flex-1 overflow-y-auto custom-scrollbar">
+          {view === 'list' && (
+            <div className="flex border-b border-slate-800/60 bg-slate-900/20 flex-shrink-0">
+              <button
+                onClick={() => setActiveTab('jd')}
+                className={`flex-1 py-3 text-sm font-semibold transition-all border-b-2 ${activeTab === 'jd' ? 'border-indigo-500 text-indigo-400 bg-indigo-500/5' : 'border-transparent text-slate-500 hover:text-slate-300 hover:bg-white/5'}`}
+              >
+                <i className="fa-solid fa-file-invoice mr-2"></i> Mẫu JD đã dùng
+              </button>
+              <button
+                onClick={() => setActiveTab('history')}
+                className={`flex-1 py-3 text-sm font-semibold transition-all border-b-2 ${activeTab === 'history' ? 'border-green-500 text-green-400 bg-green-500/5' : 'border-transparent text-slate-500 hover:text-slate-300 hover:bg-white/5'}`}
+              >
+                <i className="fa-solid fa-clock-rotate-left mr-2"></i> Lịch sử hoạt động
+              </button>
+            </div>
+          )}
+
+          <div className="flex-1 overflow-y-auto custom-scrollbar flex flex-col h-full min-h-0">
 
             {/* LIST VIEW */}
-            {view === 'list' && (
+            {view === 'list' && activeTab === 'jd' && (
               <div className="flex flex-col h-full">
                 {/* Search + Filter toolbar */}
                 <div className="flex flex-col sm:flex-row gap-3 px-5 py-4 border-b border-slate-800/60 flex-shrink-0">
@@ -360,13 +492,6 @@ const JDTemplatesModal: React.FC<JDTemplatesModalProps> = ({ isOpen, onClose, on
                       className="w-full bg-slate-900/50 border border-slate-700 rounded-lg pl-9 pr-4 py-2 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-indigo-500 transition-colors"
                     />
                   </div>
-                  <button
-                    onClick={() => setView('create')}
-                    className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold bg-indigo-600 hover:bg-indigo-500 text-white transition-colors whitespace-nowrap flex-shrink-0"
-                  >
-                    <i className="fa-solid fa-plus text-xs" />
-                    Tạo mẫu mới
-                  </button>
                 </div>
 
                 {/* Category pills */}
@@ -411,14 +536,6 @@ const JDTemplatesModal: React.FC<JDTemplatesModalProps> = ({ isOpen, onClose, on
                       <p className="text-slate-400 text-sm font-medium">
                         {searchTerm ? `Không tìm thấy kết quả cho "${searchTerm}"` : 'Chưa có mẫu JD nào'}
                       </p>
-                      {!searchTerm && (
-                        <button
-                          onClick={() => setView('create')}
-                          className="mt-1 text-sm text-indigo-400 hover:text-indigo-300 underline underline-offset-2"
-                        >
-                          + Tạo mẫu JD đầu tiên
-                        </button>
-                      )}
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -475,6 +592,138 @@ const JDTemplatesModal: React.FC<JDTemplatesModalProps> = ({ isOpen, onClose, on
                           </div>
                         </div>
                       ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* HISTORY VIEW */}
+            {view === 'list' && activeTab === 'history' && (
+              <div className="flex flex-col h-full">
+                {/* Toolbar */}
+                <div className="flex flex-col sm:flex-row gap-3 px-5 py-4 border-b border-slate-800/60 flex-shrink-0 items-center justify-between">
+                  <div className="flex items-center gap-4 text-sm font-medium text-slate-300">
+                     <div className="flex items-center gap-2 bg-slate-800/50 px-3 py-1.5 rounded-lg border border-slate-700/50">
+                       <i className="fa-solid fa-chart-line text-blue-400" />
+                       Tổng phiên: <span className="text-white font-bold">{historyStats.totalSessions}</span>
+                     </div>
+                     <div className="flex items-center gap-2 bg-slate-800/50 px-3 py-1.5 rounded-lg border border-slate-700/50">
+                       <i className="fa-solid fa-calendar-week text-emerald-400" />
+                       Tuần này: <span className="text-white font-bold">{historyStats.thisWeekCount}</span>
+                     </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={refreshHistoryStats}
+                      className="w-9 h-9 flex items-center justify-center rounded-lg text-slate-400 hover:text-white bg-slate-800/50 hover:bg-slate-700 border border-slate-700 transition-all group shrink-0"
+                      title="Cập nhật"
+                    >
+                      <i className="fa-solid fa-rotate group-hover:rotate-180 transition-transform duration-500" />
+                    </button>
+                    <button
+                      onClick={handleDeleteSelectedHistory}
+                      disabled={historyStats.totalSessions === 0 && selectedHistoryIds.length === 0}
+                      className="px-3 py-1.5 flex items-center gap-2 rounded-lg text-xs font-semibold text-red-400 bg-red-500/10 hover:bg-red-500/20 disabled:bg-slate-800 disabled:text-slate-600 transition-all border border-red-500/20 hover:border-red-500/40 shrink-0"
+                    >
+                      <i className="fa-solid fa-trash-can" />
+                      {selectedHistoryIds.length > 0 ? `Xóa (${selectedHistoryIds.length})` : 'Xóa tất cả'}
+                    </button>
+                  </div>
+                </div>
+
+                {/* History Filter Toolbar */}
+                <div className="flex flex-col sm:flex-row gap-3 px-5 py-3 border-b border-slate-800/60 flex-shrink-0">
+                  <div className="relative flex-1">
+                    <i className="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs" />
+                    <input
+                      type="text"
+                      list="history-position-suggestions"
+                      placeholder="Tìm kiếm vị trí công việc..."
+                      value={historySearchTerm}
+                      onChange={e => setHistorySearchTerm(e.target.value)}
+                      className="w-full bg-slate-900/50 border border-slate-700 rounded-lg pl-9 pr-4 py-2 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-green-500 transition-colors"
+                    />
+                    <datalist id="history-position-suggestions">
+                      {suggestedHistoryPositions.map(pos => (
+                        <option key={pos} value={pos} />
+                      ))}
+                    </datalist>
+                  </div>
+
+                  <select
+                    value={historyTimeFilter}
+                    onChange={(e) => setHistoryTimeFilter(e.target.value)}
+                    className="bg-slate-900/50 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-300 focus:outline-none focus:border-green-500 transition-colors cursor-pointer"
+                  >
+                    <option value="Tất cả">Mọi lúc</option>
+                    <option value="Hôm nay">Hôm nay</option>
+                    <option value="Tuần này">Tuần này</option>
+                    <option value="Tháng này">Tháng này</option>
+                    <option value="3 tháng qua">3 tháng qua</option>
+                    <option value="6 tháng qua">6 tháng qua</option>
+                    <option value="Năm nay">Năm nay</option>
+                  </select>
+
+                  <select
+                    value={historyIndustryFilter}
+                    onChange={(e) => setHistoryIndustryFilter(e.target.value)}
+                    className="bg-slate-900/50 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-300 focus:outline-none focus:border-green-500 transition-colors cursor-pointer max-w-[200px]"
+                  >
+                    {historyIndustries.map(cat => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* List Container */}
+                <div className="flex-1 overflow-y-auto p-5 custom-scrollbar">
+                  {filteredHistory.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-14 gap-3 text-center">
+                      <div className="w-14 h-14 rounded-full bg-slate-800/60 flex items-center justify-center text-2xl">
+                        <i className="fa-solid fa-clock-rotate-left text-slate-600" />
+                      </div>
+                      <p className="text-slate-400 text-sm font-medium">Chưa có lịch sử hoạt động nào</p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                       {filteredHistory.map((entry, idx) => (
+                         <div key={idx} className="group relative bg-slate-900/50 border border-slate-800 rounded-xl p-4 hover:border-green-500/40 hover:bg-slate-800/40 transition-all">
+                           
+                           {/* Checkbox Overlay */}
+                           <div className={`absolute top-4 right-4 z-10 transition-opacity ${selectedHistoryIds.includes(entry.timestamp) ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                             <input 
+                               type="checkbox" 
+                               checked={selectedHistoryIds.includes(entry.timestamp)}
+                               onChange={(e) => {
+                                 if (e.target.checked) setSelectedHistoryIds(prev => [...prev, entry.timestamp]);
+                                 else setSelectedHistoryIds(prev => prev.filter(id => id !== entry.timestamp));
+                               }}
+                               className="w-4 h-4 cursor-pointer accent-red-500 rounded border-slate-600 bg-slate-800"
+                             />
+                           </div>
+
+                           <div className="flex items-start justify-between gap-2 mb-2 pr-6">
+                              <h3 className="text-sm font-semibold text-white group-hover:text-green-300 transition-colors line-clamp-1 flex-1">
+                                {entry.jobPosition || 'Không rõ vị trí'}
+                              </h3>
+                              <span className="text-[9px] px-2 py-0.5 rounded-full bg-green-500/10 text-green-400 border border-green-500/20 whitespace-nowrap shrink-0">
+                                {entry.industry || 'Khác'}
+                              </span>
+                           </div>
+
+                           <div className="flex items-center gap-1.5 text-[11px] text-green-400/80 mb-3">
+                              <i className="fa-solid fa-calendar-alt text-[9px]" />
+                              {entry.timestamp ? new Date(entry.timestamp).toLocaleString('vi-VN') : 'N/A'}
+                           </div>
+
+                           <div className="flex items-center justify-end pt-3 border-t border-slate-800/40 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-green-400 bg-green-500/10 border border-green-500/20 w-fit cursor-default">
+                                <i className="fa-solid fa-check" /> Đã hoàn thành
+                              </div>
+                           </div>
+                         </div>
+                       ))}
                     </div>
                   )}
                 </div>
