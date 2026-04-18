@@ -277,7 +277,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
         {particles.map(p => (
           <div
             key={p.id}
-            className={`absolute rounded-full animate-pulse ${p.color}`}
+            className={`absolute rounded-none animate-pulse ${p.color}`}
             style={{
               left: `${p.x}%`, top: `${p.y}%`,
               width: p.size, height: p.size,
@@ -287,7 +287,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
         ))}
 
         <div className="relative z-10 p-6 lg:p-8 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl overflow-hidden shadow-lg shadow-cyan-500/15 border border-slate-700/50">
+          <div className="w-10 h-10 rounded-none overflow-hidden shadow-lg shadow-cyan-500/15 border border-slate-700/50">
             <img src="/images/logos/logo.jpg" alt="SupportHR" className="w-full h-full object-cover" />
           </div>
           <div>
@@ -318,8 +318,8 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
           </div>
           <div className="space-y-2">
             {features.map(f => (
-              <div key={f.title} className="flex items-start gap-2.5 p-2.5 rounded-lg bg-white/[0.03] border border-white/[0.06] backdrop-blur-sm">
-                <div className="w-7 h-7 rounded-md bg-gradient-to-br from-cyan-500/20 to-blue-500/20 border border-cyan-500/20 flex items-center justify-center shrink-0 mt-0.5">
+              <div key={f.title} className="flex items-start gap-2.5 p-2.5 rounded-none bg-white/[0.03] border border-white/[0.06] backdrop-blur-sm">
+                <div className="w-7 h-7 rounded-none bg-gradient-to-br from-cyan-500/20 to-blue-500/20 border border-cyan-500/20 flex items-center justify-center shrink-0 mt-0.5">
                   <i className={`${f.icon} text-cyan-400 text-[10px]`} />
                 </div>
                 <div>
@@ -332,8 +332,8 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
         </div>
 
         <div className="relative z-10 px-8 pb-6 lg:pb-8">
-          <div className="flex items-center gap-2.5 p-3 rounded-xl bg-white/[0.03] border border-white/[0.06]">
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-white text-xs font-bold shrink-0">NT</div>
+          <div className="flex items-center gap-2.5 p-3 rounded-none bg-white/[0.03] border border-white/[0.06]">
+            <div className="w-9 h-9 rounded-none bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-white text-xs font-bold shrink-0">NT</div>
             <div>
               <p className="text-slate-300 text-[11px] italic leading-relaxed">
                 "SupportHR giúp tôi giảm 70% thời gian sàng lọc. Đội ngũ HR của tôi giờ tập trung vào phỏng vấn thay vì đọc hàng trăm CV."
@@ -348,12 +348,12 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
           <button
             type="button"
             onClick={() => setDemoVideoOpen(true)}
-            className="group w-full text-left flex items-center gap-3 p-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06] hover:border-cyan-500/30 hover:bg-white/[0.05] transition-all duration-200"
+            className="group w-full text-left flex items-center gap-3 p-2.5 rounded-none bg-white/[0.03] border border-white/[0.06] hover:border-cyan-500/30 hover:bg-white/[0.05] transition-all duration-200"
           >
-            <div className="w-14 h-10 rounded-lg shrink-0 relative overflow-hidden"
+            <div className="w-14 h-10 rounded-none shrink-0 relative overflow-hidden"
               style={{ background: 'linear-gradient(135deg, #0f2a3d 0%, #0a1e30 40%, #0d2e45 70%, #061224 100%)' }}>
               <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-6 h-6 rounded-full bg-white/20 border border-white/30 flex items-center justify-center backdrop-blur-sm">
+                <div className="w-6 h-6 rounded-none bg-white/20 border border-white/30 flex items-center justify-center backdrop-blur-sm">
                   <svg width="8" height="10" viewBox="0 0 8 10" fill="white"><path d="M0 0L8 5L0 10V0Z" /></svg>
                 </div>
               </div>
@@ -375,7 +375,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
 
           {/* Mobile logo */}
           <div className="lg:hidden flex items-center justify-center gap-3 mb-6">
-            <div className="w-11 h-11 rounded-2xl overflow-hidden shadow-xl border border-slate-700/50">
+            <div className="w-11 h-11 rounded-none overflow-hidden shadow-xl border border-slate-700/50">
               <img src="/images/logos/logo.jpg" alt="SupportHR" className="w-full h-full object-cover" />
             </div>
             <div>
@@ -386,19 +386,19 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
 
           {/* Card */}
           <div
-            className={`bg-white/[0.03] border border-white/[0.08] rounded-2xl p-6 backdrop-blur-xl transition-all duration-700 ${
+            className={`bg-white/[0.03] border border-white/[0.08] rounded-none p-6 backdrop-blur-xl transition-all duration-700 ${
               successStage === 'celebrating' ? 'border-emerald-400/30 shadow-emerald-500/10' : ''
             }`}
           >
             {/* Success banner */}
             {showSuccess && (
-              <div className={`mb-6 p-4 rounded-2xl border backdrop-blur-sm transition-all duration-700 ${
+              <div className={`mb-6 p-4 rounded-none border backdrop-blur-sm transition-all duration-700 ${
                 successStage === 'celebrating'
                   ? 'bg-gradient-to-r from-emerald-500/20 to-cyan-500/20 border-emerald-400/40 scale-100 opacity-100'
                   : 'scale-95 opacity-0'
               }`}>
                 <div className="flex items-center gap-3">
-                  <div className={`w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center ${successStage === 'celebrating' ? 'animate-bounce' : ''}`}>
+                  <div className={`w-8 h-8 rounded-none bg-emerald-500/20 flex items-center justify-center ${successStage === 'celebrating' ? 'animate-bounce' : ''}`}>
                     <i className="fa-solid fa-check text-emerald-400 text-sm" />
                   </div>
                   <span className="text-emerald-200 text-sm font-semibold">
@@ -410,9 +410,9 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
 
             {/* Auth error */}
             {authError && (
-              <div className="mb-5 p-4 rounded-2xl bg-red-500/10 border border-red-500/25 backdrop-blur-sm">
+              <div className="mb-5 p-4 rounded-none bg-red-500/10 border border-red-500/25 backdrop-blur-sm">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center shrink-0">
+                  <div className="w-8 h-8 rounded-none bg-red-500/20 flex items-center justify-center shrink-0">
                     <i className="fa-solid fa-triangle-exclamation text-red-400 text-sm" />
                   </div>
                   <span className="text-red-300 text-sm">{authError}</span>
@@ -421,13 +421,13 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
             )}
 
             {/* Tabs */}
-            <div className="flex rounded-xl p-1 mb-6" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
+            <div className="flex rounded-none p-1 mb-6" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
               {(['signin', 'signup'] as AuthTab[]).map(t => (
                 <button
                   key={t}
                   type="button"
                   onClick={() => { setTab(t); setErrors({}); setAuthError(''); setForm({ email: '', password: '', displayName: '' }); setResetSent(false); setResetEmail(''); setShowReset(false); }}
-                  className={`flex-1 py-2 rounded-lg text-[12px] font-semibold transition-all duration-200 ${
+                  className={`flex-1 py-2 rounded-none text-[12px] font-semibold transition-all duration-200 ${
                     tab === t
                       ? 'bg-indigo-500/25 border border-indigo-500/30 text-indigo-200 shadow-sm'
                       : 'text-slate-500 hover:text-slate-300'
@@ -448,7 +448,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
                     value={resetEmail}
                     onChange={e => setResetEmail(e.target.value)}
                     placeholder="you@example.com"
-                    className={`w-full px-3.5 py-2.5 rounded-xl text-sm text-white placeholder:text-slate-600 focus:outline-none transition-all ${
+                    className={`w-full px-3.5 py-2.5 rounded-none text-sm text-white placeholder:text-slate-600 focus:outline-none transition-all ${
                       errors.email ? 'border border-red-500/50 bg-red-500/5' : 'border border-slate-700/60 bg-slate-800/40 focus:border-indigo-500/50'
                     }`}
                     style={{ background: 'rgba(255,255,255,0.04)' }}
@@ -456,12 +456,12 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
                   {errors.email && <p className="text-red-400 text-[10px] mt-1">{errors.email}</p>}
                 </div>
 
-                <div className="p-3 rounded-xl text-[12px] text-slate-400 leading-relaxed" style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)' }}>
+                <div className="p-3 rounded-none text-[12px] text-slate-400 leading-relaxed" style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)' }}>
                   Nhập email đã đăng ký. Chúng tôi sẽ gửi liên kết đặt lại mật khẩu vào hộp thư của bạn.
                 </div>
 
                 {resetSent && (
-                  <div className="p-3 rounded-xl text-[12px] text-emerald-300 leading-relaxed" style={{ background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.25)' }}>
+                  <div className="p-3 rounded-none text-[12px] text-emerald-300 leading-relaxed" style={{ background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.25)' }}>
                     <i className="fa-solid fa-envelope-circle-check mr-1.5" />
                     Đã gửi! Kiểm tra hộp thư <strong>{resetEmail}</strong> và làm theo hướng dẫn trong email.
                   </div>
@@ -470,7 +470,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-3 rounded-xl text-sm font-bold text-white transition-all hover:-translate-y-0.5 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:translate-y-0"
+                  className="w-full py-3 rounded-none text-sm font-bold text-white transition-all hover:-translate-y-0.5 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:translate-y-0"
                   style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', boxShadow: '0 4px 16px rgba(99,102,241,0.3)' }}
                 >
                   {loading ? 'Đang xử lý...' : 'Gửi liên kết'}
@@ -494,7 +494,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
                       value={form.displayName}
                       onChange={e => setField('displayName', e.target.value)}
                       placeholder="Nhập họ tên của bạn"
-                      className={`w-full px-3.5 py-2.5 rounded-xl text-sm text-white placeholder:text-slate-600 focus:outline-none transition-all ${
+                      className={`w-full px-3.5 py-2.5 rounded-none text-sm text-white placeholder:text-slate-600 focus:outline-none transition-all ${
                         errors.displayName ? 'border border-red-500/50 bg-red-500/5' : 'border border-slate-700/60 bg-slate-800/40 focus:border-indigo-500/50'
                       }`}
                       style={{ background: 'rgba(255,255,255,0.04)' }}
@@ -510,7 +510,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
                     value={form.email}
                     onChange={e => setField('email', e.target.value)}
                     placeholder="you@example.com"
-                    className={`w-full px-3.5 py-2.5 rounded-xl text-sm text-white placeholder:text-slate-600 focus:outline-none transition-all ${
+                    className={`w-full px-3.5 py-2.5 rounded-none text-sm text-white placeholder:text-slate-600 focus:outline-none transition-all ${
                       errors.email ? 'border border-red-500/50 bg-red-500/5' : 'border border-slate-700/60 bg-slate-800/40 focus:border-indigo-500/50'
                     }`}
                     style={{ background: 'rgba(255,255,255,0.04)' }}
@@ -525,7 +525,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
                     value={form.password}
                     onChange={e => setField('password', e.target.value)}
                     placeholder={tab === 'signup' ? 'Ít nhất 6 ký tự' : 'Nhập mật khẩu'}
-                    className={`w-full px-3.5 py-2.5 rounded-xl text-sm text-white placeholder:text-slate-600 focus:outline-none transition-all ${
+                    className={`w-full px-3.5 py-2.5 rounded-none text-sm text-white placeholder:text-slate-600 focus:outline-none transition-all ${
                       errors.password ? 'border border-red-500/50 bg-red-500/5' : 'border border-slate-700/60 bg-slate-800/40 focus:border-indigo-500/50'
                     }`}
                     style={{ background: 'rgba(255,255,255,0.04)' }}
@@ -536,7 +536,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-3 rounded-xl text-sm font-bold text-white transition-all hover:-translate-y-0.5 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:translate-y-0"
+                  className="w-full py-3 rounded-none text-sm font-bold text-white transition-all hover:-translate-y-0.5 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:translate-y-0"
                   style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', boxShadow: '0 4px 16px rgba(99,102,241,0.3)' }}
                 >
                   {loading ? 'Đang xử lý...' : tab === 'signup' ? 'Tạo tài khoản' : 'Đăng nhập'}
@@ -566,7 +566,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
               type="button"
               onClick={handleGoogleSignIn}
               disabled={loading}
-              className="w-full flex items-center justify-center gap-3 py-3.5 px-5 rounded-xl
+              className="w-full flex items-center justify-center gap-3 py-3.5 px-5 rounded-none
                 bg-white text-slate-800 font-semibold text-sm
                 hover:bg-slate-100 active:scale-[0.98]
                 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:ring-offset-2 focus:ring-offset-[#06091a]
@@ -603,29 +603,29 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
       {demoVideoOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6" role="dialog" aria-modal="true">
           <button type="button" className="absolute inset-0 bg-black/75 backdrop-blur-sm" onClick={() => setDemoVideoOpen(false)} />
-          <div className="relative w-full max-w-4xl rounded-2xl overflow-hidden border border-white/[0.08] bg-[#0b1220] shadow-2xl shadow-black/50">
+          <div className="relative w-full max-w-4xl rounded-none overflow-hidden border border-white/[0.08] bg-[#0b1220] shadow-2xl shadow-black/50">
             <div className="flex items-center justify-between gap-3 px-4 py-3 border-b border-white/[0.08] bg-[#0f1729]">
               <div className="flex items-center gap-2.5 min-w-0">
-                <div className="w-8 h-8 rounded-full bg-cyan-500/20 border border-cyan-500/35 flex items-center justify-center shrink-0">
+                <div className="w-8 h-8 rounded-none bg-cyan-500/20 border border-cyan-500/35 flex items-center justify-center shrink-0">
                   <i className="fa-solid fa-play text-cyan-400 text-[10px] ml-0.5" />
                 </div>
                 <h2 className="text-sm sm:text-base font-semibold text-white truncate">Video Demo – SupportHR</h2>
               </div>
-              <button type="button" onClick={() => setDemoVideoOpen(false)} className="shrink-0 w-9 h-9 rounded-lg flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-colors">
+              <button type="button" onClick={() => setDemoVideoOpen(false)} className="shrink-0 w-9 h-9 rounded-none flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-colors">
                 <i className="fa-solid fa-xmark text-lg" />
               </button>
             </div>
             <div className="aspect-video bg-black relative overflow-hidden">
               {iframeFailed ? (
                 <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-[#0d1629]">
-                  <div className="w-16 h-16 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
+                  <div className="w-16 h-16 rounded-none bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
                     <i className="fa-solid fa-video text-cyan-400 text-2xl" />
                   </div>
                   <div className="text-center px-6">
                     <p className="text-white font-semibold text-sm mb-1">Không thể tải video trong trang</p>
                     <p className="text-slate-400 text-xs mb-4">Có thể YouTube bị chặn trong mạng của bạn</p>
                     <a href={`https://youtu.be/${DEMO_VIDEO_ID}`} target="_blank" rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 text-xs font-medium hover:bg-cyan-500/30 transition-colors">
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-none bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 text-xs font-medium hover:bg-cyan-500/30 transition-colors">
                       <i className="fa-brands fa-youtube text-sm" />
                       Xem trên YouTube
                     </a>
@@ -636,7 +636,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
                   {!iframeLoaded && (
                     <div className="absolute inset-0 flex items-center justify-center bg-black/50 z-10">
                       <div className="flex flex-col items-center gap-2">
-                        <div className="w-8 h-8 border-2 border-cyan-400/30 border-t-cyan-400 rounded-full animate-spin" />
+                        <div className="w-8 h-8 border-2 border-cyan-400/30 border-t-cyan-400 rounded-none animate-spin" />
                         <span className="text-slate-500 text-xs">Đang tải video…</span>
                       </div>
                     </div>
@@ -671,12 +671,12 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
           />
 
           {/* Modal card */}
-          <div className="relative w-full max-w-sm rounded-2xl border border-white/[0.1] backdrop-blur-xl p-6 shadow-2xl shadow-black/60"
+          <div className="relative w-full max-w-sm rounded-none border border-white/[0.1] backdrop-blur-xl p-6 shadow-2xl shadow-black/60"
             style={{ background: 'linear-gradient(160deg, #0d1629 0%, #111827 100%)' }}>
 
             {/* Icon */}
             <div className="flex justify-center mb-4">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500/20 to-cyan-500/20 border border-indigo-500/30 flex items-center justify-center">
+              <div className="w-14 h-14 rounded-none bg-gradient-to-br from-indigo-500/20 to-cyan-500/20 border border-indigo-500/30 flex items-center justify-center">
                 <i className="fa-solid fa-link-slash text-indigo-400 text-xl" />
               </div>
             </div>
@@ -696,7 +696,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
                   value={linkModal.password}
                   onChange={e => setLinkModal(prev => ({ ...prev, password: e.target.value, error: '' }))}
                   placeholder="Nhập mật khẩu của bạn"
-                  className="w-full px-3.5 py-2.5 rounded-xl text-sm text-white placeholder:text-slate-600 focus:outline-none transition-all border border-slate-700/60 focus:border-indigo-500/50"
+                  className="w-full px-3.5 py-2.5 rounded-none text-sm text-white placeholder:text-slate-600 focus:outline-none transition-all border border-slate-700/60 focus:border-indigo-500/50"
                   style={{ background: 'rgba(255,255,255,0.04)' }}
                 />
                 {linkModal.error && <p className="text-red-400 text-[10px] mt-1">{linkModal.error}</p>}
@@ -705,7 +705,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
               <button
                 type="submit"
                 disabled={linkModal.loading}
-                className="w-full py-3 rounded-xl text-sm font-bold text-white transition-all hover:-translate-y-0.5 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full py-3 rounded-none text-sm font-bold text-white transition-all hover:-translate-y-0.5 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', boxShadow: '0 4px 16px rgba(99,102,241,0.3)' }}
               >
                 {linkModal.loading ? 'Đang liên kết...' : 'Xác nhận & Liên kết'}
