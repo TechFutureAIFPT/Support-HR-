@@ -154,7 +154,7 @@ const steps = [
 const comparisonRowsMobile = comparisonRows.slice(0, 5);
 
 const ComparisonTable = ({ rows }: { rows: typeof comparisonRows }) => (
-  <div className="min-w-[680px] rounded-2xl border border-white/5 overflow-hidden">
+  <div className="min-w-[680px] rounded-none border border-white/5 overflow-hidden">
     <div className="grid grid-cols-[1.5fr_1fr_1fr] px-5 py-3 text-[10px] uppercase tracking-[0.35em] text-slate-600 bg-white/3 border-b border-white/5">
       <div>Tiêu chí</div>
       <div><p className="text-slate-300 text-xs normal-case font-semibold">ChatGPT</p><p className="text-[10px] text-slate-600 normal-case mt-0.5">AI tổng quát</p></div>
@@ -163,18 +163,18 @@ const ComparisonTable = ({ rows }: { rows: typeof comparisonRows }) => (
     {rows.map((row) => (
       <div key={row.label} className={`grid grid-cols-[1.5fr_1fr_1fr] px-5 py-4 border-b border-white/5 last:border-b-0 hover:bg-white/3 transition-colors ${row.emphasis ? "bg-emerald-500/3" : ""}`}>
         <div className="flex items-center gap-3">
-          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-white/5 text-slate-400 flex-shrink-0"><i className={row.icon} /></span>
+          <span className="flex h-7 w-7 items-center justify-center rounded-none bg-white/5 text-slate-400 flex-shrink-0"><i className={row.icon} /></span>
           <p className="text-sm font-medium text-slate-200">{row.label}</p>
         </div>
         <div className="flex items-center">
           <div className="flex flex-wrap items-center gap-3 text-sm">
-            <span className={`flex h-9 w-9 items-center justify-center rounded-2xl ${statusStyles[row.chatgpt.status].badgeClass}`}><i className={`${statusStyles[row.chatgpt.status].icon} text-base`} /></span>
+            <span className={`flex h-9 w-9 items-center justify-center rounded-none ${statusStyles[row.chatgpt.status].badgeClass}`}><i className={`${statusStyles[row.chatgpt.status].icon} text-base`} /></span>
             <span className={`leading-tight ${statusStyles[row.chatgpt.status].textClass}`}>{row.chatgpt.text}</span>
           </div>
         </div>
         <div className="flex items-center">
           <div className="flex flex-wrap items-center gap-3 text-sm">
-            <span className={`flex h-9 w-9 items-center justify-center rounded-2xl ${statusStyles[row.support.status].badgeClass}`}><i className={`${statusStyles[row.support.status].icon} text-base`} /></span>
+            <span className={`flex h-9 w-9 items-center justify-center rounded-none ${statusStyles[row.support.status].badgeClass}`}><i className={`${statusStyles[row.support.status].icon} text-base`} /></span>
             <span className={`leading-tight ${statusStyles[row.support.status].textClass}`}>{row.support.text}</span>
           </div>
         </div>
@@ -285,9 +285,9 @@ const HomePage: React.FC<HomePageProps> = ({
 
       {/* ── Ambient Background Orbs ─────────────────────────────── */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        <div className="absolute -top-60 -left-60 w-[700px] h-[700px] rounded-full bg-blue-600/[0.03] blur-[140px]" />
-        <div className="absolute top-1/4 right-0 w-[500px] h-[500px] rounded-full bg-violet-600/[0.04] blur-[120px]" />
-        <div className="absolute bottom-0 left-1/4 w-[600px] h-[600px] rounded-full bg-cyan-600/[0.03] blur-[130px]" />
+        <div className="absolute -top-60 -left-60 w-[700px] h-[700px] rounded-none bg-blue-600/[0.03] blur-[140px]" />
+        <div className="absolute top-1/4 right-0 w-[500px] h-[500px] rounded-none bg-violet-600/[0.04] blur-[120px]" />
+        <div className="absolute bottom-0 left-1/4 w-[600px] h-[600px] rounded-none bg-cyan-600/[0.03] blur-[130px]" />
         {/* Grid overlay */}
         <div className="absolute inset-0 opacity-[0.015]" style={{
           backgroundImage: 'linear-gradient(rgba(255,255,255,1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,1) 1px, transparent 1px)',
@@ -302,18 +302,18 @@ const HomePage: React.FC<HomePageProps> = ({
       <div className={`fixed top-0 left-0 bottom-0 z-50 w-72 bg-[#0B1120] border-r border-slate-800 flex flex-col transition-transform duration-300 ease-out lg:hidden ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full"}`}>
         <div className="flex items-center justify-between px-5 py-4 border-b border-slate-800">
           <div className="flex items-center gap-3">
-            <img src="/images/logos/logo.jpg" alt="SupportHR" className="w-8 h-8 rounded-lg object-cover" />
+            <img src="/images/logos/logo.jpg" alt="SupportHR" className="w-8 h-8 rounded-none object-cover" />
             <div><p className="text-sm font-bold text-white">SupportHR</p><p className="text-[10px] text-slate-500">AI Recruitment Platform</p></div>
           </div>
-          <button onClick={() => setMobileMenuOpen(false)} className="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center text-slate-400 hover:text-white">
+          <button onClick={() => setMobileMenuOpen(false)} className="w-8 h-8 rounded-none bg-slate-800 flex items-center justify-center text-slate-400 hover:text-white">
             <i className="fa-solid fa-xmark text-sm" />
           </button>
         </div>
         <div className="flex-1 overflow-y-auto py-3 px-3 space-y-1">
           {mobileNavItems.map((item) => (
             <button key={item.label} onClick={() => item.href ? window.open(item.href, "_blank") : scrollTo(item.target!)}
-              className="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-slate-300 hover:text-white hover:bg-slate-800/50 transition-all text-left">
-              <div className="w-7 h-7 rounded-lg bg-slate-800 flex items-center justify-center flex-shrink-0">
+              className="w-full flex items-center gap-3 px-3 py-3 rounded-none text-slate-300 hover:text-white hover:bg-slate-800/50 transition-all text-left">
+              <div className="w-7 h-7 rounded-none bg-slate-800 flex items-center justify-center flex-shrink-0">
                 <i className={`fa-solid ${item.icon} text-[11px] text-slate-400`} />
               </div>
               <span className="text-[13px] font-semibold">{item.label}</span>
@@ -323,18 +323,18 @@ const HomePage: React.FC<HomePageProps> = ({
         <div className="p-4 border-t border-slate-800 space-y-2">
           {isLoggedIn ? (
             <>
-              <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-slate-800/60 mb-1">
-                <img src={userAvatar || "/images/logos/logo.jpg"} alt="avatar" className="w-7 h-7 rounded-full object-cover" />
+              <div className="flex items-center gap-3 px-3 py-2.5 rounded-none bg-slate-800/60 mb-1">
+                <img src={userAvatar || "/images/logos/logo.jpg"} alt="avatar" className="w-7 h-7 rounded-none object-cover" />
                 <div className="min-w-0"><p className="text-[12px] font-semibold text-white truncate">{userName || userEmail?.split("@")[0]}</p><p className="text-[10px] text-slate-500 truncate">{userEmail}</p></div>
               </div>
               <button onClick={() => { setMobileMenuOpen(false); setActiveStep("jd"); }}
-                className="w-full h-10 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold text-[13px] transition-all flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/20">
+                className="w-full h-10 rounded-none bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold text-[13px] transition-all flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/20">
                 <i className="fa-solid fa-bolt text-xs" /> Bắt đầu ngay
               </button>
             </>
           ) : (
             <button onClick={() => { setMobileMenuOpen(false); onLoginRequest(); }}
-              className="w-full h-10 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-black text-[13px] transition-all flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/20">
+              className="w-full h-10 rounded-none bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-black text-[13px] transition-all flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/20">
               <i className="fa-solid fa-right-to-bracket text-[11px]" /> Đăng nhập
             </button>
           )}
@@ -350,7 +350,7 @@ const HomePage: React.FC<HomePageProps> = ({
             <div className="flex items-center justify-between h-16">
               {/* Logo */}
               <div className="flex items-center gap-3 cursor-pointer" onClick={() => scrollTo("hero")}>
-                <div className="w-10 h-10 rounded-xl overflow-hidden shadow-lg border border-white/10 bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center flex-shrink-0">
+                <div className="w-10 h-10 rounded-none overflow-hidden shadow-lg border border-white/10 bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center flex-shrink-0">
                   <img src="/images/logos/logo.jpg" alt="Support HR" className="w-full h-full object-cover" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
                 </div>
                 <div className="flex flex-col">
@@ -363,7 +363,7 @@ const HomePage: React.FC<HomePageProps> = ({
               <div className="hidden lg:flex items-center gap-1">
                 {navLinks.map((link) => (
                   <a key={link.label} href={link.href}
-                    className="px-4 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-all duration-200">
+                    className="px-4 py-2 rounded-none text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-all duration-200">
                     {link.label}
                   </a>
                 ))}
@@ -373,15 +373,15 @@ const HomePage: React.FC<HomePageProps> = ({
               <div className="flex items-center gap-3">
                 {!isLoggedIn && (
                   <button onClick={onLoginRequest}
-                    className="hidden sm:flex h-9 px-5 rounded-lg text-sm font-semibold text-slate-300 hover:text-white hover:bg-white/5 transition-all items-center gap-2">
+                    className="hidden sm:flex h-9 px-5 rounded-none text-sm font-semibold text-slate-300 hover:text-white hover:bg-white/5 transition-all items-center gap-2">
                     <i className="fa-solid fa-right-to-bracket text-xs" /> Đăng nhập
                   </button>
                 )}
                 <button onClick={handleStart}
-                  className="h-9 px-5 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold text-sm transition-all items-center gap-2 shadow-lg shadow-cyan-500/20 flex">
+                  className="h-9 px-5 rounded-none bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold text-sm transition-all items-center gap-2 shadow-lg shadow-cyan-500/20 flex">
                   <i className="fa-solid fa-bolt text-xs" /> Bắt đầu
                 </button>
-                <button onClick={() => setMobileMenuOpen(true)} className="lg:hidden w-9 h-9 rounded-lg bg-slate-800/80 border border-white/10 flex items-center justify-center text-slate-300 hover:text-white transition-colors">
+                <button onClick={() => setMobileMenuOpen(true)} className="lg:hidden w-9 h-9 rounded-none bg-slate-800/80 border border-white/10 flex items-center justify-center text-slate-300 hover:text-white transition-colors">
                   <i className="fa-solid fa-bars text-sm" />
                 </button>
               </div>
@@ -396,8 +396,8 @@ const HomePage: React.FC<HomePageProps> = ({
             {/* Left: Text Content */}
             <div className="flex flex-col gap-6">
               {/* Badge */}
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-cyan-500/20 bg-cyan-500/5 w-fit">
-                <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-none border border-cyan-500/20 bg-cyan-500/5 w-fit">
+                <div className="w-1.5 h-1.5 rounded-none bg-cyan-400 animate-pulse" />
                 <span className="text-[11px] font-bold text-cyan-400 uppercase tracking-widest">AI-Powered Recruitment Platform</span>
               </div>
 
@@ -418,11 +418,11 @@ const HomePage: React.FC<HomePageProps> = ({
               {/* CTA Buttons */}
               <div className="flex flex-wrap items-center gap-4">
                 <button onClick={handleStart}
-                  className="h-12 px-8 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold text-base shadow-xl shadow-cyan-500/25 hover:shadow-cyan-500/35 transition-all hover:-translate-y-0.5 active:scale-[0.98] flex items-center gap-2.5">
+                  className="h-12 px-8 rounded-none bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold text-base shadow-xl shadow-cyan-500/25 hover:shadow-cyan-500/35 transition-all hover:-translate-y-0.5 active:scale-[0.98] flex items-center gap-2.5">
                   <i className="fa-solid fa-rocket text-sm" /> Bắt đầu miễn phí
                 </button>
                 <button onClick={() => setIsVideoOpen(true)}
-                  className="h-12 px-6 rounded-xl bg-white/5 border border-white/10 text-slate-200 font-semibold text-base hover:bg-white/10 hover:border-white/20 transition-all flex items-center gap-2.5">
+                  className="h-12 px-6 rounded-none bg-white/5 border border-white/10 text-slate-200 font-semibold text-base hover:bg-white/10 hover:border-white/20 transition-all flex items-center gap-2.5">
                   <i className="fa-regular fa-circle-play text-cyan-400 text-lg" /> Xem demo
                 </button>
               </div>
@@ -454,16 +454,16 @@ const HomePage: React.FC<HomePageProps> = ({
             {/* Right: Visual Card */}
             <div className="relative">
               {/* Glow behind card */}
-              <div className="absolute -inset-8 rounded-[3rem] bg-gradient-to-br from-cyan-600/20 via-blue-600/15 to-violet-600/20 blur-3xl opacity-60" />
+              <div className="absolute -inset-8 rounded-none-[3rem] bg-gradient-to-br from-cyan-600/20 via-blue-600/15 to-violet-600/20 blur-3xl opacity-60" />
 
               {/* Card */}
-              <div className="relative rounded-3xl overflow-hidden border border-white/10 shadow-2xl shadow-black/60 bg-[#0B1120]/80 backdrop-blur-xl">
+              <div className="relative rounded-none overflow-hidden border border-white/10 shadow-2xl shadow-black/60 bg-[#0B1120]/80 backdrop-blur-xl">
                 {/* Card Header */}
                 <div className="flex items-center justify-between px-6 py-4 border-b border-white/5 bg-slate-900/60">
                   <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-red-500/60" />
-                    <div className="w-3 h-3 rounded-full bg-amber-500/60" />
-                    <div className="w-3 h-3 rounded-full bg-emerald-500/60" />
+                    <div className="w-3 h-3 rounded-none bg-red-500/60" />
+                    <div className="w-3 h-3 rounded-none bg-amber-500/60" />
+                    <div className="w-3 h-3 rounded-none bg-emerald-500/60" />
                   </div>
                   <span className="text-[10px] text-slate-500 font-medium">Support HR — Dashboard</span>
                   <div className="w-16" />
@@ -477,7 +477,7 @@ const HomePage: React.FC<HomePageProps> = ({
                       { label: "Đạt yêu cầu", value: "89", color: "text-emerald-400" },
                       { label: "Từ chối", value: "158", color: "text-rose-400" },
                     ].map((s) => (
-                      <div key={s.label} className="bg-slate-800/50 rounded-xl p-3 border border-white/5">
+                      <div key={s.label} className="bg-slate-800/50 rounded-none p-3 border border-white/5">
                         <p className={`text-xl font-black ${s.color}`}>{s.value}</p>
                         <p className="text-[10px] text-slate-500 mt-0.5">{s.label}</p>
                       </div>
@@ -489,8 +489,8 @@ const HomePage: React.FC<HomePageProps> = ({
                     { name: "Trần Thị B", score: 89, title: "Fullstack Engineer", color: "cyan" },
                     { name: "Lê Văn C", score: 84, title: "Backend Developer", color: "blue" },
                   ].map((c, i) => (
-                    <div key={i} className="flex items-center gap-3 bg-slate-800/30 rounded-xl px-4 py-3 border border-white/5 hover:border-white/10 transition-colors">
-                      <div className={`w-9 h-9 rounded-lg flex items-center justify-center text-sm font-bold text-white ${c.color === 'emerald' ? 'bg-emerald-500/20 text-emerald-400' : c.color === 'cyan' ? 'bg-cyan-500/20 text-cyan-400' : 'bg-blue-500/20 text-blue-400'}`}>
+                    <div key={i} className="flex items-center gap-3 bg-slate-800/30 rounded-none px-4 py-3 border border-white/5 hover:border-white/10 transition-colors">
+                      <div className={`w-9 h-9 rounded-none flex items-center justify-center text-sm font-bold text-white ${c.color === 'emerald' ? 'bg-emerald-500/20 text-emerald-400' : c.color === 'cyan' ? 'bg-cyan-500/20 text-cyan-400' : 'bg-blue-500/20 text-blue-400'}`}>
                         {c.name.charAt(0)}
                       </div>
                       <div className="flex-1 min-w-0">
@@ -504,7 +504,7 @@ const HomePage: React.FC<HomePageProps> = ({
                     </div>
                   ))}
                   {/* Play button overlay */}
-                  <button onClick={() => setIsVideoOpen(true)} className="w-full py-3 rounded-xl border border-dashed border-cyan-500/30 text-cyan-400 text-sm font-semibold hover:bg-cyan-500/5 transition-all flex items-center justify-center gap-2">
+                  <button onClick={() => setIsVideoOpen(true)} className="w-full py-3 rounded-none border border-dashed border-cyan-500/30 text-cyan-400 text-sm font-semibold hover:bg-cyan-500/5 transition-all flex items-center justify-center gap-2">
                     <i className="fa-regular fa-circle-play" /> Xem toàn bộ dashboard
                   </button>
                 </div>
@@ -533,7 +533,7 @@ const HomePage: React.FC<HomePageProps> = ({
         <section id="features" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
           {/* Section Header */}
           <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-indigo-500/20 bg-indigo-500/5 mb-4">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-none border border-indigo-500/20 bg-indigo-500/5 mb-4">
               <i className="fa-solid fa-sparkles text-indigo-400 text-[10px]" />
               <span className="text-[11px] font-bold text-indigo-400 uppercase tracking-widest">Tính năng nổi bật</span>
             </div>
@@ -549,9 +549,9 @@ const HomePage: React.FC<HomePageProps> = ({
           {/* Feature Cards Grid */}
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {features.map((feature, i) => (
-              <div key={i} className={`group relative rounded-2xl border ${feature.border} ${feature.bg} p-6 hover:${feature.border} hover:${feature.bg.replace('/10', '/15')} transition-all duration-300 hover:-translate-y-1 cursor-default`}>
+              <div key={i} className={`group relative rounded-none border ${feature.border} ${feature.bg} p-6 hover:${feature.border} hover:${feature.bg.replace('/10', '/15')} transition-all duration-300 hover:-translate-y-1 cursor-default`}>
                 {/* Icon */}
-                <div className={`w-12 h-12 rounded-xl ${feature.bg} border ${feature.border} flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300`}>
+                <div className={`w-12 h-12 rounded-none ${feature.bg} border ${feature.border} flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300`}>
                   <i className={`fa-solid ${feature.icon} text-xl ${feature.iconColor}`} />
                 </div>
                 {/* Text */}
@@ -570,7 +570,7 @@ const HomePage: React.FC<HomePageProps> = ({
         <section id="steps" className="bg-[#0B1120]/60 border-y border-slate-800/50 py-24">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-cyan-500/20 bg-cyan-500/5 mb-4">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-none border border-cyan-500/20 bg-cyan-500/5 mb-4">
                 <i className="fa-solid fa-route text-cyan-400 text-[10px]" />
                 <span className="text-[11px] font-bold text-cyan-400 uppercase tracking-widest">Quy trình</span>
               </div>
@@ -590,9 +590,9 @@ const HomePage: React.FC<HomePageProps> = ({
                 {steps.map((step, i) => (
                   <div key={i} className="relative flex flex-col items-center text-center group">
                     {/* Step Number */}
-                    <div className={`w-14 h-14 rounded-2xl ${step.bg} border ${step.border} flex items-center justify-center mb-5 relative z-10 group-hover:scale-110 transition-transform duration-300 shadow-lg shadow-black/20`}>
+                    <div className={`w-14 h-14 rounded-none ${step.bg} border ${step.border} flex items-center justify-center mb-5 relative z-10 group-hover:scale-110 transition-transform duration-300 shadow-lg shadow-black/20`}>
                       <i className={`fa-solid ${step.icon} text-xl ${step.color}`} />
-                      <span className="absolute -top-2.5 -right-2.5 w-7 h-7 rounded-full bg-[#0B1120] border border-slate-700 text-[10px] font-black text-slate-400 flex items-center justify-center">{step.num}</span>
+                      <span className="absolute -top-2.5 -right-2.5 w-7 h-7 rounded-none bg-[#0B1120] border border-slate-700 text-[10px] font-black text-slate-400 flex items-center justify-center">{step.num}</span>
                     </div>
                     <h3 className="text-base font-bold text-white mb-2">{step.title}</h3>
                     <p className="text-sm text-slate-400 leading-relaxed max-w-[200px]">{step.desc}</p>
@@ -604,7 +604,7 @@ const HomePage: React.FC<HomePageProps> = ({
             {/* CTA after steps */}
             <div className="text-center mt-16">
               <button onClick={handleStart}
-                className="h-12 px-10 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold text-base shadow-xl shadow-cyan-500/25 transition-all hover:-translate-y-0.5 flex items-center gap-2 mx-auto">
+                className="h-12 px-10 rounded-none bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold text-base shadow-xl shadow-cyan-500/25 transition-all hover:-translate-y-0.5 flex items-center gap-2 mx-auto">
                 <i className="fa-solid fa-rocket text-sm" /> Thử ngay — Miễn phí 7 ngày
               </button>
             </div>
@@ -616,7 +616,7 @@ const HomePage: React.FC<HomePageProps> = ({
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             {/* Left: Content */}
             <div>
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/5 mb-4">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-none border border-emerald-500/20 bg-emerald-500/5 mb-4">
                 <i className="fa-solid fa-bolt text-emerald-400 text-[10px]" />
                 <span className="text-[11px] font-bold text-emerald-400 uppercase tracking-widest">Tại sao chọn Support HR</span>
               </div>
@@ -630,8 +630,8 @@ const HomePage: React.FC<HomePageProps> = ({
 
               {/* Comparison mini cards */}
               <div className="space-y-3">
-                <div className="flex items-start gap-4 p-4 rounded-xl border border-rose-500/20 bg-rose-500/5">
-                  <div className="w-8 h-8 rounded-lg bg-rose-500/10 flex items-center justify-center flex-shrink-0">
+                <div className="flex items-start gap-4 p-4 rounded-none border border-rose-500/20 bg-rose-500/5">
+                  <div className="w-8 h-8 rounded-none bg-rose-500/10 flex items-center justify-center flex-shrink-0">
                     <i className="fa-solid fa-xmark text-sm text-rose-400" />
                   </div>
                   <div>
@@ -639,8 +639,8 @@ const HomePage: React.FC<HomePageProps> = ({
                     <p className="text-xs text-slate-500 mt-0.5">30-45 phút/CV · Dễ bỏ sót ứng viên tiềm năng</p>
                   </div>
                 </div>
-                <div className="flex items-start gap-4 p-4 rounded-xl border border-emerald-500/20 bg-emerald-500/5">
-                  <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center flex-shrink-0">
+                <div className="flex items-start gap-4 p-4 rounded-none border border-emerald-500/20 bg-emerald-500/5">
+                  <div className="w-8 h-8 rounded-none bg-emerald-500/10 flex items-center justify-center flex-shrink-0">
                     <i className="fa-solid fa-check text-sm text-emerald-400" />
                   </div>
                   <div>
@@ -659,7 +659,7 @@ const HomePage: React.FC<HomePageProps> = ({
                 { value: "99%", label: "Độ hài lòng", icon: "fa-heart", color: "text-rose-400", bg: "bg-rose-500/10", border: "border-rose-500/20" },
                 { value: "0đ", label: "Chi phí dùng thử", icon: "fa-tag", color: "text-emerald-400", bg: "bg-emerald-500/10", border: "border-emerald-500/20" },
               ].map((stat) => (
-                <div key={stat.label} className={`rounded-2xl border ${stat.border} ${stat.bg} p-6 hover:${stat.border} transition-all hover:-translate-y-0.5`}>
+                <div key={stat.label} className={`rounded-none border ${stat.border} ${stat.bg} p-6 hover:${stat.border} transition-all hover:-translate-y-0.5`}>
                   <i className={`fa-solid ${stat.icon} ${stat.color} text-lg mb-3`} />
                   <p className={`text-3xl font-black ${stat.color} tracking-tight`}>{stat.value}</p>
                   <p className="text-xs text-slate-400 mt-1 font-medium">{stat.label}</p>
@@ -673,7 +673,7 @@ const HomePage: React.FC<HomePageProps> = ({
         <section id="compare" className="bg-[#0B1120]/60 border-y border-slate-800/50 py-24">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-violet-500/20 bg-violet-500/5 mb-4">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-none border border-violet-500/20 bg-violet-500/5 mb-4">
                 <i className="fa-solid fa-code-compare text-violet-400 text-[10px]" />
                 <span className="text-[11px] font-bold text-violet-400 uppercase tracking-widest">So sánh</span>
               </div>
@@ -691,9 +691,9 @@ const HomePage: React.FC<HomePageProps> = ({
             {/* Mobile Cards */}
             <div className="md:hidden space-y-3">
               {comparisonRowsMobile.map((row) => (
-                <div key={row.label} className={`rounded-xl border p-4 ${row.emphasis ? "border-emerald-500/10 bg-emerald-500/3" : "border-white/5 bg-white/3"}`}>
+                <div key={row.label} className={`rounded-none border p-4 ${row.emphasis ? "border-emerald-500/10 bg-emerald-500/3" : "border-white/5 bg-white/3"}`}>
                   <div className="flex items-center gap-3 mb-3">
-                    <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-white/5 text-slate-400"><i className={`${row.icon} text-sm`} /></span>
+                    <span className="flex h-7 w-7 items-center justify-center rounded-none bg-white/5 text-slate-400"><i className={`${row.icon} text-sm`} /></span>
                     <p className="text-sm font-semibold text-slate-100">{row.label}</p>
                   </div>
                   <div className="grid grid-cols-2 gap-3">
@@ -723,13 +723,13 @@ const HomePage: React.FC<HomePageProps> = ({
 
         {/* ── Pricing / CTA Section ───────────────────────────── */}
         <section id="pricing" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-          <div className="relative rounded-3xl overflow-hidden border border-cyan-500/20 bg-gradient-to-br from-cyan-950/60 via-[#0B1120] to-indigo-950/40">
+          <div className="relative rounded-none overflow-hidden border border-cyan-500/20 bg-gradient-to-br from-cyan-950/60 via-[#0B1120] to-indigo-950/40">
             {/* Glow */}
-            <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full bg-cyan-600/10 blur-[120px]" />
-            <div className="absolute -bottom-40 -left-40 w-96 h-96 rounded-full bg-indigo-600/10 blur-[120px]" />
+            <div className="absolute -top-40 -right-40 w-96 h-96 rounded-none bg-cyan-600/10 blur-[120px]" />
+            <div className="absolute -bottom-40 -left-40 w-96 h-96 rounded-none bg-indigo-600/10 blur-[120px]" />
 
             <div className="relative z-10 text-center py-16 px-8">
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-cyan-500/20 bg-cyan-500/5 mb-6">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-none border border-cyan-500/20 bg-cyan-500/5 mb-6">
                 <i className="fa-solid fa-rocket text-cyan-400 text-[10px]" />
                 <span className="text-[11px] font-bold text-cyan-400 uppercase tracking-widest">Bắt đầu ngay hôm nay</span>
               </div>
@@ -741,11 +741,11 @@ const HomePage: React.FC<HomePageProps> = ({
               </p>
               <div className="flex flex-wrap justify-center gap-4">
                 <button onClick={handleStart}
-                  className="h-12 px-10 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold text-base shadow-xl shadow-cyan-500/25 hover:shadow-cyan-500/35 transition-all hover:-translate-y-0.5 flex items-center gap-2.5">
+                  className="h-12 px-10 rounded-none bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold text-base shadow-xl shadow-cyan-500/25 hover:shadow-cyan-500/35 transition-all hover:-translate-y-0.5 flex items-center gap-2.5">
                   <i className="fa-solid fa-rocket text-sm" /> Dùng thử miễn phí
                 </button>
                 <button onClick={onLoginRequest}
-                  className="h-12 px-8 rounded-xl bg-white/5 border border-white/10 text-white font-bold text-base hover:bg-white/10 transition-all flex items-center gap-2.5">
+                  className="h-12 px-8 rounded-none bg-white/5 border border-white/10 text-white font-bold text-base hover:bg-white/10 transition-all flex items-center gap-2.5">
                   <i className="fa-solid fa-calendar text-sm" /> Đặt lịch demo
                 </button>
               </div>
@@ -760,7 +760,7 @@ const HomePage: React.FC<HomePageProps> = ({
               {/* Brand */}
               <div className="md:col-span-2">
                 <div className="flex items-center gap-3 mb-4">
-                  <img src="/images/logos/logo.jpg" alt="SupportHR" className="w-9 h-9 rounded-lg object-cover" />
+                  <img src="/images/logos/logo.jpg" alt="SupportHR" className="w-9 h-9 rounded-none object-cover" />
                   <div>
                     <p className="text-base font-bold text-white">Support HR</p>
                     <p className="text-[10px] text-cyan-400 uppercase tracking-widest">AI Recruitment Platform</p>
@@ -833,7 +833,7 @@ const HomePage: React.FC<HomePageProps> = ({
       {isVideoOpen && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4" onClick={() => setIsVideoOpen(false)}>
           <div className="absolute inset-0 bg-black/85 backdrop-blur-sm" style={{ animation: "fadeIn .2s ease" }} />
-          <div className="relative z-10 w-full max-w-4xl rounded-2xl overflow-hidden border border-slate-700 shadow-2xl"
+          <div className="relative z-10 w-full max-w-4xl rounded-none overflow-hidden border border-slate-700 shadow-2xl"
             style={{ animation: "scaleIn .25s ease" }} onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between px-5 py-3 bg-slate-900/95 border-b border-slate-700">
               <div className="flex items-center gap-2">
@@ -841,7 +841,7 @@ const HomePage: React.FC<HomePageProps> = ({
                 <span className="text-white font-semibold text-sm">Video Demo – Support HR</span>
               </div>
               <button onClick={() => setIsVideoOpen(false)}
-                className="w-8 h-8 flex items-center justify-center rounded-full text-slate-400 hover:text-white hover:bg-slate-700 transition-all">
+                className="w-8 h-8 flex items-center justify-center rounded-none text-slate-400 hover:text-white hover:bg-slate-700 transition-all">
                 <i className="fa-solid fa-xmark text-lg" />
               </button>
             </div>

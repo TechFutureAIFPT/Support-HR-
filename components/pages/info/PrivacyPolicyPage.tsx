@@ -31,18 +31,18 @@ const PrivacyPolicyPage: React.FC = () => {
       case 'roles':
         return (
           <div className="space-y-3">
-            <div className={`p-4 rounded-xl border ${colorMap.cyan.border} ${colorMap.cyan.bg} flex items-start gap-3 mb-3`}>
+            <div className={`p-4 rounded-none border ${colorMap.cyan.border} ${colorMap.cyan.bg} flex items-start gap-3 mb-3`}>
               <span className="text-xl mt-0.5">📋</span>
               <p className="text-slate-300 text-sm leading-relaxed">
                 Để đảm bảo tính minh bạch theo <strong className="text-cyan-400">Nghị định 13/2023/NĐ-CP</strong>, SupportHR xác định rõ vai trò của các bên trong việc xử lý dữ liệu cá nhân.
               </p>
             </div>
-            <div className={`p-4 rounded-xl border ${colorMap.emerald.border} ${colorMap.emerald.bg}`}>
+            <div className={`p-4 rounded-none border ${colorMap.emerald.border} ${colorMap.emerald.bg}`}>
               <div className="flex items-start gap-3">
-                <div className="w-9 h-9 rounded-lg bg-emerald-500/20 flex items-center justify-center flex-shrink-0 text-base">👤</div>
+                <div className="w-9 h-9 rounded-none bg-emerald-500/20 flex items-center justify-center flex-shrink-0 text-base">👤</div>
                 <div>
                   <div className="flex items-center gap-2 mb-1.5">
-                    <span className="font-bold text-white text-xs px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Bên Kiểm soát</span>
+                    <span className="font-bold text-white text-xs px-2 py-0.5 rounded-none bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Bên Kiểm soát</span>
                   </div>
                   <h3 className="font-semibold text-white text-sm mb-1">Khách hàng</h3>
                   <p className="text-slate-400 text-xs leading-relaxed">
@@ -51,12 +51,12 @@ const PrivacyPolicyPage: React.FC = () => {
                 </div>
               </div>
             </div>
-            <div className={`p-4 rounded-xl border ${colorMap.blue.border} ${colorMap.blue.bg}`}>
+            <div className={`p-4 rounded-none border ${colorMap.blue.border} ${colorMap.blue.bg}`}>
               <div className="flex items-start gap-3">
-                <div className="w-9 h-9 rounded-lg bg-blue-500/20 flex items-center justify-center flex-shrink-0 text-base">⚙️</div>
+                <div className="w-9 h-9 rounded-none bg-blue-500/20 flex items-center justify-center flex-shrink-0 text-base">⚙️</div>
                 <div>
                   <div className="flex items-center gap-2 mb-1.5">
-                    <span className="font-bold text-white text-xs px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30">Bên Xử lý</span>
+                    <span className="font-bold text-white text-xs px-2 py-0.5 rounded-none bg-blue-500/20 text-blue-400 border border-blue-500/30">Bên Xử lý</span>
                   </div>
                   <h3 className="font-semibold text-white text-sm mb-1">SupportHR</h3>
                   <p className="text-slate-400 text-xs leading-relaxed">
@@ -73,15 +73,15 @@ const PrivacyPolicyPage: React.FC = () => {
           <div className="space-y-3">
             <p className="text-slate-400 text-sm mb-1">Hệ thống thu thập và xử lý các loại dữ liệu sau để vận hành tính năng cốt lõi (Sàng lọc &amp; Chấm điểm):</p>
 
-            <div className={`p-4 rounded-xl border ${colorMap.cyan.border} ${colorMap.cyan.bg}`}>
+            <div className={`p-4 rounded-none border ${colorMap.cyan.border} ${colorMap.cyan.bg}`}>
               <div className="flex items-start gap-3">
-                <div className="w-9 h-9 rounded-lg bg-cyan-500/20 flex items-center justify-center flex-shrink-0 text-base">🏢</div>
+                <div className="w-9 h-9 rounded-none bg-cyan-500/20 flex items-center justify-center flex-shrink-0 text-base">🏢</div>
                 <div className="flex-1 min-w-0">
                   <h3 className="font-semibold text-white text-sm mb-2">Thông tin Tài khoản Doanh nghiệp</h3>
                   <div className="grid grid-cols-2 gap-1.5">
                     {['Tên doanh nghiệp', 'Email liên hệ', 'Logo công ty', 'Mã số thuế'].map(item => (
                       <div key={item} className="flex items-center gap-1.5 text-slate-400 text-xs">
-                        <span className="w-1 h-1 rounded-full bg-cyan-400 shrink-0" />
+                        <span className="w-1 h-1 rounded-none bg-cyan-400 shrink-0" />
                         {item}
                       </div>
                     ))}
@@ -90,15 +90,15 @@ const PrivacyPolicyPage: React.FC = () => {
               </div>
             </div>
 
-            <div className={`p-4 rounded-xl border ${colorMap.emerald.border} ${colorMap.emerald.bg}`}>
+            <div className={`p-4 rounded-none border ${colorMap.emerald.border} ${colorMap.emerald.bg}`}>
               <div className="flex items-start gap-3">
-                <div className="w-9 h-9 rounded-lg bg-emerald-500/20 flex items-center justify-center flex-shrink-0 text-base">📄</div>
+                <div className="w-9 h-9 rounded-none bg-emerald-500/20 flex items-center justify-center flex-shrink-0 text-base">📄</div>
                 <div className="flex-1 min-w-0">
                   <h3 className="font-semibold text-white text-sm mb-2">Dữ liệu Ứng viên (Candidate Data)</h3>
                   <div className="grid grid-cols-2 gap-1.5">
                     {['Họ tên, thông tin liên hệ', 'Lịch sử làm việc', 'Học vấn', 'Kỹ năng trong CV'].map(item => (
                       <div key={item} className="flex items-center gap-1.5 text-slate-400 text-xs">
-                        <span className="w-1 h-1 rounded-full bg-emerald-400 shrink-0" />
+                        <span className="w-1 h-1 rounded-none bg-emerald-400 shrink-0" />
                         {item}
                       </div>
                     ))}
@@ -107,15 +107,15 @@ const PrivacyPolicyPage: React.FC = () => {
               </div>
             </div>
 
-            <div className={`p-4 rounded-xl border ${colorMap.blue.border} ${colorMap.blue.bg}`}>
+            <div className={`p-4 rounded-none border ${colorMap.blue.border} ${colorMap.blue.bg}`}>
               <div className="flex items-start gap-3">
-                <div className="w-9 h-9 rounded-lg bg-blue-500/20 flex items-center justify-center flex-shrink-0 text-base">💼</div>
+                <div className="w-9 h-9 rounded-none bg-blue-500/20 flex items-center justify-center flex-shrink-0 text-base">💼</div>
                 <div className="flex-1 min-w-0">
                   <h3 className="font-semibold text-white text-sm mb-2">Dữ liệu Tuyển dụng</h3>
                   <div className="grid grid-cols-3 gap-1.5">
                     {['Nội dung JD', 'Tiêu chí đánh giá', 'Trọng số ưu tiên'].map(item => (
                       <div key={item} className="flex items-center gap-1.5 text-slate-400 text-xs">
-                        <span className="w-1 h-1 rounded-full bg-blue-400 shrink-0" />
+                        <span className="w-1 h-1 rounded-none bg-blue-400 shrink-0" />
                         {item}
                       </div>
                     ))}
@@ -132,9 +132,9 @@ const PrivacyPolicyPage: React.FC = () => {
             <p className="text-slate-400 text-sm mb-1">
               Khách hàng đồng ý cấp quyền cho SupportHR thực hiện các hoạt động sau đối với Dữ liệu Khách hàng:
             </p>
-            <div className={`p-4 rounded-xl border ${colorMap.blue.border} ${colorMap.blue.bg}`}>
+            <div className={`p-4 rounded-none border ${colorMap.blue.border} ${colorMap.blue.bg}`}>
               <div className="flex items-start gap-3">
-                <div className="w-9 h-9 rounded-lg bg-amber-500/20 flex items-center justify-center flex-shrink-0 text-base">🔒</div>
+                <div className="w-9 h-9 rounded-none bg-amber-500/20 flex items-center justify-center flex-shrink-0 text-base">🔒</div>
                 <div>
                   <h3 className="font-semibold text-white text-sm mb-1">Ẩn danh hóa (De-identification)</h3>
                   <p className="text-slate-300 text-xs leading-relaxed">
@@ -143,9 +143,9 @@ const PrivacyPolicyPage: React.FC = () => {
                 </div>
               </div>
             </div>
-            <div className={`p-4 rounded-xl border ${colorMap.blue.border} ${colorMap.blue.bg}`}>
+            <div className={`p-4 rounded-none border ${colorMap.blue.border} ${colorMap.blue.bg}`}>
               <div className="flex items-start gap-3">
-                <div className="w-9 h-9 rounded-lg bg-green-500/20 flex items-center justify-center flex-shrink-0 text-base">🤖</div>
+                <div className="w-9 h-9 rounded-none bg-green-500/20 flex items-center justify-center flex-shrink-0 text-base">🤖</div>
                 <div>
                   <h3 className="font-semibold text-white text-sm mb-1">Huấn luyện Mô hình</h3>
                   <p className="text-slate-300 text-xs leading-relaxed">
@@ -154,9 +154,9 @@ const PrivacyPolicyPage: React.FC = () => {
                 </div>
               </div>
             </div>
-            <div className={`p-4 rounded-xl border ${colorMap.blue.border} ${colorMap.blue.bg}`}>
+            <div className={`p-4 rounded-none border ${colorMap.blue.border} ${colorMap.blue.bg}`}>
               <div className="flex items-start gap-3">
-                <div className="w-9 h-9 rounded-lg bg-indigo-500/20 flex items-center justify-center flex-shrink-0 text-base">📊</div>
+                <div className="w-9 h-9 rounded-none bg-indigo-500/20 flex items-center justify-center flex-shrink-0 text-base">📊</div>
                 <div>
                   <h3 className="font-semibold text-white text-sm mb-1">Thống kê</h3>
                   <p className="text-slate-300 text-xs leading-relaxed">
@@ -171,7 +171,7 @@ const PrivacyPolicyPage: React.FC = () => {
       case 'security':
         return (
           <div className="space-y-3">
-            <div className={`p-4 rounded-xl border ${colorMap.green.border} ${colorMap.green.bg}`}>
+            <div className={`p-4 rounded-none border ${colorMap.green.border} ${colorMap.green.bg}`}>
               <div className="flex items-center gap-2 mb-3">
                 <span className="text-base">🛡️</span>
                 <h3 className="font-semibold text-white text-sm">Biện pháp an ninh</h3>
@@ -183,7 +183,7 @@ const PrivacyPolicyPage: React.FC = () => {
                   { icon: '🔑', title: 'Quản lý khóa API', desc: 'Server-side' },
                   { icon: '🚫', title: 'Ngăn chặn rò rỉ', desc: 'Anti-breach' },
                 ].map(item => (
-                  <div key={item.title} className="p-2.5 rounded-lg bg-slate-800/60 border border-slate-700/50">
+                  <div key={item.title} className="p-2.5 rounded-none bg-slate-800/60 border border-slate-700/50">
                     <div className="flex items-center gap-1.5 mb-1">
                       <span className="text-green-400 text-xs">{item.icon}</span>
                       <span className="font-medium text-white text-xs">{item.title}</span>
@@ -194,7 +194,7 @@ const PrivacyPolicyPage: React.FC = () => {
               </div>
             </div>
 
-            <div className={`p-4 rounded-xl border ${colorMap.green.border} ${colorMap.green.bg}`}>
+            <div className={`p-4 rounded-none border ${colorMap.green.border} ${colorMap.green.bg}`}>
               <div className="flex items-center gap-2 mb-3">
                 <span className="text-base">⏱️</span>
                 <h3 className="font-semibold text-white text-sm">Thời gian lưu trữ</h3>
@@ -202,7 +202,7 @@ const PrivacyPolicyPage: React.FC = () => {
               <p className="text-slate-300 text-sm leading-relaxed mb-2">
                 Dữ liệu được lưu trữ trong suốt thời gian Khách hàng sử dụng Dịch vụ.
               </p>
-              <div className="p-3 rounded-lg bg-blue-500/10 border border-blue-500/30">
+              <div className="p-3 rounded-none bg-blue-500/10 border border-blue-500/30">
                 <p className="text-blue-200 text-xs leading-relaxed">
                   Khi Khách hàng chấm dứt hợp đồng hoặc gửi yêu cầu xóa tài khoản, SupportHR sẽ tiến hành <strong className="text-blue-400">xóa vĩnh viễn toàn bộ Dữ liệu Khách hàng</strong> trong vòng <strong className="text-blue-400">30 ngày</strong>, trừ khi pháp luật yêu cầu lưu trữ lâu hơn.
                 </p>
@@ -214,15 +214,15 @@ const PrivacyPolicyPage: React.FC = () => {
       case 'rights':
         return (
           <div className="space-y-3">
-            <div className={`p-4 rounded-xl border ${colorMap.pink.border} ${colorMap.pink.bg} flex items-start gap-3 mb-3`}>
+            <div className={`p-4 rounded-none border ${colorMap.pink.border} ${colorMap.pink.bg} flex items-start gap-3 mb-3`}>
               <span className="text-xl mt-0.5">⚖️</span>
               <p className="text-slate-300 text-sm leading-relaxed">
                 SupportHR cam kết hỗ trợ Khách hàng thực hiện nghĩa vụ đối với chủ thể dữ liệu (ứng viên) theo quy định <strong className="text-pink-400">Nghị định 13/2023/NĐ-CP</strong>.
               </p>
             </div>
-            <div className={`p-4 rounded-xl border ${colorMap.cyan.border} ${colorMap.cyan.bg}`}>
+            <div className={`p-4 rounded-none border ${colorMap.cyan.border} ${colorMap.cyan.bg}`}>
               <div className="flex items-start gap-3">
-                <div className="w-9 h-9 rounded-lg bg-cyan-500/20 flex items-center justify-center flex-shrink-0 text-base">📥</div>
+                <div className="w-9 h-9 rounded-none bg-cyan-500/20 flex items-center justify-center flex-shrink-0 text-base">📥</div>
                 <div>
                   <h3 className="font-semibold text-white text-sm mb-1">Trích xuất dữ liệu</h3>
                   <p className="text-slate-400 text-xs leading-relaxed">
@@ -231,9 +231,9 @@ const PrivacyPolicyPage: React.FC = () => {
                 </div>
               </div>
             </div>
-            <div className={`p-4 rounded-xl border ${colorMap.pink.border} ${colorMap.pink.bg}`}>
+            <div className={`p-4 rounded-none border ${colorMap.pink.border} ${colorMap.pink.bg}`}>
               <div className="flex items-start gap-3">
-                <div className="w-9 h-9 rounded-lg bg-red-500/20 flex items-center justify-center flex-shrink-0 text-base">🗑️</div>
+                <div className="w-9 h-9 rounded-none bg-red-500/20 flex items-center justify-center flex-shrink-0 text-base">🗑️</div>
                 <div>
                   <h3 className="font-semibold text-white text-sm mb-1">Quyền được lãng quên</h3>
                   <p className="text-slate-400 text-xs leading-relaxed">
@@ -242,7 +242,7 @@ const PrivacyPolicyPage: React.FC = () => {
                 </div>
               </div>
             </div>
-            <div className={`p-3 rounded-xl border border-indigo-500/30 bg-indigo-500/10`}>
+            <div className={`p-3 rounded-none border border-indigo-500/30 bg-indigo-500/10`}>
               <p className="text-indigo-200 text-xs leading-relaxed">
                 ⚖️ Tất cả các quyền này được thực hiện theo quy định của <strong>Nghị định 13/2023/NĐ-CP</strong> về Bảo vệ dữ liệu cá nhân và các văn bản pháp luật có liên quan.
               </p>
@@ -264,13 +264,13 @@ const PrivacyPolicyPage: React.FC = () => {
           backgroundSize: '40px 40px',
         }}
       />
-      <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-cyan-600/8 rounded-full blur-3xl" />
-      <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-violet-600/6 rounded-full blur-3xl" />
+      <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-cyan-600/8 rounded-none blur-3xl" />
+      <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-violet-600/6 rounded-none blur-3xl" />
 
       {/* Top nav */}
       <div className="relative z-20 flex items-center justify-between px-6 py-4 border-b border-white/5">
         <div className="flex items-center gap-3">
-          <Link to="/" className="w-9 h-9 rounded-xl bg-[#11213A] border border-slate-800/60 flex items-center justify-center overflow-hidden shadow-lg">
+          <Link to="/" className="w-9 h-9 rounded-none bg-[#11213A] border border-slate-800/60 flex items-center justify-center overflow-hidden shadow-lg">
             <img src="/images/logos/logo.jpg" alt="SupportHR" className="w-full h-full object-cover" />
           </Link>
           <div>
@@ -279,8 +279,8 @@ const PrivacyPolicyPage: React.FC = () => {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Link to="/terms" className="text-xs text-slate-400 hover:text-cyan-400 transition-colors px-3 py-1.5 rounded-lg hover:bg-white/5">Điều khoản sử dụng</Link>
-          <Link to="/" className="w-8 h-8 rounded-lg bg-[#11213A] border border-slate-800/60 flex items-center justify-center text-slate-400 hover:text-cyan-400 hover:border-cyan-500/30 transition-all">
+          <Link to="/terms" className="text-xs text-slate-400 hover:text-cyan-400 transition-colors px-3 py-1.5 rounded-none hover:bg-white/5">Điều khoản sử dụng</Link>
+          <Link to="/" className="w-8 h-8 rounded-none bg-[#11213A] border border-slate-800/60 flex items-center justify-center text-slate-400 hover:text-cyan-400 hover:border-cyan-500/30 transition-all">
             <i className="fa-solid fa-house text-[10px]" />
           </Link>
         </div>
@@ -289,11 +289,11 @@ const PrivacyPolicyPage: React.FC = () => {
       {/* Page header */}
       <div className={`relative z-10 px-6 pt-8 pb-4 text-center transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
         <div className="flex justify-center mb-3">
-          <div className="w-12 h-12 rounded-2xl bg-[#11213A] border border-slate-800/60 flex items-center justify-center overflow-hidden shadow-xl shadow-black/30">
+          <div className="w-12 h-12 rounded-none bg-[#11213A] border border-slate-800/60 flex items-center justify-center overflow-hidden shadow-xl shadow-black/30">
             <img src="/images/logos/logo.jpg" alt="SupportHR" className="w-full h-full object-cover" />
           </div>
         </div>
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-cyan-500/20 bg-cyan-500/5 mb-3">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-none border border-cyan-500/20 bg-cyan-500/5 mb-3">
           <i className="fa-solid fa-shield-halved text-cyan-400 text-[9px]" />
           <span className="text-[10px] font-bold text-cyan-400 uppercase tracking-widest">Legal</span>
         </div>
@@ -319,13 +319,13 @@ const PrivacyPolicyPage: React.FC = () => {
                 <button
                   key={section.id}
                   onClick={() => setActiveSection(section.id)}
-                  className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left transition-all duration-200 ${
+                  className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-none text-left transition-all duration-200 ${
                     isActive
                       ? `bg-gradient-to-r ${colors.from}/10 to-transparent border ${colors.border}`
                       : 'hover:bg-white/[0.03] border border-transparent'
                   }`}
                 >
-                  <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 text-xs ${
+                  <div className={`w-7 h-7 rounded-none flex items-center justify-center shrink-0 text-xs ${
                     isActive
                       ? `bg-gradient-to-br ${colors.from} ${colors.to} text-white shadow-lg`
                       : 'bg-slate-800 text-slate-500'
@@ -350,7 +350,7 @@ const PrivacyPolicyPage: React.FC = () => {
                   <button
                     key={section.id}
                     onClick={() => setActiveSection(section.id)}
-                    className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-all duration-200 ${
+                    className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-none text-xs font-medium transition-all duration-200 ${
                       isActive
                         ? `bg-gradient-to-r ${colors.from}/15 border ${colors.border} ${colors.text}`
                         : 'bg-slate-800/60 border border-slate-700/50 text-slate-500'
@@ -366,10 +366,10 @@ const PrivacyPolicyPage: React.FC = () => {
 
           {/* Content */}
           <div className="flex-1 min-w-0">
-            <div className="bg-[#11213A]/80 border border-white/[0.06] rounded-2xl p-5 backdrop-blur-xl">
+            <div className="bg-[#11213A]/80 border border-white/[0.06] rounded-none p-5 backdrop-blur-xl">
               {/* Section title */}
               <div className="flex items-center gap-3 mb-4">
-                <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${
+                <div className={`w-9 h-9 rounded-none bg-gradient-to-br ${
                   colorMap[sections.find(s => s.id === activeSection)?.color ?? 'cyan'].from
                 } ${
                   colorMap[sections.find(s => s.id === activeSection)?.color ?? 'cyan'].to
