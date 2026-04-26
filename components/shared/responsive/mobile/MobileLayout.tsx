@@ -68,7 +68,7 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({ children }) => {
           {[
             { step: 'home' as AppStep, icon: 'fa-home', label: 'Trang chủ' },
             { step: 'jd' as AppStep, icon: 'fa-file-text', label: 'Công việc' },
-            { step: 'upload' as AppStep, icon: 'fa-upload', label: 'Tải CV' },
+            { step: 'weights' as AppStep, icon: 'fa-sliders', label: 'Trọng số' },
             { step: 'analysis' as AppStep, icon: 'fa-chart-line', label: 'Phân tích' },
           ].map(({ step, icon, label }) => (
             <button

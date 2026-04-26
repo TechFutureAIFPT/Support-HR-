@@ -5,8 +5,9 @@ import JDMetaToolbar from '../../../components/features/criteria-config/JDMetaTo
 import CVScreenerWelcome from './CVScreenerWelcome';
 
 const WeightsConfig = lazy(() => import('../../../components/features/criteria-config/WeightsConfig'));
-const CVUpload = lazy(() => import('../../../components/features/cv-management/CVUpload'));
 const AnalysisResults = lazy(() => import('../../../components/features/cv-management/AnalysisResults'));
+import CVUploadMini from '../../../components/features/cv-management/CVUploadMini';
+import { analyzeCVs } from '../../../services/ai-ml/models/gemini/geminiService';
 
 const ModuleLoader = () => (
   <div className="flex flex-col items-center justify-center h-40 gap-4">
@@ -54,25 +55,54 @@ const ScreenerPage: React.FC<ScreenerPageProps> = (props) => {
     props.onWelcomeChange?.(false);
   }, [props.onWelcomeChange]);
 
-  const handleFileProcessed = useCallback((data: {
-    jdText: string;
-    jobPosition: string;
-    hardFilters: Partial<HardFilters>;
-  }) => {
-    props.setJdText(data.jdText);
-    if (data.jobPosition) props.setJobPosition(data.jobPosition);
-    if (data.hardFilters && Object.keys(data.hardFilters).length > 0) {
-      props.setHardFilters((prev) => ({ ...prev, ...data.hardFilters }));
+  const handleStartAnalysis = async () => {
+    props.setActiveStep('analysis');
+    props.setIsLoading(true);
+    props.setAnalysisResults([]);
+    props.setLoadingMessage('Đang khởi tạo...');
+
+    try {
+      const analysisGenerator = analyzeCVs(props.jdText, props.weights, props.hardFilters, props.cvFiles);
+      for await (const result of analysisGenerator) {
+        if (result.status === 'progress') {
+          props.setLoadingMessage(result.message);
+        } else {
+          props.setAnalysisResults(prev => [...prev, result as Candidate]);
+        }
+      }
+    } catch (err) {
+      console.error("Lỗi phân tích CV:", err);
+      const message = err instanceof Error ? err.message : 'Đã xảy ra lỗi không xác định. Vui lòng thử lại.';
+      props.setAnalysisResults(prev => {
+        if (prev.some(c => c.candidateName === 'Lỗi Hệ Thống')) return prev;
+        return [...prev, {
+          id: `system-error-${Date.now()}`,
+          status: 'FAILED',
+          error: message,
+          candidateName: 'Lỗi Hệ Thống',
+          fileName: 'N/A',
+          jobTitle: '', industry: '', department: '', experienceLevel: '', detectedLocation: '',
+        }];
+      });
+    } finally {
+      props.setIsLoading(false);
+      props.setLoadingMessage('Hoàn tất phân tích!');
     }
-    hideWelcome();
-  }, [props.setJdText, props.setJobPosition, props.setHardFilters, hideWelcome]);
+  };
 
   if (activeStep === 'jd' && showWelcome) {
     return (
       <div className="fixed inset-0 z-50 overflow-y-auto">
         <CVScreenerWelcome
           onGetStarted={hideWelcome}
-          onFileProcessed={handleFileProcessed}
+          onFileProcessed={(data) => {
+            props.setJdText(data.jdText);
+            if (data.jobPosition) props.setJobPosition(data.jobPosition);
+            if (data.hardFilters && Object.keys(data.hardFilters).length > 0) {
+              props.setHardFilters((prev) => ({ ...prev, ...data.hardFilters }));
+            }
+            hideWelcome();
+          }}
         />
       </div>
     );
@@ -89,6 +119,10 @@ const ScreenerPage: React.FC<ScreenerPageProps> = (props) => {
           hardFilters={props.hardFilters}
           setHardFilters={props.setHardFilters}
           onComplete={() => {
+            if (props.cvFiles.length === 0) {
+              alert('Vui lòng tải lên ít nhất 1 CV để tiếp tục.');
+              return;
+            }
             props.markStepAsCompleted('jd');
             props.setActiveStep('weights');
           }}
@@ -104,21 +138,30 @@ const ScreenerPage: React.FC<ScreenerPageProps> = (props) => {
             : 'custom-scrollbar overflow-y-auto'
         }`}
       >
-        <div className={activeStep === 'jd' ? 'flex h-full min-h-0 flex-1 flex-col' : 'hidden'}>
-          <JDInput
-            hideToolbar
-            jdText={props.jdText}
-            setJdText={props.setJdText}
-            jobPosition={props.jobPosition}
-            setJobPosition={props.setJobPosition}
-            hardFilters={props.hardFilters}
-            setHardFilters={props.setHardFilters}
-            onComplete={() => {
-              props.markStepAsCompleted('jd');
-              props.setActiveStep('weights');
-            }}
-            onBackToWelcome={() => setShowWelcome(true)}
-          />
+        <div className={activeStep === 'jd' ? 'flex h-full min-h-0 flex-1 flex-col md:flex-row' : 'hidden'}>
+          <div className="flex-1 flex flex-col min-w-0 border-b md:border-b-0 md:border-r border-slate-800">
+            <JDInput
+              hideToolbar
+              jdText={props.jdText}
+              setJdText={props.setJdText}
+              jobPosition={props.jobPosition}
+              setJobPosition={props.setJobPosition}
+              hardFilters={props.hardFilters}
+              setHardFilters={props.setHardFilters}
+              onComplete={() => {
+                if (props.cvFiles.length === 0) {
+                  alert('Vui lòng tải lên ít nhất 1 CV để tiếp tục.');
+                  return;
+                }
+                props.markStepAsCompleted('jd');
+                props.setActiveStep('weights');
+              }}
+              onBackToWelcome={() => setShowWelcome(true)}
+            />
+          </div>
+          <div className="w-full md:w-[350px] lg:w-[400px] shrink-0 h-[40vh] md:h-full bg-[#0B192C]">
+            <CVUploadMini cvFiles={props.cvFiles} setCvFiles={props.setCvFiles} />
+          </div>
         </div>
 
         <div className={activeStep === 'weights' ? 'block h-full' : 'hidden'}>
@@ -130,28 +173,8 @@ const ScreenerPage: React.FC<ScreenerPageProps> = (props) => {
               setHardFilters={props.setHardFilters}
               onComplete={() => {
                 props.markStepAsCompleted('weights');
-                props.setActiveStep('upload');
+                handleStartAnalysis();
               }}
-            />
-          </Suspense>
-        </div>
-
-        <div className={activeStep === 'upload' ? 'block h-full' : 'hidden'}>
-          <Suspense fallback={<ModuleLoader />}>
-            <CVUpload
-              cvFiles={props.cvFiles}
-              setCvFiles={props.setCvFiles}
-              jdText={props.jdText}
-              weights={props.weights}
-              hardFilters={props.hardFilters}
-              setAnalysisResults={props.setAnalysisResults}
-              setIsLoading={props.setIsLoading}
-              setLoadingMessage={props.setLoadingMessage}
-              onAnalysisStart={() => {
-                props.markStepAsCompleted('upload');
-                props.setActiveStep('analysis');
-              }}
-              completedSteps={props.completedSteps}
             />
           </Suspense>
         </div>

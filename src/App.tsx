@@ -298,7 +298,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
       if (payload.weights) setWeights(payload.weights);
       if (payload.hardFilters) setHardFilters(payload.hardFilters);
       if (payload.candidates) setAnalysisResults(payload.candidates);
-      setCompletedSteps(['jd', 'weights', 'upload', 'analysis']);
+      setCompletedSteps(['jd', 'weights', 'analysis']);
       navigate('/analysis');
     } catch (e) {
       console.warn('Restore failed', e);
@@ -389,7 +389,6 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
       case '/process': return 'process';
       case '/jd': return 'jd';
       case '/weights': return 'weights';
-      case '/upload': return 'upload';
       case '/analysis': return 'analysis';
       case '/dashboard': return 'dashboard';
       case '/detailed-analytics': return 'dashboard'; // Show dashboard as active for detailed analytics page
@@ -441,7 +440,6 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
       home: '/',
       jd: '/jd',
       weights: '/weights',
-      upload: '/upload',
       analysis: '/analysis',
       dashboard: '/detailed-analytics',
       chatbot: '/chatbot',
@@ -459,16 +457,12 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
 
   useEffect(() => {
     const path = location.pathname;
-    const requiresJD = ['/weights', '/upload', '/analysis'];
+    const requiresJD = ['/weights', '/analysis'];
     if (requiresJD.includes(path) && !completedSteps.includes('jd')) {
       navigate('/jd', { replace: true });
       return;
     }
-    if (path === '/upload' && !completedSteps.includes('weights')) {
-      navigate('/jd', { replace: true });
-      return;
-    }
-    if (path === '/analysis' && (!completedSteps.includes('weights') || !completedSteps.includes('upload'))) {
+    if (path === '/analysis' && (!completedSteps.includes('weights'))) {
       navigate('/jd', { replace: true });
     }
   }, [location.pathname, completedSteps, navigate]);
@@ -547,18 +541,17 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
             : 'ml-0 w-full'
         }`}
       >
-        {(activeStep === 'jd' || activeStep === 'weights' || activeStep === 'upload' || activeStep === 'analysis') && (
+        {(activeStep === 'jd' || activeStep === 'weights' || activeStep === 'analysis') && (
           <div className="pt-4 md:hidden">
             <ProgressBar activeStep={activeStep} completedSteps={completedSteps} />
           </div>
         )}
-        <div className={`flex h-full min-h-0 w-full flex-1 flex-col ${(activeStep === 'home' || activeStep === 'jd' || activeStep === 'weights' || activeStep === 'upload' || activeStep === 'analysis' || activeStep === 'dashboard' || activeStep === 'chatbot' || activeStep === 'feedback') ? 'overflow-hidden' : 'max-w-7xl px-4 sm:px-6 lg:px-8 mx-auto py-4 overflow-y-auto custom-scrollbar'}`}>
+        <div className={`flex h-full min-h-0 w-full flex-1 flex-col ${(activeStep === 'home' || activeStep === 'jd' || activeStep === 'weights' || activeStep === 'analysis' || activeStep === 'dashboard' || activeStep === 'chatbot' || activeStep === 'feedback') ? 'overflow-hidden' : 'max-w-7xl px-4 sm:px-6 lg:px-8 mx-auto py-4 overflow-y-auto custom-scrollbar'}`}>
           <Suspense fallback={<div className="flex flex-col justify-center items-center h-64 gap-3"><div className="relative w-10 h-10"><div className="absolute inset-0 rounded-full border-[3px] border-transparent border-t-cyan-400 border-r-cyan-400/40 animate-spin" style={{ animationDuration: '0.8s' }} /><div className="absolute inset-1.5 rounded-full border-[3px] border-transparent border-b-indigo-400 border-l-indigo-400/40 animate-spin" style={{ animationDuration: '1.2s', animationDirection: 'reverse' }} /></div></div>}>
             <Routes>
               <Route path="/" element={<HomePage setActiveStep={setActiveStep} isLoggedIn={isLoggedIn} onLoginRequest={onLoginRequest} completedSteps={completedSteps} userName={userName} userEmail={userEmail} />} />
               <Route path="/jd" element={isLoggedIn ? <ScreenerPage {...screenerPageProps} /> : <HomePage setActiveStep={setActiveStep} isLoggedIn={isLoggedIn} onLoginRequest={onLoginRequest} completedSteps={completedSteps} userName={userName} userEmail={userEmail} />} />
               <Route path="/weights" element={isLoggedIn ? <ScreenerPage {...screenerPageProps} /> : <HomePage setActiveStep={setActiveStep} isLoggedIn={isLoggedIn} onLoginRequest={onLoginRequest} completedSteps={completedSteps} userName={userName} userEmail={userEmail} />} />
-              <Route path="/upload" element={isLoggedIn ? <ScreenerPage {...screenerPageProps} /> : <HomePage setActiveStep={setActiveStep} isLoggedIn={isLoggedIn} onLoginRequest={onLoginRequest} completedSteps={completedSteps} userName={userName} userEmail={userEmail} />} />
               <Route path="/analysis" element={isLoggedIn ? <ScreenerPage {...screenerPageProps} /> : <HomePage setActiveStep={setActiveStep} isLoggedIn={isLoggedIn} onLoginRequest={onLoginRequest} completedSteps={completedSteps} userName={userName} userEmail={userEmail} />} />
 
               <Route path="/detailed-analytics" element={isLoggedIn ? <DetailedAnalyticsPage candidates={analysisResults} jobPosition={jobPosition} onReset={onResetRequest} /> : <HomePage setActiveStep={setActiveStep} isLoggedIn={isLoggedIn} onLoginRequest={onLoginRequest} completedSteps={completedSteps} userName={userName} userEmail={userEmail} />} />
@@ -576,7 +569,6 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
       {/* Mobile Bottom Navigation (phone-like) */}
       {activeStep === 'jd' ||
         activeStep === 'weights' ||
-        activeStep === 'upload' ||
         activeStep === 'analysis' ? (
         <MobileBottomNav
           activeStep={activeStep}
@@ -598,7 +590,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
           });
           markStepAsCompleted('jd');
           markStepAsCompleted('weights');
-          setActiveStep('upload');
+          setActiveStep('analysis');
         }}
       />
 

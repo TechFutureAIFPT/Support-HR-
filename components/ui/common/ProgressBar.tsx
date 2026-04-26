@@ -13,7 +13,6 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ activeStep, completedSteps })
   const steps = [
     { key: 'jd' as AppStep, label: 'JD', icon: 'fa-clipboard-list' },
     { key: 'weights' as AppStep, label: 'Trọng số', icon: 'fa-sliders' },
-    { key: 'upload' as AppStep, label: 'CV', icon: 'fa-file-arrow-up' },
     { key: 'analysis' as AppStep, label: 'AI', icon: 'fa-rocket' },
   ];
 
