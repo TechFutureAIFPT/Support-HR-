@@ -16,7 +16,6 @@ type NavItem = {
 const items: NavItem[] = [
   { step: "jd", label: "JD", iconClass: "fa-solid fa-file-lines" },
   { step: "weights", label: "Trọng số", iconClass: "fa-solid fa-sliders" },
-  { step: "upload", label: "Tải CV", iconClass: "fa-solid fa-cloud-arrow-up" },
   { step: "analysis", label: "Phân tích", iconClass: "fa-solid fa-chart-line" },
 ];
 
@@ -28,12 +27,10 @@ const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
   const isEnabled = (step: AppStep) => {
     if (step === "jd") return true;
     if (step === "weights") return completedSteps.includes("jd");
-    if (step === "upload") return completedSteps.includes("jd") && completedSteps.includes("weights");
     if (step === "analysis")
       return (
         completedSteps.includes("jd") &&
-        completedSteps.includes("weights") &&
-        completedSteps.includes("upload")
+        completedSteps.includes("weights")
       );
     return true;
   };

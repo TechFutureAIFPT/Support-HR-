@@ -402,7 +402,7 @@ const WeightsConfig: React.FC<WeightsConfigProps> = memo(({ weights, setWeights,
                         : { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#475569', cursor: 'not-allowed' }
                     }
                   >
-                    Hoàn tất cấu hình & Tiếp tục
+                    Hoàn tất cấu hình & Phân tích ngay
                     <span className="text-[10px] opacity-80">→</span>
                   </button>
 

@@ -8,8 +8,8 @@ interface ProcessPageProps {
 const PROCESS_STEPS = [
   {
     icon: 'fa-clipboard-list',
-    title: 'Nhập Mô tả Công việc (JD)',
-    description: 'Cung cấp JD chi tiết hoặc sử dụng OCR để AI hiểu rõ yêu cầu tuyển dụng.',
+    title: 'Nhập JD & Tải lên CV',
+    description: 'Cung cấp mô tả công việc (JD) và tải lên hàng loạt CV cần sàng lọc để AI phân tích.',
     color: 'text-cyan-400',
     bgColor: 'bg-cyan-500/10',
     borderColor: 'border-cyan-500/25',
@@ -27,16 +27,6 @@ const PROCESS_STEPS = [
     step: '02',
   },
   {
-    icon: 'fa-file-arrow-up',
-    title: 'Tải lên và Lọc CV',
-    description: 'Tải lên hàng loạt CV. Hệ thống tự động lọc các CV không đạt yêu cầu bắt buộc.',
-    color: 'text-emerald-400',
-    bgColor: 'bg-emerald-500/10',
-    borderColor: 'border-emerald-500/25',
-    glowColor: 'shadow-emerald-500/10',
-    step: '03',
-  },
-  {
     icon: 'fa-rocket',
     title: 'Phân tích & Chấm điểm AI',
     description: 'AI đọc hiểu, chấm điểm, xếp hạng từng CV dựa trên JD và trọng số đã thiết lập.',
@@ -44,7 +34,7 @@ const PROCESS_STEPS = [
     bgColor: 'bg-amber-500/10',
     borderColor: 'border-amber-500/25',
     glowColor: 'shadow-amber-500/10',
-    step: '04',
+    step: '03',
   },
   {
     icon: 'fa-comments',
@@ -54,7 +44,7 @@ const PROCESS_STEPS = [
     bgColor: 'bg-pink-500/10',
     borderColor: 'border-pink-500/25',
     glowColor: 'shadow-pink-500/10',
-    step: '05',
+    step: '04',
   },
   {
     icon: 'fa-file-csv',
@@ -64,7 +54,7 @@ const PROCESS_STEPS = [
     bgColor: 'bg-blue-500/10',
     borderColor: 'border-blue-500/25',
     glowColor: 'shadow-blue-500/10',
-    step: '06',
+    step: '05',
   },
 ];
 
@@ -77,14 +67,14 @@ const ProcessPage: React.FC<ProcessPageProps> = ({ isIntroMode = false, onStart 
       <div className="text-center">
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-cyan-500/20 bg-cyan-500/5 mb-5">
           <i className="fa-solid fa-route text-cyan-400 text-[10px]"></i>
-          <span className="text-[10px] font-bold text-cyan-400 uppercase tracking-widest">Quy trình 6 bước</span>
+          <span className="text-[10px] font-bold text-cyan-400 uppercase tracking-widest">Quy trình 5 bước</span>
         </div>
         <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight mb-3">
           Quy trình sàng lọc CV thông minh
         </h1>
         <p className="text-slate-400 text-base max-w-2xl mx-auto leading-relaxed">
           {isIntroMode
-            ? 'Bắt đầu tối ưu hóa hiệu quả tuyển dụng của bạn với quy trình 6 bước toàn diện.'
+            ? 'Bắt đầu tối ưu hóa hiệu quả tuyển dụng của bạn với quy trình 5 bước toàn diện.'
             : 'Luồng làm việc được đề xuất để tối ưu hóa hiệu quả tuyển dụng của bạn.'}
         </p>
       </div>

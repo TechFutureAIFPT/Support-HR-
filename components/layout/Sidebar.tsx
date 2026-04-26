@@ -55,9 +55,7 @@ const PROCESS_STEPS: Array<{
     icon: Briefcase,         color: '#60a5fa', bgActive: 'rgba(96,165,250,0.1)' },   // tokens.dark.primary
   { key: 'weights',  label: 'Trọng số & Bộ lọc', sub: 'Thiết lập · Bước 2',
     icon: SlidersHorizontal, color: '#60a5fa', bgActive: 'rgba(96,165,250,0.1)' },   // tokens.dark.primary (đồng bộ)
-  { key: 'upload',   label: 'Tải lên CV', sub: 'Upload · Bước 3',
-    icon: Upload,            color: '#60a5fa', bgActive: 'rgba(96,165,250,0.1)' },   // tokens.dark.primary (đồng bộ)
-  { key: 'analysis', label: 'Phân tích AI', sub: 'Xử lý · Bước 4',
+  { key: 'analysis', label: 'Phân tích AI', sub: 'Xử lý · Bước 3',
     icon: Sparkles,          color: '#60a5fa', bgActive: 'rgba(96,165,250,0.1)' },   // tokens.dark.primary (đồng bộ)
 ];
 
@@ -79,9 +77,8 @@ const TOOL_ITEMS: Array<{
 const isStepEnabled = (step: AppStep, completedSteps: AppStep[]): boolean => {
   if (step === 'jd') return true;
   if (step === 'weights') return completedSteps.includes('jd');
-  if (step === 'upload') return completedSteps.includes('jd') && completedSteps.includes('weights');
-  if (step === 'analysis') return completedSteps.includes('jd') && completedSteps.includes('weights') && completedSteps.includes('upload');
-  if (step === 'dashboard' || step === 'chatbot' || step === 'feedback') return completedSteps.includes('upload');
+  if (step === 'analysis') return completedSteps.includes('jd') && completedSteps.includes('weights');
+  if (step === 'dashboard' || step === 'chatbot' || step === 'feedback') return completedSteps.includes('analysis');
   return false;
 };
 
