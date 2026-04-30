@@ -187,8 +187,8 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
 
   const proficiency = scorePercentage >= 90 ? 'Expert'
     : scorePercentage >= 75 ? 'Advanced'
-    : scorePercentage >= 55 ? 'Intermediate'
-    : 'Beginner';
+      : scorePercentage >= 55 ? 'Intermediate'
+        : 'Beginner';
 
   const isExperience = /Kinh nghiệm/i.test(item['Tiêu chí']);
   const jdRequirements = useMemo(() => extractJDRequirements(jdText), [jdText]);
@@ -327,65 +327,59 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
             <div className="rounded-xl border border-slate-800/60 bg-slate-900/40 p-5">
               <h5 className="mb-4 text-base font-bold text-slate-100">Giải thích & Công thức</h5>
 
-            {/* Giải thích đa chỉ — hiển thị cả basic lẫn advanced */}
-            {(BASIC_DESCRIPTIONS[item['Tiêu chí']] || ADVANCED_DESCRIPTIONS[item['Tiêu chí']]) ? (() => {
-              const desc = BASIC_DESCRIPTIONS[item['Tiêu chí']] || ADVANCED_DESCRIPTIONS[item['Tiêu chí']];
-              const isAdv = !!ADVANCED_DESCRIPTIONS[item['Tiêu chí']];
-              return (
-                <div className={`mb-4 rounded-xl border p-4 space-y-3 ${
-                  isAdv
-                    ? 'border-violet-500/20 bg-violet-500/5'
-                    : 'border-cyan-500/20 bg-cyan-500/5'
-                }`}>
-                  {/* What */}
-                  <div>
-                    <p className={`text-[10px] font-bold uppercase tracking-widest mb-1 ${
-                      isAdv ? 'text-violet-400/70' : 'text-cyan-400/70'
-                    }`}>Ðây là gì?</p>
-                    <p className="text-sm leading-relaxed text-slate-300">{desc.what}</p>
-                  </div>
-                  {/* Why */}
-                  <div className="pt-2 border-t border-slate-800/50">
-                    <p className={`text-[10px] font-bold uppercase tracking-widest mb-1 ${
-                      isAdv ? 'text-violet-400/70' : 'text-cyan-400/70'
-                    }`}>Tại sao quan trọng?</p>
-                    <p className="text-sm leading-relaxed text-slate-400">{desc.why}</p>
-                  </div>
-                  {/* Signals */}
-                  <div className="pt-2 border-t border-slate-800/50">
-                    <p className={`text-[10px] font-bold uppercase tracking-widest mb-2 ${
-                      isAdv ? 'text-violet-400/70' : 'text-cyan-400/70'
-                    }`}>Dấu hiệu nhận biết</p>
-                    <ul className="space-y-1.5">
-                      {desc.signals.map((s, i) => (
-                        <li key={i} className="flex items-start gap-2 text-xs text-slate-400">
-                          <i className={`fa-solid fa-circle-check mt-0.5 shrink-0 text-[10px] ${
-                            isAdv ? 'text-violet-400' : 'text-cyan-400'
-                          }`} />
-                          {s}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                  {/* AI result */}
-                  {item['Giải thích'] && item['Giải thích'] !== '...' && (
-                    <div className="pt-2 border-t border-slate-800/50">
-                      <p className={`text-[10px] font-bold uppercase tracking-widest mb-1 ${
-                        isAdv ? 'text-violet-400/70' : 'text-cyan-400/70'
-                      }`}>Nhận xét của AI với CV này</p>
-                      <p className="text-xs leading-relaxed text-slate-300 italic">"{item['Giải thích']}"</p>
+              {/* Giải thích đa chỉ — hiển thị cả basic lẫn advanced */}
+              {(BASIC_DESCRIPTIONS[item['Tiêu chí']] || ADVANCED_DESCRIPTIONS[item['Tiêu chí']]) ? (() => {
+                const desc = BASIC_DESCRIPTIONS[item['Tiêu chí']] || ADVANCED_DESCRIPTIONS[item['Tiêu chí']];
+                const isAdv = !!ADVANCED_DESCRIPTIONS[item['Tiêu chí']];
+                return (
+                  <div className={`mb-4 rounded-xl border p-4 space-y-3 ${isAdv
+                      ? 'border-violet-500/20 bg-violet-500/5'
+                      : 'border-cyan-500/20 bg-cyan-500/5'
+                    }`}>
+                    {/* What */}
+                    <div>
+                      <p className={`text-[10px] font-bold uppercase tracking-widest mb-1 ${isAdv ? 'text-violet-400/70' : 'text-cyan-400/70'
+                        }`}>Ðây là gì?</p>
+                      <p className="text-sm leading-relaxed text-slate-300">{desc.what}</p>
                     </div>
-                  )}
-                </div>
-              );
-            })() : (
-              // Fallback: chỉ hiển thị text thô nếu không có mô tả
-              item['Giải thích'] && (
-                <div className="mb-4">
-                  <p className="text-sm leading-relaxed text-slate-300">{item['Giải thích']}</p>
-                </div>
-              )
-            )}
+                    {/* Why */}
+                    <div className="pt-2 border-t border-slate-800/50">
+                      <p className={`text-[10px] font-bold uppercase tracking-widest mb-1 ${isAdv ? 'text-violet-400/70' : 'text-cyan-400/70'
+                        }`}>Tại sao quan trọng?</p>
+                      <p className="text-sm leading-relaxed text-slate-400">{desc.why}</p>
+                    </div>
+                    {/* Signals */}
+                    <div className="pt-2 border-t border-slate-800/50">
+                      <p className={`text-[10px] font-bold uppercase tracking-widest mb-2 ${isAdv ? 'text-violet-400/70' : 'text-cyan-400/70'
+                        }`}>Dấu hiệu nhận biết</p>
+                      <ul className="space-y-1.5">
+                        {desc.signals.map((s, i) => (
+                          <li key={i} className="flex items-start gap-2 text-xs text-slate-400">
+                            <i className={`fa-solid fa-circle-check mt-0.5 shrink-0 text-[10px] ${isAdv ? 'text-violet-400' : 'text-cyan-400'
+                              }`} />
+                            {s}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    {/* AI result */}
+                    {item['Giải thích'] && item['Giải thích'] !== '...' && (
+                      <div className="pt-2 border-t border-slate-800/50">
+                        <p className={`text-[10px] font-bold uppercase tracking-widest mb-1 ${isAdv ? 'text-violet-400/70' : 'text-cyan-400/70'
+                          }`}>Nhận xét của AI với CV này</p>
+                        <p className="text-xs leading-relaxed text-slate-300 italic">"{item['Giải thích']}"</p>
+                      </div>
+                    )}
+                  </div>
+                );
+              })() : (
+                // Fallback: chỉ hiển thị text thô nếu không có mô tả
+                item['Giải thích'] && (
+                  <div className="mb-4">
+                    <p className="text-sm leading-relaxed text-slate-300">{item['Giải thích']}</p>
+                  </div>
+                )
+              )}
 
               <div className="space-y-2">
                 <div className="text-xs font-medium text-slate-500">Công thức tính điểm</div>
@@ -453,6 +447,148 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
   );
 };
 
+// ── JDOriginalPanel ─────────────────────────────────────────────────────────
+
+interface JDOriginalPanelProps {
+  jdText: string;
+  rawJdText?: string;
+}
+
+const JDOriginalPanel: React.FC<JDOriginalPanelProps> = ({ jdText, rawJdText }) => {
+  const hasRaw = !!rawJdText && rawJdText.trim().length > 0 && rawJdText.trim() !== jdText.trim();
+  const [view, setView] = useState<'raw' | 'optimized'>('raw');
+  const [isOpen, setIsOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const activeText = hasRaw ? (view === 'raw' ? rawJdText! : jdText) : jdText;
+  const wordCount = activeText.trim().split(/\s+/).filter(Boolean).length;
+  const charCount = activeText.length;
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(activeText);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="rounded-xl border border-slate-800/60 bg-[#0f1729] shadow-sm overflow-hidden">
+      {/* ── Header (luôn hiển thị) */}
+      <button
+        onClick={() => setIsOpen(prev => !prev)}
+        className="w-full flex items-center justify-between px-5 py-4 text-left transition-colors hover:bg-slate-800/30 group"
+      >
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-indigo-500/10 border border-indigo-500/25 flex items-center justify-center shrink-0">
+            <i className="fa-solid fa-file-lines text-indigo-400 text-sm" />
+          </div>
+          <div>
+            <h4 className="text-sm font-bold text-slate-100 flex items-center gap-2">
+              Mô tả công việc (JD)
+              {hasRaw && (
+                <span className="text-[9px] font-bold uppercase tracking-wider text-violet-400 border border-violet-500/30 bg-violet-500/10 px-1.5 py-0.5 rounded-full">
+                  Gốc + Tối ưu
+                </span>
+              )}
+            </h4>
+            <p className="text-[11px] text-slate-500 mt-0.5">
+              {charCount.toLocaleString('vi-VN')} ký tự · {wordCount.toLocaleString('vi-VN')} từ
+              {!isOpen && ' · Nhấn để xem'}
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          {isOpen && (
+            <button
+              type="button"
+              onClick={e => { e.stopPropagation(); handleCopy(); }}
+              className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-indigo-400 transition-colors px-2.5 py-1.5 rounded-lg border border-slate-700/60 hover:border-indigo-500/30 hover:bg-indigo-500/5"
+            >
+              <i className={`fa-solid ${copied ? 'fa-check text-emerald-400' : 'fa-copy'}`} />
+              {copied ? 'Đã chép' : 'Sao chép'}
+            </button>
+          )}
+          <div className={`w-7 h-7 rounded-lg border flex items-center justify-center transition-all duration-300 ${
+            isOpen ? 'border-indigo-500/30 bg-indigo-500/10' : 'border-slate-700/60 bg-slate-800/40 group-hover:border-slate-600'
+          }`}>
+            <i className={`fa-solid fa-chevron-down text-xs transition-transform duration-300 ${
+              isOpen ? 'rotate-180 text-indigo-400' : 'text-slate-500'
+            }`} />
+          </div>
+        </div>
+      </button>
+
+      {/* ── Body */}
+      {isOpen && (
+        <div className="border-t border-slate-800/60">
+          {/* Toggle tabs — chỉ hiện khi có 2 phiên bản */}
+          {hasRaw && (
+            <div className="flex border-b border-slate-800/60">
+              <button
+                onClick={() => setView('raw')}
+                className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-semibold transition-all relative ${
+                  view === 'raw'
+                    ? 'text-amber-300 bg-amber-500/5'
+                    : 'text-slate-500 hover:text-slate-300 hover:bg-slate-800/30'
+                }`}
+              >
+                {view === 'raw' && (
+                  <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-amber-400 to-transparent" />
+                )}
+                <i className="fa-solid fa-file-pen text-[11px]" />
+                JD Gốc
+                <span className={`text-[9px] px-1.5 py-0.5 rounded border ${
+                  view === 'raw'
+                    ? 'border-amber-500/40 bg-amber-500/15 text-amber-300'
+                    : 'border-slate-700 bg-slate-800 text-slate-500'
+                }`}>
+                  {rawJdText!.length.toLocaleString('vi-VN')} ký tự
+                </span>
+              </button>
+              <div className="w-px bg-slate-800/60 my-1.5" />
+              <button
+                onClick={() => setView('optimized')}
+                className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-semibold transition-all relative ${
+                  view === 'optimized'
+                    ? 'text-violet-300 bg-violet-500/5'
+                    : 'text-slate-500 hover:text-slate-300 hover:bg-slate-800/30'
+                }`}
+              >
+                {view === 'optimized' && (
+                  <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-violet-400 to-transparent" />
+                )}
+                <i className="fa-solid fa-wand-magic-sparkles text-[11px]" />
+                JD Tối ưu AI
+                <span className={`text-[9px] px-1.5 py-0.5 rounded border ${
+                  view === 'optimized'
+                    ? 'border-violet-500/40 bg-violet-500/15 text-violet-300'
+                    : 'border-slate-700 bg-slate-800 text-slate-500'
+                }`}>
+                  {jdText.length.toLocaleString('vi-VN')} ký tự
+                </span>
+              </button>
+            </div>
+          )}
+
+          {/* Label khi chỉ có 1 phiên bản */}
+          {!hasRaw && (
+            <div className="flex items-center gap-2 px-5 py-2.5 bg-slate-900/30 border-b border-slate-800/40">
+              <i className="fa-solid fa-circle-info text-indigo-400/50 text-[10px]" />
+              <span className="text-[10px] text-slate-600">Nội dung JD được dùng để phân tích</span>
+            </div>
+          )}
+
+          {/* Content */}
+          <div className="px-5 py-4 max-h-[400px] overflow-y-auto custom-scrollbar">
+            <pre className="text-sm text-slate-300 leading-relaxed whitespace-pre-wrap font-sans break-words">
+              {activeText}
+            </pre>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 // ── ExpandedContent chính ───────────────────────────────────────────────────
 
 interface ExpandedContentProps {
@@ -460,9 +596,10 @@ interface ExpandedContentProps {
   expandedCriteria: Record<string, Record<string, boolean>>;
   onToggleCriterion: (candidateId: string, criterion: string) => void;
   jdText: string;
+  rawJdText?: string;
 }
 
-const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCriteria, onToggleCriterion, jdText }) => {
+const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCriteria, onToggleCriterion, jdText, rawJdText }) => {
   const [activeTab, setActiveTab] = useState<'basic' | 'advanced'>('basic');
 
   const allDetails = candidate.analysis?.['Chi tiết'] || [];
@@ -625,6 +762,11 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
         </div>
       )}
 
+      {/* ── Mô tả công việc gốc / tối ưu ────────────────────── */}
+      {jdText && jdText.trim().length > 0 && (
+        <JDOriginalPanel jdText={jdText} rawJdText={rawJdText} />
+      )}
+
       {/* ── Tab chuyển đổi Cơ bản / Nâng cao ───────────────── */}
       <div className="rounded-xl border border-slate-800/60 bg-[#0a0f1e] overflow-hidden">
 
@@ -632,50 +774,44 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
         <div className="flex border-b border-slate-800/60">
           <button
             onClick={() => setActiveTab('basic')}
-            className={`relative flex-1 flex items-center justify-center gap-2.5 px-4 py-4 text-sm font-semibold transition-all duration-200 ${
-              activeTab === 'basic'
+            className={`relative flex-1 flex items-center justify-center gap-2.5 px-4 py-4 text-sm font-semibold transition-all duration-200 ${activeTab === 'basic'
                 ? 'text-cyan-300 bg-cyan-500/8'
                 : 'text-slate-500 hover:text-slate-300 hover:bg-slate-800/30'
-            }`}
+              }`}
           >
             {activeTab === 'basic' && (
               <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-cyan-400 to-transparent" />
             )}
             <i className="fa-solid fa-layer-group text-base"></i>
             <span>Tiêu chí cơ bản</span>
-            <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold border ${
-              activeTab === 'basic'
+            <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold border ${activeTab === 'basic'
                 ? 'border-cyan-500/40 bg-cyan-500/15 text-cyan-300'
                 : 'border-slate-700 bg-slate-800 text-slate-400'
-            }`}>{BASIC_TOTAL_MAX} điểm</span>
-            <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
-              basicScore / BASIC_TOTAL_MAX >= 0.8 ? 'text-emerald-400' : basicScore / BASIC_TOTAL_MAX >= 0.6 ? 'text-amber-400' : 'text-red-400'
-            }`}>{basicScore.toFixed(1)}/{BASIC_TOTAL_MAX}</span>
+              }`}>{BASIC_TOTAL_MAX} điểm</span>
+            <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${basicScore / BASIC_TOTAL_MAX >= 0.8 ? 'text-emerald-400' : basicScore / BASIC_TOTAL_MAX >= 0.6 ? 'text-amber-400' : 'text-red-400'
+              }`}>{basicScore.toFixed(1)}/{BASIC_TOTAL_MAX}</span>
           </button>
 
           <div className="w-px bg-slate-800/60 my-2" />
 
           <button
             onClick={() => setActiveTab('advanced')}
-            className={`relative flex-1 flex items-center justify-center gap-2.5 px-4 py-4 text-sm font-semibold transition-all duration-200 ${
-              activeTab === 'advanced'
+            className={`relative flex-1 flex items-center justify-center gap-2.5 px-4 py-4 text-sm font-semibold transition-all duration-200 ${activeTab === 'advanced'
                 ? 'text-violet-300 bg-violet-500/8'
                 : 'text-slate-500 hover:text-slate-300 hover:bg-slate-800/30'
-            }`}
+              }`}
           >
             {activeTab === 'advanced' && (
               <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-violet-400 to-transparent" />
             )}
             <i className="fa-solid fa-rocket text-base"></i>
             <span>Tiêu chí nâng cao</span>
-            <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold border ${
-              activeTab === 'advanced'
+            <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold border ${activeTab === 'advanced'
                 ? 'border-violet-500/40 bg-violet-500/15 text-violet-300'
                 : 'border-slate-700 bg-slate-800 text-slate-400'
-            }`}>{ADVANCED_TOTAL_MAX} điểm</span>
-            <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
-              advancedScore / ADVANCED_TOTAL_MAX >= 0.8 ? 'text-emerald-400' : advancedScore / ADVANCED_TOTAL_MAX >= 0.6 ? 'text-amber-400' : 'text-red-400'
-            }`}>{advancedScore.toFixed(1)}/{ADVANCED_TOTAL_MAX}</span>
+              }`}>{ADVANCED_TOTAL_MAX} điểm</span>
+            <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${advancedScore / ADVANCED_TOTAL_MAX >= 0.8 ? 'text-emerald-400' : advancedScore / ADVANCED_TOTAL_MAX >= 0.6 ? 'text-amber-400' : 'text-red-400'
+              }`}>{advancedScore.toFixed(1)}/{ADVANCED_TOTAL_MAX}</span>
             <span className="rounded border border-violet-500/30 bg-violet-500/10 px-1.5 py-0.5 text-[9px] font-bold text-violet-400 uppercase tracking-wider">AI+</span>
           </button>
         </div>

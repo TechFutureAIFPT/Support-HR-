@@ -5,6 +5,8 @@ import type { HardFilters } from '../../../assets/types';
 export interface JDMetaToolbarProps {
   jdText: string;
   setJdText: React.Dispatch<React.SetStateAction<string>>;
+  rawJdText: string;
+  setRawJdText: React.Dispatch<React.SetStateAction<string>>;
   jobPosition: string;
   setJobPosition: React.Dispatch<React.SetStateAction<string>>;
   hardFilters: HardFilters;
@@ -18,6 +20,8 @@ export interface JDMetaToolbarProps {
 const JDMetaToolbar: React.FC<JDMetaToolbarProps> = ({
   jdText,
   setJdText,
+  rawJdText,
+  setRawJdText,
   jobPosition,
   setJobPosition,
   hardFilters,
@@ -41,6 +45,8 @@ const JDMetaToolbar: React.FC<JDMetaToolbarProps> = ({
     setSummarizeError('');
     setSummarizeMsg('');
     try {
+      // Lưu JD gốc trước khi AI ghi đè
+      setRawJdText(jdText);
       const structuredJd = await filterAndStructureJD(jdText);
       setJdText(structuredJd);
       const extractedPosition = await extractJobPositionFromJD(structuredJd);

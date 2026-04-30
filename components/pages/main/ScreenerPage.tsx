@@ -25,6 +25,8 @@ const ModuleLoader = () => (
 interface ScreenerPageProps {
   jdText: string;
   setJdText: React.Dispatch<React.SetStateAction<string>>;
+  rawJdText: string;
+  setRawJdText: React.Dispatch<React.SetStateAction<string>>;
   jobPosition: string;
   setJobPosition: React.Dispatch<React.SetStateAction<string>>;
   weights: WeightCriteria;
@@ -114,6 +116,8 @@ const ScreenerPage: React.FC<ScreenerPageProps> = (props) => {
         <JDMetaToolbar
           jdText={props.jdText}
           setJdText={props.setJdText}
+          rawJdText={props.rawJdText}
+          setRawJdText={props.setRawJdText}
           jobPosition={props.jobPosition}
           setJobPosition={props.setJobPosition}
           hardFilters={props.hardFilters}
@@ -188,6 +192,7 @@ const ScreenerPage: React.FC<ScreenerPageProps> = (props) => {
               jobPosition={props.jobPosition}
               locationRequirement={props.hardFilters.location}
               jdText={props.jdText}
+              rawJdText={props.rawJdText}
               setActiveStep={props.setActiveStep}
               markStepAsCompleted={props.markStepAsCompleted}
             />

@@ -237,6 +237,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
     }
   }, [navigate]);
   const [jdText, setJdText] = useState<string>('');
+  const [rawJdText, setRawJdText] = useState<string>('');
   const [jobPosition, setJobPosition] = useState<string>('');
   const [weights, setWeights] = useState<WeightCriteria>(initialWeights);
   const [hardFilters, setHardFilters] = useState<HardFilters>({
@@ -471,6 +472,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
 
   const screenerPageProps = {
     jdText, setJdText,
+    rawJdText, setRawJdText,
     jobPosition, setJobPosition,
     weights, setWeights,
     hardFilters, setHardFilters,
