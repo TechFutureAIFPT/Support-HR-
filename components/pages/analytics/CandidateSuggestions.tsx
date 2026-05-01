@@ -174,11 +174,10 @@ const CandidateSuggestions: React.FC<CandidateSuggestionsProps> = ({ candidates,
   const GradeBadge = ({ grade }: { grade?: string }) => {
     if (!grade) return null;
     return (
-      <span className={`px-2 py-0.5 text-[10px] font-bold uppercase ${
-        grade === 'A' ? 'bg-blue-500/15 text-blue-400 border border-blue-500/20' :
-        grade === 'B' ? 'bg-blue-500/15 text-blue-400 border border-blue-500/20' :
-        'bg-blue-500/15 text-blue-400 border border-blue-500/20'
-      }`}>Hạng {grade}</span>
+      <span className={`px-2 py-0.5 text-[10px] font-bold uppercase ${grade === 'A' ? 'bg-blue-500/15 text-blue-400 border border-blue-500/20' :
+          grade === 'B' ? 'bg-blue-500/15 text-blue-400 border border-blue-500/20' :
+            'bg-blue-500/15 text-blue-400 border border-blue-500/20'
+        }`}>Hạng {grade}</span>
     );
   };
 
@@ -247,25 +246,22 @@ const CandidateSuggestions: React.FC<CandidateSuggestionsProps> = ({ candidates,
 
         {/* Right: View Switcher */}
         <div className="flex-shrink-0 flex items-center bg-[#11213A] p-1 rounded-lg border border-slate-700/50">
-          <button 
-            onClick={() => setActiveTab('chatbot')} 
-            className={`flex items-center gap-1.5 px-3 md:px-4 py-1.5 text-xs font-bold rounded-md transition-all ${
-              activeTab === 'chatbot' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/80'
-            }`}
+          <button
+            onClick={() => setActiveTab('chatbot')}
+            className={`flex items-center gap-1.5 px-3 md:px-4 py-1.5 text-xs font-bold rounded-md transition-all ${activeTab === 'chatbot' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/80'
+              }`}
           >
             <MessageSquare className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Chatbot AI</span><span className="sm:hidden">AI</span>
           </button>
-          <button 
-            onClick={() => setActiveTab('selected')} 
-            className={`flex items-center gap-1.5 px-3 md:px-4 py-1.5 text-xs font-bold rounded-md transition-all ${
-              activeTab === 'selected' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/80'
-            }`}
+          <button
+            onClick={() => setActiveTab('selected')}
+            className={`flex items-center gap-1.5 px-3 md:px-4 py-1.5 text-xs font-bold rounded-md transition-all ${activeTab === 'selected' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/80'
+              }`}
           >
             <Users className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Đã chọn</span><span className="sm:hidden">Đã chọn</span>
             {selectedIds.size > 0 && (
-              <span className={`ml-1 flex h-4 w-4 items-center justify-center rounded-sm text-[9px] ${
-                activeTab === 'selected' ? 'bg-white/25 text-white' : 'bg-slate-700 text-slate-300'
-              }`}>
+              <span className={`ml-1 flex h-4 w-4 items-center justify-center rounded-sm text-[9px] ${activeTab === 'selected' ? 'bg-white/25 text-white' : 'bg-slate-700 text-slate-300'
+                }`}>
                 {selectedIds.size}
               </span>
             )}
@@ -278,235 +274,231 @@ const CandidateSuggestions: React.FC<CandidateSuggestionsProps> = ({ candidates,
           <div className="flex h-full w-full">
             <div className="flex min-h-0 min-w-0 flex-col flex-1 transition-all duration-300">
 
-        {/* Quick Actions */}
-        <div className="shrink-0 border-b border-slate-800/50 bg-[#0B192C]/50 px-4 py-3 md:px-6 md:py-3">
-          <div className="flex items-center gap-2 mb-2">
-            <Sparkles className="w-3 h-3 text-blue-400" />
-            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Gợi ý nhanh</span>
-          </div>
-          <div className="flex gap-2 overflow-x-auto pb-1 custom-scrollbar">
-            {QUICK_ACTIONS.map(action => (
-              <button
-                key={action.label}
-                onClick={() => handleQuickAction(action.prompt)}
-                disabled={isLoading}
-                className={`flex items-center gap-2 px-4 py-2 text-xs font-semibold border transition-all whitespace-nowrap flex-shrink-0 ${action.bg} ${action.border} ${action.hoverBg} ${action.textColor} disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg hover:shadow-black/20`}
-              >
-                <action.icon className="w-3.5 h-3.5 flex-shrink-0" />
-                {action.label}
-              </button>
-            ))}
-          </div>
-        </div>
+              {/* Quick Actions */}
+              <div className="shrink-0 border-b border-slate-800/50 bg-[#0B192C]/50 px-4 py-3 md:px-6 md:py-3">
+                <div className="flex items-center gap-2 mb-2">
+                  <Sparkles className="w-3 h-3 text-blue-400" />
+                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Gợi ý nhanh</span>
+                </div>
+                <div className="flex gap-2 overflow-x-auto pb-1 custom-scrollbar">
+                  {QUICK_ACTIONS.map(action => (
+                    <button
+                      key={action.label}
+                      onClick={() => handleQuickAction(action.prompt)}
+                      disabled={isLoading}
+                      className={`flex items-center gap-2 px-4 py-2 text-xs font-semibold border transition-all whitespace-nowrap flex-shrink-0 ${action.bg} ${action.border} ${action.hoverBg} ${action.textColor} disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg hover:shadow-black/20`}
+                    >
+                      <action.icon className="w-3.5 h-3.5 flex-shrink-0" />
+                      {action.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
 
-        {/* Messages */}
-        <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto p-4 md:p-5 space-y-4">
-          {messages.map((msg, i) => {
-            const isUser = msg.role === 'user';
-            const isExpanded = expandedMsg === i;
-            return (
-              <div key={i} className={`flex ${isUser ? 'justify-end' : 'justify-start'} animate-fade-in`}>
-                <div className={`max-w-[88%] p-4 shadow-xl transition-all ${
-                  isUser
-                    ? 'bg-gradient-to-br from-blue-600 to-blue-700 text-white shadow-blue-900/30'
-                    : 'bg-gradient-to-br from-[#11213A] to-[#0B192C] border border-slate-800/60 text-slate-200 shadow-black/30'
-                }`}>
-                  {!isUser ? (
-                    <div className="flex items-center gap-2 mb-3 pb-2.5 border-b border-slate-800/40">
-                      <div className="w-7 h-7 bg-blue-500/15 flex items-center justify-center">
-                        <Bot className="w-3.5 h-3.5 text-blue-400" />
-                      </div>
-                      <span className="text-xs font-bold text-slate-300">Support HR AI</span>
-                      <span className="ml-auto text-[9px] text-slate-600">
-                        {msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) : ''}
-                      </span>
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-2 mb-3 pb-2.5 border-b border-blue-500/30">
-                      <div className="w-7 h-7 bg-white/20 flex items-center justify-center rounded-none">
-                        <User className="w-3.5 h-3.5 text-white" />
-                      </div>
-                      <span className="text-xs font-bold text-white">Bạn</span>
-                      <span className="ml-auto text-[9px] text-blue-200">
-                        {msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) : ''}
-                      </span>
-                    </div>
-                  )}
-
-                  <div className={`${isUser ? 'text-sm' : 'text-sm'} leading-relaxed`}>
-                    {(msg.content.length > 600 && !isExpanded) ? (
-                      <>
-                        {formatContent(msg.content.substring(0, 600) + '...')}
-                        <button
-                          onClick={() => setExpandedMsg(i)}
-                          className="mt-2 flex items-center gap-1 text-[11px] font-semibold text-blue-400 hover:text-blue-300 transition-colors"
-                        >
-                          <ChevronDown className="w-3.5 h-3.5" />
-                          Xem thêm
-                        </button>
-                      </>
-                    ) : (
-                      <>
-                        {formatContent(msg.content)}
-                        {msg.content.length > 600 && isExpanded && (
-                          <button
-                            onClick={() => setExpandedMsg(null)}
-                            className="mt-2 flex items-center gap-1 text-[11px] font-semibold text-blue-400 hover:text-blue-300 transition-colors"
-                          >
-                            <ChevronUp className="w-3.5 h-3.5" />
-                            Thu gọn
-                          </button>
+              {/* Messages */}
+              <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto p-4 md:p-5 space-y-4">
+                {messages.map((msg, i) => {
+                  const isUser = msg.role === 'user';
+                  const isExpanded = expandedMsg === i;
+                  return (
+                    <div key={i} className={`flex ${isUser ? 'justify-end' : 'justify-start'} animate-fade-in`}>
+                      <div className={`max-w-[88%] p-4 shadow-xl transition-all ${isUser
+                          ? 'bg-gradient-to-br from-blue-600 to-blue-700 text-white shadow-blue-900/30'
+                          : 'bg-gradient-to-br from-[#11213A] to-[#0B192C] border border-slate-800/60 text-slate-200 shadow-black/30'
+                        }`}>
+                        {!isUser ? (
+                          <div className="flex items-center gap-2 mb-3 pb-2.5 border-b border-slate-800/40">
+                            <div className="w-7 h-7 bg-blue-500/15 flex items-center justify-center">
+                              <Bot className="w-3.5 h-3.5 text-blue-400" />
+                            </div>
+                            <span className="text-xs font-bold text-slate-300">Support HR AI</span>
+                            <span className="ml-auto text-[9px] text-slate-600">
+                              {msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) : ''}
+                            </span>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2 mb-3 pb-2.5 border-b border-blue-500/30">
+                            <div className="w-7 h-7 bg-white/20 flex items-center justify-center rounded-none">
+                              <User className="w-3.5 h-3.5 text-white" />
+                            </div>
+                            <span className="text-xs font-bold text-white">Bạn</span>
+                            <span className="ml-auto text-[9px] text-blue-200">
+                              {msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) : ''}
+                            </span>
+                          </div>
                         )}
-                      </>
+
+                        <div className={`${isUser ? 'text-sm' : 'text-sm'} leading-relaxed`}>
+                          {(msg.content.length > 600 && !isExpanded) ? (
+                            <>
+                              {formatContent(msg.content.substring(0, 600) + '...')}
+                              <button
+                                onClick={() => setExpandedMsg(i)}
+                                className="mt-2 flex items-center gap-1 text-[11px] font-semibold text-blue-400 hover:text-blue-300 transition-colors"
+                              >
+                                <ChevronDown className="w-3.5 h-3.5" />
+                                Xem thêm
+                              </button>
+                            </>
+                          ) : (
+                            <>
+                              {formatContent(msg.content)}
+                              {msg.content.length > 600 && isExpanded && (
+                                <button
+                                  onClick={() => setExpandedMsg(null)}
+                                  className="mt-2 flex items-center gap-1 text-[11px] font-semibold text-blue-400 hover:text-blue-300 transition-colors"
+                                >
+                                  <ChevronUp className="w-3.5 h-3.5" />
+                                  Thu gọn
+                                </button>
+                              )}
+                            </>
+                          )}
+                        </div>
+
+                        {/* Suggested candidates */}
+                        {!isUser && msg.candidateIds && msg.candidateIds.length > 0 && (
+                          <div className="mt-4 pt-4 border-t border-slate-700/40">
+                            <div className="flex items-center gap-2 mb-3">
+                              <div className="w-1.5 h-1.5 rounded-full bg-blue-400 shadow-[0_0_6px_rgba(96,165,250,0.6)]" />
+                              <p className="text-[11px] text-blue-400 font-bold uppercase tracking-wider flex items-center gap-1.5">
+                                <User className="w-3 h-3" />
+                                Ứng viên được đề xuất ({msg.candidateIds.length})
+                              </p>
+                            </div>
+                            <div className="flex flex-col gap-2">
+                              {msg.candidateIds.map(id => {
+                                const c = candidates.find(cand => cand.id === id);
+                                if (!c) return null;
+                                const isSelected = selectedIds.has(id);
+                                return (
+                                  <div key={id} className={`flex items-center justify-between gap-3 p-3 border transition-all duration-200 ${isSelected
+                                      ? 'border-blue-500/40 bg-blue-500/5 shadow-[0_0_15px_rgba(59,130,246,0.05)]'
+                                      : 'border-slate-700/50 bg-slate-800/30 hover:border-blue-500/30 hover:bg-slate-800/50'
+                                    }`}>
+                                    <div className="flex items-center gap-2.5 flex-1 min-w-0">
+                                      <div className={`w-8 h-8 flex items-center justify-center text-[10px] font-black flex-shrink-0 ${c.analysis?.['Hạng'] === 'A' ? 'bg-blue-500/20 text-blue-400' :
+                                          c.analysis?.['Hạng'] === 'B' ? 'bg-blue-500/20 text-blue-400' :
+                                            'bg-blue-500/20 text-blue-400'
+                                        }`}>
+                                        {getInitials(c.candidateName || '')}
+                                      </div>
+                                      <div className="flex-1 min-w-0">
+                                        <div className="flex items-center gap-2 mb-0.5">
+                                          <p className="text-sm font-bold text-white truncate">{c.candidateName}</p>
+                                          <GradeBadge grade={c.analysis?.['Hạng']} />
+                                        </div>
+                                        <p className="text-[10px] text-slate-400 truncate">{c.jobTitle || 'Chưa rõ chức danh'}</p>
+                                        <div className="flex items-center gap-3 mt-0.5 text-[10px] text-slate-300">
+                                          <span>Điểm: <span className="font-bold text-white">{c.analysis?.['Tổng điểm']}</span></span>
+                                          <span>Cấp: <span className="font-semibold">{c.experienceLevel || '—'}</span></span>
+                                          {c.email && <span className="text-blue-400 truncate">{c.email}</span>}
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <button
+                                      onClick={() => handleToggleSelect(id!)}
+                                      className={`flex-shrink-0 px-3.5 py-1.5 text-xs font-bold transition-all flex items-center gap-1.5 ${isSelected
+                                          ? 'bg-blue-600 hover:bg-blue-500 text-white shadow shadow-blue-600/20'
+                                          : 'bg-slate-700/80 hover:bg-slate-600 text-slate-200 border border-slate-600/40'
+                                        }`}
+                                    >
+                                      {isSelected ? <Check className="w-3 h-3" /> : <Plus className="w-3 h-3" />}
+                                      {isSelected ? 'Đã chọn' : 'Chọn'}
+                                    </button>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Message actions */}
+                        {!isUser && (
+                          <div className="flex items-center gap-1 mt-3 pt-2.5 border-t border-slate-700/30">
+                            <button
+                              onClick={() => handleCopy(msg.content, `msg-${i}`)}
+                              className="flex items-center gap-1 text-[10px] text-slate-600 hover:text-slate-400 transition-colors px-2 py-1 hover:bg-slate-800/50"
+                            >
+                              {copiedId === `msg-${i}` ? <CheckCheck className="w-3 h-3 text-blue-400" /> : <Copy className="w-3 h-3" />}
+                              {copiedId === `msg-${i}` ? 'Đã sao chép' : 'Sao chép'}
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {isLoading && (
+                  <div className="flex justify-start">
+                    <div className="bg-gradient-to-br from-[#11213A] to-[#0B192C] border border-slate-800/60 text-slate-200 p-5 flex flex-col gap-3 shadow-xl shadow-black/20 max-w-md">
+                      <div className="flex items-center gap-3">
+                        <div className="w-7 h-7 bg-blue-500/15 flex items-center justify-center">
+                          <Bot className="w-3.5 h-3.5 text-blue-400" />
+                        </div>
+                        <span className="text-xs font-bold text-slate-300">Support HR AI</span>
+                        <div className="ml-2 flex items-center gap-1">
+                          <div className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-bounce" style={{ animationDelay: '0ms' }} />
+                          <div className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-bounce" style={{ animationDelay: '150ms' }} />
+                          <div className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-bounce" style={{ animationDelay: '300ms' }} />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <div className="h-2 rounded-full bg-slate-800 animate-pulse w-48" />
+                        <div className="h-2 rounded-full bg-slate-800 animate-pulse w-32" />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <div ref={messagesEndRef} />
+              </div>
+
+              {/* Input Area */}
+              <div className="shrink-0 border-t border-slate-800/50 bg-[#0B192C]/90 backdrop-blur-xl px-4 py-4 md:px-6">
+                <div className="relative">
+                  <div className="flex items-center gap-3 bg-gradient-to-br from-[#11213A] to-[#0B192C] border border-slate-700/50 px-4 py-3 focus-within:border-blue-500/50 focus-within:shadow-[0_0_0_3px_rgba(59,130,246,0.1)] transition-all">
+                    <Bot className="w-4 h-4 text-slate-600 flex-shrink-0" />
+                    <textarea
+                      ref={inputRef}
+                      value={input}
+                      onChange={e => setInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                          e.preventDefault();
+                          handleSend(input);
+                        }
+                      }}
+                      placeholder="Nhập câu hỏi hoặc yêu cầu về ứng viên..."
+                      className="flex-1 min-h-[24px] max-h-32 bg-transparent text-sm text-white placeholder:text-slate-600 focus:outline-none resize-y"
+                      disabled={isLoading}
+                      rows={1}
+                    />
+                    <button
+                      onClick={() => { if (input.trim()) { handleSend(input); } }}
+                      disabled={isLoading || !input.trim()}
+                      className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 hover:from-blue-500 hover:to-indigo-500 text-white flex items-center justify-center transition shadow-lg shadow-blue-900/30 disabled:opacity-30 disabled:cursor-not-allowed flex-shrink-0 hover:scale-105 active:scale-95"
+                    >
+                      {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <ArrowUp className="w-4 h-4" />}
+                    </button>
+                  </div>
+                  <div className="flex items-center justify-between mt-2 px-1">
+                    <span className="text-[9px] text-slate-600 font-medium">
+                      Nhấn Enter để gửi · Shift + Enter để xuống dòng
+                    </span>
+                    {selectedIds.size > 0 && (
+                      <span className="text-[9px] text-blue-400 font-semibold flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
+                        {selectedIds.size} ứng viên đã chọn
+                      </span>
                     )}
                   </div>
-
-                  {/* Suggested candidates */}
-                  {!isUser && msg.candidateIds && msg.candidateIds.length > 0 && (
-                    <div className="mt-4 pt-4 border-t border-slate-700/40">
-                      <div className="flex items-center gap-2 mb-3">
-                        <div className="w-1.5 h-1.5 rounded-full bg-blue-400 shadow-[0_0_6px_rgba(96,165,250,0.6)]" />
-                        <p className="text-[11px] text-blue-400 font-bold uppercase tracking-wider flex items-center gap-1.5">
-                          <User className="w-3 h-3" />
-                          Ứng viên được đề xuất ({msg.candidateIds.length})
-                        </p>
-                      </div>
-                      <div className="flex flex-col gap-2">
-                        {msg.candidateIds.map(id => {
-                          const c = candidates.find(cand => cand.id === id);
-                          if (!c) return null;
-                          const isSelected = selectedIds.has(id);
-                          return (
-                            <div key={id} className={`flex items-center justify-between gap-3 p-3 border transition-all duration-200 ${
-                              isSelected
-                                ? 'border-blue-500/40 bg-blue-500/5 shadow-[0_0_15px_rgba(59,130,246,0.05)]'
-                                : 'border-slate-700/50 bg-slate-800/30 hover:border-blue-500/30 hover:bg-slate-800/50'
-                            }`}>
-                              <div className="flex items-center gap-2.5 flex-1 min-w-0">
-                                <div className={`w-8 h-8 flex items-center justify-center text-[10px] font-black flex-shrink-0 ${
-                                  c.analysis?.['Hạng'] === 'A' ? 'bg-blue-500/20 text-blue-400' :
-                                  c.analysis?.['Hạng'] === 'B' ? 'bg-blue-500/20 text-blue-400' :
-                                  'bg-blue-500/20 text-blue-400'
-                                }`}>
-                                  {getInitials(c.candidateName || '')}
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                  <div className="flex items-center gap-2 mb-0.5">
-                                    <p className="text-sm font-bold text-white truncate">{c.candidateName}</p>
-                                    <GradeBadge grade={c.analysis?.['Hạng']} />
-                                  </div>
-                                  <p className="text-[10px] text-slate-400 truncate">{c.jobTitle || 'Chưa rõ chức danh'}</p>
-                                  <div className="flex items-center gap-3 mt-0.5 text-[10px] text-slate-300">
-                                    <span>Điểm: <span className="font-bold text-white">{c.analysis?.['Tổng điểm']}</span></span>
-                                    <span>Cấp: <span className="font-semibold">{c.experienceLevel || '—'}</span></span>
-                                    {c.email && <span className="text-blue-400 truncate">{c.email}</span>}
-                                  </div>
-                                </div>
-                              </div>
-                              <button
-                                onClick={() => handleToggleSelect(id!)}
-                                className={`flex-shrink-0 px-3.5 py-1.5 text-xs font-bold transition-all flex items-center gap-1.5 ${
-                                  isSelected
-                                    ? 'bg-blue-600 hover:bg-blue-500 text-white shadow shadow-blue-600/20'
-                                    : 'bg-slate-700/80 hover:bg-slate-600 text-slate-200 border border-slate-600/40'
-                                }`}
-                              >
-                                {isSelected ? <Check className="w-3 h-3" /> : <Plus className="w-3 h-3" />}
-                                {isSelected ? 'Đã chọn' : 'Chọn'}
-                              </button>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Message actions */}
-                  {!isUser && (
-                    <div className="flex items-center gap-1 mt-3 pt-2.5 border-t border-slate-700/30">
-                      <button
-                        onClick={() => handleCopy(msg.content, `msg-${i}`)}
-                        className="flex items-center gap-1 text-[10px] text-slate-600 hover:text-slate-400 transition-colors px-2 py-1 hover:bg-slate-800/50"
-                      >
-                        {copiedId === `msg-${i}` ? <CheckCheck className="w-3 h-3 text-blue-400" /> : <Copy className="w-3 h-3" />}
-                        {copiedId === `msg-${i}` ? 'Đã sao chép' : 'Sao chép'}
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-
-          {isLoading && (
-            <div className="flex justify-start">
-              <div className="bg-gradient-to-br from-[#11213A] to-[#0B192C] border border-slate-800/60 text-slate-200 p-5 flex flex-col gap-3 shadow-xl shadow-black/20 max-w-md">
-                <div className="flex items-center gap-3">
-                  <div className="w-7 h-7 bg-blue-500/15 flex items-center justify-center">
-                    <Bot className="w-3.5 h-3.5 text-blue-400" />
-                  </div>
-                  <span className="text-xs font-bold text-slate-300">Support HR AI</span>
-                  <div className="ml-2 flex items-center gap-1">
-                    <div className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-bounce" style={{ animationDelay: '0ms' }} />
-                    <div className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-bounce" style={{ animationDelay: '150ms' }} />
-                    <div className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-bounce" style={{ animationDelay: '300ms' }} />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <div className="h-2 rounded-full bg-slate-800 animate-pulse w-48" />
-                  <div className="h-2 rounded-full bg-slate-800 animate-pulse w-32" />
                 </div>
               </div>
             </div>
-          )}
-
-          <div ref={messagesEndRef} />
-        </div>
-
-        {/* Input Area */}
-        <div className="shrink-0 border-t border-slate-800/50 bg-[#0B192C]/90 backdrop-blur-xl px-4 py-4 md:px-6">
-          <div className="relative">
-            <div className="flex items-center gap-3 bg-gradient-to-br from-[#11213A] to-[#0B192C] border border-slate-700/50 px-4 py-3 focus-within:border-blue-500/50 focus-within:shadow-[0_0_0_3px_rgba(59,130,246,0.1)] transition-all">
-              <Bot className="w-4 h-4 text-slate-600 flex-shrink-0" />
-              <textarea
-                ref={inputRef}
-                value={input}
-                onChange={e => setInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSend(input);
-                  }
-                }}
-                placeholder="Nhập câu hỏi hoặc yêu cầu về ứng viên..."
-                className="flex-1 min-h-[24px] max-h-32 bg-transparent text-sm text-white placeholder:text-slate-600 focus:outline-none resize-y"
-                disabled={isLoading}
-                rows={1}
-              />
-              <button
-                onClick={() => { if (input.trim()) { handleSend(input); } }}
-                disabled={isLoading || !input.trim()}
-                className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 hover:from-blue-500 hover:to-indigo-500 text-white flex items-center justify-center transition shadow-lg shadow-blue-900/30 disabled:opacity-30 disabled:cursor-not-allowed flex-shrink-0 hover:scale-105 active:scale-95"
-              >
-                {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <ArrowUp className="w-4 h-4" />}
-              </button>
-            </div>
-            <div className="flex items-center justify-between mt-2 px-1">
-              <span className="text-[9px] text-slate-600 font-medium">
-                Nhấn Enter để gửi · Shift + Enter để xuống dòng
-              </span>
-              {selectedIds.size > 0 && (
-                <span className="text-[9px] text-blue-400 font-semibold flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
-                  {selectedIds.size} ứng viên đã chọn
-                </span>
-              )}
-            </div>
           </div>
-        </div>
-      </div>
-          </div>
-    ) : (
+        ) : (
           <div className="flex h-full w-full">
             <SelectedCandidatesPage candidates={candidates} jobPosition={jobPosition} />
           </div>

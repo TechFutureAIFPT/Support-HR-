@@ -1,28 +1,40 @@
 /**
- * ThemeProvider — Chỉ hỗ trợ Dark Mode
- * - Đặt CSS variables trên documentElement để dùng xuyên suốt
+ * ThemeProvider — Hỗ trợ Dark Mode và Light Mode
+ * - Toggle được lưu vào localStorage để nhớ qua các lần load
+ * - Đặt CSS variables trên documentElement để dùng xuyên suốt app
  */
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { tokens } from './tokens.ts';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { tokens, ThemeMode } from './tokens.ts';
 
 interface ThemeContextType {
   isDarkMode: boolean;
-  themeMode: 'dark';
+  themeMode: ThemeMode;
+  toggleTheme: () => void;
+  setTheme: (mode: ThemeMode) => void;
 }
 
 const ThemeContext = createContext<ThemeContextType>({
   isDarkMode: true,
   themeMode: 'dark',
+  toggleTheme: () => {},
+  setTheme: () => {},
 });
 
-function applyThemeVariables(mode: 'dark') {
+const STORAGE_KEY = 'supporthr-theme';
+
+function applyThemeVariables(mode: ThemeMode) {
   const root = document.documentElement;
   const t = tokens[mode];
 
-  root.classList.remove('light');
-  root.classList.add('dark');
+  // Update HTML class for Tailwind dark: selectors and our .light/.dark CSS
+  root.classList.remove('light', 'dark');
+  root.classList.add(mode);
 
+  // Color scheme for browser native UI
+  root.style.colorScheme = mode === 'dark' ? 'dark' : 'light';
+
+  // Apply all CSS custom properties
   root.style.setProperty('--th-bg', t.bgPrimary);
   root.style.setProperty('--th-bg-secondary', t.bgSecondary);
   root.style.setProperty('--th-bg-tertiary', t.bgTertiary);
@@ -81,14 +93,34 @@ function applyThemeVariables(mode: 'dark') {
 }
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [themeMode] = useState<'dark'>('dark');
+  const [themeMode, setThemeModeState] = useState<ThemeMode>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY) as ThemeMode | null;
+      if (saved === 'light' || saved === 'dark') return saved;
+    } catch {}
+    return 'dark';
+  });
 
   useEffect(() => {
-    applyThemeVariables('dark');
+    applyThemeVariables(themeMode);
+  }, [themeMode]);
+
+  const setTheme = useCallback((mode: ThemeMode) => {
+    setThemeModeState(mode);
+    try { localStorage.setItem(STORAGE_KEY, mode); } catch {}
   }, []);
 
+  const toggleTheme = useCallback(() => {
+    setTheme(themeMode === 'dark' ? 'light' : 'dark');
+  }, [themeMode, setTheme]);
+
   return (
-    <ThemeContext.Provider value={{ isDarkMode: true, themeMode: 'dark' }}>
+    <ThemeContext.Provider value={{
+      isDarkMode: themeMode === 'dark',
+      themeMode,
+      toggleTheme,
+      setTheme,
+    }}>
       {children}
     </ThemeContext.Provider>
   );

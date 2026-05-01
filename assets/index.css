@@ -2438,3 +2438,586 @@ select:focus-visible {
 .light .bg-slate-800\/50 {
   background: rgba(238, 242, 255, 0.7) !important;
 }
+
+/* ================================================================
+   LIGHT MODE — COMPREHENSIVE OVERRIDES FOR ALL APP PAGES
+   (Appended block — overrides Tailwind dark bg/text classes)
+   ================================================================ */
+
+/* ── Font & Typography sync ──────────────────────────────────────── */
+.light body,
+.light input,
+.light textarea,
+.light select,
+.light button {
+  font-family: 'Inter', 'Outfit', system-ui, -apple-system, sans-serif !important;
+}
+
+/* ── Text color catch-all ─────────────────────────────────────────── */
+.light .text-white {
+  color: #0f172a !important;
+}
+
+/* Exception: text on dark/colored buttons stays white */
+.light button.bg-indigo-600 .text-white,
+.light button[style*="background: linear-gradient"] .text-white,
+.light .bg-gradient-to-r.from-indigo .text-white {
+  color: #ffffff !important;
+}
+
+/* ── JD Screener / Input page ────────────────────────────────────── */
+.light .bg-\[\#0B192C\] {
+  background: #f0f4ff !important;
+}
+
+.light .bg-\[\#0B192C\].border-r,
+.light .bg-\[\#0B192C\].md\:border-r {
+  border-color: rgba(99, 102, 241, 0.15) !important;
+}
+
+/* JDMetaToolbar */
+.light [role="region"][aria-label="Thông tin JD nhanh"],
+.light [role="region"][aria-label="Th\u00f4ng tin JD nhanh"] {
+  background: linear-gradient(180deg, #f8faff 0%, #f0f4ff 100%) !important;
+  border-color: rgba(99, 102, 241, 0.18) !important;
+}
+
+/* JD textarea & input in toolbar */
+.light [role="region"] input,
+.light [role="region"] textarea {
+  color: #0f172a !important;
+  background: transparent !important;
+}
+
+.light [role="region"] input::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* Toolbar pill inputs */
+.light [role="region"] > div > div[style*="rgba(255,255,255,0.04)"] {
+  background: rgba(99, 102, 241, 0.04) !important;
+  border-color: rgba(99, 102, 241, 0.12) !important;
+}
+
+/* ── Analysis Results page ───────────────────────────────────────── */
+/* Candidate card rows */
+.light .bg-\[\#0a0f1e\] {
+  background: #f8faff !important;
+}
+
+.light .bg-\[\#0f1729\] {
+  background: #ffffff !important;
+}
+
+.light .bg-\[\#0a1628\] {
+  background: #f0f4ff !important;
+}
+
+.light .bg-\[\#111827\] {
+  background: #f8faff !important;
+}
+
+.light .bg-\[\#0B1120\] {
+  background: #f0f4ff !important;
+}
+
+/* Candidate table borders */
+.light .border-slate-800\/40 {
+  border-color: rgba(99, 102, 241, 0.1) !important;
+}
+
+.light .border-slate-800\/60 {
+  border-color: rgba(99, 102, 241, 0.12) !important;
+}
+
+/* Score circles & badges — keep accent colors */
+.light .text-emerald-400 { color: #059669 !important; }
+.light .text-emerald-300 { color: #10b981 !important; }
+.light .text-amber-400   { color: #d97706 !important; }
+.light .text-amber-300   { color: #d97706 !important; }
+.light .text-red-400     { color: #dc2626 !important; }
+.light .text-red-300     { color: #ef4444 !important; }
+.light .text-cyan-400    { color: #0891b2 !important; }
+.light .text-cyan-300    { color: #0e7490 !important; }
+.light .text-violet-400  { color: #7c3aed !important; }
+.light .text-violet-300  { color: #8b5cf6 !important; }
+.light .text-indigo-400  { color: #4f46e5 !important; }
+.light .text-indigo-300  { color: #6366f1 !important; }
+.light .text-blue-400    { color: #2563eb !important; }
+.light .text-blue-300    { color: #3b82f6 !important; }
+.light .text-purple-400  { color: #7c3aed !important; }
+.light .text-rose-400    { color: #e11d48 !important; }
+
+/* ── ExpandedContent panel ─────────────────────────────────────────── */
+/* Pre tag for JD content */
+.light pre {
+  color: #1e293b !important;
+}
+
+/* Criterion accordion */
+.light .rounded-xl.border.border-slate-800\/60 {
+  border-color: rgba(99, 102, 241, 0.12) !important;
+  background: #ffffff !important;
+}
+
+/* Criterion score number */
+.light .font-mono.text-sm.text-slate-300 {
+  color: #1e293b !important;
+}
+
+/* Evidence text */
+.light .text-slate-300.leading-relaxed {
+  color: #334155 !important;
+}
+
+.light .text-slate-400.leading-relaxed {
+  color: #475569 !important;
+}
+
+/* Tab headers in ExpandedContent */
+.light .text-cyan-300.bg-cyan-500\/8 {
+  background: rgba(8, 145, 178, 0.06) !important;
+}
+
+.light .text-violet-300.bg-violet-500\/8 {
+  background: rgba(124, 58, 237, 0.06) !important;
+}
+
+/* Pill badges (match/missing) */
+.light .pill--match {
+  background: rgba(16, 185, 129, 0.12) !important;
+  color: #059669 !important;
+  border-color: rgba(5, 150, 105, 0.3) !important;
+}
+
+.light .pill--missing {
+  background: rgba(217, 119, 6, 0.12) !important;
+  color: #b45309 !important;
+  border-color: rgba(180, 83, 9, 0.3) !important;
+}
+
+.light .pill--uncertain {
+  background: rgba(100, 116, 139, 0.1) !important;
+  color: #475569 !important;
+  border-color: rgba(71, 85, 105, 0.25) !important;
+}
+
+/* Evidence highlight blocks (light mode) */
+.light .evidence-block .hl-0 {
+  background: linear-gradient(90deg, rgba(14, 116, 144, 0.1), rgba(37, 99, 235, 0.1)) !important;
+  color: #0e7490 !important;
+}
+
+.light .evidence-block .hl-1 {
+  background: linear-gradient(90deg, rgba(180, 83, 9, 0.1), rgba(202, 138, 4, 0.1)) !important;
+  color: #b45309 !important;
+}
+
+.light .evidence-block .hl-2 {
+  background: linear-gradient(90deg, rgba(109, 40, 217, 0.1), rgba(124, 58, 237, 0.1)) !important;
+  color: #6d28d9 !important;
+}
+
+/* ── Weights Config page ──────────────────────────────────────────── */
+.light .weights-layout .filters-col {
+  background: linear-gradient(145deg, rgba(255,255,255,0.95), rgba(248,250,255,0.9)) !important;
+  border-color: rgba(99, 102, 241, 0.15) !important;
+}
+
+.light .weights-layout .weights-col {
+  background: linear-gradient(145deg, rgba(255,255,255,0.9), rgba(240,244,255,0.85)) !important;
+  border-color: rgba(99, 102, 241, 0.12) !important;
+}
+
+.light .weights-layout .layout-divider {
+  background: linear-gradient(to bottom,
+    rgba(99, 102, 241, 0.05),
+    rgba(99, 102, 241, 0.2),
+    rgba(99, 102, 241, 0.05)
+  ) !important;
+}
+
+/* Weight tile sliders */
+.light input[type=range]::-webkit-slider-thumb {
+  background: #4f46e5 !important;
+}
+
+.light input[type=range]::-moz-range-thumb {
+  background: #4f46e5 !important;
+}
+
+/* Progress bar track (light mode) */
+.light .progress {
+  background: rgba(99, 102, 241, 0.1) !important;
+}
+
+.light .crit-progress {
+  background: rgba(99, 102, 241, 0.1) !important;
+}
+
+/* ── Candidate Suggestions / Chatbot ─────────────────────────────── */
+.light .bg-slate-900\/40 {
+  background: rgba(255, 255, 255, 0.7) !important;
+}
+
+.light .bg-slate-900\/50 {
+  background: rgba(255, 255, 255, 0.8) !important;
+}
+
+.light .bg-slate-900\/60 {
+  background: rgba(248, 250, 255, 0.9) !important;
+}
+
+/* Chat bubbles */
+.light .bg-indigo-600\/90 {
+  background: #4f46e5 !important;
+  color: #ffffff !important;
+}
+
+.light .bg-slate-800\/60 {
+  background: rgba(238, 242, 255, 0.8) !important;
+}
+
+/* Message text in chat */
+.light .bg-slate-800\/60 .text-slate-100,
+.light .bg-slate-800\/60 .text-slate-200 {
+  color: #1e293b !important;
+}
+
+/* ── Analytics / Dashboard ───────────────────────────────────────── */
+.light .bg-slate-900 {
+  background: #ffffff !important;
+}
+
+.light .bg-slate-900\/20 {
+  background: rgba(238, 242, 255, 0.3) !important;
+}
+
+.light .bg-slate-900\/30 {
+  background: rgba(238, 242, 255, 0.5) !important;
+}
+
+/* Chart labels */
+.light .recharts-text {
+  fill: #475569 !important;
+}
+
+.light .recharts-cartesian-axis-tick-value {
+  fill: #64748b !important;
+}
+
+/* ── Modal / Dialog ──────────────────────────────────────────────── */
+/* JDTemplatesModal */
+.light .bg-\[\#0B1120\].border.border-slate-800 {
+  background: #ffffff !important;
+  border-color: rgba(99, 102, 241, 0.15) !important;
+}
+
+/* History modal */
+.light .fixed.inset-0.flex.items-center.justify-center .bg-\[\#0B1120\] {
+  background: #ffffff !important;
+}
+
+/* ── Loading states ──────────────────────────────────────────────── */
+.light .animate-spin {
+  border-top-color: #4f46e5 !important;
+  border-right-color: rgba(79, 70, 229, 0.3) !important;
+}
+
+/* ── Bottom Mobile Nav ───────────────────────────────────────────── */
+.light nav.fixed.bottom-0 {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-color: rgba(99, 102, 241, 0.15) !important;
+  box-shadow: 0 -4px 24px rgba(99, 102, 241, 0.1) !important;
+}
+
+/* ── Sidebar light mode accent overrides ─────────────────────────── */
+/* Sidebar nav items in light mode: maintain readability */
+.light #cv-sidebar nav ul li button,
+.light #cv-sidebar button[type="button"] {
+  color: #374151 !important;
+}
+
+.light #cv-sidebar .text-white {
+  color: #1e293b !important;
+}
+
+/* Active sidebar item */
+.light #cv-sidebar button[style*="rgba(96,165,250"] {
+  background: rgba(79, 70, 229, 0.08) !important;
+}
+
+/* ── JDMetaToolbar "AI tối ưu" & "Tiếp theo" buttons — keep branded ─ */
+.light button[style*="rgba(139,92,246"] {
+  background: rgba(99, 102, 241, 0.1) !important;
+  border-color: rgba(99, 102, 241, 0.25) !important;
+  color: #4f46e5 !important;
+}
+
+.light button[style*="linear-gradient(135deg, #4f46e5"] {
+  background: linear-gradient(135deg, #4f46e5, #6366f1) !important;
+  color: #ffffff !important;
+}
+
+/* ── Divider lines ───────────────────────────────────────────────── */
+.light .via-slate-700 {
+  --tw-gradient-via: rgba(99, 102, 241, 0.2) !important;
+}
+
+.light .border-slate-700\/50 {
+  border-color: rgba(99, 102, 241, 0.1) !important;
+}
+
+/* ── Transition smooth for all theme changes ─────────────────────── */
+html.light * {
+  transition-property: background-color, border-color, color, box-shadow, opacity;
+  transition-duration: 0.25s;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── Scrollbar in light mode ─────────────────────────────────────── */
+.light .custom-scrollbar {
+  scrollbar-color: rgba(99, 102, 241, 0.3) transparent !important;
+}
+
+.light .custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(99, 102, 241, 0.25) !important;
+}
+
+.light .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(99, 102, 241, 0.45) !important;
+}
+
+/* ================================================================
+   LIGHT MODE — INLINE STYLE NUCLEAR OVERRIDES
+   These override hardcoded style={{}} attributes in React components.
+   CSS attribute selectors [style*="..."] catch inline dark colors.
+   ================================================================ */
+
+/* ── Override ALL inline rgba(255,255,255,...) backgrounds ────────── */
+.light [style*="rgba(255,255,255,0.03)"],
+.light [style*="rgba(255,255,255,0.04)"],
+.light [style*="rgba(255,255,255,0.05)"],
+.light [style*="rgba(255,255,255,0.06)"],
+.light [style*="rgba(255,255,255,0.08)"] {
+  background: rgba(99, 102, 241, 0.04) !important;
+}
+
+/* Override inline dark hex backgrounds */
+.light [style*="background: #0B1120"],
+.light [style*="background:#0B1120"] {
+  background: #f0f4ff !important;
+}
+
+.light [style*="background: #0f172a"],
+.light [style*="background:#0f172a"] {
+  background: #ffffff !important;
+}
+
+.light [style*="background: #111827"],
+.light [style*="background:#111827"] {
+  background: #f8faff !important;
+}
+
+.light [style*="background: #1e293b"],
+.light [style*="background:#1e293b"] {
+  background: #eef2ff !important;
+}
+
+.light [style*="background: #11213A"],
+.light [style*="background:#11213A"] {
+  background: #f8faff !important;
+}
+
+.light [style*="background: #0a1628"],
+.light [style*="background:#0a1628"] {
+  background: #f0f4ff !important;
+}
+
+/* Override inline dark gradient backgrounds */
+.light [style*="linear-gradient(160deg, #0d1629"],
+.light [style*="linear-gradient(145deg, #111827"],
+.light [style*="linear-gradient(145deg, rgba(30, 41, 59"],
+.light [style*="linear-gradient(145deg, rgba(17, 24, 39"],
+.light [style*="linear-gradient(145deg, rgba(11, 17, 32"] {
+  background: linear-gradient(145deg, #ffffff 0%, #f8faff 100%) !important;
+}
+
+/* ── Override inline borders ─────────────────────────────────────── */
+.light [style*="border: 1px solid rgba(255,255,255"],
+.light [style*="border:1px solid rgba(255,255,255"] {
+  border-color: rgba(99, 102, 241, 0.12) !important;
+}
+
+.light [style*="borderBottom: 1px solid rgba(255,255,255"],
+.light [style*="borderBottom:1px solid rgba(255,255,255"] {
+  border-bottom-color: rgba(99, 102, 241, 0.12) !important;
+}
+
+.light [style*="borderLeft: 1px solid rgba(255,255,255"],
+.light [style*="borderLeft:1px solid rgba(255,255,255"] {
+  border-left-color: rgba(99, 102, 241, 0.12) !important;
+}
+
+.light [style*="borderTop: 1px solid rgba(255,255,255"],
+.light [style*="borderTop:1px solid rgba(255,255,255"] {
+  border-top-color: rgba(99, 102, 241, 0.12) !important;
+}
+
+.light [style*="borderRight: 1px solid rgba(255,255,255"],
+.light [style*="borderRight: 1px solid #1e293b"] {
+  border-right-color: rgba(99, 102, 241, 0.12) !important;
+}
+
+/* ── Override inline text colors ─────────────────────────────────── */
+.light [style*="color: #e2e8f0"],
+.light [style*="color:#e2e8f0"],
+.light [style*="color: #F1F5F9"],
+.light [style*="color:#F1F5F9"],
+.light [style*="color: #CBD5E1"],
+.light [style*="color:#CBD5E1"] {
+  color: #1e293b !important;
+}
+
+.light [style*="color: #94a3b8"],
+.light [style*="color:#94a3b8"],
+.light [style*="color: #94A3B8"],
+.light [style*="color:#94A3B8"] {
+  color: #475569 !important;
+}
+
+.light [style*="color: #cbd5e1"],
+.light [style*="color:#cbd5e1"] {
+  color: #334155 !important;
+}
+
+.light [style*="color: #64748B"],
+.light [style*="color:#64748B"],
+.light [style*="color: #64748b"],
+.light [style*="color:#64748b"] {
+  color: #94a3b8 !important;
+}
+
+/* ── Override dark table header backgrounds ─────────────────────── */
+.light [style*="background: rgba(10,18,32"],
+.light [style*="background:rgba(10,18,32"] {
+  background: rgba(248, 250, 255, 0.95) !important;
+}
+
+/* ── Override rgba(0,0,0,...) dark overlays ─────────────────────── */
+.light [style*="rgba(0,0,0,0.2)"],
+.light [style*="rgba(0, 0, 0, 0.2)"] {
+  background: rgba(99, 102, 241, 0.04) !important;
+}
+
+/* ── Override inline accent colors for light mode ─────────────── */
+.light [style*="color: #60a5fa"],
+.light [style*="color:#60a5fa"] {
+  color: #4f46e5 !important;
+}
+
+.light [style*="color: #bae6fd"],
+.light [style*="color:#bae6fd"] {
+  color: #4338ca !important;
+}
+
+.light p[style*="color: rgba(255,255,255"],
+.light span[style*="color: rgba(255,255,255"] {
+  color: #475569 !important;
+}
+
+/* ── Override inline glass/badge backgrounds ────────────────────── */
+.light [style*="rgba(255,255,255,0.15)"] {
+  background: rgba(99, 102, 241, 0.12) !important;
+}
+
+/* ── Main App wrapper ─────────────────────────────────────────── */
+.light .min-h-screen {
+  background: #f0f4ff !important;
+}
+
+/* ── Aurora / Grid — dimmed in light ───────────────────────────── */
+.light .ai-aurora {
+  opacity: 0.05 !important;
+  background: radial-gradient(60% 60% at 20% 10%, rgba(99,102,241,0.06), transparent 60%),
+              radial-gradient(50% 50% at 80% 30%, rgba(79,70,229,0.04), transparent 60%),
+              radial-gradient(70% 70% at 50% 90%, rgba(5,150,105,0.03), transparent 60%) !important;
+}
+
+.light .grid-overlay {
+  opacity: 0.1 !important;
+  background-image:
+    linear-gradient(to right, rgba(99,102,241,0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(99,102,241,0.03) 1px, transparent 1px) !important;
+}
+
+/* ── Card deep override ──────────────────────────────────────── */
+.light .card {
+  background: #ffffff !important;
+  border-color: rgba(99, 102, 241, 0.12) !important;
+  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.06) !important;
+}
+
+/* ── Navbar light mode ───────────────────────────────────────── */
+.light .navbar {
+  background: rgba(255, 255, 255, 0.9) !important;
+  border-color: rgba(99, 102, 241, 0.15) !important;
+  box-shadow: 0 4px 24px rgba(99, 102, 241, 0.08) !important;
+}
+
+.light .navbar button {
+  color: #374151 !important;
+}
+
+.light .navbar button:hover {
+  color: #1e293b !important;
+  background: rgba(99, 102, 241, 0.08) !important;
+}
+
+/* Login button on navbar should stay white-on-colored */
+.light .navbar .bg-gradient-to-r.from-blue-600 {
+  color: #ffffff !important;
+}
+
+/* ── Card-like containers ─────────────────────────────────────── */
+.light .bg-\[\#0B192C\] {
+  background: #f0f4ff !important;
+}
+
+.light .bg-\[\#11213A\] {
+  background: #f8faff !important;
+}
+
+/* ── LoginPage ─────────────────────────────────────────────────── */
+.light .min-h-screen.flex.items-center.justify-center {
+  background: linear-gradient(135deg, #eef2ff 0%, #f0f9ff 50%, #f8faff 100%) !important;
+}
+
+/* ── Body base ──────────────────────────────────────────────────── */
+.light body {
+  background: #f0f4ff !important;
+  color: #0f172a !important;
+}
+
+/* ── Divider ──────────────────────────────────────────────────── */
+.light .layout-divider {
+  background: linear-gradient(to bottom,
+    rgba(99, 102, 241, 0.05),
+    rgba(99, 102, 241, 0.18),
+    rgba(99, 102, 241, 0.05)
+  ) !important;
+  box-shadow: none !important;
+}
+
+/* ── Weight column surfaces ──────────────────────────────────── */
+.light .filters-col {
+  background: linear-gradient(145deg, rgba(255,255,255,0.95), rgba(248,250,255,0.9)) !important;
+  border-color: rgba(99, 102, 241, 0.15) !important;
+}
+
+.light .weights-col {
+  background: linear-gradient(145deg, rgba(255,255,255,0.9), rgba(240,244,255,0.85)) !important;
+  border-color: rgba(99, 102, 241, 0.12) !important;
+}
+
+

@@ -1,7 +1,6 @@
 /**
- * Sidebar — Professional HR Platform (Dark Theme)
- * Dong bo mau voi DarkSection (#0B1120 / #0f172a)
- * Màu sắc đồng bộ từ tokens.ts
+ * Sidebar — Professional HR Platform (Dark + Light Theme)
+ * Theme-aware: dùng useTheme() để tự động switch palette
  */
 import React, { useState } from 'react';
 import {
@@ -9,6 +8,8 @@ import {
   PieChart, MessageSquare, LogOut, ChevronDown, UserCheck, FileText, Brain
 } from 'lucide-react';
 import type { AppStep } from '../../assets/types';
+import { DarkThemeToggle } from '../ui/theme/dark/ThemeToggle.tsx';
+import { useTheme } from '../ui/theme/ThemeProvider.tsx';
 
 interface SidebarProps {
   activeStep: AppStep;
@@ -28,22 +29,73 @@ interface SidebarProps {
   onNewSession?: () => void;
 }
 
-// ── Dark palette (đồng bộ với tokens.ts) ───────────────────────────────
-const C = {
-  bg:         '#0B1120',   // tokens.dark.bgPrimary — nền chính sidebar
-  bg2:        '#0f172a',   // tokens.dark.bgSecondary — section header
-  bg3:        '#1e293b',   // tokens.dark.bgTertiary — hover bg
-  bg4:        '#111827',   // tokens.dark.gradientCard darker
-  border:     '#1e293b',   // tokens.dark.bgTertiary
-  border2:    '#334155',   // slate-700
-  text:       '#e2e8f0',   // tokens.dark.textSecondary
-  text2:      '#94a3b8',   // tokens.dark.textMuted
-  text3:      '#475569',   // slate-600
-  accentBlue: '#60a5fa',   // tokens.dark.primary — light blue
-  accent:     '#818cf8',   // tokens.dark.accent — indigo brand
-  // Gradient cho header sidebar
-  headerGradient: 'linear-gradient(135deg, #1e3a5f, #1e40af)',
-} as const;
+// ── Theme-aware palette hook ───────────────────────────────────────────
+function useColors() {
+  const { isDarkMode } = useTheme();
+  return isDarkMode ? {
+    bg:         '#0B1120',
+    bg2:        '#0f172a',
+    bg3:        '#1e293b',
+    bg4:        '#111827',
+    border:     '#1e293b',
+    border2:    '#334155',
+    text:       '#e2e8f0',
+    text2:      '#94a3b8',
+    text3:      '#475569',
+    accentBlue: '#60a5fa',
+    accent:     '#818cf8',
+    headerGradient: 'linear-gradient(135deg, #1e3a5f, #1e40af)',
+    headerBorderBottom: '1px solid rgba(255,255,255,0.06)',
+    logoBg:     'bg-black/30',
+    logoBorder: 'border-white/20',
+    aiBadgeBg:  'rgba(255,255,255,0.15)',
+    aiBadgeColor: '#bae6fd',
+    subTextColor: 'rgba(255,255,255,0.55)',
+    navHover:   'hover:bg-white/5',
+    iconBg:     'rgba(255,255,255,0.04)',
+    iconBorder: '1px solid rgba(255,255,255,0.06)',
+    sectionDivider: 'to-slate-800/60',
+    progressTrack: 'rgba(255,255,255,0.06)',
+    accountBg: 'rgba(255,255,255,0.03)',
+    accountBorder: 'rgba(255,255,255,0.08)',
+    onlineDot: 'bg-blue-400',
+    proBadgeBg: 'rgba(59,130,246,0.15)',
+    proBadgeColor: '#60a5fa',
+    loginGrad:  'linear-gradient(135deg, #3b82f6, #2563eb)',
+    loginShadow: '0 4px 12px rgba(59,130,246,0.3)',
+  } : {
+    bg:         '#ffffff',
+    bg2:        '#f8faff',
+    bg3:        '#eef2ff',
+    bg4:        '#f0f4ff',
+    border:     '#e0e7ff',
+    border2:    '#c7d2fe',
+    text:       '#1e293b',
+    text2:      '#475569',
+    text3:      '#94a3b8',
+    accentBlue: '#4f46e5',
+    accent:     '#6366f1',
+    headerGradient: 'linear-gradient(135deg, #eef2ff, #e0e7ff)',
+    headerBorderBottom: '1px solid rgba(99,102,241,0.12)',
+    logoBg:     'bg-indigo-50',
+    logoBorder: 'border-indigo-200',
+    aiBadgeBg:  'rgba(99,102,241,0.12)',
+    aiBadgeColor: '#4338ca',
+    subTextColor: '#64748b',
+    navHover:   'hover:bg-indigo-50',
+    iconBg:     'rgba(99,102,241,0.04)',
+    iconBorder: '1px solid rgba(99,102,241,0.1)',
+    sectionDivider: 'to-indigo-200/40',
+    progressTrack: 'rgba(99,102,241,0.08)',
+    accountBg: 'rgba(99,102,241,0.03)',
+    accountBorder: 'rgba(99,102,241,0.12)',
+    onlineDot: 'bg-indigo-500',
+    proBadgeBg: 'rgba(79,70,229,0.1)',
+    proBadgeColor: '#4f46e5',
+    loginGrad:  'linear-gradient(135deg, #4f46e5, #6366f1)',
+    loginShadow: '0 4px 12px rgba(79,70,229,0.3)',
+  };
+}
 
 // ── Step definitions ───────────────────────────────────────────────────────
 const PROCESS_STEPS: Array<{
@@ -52,11 +104,11 @@ const PROCESS_STEPS: Array<{
   color: string; bgActive: string;
 }> = [
   { key: 'jd',       label: 'Mô tả công việc', sub: 'Nhập JD · Bước 1',
-    icon: Briefcase,         color: '#60a5fa', bgActive: 'rgba(96,165,250,0.1)' },   // tokens.dark.primary
+    icon: Briefcase,         color: '#60a5fa', bgActive: 'rgba(96,165,250,0.1)' },
   { key: 'weights',  label: 'Trọng số & Bộ lọc', sub: 'Thiết lập · Bước 2',
-    icon: SlidersHorizontal, color: '#60a5fa', bgActive: 'rgba(96,165,250,0.1)' },   // tokens.dark.primary (đồng bộ)
+    icon: SlidersHorizontal, color: '#60a5fa', bgActive: 'rgba(96,165,250,0.1)' },
   { key: 'analysis', label: 'Phân tích AI', sub: 'Xử lý · Bước 3',
-    icon: Sparkles,          color: '#60a5fa', bgActive: 'rgba(96,165,250,0.1)' },   // tokens.dark.primary (đồng bộ)
+    icon: Sparkles,          color: '#60a5fa', bgActive: 'rgba(96,165,250,0.1)' },
 ];
 
 const TOOL_ITEMS: Array<{
@@ -65,12 +117,11 @@ const TOOL_ITEMS: Array<{
   color: string; bgActive: string;
 }> = [
   { key: 'dashboard', label: 'Thống kê chi tiết', sub: 'Analytics Dashboard',
-    icon: PieChart,      color: '#60a5fa', bgActive: 'rgba(96,165,250,0.1)' },   // tokens.dark.primary
+    icon: PieChart,      color: '#60a5fa', bgActive: 'rgba(96,165,250,0.1)' },
   { key: 'chatbot',    label: 'Gợi ý ứng viên AI',  sub: 'AI Recruitment Assistant',
-    icon: MessageSquare, color: '#60a5fa', bgActive: 'rgba(96,165,250,0.1)' },   // tokens.dark.primary
-
+    icon: MessageSquare, color: '#60a5fa', bgActive: 'rgba(96,165,250,0.1)' },
   { key: 'feedback',   label: 'Huấn luyện AI', sub: 'AI Feedback & Training',
-    icon: Brain,         color: '#f43f5e', bgActive: 'rgba(244,63,94,0.1)' },    // rose
+    icon: Brain,         color: '#f43f5e', bgActive: 'rgba(244,63,94,0.1)' },
 ];
 
 // ── Helpers ────────────────────────────────────────────────────────────────
@@ -83,23 +134,24 @@ const isStepEnabled = (step: AppStep, completedSteps: AppStep[]): boolean => {
 };
 
 // ── Sub-components ─────────────────────────────────────────────────────────
-const SectionLabel = ({ label }: { label: string }) => (
+const SectionLabel = ({ label, C }: { label: string; C: ReturnType<typeof useColors> }) => (
   <div className="flex items-center gap-2.5 px-3 pt-4 pb-1.5">
-    <div className="h-px flex-1 bg-gradient-to-r from-transparent to-slate-800/60" />
+    <div className={`h-px flex-1 bg-gradient-to-r from-transparent ${C.sectionDivider}`} />
     <span className="text-[9px] font-bold uppercase tracking-[0.14em] whitespace-nowrap" style={{ color: C.text3 }}>
       {label}
     </span>
-    <div className="h-px flex-1 bg-gradient-to-l from-transparent to-slate-800/60" />
+    <div className={`h-px flex-1 bg-gradient-to-l from-transparent ${C.sectionDivider}`} />
   </div>
 );
 
 const NavItem = ({
-  item, activeStep, completedSteps, onClick,
+  item, activeStep, completedSteps, onClick, C,
 }: {
   item: (typeof PROCESS_STEPS)[number] | (typeof TOOL_ITEMS)[number];
   activeStep: AppStep;
   completedSteps: AppStep[];
   onClick: () => void;
+  C: ReturnType<typeof useColors>;
 }) => {
   const isActive  = activeStep === item.key;
   const isDone    = completedSteps.includes(item.key);
@@ -112,11 +164,11 @@ const NavItem = ({
       onClick={onClick}
       disabled={!isEnabled}
       className={`
-        relative w-full flex items-center gap-3 px-3 py-2.5  transition-all duration-200 text-left
+        relative w-full flex items-center gap-3 px-3 py-2.5 transition-all duration-200 text-left
         ${isActive
           ? ''
           : isEnabled
-            ? 'hover:bg-white/5'
+            ? C.navHover
             : 'opacity-35 cursor-not-allowed'
         }
       `}
@@ -124,7 +176,7 @@ const NavItem = ({
       {/* Active background card */}
       {isActive && (
         <div
-          className="absolute inset-0 "
+          className="absolute inset-0"
           style={{
             background: item.bgActive,
             border: `1px solid ${item.color}25`,
@@ -136,17 +188,17 @@ const NavItem = ({
       {/* Left accent bar */}
       {isActive && (
         <div
-          className="absolute left-0 top-2.5 bottom-2.5 w-[3px] "
+          className="absolute left-0 top-2.5 bottom-2.5 w-[3px]"
           style={{ background: `linear-gradient(180deg, ${item.color}, ${item.color}60)` }}
         />
       )}
 
       {/* Icon */}
       <div
-        className="relative flex h-9 w-9 shrink-0 items-center justify-center  transition-all duration-200"
+        className="relative flex h-9 w-9 shrink-0 items-center justify-center transition-all duration-200"
         style={{
-          background: isActive ? `${item.color}15` : 'rgba(255,255,255,0.04)',
-          border: isActive ? `1px solid ${item.color}30` : '1px solid rgba(255,255,255,0.06)',
+          background: isActive ? `${item.color}15` : C.iconBg,
+          border: isActive ? `1px solid ${item.color}30` : C.iconBorder,
         }}
       >
         <span style={{ color: isActive ? item.color : isEnabled ? C.text2 : C.text3 }}>
@@ -169,7 +221,7 @@ const NavItem = ({
       {/* Done checkmark */}
       {isDone && !isActive && (
         <div
-          className="relative flex h-5 w-5 shrink-0 items-center justify-center "
+          className="relative flex h-5 w-5 shrink-0 items-center justify-center"
           style={{ background: `${item.color}15` }}
         >
           <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
@@ -178,15 +230,15 @@ const NavItem = ({
         </div>
       )}
       {isActive && (
-        <div className="relative flex h-5 w-5 shrink-0 items-center justify-center " style={{ background: `${item.color}20` }}>
-          <div className="h-1.5 w-1.5 " style={{ background: item.color }} />
+        <div className="relative flex h-5 w-5 shrink-0 items-center justify-center" style={{ background: `${item.color}20` }}>
+          <div className="h-1.5 w-1.5" style={{ background: item.color }} />
         </div>
       )}
     </button>
   );
 };
 
-const StepProgress = ({ completedSteps }: { completedSteps: AppStep[] }) => {
+const StepProgress = ({ completedSteps, C }: { completedSteps: AppStep[]; C: ReturnType<typeof useColors> }) => {
   const total = PROCESS_STEPS.length;
   const done  = PROCESS_STEPS.filter(s => completedSteps.includes(s.key)).length;
   const pct   = total === 0 ? 0 : Math.round((done / total) * 100);
@@ -199,14 +251,14 @@ const StepProgress = ({ completedSteps }: { completedSteps: AppStep[] }) => {
           {pct === 100 ? 'Hoàn tất!' : `${done}/${total} bước`}
         </span>
       </div>
-        <div className="h-1 w-full overflow-hidden " style={{ background: 'rgba(255,255,255,0.06)' }}>
+      <div className="h-1 w-full overflow-hidden" style={{ background: C.progressTrack }}>
         <div
-          className="h-full  transition-all duration-500"
+          className="h-full transition-all duration-500"
           style={{
             width: `${pct}%`,
             background: pct === 100
-              ? 'linear-gradient(90deg, #10b981, #34d399)'  // tokens.dark.success → emerald
-              : 'linear-gradient(90deg, #3B82F6, #60a5fa)', // tokens.dark.gradientPrimary
+              ? 'linear-gradient(90deg, #10b981, #34d399)'
+              : 'linear-gradient(90deg, #3B82F6, #60a5fa)',
           }}
         />
       </div>
@@ -224,7 +276,8 @@ const AccountPanel: React.FC<{
   onLoginRequest?: () => void;
   onShowSettings?: () => void;
   onShowHistory?: () => void;
-}> = ({ completedSteps, userEmail, userAvatar: avatar, userName: name, onLogout, onLoginRequest, onShowSettings, onShowHistory }) => {
+  C: ReturnType<typeof useColors>;
+}> = ({ completedSteps, userEmail, userAvatar: avatar, userName: name, onLogout, onLoginRequest, onShowSettings, onShowHistory, C }) => {
   const [localAvatar, setLocalAvatar] = useState<string | null>(null);
   const [localName, setLocalName]     = useState<string>('');
 
@@ -287,18 +340,18 @@ const AccountPanel: React.FC<{
 
   if (!userEmail) {
     return onLoginRequest ? (
-      <div className=" border p-3" style={{
-        background: 'rgba(255,255,255,0.03)',
-        borderColor: 'rgba(255,255,255,0.08)',
+      <div className="border p-3" style={{
+        background: C.accountBg,
+        borderColor: C.accountBorder,
       }}>
-        <StepProgress completedSteps={completedSteps} />
+        <StepProgress completedSteps={completedSteps} C={C} />
         <button
           type="button"
           onClick={onLoginRequest}
-          className="w-full flex items-center justify-center gap-2  py-2.5 text-[12px] font-bold text-white transition-all hover:brightness-110 active:scale-[0.99]"
+          className="w-full flex items-center justify-center gap-2 py-2.5 text-[12px] font-bold text-white transition-all hover:brightness-110 active:scale-[0.99]"
           style={{
-            background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
-            boxShadow: '0 4px 12px rgba(59,130,246,0.3)',
+            background: C.loginGrad,
+            boxShadow: C.loginShadow,
           }}
         >
           <i className="fa-solid fa-right-to-bracket text-[11px]" />
@@ -311,12 +364,11 @@ const AccountPanel: React.FC<{
   return (
     <div
       className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left transition-all"
-      style={{
-        background: 'rgba(255,255,255,0.03)',
-      }}
+      style={{ background: C.accountBg }}
     >
       {/* Avatar */}
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden border border-white/10 rounded-md">
+      <div className={`flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden border rounded-md`}
+           style={{ borderColor: C.accountBorder }}>
         {effectiveAvatar ? (
           <img src={effectiveAvatar} alt="" className="h-full w-full object-cover" />
         ) : (
@@ -333,13 +385,13 @@ const AccountPanel: React.FC<{
         </p>
         <div className="flex items-center gap-1.5 mt-0.5">
           <span className="flex items-center gap-1">
-            <span className="h-1.5 w-1.5 rounded-full bg-blue-400" />
+            <span className={`h-1.5 w-1.5 rounded-full ${C.onlineDot}`} />
             <span className="text-[9px] font-medium" style={{ color: C.text3 }}>Online</span>
           </span>
           {analysisDone && (
             <span
               className="px-1.5 py-px text-[8px] font-bold rounded-sm"
-              style={{ background: 'rgba(59,130,246,0.15)', color: '#60a5fa' }}
+              style={{ background: C.proBadgeBg, color: C.proBadgeColor }}
             >
               HR Pro
             </span>
@@ -354,7 +406,8 @@ const AccountPanel: React.FC<{
             type="button"
             title="Mẫu JD & Lịch sử"
             onClick={(e) => { e.stopPropagation(); onShowSettings(); }}
-            className="flex h-8 w-8 items-center justify-center rounded-md transition-all hover:bg-white/10 text-slate-400 hover:text-blue-400"
+            className="flex h-8 w-8 items-center justify-center rounded-md transition-all"
+            style={{ color: C.text2 }}
           >
             <FileText size={15} strokeWidth={2.5} />
           </button>
@@ -363,7 +416,8 @@ const AccountPanel: React.FC<{
           type="button"
           title="Đăng xuất"
           onClick={(e) => { e.stopPropagation(); onLogout?.(); }}
-          className="flex h-8 w-8 items-center justify-center rounded-md transition-all hover:bg-white/10 text-slate-400 hover:text-red-400"
+          className="flex h-8 w-8 items-center justify-center rounded-md transition-all hover:text-red-400"
+          style={{ color: C.text2 }}
         >
           <LogOut size={15} strokeWidth={2.5} />
         </button>
@@ -378,6 +432,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   userEmail, userAvatar: externalAvatar, userName: externalUserName,
   onLoginRequest, isOpen = true, onClose, onShowSettings, onShowHistory,
 }) => {
+  const C = useColors();
   const handleClick = (step: AppStep) => {
     if (isStepEnabled(step, completedSteps)) setActiveStep(step);
     if (window.innerWidth < 768 && onClose) onClose();
@@ -385,7 +440,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   return (
     <>
-      {/* Mobile overlay — chỉ khi drawer có onClose (đóng bằng tap nền). Luôn isOpen=true mà không onClose thì không phủ để không chặn main. */}
+      {/* Mobile overlay */}
       {isOpen && onClose && (
         <div
           className="fixed inset-0 z-40 md:hidden"
@@ -412,35 +467,39 @@ const Sidebar: React.FC<SidebarProps> = ({
         <div
           className="flex shrink-0 items-center gap-2.5 px-3 py-3"
           style={{
-            background: C.headerGradient,  // tokens: linear-gradient(135deg, #1e3a5f, #1e40af)
-            borderBottom: '1px solid rgba(255,255,255,0.06)',
+            background: C.headerGradient,
+            borderBottom: C.headerBorderBottom,
           }}
         >
           <button
             onClick={() => handleClick('jd')}
-            className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden  border border-white/20 bg-black/30 shadow-sm transition-transform hover:scale-105"
+            className={`flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden border ${C.logoBorder} ${C.logoBg} shadow-sm transition-transform hover:scale-105`}
           >
             <img src="/images/logos/logo.jpg" alt="SupportHR" className="h-full w-full object-cover" />
           </button>
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <div className="flex items-center gap-1.5">
-              <h1 className="text-sm font-black tracking-tight text-white leading-none">SupportHR</h1>
+              <h1 className="text-sm font-black tracking-tight leading-none" style={{ color: C.text }}>SupportHR</h1>
               <span
-                className=" px-1.5 py-px text-[8px] font-black uppercase tracking-wide"
-                style={{ background: 'rgba(255,255,255,0.15)', color: '#bae6fd' }}
+                className="px-1.5 py-px text-[8px] font-black uppercase tracking-wide"
+                style={{ background: C.aiBadgeBg, color: C.aiBadgeColor }}
               >
                 AI
               </span>
             </div>
-            <p className="mt-0.5 text-[9px] font-medium leading-none" style={{ color: 'rgba(255,255,255,0.55)' }}>
+            <p className="mt-0.5 text-[9px] font-medium leading-none" style={{ color: C.subTextColor }}>
               Recruitment Intelligence
             </p>
+          </div>
+          {/* Theme toggle — góc phải header */}
+          <div className="ml-auto shrink-0">
+            <DarkThemeToggle variant="icon" size="sm" />
           </div>
         </div>
 
         {/* ── Nav ────────────────────────────────────────────── */}
         <nav className="flex-1 min-h-0 overflow-y-auto py-2 px-2 custom-scrollbar">
-          <SectionLabel label="Quy trình phân tích" />
+          <SectionLabel label="Quy trình phân tích" C={C} />
           <div className="space-y-0.5">
             {PROCESS_STEPS.map(item => (
               <NavItem
@@ -449,11 +508,12 @@ const Sidebar: React.FC<SidebarProps> = ({
                 activeStep={activeStep}
                 completedSteps={completedSteps}
                 onClick={() => handleClick(item.key)}
+                C={C}
               />
             ))}
           </div>
 
-          <SectionLabel label="Công cụ hỗ trợ" />
+          <SectionLabel label="Công cụ hỗ trợ" C={C} />
           <div className="space-y-0.5">
             {TOOL_ITEMS.map(item => (
               <NavItem
@@ -462,6 +522,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 activeStep={activeStep}
                 completedSteps={completedSteps}
                 onClick={() => handleClick(item.key)}
+                C={C}
               />
             ))}
           </div>
@@ -478,6 +539,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             onLoginRequest={onLoginRequest}
             onShowSettings={onShowSettings}
             onShowHistory={onShowHistory}
+            C={C}
           />
         </div>
       </aside>
