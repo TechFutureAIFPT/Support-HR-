@@ -4,6 +4,7 @@ import type { HardFilters, WeightCriteria, MainCriterion } from '../../../assets
 import HardFilterPanel from '../../ui/config/HardFilterPanel';
 import WeightTile from '../../ui/config/WeightTile';
 import TotalWeightDisplay from '../../ui/config/TotalWeightDisplay';
+import { useThemeColors } from '../../ui/theme/useThemeColors';
 
 interface WeightsConfigProps {
   weights: WeightCriteria;
@@ -127,8 +128,10 @@ const WeightsConfig: React.FC<WeightsConfigProps> = memo(({ weights, setWeights,
     { num: 2, label: 'Phân bổ trọng số', color: '#8b5cf6', bg: 'from-violet-500/15 to-violet-600/10' },
   ];
 
+  const tc = useThemeColors();
+
   return (
-    <section id="module-weights" className={`module-pane active relative w-full h-[calc(100vh)] min-h-[400px] flex flex-col bg-gradient-to-br from-[#0B192C] via-[#11213A] to-[#0B192C]`}>
+    <section id="module-weights" className={`module-pane active relative w-full h-[calc(100vh)] min-h-[400px] flex flex-col`} style={{ background: tc.pageBg }}>
       {/* Background decorations */}
       <div className="absolute top-0 right-0 w-96 h-96 -full bg-indigo-500/5 blur-3xl pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-72 h-72 -full bg-emerald-500/5 blur-3xl pointer-events-none" />
@@ -138,14 +141,14 @@ const WeightsConfig: React.FC<WeightsConfigProps> = memo(({ weights, setWeights,
       <div
         className="shrink-0 border-b"
         style={{
-          background: 'linear-gradient(180deg, #11213A 0%, #0B192C 100%)',
+          background: tc.headerBg,
           borderColor: 'rgba(99,102,241,0.18)',
         }}
       >
         {/* Dòng 1: Logo + Tiêu đề */}
         <div
           className="flex items-center gap-3 px-4 py-3"
-          style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}
+          style={{ borderBottom: tc.borderSoft }}
         >
           {/* Accent bar */}
           <div
@@ -156,21 +159,21 @@ const WeightsConfig: React.FC<WeightsConfigProps> = memo(({ weights, setWeights,
           <div className="min-w-0">
             <h1
               className="text-base font-bold leading-tight tracking-tight"
-              style={{ color: '#f1f5f9' }}
+              style={{ color: tc.textPrimary }}
             >
               Phân bổ trọng số & Bộ lọc
             </h1>
             <p
               className="text-[9px] font-semibold uppercase tracking-[0.16em] leading-tight mt-0.5"
-              style={{ color: 'rgba(99,102,241,0.7)' }}
+              style={{ color: tc.textAccent }}
             >
               Weight Configuration & Hard Filters
             </p>
           </div>
 
           {/* Mô tả phụ */}
-          <div className="hidden lg:flex items-center gap-2 ml-4 pl-4" style={{ borderLeft: '1px solid rgba(255,255,255,0.06)' }}>
-            <span className="text-[10px] font-medium" style={{ color: 'rgba(148,163,184,0.6)' }}>
+          <div className="hidden lg:flex items-center gap-2 ml-4 pl-4" style={{ borderLeft: tc.border }}>
+            <span className="text-[10px] font-medium" style={{ color: tc.textDim }}>
               Thiết lập mức độ quan trọng · Bộ lọc bắt buộc
             </span>
           </div>
@@ -188,10 +191,10 @@ const WeightsConfig: React.FC<WeightsConfigProps> = memo(({ weights, setWeights,
                   className="flex items-center gap-2 px-5 py-2  text-xs font-bold transition-all duration-300"
                   style={
                     isActive
-                      ? { background: 'rgba(99,102,241,0.18)', border: '1px solid rgba(99,102,241,0.35)', color: '#e2e8f0', boxShadow: '0 4px 20px -5px rgba(99,102,241,0.25)' }
+                      ? { background: 'rgba(99,102,241,0.18)', border: '1px solid rgba(99,102,241,0.35)', color: tc.textSecondary, boxShadow: '0 4px 20px -5px rgba(99,102,241,0.25)' }
                       : isDone
                         ? { background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.3)', color: '#34d399' }
-                        : { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#475569' }
+                        : { background: tc.cardBg2, border: tc.borderCard, color: tc.textDim }
                   }
                 >
                   <div
@@ -201,7 +204,7 @@ const WeightsConfig: React.FC<WeightsConfigProps> = memo(({ weights, setWeights,
                         ? { background: 'rgba(99,102,241,0.25)', color: '#818cf8' }
                         : isDone
                           ? { background: 'rgba(16,185,129,0.2)', color: '#34d399' }
-                          : { background: 'rgba(255,255,255,0.05)', color: '#475569' }
+                          : { background: tc.cardBg2, color: tc.textDim }
                     }
                   >
                     {isDone ? '✓' : s.num}
@@ -211,7 +214,7 @@ const WeightsConfig: React.FC<WeightsConfigProps> = memo(({ weights, setWeights,
                 {i < STEPS.length - 1 && (
                   <div
                     className="h-px min-w-[2rem] flex-1"
-                    style={{ background: step > s.num ? 'rgba(16,185,129,0.4)' : 'rgba(255,255,255,0.07)' }}
+                    style={{ background: step > s.num ? 'rgba(16,185,129,0.4)' : (tc.isDark ? 'rgba(255,255,255,0.07)' : 'rgba(99,102,241,0.1)') }}
                   />
                 )}
               </React.Fragment>
@@ -257,13 +260,13 @@ const WeightsConfig: React.FC<WeightsConfigProps> = memo(({ weights, setWeights,
         </div>
 
         {/* Right Column: Fixed Controls & Info */}
-        <div className={`w-[340px] lg:w-[400px] shrink-0 border-l flex flex-col h-full relative z-10 border-slate-800/60 bg-gradient-to-b from-[#11213A]/95 to-[#0B192C]/95 backdrop-blur-xl shadow-[-10px_0_40px_-20px_rgba(0,0,0,0.3)]`}>
+        <div className={`w-[340px] lg:w-[400px] shrink-0 border-l flex flex-col h-full relative z-10 backdrop-blur-xl`} style={{ borderColor: tc.borderColor, background: tc.isDark ? 'linear-gradient(180deg, rgba(17,33,58,0.95), rgba(11,25,44,0.95))' : 'linear-gradient(180deg, rgba(248,250,255,0.98), rgba(240,244,255,0.95))', boxShadow: tc.isDark ? '-10px 0 40px -20px rgba(0,0,0,0.3)' : '-10px 0 40px -20px rgba(99,102,241,0.06)' }}>
           <div className="flex flex-col flex-1 h-full overflow-y-auto custom-scrollbar">
             {step === 1 ? (
               <>
                 <div className="p-5 lg:p-6">
                   {/* Progress card */}
-                  <div className=" border mb-5 p-6 relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #11213A 0%, #0B192C 100%)', borderColor: 'rgba(99,102,241,0.15)' }}>
+                  <div className=" border mb-5 p-6 relative overflow-hidden" style={{ background: tc.headerBg, borderColor: 'rgba(99,102,241,0.15)' }}>
                     <div className="absolute top-0 right-0 w-40 h-40 bg-indigo-500/8 -full blur-3xl pointer-events-none -translate-y-1/2 translate-x-1/4" />
 
                     <h4 className="flex items-center gap-3 text-[11px] font-bold mb-6 uppercase tracking-[0.2em] text-white relative z-10">
@@ -275,7 +278,7 @@ const WeightsConfig: React.FC<WeightsConfigProps> = memo(({ weights, setWeights,
                     </h4>
 
                     <div className="grid grid-cols-2 gap-3 mb-5">
-                      <div className=" p-4 flex flex-col justify-center items-center relative overflow-hidden" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                      <div className=" p-4 flex flex-col justify-center items-center relative overflow-hidden" style={{ background: tc.cardBg2, border: tc.border }}>
                         <span className="text-3xl font-black text-white mb-1 tracking-tighter">{mandatoryProgress.active}</span>
                         <span className="text-[9px] uppercase tracking-[0.2em] font-bold text-slate-400">Đã bật</span>
                       </div>
@@ -285,12 +288,12 @@ const WeightsConfig: React.FC<WeightsConfigProps> = memo(({ weights, setWeights,
                       </div>
                     </div>
 
-                    <div className="space-y-2 p-3  relative" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}>
+                    <div className="space-y-2 p-3  relative" style={{ background: tc.cardBg, border: tc.borderSoft }}>
                       <div className="flex justify-between text-[11px] font-bold tracking-[0.15em]">
-                        <span className="uppercase text-slate-400">Hoàn tất</span>
+                        <span className="uppercase" style={{ color: tc.textMuted }}>Hoàn tất</span>
                         <span style={{ color: '#818cf8', textShadow: '0 0 10px rgba(99,102,241,0.4)' }}>{mandatoryProgress.percent}%</span>
                       </div>
-                      <div className="h-2.5 -full overflow-hidden relative" style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.05)' }}>
+                      <div className="h-2.5 -full overflow-hidden relative" style={{ background: tc.isDark ? 'rgba(255,255,255,0.06)' : 'rgba(99,102,241,0.08)', border: tc.borderSoft }}>
                         <div className="h-full transition-all duration-700 ease-out flex justify-end relative" style={{ width: `${mandatoryProgress.percent}%`, background: 'linear-gradient(90deg, #6366f1, #818cf8)', boxShadow: '0 0 15px rgba(99,102,241,0.5)' }}>
                           <div className="absolute top-0 right-0 w-6 h-full" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.3))', filter: 'blur(2px)' }} />
                         </div>
@@ -310,7 +313,7 @@ const WeightsConfig: React.FC<WeightsConfigProps> = memo(({ weights, setWeights,
                 </div>
 
                 {/* Bottom actions */}
-                <div className="mt-auto p-5 lg:p-6 space-y-3" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+                <div className="mt-auto p-5 lg:p-6 space-y-3" style={{ borderTop: tc.borderSoft }}>
                   <button
                     onClick={handleFiltersComplete}
                     className="w-full py-4  text-white font-bold text-sm transition-all flex items-center justify-center gap-3"
@@ -336,7 +339,7 @@ const WeightsConfig: React.FC<WeightsConfigProps> = memo(({ weights, setWeights,
               <>
                 <div className="p-5 lg:p-6">
                   {/* Weight display */}
-                  <div className=" border mb-5 p-6 relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #11213A 0%, #0B192C 100%)', borderColor: 'rgba(99,102,241,0.15)' }}>
+                  <div className=" border mb-5 p-6 relative overflow-hidden" style={{ background: tc.headerBg, borderColor: 'rgba(99,102,241,0.15)' }}>
                     <div className={`absolute top-0 right-0 w-40 h-40 -full blur-3xl -translate-y-1/2 translate-x-1/4 transition-colors duration-700 pointer-events-none ${totalWeight === 100 ? 'bg-emerald-500/10' : totalWeight > 100 ? 'bg-red-500/10' : 'bg-amber-500/10'}`} />
 
                     <h4 className="flex items-center gap-3 text-[11px] font-bold mb-6 uppercase tracking-[0.2em] text-white relative z-10">
@@ -348,10 +351,10 @@ const WeightsConfig: React.FC<WeightsConfigProps> = memo(({ weights, setWeights,
                     </h4>
 
                     {/* Big number display */}
-                    <div className=" p-6 flex flex-col justify-center items-center relative overflow-hidden mb-5" style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                    <div className=" p-6 flex flex-col justify-center items-center relative overflow-hidden mb-5" style={{ background: tc.isDark ? 'rgba(0,0,0,0.2)' : 'rgba(99,102,241,0.03)', border: tc.border }}>
                       <div className="flex items-baseline gap-1 relative z-10 transition-transform duration-500">
                         <span className="text-6xl font-black tracking-tighter transition-all duration-500" style={{
-                          color: '#f1f5f9',
+                          color: tc.textPrimary,
                           textShadow: totalWeight === 100 ? '0 0 40px rgba(16,185,129,0.4)' : totalWeight > 100 ? '0 0 40px rgba(244,63,94,0.4)' : '0 0 40px rgba(245,158,11,0.4)'
                         }}>
                           {totalWeight}
@@ -380,10 +383,10 @@ const WeightsConfig: React.FC<WeightsConfigProps> = memo(({ weights, setWeights,
                       const subTotal = c.children?.reduce((s, ch) => s + ch.weight, 0) || 0;
                       const pct = Math.round(subTotal);
                       return (
-                        <div key={c.key} className="flex items-center gap-2.5 p-2.5 " style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                        <div key={c.key} className="flex items-center gap-2.5 p-2.5 " style={{ background: tc.cardBg, border: tc.border }}>
                           <div className="h-6 w-[3px] -full overflow-hidden flex-shrink-0" style={{ background: pct >= 30 ? '#10b981' : pct >= 15 ? '#3b82f6' : '#f59e0b' }} />
-                          <span className="text-[11px] font-medium flex-1 truncate" style={{ color: '#cbd5e1' }}>{c.name}</span>
-                          <span className="text-[11px] font-bold" style={{ color: '#94a3b8' }}>{pct}%</span>
+                          <span className="text-[11px] font-medium flex-1 truncate" style={{ color: tc.textSecondary }}>{c.name}</span>
+                          <span className="text-[11px] font-bold" style={{ color: tc.textMuted }}>{pct}%</span>
                         </div>
                       );
                     })}
@@ -391,7 +394,7 @@ const WeightsConfig: React.FC<WeightsConfigProps> = memo(({ weights, setWeights,
                 </div>
 
                 {/* Bottom actions */}
-                <div className="mt-auto p-5 lg:p-6 space-y-3" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+                <div className="mt-auto p-5 lg:p-6 space-y-3" style={{ borderTop: tc.borderSoft }}>
                   <button
                     onClick={handleWeightsComplete}
                     disabled={totalWeight !== 100}
@@ -399,7 +402,7 @@ const WeightsConfig: React.FC<WeightsConfigProps> = memo(({ weights, setWeights,
                     style={
                       totalWeight === 100
                         ? { background: 'linear-gradient(135deg, #059669, #10b981)', border: '1px solid rgba(16,185,129,0.35)', color: '#fff', boxShadow: '0 4px 20px -5px rgba(16,185,129,0.3)' }
-                        : { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#475569', cursor: 'not-allowed' }
+                        : { background: tc.cardBg2, border: tc.borderCard, color: tc.textDim, cursor: 'not-allowed' }
                     }
                   >
                     Hoàn tất cấu hình & Phân tích ngay
@@ -409,9 +412,9 @@ const WeightsConfig: React.FC<WeightsConfigProps> = memo(({ weights, setWeights,
                   <button
                     onClick={() => setStep(1)}
                     className="w-full py-3 flex items-center justify-center gap-3 text-[11px] font-bold uppercase tracking-[0.15em] transition-all "
-                    style={{ color: '#475569', border: '1px solid transparent' }}
-                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#94a3b8'; (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.04)'; }}
-                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = '#475569'; (e.currentTarget as HTMLElement).style.background = 'transparent'; }}
+                    style={{ color: tc.textDim, border: '1px solid transparent' }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = tc.textMuted; (e.currentTarget as HTMLElement).style.background = tc.cardBg2; }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = tc.textDim; (e.currentTarget as HTMLElement).style.background = 'transparent'; }}
                   >
                     <span className="text-[10px]">←</span>
                     Quay lại bộ lọc cứng

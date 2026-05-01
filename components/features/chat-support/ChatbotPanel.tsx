@@ -1,7 +1,8 @@
-import React, { useState, useRef, useEffect, useMemo } from 'react';
-import type { AnalysisRunData, ChatMessage } from '../../../assets/types';
+import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
+import type { AnalysisRunData, ChatMessage, ChatMessageRecord, ChatbotSession } from '../../../assets/types';
 import { getChatbotAdvice } from '../../../services/ai-ml/models/gemini/geminiService';
 import { analyzeSalary } from '../../../services/salary-analysis/salaryAnalysisService';
+import { ChatbotHistoryService } from '../../../services/data-sync/chatbotHistoryService';
 
 interface ChatbotPanelProps {
   analysisData: AnalysisRunData;
@@ -16,6 +17,88 @@ const ChatbotPanel: React.FC<ChatbotPanelProps> = ({ analysisData, onClose }) =>
   const [isLoading, setIsLoading] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(true);
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [pastSessions, setPastSessions] = useState<ChatbotSession[]>([]);
+  const [showHistory, setShowHistory] = useState(false);
+  const sessionInitRef = useRef(false);
+
+  // Auto-create or resume chatbot session
+  useEffect(() => {
+    if (sessionInitRef.current) return;
+    sessionInitRef.current = true;
+
+    (async () => {
+      try {
+        // Try to resume a recent session for the same job position
+        const existing = await ChatbotHistoryService.findRecentSession(analysisData.job.position);
+        if (existing && existing.id && existing.messages.length > 0) {
+          setSessionId(existing.id);
+          // Restore messages from session
+          const restored: ChatMessage[] = existing.messages.map(m => ({
+            id: m.id,
+            author: m.author,
+            content: m.content,
+            timestamp: m.timestamp,
+          }));
+          setMessages(restored);
+          setShowSuggestions(false);
+        } else {
+          // Create new session
+          const newId = await ChatbotHistoryService.createSession({
+            jobPosition: analysisData.job.position,
+            totalCandidates: analysisData.candidates?.length || 0,
+          });
+          setSessionId(newId);
+          // Save initial bot message
+          if (newId) {
+            await ChatbotHistoryService.addMessage(newId, {
+              id: 'initial',
+              author: 'bot',
+              content: 'Chào bạn, tôi là trợ lý AI. Tôi có thể giúp gì cho bạn với danh sách ứng viên này?',
+              timestamp: Date.now(),
+            });
+          }
+        }
+      } catch (e) {
+        console.warn('Could not init chatbot session:', e);
+      }
+    })();
+  }, [analysisData]);
+
+  // Helper to persist messages to Firebase
+  const persistMessages = useCallback(async (msgs: ChatMessageRecord[]) => {
+    if (!sessionId) return;
+    try {
+      await ChatbotHistoryService.addMessages(sessionId, msgs);
+    } catch (e) {
+      console.warn('Failed to persist chat messages:', e);
+    }
+  }, [sessionId]);
+
+  // Load past sessions for history panel
+  const loadPastSessions = useCallback(async () => {
+    try {
+      const sessions = await ChatbotHistoryService.getUserSessions(20);
+      setPastSessions(sessions);
+    } catch (e) {
+      console.warn('Failed to load past sessions:', e);
+    }
+  }, []);
+
+  // Restore a past session
+  const restoreSession = useCallback(async (session: ChatbotSession) => {
+    if (!session.id) return;
+    setSessionId(session.id);
+    const restored: ChatMessage[] = session.messages.map(m => ({
+      id: m.id,
+      author: m.author,
+      content: m.content,
+      timestamp: m.timestamp,
+    }));
+    setMessages(restored);
+    setShowSuggestions(false);
+    setShowHistory(false);
+  }, []);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -141,6 +224,12 @@ const ChatbotPanel: React.FC<ChatbotPanelProps> = ({ analysisData, onClose }) =>
         })) : undefined,
       };
       setMessages(prev => [...prev, botMessage]);
+
+      // Persist user + bot messages to Firebase
+      persistMessages([
+        { id: userMessage.id, author: 'user', content: suggestion, timestamp: Date.now() },
+        { id: botMessage.id, author: 'bot', content: responseText, timestamp: Date.now(), suggestedCandidateIds: candidateIds },
+      ]);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Đã có lỗi xảy ra.';
       const botError: ChatMessage = {
@@ -227,6 +316,12 @@ const ChatbotPanel: React.FC<ChatbotPanelProps> = ({ analysisData, onClose }) =>
       };
       setMessages(prev => [...prev, botMessage]);
 
+      // Persist user + bot messages to Firebase
+      persistMessages([
+        { id: userMessage.id, author: 'user', content: currentInput, timestamp: Date.now() },
+        { id: botMessage.id, author: 'bot', content: responseText, timestamp: Date.now(), suggestedCandidateIds: candidateIds },
+      ]);
+
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Đã có lỗi xảy ra.';
       const botError: ChatMessage = {
@@ -274,18 +369,55 @@ const ChatbotPanel: React.FC<ChatbotPanelProps> = ({ analysisData, onClose }) =>
           <i className="fa-solid fa-robot text-sky-500"></i>
           Trợ lý Tuyển dụng AI
         </h3>
-        {onClose && (
+        <div className="flex items-center gap-2">
           <button
-            onClick={onClose}
-            className="text-slate-400 hover:text-white transition-colors"
-            aria-label="Đóng chatbot"
+            onClick={() => { setShowHistory(!showHistory); if (!showHistory) loadPastSessions(); }}
+            className="text-slate-400 hover:text-sky-400 transition-colors"
+            aria-label="Lịch sử hội thoại"
+            title="Lịch sử hội thoại"
           >
-            <i className="fa-solid fa-times"></i>
+            <i className="fa-solid fa-clock-rotate-left"></i>
           </button>
-        )}
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="text-slate-400 hover:text-white transition-colors"
+              aria-label="Đóng chatbot"
+            >
+              <i className="fa-solid fa-times"></i>
+            </button>
+          )}
+        </div>
       </header>
       
-      <div className="flex-1 overflow-y-auto p-4 space-y-5">
+      <div className="flex-1 overflow-y-auto p-4 space-y-5 relative">
+        {/* History Panel Overlay */}
+        {showHistory && (
+          <div className="absolute inset-0 bg-[#0B1120]/95 z-10 p-4 overflow-y-auto">
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="text-sm font-bold text-white">Lịch sử hội thoại</h4>
+              <button onClick={() => setShowHistory(false)} className="text-slate-400 hover:text-white text-xs">
+                <i className="fa-solid fa-times"></i>
+              </button>
+            </div>
+            {pastSessions.length === 0 ? (
+              <p className="text-xs text-slate-500 text-center mt-8">Chưa có lịch sử hội thoại nào</p>
+            ) : (
+              <div className="space-y-2">
+                {pastSessions.map(s => (
+                  <button
+                    key={s.id}
+                    onClick={() => restoreSession(s)}
+                    className="w-full text-left bg-slate-800/60 hover:bg-slate-700/60 border border-slate-700 rounded-lg p-3 transition-colors"
+                  >
+                    <p className="text-xs font-semibold text-white truncate">{s.sessionTitle}</p>
+                    <p className="text-xs text-slate-400 mt-1">{s.messageCount} tin nhắn</p>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
         {messages.map(msg => <MessageBubble key={msg.id} message={msg} />)}
         {isLoading && (
           <div className="flex justify-start gap-3">

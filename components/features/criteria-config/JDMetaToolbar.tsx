@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { filterAndStructureJD, extractJobPositionFromJD } from '../../../services/ai-ml/models/gemini/gemini-core';
 import type { HardFilters } from '../../../assets/types';
+import { useThemeColors } from '../../ui/theme/useThemeColors';
 
 export interface JDMetaToolbarProps {
   jdText: string;
@@ -64,11 +65,13 @@ const JDMetaToolbar: React.FC<JDMetaToolbarProps> = ({
     }
   };
 
+  const tc = useThemeColors();
+
   return (
     <div
       className="shrink-0 border-b"
       style={{
-        background: 'linear-gradient(180deg, #11213A 0%, #0B192C 100%)',
+        background: tc.headerBg,
         borderColor: 'rgba(99,102,241,0.18)',
       }}
       role="region"
@@ -77,7 +80,7 @@ const JDMetaToolbar: React.FC<JDMetaToolbarProps> = ({
       {/* ── Dòng 1: Logo + Tiêu đề ─────────────────────────── */}
       <div
         className="flex items-center gap-3 px-4 py-3"
-        style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}
+        style={{ borderBottom: tc.borderSoft }}
       >
         {/* Accent bar */}
         <div
@@ -91,13 +94,13 @@ const JDMetaToolbar: React.FC<JDMetaToolbarProps> = ({
           <div className="min-w-0">
             <h1
               className="text-base font-bold leading-tight tracking-tight"
-              style={{ color: '#f1f5f9' }}
+              style={{ color: tc.textPrimary }}
             >
               Sàng lọc ứng viên
             </h1>
             <p
               className="text-[9px] font-semibold uppercase tracking-[0.16em] leading-tight mt-0.5"
-              style={{ color: 'rgba(99,102,241,0.7)' }}
+              style={{ color: tc.textAccent }}
             >
               Recruitment Intelligence
             </p>
@@ -105,8 +108,8 @@ const JDMetaToolbar: React.FC<JDMetaToolbarProps> = ({
         )}
 
         {/* Dòng mô tả phụ */}
-        <div className="hidden lg:flex items-center gap-2 ml-4 pl-4" style={{ borderLeft: '1px solid rgba(255,255,255,0.06)' }}>
-          <span className="text-[10px] font-medium" style={{ color: 'rgba(148,163,184,0.6)' }}>
+        <div className="hidden lg:flex items-center gap-2 ml-4 pl-4" style={{ borderLeft: tc.border }}>
+          <span className="text-[10px] font-medium" style={{ color: tc.textDim }}>
             JD mẫu · Bộ lọc · Phân tích CV
           </span>
         </div>
@@ -119,9 +122,9 @@ const JDMetaToolbar: React.FC<JDMetaToolbarProps> = ({
               onClick={onBackToWelcome}
               className="flex items-center gap-1.5  px-3 py-1.5 text-[10px] font-semibold transition-all hover:brightness-110"
               style={{
-                background: 'rgba(255,255,255,0.05)',
-                border: '1px solid rgba(255,255,255,0.08)',
-                color: '#94a3b8',
+                background: tc.cardBg2,
+                border: tc.borderCard,
+                color: tc.textMuted,
               }}
             >
               <i className="fa-solid fa-file-import text-[9px]" />

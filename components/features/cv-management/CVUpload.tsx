@@ -3,6 +3,7 @@ import { UploadCloud, FileText, Upload } from 'lucide-react';
 import type { Candidate, HardFilters, WeightCriteria, AppStep } from '../../../assets/types';
 import { analyzeCVs } from '../../../services/ai-ml/models/gemini/geminiService';
 import { googleDriveService } from '../../../services/file-processing/googleDriveService';
+import { useThemeColors } from '../../ui/theme/useThemeColors';
 
 interface CVUploadProps {
   cvFiles: File[];
@@ -176,8 +177,10 @@ const CVUpload: React.FC<CVUploadProps> = memo((props) => {
     setCvFiles([]);
   }, [setCvFiles]);
 
+  const tc = useThemeColors();
+
   return (
-    <section id="module-upload" className="module-pane active relative w-full h-[calc(100vh)] min-h-[400px] flex flex-col bg-[#0B192C]">
+    <section id="module-upload" className="module-pane active relative w-full h-[calc(100vh)] min-h-[400px] flex flex-col" style={{ background: tc.pageBg }}>
       <div className="absolute top-0 right-0 w-64 h-64 rounded-none blur-3xl pointer-events-none" style={{ background: 'rgba(99,102,241,0.06)' }} />
       <div className="absolute bottom-0 left-0 w-64 h-64 rounded-none blur-3xl pointer-events-none" style={{ background: 'rgba(59,130,246,0.05)' }} />
 
@@ -185,14 +188,14 @@ const CVUpload: React.FC<CVUploadProps> = memo((props) => {
       <div
         className="shrink-0 border-b"
         style={{
-          background: 'linear-gradient(180deg, #11213A 0%, #0B192C 100%)',
+          background: tc.headerBg,
           borderColor: 'rgba(99,102,241,0.18)',
         }}
       >
         {/* Dòng 1: Tiêu đề */}
         <div
           className="flex items-center gap-3 px-4 py-3"
-          style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}
+          style={{ borderBottom: tc.borderSoft }}
         >
           {/* Accent bar */}
           <div
@@ -203,7 +206,7 @@ const CVUpload: React.FC<CVUploadProps> = memo((props) => {
           <div className="min-w-0">
             <h1
               className="text-base font-bold leading-tight tracking-tight"
-              style={{ color: '#f1f5f9' }}
+              style={{ color: tc.textPrimary }}
             >
               Tải lên & Phân tích CV
             </h1>
@@ -246,7 +249,7 @@ const CVUpload: React.FC<CVUploadProps> = memo((props) => {
             </div>
             <div
               className="px-3 py-1.5  text-[10px] font-bold uppercase tracking-wider"
-              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#94a3b8' }}
+              style={{ background: tc.cardBg2, border: tc.borderCard, color: tc.textMuted }}
             >
               {cvFiles.length} / {MAX_CV_PER_BATCH} CV
             </div>
@@ -263,7 +266,7 @@ const CVUpload: React.FC<CVUploadProps> = memo((props) => {
             <div className="lg:col-span-5 flex flex-col h-full gap-4">
               {/* Upload Zone */}
               <div className="relative group flex-1 flex flex-col">
-                 <div className="relative flex-1 flex flex-col p-6 text-center justify-center items-center transition-all bg-[#11213A] border-2 border-dashed border-indigo-500/20 hover:border-indigo-500/40 hover:bg-indigo-500/5">
+                 <div className="relative flex-1 flex flex-col p-6 text-center justify-center items-center transition-all border-2 border-dashed border-indigo-500/20 hover:border-indigo-500/40 hover:bg-indigo-500/5" style={{ background: tc.isDark ? '#11213A' : '#f8faff' }}>
                      <div
                        className="w-16 h-16 mx-auto mb-6 flex items-center justify-center transition-transform duration-300 group-hover:scale-110 group-hover:-translate-y-1 shadow-lg shadow-indigo-500/10"
                        style={{ background: 'linear-gradient(135deg, rgba(99,102,241,0.15), rgba(59,130,246,0.1))', border: '1px solid rgba(99,102,241,0.2)' }}
@@ -309,7 +312,7 @@ const CVUpload: React.FC<CVUploadProps> = memo((props) => {
                 style={
                   cvFiles.length > 0 && readyForAnalysis
                     ? { background: 'linear-gradient(135deg, #4f46e5, #6366f1)', border: '1px solid rgba(99,102,241,0.35)', color: '#fff', boxShadow: '0 4px 20px rgba(99,102,241,0.25)' }
-                    : { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#475569', cursor: 'not-allowed' }
+                    : { background: tc.cardBg2, border: tc.borderCard, color: tc.textDim, cursor: 'not-allowed' }
                 }
               >
                 {cvFiles.length > 0 && readyForAnalysis ? 'Phân tích ngay' : 'Chưa sẵn sàng'}
@@ -325,8 +328,8 @@ const CVUpload: React.FC<CVUploadProps> = memo((props) => {
               )}
 
               {/* Mini Checklist */}
-              <div className=" p-4" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                <h5 className="text-[10px] font-bold uppercase tracking-wider mb-3" style={{ color: '#475569' }}>Yêu cầu trước khi phân tích</h5>
+              <div className=" p-4" style={{ background: tc.cardBg, border: tc.border }}>
+                <h5 className="text-[10px] font-bold uppercase tracking-wider mb-3" style={{ color: tc.textDim }}>Yêu cầu trước khi phân tích</h5>
                 <ul className="space-y-2 text-xs">
                    <li className="flex items-center gap-2" style={{ color: completedSteps.includes('jd') ? '#34d399' : '#475569' }}>
                      <span className="w-4 text-center">{completedSteps.includes('jd') ? '✓' : '○'}</span> Có mô tả công việc (JD)
@@ -342,8 +345,8 @@ const CVUpload: React.FC<CVUploadProps> = memo((props) => {
             </div>
 
             {/* Right Column: File List (7 cols) */}
-            <div className="lg:col-span-7 flex flex-col h-full overflow-hidden" style={{ background: '#11213A', border: '1px solid rgba(255,255,255,0.06)' }}>
-               <div className="p-4 flex items-center justify-between" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+            <div className="lg:col-span-7 flex flex-col h-full overflow-hidden" style={{ background: tc.isDark ? '#11213A' : '#ffffff', border: tc.border }}>
+               <div className="p-4 flex items-center justify-between" style={{ borderBottom: tc.borderSoft }}>
                   <h4 className="font-medium text-sm text-white">Danh sách hồ sơ</h4>
                   <div className="flex items-center gap-2">
                     <label className="cursor-pointer text-xs transition-colors flex items-center gap-1 px-2 py-1 " style={{ color: '#818cf8' }} title="Thêm từ máy tính">

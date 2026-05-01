@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import debounce from 'lodash.debounce';
 import type { Candidate, AppStep } from '../../../assets/types';
 import ExpandedContent from './ExpandedContent';
+import { useThemeColors } from '../../ui/theme/useThemeColors';
 
 interface AnalysisResultsProps {
   isLoading: boolean;
@@ -177,28 +178,30 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMes
     );
   }
 
+  const tc = useThemeColors();
+
   return (
-    <section id="module-analysis" className="module-pane active relative flex h-full min-h-0 w-full flex-1 flex-col" style={{ background: 'linear-gradient(180deg, #0B192C 0%, #0d1628 100%)' }}>
+    <section id="module-analysis" className="module-pane active relative flex h-full min-h-0 w-full flex-1 flex-col" style={{ background: tc.pageBg }}>
       <div className="relative z-10 flex min-h-0 flex-1 flex-col p-4 lg:p-5">
 
         {/* ── Campaign header ─────────────────────────── */}
         <div
           className="mb-3 flex w-full shrink-0 flex-col justify-between gap-4  p-4 lg:flex-row lg:items-center"
-          style={{ background: 'linear-gradient(180deg, rgba(12,22,40,0.9) 0%, rgba(10,18,32,0.9) 100%)', border: '1px solid rgba(99,102,241,0.15)' }}
+          style={{ background: tc.headerBg, border: tc.borderAccent }}
         >
           <div className="min-w-0 flex-1">
-            <p className="text-[9px] font-bold uppercase tracking-[0.25em]" style={{ color: 'rgba(99,102,241,0.6)' }}>Chiến dịch tuyển dụng hiện tại</p>
-            <h2 className="mt-1 line-clamp-1 font-bold tracking-tight lg:text-2xl" style={{ color: '#f1f5f9', fontSize: '18px' }} title={analysisData?.job.position || jobPosition}>
+            <p className="text-[9px] font-bold uppercase tracking-[0.25em]" style={{ color: tc.textAccent }}>Chiến dịch tuyển dụng hiện tại</p>
+            <h2 className="mt-1 line-clamp-1 font-bold tracking-tight lg:text-2xl" style={{ color: tc.textPrimary, fontSize: '18px' }} title={analysisData?.job.position || jobPosition}>
               {analysisData?.job.position || jobPosition}
             </h2>
-            <p className="mt-1 text-xs" style={{ color: '#475569' }}>
-              Phân tích lúc <span className="font-semibold" style={{ color: '#94a3b8' }}>{analysisData ? new Date(analysisData.timestamp).toLocaleString('vi-VN') : 'Không rõ'}</span>
+            <p className="mt-1 text-xs" style={{ color: tc.textDim }}>
+              Phân tích lúc <span className="font-semibold" style={{ color: tc.textMuted }}>{analysisData ? new Date(analysisData.timestamp).toLocaleString('vi-VN') : 'Không rõ'}</span>
             </p>
           </div>
           <div className="flex shrink-0 flex-col items-start gap-3 lg:flex-row lg:items-center">
             {/* Grade badges */}
             <div className="flex items-center gap-2">
-              <div className=" px-3 py-1.5 text-xs font-bold" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#94a3b8' }}>
+              <div className=" px-3 py-1.5 text-xs font-bold" style={{ background: tc.cardBg2, border: tc.borderCard, color: tc.textMuted }}>
                 Tổng: {summaryData.total}
               </div>
               <div className=" px-3 py-1.5 text-xs font-bold" style={{ background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)', color: '#34d399' }}>
@@ -215,7 +218,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMes
               <button
                 onClick={() => { if (setActiveStep) setActiveStep('dashboard'); if (markStepAsCompleted) markStepAsCompleted('analysis'); navigate('/detailed-analytics'); }}
                 className="flex flex-1 items-center justify-center gap-2  px-4 py-2 text-sm font-semibold transition-all lg:flex-none"
-                style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#94a3b8' }}
+                style={{ background: tc.cardBg2, border: tc.borderCard, color: tc.textMuted }}
               >
                 Thống Kê
               </button>
@@ -234,13 +237,13 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMes
         {/* ── KPI cards ──────────────────────────────── */}
         <div className="mb-3 grid shrink-0 grid-cols-2 gap-3 sm:grid-cols-2 xl:grid-cols-4">
           {[
-            { label: 'Tổng CV Phân Tích', value: summaryData.total, accent: 'rgba(255,255,255,0.03)', border: 'rgba(255,255,255,0.07)', text: '#f1f5f9' },
-            { label: 'Hạng A', value: summaryData.countA, accent: 'rgba(16,185,129,0.08)', border: 'rgba(16,185,129,0.15)', text: '#34d399' },
-            { label: 'Hạng B', value: summaryData.countB, accent: 'rgba(59,130,246,0.08)', border: 'rgba(59,130,246,0.15)', text: '#60a5fa' },
-            { label: 'Hạng C/Lỗi', value: summaryData.countC, accent: 'rgba(239,68,68,0.08)', border: 'rgba(239,68,68,0.15)', text: '#f87171' }
+            { label: 'Tổng CV Phân Tích', value: summaryData.total, accent: tc.cardBg, border: tc.borderColor, text: tc.textPrimary },
+            { label: 'Hạng A', value: summaryData.countA, accent: 'rgba(16,185,129,0.08)', border: 'rgba(16,185,129,0.15)', text: tc.gradeA.color },
+            { label: 'Hạng B', value: summaryData.countB, accent: 'rgba(59,130,246,0.08)', border: 'rgba(59,130,246,0.15)', text: tc.gradeB.color },
+            { label: 'Hạng C/Lỗi', value: summaryData.countC, accent: 'rgba(239,68,68,0.08)', border: 'rgba(239,68,68,0.15)', text: tc.gradeC.color }
           ].map(card => (
             <div key={card.label} className=" p-4" style={{ background: card.accent, border: `1px solid ${card.border}` }}>
-              <p className="text-[9px] uppercase tracking-[0.2em] font-bold" style={{ color: '#475569' }}>{card.label}</p>
+              <p className="text-[9px] uppercase tracking-[0.2em] font-bold" style={{ color: tc.textDim }}>{card.label}</p>
               <p className="text-4xl font-black mt-2" style={{ color: card.text }}>{card.value}</p>
             </div>
           ))}
@@ -249,24 +252,24 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMes
         {/* ── Filter bar ─────────────────────────────── */}
         <div
           className="mb-3 shrink-0  p-4"
-          style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}
+          style={{ background: tc.cardBg, border: tc.border }}
         >
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div className="relative w-full lg:max-w-sm">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xs" style={{ color: '#475569' }}>🔍</span>
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xs" style={{ color: tc.textDim }}>🔍</span>
               <input
                 type="text"
                 placeholder="Tìm theo tên, chức danh..."
                 value={searchTerm}
                 onChange={e => handleSearchChange(e.target.value)}
                 className="w-full  pl-10 pr-4 py-3 text-sm outline-none transition-all"
-                style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#cbd5e1' }}
+                style={{ background: tc.inputBg, border: tc.borderCard, color: tc.textSecondary }}
               />
             </div>
             <div className="flex flex-wrap items-center gap-2">
               {[
-                { label: 'Tất cả', value: 'all', active: { bg: '#6366f1', color: '#fff' }, inactive: { bg: 'rgba(255,255,255,0.04)', color: '#94a3b8', border: 'rgba(255,255,255,0.08)' } },
-                { label: 'Hạng A', value: 'A', active: { bg: '#059669', color: '#fff' }, inactive: { bg: 'rgba(16,185,129,0.08)', color: '#34d399', border: 'rgba(16,185,129,0.2)' } },
+                { label: 'Tất cả', value: 'all', active: { bg: '#6366f1', color: '#fff' }, inactive: { bg: tc.cardBg2, color: tc.textMuted, border: tc.borderColor } },
+                { label: 'Hạng A', value: 'A', active: { bg: '#059669', color: '#fff' }, inactive: { bg: 'rgba(16,185,129,0.08)', color: tc.gradeA.color, border: 'rgba(16,185,129,0.2)' } },
                 { label: 'Hạng B', value: 'B', active: { bg: '#2563eb', color: '#fff' }, inactive: { bg: 'rgba(59,130,246,0.08)', color: '#60a5fa', border: 'rgba(59,130,246,0.2)' } },
                 { label: 'Hạng C', value: 'C', active: { bg: '#d97706', color: '#fff' }, inactive: { bg: 'rgba(245,158,11,0.08)', color: '#fbbf24', border: 'rgba(245,158,11,0.2)' } },
                 { label: 'Lỗi', value: 'FAILED', active: { bg: '#dc2626', color: '#fff' }, inactive: { bg: 'rgba(239,68,68,0.08)', color: '#f87171', border: 'rgba(239,68,68,0.2)' } }
@@ -281,7 +284,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMes
                 </button>
               ))}
             </div>
-            <div className="flex items-center gap-2 text-sm" style={{ color: '#475569' }}>
+            <div className="flex items-center gap-2 text-sm" style={{ color: tc.textDim }}>
               <span>Sắp xếp</span>
               <div className="relative">
                 <select
@@ -289,25 +292,25 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMes
                   value={sortBy}
                   onChange={e => setSortBy(e.target.value as 'score' | 'jdFit')}
                   className="cursor-pointer appearance-none -full py-2 pl-4 pr-10 font-semibold outline-none"
-                  style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#94a3b8' }}
+                  style={{ background: tc.inputBg, border: tc.borderCard, color: tc.textMuted }}
                 >
                   <option value="score">Điểm Tổng</option>
                   <option value="jdFit">Phù hợp JD</option>
                 </select>
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs pointer-events-none" style={{ color: '#475569' }}>▾</span>
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs pointer-events-none" style={{ color: tc.textDim }}>▾</span>
               </div>
             </div>
           </div>
         </div>
 
         {/* ── Results table ───────────────────────────── */}
-        <div className="flex min-h-0 flex-1 flex-col overflow-hidden " style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden " style={{ background: tc.cardBg, border: tc.border }}>
 
           {/* Desktop */}
           <div className="custom-scrollbar hidden min-h-0 flex-1 overflow-y-auto md:block">
             <table className="w-full text-sm">
-              <thead className="sticky top-0 z-10" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', background: 'rgba(10,18,32,0.9)' }}>
-                <tr style={{ color: '#475569' }}>
+              <thead className="sticky top-0 z-10" style={{ borderBottom: tc.border, background: tc.tableBg }}>
+                <tr style={{ color: tc.textDim }}>
                   <th className="px-5 py-3 text-left text-[9px] uppercase tracking-[0.2em] font-bold">STT</th>
                   <th className="px-5 py-3 text-left text-[9px] uppercase tracking-[0.2em] font-bold">Họ tên</th>
                   <th className="px-5 py-3 text-left text-[9px] uppercase tracking-[0.2em] font-bold">Hạng</th>
@@ -326,25 +329,25 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMes
                     <React.Fragment key={candidate.id}>
                       <tr
                         className="cursor-pointer transition-colors duration-150"
-                        style={{ borderTop: '1px solid rgba(255,255,255,0.04)', background: isSelected ? 'rgba(99,102,241,0.06)' : undefined }}
+                        style={{ borderTop: tc.borderSoft, background: isSelected ? 'rgba(99,102,241,0.06)' : undefined }}
                         onClick={e => { if ((e.target as HTMLElement).tagName !== 'INPUT') handleExpandCandidate(candidate.id); }}
                       >
-                        <td className="px-5 py-3 font-medium" style={{ color: '#475569' }}>#{index + 1}</td>
-                        <td className="px-5 py-3 font-medium" style={{ color: '#cbd5e1' }}>{candidate.candidateName || 'Chưa xác định'}</td>
+                        <td className="px-5 py-3 font-medium" style={{ color: tc.textDim }}>#{index + 1}</td>
+                        <td className="px-5 py-3 font-medium" style={{ color: tc.textSecondary }}>{candidate.candidateName || 'Chưa xác định'}</td>
                         <td className="px-5 py-3">
                           <span className="-full px-2.5 py-1 text-xs font-bold" style={
                             candidate.status === 'FAILED'
-                              ? { background: 'rgba(255,255,255,0.05)', color: '#475569' }
+                              ? tc.gradeFail
                               : grade === 'A'
-                                ? { background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.25)', color: '#34d399' }
+                                ? tc.gradeA
                                 : grade === 'B'
-                                  ? { background: 'rgba(59,130,246,0.12)', border: '1px solid rgba(59,130,246,0.25)', color: '#60a5fa' }
-                                  : { background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.25)', color: '#f87171' }
+                                  ? tc.gradeB
+                                  : tc.gradeC
                           }>{grade}</span>
                         </td>
-                        <td className="px-5 py-3 font-medium" style={{ color: '#cbd5e1' }}>{overallScore}</td>
-                        <td className="px-5 py-3 font-medium" style={{ color: '#cbd5e1' }}>{jdFitScore}%</td>
-                        <td className="flex items-center justify-between gap-3 px-5 py-3" style={{ color: '#475569' }}>
+                        <td className="px-5 py-3 font-medium" style={{ color: tc.textSecondary }}>{overallScore}</td>
+                        <td className="px-5 py-3 font-medium" style={{ color: tc.textSecondary }}>{jdFitScore}%</td>
+                        <td className="flex items-center justify-between gap-3 px-5 py-3" style={{ color: tc.textDim }}>
                           <span className="truncate text-sm">{candidate.fileName || ''}</span>
                           <button style={{ color: 'rgba(99,102,241,0.5)' }} onClick={e => { e.stopPropagation(); handleExpandCandidate(candidate.id); }}
                             onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#818cf8'; }}
@@ -357,7 +360,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMes
                   );
                 })}
                 {filteredResults.length === 0 && (
-                  <tr><td colSpan={6} className="px-5 py-16 text-center text-sm" style={{ color: '#334155' }}>Không có ứng viên nào khớp với bộ lọc của bạn.</td></tr>
+                  <tr><td colSpan={6} className="px-5 py-16 text-center text-sm" style={{ color: tc.textDim }}>Không có ứng viên nào khớp với bộ lọc của bạn.</td></tr>
                 )}
               </tbody>
             </table>
@@ -371,35 +374,35 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMes
               const overallScore = candidate.status === 'FAILED' ? 0 : (candidate.analysis?.['Tổng điểm'] || 0);
               const jdFitScore = candidate.status === 'FAILED' ? 0 : parseInt(candidate.analysis?.['Chi tiết']?.find(i => i['Tiêu chí'].startsWith('Phù hợp JD'))?.['Điểm'].split('/')[0] || '0', 10);
               return (
-                <div key={candidate.id} className=" p-4 transition-all" style={{ background: isSelected ? 'rgba(99,102,241,0.06)' : 'rgba(255,255,255,0.03)', border: `1px solid ${isSelected ? 'rgba(99,102,241,0.25)' : 'rgba(255,255,255,0.06)'}` }}>
+                <div key={candidate.id} className=" p-4 transition-all" style={{ background: isSelected ? 'rgba(99,102,241,0.06)' : tc.cardBg, border: `1px solid ${isSelected ? 'rgba(99,102,241,0.25)' : tc.borderColor}` }}>
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-3">
-                      <span className="text-sm font-medium" style={{ color: '#475569' }}>#{index + 1}</span>
+                      <span className="text-sm font-medium" style={{ color: tc.textDim }}>#{index + 1}</span>
                       <div className="min-w-0">
-                        <h4 className="max-w-[180px] truncate text-base font-semibold" style={{ color: '#cbd5e1' }}>{candidate.candidateName || 'Chưa xác định'}</h4>
-                        <p className="mt-0.5 max-w-[180px] truncate text-xs" style={{ color: '#475569' }}>{candidate.jobTitle || 'Chưa có chức danh'}</p>
+                        <h4 className="max-w-[180px] truncate text-base font-semibold" style={{ color: tc.textSecondary }}>{candidate.candidateName || 'Chưa xác định'}</h4>
+                        <p className="mt-0.5 max-w-[180px] truncate text-xs" style={{ color: tc.textDim }}>{candidate.jobTitle || 'Chưa có chức danh'}</p>
                       </div>
                     </div>
                     <span className="shrink-0 -full px-2.5 py-1 text-xs font-bold" style={
                       candidate.status === 'FAILED'
-                        ? { background: 'rgba(255,255,255,0.05)', color: '#475569' }
+                        ? tc.gradeFail
                         : grade === 'A'
-                          ? { background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.25)', color: '#34d399' }
+                          ? tc.gradeA
                           : grade === 'B'
-                            ? { background: 'rgba(59,130,246,0.12)', border: '1px solid rgba(59,130,246,0.25)', color: '#60a5fa' }
-                            : { background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.25)', color: '#f87171' }
+                            ? tc.gradeB
+                            : tc.gradeC
                     }>{grade}</span>
                   </div>
                   <div className="mt-3 grid grid-cols-2 gap-2">
-                    <div className=" p-2" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}>
-                      <p className="mb-1 text-xs" style={{ color: '#475569' }}>Điểm tổng</p><p className="text-lg font-semibold" style={{ color: '#cbd5e1' }}>{overallScore}</p>
+                    <div className=" p-2" style={{ background: tc.cardBg, border: tc.borderSoft }}>
+                      <p className="mb-1 text-xs" style={{ color: tc.textDim }}>Điểm tổng</p><p className="text-lg font-semibold" style={{ color: tc.textSecondary }}>{overallScore}</p>
                     </div>
-                    <div className=" p-2" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}>
-                      <p className="mb-1 text-xs" style={{ color: '#475569' }}>Phù hợp JD</p><p className="text-lg font-semibold" style={{ color: '#cbd5e1' }}>{jdFitScore}%</p>
+                    <div className=" p-2" style={{ background: tc.cardBg, border: tc.borderSoft }}>
+                      <p className="mb-1 text-xs" style={{ color: tc.textDim }}>Phù hợp JD</p><p className="text-lg font-semibold" style={{ color: tc.textSecondary }}>{jdFitScore}%</p>
                     </div>
                   </div>
-                  <div className="mt-3 flex items-center justify-between" style={{ borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '12px' }}>
-                    <span className="max-w-[150px] truncate text-xs" style={{ color: '#475569' }}>{candidate.fileName}</span>
+                  <div className="mt-3 flex items-center justify-between" style={{ borderTop: tc.borderSoft, paddingTop: '12px' }}>
+                    <span className="max-w-[150px] truncate text-xs" style={{ color: tc.textDim }}>{candidate.fileName}</span>
                     <button onClick={() => handleExpandCandidate(candidate.id)} className="flex items-center gap-1  px-2 py-1 text-xs font-medium transition" style={{ color: 'rgba(99,102,241,0.6)' }}>
                       {expandedCandidate === candidate.id ? 'Thu gọn' : 'Chi tiết'} ▾
                     </button>
@@ -416,22 +419,22 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMes
 
       {/* ── Expand modal ──────────────────────────────── */}
       {expandedCandidate && results.find(c => c.id === expandedCandidate) && typeof document !== 'undefined' && createPortal(
-        <div className="fixed inset-0 flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-200" style={{ background: 'rgba(0,0,0,0.65)', zIndex: 99999 }}>
-          <div className="flex h-full max-h-[95vh] w-full max-w-7xl flex-col overflow-hidden " style={{ background: 'linear-gradient(180deg, #11213A 0%, #0B192C 100%)', border: '1px solid rgba(99,102,241,0.15)', boxShadow: '0 0 60px rgba(99,102,241,0.1)' }}>
-            <div className="flex shrink-0 items-center justify-between p-5" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        <div className="fixed inset-0 flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-200" style={{ background: tc.overlayBg, zIndex: 99999 }}>
+          <div className="flex h-full max-h-[95vh] w-full max-w-7xl flex-col overflow-hidden " style={{ background: tc.modalBg, border: tc.borderAccent, boxShadow: tc.modalShadow }}>
+            <div className="flex shrink-0 items-center justify-between p-5" style={{ borderBottom: tc.border }}>
               <div className="flex items-center gap-3">
                 <div className="h-8 w-[3px] -full shrink-0" style={{ background: 'linear-gradient(180deg, #6366f1, #8b5cf6)' }} />
-                <h3 className="text-xl font-bold lg:text-2xl" style={{ color: '#f1f5f9' }}>
+                <h3 className="text-xl font-bold lg:text-2xl" style={{ color: tc.textPrimary }}>
                   Kết quả chi tiết: {results.find(c => c.id === expandedCandidate)?.candidateName}
                 </h3>
               </div>
-              <button onClick={() => setExpandedCandidate(null)} className="flex h-10 w-10 shrink-0 items-center justify-center -full transition" style={{ color: '#475569' }}
-                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.06)'; (e.currentTarget as HTMLElement).style.color = '#94a3b8'; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.color = '#475569'; }}>
+              <button onClick={() => setExpandedCandidate(null)} className="flex h-10 w-10 shrink-0 items-center justify-center -full transition" style={{ color: tc.textDim }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = tc.hoverBg; (e.currentTarget as HTMLElement).style.color = tc.textMuted; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.color = tc.textDim; }}>
                 ×
               </button>
             </div>
-            <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto p-5" style={{ background: 'rgba(10,18,32,0.5)' }}>
+            <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto p-5" style={{ background: tc.scrollBg }}>
               <ExpandedContent
                 candidate={results.find(c => c.id === expandedCandidate)!}
                 expandedCriteria={expandedCriteria}

@@ -150,5 +150,64 @@ export interface ChatMessage {
   id: string;
   author: 'user' | 'bot';
   content: string;
+  timestamp?: number;
   suggestedCandidates?: Pick<Candidate, 'id' | 'candidateName' | 'analysis'>[];
+}
+
+// ── Uploaded Files Collection ──────────────────────────────────────
+export interface UploadedFileRecord {
+  id?: string;                    // Firestore auto-generated
+  uid: string;                    // User ID
+  email: string;                  // User email
+
+  // File metadata
+  fileName: string;               // Tên file gốc
+  fileType: 'cv' | 'jd';         // Loại file: CV hoặc JD
+  fileSize: number;               // Kích thước (bytes)
+  mimeType: string;               // application/pdf, image/*, docx, etc.
+  fileExtension: string;          // pdf, docx, jpg, png...
+
+  // Processing info
+  ocrMethod: string;              // 'google-vision' | 'pdf-parse' | 'manual'
+  extractedText: string;          // Nội dung text đã trích xuất (capped 10000 chars)
+  extractedTextLength: number;    // Độ dài text gốc
+  processingTimeMs: number;       // Thời gian xử lý (ms)
+
+  // Linking
+  analysisSessionId?: string;     // ID của phiên phân tích liên quan
+  candidateName?: string;         // Tên ứng viên (chỉ cho CV)
+  jobPosition?: string;           // Vị trí tuyển dụng
+
+  // Timestamps
+  uploadedAt: any;                // serverTimestamp()
+  lastAccessedAt?: any;           // Lần truy cập gần nhất
+}
+
+// ── Chatbot Sessions Collection ────────────────────────────────────
+export interface ChatMessageRecord {
+  id: string;
+  author: 'user' | 'bot';
+  content: string;
+  timestamp: number;              // Date.now()
+  suggestedCandidateIds?: string[];
+}
+
+export interface ChatbotSession {
+  id?: string;                    // Firestore auto-generated
+  uid: string;                    // User ID
+  email: string;                  // User email
+
+  // Session context
+  jobPosition: string;            // Vị trí tuyển dụng đang thảo luận
+  totalCandidates: number;        // Số ứng viên trong phiên
+  sessionTitle: string;           // Auto-generated title
+
+  // Messages
+  messages: ChatMessageRecord[];  // Mảng tin nhắn
+  messageCount: number;           // Tổng số tin nhắn
+
+  // Timestamps
+  createdAt: any;                 // serverTimestamp()
+  updatedAt: any;                 // serverTimestamp()
+  lastMessageAt: number;          // Date.now() tin nhắn cuối
 }

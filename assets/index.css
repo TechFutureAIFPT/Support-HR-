@@ -1,25 +1,25 @@
-:root {
-  /* ── Background ── */
-  /* Navy Blue Theme — aligned with tokens.ts dark.bgPrimary */
+﻿:root {
+  /* â”€â”€ Background â”€â”€ */
+  /* Navy Blue Theme â€” aligned with tokens.ts dark.bgPrimary */
   --bg: #0B1120;
-  /* ── Card / Surface ── */
+  /* â”€â”€ Card / Surface â”€â”€ */
   --card: rgba(30, 41, 59, 0.4);
   /* slate-800 with opacity */
   --card-stroke: rgba(255, 255, 255, 0.05);
-  /* ── Text ── */
+  /* â”€â”€ Text â”€â”€ */
   --txt: #FFFFFF;
   --muted: #94a3b8;
   /* slate-400 */
-  /* ── Brand — Primary: Light Blue #60a5fa (from tokens.dark.primary) ── */
+  /* â”€â”€ Brand â€” Primary: Light Blue #60a5fa (from tokens.dark.primary) â”€â”€ */
   --primary: #60a5fa;
   --primary-gradient: linear-gradient(135deg, #3B82F6 0%, #6366F1 100%);
-  /* ── Accent — Indigo #818cf8 (from tokens.dark.accent) ── */
+  /* â”€â”€ Accent â€” Indigo #818cf8 (from tokens.dark.accent) â”€â”€ */
   --accent: #818cf8;
-  /* ── Status ── */
+  /* â”€â”€ Status â”€â”€ */
   --success: #10b981;
   --warning: #f59e0b;
   --error: #ef4444;
-  /* ── Shadows & Glass ── */
+  /* â”€â”€ Shadows & Glass â”€â”€ */
   --shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   --glass: rgba(255, 255, 255, 0.03);
   --glass-border: rgba(255, 255, 255, 0.08);
@@ -31,7 +31,7 @@
   --navy-600: #2d4458;
   --navy-500: #3e5771;
 
-  /* Accent colors — aligned with tokens.dark */
+  /* Accent colors â€” aligned with tokens.dark */
   --accent-blue: #60a5fa;         /* tokens.dark.primary */
   --accent-blue-light: #93C5FD;  /* tokens.dark.primaryHover */
   --accent-indigo: #818cf8;      /* tokens.dark.accent */
@@ -64,7 +64,6 @@
   --text-2xl: 1.5rem;
   /* 24px */
 
-  /* Light mode specific (used when .light class is active) */
   --lm-bg: #f0f4ff;
   --lm-bg-secondary: #e8efff;
   --lm-card: rgba(255, 255, 255, 0.85);
@@ -74,7 +73,7 @@
   --lm-nav-bg: rgba(255, 255, 255, 0.9);
 }
 
-/* Dark mode variables — aligned with tokens.ts dark mode */
+/* Dark mode variables â€” aligned with tokens.ts dark mode */
 .dark {
   --bg: #0B1120;                /* tokens.dark.bgPrimary */
   --card: rgba(96, 165, 250, 0.04);    /* tokens.dark.surfaceCard */
@@ -90,716 +89,195 @@
 }
 
 /* ============================================
-   LIGHT MODE — class-based (.light on <html>)
+   LIGHT MODE â€” class-based (.light on <html>)
    ============================================ */
-.light {
-  color-scheme: light;
-}
 
-/* Light mode: HomePage wrapper overrides */
-.light .home-page-wrapper {
-  background: linear-gradient(135deg, #eef2ff 0%, #f0f9ff 40%, #f8faff 100%);
-  color: #0f172a;
-}
 
-/* Light mode: Navbar */
-.light .home-navbar {
-  background: rgba(255, 255, 255, 0.92) !important;
-  border-color: rgba(99, 102, 241, 0.15) !important;
-  box-shadow: 0 4px 24px rgba(99, 102, 241, 0.1);
-}
 
-.light .home-navbar p,
-.light .home-navbar span {
-  color: #1e293b;
-}
 
-.light .home-navbar button,
-.light .home-navbar a {
-  color: #374151 !important;
-}
 
-.light .home-navbar button:hover,
-.light .home-navbar a:hover {
-  color: #1e293b !important;
-  background-color: rgba(99, 102, 241, 0.08) !important;
-}
 
-/* Light mode: Hero text */
-.light .home-page-wrapper h1 {
-  color: #0f172a;
-}
 
-.light .home-page-wrapper h2 {
-  color: #1e293b;
-}
 
-.light .home-page-wrapper h3 {
-  color: #1e293b;
-}
 
-.light .home-page-wrapper p {
-  color: #475569;
-}
 
-.light .home-page-wrapper span {
-  color: #374151;
-}
 
-/* Light mode: Override slate text classes specifically for home page */
-.light .home-page-wrapper .text-slate-100,
-.light .home-page-wrapper .text-slate-200 {
-  color: #1e293b !important;
-}
 
-.light .home-page-wrapper .text-slate-300 {
-  color: #334155 !important;
-}
 
-.light .home-page-wrapper .text-slate-400 {
-  color: #475569 !important;
-}
 
-.light .home-page-wrapper .text-slate-500 {
-  color: #64748b !important;
-}
 
-.light .home-page-wrapper .text-slate-600 {
-  color: #64748b !important;
-}
 
-.light .home-page-wrapper .text-white {
-  color: #0f172a !important;
-}
 
 /* Exceptions: keep branded colors (cyan, emerald, indigo, etc.) */
-.light .home-page-wrapper .text-cyan-400 {
-  color: #0891b2 !important;
-}
 
-.light .home-page-wrapper .text-cyan-300 {
-  color: #0891b2 !important;
-}
 
-.light .home-page-wrapper .text-emerald-400 {
-  color: #059669 !important;
-}
 
-.light .home-page-wrapper .text-emerald-300 {
-  color: #10b981 !important;
-}
 
-.light .home-page-wrapper .text-indigo-400 {
-  color: #4f46e5 !important;
-}
 
-.light .home-page-wrapper .text-rose-400 {
-  color: #e11d48 !important;
-}
 
-.light .home-page-wrapper .text-amber-200 {
-  color: #92400e !important;
-}
 
-.light .home-page-wrapper .text-emerald-200 {
-  color: #065f46 !important;
-}
 
-/* Light mode: Tech/Partner scroll items */
-.light .home-page-wrapper .text-slate-300.whitespace-nowrap {
-  color: #334155 !important;
-}
 
-/* Light mode: Backgrounds */
-.light .home-page-wrapper .bg-slate-950,
-.light .home-page-wrapper .bg-\[\#0B1120\] {
-  background-color: #f8faff !important;
-}
 
-.light .home-page-wrapper .bg-indigo-950 {
-  background-color: #eef2ff !important;
-}
 
-.light .home-page-wrapper .border-white\/5,
-.light .home-page-wrapper .border-white\/8,
-.light .home-page-wrapper .border-white\/10 {
-  border-color: rgba(99, 102, 241, 0.15) !important;
-}
 
-/* Light mode: Step cards */
-.light .home-page-wrapper .bg-indigo-950.border {
-  background-color: #eef2ff !important;
-  border-color: rgba(99, 102, 241, 0.25) !important;
-}
 
-/* Light mode: Comparison table */
-.light .home-page-wrapper .bg-white\/3 {
-  background-color: rgba(236, 240, 255, 0.6) !important;
-}
 
-.light .home-page-wrapper .hover\:bg-white\/3:hover {
-  background-color: rgba(224, 231, 255, 0.8) !important;
-}
 
-/* Light mode: Feature badges */
-.light .home-page-wrapper .border-emerald-500\/10.bg-emerald-500\/5 {
-  background: rgba(209, 250, 229, 0.8) !important;
-  border-color: rgba(16, 185, 129, 0.3) !important;
-}
 
-.light .home-page-wrapper .bg-white\/5 {
-  background-color: rgba(224, 231, 255, 0.5) !important;
-}
 
-/* Light mode: Mobile drawer */
-.light .home-page-wrapper .bg-slate-950.border-r {
-  background-color: #ffffff !important;
-  border-color: rgba(99, 102, 241, 0.15) !important;
-}
 
-.light .home-page-wrapper .bg-slate-800 {
-  background-color: #e8efff !important;
-}
 
-/* Light mode: Video modal */
-.light .home-page-wrapper .bg-slate-900\/95 {
-  background-color: rgba(255, 255, 255, 0.95) !important;
-}
 
-.light .home-page-wrapper .border-slate-700 {
-  border-color: rgba(99, 102, 241, 0.2) !important;
-}
 
-/* Light mode: Section backgrounds */
-.light .home-page-wrapper section,
-.light .home-page-wrapper #steps,
-.light .home-page-wrapper #why-support-hr,
-.light .home-page-wrapper #compare {
-  background: transparent;
-}
 
-/* Light mode: Masked scroll containers */
-.light .home-page-wrapper [class*="mask-image"] {
-  --tw-gradient-from: transparent;
-  --tw-gradient-to: transparent;
-}
 
-/* Light mode: CTA buttons should remain high-contrast */
-.light .home-page-wrapper button.bg-white {
-  background: #0f172a !important;
-  color: #ffffff !important;
-}
 
-.light .home-page-wrapper button.bg-white:hover {
-  background: #1e293b !important;
-}
 
-/* Light mode: Login button */
-.light .home-page-wrapper .bg-gradient-to-r.from-cyan-400 {
-  background: linear-gradient(135deg, #0891b2, #4f46e5) !important;
-  color: #ffffff !important;
-}
 
-/* Light mode: Step number badges */
-.light .home-page-wrapper .bg-slate-900.border {
-  background-color: #e8efff !important;
-  color: #334155 !important;
-}
 
-/* Light mode: Stat boxes */
-.light .home-page-wrapper .rounded-2xl.border.border-white\/5.bg-white\/3 {
-  background: rgba(236, 240, 255, 0.8) !important;
-  border-color: rgba(99, 102, 241, 0.2) !important;
-}
 
 /* ============================================================
-   GLOBAL LIGHT MODE — applies to ALL pages when .light is on <html>
+   GLOBAL LIGHT MODE â€” applies to ALL pages when .light is on <html>
    ============================================================ */
 
 /* --- Body & Root background --- */
-.light body {
-  background: #f0f4ff;
-  color: #0f172a;
-}
 
 /* --- Sidebar --- */
-.light #cv-sidebar,
-.light aside#cv-sidebar {
-  background: #ffffff !important;
-  border-right-color: rgba(99, 102, 241, 0.15) !important;
-  box-shadow: 4px 0 24px rgba(99, 102, 241, 0.08) !important;
-}
 
 /* Sidebar brand area */
-.light #cv-sidebar .border-b {
-  border-color: rgba(99, 102, 241, 0.12) !important;
-}
 
 /* Sidebar logo button */
-.light #cv-sidebar button.bg-slate-900 {
-  background: #eef2ff !important;
-  border-color: rgba(99, 102, 241, 0.2) !important;
-}
 
 /* Sidebar headings */
-.light #cv-sidebar h1 {
-  color: #1e293b !important;
-}
 
-.light #cv-sidebar p {
-  color: #64748b !important;
-}
 
 /* Sidebar nav items */
-.light #cv-sidebar nav ul li button {
-  color: #475569 !important;
-}
 
-.light #cv-sidebar nav ul li button:hover {
-  background: rgba(99, 102, 241, 0.08) !important;
-  color: #1e293b !important;
-}
 
 /* Active nav item */
-.light #cv-sidebar nav ul li button.bg-gradient-to-r {
-  background: linear-gradient(to right, #eef2ff, #f0f4ff) !important;
-  color: #3730a3 !important;
-  border-color: rgba(99, 102, 241, 0.2) !important;
-}
 
 /* Section headers */
-.light #cv-sidebar p.text-slate-500 {
-  color: #94a3b8 !important;
-}
 
 /* Sidebar user section */
-.light #cv-sidebar .border-t {
-  border-color: rgba(99, 102, 241, 0.12) !important;
-}
 
-.light #cv-sidebar .border-t button {
-  color: #374151 !important;
-}
 
-.light #cv-sidebar .border-t button:hover {
-  background: rgba(99, 102, 241, 0.06) !important;
-}
 
 /* Sidebar user dropdown */
-.light #cv-sidebar .bg-\[\\#0f172a\] {
-  background: #ffffff !important;
-  border-color: rgba(99, 102, 241, 0.15) !important;
-}
 
-.light #cv-sidebar .bg-gradient-to-r.from-slate-800 {
-  background: linear-gradient(to right, #eef2ff, #f0f4ff) !important;
-  border-color: rgba(99, 102, 241, 0.12) !important;
-}
 
-.light #cv-sidebar .border-slate-700\/50 {
-  border-color: rgba(99, 102, 241, 0.12) !important;
-}
 
-.light #cv-sidebar .text-white {
-  color: #1e293b !important;
-}
 
-.light #cv-sidebar .text-slate-300,
-.light #cv-sidebar .text-slate-400 {
-  color: #475569 !important;
-}
 
-.light #cv-sidebar .bg-slate-900\/50 {
-  background: #f8faff !important;
-}
 
-.light #cv-sidebar .bg-slate-800,
-.light #cv-sidebar .bg-slate-800\/50 {
-  background: #eef2ff !important;
-}
 
-.light #cv-sidebar .hover\:bg-slate-800:hover {
-  background: #e0e7ff !important;
-}
 
-.light #cv-sidebar .border-slate-700 {
-  border-color: rgba(99, 102, 241, 0.15) !important;
-}
 
 /* --- Main App Layout --- */
-.light .min-h-screen.text-slate-200 {
-  background: #f0f4ff;
-  color: #0f172a;
-}
 
 /* Top mobile navbar */
-.light header.bg-\[\\#0B1120\] {
-  background: #ffffff !important;
-  border-bottom-color: rgba(99, 102, 241, 0.15) !important;
-}
 
-.light header .text-slate-300,
-.light header .text-white {
-  color: #1e293b !important;
-}
 
 /* --- Main content area --- */
-.light .main-content {
-  background: #f0f4ff;
-}
 
 /* --- Cards & Containers (dark variants) --- */
-.light .bg-\[\\#0B1120\] {
-  background: #f8faff !important;
-}
 
-.light .bg-slate-900,
-.light .bg-\[\\#0f172a\] {
-  background: #ffffff !important;
-}
 
-.light .bg-slate-950 {
-  background: #f0f4ff !important;
-}
 
-.light .bg-slate-800 {
-  background: #e8efff !important;
-}
 
-.light .bg-slate-800\/60,
-.light .bg-slate-800\/80 {
-  background: rgba(224, 231, 255, 0.8) !important;
-}
 
-.light .bg-indigo-950 {
-  background: #eef2ff !important;
-}
 
-.light .bg-indigo-950\/80 {
-  background: rgba(238, 242, 255, 0.95) !important;
-}
 
-/* --- Border colors (white-based → indigo-based) --- */
-.light .border-slate-800,
-.light .border-slate-800\/60,
-.light .border-slate-700 {
-  border-color: rgba(99, 102, 241, 0.15) !important;
-}
+/* --- Border colors (white-based â†’ indigo-based) --- */
 
-.light .border-white\/5,
-.light .border-white\/8,
-.light .border-white\/10 {
-  border-color: rgba(99, 102, 241, 0.12) !important;
-}
 
 /* --- Text overrides (global) --- */
-.light .text-slate-100,
-.light .text-slate-200 {
-  color: #1e293b !important;
-}
 
-.light .text-slate-300 {
-  color: #334155 !important;
-}
 
-.light .text-slate-400 {
-  color: #475569 !important;
-}
 
-.light .text-slate-500 {
-  color: #64748b !important;
-}
 
-.light .text-slate-600 {
-  color: #64748b !important;
-}
 
 /* BUT: keep white text on dark buttons (primary CTAs) */
-.light .bg-cyan-500 .text-slate-950,
-.light .bg-blue-600 .text-white,
-.light .from-blue-600 .text-white {
-  color: #ffffff !important;
-}
 
-/* Branded accent colors — preserve */
-.light .text-cyan-400 {
-  color: #0891b2 !important;
-}
+/* Branded accent colors â€” preserve */
 
-.light .text-cyan-300 {
-  color: #0891b2 !important;
-}
 
-.light .text-emerald-400 {
-  color: #059669 !important;
-}
 
-.light .text-emerald-300 {
-  color: #059669 !important;
-}
 
-.light .text-indigo-400 {
-  color: #4f46e5 !important;
-}
 
-.light .text-indigo-300 {
-  color: #6366f1 !important;
-}
 
-.light .text-violet-400 {
-  color: #7c3aed !important;
-}
 
-.light .text-rose-400 {
-  color: #e11d48 !important;
-}
 
-.light .text-amber-200 {
-  color: #92400e !important;
-}
 
-.light .text-blue-400 {
-  color: #2563eb !important;
-}
 
 /* --- Input fields --- */
-.light input,
-.light textarea,
-.light select {
-  background: #ffffff !important;
-  border-color: rgba(99, 102, 241, 0.25) !important;
-  color: #0f172a !important;
-}
 
-.light input::placeholder,
-.light textarea::placeholder {
-  color: #94a3b8 !important;
-}
 
-.light input:focus,
-.light textarea:focus,
-.light select:focus {
-  border-color: #6366f1 !important;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15) !important;
-}
 
 /* --- Scrollbar (light) --- */
-.light * {
-  scrollbar-color: rgba(99, 102, 241, 0.3) transparent;
-}
 
-.light *::-webkit-scrollbar-thumb {
-  background: rgba(99, 102, 241, 0.25);
-}
 
-.light *::-webkit-scrollbar-thumb:hover {
-  background: rgba(99, 102, 241, 0.45);
-}
 
 /* --- Modal overlays --- */
-.light .fixed.inset-0.bg-black\/85,
-.light .fixed.inset-0.bg-black\/60,
-.light .fixed.inset-0.bg-black\/50 {
-  background: rgba(15, 23, 42, 0.6) !important;
-}
 
 /* --- Tables (comparison) --- */
-.light .rounded-2xl.border.overflow-hidden,
-.light .min-w-\[680px\] {
-  border-color: rgba(99, 102, 241, 0.15) !important;
-}
 
 /* --- JD / Screener page --- */
-.light .card {
-  background: #ffffff !important;
-  border-color: rgba(99, 102, 241, 0.15) !important;
-  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.06) !important;
-}
 
-.light .card label,
-.light .card p,
-.light .card span {
-  color: #374151 !important;
-}
 
-.light .card h2,
-.light .card h3 {
-  color: #1e293b !important;
-}
 
 /* Progress bar track */
-.light .progress {
-  background: rgba(99, 102, 241, 0.1) !important;
-}
 
 /* --- Login page --- */
-.light .min-h-screen.bg-background {
-  background: linear-gradient(135deg, #eef2ff 0%, #f0f9ff 50%, #f8faff 100%) !important;
-}
 
 /* --- Privacy / Terms pages --- */
-.light .min-h-screen.bg-background.text-slate-100 {
-  background: linear-gradient(135deg, #eef2ff 0%, #f8faff 100%) !important;
-  color: #0f172a !important;
-}
 
 /* --- Backdrop blur elements --- */
-.light .backdrop-blur-md,
-.light .backdrop-blur-xl,
-.light .backdrop-blur-3xl {
-  background: rgba(255, 255, 255, 0.85) !important;
-}
 
 /* --- Glass/frosted panels --- */
-.light [class*="bg-white/3"],
-.light [class*="bg-white/5"] {
-  background: rgba(238, 242, 255, 0.6) !important;
-}
 
 /* --- Dividers --- */
 /* (dividers handled by sidebar dropdown overrides above) */
 
 /* --- Progress bar (sidebar step indicator) --- */
-/* tokens.dark.gradientPrimary: blue-500 to indigo-500 — unified */
-.light .bg-cyan-400.shadow-\[0_0_10px_rgba\(6\,182\,212\,0\.6\)\] {
-  background: #3B82F6 !important;  /* tokens.dark.primaryActive */
-  box-shadow: 0 0 10px rgba(59, 130, 246, 0.5) !important;
-}
+/* tokens.dark.gradientPrimary: blue-500 to indigo-500 â€” unified */
 
 /* --- Emerald dots (completed steps) --- */
-.light .bg-emerald-500.rounded-full {
-  background: #059669 !important;
-}
 
 /* --- Alert / Notification panels --- */
-.light .border-emerald-500\/40.bg-emerald-500\/10 {
-  background: rgba(209, 250, 229, 0.6) !important;
-  border-color: rgba(16, 185, 129, 0.3) !important;
-}
 
-.light .border-rose-500\/40.bg-rose-500\/10 {
-  background: rgba(255, 228, 230, 0.6) !important;
-  border-color: rgba(225, 29, 72, 0.25) !important;
-}
 
-.light .border-amber-500\/30.bg-amber-500\/10 {
-  background: rgba(254, 243, 199, 0.6) !important;
-  border-color: rgba(245, 158, 11, 0.25) !important;
-}
 
 /* --- Skeleton/loading colors --- */
-.light .animate-pulse {
-  background: rgba(99, 102, 241, 0.06) !important;
-}
 
 /* --- Responsive: Ensure mobile header is also light --- */
 @media (max-width: 767px) {
-  .light header {
-    background: #ffffff !important;
-    border-bottom-color: rgba(99, 102, 241, 0.15) !important;
-  }
 }
 
-/* --- Footer light mode --- */
-.light footer,
-.light [class*="bg-[#0B1120]"] footer,
-.light .home-page-wrapper footer {
-  background: #1e293b !important;
-  color: #e2e8f0 !important;
-}
 
 /* Footer text overrides so it stays readable on dark footer */
-.light footer h1,
-.light footer h2,
-.light footer h3,
-.light footer p,
-.light footer span,
-.light footer a {
-  color: inherit !important;
-}
 
-/* --- Sidebar dropdown (user popup) light mode --- */
-.light #cv-sidebar .absolute.z-50 {
-  background: #ffffff !important;
-  border-color: rgba(99, 102, 241, 0.15) !important;
-  box-shadow: 0 20px 60px rgba(99, 102, 241, 0.12) !important;
-}
 
 /* Sidebar dropdown header */
-.light #cv-sidebar .bg-gradient-to-r.from-slate-800.to-slate-900 {
-  background: linear-gradient(to right, #eef2ff, #f0f4ff) !important;
-  border-color: rgba(99, 102, 241, 0.12) !important;
-}
 
-.light #cv-sidebar .absolute.z-50 .text-white {
-  color: #1e293b !important;
-}
 
-.light #cv-sidebar .absolute.z-50 .text-slate-400 {
-  color: #64748b !important;
-}
 
-.light #cv-sidebar .absolute.z-50 .text-slate-300 {
-  color: #475569 !important;
-}
 
 /* Sidebar dropdown menu items */
-.light #cv-sidebar .bg-slate-900\/50 {
-  background: #f8faff !important;
-}
 
-.light #cv-sidebar .p-1.space-y-0\.5 {
-  background: #f8faff !important;
-}
 
-.light #cv-sidebar .absolute.z-50 button {
-  color: #374151 !important;
-}
 
-.light #cv-sidebar .absolute.z-50 button:hover {
-  background: rgba(99, 102, 241, 0.08) !important;
-  color: #1e293b !important;
-}
 
-.light #cv-sidebar .absolute.z-50 .bg-slate-800.border {
-  background: #eef2ff !important;
-  border-color: rgba(99, 102, 241, 0.2) !important;
-}
 
-.light #cv-sidebar .absolute.z-50 .border-slate-700 {
-  border-color: rgba(99, 102, 241, 0.15) !important;
-}
 
 /* Keep logout red */
-.light #cv-sidebar .absolute.z-50 .text-red-400 {
-  color: #e11d48 !important;
-}
 
-.light #cv-sidebar .absolute.z-50 .text-red-400:hover {
-  color: #be123c !important;
-}
 
-.light #cv-sidebar .absolute.z-50 .bg-red-500\/10 {
-  background: rgba(225, 29, 72, 0.08) !important;
-}
 
-.light #cv-sidebar .absolute.z-50 .border-red-500\/20 {
-  border-color: rgba(225, 29, 72, 0.2) !important;
-}
 
 /* Sidebar dropdown dividers */
-.light #cv-sidebar .via-slate-700 {
-  background: linear-gradient(to right, transparent, rgba(99, 102, 241, 0.2), transparent) !important;
-}
 
 /* Transition smoothness for theme switch */
-.light *,
-.light *::before,
-.light *::after {
-  transition-property: background-color, border-color, color, box-shadow;
-  transition-duration: 0.2s;
-  transition-timing-function: ease;
-}
 
 html {
   -webkit-font-smoothing: antialiased;
@@ -1036,12 +514,12 @@ html {
   contain: layout style paint;
 }
 
-/* Sidebar và Main Content Layout Improvements */
+/* Sidebar vÃ  Main Content Layout Improvements */
 .sidebar-transition {
   transition: margin-left 0.3s ease-in-out, width 0.3s ease-in-out;
 }
 
-/* Đảm bảo main content luôn có đủ không gian */
+/* Äáº£m báº£o main content luÃ´n cÃ³ Ä‘á»§ khÃ´ng gian */
 @media (min-width: 768px) {
   .main-content-area {
     width: calc(100vw - 220px);
@@ -1171,7 +649,7 @@ html {
   }
 }
 
-/* Full expand variant for step 2 (Trọng số) to occupy entire available width */
+/* Full expand variant for step 2 (Trá»ng sá»‘) to occupy entire available width */
 .weights-layout.full-expand {
   grid-template-columns: 1fr !important;
   /* single column */
@@ -1198,7 +676,7 @@ html {
   padding-right: 4px;
 }
 
-/* 992px–1199px: approximate 4:8 (still keeping divider track) */
+/* 992pxâ€“1199px: approximate 4:8 (still keeping divider track) */
 @media (max-width: 1199px) and (min-width: 992px) {
   .weights-layout {
     grid-template-columns: 4fr 2px 8fr;
@@ -2161,863 +1639,323 @@ select:focus-visible {
 }
 
 /* ============================================================
-   LIGHT MODE — PHASE 2: SCREENER PAGES (all sub-pages)
+   LIGHT MODE â€” PHASE 2: SCREENER PAGES (all sub-pages)
    Covers: ScreenerHeader, JDInput, WeightsConfig, CVUpload,
            AnalysisResults, DetailedAnalytics, Modals, etc.
    ============================================================ */
 
 /* --- ScreenerHeader bar --- */
-.light [class*="bg-[#0B1120]"].sticky,
-.light .bg-\[\#0B1120\].sticky {
-  background: rgba(255, 255, 255, 0.92) !important;
-  border-bottom-color: rgba(99, 102, 241, 0.15) !important;
-  backdrop-filter: blur(12px);
-}
 
-.light .bg-purple-500\/10 {
-  background: rgba(139, 92, 246, 0.1) !important;
-}
 
 /* ScreenerHeader title & subtitle */
-.light .sticky h2 {
-  color: #1e293b !important;
-}
 
-.light .sticky p.text-slate-500 {
-  color: #64748b !important;
-}
 
 /* --- JDInput: editor & drag/drop area --- */
 /* The dark textarea */
-.light textarea.bg-\[\#050B14\] {
-  background: #ffffff !important;
-  border-color: rgba(99, 102, 241, 0.2) !important;
-  color: #0f172a !important;
-}
 
-.light textarea.bg-\[\#050B14\]:focus {
-  border-color: #6366f1 !important;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12) !important;
-}
 
 /* JD editor inline input bars */
-.light .bg-\[\#0F172A\].border.border-slate-800 {
-  background: #f8faff !important;
-  border-color: rgba(99, 102, 241, 0.2) !important;
-}
 
-.light .bg-\[\#0F172A\].border.border-slate-800 input {
-  color: #0f172a !important;
-}
 
-.light .bg-\[\#0F172A\].border.border-slate-800 input::placeholder {
-  color: #94a3b8 !important;
-}
 
 /* Editor top toolbar border */
-.light .border-b.border-slate-800\/40 {
-  border-color: rgba(99, 102, 241, 0.12) !important;
-}
 
 /* JD upload area drag zone */
-.light .bg-\[\#1E293B\]\/80,
-.light .bg-\[\#1A233A\] {
-  background: rgba(238, 242, 255, 0.8) !important;
-}
 
-.light h3.text-white {
-  color: #0f172a !important;
-}
 
 /* Format badges (PDF/DOCX etc.) */
-.light span.bg-\[\#1A233A\].border-slate-700\/50 {
-  background: rgba(224, 231, 255, 0.6) !important;
-  border-color: rgba(99, 102, 241, 0.2) !important;
-  color: #4f46e5 !important;
-}
 
 /* Google Drive button */
-.light button.bg-\[\#1A233A\].hover\:bg-\[\#0F9D58\] {
-  background: rgba(238, 242, 255, 0.8) !important;
-  border-color: rgba(99, 102, 241, 0.2) !important;
-  color: #6366f1 !important;
-}
 
 /* JD busy overlay */
-.light .bg-\[\#0B1120\]\/94 {
-  background: rgba(255, 255, 255, 0.96) !important;
-  border-color: rgba(99, 102, 241, 0.2) !important;
-}
 
-.light .bg-\[\#0B1120\]\/94 .text-slate-200 {
-  color: #1e293b !important;
-}
 
 /* OCR message badge */
-.light .bg-\[\#0F172A\].border.border-cyan-500\/30 {
-  background: rgba(238, 242, 255, 0.95) !important;
-  border-color: rgba(99, 102, 241, 0.25) !important;
-}
 
 /* --- WeightsConfig: column cards --- */
-.light .filters-col {
-  background: linear-gradient(145deg, rgba(238, 242, 255, 0.8), rgba(224, 231, 255, 0.5)) !important;
-  border-color: rgba(99, 102, 241, 0.15) !important;
-}
 
-.light .weights-col {
-  background: linear-gradient(145deg, rgba(248, 250, 255, 0.9), rgba(238, 242, 255, 0.7)) !important;
-  border-color: rgba(99, 102, 241, 0.12) !important;
-}
 
-.light .weights-layout .layout-divider {
-  background: linear-gradient(to bottom, transparent, rgba(99, 102, 241, 0.3), transparent) !important;
-}
 
-.light .weights-layout .filters-col .card,
-.light .weights-layout .weights-col .card {
-  background: rgba(255, 255, 255, 0.7) !important;
-  border-color: rgba(99, 102, 241, 0.12) !important;
-}
 
 /* Card headings & labels in screener pages */
-.light .card h2,
-.light .card h3,
-.light .card h4 {
-  color: #1e293b !important;
-}
 
-.light .card p,
-.light .card label,
-.light .card span {
-  color: #374151 !important;
-}
 
 /* Field selects & inputs in card */
-.light .field select,
-.light .field input[type="text"],
-.light .field input[type="number"] {
-  background: #ffffff !important;
-  border-color: rgba(99, 102, 241, 0.2) !important;
-  color: #0f172a !important;
-}
 
-.light .hf-control {
-  background: #ffffff !important;
-  border-color: rgba(99, 102, 241, 0.2) !important;
-  color: #0f172a !important;
-}
 
 /* Progress bars */
-.light .progress {
-  background: rgba(99, 102, 241, 0.08) !important;
-}
 
 /* Pills */
-.light .pill--match {
-  background: rgba(16, 185, 129, 0.12) !important;
-}
 
-.light .pill--missing {
-  background: rgba(245, 158, 11, 0.12) !important;
-}
 
-.light .pill--uncertain {
-  background: rgba(100, 116, 139, 0.12) !important;
-}
 
 /* --- ParseJD page --- */
-.light #parse-jd-page,
-.light #parse-jd-page .card {
-  background: #ffffff !important;
-  color: #0f172a !important;
-}
 
 /* --- DetailedAnalytics / Dashboard page background --- */
-.light .min-h-screen.animate-fadeIn {
-  background: #f0f4ff;
-  color: #0f172a;
-}
 
 /* --- Modal panels (JDTemplatesModal, HistoryModal, etc.) --- */
-.light .fixed.inset-0>.bg-slate-900 {
-  background: #ffffff !important;
-  border-color: rgba(99, 102, 241, 0.15) !important;
-}
 
 /* --- Mobile bottom nav (light) --- */
-.light nav.fixed.bottom-0 {
-  background: rgba(255, 255, 255, 0.95) !important;
-  border-top-color: rgba(99, 102, 241, 0.15) !important;
-  backdrop-filter: blur(12px);
-}
 
-.light nav.fixed.bottom-0 button {
-  color: #475569 !important;
-}
 
-.light nav.fixed.bottom-0 button.text-cyan-400 {
-  color: #4f46e5 !important;
-}
 
 /* --- Screener overall container --- */
 .dark .module-pane,
 .dark #module-jd {
   background: #0B192C;
 }
-.light #module-jd,
-.light .module-pane {
-  background: transparent;
-}
 
 /* --- bg-[#020617] used in some JD overlays --- */
-.light .bg-\[\#020617\]\/45 {
-  background: rgba(224, 231, 255, 0.4) !important;
-}
 
 /* --- Error / success banners --- */
-.light .text-red-400.bg-red-500\/10 {
-  background: rgba(254, 226, 226, 0.8) !important;
-}
 
-.light .text-cyan-400.border-cyan-500\/30 {
-  color: #4f46e5 !important;
-  border-color: rgba(99, 102, 241, 0.3) !important;
-}
 
 /* --- Loading spinner track --- */
-.light .border-slate-700.border-t-cyan-400 {
-  border-color: rgba(99, 102, 241, 0.2) !important;
-  border-top-color: #6366f1 !important;
-}
 
-/* --- CVScreenerWelcome page in light mode --- */
-.light .cv-welcome-badge {
-  background: rgba(238, 242, 255, 0.9) !important;
-  color: #4f46e5 !important;
-  border-color: rgba(99, 102, 241, 0.25) !important;
-}
 
 /* Feature card border divider */
-.light .border-t.border-white\/\[0\.05\] {
-  border-color: rgba(99, 102, 241, 0.12) !important;
-}
 
 /* Border in JD module step divider */
-.light .border-b.border-slate-800 {
-  border-color: rgba(99, 102, 241, 0.12) !important;
-}
 
 /* bg-[#0f172a] used in floating JD dropdowns */
-.light .absolute.right-0.top-full.bg-\[\#0f172a\] {
-  background: #ffffff !important;
-  border-color: rgba(99, 102, 241, 0.15) !important;
-}
 
-.light .absolute.right-0.top-full .border-b.border-slate-700 {
-  border-color: rgba(99, 102, 241, 0.12) !important;
-}
 
-.light .absolute.right-0.top-full p.text-white {
-  color: #1e293b !important;
-}
 
-.light .absolute.right-0.top-full p.text-slate-400 {
-  color: #64748b !important;
-}
 
-.light .absolute.right-0.top-full button.text-slate-300 {
-  color: #374151 !important;
-}
 
-.light .absolute.right-0.top-full button:hover {
-  background: rgba(99, 102, 241, 0.06) !important;
-}
 
 /* bg-slate-800/50 used in mobile menu dropdown items */
-.light .bg-slate-800\/50 {
-  background: rgba(238, 242, 255, 0.7) !important;
-}
 
 /* ================================================================
-   LIGHT MODE — COMPREHENSIVE OVERRIDES FOR ALL APP PAGES
-   (Appended block — overrides Tailwind dark bg/text classes)
+   LIGHT MODE â€” COMPREHENSIVE OVERRIDES FOR ALL APP PAGES
+   (Appended block â€” overrides Tailwind dark bg/text classes)
    ================================================================ */
 
-/* ── Font & Typography sync ──────────────────────────────────────── */
-.light body,
-.light input,
-.light textarea,
-.light select,
-.light button {
-  font-family: 'Inter', 'Outfit', system-ui, -apple-system, sans-serif !important;
-}
+/* â”€â”€ Font & Typography sync â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
-/* ── Text color catch-all ─────────────────────────────────────────── */
-.light .text-white {
-  color: #0f172a !important;
-}
+/* â”€â”€ Text color catch-all â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 /* Exception: text on dark/colored buttons stays white */
-.light button.bg-indigo-600 .text-white,
-.light button[style*="background: linear-gradient"] .text-white,
-.light .bg-gradient-to-r.from-indigo .text-white {
-  color: #ffffff !important;
-}
 
-/* ── JD Screener / Input page ────────────────────────────────────── */
-.light .bg-\[\#0B192C\] {
-  background: #f0f4ff !important;
-}
+/* â”€â”€ JD Screener / Input page â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
-.light .bg-\[\#0B192C\].border-r,
-.light .bg-\[\#0B192C\].md\:border-r {
-  border-color: rgba(99, 102, 241, 0.15) !important;
-}
 
 /* JDMetaToolbar */
-.light [role="region"][aria-label="Thông tin JD nhanh"],
-.light [role="region"][aria-label="Th\u00f4ng tin JD nhanh"] {
-  background: linear-gradient(180deg, #f8faff 0%, #f0f4ff 100%) !important;
-  border-color: rgba(99, 102, 241, 0.18) !important;
-}
 
 /* JD textarea & input in toolbar */
-.light [role="region"] input,
-.light [role="region"] textarea {
-  color: #0f172a !important;
-  background: transparent !important;
-}
 
-.light [role="region"] input::placeholder {
-  color: #94a3b8 !important;
-}
 
 /* Toolbar pill inputs */
-.light [role="region"] > div > div[style*="rgba(255,255,255,0.04)"] {
-  background: rgba(99, 102, 241, 0.04) !important;
-  border-color: rgba(99, 102, 241, 0.12) !important;
-}
 
-/* ── Analysis Results page ───────────────────────────────────────── */
+/* â”€â”€ Analysis Results page â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 /* Candidate card rows */
-.light .bg-\[\#0a0f1e\] {
-  background: #f8faff !important;
-}
 
-.light .bg-\[\#0f1729\] {
-  background: #ffffff !important;
-}
 
-.light .bg-\[\#0a1628\] {
-  background: #f0f4ff !important;
-}
 
-.light .bg-\[\#111827\] {
-  background: #f8faff !important;
-}
 
-.light .bg-\[\#0B1120\] {
-  background: #f0f4ff !important;
-}
 
 /* Candidate table borders */
-.light .border-slate-800\/40 {
-  border-color: rgba(99, 102, 241, 0.1) !important;
-}
 
-.light .border-slate-800\/60 {
-  border-color: rgba(99, 102, 241, 0.12) !important;
-}
 
-/* Score circles & badges — keep accent colors */
-.light .text-emerald-400 { color: #059669 !important; }
-.light .text-emerald-300 { color: #10b981 !important; }
-.light .text-amber-400   { color: #d97706 !important; }
-.light .text-amber-300   { color: #d97706 !important; }
-.light .text-red-400     { color: #dc2626 !important; }
-.light .text-red-300     { color: #ef4444 !important; }
-.light .text-cyan-400    { color: #0891b2 !important; }
-.light .text-cyan-300    { color: #0e7490 !important; }
-.light .text-violet-400  { color: #7c3aed !important; }
-.light .text-violet-300  { color: #8b5cf6 !important; }
-.light .text-indigo-400  { color: #4f46e5 !important; }
-.light .text-indigo-300  { color: #6366f1 !important; }
-.light .text-blue-400    { color: #2563eb !important; }
-.light .text-blue-300    { color: #3b82f6 !important; }
-.light .text-purple-400  { color: #7c3aed !important; }
-.light .text-rose-400    { color: #e11d48 !important; }
+/* Score circles & badges â€” keep accent colors */
 
-/* ── ExpandedContent panel ─────────────────────────────────────────── */
+/* â”€â”€ ExpandedContent panel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 /* Pre tag for JD content */
-.light pre {
-  color: #1e293b !important;
-}
 
 /* Criterion accordion */
-.light .rounded-xl.border.border-slate-800\/60 {
-  border-color: rgba(99, 102, 241, 0.12) !important;
-  background: #ffffff !important;
-}
 
 /* Criterion score number */
-.light .font-mono.text-sm.text-slate-300 {
-  color: #1e293b !important;
-}
 
 /* Evidence text */
-.light .text-slate-300.leading-relaxed {
-  color: #334155 !important;
-}
 
-.light .text-slate-400.leading-relaxed {
-  color: #475569 !important;
-}
 
 /* Tab headers in ExpandedContent */
-.light .text-cyan-300.bg-cyan-500\/8 {
-  background: rgba(8, 145, 178, 0.06) !important;
-}
 
-.light .text-violet-300.bg-violet-500\/8 {
-  background: rgba(124, 58, 237, 0.06) !important;
-}
 
 /* Pill badges (match/missing) */
-.light .pill--match {
-  background: rgba(16, 185, 129, 0.12) !important;
-  color: #059669 !important;
-  border-color: rgba(5, 150, 105, 0.3) !important;
-}
 
-.light .pill--missing {
-  background: rgba(217, 119, 6, 0.12) !important;
-  color: #b45309 !important;
-  border-color: rgba(180, 83, 9, 0.3) !important;
-}
 
-.light .pill--uncertain {
-  background: rgba(100, 116, 139, 0.1) !important;
-  color: #475569 !important;
-  border-color: rgba(71, 85, 105, 0.25) !important;
-}
 
-/* Evidence highlight blocks (light mode) */
-.light .evidence-block .hl-0 {
-  background: linear-gradient(90deg, rgba(14, 116, 144, 0.1), rgba(37, 99, 235, 0.1)) !important;
-  color: #0e7490 !important;
-}
 
-.light .evidence-block .hl-1 {
-  background: linear-gradient(90deg, rgba(180, 83, 9, 0.1), rgba(202, 138, 4, 0.1)) !important;
-  color: #b45309 !important;
-}
 
-.light .evidence-block .hl-2 {
-  background: linear-gradient(90deg, rgba(109, 40, 217, 0.1), rgba(124, 58, 237, 0.1)) !important;
-  color: #6d28d9 !important;
-}
 
-/* ── Weights Config page ──────────────────────────────────────────── */
-.light .weights-layout .filters-col {
-  background: linear-gradient(145deg, rgba(255,255,255,0.95), rgba(248,250,255,0.9)) !important;
-  border-color: rgba(99, 102, 241, 0.15) !important;
-}
+/* â”€â”€ Weights Config page â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
-.light .weights-layout .weights-col {
-  background: linear-gradient(145deg, rgba(255,255,255,0.9), rgba(240,244,255,0.85)) !important;
-  border-color: rgba(99, 102, 241, 0.12) !important;
-}
 
-.light .weights-layout .layout-divider {
-  background: linear-gradient(to bottom,
-    rgba(99, 102, 241, 0.05),
-    rgba(99, 102, 241, 0.2),
-    rgba(99, 102, 241, 0.05)
-  ) !important;
-}
 
 /* Weight tile sliders */
-.light input[type=range]::-webkit-slider-thumb {
-  background: #4f46e5 !important;
-}
 
-.light input[type=range]::-moz-range-thumb {
-  background: #4f46e5 !important;
-}
 
-/* Progress bar track (light mode) */
-.light .progress {
-  background: rgba(99, 102, 241, 0.1) !important;
-}
 
-.light .crit-progress {
-  background: rgba(99, 102, 241, 0.1) !important;
-}
 
-/* ── Candidate Suggestions / Chatbot ─────────────────────────────── */
-.light .bg-slate-900\/40 {
-  background: rgba(255, 255, 255, 0.7) !important;
-}
+/* â”€â”€ Candidate Suggestions / Chatbot â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
-.light .bg-slate-900\/50 {
-  background: rgba(255, 255, 255, 0.8) !important;
-}
 
-.light .bg-slate-900\/60 {
-  background: rgba(248, 250, 255, 0.9) !important;
-}
 
 /* Chat bubbles */
-.light .bg-indigo-600\/90 {
-  background: #4f46e5 !important;
-  color: #ffffff !important;
-}
 
-.light .bg-slate-800\/60 {
-  background: rgba(238, 242, 255, 0.8) !important;
-}
 
 /* Message text in chat */
-.light .bg-slate-800\/60 .text-slate-100,
-.light .bg-slate-800\/60 .text-slate-200 {
-  color: #1e293b !important;
-}
 
-/* ── Analytics / Dashboard ───────────────────────────────────────── */
-.light .bg-slate-900 {
-  background: #ffffff !important;
-}
+/* â”€â”€ Analytics / Dashboard â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
-.light .bg-slate-900\/20 {
-  background: rgba(238, 242, 255, 0.3) !important;
-}
 
-.light .bg-slate-900\/30 {
-  background: rgba(238, 242, 255, 0.5) !important;
-}
 
 /* Chart labels */
-.light .recharts-text {
-  fill: #475569 !important;
-}
 
-.light .recharts-cartesian-axis-tick-value {
-  fill: #64748b !important;
-}
 
-/* ── Modal / Dialog ──────────────────────────────────────────────── */
+/* â”€â”€ Modal / Dialog â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 /* JDTemplatesModal */
-.light .bg-\[\#0B1120\].border.border-slate-800 {
-  background: #ffffff !important;
-  border-color: rgba(99, 102, 241, 0.15) !important;
-}
 
 /* History modal */
-.light .fixed.inset-0.flex.items-center.justify-center .bg-\[\#0B1120\] {
-  background: #ffffff !important;
-}
 
-/* ── Loading states ──────────────────────────────────────────────── */
-.light .animate-spin {
-  border-top-color: #4f46e5 !important;
-  border-right-color: rgba(79, 70, 229, 0.3) !important;
-}
+/* â”€â”€ Loading states â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
-/* ── Bottom Mobile Nav ───────────────────────────────────────────── */
-.light nav.fixed.bottom-0 {
-  background: rgba(255, 255, 255, 0.95) !important;
-  border-color: rgba(99, 102, 241, 0.15) !important;
-  box-shadow: 0 -4px 24px rgba(99, 102, 241, 0.1) !important;
-}
+/* â”€â”€ Bottom Mobile Nav â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
-/* ── Sidebar light mode accent overrides ─────────────────────────── */
-/* Sidebar nav items in light mode: maintain readability */
-.light #cv-sidebar nav ul li button,
-.light #cv-sidebar button[type="button"] {
-  color: #374151 !important;
-}
 
-.light #cv-sidebar .text-white {
-  color: #1e293b !important;
-}
 
 /* Active sidebar item */
-.light #cv-sidebar button[style*="rgba(96,165,250"] {
-  background: rgba(79, 70, 229, 0.08) !important;
-}
 
-/* ── JDMetaToolbar "AI tối ưu" & "Tiếp theo" buttons — keep branded ─ */
-.light button[style*="rgba(139,92,246"] {
-  background: rgba(99, 102, 241, 0.1) !important;
-  border-color: rgba(99, 102, 241, 0.25) !important;
-  color: #4f46e5 !important;
-}
+/* â”€â”€ JDMetaToolbar "AI tá»‘i Æ°u" & "Tiáº¿p theo" buttons â€” keep branded â”€ */
 
-.light button[style*="linear-gradient(135deg, #4f46e5"] {
-  background: linear-gradient(135deg, #4f46e5, #6366f1) !important;
-  color: #ffffff !important;
-}
 
-/* ── Divider lines ───────────────────────────────────────────────── */
-.light .via-slate-700 {
-  --tw-gradient-via: rgba(99, 102, 241, 0.2) !important;
-}
+/* â”€â”€ Divider lines â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
-.light .border-slate-700\/50 {
-  border-color: rgba(99, 102, 241, 0.1) !important;
-}
 
-/* ── Transition smooth for all theme changes ─────────────────────── */
-html.light * {
-  transition-property: background-color, border-color, color, box-shadow, opacity;
-  transition-duration: 0.25s;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-}
+/* â”€â”€ Transition smooth for all theme changes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
-/* ── Scrollbar in light mode ─────────────────────────────────────── */
-.light .custom-scrollbar {
-  scrollbar-color: rgba(99, 102, 241, 0.3) transparent !important;
-}
 
-.light .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(99, 102, 241, 0.25) !important;
-}
 
-.light .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(99, 102, 241, 0.45) !important;
-}
 
 /* ================================================================
-   LIGHT MODE — INLINE STYLE NUCLEAR OVERRIDES
+   LIGHT MODE â€” INLINE STYLE NUCLEAR OVERRIDES
    These override hardcoded style={{}} attributes in React components.
    CSS attribute selectors [style*="..."] catch inline dark colors.
    ================================================================ */
 
-/* ── Override ALL inline rgba(255,255,255,...) backgrounds ────────── */
-.light [style*="rgba(255,255,255,0.03)"],
-.light [style*="rgba(255,255,255,0.04)"],
-.light [style*="rgba(255,255,255,0.05)"],
-.light [style*="rgba(255,255,255,0.06)"],
-.light [style*="rgba(255,255,255,0.08)"] {
-  background: rgba(99, 102, 241, 0.04) !important;
-}
+/* â”€â”€ Override ALL inline rgba(255,255,255,...) backgrounds â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 /* Override inline dark hex backgrounds */
-.light [style*="background: #0B1120"],
-.light [style*="background:#0B1120"] {
-  background: #f0f4ff !important;
-}
 
-.light [style*="background: #0f172a"],
-.light [style*="background:#0f172a"] {
-  background: #ffffff !important;
-}
 
-.light [style*="background: #111827"],
-.light [style*="background:#111827"] {
-  background: #f8faff !important;
-}
 
-.light [style*="background: #1e293b"],
-.light [style*="background:#1e293b"] {
-  background: #eef2ff !important;
-}
 
-.light [style*="background: #11213A"],
-.light [style*="background:#11213A"] {
-  background: #f8faff !important;
-}
 
-.light [style*="background: #0a1628"],
-.light [style*="background:#0a1628"] {
-  background: #f0f4ff !important;
-}
 
 /* Override inline dark gradient backgrounds */
-.light [style*="linear-gradient(160deg, #0d1629"],
-.light [style*="linear-gradient(145deg, #111827"],
-.light [style*="linear-gradient(145deg, rgba(30, 41, 59"],
-.light [style*="linear-gradient(145deg, rgba(17, 24, 39"],
-.light [style*="linear-gradient(145deg, rgba(11, 17, 32"] {
-  background: linear-gradient(145deg, #ffffff 0%, #f8faff 100%) !important;
-}
 
-/* ── Override inline borders ─────────────────────────────────────── */
-.light [style*="border: 1px solid rgba(255,255,255"],
-.light [style*="border:1px solid rgba(255,255,255"] {
-  border-color: rgba(99, 102, 241, 0.12) !important;
-}
+/* â”€â”€ Override inline borders â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
-.light [style*="borderBottom: 1px solid rgba(255,255,255"],
-.light [style*="borderBottom:1px solid rgba(255,255,255"] {
-  border-bottom-color: rgba(99, 102, 241, 0.12) !important;
-}
 
-.light [style*="borderLeft: 1px solid rgba(255,255,255"],
-.light [style*="borderLeft:1px solid rgba(255,255,255"] {
-  border-left-color: rgba(99, 102, 241, 0.12) !important;
-}
 
-.light [style*="borderTop: 1px solid rgba(255,255,255"],
-.light [style*="borderTop:1px solid rgba(255,255,255"] {
-  border-top-color: rgba(99, 102, 241, 0.12) !important;
-}
 
-.light [style*="borderRight: 1px solid rgba(255,255,255"],
-.light [style*="borderRight: 1px solid #1e293b"] {
-  border-right-color: rgba(99, 102, 241, 0.12) !important;
-}
 
-/* ── Override inline text colors ─────────────────────────────────── */
-.light [style*="color: #e2e8f0"],
-.light [style*="color:#e2e8f0"],
-.light [style*="color: #F1F5F9"],
-.light [style*="color:#F1F5F9"],
-.light [style*="color: #CBD5E1"],
-.light [style*="color:#CBD5E1"] {
-  color: #1e293b !important;
-}
+/* â”€â”€ Override inline text colors â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
-.light [style*="color: #94a3b8"],
-.light [style*="color:#94a3b8"],
-.light [style*="color: #94A3B8"],
-.light [style*="color:#94A3B8"] {
-  color: #475569 !important;
-}
 
-.light [style*="color: #cbd5e1"],
-.light [style*="color:#cbd5e1"] {
-  color: #334155 !important;
-}
 
-.light [style*="color: #64748B"],
-.light [style*="color:#64748B"],
-.light [style*="color: #64748b"],
-.light [style*="color:#64748b"] {
-  color: #94a3b8 !important;
-}
 
-/* ── Override dark table header backgrounds ─────────────────────── */
-.light [style*="background: rgba(10,18,32"],
-.light [style*="background:rgba(10,18,32"] {
-  background: rgba(248, 250, 255, 0.95) !important;
-}
+/* â”€â”€ Override dark table header backgrounds â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
-/* ── Override rgba(0,0,0,...) dark overlays ─────────────────────── */
-.light [style*="rgba(0,0,0,0.2)"],
-.light [style*="rgba(0, 0, 0, 0.2)"] {
-  background: rgba(99, 102, 241, 0.04) !important;
-}
+/* â”€â”€ Override rgba(0,0,0,...) dark overlays â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
-/* ── Override inline accent colors for light mode ─────────────── */
-.light [style*="color: #60a5fa"],
-.light [style*="color:#60a5fa"] {
-  color: #4f46e5 !important;
-}
 
-.light [style*="color: #bae6fd"],
-.light [style*="color:#bae6fd"] {
-  color: #4338ca !important;
-}
 
-.light p[style*="color: rgba(255,255,255"],
-.light span[style*="color: rgba(255,255,255"] {
-  color: #475569 !important;
-}
 
-/* ── Override inline glass/badge backgrounds ────────────────────── */
-.light [style*="rgba(255,255,255,0.15)"] {
-  background: rgba(99, 102, 241, 0.12) !important;
-}
+/* â”€â”€ Override inline glass/badge backgrounds â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
-/* ── Main App wrapper ─────────────────────────────────────────── */
-.light .min-h-screen {
-  background: #f0f4ff !important;
-}
+/* â”€â”€ Main App wrapper â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
-/* ── Aurora / Grid — dimmed in light ───────────────────────────── */
-.light .ai-aurora {
-  opacity: 0.05 !important;
-  background: radial-gradient(60% 60% at 20% 10%, rgba(99,102,241,0.06), transparent 60%),
-              radial-gradient(50% 50% at 80% 30%, rgba(79,70,229,0.04), transparent 60%),
-              radial-gradient(70% 70% at 50% 90%, rgba(5,150,105,0.03), transparent 60%) !important;
-}
+/* â”€â”€ Aurora / Grid â€” dimmed in light â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
-.light .grid-overlay {
-  opacity: 0.1 !important;
-  background-image:
-    linear-gradient(to right, rgba(99,102,241,0.03) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(99,102,241,0.03) 1px, transparent 1px) !important;
-}
 
-/* ── Card deep override ──────────────────────────────────────── */
-.light .card {
-  background: #ffffff !important;
-  border-color: rgba(99, 102, 241, 0.12) !important;
-  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.06) !important;
-}
+/* â”€â”€ Card deep override â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
-/* ── Navbar light mode ───────────────────────────────────────── */
-.light .navbar {
-  background: rgba(255, 255, 255, 0.9) !important;
-  border-color: rgba(99, 102, 241, 0.15) !important;
-  box-shadow: 0 4px 24px rgba(99, 102, 241, 0.08) !important;
-}
 
-.light .navbar button {
-  color: #374151 !important;
-}
 
-.light .navbar button:hover {
-  color: #1e293b !important;
-  background: rgba(99, 102, 241, 0.08) !important;
-}
 
 /* Login button on navbar should stay white-on-colored */
-.light .navbar .bg-gradient-to-r.from-blue-600 {
-  color: #ffffff !important;
-}
 
-/* ── Card-like containers ─────────────────────────────────────── */
-.light .bg-\[\#0B192C\] {
-  background: #f0f4ff !important;
-}
+/* â”€â”€ Card-like containers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
-.light .bg-\[\#11213A\] {
-  background: #f8faff !important;
-}
 
-/* ── LoginPage ─────────────────────────────────────────────────── */
-.light .min-h-screen.flex.items-center.justify-center {
-  background: linear-gradient(135deg, #eef2ff 0%, #f0f9ff 50%, #f8faff 100%) !important;
-}
+/* â”€â”€ LoginPage â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
-/* ── Body base ──────────────────────────────────────────────────── */
-.light body {
-  background: #f0f4ff !important;
-  color: #0f172a !important;
-}
+/* â”€â”€ Body base â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
-/* ── Divider ──────────────────────────────────────────────────── */
-.light .layout-divider {
-  background: linear-gradient(to bottom,
-    rgba(99, 102, 241, 0.05),
-    rgba(99, 102, 241, 0.18),
-    rgba(99, 102, 241, 0.05)
-  ) !important;
-  box-shadow: none !important;
-}
+/* â”€â”€ Divider â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
-/* ── Weight column surfaces ──────────────────────────────────── */
-.light .filters-col {
-  background: linear-gradient(145deg, rgba(255,255,255,0.95), rgba(248,250,255,0.9)) !important;
-  border-color: rgba(99, 102, 241, 0.15) !important;
-}
+/* â”€â”€ Weight column surfaces â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
-.light .weights-col {
-  background: linear-gradient(145deg, rgba(255,255,255,0.9), rgba(240,244,255,0.85)) !important;
-  border-color: rgba(99, 102, 241, 0.12) !important;
-}
 
+/* ================================================================
+   LIGHT MODE v2 â€” NUCLEAR FIX FOR ALL PAGES
+   Targets inline style={{}} via [style*=""] and structural selectors
+   ================================================================ */
+
+/* â•â•â•â•â•â• SIDEBAR NUCLEAR â•â•â•â•â•â• */
+
+/* â•â•â•â•â•â• NAVBAR â•â•â•â•â•â• */
+
+/* â•â•â•â•â•â• GLOBAL: override dark inline backgrounds â•â•â•â•â•â• */
+
+/* Override rgba(255,255,255,...) low-opacity backgrounds */
+
+/* Override border-bottom with rgba white */
+
+/* Override inline border compound property */
+
+/* Override inline text colors: light â†’ dark */
+
+/* Override inline backgrounds with dark hex - RGB form */
+
+/* Override inline gradient backgrounds */
+
+/* Override inline box-shadows with dark colors */
+
+/* â•â•â•â•â•â• MAIN CONTENT WRAPPER â•â•â•â•â•â• */
+
+/* â•â•â•â•â•â• ANALYSIS RESULTS PAGE â•â•â•â•â•â• */
+/* Stat summary cards */
+
+/* Table header/container */
+
+/* â•â•â•â•â•â• TEXT OVERRIDES â•â•â•â•â•â• */
+
+/* Branded accent colors â€“ darker for light bg */
+
+/* Keep white text on gradient/colored buttons */
+
+/* â•â•â•â•â•â• BORDERS â•â•â•â•â•â• */
+
+/* â•â•â•â•â•â• INPUTS â•â•â•â•â•â• */
+
+/* â•â•â•â•â•â• CARDS â•â•â•â•â•â• */
+
+/* â•â•â•â•â•â• WEIGHTS CONFIG PAGE â•â•â•â•â•â• */
+
+/* â•â•â•â•â•â• CHATBOT / CANDIDATE SUGGESTIONS â•â•â•â•â•â• */
+
+/* â•â•â•â•â•â• DASHBOARD / ANALYTICS â•â•â•â•â•â• */
+
+/* â•â•â•â•â•â• PRE / CODE â•â•â•â•â•â• */
+
+/* â•â•â•â•â•â• MODALS â•â•â•â•â•â• */
+
+/* â•â•â•â•â•â• SCROLLBAR â•â•â•â•â•â• */
+
+/* â•â•â•â•â•â• AURORA + GRID â€“ subtle in light â•â•â•â•â•â• */
+
+/* â•â•â•â•â•â• LOADING / SKELETON â•â•â•â•â•â• */
+
+/* â•â•â•â•â•â• BACKDROP BLUR â•â•â•â•â•â• */
+
+/* â•â•â•â•â•â• PILL BADGES â•â•â•â•â•â• */
+
+/* â•â•â•â•â•â• PROGRESS BARS â•â•â•â•â•â• */
+
+/* â•â•â•â•â•â• EVIDENCE HIGHLIGHTS â•â•â•â•â•â• */
+
+/* â•â•â•â•â•â• SMOOTH TRANSITION â•â•â•â•â•â• */
 
