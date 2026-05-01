@@ -13,3 +13,10 @@ yarn-error.log*
 *.local
 tmpclaude-*
 *.log
+
+# Firebase service account keys (contain private keys - NEVER commit)
+*-firebase-adminsdk-*.json
+*-adminsdk-*.json
+New folder/
+firebase/*.json
+!firebase.json
