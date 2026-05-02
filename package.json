@@ -4,10 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --config config/vite.config.ts",
-    "build": "tsc --noEmit --project config/tsconfig.json && vite build --config config/vite.config.ts",
-    "preview": "vite preview --config config/vite.config.ts",
-    "embed:data": "tsx services/ai-ml/embedding-vector/indexer/embedData.ts"
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "embed:data": "tsx src/services/ai-ml/embedding-vector/indexer/embedData.ts"
   },
   "dependencies": {
     "@google/genai": "^1.11.0",

@@ -1,42 +1,42 @@
 import React, { useState, useCallback, useMemo, useEffect, useRef, Suspense, lazy } from 'react';
-import { detectIndustryFromJD } from '../services/ai-ml/industryDetector';
+import { detectIndustryFromJD } from '@/services/ai-ml/industryDetector';
 import { BrowserRouter, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import { onAuthStateChanged } from 'firebase/auth';
-import { auth } from '../services/firebase';
+import { auth } from '@/services/firebase';
 import { SpeedInsights } from '@vercel/speed-insights/react';
 import { Analytics } from '@vercel/analytics/react';
-import WebVitalsReporter from '../components/ui/charts-stats/WebVitalsReporter';
-import BundleAnalyzer from '../components/ui/charts-stats/BundleAnalyzer';
-import { ThemeProvider } from '../components/ui/theme/ThemeProvider';
+import WebVitalsReporter from '@/components/ui/charts-stats/WebVitalsReporter';
+import BundleAnalyzer from '@/components/ui/charts-stats/BundleAnalyzer';
+import { ThemeProvider } from '@/components/ui/theme/ThemeProvider';
 
-import { UserProfileService } from '../services/data-sync/userProfileService';
-import { onAuthChange } from '../services/auth/authService';
-import type { AuthUser } from '../services/auth/authTypes';
-import type { AppStep, Candidate, HardFilters, WeightCriteria, AnalysisRunData } from '../assets/types';
-import { initialWeights } from '../assets/constants';
-import Sidebar from '../components/layout/Sidebar';
-import ProgressBar from '../components/ui/common/ProgressBar';
-import JDTemplatesModal, { JDTemplate } from '../components/ui/history-cache/JDTemplatesModal';
-import HistoryModal from '../components/ui/history-cache/HistoryModal';
-import PageTransition from '../components/shared/PageTransition';
-import MobileBottomNav from '../components/shared/responsive/mobile/MobileBottomNav';
+import { UserProfileService } from '@/services/data-sync/userProfileService';
+import { onAuthChange } from '@/services/auth/authService';
+import type { AuthUser } from '@/services/auth/authTypes';
+import type { AppStep, Candidate, HardFilters, WeightCriteria, AnalysisRunData } from '@/assets/types';
+import { initialWeights } from '@/assets/constants';
+import Sidebar from '@/components/layout/Sidebar';
+import ProgressBar from '@/components/ui/common/ProgressBar';
+import JDTemplatesModal, { JDTemplate } from '@/components/ui/history-cache/JDTemplatesModal';
+import HistoryModal from '@/components/ui/history-cache/HistoryModal';
+import PageTransition from '@/components/shared/PageTransition';
+import MobileBottomNav from '@/components/shared/responsive/mobile/MobileBottomNav';
 
 // Lazy load pages for code-splitting
-const ScreenerPage = lazy(() => import('../components/pages/main/ScreenerPage'));
-const ProcessPage = lazy(() => import('../components/pages/main/ProcessPage'));
-const HomePage = lazy(() => import('../components/pages/main/HomePage'));
-const AchievementsContactPage = lazy(() => import('../components/pages/info/AchievementsContactPage'));
-const DeploymentReadyPage = lazy(() => import('../components/pages/deployment/DeploymentReadyPage'));
-const LoginPage = lazy(() => import('../components/pages/auth/LoginPage'));
-const DetailedAnalyticsPage = lazy(() => import('../components/pages/analytics/DetailedAnalyticsPage'));
-const PrivacyPolicyPage = lazy(() => import('../components/pages/info/PrivacyPolicyPage'));
-const TermsPage = lazy(() => import('../components/pages/info/TermsPage'));
-const SelectedCandidatesPage = lazy(() => import('../components/pages/analytics/SelectedCandidatesPage'));
-const AIFeedbackPage = lazy(() => import('../components/pages/main/AIFeedbackPage'));
-import CandidateSuggestions from '../components/pages/analytics/CandidateSuggestions';
+const ScreenerPage = lazy(() => import('@/components/pages/main/ScreenerPage'));
+const ProcessPage = lazy(() => import('@/components/pages/main/ProcessPage'));
+const HomePage = lazy(() => import('@/components/pages/main/HomePage'));
+const AchievementsContactPage = lazy(() => import('@/components/pages/info/AchievementsContactPage'));
+const DeploymentReadyPage = lazy(() => import('@/components/pages/deployment/DeploymentReadyPage'));
+const LoginPage = lazy(() => import('@/components/pages/auth/LoginPage'));
+const DetailedAnalyticsPage = lazy(() => import('@/components/pages/analytics/DetailedAnalyticsPage'));
+const PrivacyPolicyPage = lazy(() => import('@/components/pages/info/PrivacyPolicyPage'));
+const TermsPage = lazy(() => import('@/components/pages/info/TermsPage'));
+const SelectedCandidatesPage = lazy(() => import('@/components/pages/analytics/SelectedCandidatesPage'));
+const AIFeedbackPage = lazy(() => import('@/components/pages/main/AIFeedbackPage'));
+import CandidateSuggestions from '@/components/pages/analytics/CandidateSuggestions';
 // HistoryPage removed from UI (still saving to Firestore silently)
-import { saveHistorySession } from '../services/history-cache/historyService';
-import { cvFilterHistoryService } from '../services/history-cache/analysisHistory';
+import { saveHistorySession } from '@/services/history-cache/historyService';
+import { cvFilterHistoryService } from '@/services/history-cache/analysisHistory';
 
 function usePrevious<T>(value: T): T | undefined {
   const ref = useRef<T | undefined>(undefined);
@@ -539,7 +539,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
       <main
         className={`main-content ${!isHomeView ? 'pb-20 md:pb-0' : 'pb-0'} ${!isHomeView ? 'mt-14 md:mt-0' : ''} flex-1 flex flex-col min-h-0 overflow-x-hidden transition-all duration-300 ease-in-out ${
           !isHomeView
-            ? 'md:ml-[248px] md:w-[calc(100vw-248px)] min-w-0'
+            ? 'md:ml-[220px] md:w-[calc(100vw-220px)] min-w-0'
             : 'ml-0 w-full'
         }`}
       >
@@ -558,7 +558,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
 
               <Route path="/detailed-analytics" element={isLoggedIn ? <DetailedAnalyticsPage candidates={analysisResults} jobPosition={jobPosition} onReset={onResetRequest} /> : <HomePage setActiveStep={setActiveStep} isLoggedIn={isLoggedIn} onLoginRequest={onLoginRequest} completedSteps={completedSteps} userName={userName} userEmail={userEmail} />} />
               <Route path="/chatbot" element={isLoggedIn ? <CandidateSuggestions candidates={analysisResults} jobPosition={jobPosition} /> : <HomePage setActiveStep={setActiveStep} isLoggedIn={isLoggedIn} onLoginRequest={onLoginRequest} completedSteps={completedSteps} userName={userName} userEmail={userEmail} />} />
-              <Route path="/feedback" element={isLoggedIn ? <AIFeedbackPage candidates={analysisResults} /> : <HomePage setActiveStep={setActiveStep} isLoggedIn={isLoggedIn} onLoginRequest={onLoginRequest} completedSteps={completedSteps} userName={userName} userEmail={userEmail} />} />
+              <Route path="/feedback" element={isLoggedIn ? <AIFeedbackPage candidates={analysisResults} jobPosition={jobPosition} weights={weights} hardFilters={hardFilters} /> : <HomePage setActiveStep={setActiveStep} isLoggedIn={isLoggedIn} onLoginRequest={onLoginRequest} completedSteps={completedSteps} userName={userName} userEmail={userEmail} />} />
               <Route path="/process" element={<ProcessPage />} />
               <Route path="/contact-ready" element={<DeploymentReadyPage />} />
               <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />

@@ -13,7 +13,7 @@ const __dirname = dirname(__filename);
 
 // Load service account key using process.cwd() for Unicode path support
 const serviceAccount = JSON.parse(
-  readFileSync(join(process.cwd(), 'New folder', 'gen-lang-client-0595612537-firebase-adminsdk-fbsvc-7a15b8a09f.json'), 'utf8')
+  readFileSync(join(__dirname, 'serviceAccountKey.json'), 'utf8')
 );
 
 // Init Firebase Admin
