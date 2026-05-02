@@ -20,3 +20,5 @@ tmpclaude-*
 New folder/
 firebase/*.json
 !firebase.json
+
+.vercel

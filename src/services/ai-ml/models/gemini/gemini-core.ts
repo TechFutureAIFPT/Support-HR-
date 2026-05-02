@@ -1,44 +1,13 @@
-import { GoogleGenAI, Type } from '@google/genai';
+import { Type } from '@google/genai';
 import PQueue from 'p-queue';
 import { MODEL_NAME } from '@/assets/constants';
-import { analysisCacheService } from '@/services/history-cache/analysisCache';
 import { processFileToText } from '@/services/file-processing/ocrService';
-import { computeIndustrySimilarity, type IndustryEmbeddingInsight, type SupportedIndustry } from '@/services/ai-ml/embedding-vector/similarity/industryEmbeddingService';
-import type { Candidate, HardFilters, WeightCriteria, MainCriterion, AnalysisRunData, ChatMessage } from '@/assets/types';
+import { computeIndustrySimilarity, type SupportedIndustry } from '@/services/ai-ml/embedding-vector/similarity/industryEmbeddingService';
+import type { Candidate, HardFilters, WeightCriteria, MainCriterion } from '@/assets/types';
 
-// API key rotation
-let ai: GoogleGenAI | null = null;
-let currentKeyIndex = 0;
-
+// Vẫn giữ lại OPENAI_API_KEY để kiểm tra fallback nếu proxy Gemini lỗi
 const OPENAI_API_KEY = (import.meta as any).env?.VITE_OPENAI_API_KEY;
 const OPENAI_MODEL = (import.meta as any).env?.VITE_OPENAI_MODEL || 'gpt-4o-mini';
-
-/** Gom key Gemini từ .env, trim, bỏ trùng */
-function collectGeminiApiKeys(): string[] {
-  const e = (import.meta as any).env || {};
-  const raw = [
-    e.VITE_GEMINI_API_KEY_1,
-    e.VITE_GEMINI_API_KEY_2,
-  ];
-  const out: string[] = [];
-  for (const k of raw) {
-    if (typeof k !== 'string') continue;
-    const t = k.trim();
-    if (t.length >= 12) out.push(t);
-  }
-  return [...new Set(out)];
-}
-
-const apiKeys = collectGeminiApiKeys();
-
-function isGeminiApiKeyInvalidError(error: unknown): boolean {
-  const s = error instanceof Error ? error.message : String(error);
-  return (
-    s.includes('API_KEY_INVALID') ||
-    s.includes('API key not valid') ||
-    (s.includes('400') && s.includes('INVALID_ARGUMENT'))
-  );
-}
 
 const apiQueue = new PQueue({ concurrency: 2 });
 
@@ -46,20 +15,6 @@ const IT_KEYWORDS = ['it','software','developer','engineer','backend','frontend'
 const SALES_KEYWORDS = ['sales','kinh doanh','bán hàng','thị trường','business development','account manager','tư vấn','sale'];
 const MARKETING_KEYWORDS = ['marketing','truyền thông','content','seo','social media','brand','quảng cáo','pr','digital'];
 const DESIGN_KEYWORDS = ['design','thiết kế','đồ họa','ui/ux','art','creative','sáng tạo','artist','designer'];
-
-function getAi(): GoogleGenAI {
-  if (!ai) {
-    const key = apiKeys[currentKeyIndex];
-    if (!key) throw new Error("GEMINI_API_KEY environment variable not set.");
-    ai = new GoogleGenAI({ apiKey: key });
-  }
-  return ai;
-}
-
-function switchToNextKey() {
-  currentKeyIndex = (currentKeyIndex + 1) % apiKeys.length;
-  ai = null;
-}
 
 export const normalizeSchemaForOpenAI = (schema: any): any => {
   if (schema == null) return schema;
@@ -124,36 +79,32 @@ export async function generateContentWithFallback(model: string, contents: any, 
   const params = { model, contents: typeof contents === 'string' ? contents.substring(0, 100) + '...' : 'complex', config };
   try {
     const result = await apiQueue.add(async () => {
-      if (apiKeys.length === 0) {
+      try {
+        const url = typeof window !== 'undefined' ? '/api/gemini-chat' : ''; // On server/Node we could hit it directly but Vite SPA usually runs in browser.
+        if (!url) throw new Error('Cannot resolve proxy URL in Node environment without full host');
+        
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ model, contents, config }),
+        });
+
+        if (!response.ok) {
+          const errData = await response.json().catch(() => null);
+          throw new Error(`Gemini Proxy Error: ${errData?.error?.message || response.statusText}`);
+        }
+
+        const data = await response.json();
+        return data;
+      } catch (error) {
+        console.warn('Gemini Proxy failed:', error);
+        
         if (OPENAI_API_KEY || typeof window !== 'undefined') {
-          console.warn('No Gemini API keys found. Using OpenAI fallback directly.');
+          console.warn('Switching to OpenAI fallback.');
           return generateContentWithOpenAI(contents, config);
         }
-        throw new Error("No GEMINI_API_KEY environment variables set.");
+        throw new Error("Gemini Proxy failed and OpenAI fallback is unavailable.");
       }
-      let lastError: unknown = null;
-      for (let attempt = 0; attempt < apiKeys.length; attempt++) {
-        try {
-          const aiInstance = getAi();
-          return await aiInstance.models.generateContent({ model, contents, config });
-        } catch (error) {
-          lastError = error;
-          const idx = currentKeyIndex + 1;
-          if (isGeminiApiKeyInvalidError(error)) {
-            console.warn(
-              `[Gemini] Key ${idx}/${apiKeys.length} không hợp lệ hoặc đã thu hồi. Tạo key mới: https://aistudio.google.com/apikey — bật API "Generative Language API" cho project.`,
-            );
-          } else {
-            console.warn(`API key ${idx} failed:`, error);
-          }
-          switchToNextKey();
-        }
-      }
-      if (lastError && (OPENAI_API_KEY || typeof window !== 'undefined')) {
-        console.warn('All Gemini keys failed. Switching to OpenAI fallback.', isRetryableGeminiError(lastError) ? '(quota/overload)' : '');
-        return generateContentWithOpenAI(contents, config);
-      }
-      throw new Error("All Gemini API keys failed and OpenAI fallback is unavailable (set VITE_OPENAI_API_KEY or use dev proxy).");
     });
     console.log('generateContent success:', Date.now() - startTime);
     return result;

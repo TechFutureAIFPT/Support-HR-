@@ -95,4 +95,4 @@ export const initialWeights: WeightCriteria = {
 /** Model Gemini — ghi đè bằng VITE_GEMINI_MODEL trong .env nếu model mặc định không khả dụng */
 export const MODEL_NAME =
   (typeof import.meta !== 'undefined' && (import.meta as unknown as { env?: { VITE_GEMINI_MODEL?: string } }).env?.VITE_GEMINI_MODEL) ||
-  'gemini-2.5-flash';
+  'gemini-2.0-flash';

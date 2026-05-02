@@ -35,9 +35,9 @@ const embeddingKeys = [
 ].filter((key): key is string => Boolean(key));
 
 let embeddingClients: Array<GoogleGenerativeAI | null> = [];
-let embeddingModels:  Array<ReturnType<GoogleGenerativeAI['getGenerativeModel']> | null> = [];
+let embeddingModels: Array<ReturnType<GoogleGenerativeAI['getGenerativeModel']> | null> = [];
 let activeClientIndex = 0;
-let missingKeyWarned  = false;
+let missingKeyWarned = false;
 
 const indexCache = new Map<string, Promise<SampleEmbeddingIndex | null>>();
 
@@ -54,7 +54,7 @@ function getEmbeddingModel(): ReturnType<GoogleGenerativeAI['getGenerativeModel'
 
   if (!embeddingClients[activeClientIndex]) {
     embeddingClients[activeClientIndex] = new GoogleGenerativeAI(embeddingKeys[activeClientIndex]);
-    embeddingModels[activeClientIndex]  = embeddingClients[activeClientIndex]!
+    embeddingModels[activeClientIndex] = embeddingClients[activeClientIndex]!
       .getGenerativeModel({ model: EMBEDDING_MODEL_DEFAULT });
   }
 
@@ -79,7 +79,7 @@ async function embedText(text: string): Promise<number[]> {
       if (embeddingKeys.length === 0) break;
       activeClientIndex = (activeClientIndex + 1) % embeddingKeys.length;
       embeddingClients[activeClientIndex] = null;
-      embeddingModels[activeClientIndex]  = null;
+      embeddingModels[activeClientIndex] = null;
       await sleep(250);
     }
   }
@@ -91,7 +91,7 @@ function cosineSimilarity(a: number[], b: number[]): number | null {
   if (!a.length || !b.length || a.length !== b.length) return null;
   let dot = 0, normA = 0, normB = 0;
   for (let i = 0; i < a.length; i++) {
-    dot   += a[i] * b[i];
+    dot += a[i] * b[i];
     normA += a[i] * a[i];
     normB += b[i] * b[i];
   }
@@ -209,7 +209,7 @@ export async function applyIndustryBaselineEnhancement(
 
   candidate.analysis['Chi tiết'].push({
     'Tiêu chí': 'Industry Baseline Enhancement',
-    'Điểm':     `+${insight.bonusPoints.toFixed(1)}`,
+    'Điểm': `+${insight.bonusPoints.toFixed(1)}`,
     'Công thức': `avg similarity: ${(insight.averageSimilarity * 100).toFixed(1)}%`,
     'Dẫn chứng': `Top match: ${insight.topMatches[0]?.name || 'N/A'} (${(insight.topMatches[0]?.similarity * 100).toFixed(1)}%)`,
     'Giải thích': `Industry: ${industry}`,

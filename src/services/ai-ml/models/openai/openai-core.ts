@@ -2,15 +2,17 @@ import PQueue from 'p-queue';
 import { processFileToText } from '@/services/file-processing/ocrService';
 import type { Candidate, HardFilters, WeightCriteria, MainCriterion } from '@/assets/types';
 
-const OPENAI_API_KEY = (import.meta as any).env?.VITE_OPENAI_API_KEY || '';
-const OPENAI_MODEL = (import.meta as any).env?.VITE_OPENAI_MODEL || 'gpt-4o-mini';
+const OPENAI_MODEL = 'gpt-4o-mini';
 
 const apiQueue = new PQueue({ concurrency: 2 });
 
 function getOpenAIChatUrl(): string {
+  // Always use the proxy when running in the browser
   if (typeof window !== 'undefined') return '/api/openai-chat';
+  // Fallback for Node environments (like local scripts)
   return 'https://api.openai.com/v1/chat/completions';
 }
+
 const IT_KEYWORDS = ['it','software','developer','engineer','backend','frontend','fullstack','full-stack','devops','data engineer','data scientist','kỹ sư','lập trình','qa','tester','product manager'];
 const SALES_KEYWORDS = ['sales','kinh doanh','bán hàng','thị trường','business development','account manager','tư vấn','sale'];
 const MARKETING_KEYWORDS = ['marketing','truyền thông','content','seo','social media','brand','quảng cáo','pr','digital'];
@@ -116,8 +118,10 @@ export async function callOpenAI(
 
     const url = getOpenAIChatUrl();
     const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-    if (typeof window === 'undefined' && OPENAI_API_KEY) {
-      headers.Authorization = `Bearer ${OPENAI_API_KEY}`;
+    
+    // Fallback for Node environments (like seed scripts)
+    if (typeof window === 'undefined' && process.env.OPENAI_API_KEY) {
+      headers.Authorization = `Bearer ${process.env.OPENAI_API_KEY}`;
     }
 
     const response = await fetch(url, { method: 'POST', headers, body: JSON.stringify(body) });

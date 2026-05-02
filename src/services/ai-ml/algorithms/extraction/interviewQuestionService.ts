@@ -97,9 +97,9 @@ export const generateInterviewQuestions = async (
   questionType: 'general' | 'specific' | 'comparative',
   candidateData?: Candidate | Candidate[] | null
 ): Promise<QuestionSet[]> => {
-  
+
   let prompt = '';
-  
+
   if (questionType === 'general') {
     prompt = createGeneralQuestionsPrompt(analysisData, analysisStats);
   } else if (questionType === 'specific' && candidateData && !Array.isArray(candidateData)) {
@@ -121,7 +121,7 @@ export const generateInterviewQuestions = async (
 
     const result = JSON.parse(response.text);
     return result.questionSets || [];
-    
+
   } catch (error) {
     console.error('Error generating interview questions:', error);
     throw error;
@@ -140,10 +140,10 @@ Bạn là chuyên gia tuyển dụng với 15+ năm kinh nghiệm. Nhiệm vụ:
 - Cấp độ phổ biến: ${stats.levels.join(', ')}
 
 **ĐIỂM YẾU PHỔ BIẾN CỦA ỨNG VIÊN:**
-${stats.commonWeaknesses.length > 0 ? stats.commonWeaknesses.map((w, i) => `${i+1}. ${w}`).join('\n') : 'Không có dữ liệu đặc biệt'}
+${stats.commonWeaknesses.length > 0 ? stats.commonWeaknesses.map((w, i) => `${i + 1}. ${w}`).join('\n') : 'Không có dữ liệu đặc biệt'}
 
 **KỸ NĂNG THIẾU PHỔ BIẾN:**
-${stats.skillGaps.length > 0 ? stats.skillGaps.map((s, i) => `${i+1}. ${s}`).join('\n') : 'Không có dữ liệu đặc biệt'}
+${stats.skillGaps.length > 0 ? stats.skillGaps.map((s, i) => `${i + 1}. ${s}`).join('\n') : 'Không có dữ liệu đặc biệt'}
 
 **YÊU CẦU:**
 1. Tạo 4-5 nhóm câu hỏi khác nhau
@@ -168,16 +168,16 @@ const createSpecificQuestionsPrompt = (analysisData: AnalysisRunData, stats: Ana
   const candidateStrengths = candidate.analysis?.['Điểm mạnh CV'] || [];
   const candidateWeaknesses = candidate.analysis?.['Điểm yếu CV'] || [];
   const candidateDetails = candidate.analysis?.['Chi tiết'] || [];
-  
+
   // Phân tích điểm số chi tiết để tìm điểm mạnh/yếu
   const strengthAreas: string[] = [];
   const weaknessAreas: string[] = [];
-  
+
   candidateDetails.forEach(detail => {
     const score = parseFloat(detail['Điểm'].split('/')[0]);
     const maxScore = parseFloat(detail['Điểm'].split('/')[1]);
     const percentage = (score / maxScore) * 100;
-    
+
     if (percentage >= 80) {
       strengthAreas.push(detail['Tiêu chí']);
     } else if (percentage < 50) {
@@ -201,10 +201,10 @@ Bạn là chuyên gia tuyển dụng. Tạo câu hỏi phỏng vấn CỤ THỂ 
 - Hạng: ${candidate.analysis?.['Hạng']}
 
 **ĐIỂM MẠNH CỦA ỨNG VIÊN:**
-${candidateStrengths.length > 0 ? candidateStrengths.map((s, i) => `${i+1}. ${s}`).join('\n') : 'Chưa xác định'}
+${candidateStrengths.length > 0 ? candidateStrengths.map((s, i) => `${i + 1}. ${s}`).join('\n') : 'Chưa xác định'}
 
 **ĐIỂM YẾU CỦA ỨNG VIÊN:**
-${candidateWeaknesses.length > 0 ? candidateWeaknesses.map((w, i) => `${i+1}. ${w}`).join('\n') : 'Chưa xác định'}
+${candidateWeaknesses.length > 0 ? candidateWeaknesses.map((w, i) => `${i + 1}. ${w}`).join('\n') : 'Chưa xác định'}
 
 **LĨNH VỰC MẠNH (điểm >=80%):**
 ${strengthAreas.length > 0 ? strengthAreas.join(', ') : 'Không có'}
@@ -251,7 +251,7 @@ Bạn là chuyên gia tuyển dụng. Tạo câu hỏi để SO SÁNH và lựa 
 
 **ỨNG VIÊN CẦN SO SÁNH:**
 ${candidateProfiles.map((c, i) => `
-${i+1}. ${c.name}
+${i + 1}. ${c.name}
    - Hạng: ${c.rank} (${c.score} điểm)
    - Vị trí: ${c.title}
    - Cấp độ: ${c.level}
