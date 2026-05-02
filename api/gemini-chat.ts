@@ -9,6 +9,9 @@ function collectGeminiApiKeys(): string[] {
     process.env.GEMINI_API_KEY_1,
     process.env.GEMINI_API_KEY_2,
     process.env.GEMINI_API_KEY,
+    process.env.VITE_GEMINI_API_KEY_1,
+    process.env.VITE_GEMINI_API_KEY_2,
+    process.env.VITE_GEMINI_API_KEY,
   ];
   const out: string[] = [];
   for (const k of raw) {
