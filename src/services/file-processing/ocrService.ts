@@ -11,7 +11,7 @@ const FILE_SIZE_LIMIT_MB = 15;
 const MIN_PDF_TEXT_LENGTH = 200;
 const MAX_OCR_PAGES = 3;        // Tăng lên 3 trang để không bỏ sót nội dung
 const CANVAS_SCALE = 2.5;       // Tăng độ phân giải PDF render
-const GEMINI_VISION_MODEL = 'gemini-2.0-flash';
+const GEMINI_VISION_MODEL = 'gemini-1.5-flash';
 
 const GOOGLE_CLOUD_VISION_API_KEY = (import.meta as any)?.env?.VITE_GOOGLE_CLOUD_VISION_API_KEY;
 
