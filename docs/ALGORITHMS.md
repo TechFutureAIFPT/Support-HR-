@@ -35,6 +35,12 @@ Thay vì chỉ so khớp từ khóa (Keyword Matching), hệ thống sử dụng
   - Giúp phát hiện ứng viên phù hợp ngay cả khi họ không dùng từ khóa chính xác (ví dụ: JD cần "Python dev", CV ghi "Django Backend Engineer" -> AI vẫn hiểu là phù hợp).
 - **Clustering**: Gom nhóm các ứng viên có hồ sơ tương tự nhau để HR dễ dàng so sánh.
 
+### 🔄 API Connectivity & Strategy
+Hệ thống triển khai cơ chế kết nối thông minh để tối ưu hóa hiệu suất và bảo mật:
+- **Local Development Mode**: Gọi trực tiếp tới Google Generative AI SDK (`@google/genai`) từ trình duyệt. Giúp tăng tốc độ phản hồi và dễ dàng debug khi phát triển.
+- **Production Mode (Vercel)**: Sử dụng Serverless Proxy (`/api/gemini-chat`) để bảo vệ API Key và tránh các vấn đề về CORS/Security trên môi trường cloud.
+- **Automatic Fallback**: Nếu Gemini Proxy gặp lỗi hoặc đạt Rate Limit, hệ thống tự động chuyển sang OpenAI Fallback thông qua endpoint `/api/openai-chat`.
+
 ---
 
 ## 2. Hệ Thống Thuật Toán AI Chấm Điểm Deterministic
