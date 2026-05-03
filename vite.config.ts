@@ -10,17 +10,6 @@ export default defineConfig(({ mode }) => {
         port: 3000,
         host: '0.0.0.0',
         proxy: {
-          '/api/openai-chat': {
-            target: 'https://api.openai.com',
-            changeOrigin: true,
-            rewrite: () => '/v1/chat/completions',
-            configure: (proxy) => {
-              proxy.on('proxyReq', (proxyReq) => {
-                const key = env.VITE_OPENAI_API_KEY || env.OPENAI_API_KEY;
-                if (key) proxyReq.setHeader('Authorization', `Bearer ${key}`);
-              });
-            },
-          },
           '/api/gemini-chat': {
             target: 'https://generativelanguage.googleapis.com',
             changeOrigin: true,

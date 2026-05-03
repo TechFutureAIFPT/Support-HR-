@@ -54,27 +54,44 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   let lastError: unknown = null;
   const originalIndex = currentKeyIndex;
-
-  for (let attempt = 0; attempt < apiKeys.length; attempt++) {
-    try {
-      const key = apiKeys[currentKeyIndex];
-      const ai = new GoogleGenAI({ apiKey: key });
-      
-      const response = await ai.models.generateContent({ model, contents, config });
-      // Return only the text to ensure consistency and avoid serialization issues with SDK objects
-      res.status(200).json({ text: response.text });
-      return;
-    } catch (error) {
-      lastError = error;
-      if (isGeminiApiKeyInvalidError(error)) {
-         console.warn(`[Gemini Proxy] Key ${currentKeyIndex + 1}/${apiKeys.length} invalid or revoked.`);
-      } else {
-         console.warn(`[Gemini Proxy] Key ${currentKeyIndex + 1} failed:`, error instanceof Error ? error.message : String(error));
-      }
-      currentKeyIndex = (currentKeyIndex + 1) % apiKeys.length;
-    }
+  
+  // CHIẾN LƯỢC: Thử tất cả các key với model gốc. 
+  // Nếu tất cả các key đều bị 429 và model gốc không phải là 1.5-flash, thử lại với 1.5-flash (vì 1.5-flash có quota rộng nhất).
+  const modelsToTry = [model];
+  if (model !== 'gemini-1.5-flash') {
+    modelsToTry.push('gemini-1.5-flash');
   }
 
-  const msg = lastError instanceof Error ? lastError.message : 'All Gemini keys failed in proxy';
+  for (const targetModel of modelsToTry) {
+    for (let attempt = 0; attempt < apiKeys.length; attempt++) {
+      try {
+        const key = apiKeys[currentKeyIndex];
+        const ai = new GoogleGenAI({ apiKey: key });
+        
+        const response = await ai.models.generateContent({ model: targetModel, contents, config });
+        // Return only the text to ensure consistency and avoid serialization issues with SDK objects
+        res.status(200).json({ text: response.text });
+        return;
+      } catch (error) {
+        lastError = error;
+        const errMsg = error instanceof Error ? error.message : String(error);
+        
+        if (isGeminiApiKeyInvalidError(error)) {
+           console.warn(`[Gemini Proxy] Key ${currentKeyIndex + 1}/${apiKeys.length} invalid or revoked.`);
+        } else {
+           console.warn(`[Gemini Proxy] Model ${targetModel} with Key ${currentKeyIndex + 1} failed:`, errMsg);
+        }
+
+        // Nếu lỗi không phải là 429 (ví dụ 400 Bad Request), có thể không cần thử key tiếp theo cho model này
+        // Nhưng cứ thử để chắc chắn.
+        currentKeyIndex = (currentKeyIndex + 1) % apiKeys.length;
+      }
+    }
+    
+    // Nếu đã thử hết các key cho model hiện tại mà vẫn lỗi, và model tiếp theo là 1.5-flash, ta sẽ tiếp tục vòng lặp model.
+    console.warn(`[Gemini Proxy] All keys failed for model ${targetModel}. Checking fallback...`);
+  }
+
+  const msg = lastError instanceof Error ? lastError.message : 'All Gemini keys and models failed in proxy';
   res.status(500).json({ error: { message: msg } });
 }

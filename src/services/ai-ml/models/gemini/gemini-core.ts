@@ -5,10 +5,6 @@ import { processFileToText } from '@/services/file-processing/ocrService';
 import { computeIndustrySimilarity, type SupportedIndustry } from '@/services/ai-ml/embedding-vector/similarity/industryEmbeddingService';
 import type { Candidate, HardFilters, WeightCriteria, MainCriterion } from '@/assets/types';
 
-// Vẫn giữ lại OPENAI_API_KEY để kiểm tra fallback nếu proxy Gemini lỗi
-const OPENAI_API_KEY = (import.meta as any).env?.VITE_OPENAI_API_KEY;
-const OPENAI_MODEL = (import.meta as any).env?.VITE_OPENAI_MODEL || 'gpt-4o-mini';
-
 const apiQueue = new PQueue({ concurrency: 2 });
 
 const IT_KEYWORDS = ['it','software','developer','engineer','backend','frontend','fullstack','full-stack','devops','data engineer','data scientist','kỹ sư','lập trình','qa','tester','product manager'];
@@ -16,16 +12,9 @@ const SALES_KEYWORDS = ['sales','kinh doanh','bán hàng','thị trường','bus
 const MARKETING_KEYWORDS = ['marketing','truyền thông','content','seo','social media','brand','quảng cáo','pr','digital'];
 const DESIGN_KEYWORDS = ['design','thiết kế','đồ họa','ui/ux','art','creative','sáng tạo','artist','designer'];
 
-export const normalizeSchemaForOpenAI = (schema: any): any => {
-  if (schema == null) return schema;
-  if (Array.isArray(schema)) return schema.map(normalizeSchemaForOpenAI);
-  if (typeof schema !== 'object') return schema;
-  const typeMap: Record<string, string> = { OBJECT: 'object', ARRAY: 'array', STRING: 'string', NUMBER: 'number', INTEGER: 'integer', BOOLEAN: 'boolean', NULL: 'null' };
-  const normalized: any = {};
-  for (const [key, value] of Object.entries(schema)) {
-    normalized[key] = key === 'type' && typeof value === 'string' ? (typeMap[value] || value.toLowerCase()) : normalizeSchemaForOpenAI(value);
-  }
-  return normalized;
+export const isRetryableGeminiError = (error: unknown): boolean => {
+  const msg = error instanceof Error ? error.message.toLowerCase() : String(error).toLowerCase();
+  return msg.includes('429') || msg.includes('quota') || msg.includes('rate limit') || msg.includes('resource exhausted') || msg.includes('too many requests') || msg.includes('overload') || msg.includes('unavailable');
 };
 
 export const extractPromptFromContents = (contents: any): string => {
@@ -40,39 +29,6 @@ export const extractPromptFromContents = (contents: any): string => {
   if (contents?.text) return String(contents.text);
   return JSON.stringify(contents ?? '');
 };
-
-export const isRetryableGeminiError = (error: unknown): boolean => {
-  const msg = error instanceof Error ? error.message.toLowerCase() : String(error).toLowerCase();
-  return msg.includes('429') || msg.includes('quota') || msg.includes('rate limit') || msg.includes('resource exhausted') || msg.includes('too many requests') || msg.includes('overload') || msg.includes('unavailable');
-};
-
-/** Trình duyệt: gọi proxy same-origin (Vite / Vercel) — không gửi key ra client. SSR/Node: gọi trực tiếp nếu có key. */
-function getOpenAIChatUrl(): string {
-  if (typeof window !== 'undefined') return '/api/openai-chat';
-  return 'https://api.openai.com/v1/chat/completions';
-}
-
-async function generateContentWithOpenAI(contents: any, config: any): Promise<{ text: string }> {
-  const prompt = extractPromptFromContents(contents);
-  const body: any = { model: OPENAI_MODEL, messages: [{ role: 'user', content: prompt }], temperature: typeof config?.temperature === 'number' ? config.temperature : 0 };
-  if (config?.responseSchema) {
-    body.response_format = { type: 'json_schema', json_schema: { name: 'gemini_fallback_schema', strict: true, schema: normalizeSchemaForOpenAI(config.responseSchema) } };
-  }
-  const url = getOpenAIChatUrl();
-  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-  if (typeof window === 'undefined' && OPENAI_API_KEY) {
-    headers.Authorization = `Bearer ${OPENAI_API_KEY}`;
-  }
-  if (typeof window !== 'undefined' && !OPENAI_API_KEY) {
-    console.warn('VITE_OPENAI_API_KEY: proxy sẽ thêm key phía server (dev). Production: cấu hình env trên Vercel cho /api/openai-chat.');
-  }
-  const response = await fetch(url, { method: 'POST', headers, body: JSON.stringify(body) });
-  if (!response.ok) throw new Error(`OpenAI fallback failed (${response.status})`);
-  const data = await response.json();
-  const text = data?.choices?.[0]?.message?.content;
-  if (!text || typeof text !== 'string') throw new Error('OpenAI fallback returned empty content.');
-  return { text };
-}
 
 export async function generateContentWithFallback(model: string, contents: any, config: any): Promise<any> {
   const startTime = Date.now();
@@ -101,7 +57,7 @@ export async function generateContentWithFallback(model: string, contents: any, 
           }
         }
 
-        // PRODUCTION or Fallback: Use serverless proxy
+        // PRODUCTION: Use serverless proxy
         const url = typeof window !== 'undefined' ? '/api/gemini-chat' : '';
         if (!url) throw new Error('Cannot resolve proxy URL in Node environment without full host');
         
@@ -120,12 +76,7 @@ export async function generateContentWithFallback(model: string, contents: any, 
         return data;
       } catch (error) {
         console.warn('Gemini Proxy failed:', error);
-        
-        if (OPENAI_API_KEY || typeof window !== 'undefined') {
-          console.warn('Switching to OpenAI fallback.');
-          return generateContentWithOpenAI(contents, config);
-        }
-        throw new Error("Gemini Proxy failed and OpenAI fallback is unavailable.");
+        throw error;
       }
     });
     console.log('generateContent success:', Date.now() - startTime);
