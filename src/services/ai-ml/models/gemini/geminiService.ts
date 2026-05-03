@@ -3,7 +3,6 @@
 
 export {
   generateContentWithFallback,
-  normalizeSchemaForOpenAI,
   extractPromptFromContents,
   isRetryableGeminiError,
   filterAndStructureJD,
