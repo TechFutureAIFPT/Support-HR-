@@ -81,7 +81,15 @@ export async function generateContentWithFallback(model: string, contents: any, 
     const result = await apiQueue.add(async () => {
       try {
         // LOCAL DEVELOPMENT: Call API directly if on localhost to avoid proxy issues
-        if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+        const isLocal = typeof window !== 'undefined' && (
+          window.location.hostname === 'localhost' || 
+          window.location.hostname === '127.0.0.1' || 
+          window.location.hostname === '0.0.0.0' || 
+          window.location.hostname.startsWith('192.168.') ||
+          (import.meta as any).env.DEV
+        );
+
+        if (isLocal) {
           const { GoogleGenAI } = await import('@google/genai');
           const key = (import.meta as any).env.VITE_GEMINI_API_KEY_1 || (import.meta as any).env.VITE_GEMINI_API_KEY_2;
           

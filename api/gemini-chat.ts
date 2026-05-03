@@ -60,6 +60,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const key = apiKeys[currentKeyIndex];
       const ai = new GoogleGenAI({ apiKey: key });
       
+      const response = await ai.models.generateContent({ model, contents, config });
       // Return only the text to ensure consistency and avoid serialization issues with SDK objects
       res.status(200).json({ text: response.text });
       return;
