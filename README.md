@@ -180,6 +180,7 @@ Support-HR-/
 │       └── googleDriveService.ts
 │
 ├── 📁 api/                     # Serverless API (Vercel Functions)
+│   ├── gemini-chat.ts          # Gemini AI proxy (production safe)
 │   └── openai-chat.ts          # OpenAI chat proxy endpoint
 │
 ├── 📁 assets/                  # Static Assets & Types
@@ -243,7 +244,8 @@ Dự án được chia thành 3 phần tài liệu chính để dễ dàng theo 
 ##  Tính năng nổi bật
 
 ###  **AI-Powered CV Analysis**
--   **Phân tích thông minh**: Sử dụng Google Gemini AI để đánh giá CV theo 8+ tiêu chí
+-   **Phân tích thông minh**: Sử dụng Google Gemini AI 1.5 Flash để đánh giá CV theo 8+ tiêu chí
+-   **Dual Connectivity Strategy**: Tự động chuyển đổi giữa Direct SDK (Local) và Serverless Proxy (Production) giúp tối ưu bảo mật và tốc độ
 -   **Đa định dạng**: Hỗ trợ PDF, Word, Excel và hình ảnh (OCR)
 -   **Chấm điểm deterministic**: Kết quả nhất quán 100% với cùng input
 -   **Trọng số tùy chỉnh**: Điều chỉnh tiêu chí đánh giá theo từng vị trí
@@ -386,22 +388,20 @@ VITE_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
 VITE_FIREBASE_MESSAGING_SENDER_ID=123456789
 VITE_FIREBASE_APP_ID=1:123456789:web:abcdef
 
-# Google Gemini AI (Multi-key support for load balancing)
-# System sử dụng 4 keys và tự động rotate để tránh rate limit
+# Google Gemini AI (Multi-key support)
+# Tự động rotate giữa các key để tránh rate limit
 VITE_GEMINI_API_KEY_1=your_gemini_key_1
 VITE_GEMINI_API_KEY_2=your_gemini_key_2
 VITE_GEMINI_API_KEY_3=your_gemini_key_3
 VITE_GEMINI_API_KEY_4=your_gemini_key_4
 
-# (Optional) CLI embedding scripts ưu tiên biến này nếu được set
-GEMINI_API_KEY=your_backend_gemini_key
+# Biến môi trường cho Serverless Function (Vercel)
+# Lưu ý: Trên Vercel Dashboard, không dùng tiền tố VITE_ cho các biến server-side
+GEMINI_API_KEY_1=your_gemini_key_1
+GEMINI_API_KEY_2=your_gemini_key_2
 
 # RapidAPI (Salary Analysis - Optional)
 VITE_RAPIDAPI_KEY=your_rapidapi_key
-
-# App Configuration
-VITE_APP_NAME="Support HR"
-VITE_APP_VERSION="1.0.0"
 ```
 
 ### **Khởi chạy**

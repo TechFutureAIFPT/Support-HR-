@@ -26,7 +26,11 @@ graph TD
         Parser --> |PDF/Word| TextExtract[Trích Xuất Text]
         Parser --> |Image| OCR[🤖 Google Vision API / Tesseract]
         
-        TextExtract & OCR --> AI_Engine[🧠 AI Engine (Gemini 1.5)]
+        TextExtract & OCR --> AI_Selector[🔄 AI Connectivity Selector]
+        AI_Selector --> |Local Dev| LocalSDK[Direct SDK @google/genai]
+        AI_Selector --> |Production| VercelProxy[Serverless Proxy /api/gemini-chat]
+        
+        LocalSDK & VercelProxy --> AI_Engine[🧠 AI Engine (Gemini 1.5 Flash)]
         AI_Engine --> Embedding[📐 Vector Embedding (text-embedding-004)]
     end
 
@@ -136,44 +140,23 @@ graph TD
             ┌───────────────────────────────────────────────────┐
             │                                                   │
             ▼                                                   ▼
-  ┌─────────────────┐                                ┌─────────────────┐
-  │  ❓ TẠO CÂU HỎI │                                │  📊 BÁO CÁO &   │
-  │   PHỎNG VẤN     │                                │    THỐNG KÊ     │
-  │                 │                                │                 │
-  │ • General Mode  │                                │ • Dashboard     │
-  │ • Specific Mode │                                │ • Export Excel  │
-  │ • Compare Mode  │                                │ • Export PDF    │
-  │ • AI Generated  │                                │ • Lịch sử phân  │
-  └─────────┬───────┘                                │   tích          │
-            │                                        └─────────┬───────┘
-            │                                                  │
-            └──────────────────┬───────────────────────────────┘
-                              │
-                              ▼
-                ┌─────────────────────────────────────┐
-                │       💾 LƯU TRỮ & ĐỒNG BỘ         │
-                │                                     │
-                │ ┌─────────────┐ ┌─────────────────┐ │
-                │ │ Local Cache │ │ Firebase Cloud  │ │
-                │ │ (100 items) │ │ Sync            │ │
-                │ │ 7 days TTL  │ │ Cross-device    │ │
-                │ └─────────────┘ └─────────────────┘ │
-                │                                     │
-                │ 🔒 BẢO MẬT: Encryption + Access    │
-                │                Control              │
-                └─────────────────────────────────────┘
-```
-
----
-
-## 2. Luồng Xử Lý Chính (Main Processing Flow)
-
-```
-  Bước 1: Đăng nhập         Bước 2: Thiết lập        Bước 3: Upload CV
-       │                         │                        │
-       ▼                         ▼                        ▼
-┌──────────────┐          ┌──────────────┐         ┌──────────────┐
-│ 🔐 Gmail     │ ────────▶│ ⚙️ Cấu hình  │────────▶│ 📁 Tải file │
+  ┌─────────────�hr-support-system/
+├── 📁 components/         # React Components (layout, features, pages, ui, shared)
+├── 📁 services/            # Business Logic Services
+│   ├── 📁 ai-ml/              # 🤖 AI & Machine Learning
+│   │   ├── 📁 models/                 # Model implementations (Gemini, OpenAI)
+│   │   ├── 📁 algorithms/             # Scoring & Matching Logic
+│   │   └── 📁 embedding-vector/       # Vector operations
+│   ├── 📁 file-processing/     # 📄 File Processing (OCR, PDF, Word)
+│   ├── 📁 history-cache/        # 🗄️ History & Cache
+│   └── 📁 data-sync/           # 📊 Data & Sync (Firebase, UserProfile)
+├── 📁 api/                # Vercel Serverless Functions
+│   ├── gemini-chat.ts     # Production proxy for Gemini
+│   └── openai-chat.ts     # Production proxy for OpenAI
+├── 📁 docs/               # Project documentation (Architecture, Algorithms)
+├── 📁 src/                # App entry point (App.tsx, index.tsx)
+└── 🔧 Config files        # Vite, Tailwind, TypeScript, Vercel
+Tải file │
 │ Authentication│          │ trọng số     │         │ CV (multi    │
 │              │          │ & tiêu chí   │         │ format)      │
 └──────────────┘          └──────────────┘         └──────┬───────┘
