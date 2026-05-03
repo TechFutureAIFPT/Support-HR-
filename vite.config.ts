@@ -21,6 +21,20 @@ export default defineConfig(({ mode }) => {
               });
             },
           },
+          '/api/gemini-chat': {
+            target: 'https://generativelanguage.googleapis.com',
+            changeOrigin: true,
+            rewrite: (path) => path.replace(/^\/api\/gemini-chat/, '/v1beta/models/gemini-1.5-flash:generateContent'),
+            configure: (proxy) => {
+              proxy.on('proxyReq', (proxyReq) => {
+                const key = env.VITE_GEMINI_API_KEY_1 || env.GEMINI_API_KEY_1;
+                if (key) {
+                  const separator = proxyReq.path.includes('?') ? '&' : '?';
+                  proxyReq.path += `${separator}key=${key}`;
+                }
+              });
+            },
+          },
         },
       },
       plugins: [react()],

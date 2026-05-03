@@ -80,7 +80,21 @@ export async function generateContentWithFallback(model: string, contents: any, 
   try {
     const result = await apiQueue.add(async () => {
       try {
-        const url = typeof window !== 'undefined' ? '/api/gemini-chat' : ''; // On server/Node we could hit it directly but Vite SPA usually runs in browser.
+        // LOCAL DEVELOPMENT: Call API directly if on localhost to avoid proxy issues
+        if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+          const { GoogleGenAI } = await import('@google/genai');
+          const key = (import.meta as any).env.VITE_GEMINI_API_KEY_1 || (import.meta as any).env.VITE_GEMINI_API_KEY_2;
+          
+          if (key) {
+            console.log('[Gemini] Local development: calling API directly');
+            const ai = new GoogleGenAI({ apiKey: key });
+            const response = await ai.models.generateContent({ model, contents, config });
+            return { text: response.text };
+          }
+        }
+
+        // PRODUCTION or Fallback: Use serverless proxy
+        const url = typeof window !== 'undefined' ? '/api/gemini-chat' : '';
         if (!url) throw new Error('Cannot resolve proxy URL in Node environment without full host');
         
         const response = await fetch(url, {
