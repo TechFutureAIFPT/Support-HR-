@@ -35,15 +35,17 @@ export async function saveHistorySession({ jdText, jobPosition, locationRequirem
     }));
 
     // Lưu vào Firebase collection chính và cũng đồng bộ với UserProfileService
+    const safeJdText = jdText || '';
+    const safeJobPosition = jobPosition || '';
     const docRef = await addDoc(collection(db, COLLECTION), {
-      jobPosition,
-      locationRequirement,
-      jdTextSnippet: jdText.slice(0,300),
+      jobPosition: safeJobPosition,
+      locationRequirement: locationRequirement || '',
+      jdTextSnippet: safeJdText.slice(0,300),
       totalCandidates: total,
       grades: gradesCount,
       topCandidates: top,
-      userEmail,
-      fullPayload: { jdText, jobPosition, weights, hardFilters, candidates },
+      userEmail: userEmail || '',
+      fullPayload: { jdText: safeJdText, jobPosition: safeJobPosition, weights: weights || {}, hardFilters: hardFilters || {}, candidates: candidates || [] },
       createdAt: serverTimestamp(),
       timestamp: Date.now()
     });
