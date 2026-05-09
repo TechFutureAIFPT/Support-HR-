@@ -344,7 +344,21 @@ const HomePage: React.FC<HomePageProps> = ({
       <div className="relative z-10">
 
         {/* ── Navbar ───────────────────────────────────────── */}
-        <nav ref={navRef} className={`sticky top-0 w-full z-50 transition-all duration-500 ${isScrolled ? "bg-[#0B1120]/90 backdrop-blur-xl border-b border-slate-800/50 shadow-2xl shadow-black/20" : "bg-transparent"}`}>
+        <nav
+          ref={navRef}
+          className={`sticky top-0 w-full z-50 transition-all duration-500 ${
+            isScrolled
+              ? "bg-[#111c35]/94 backdrop-blur-2xl border-b border-cyan-400/12 shadow-[0_20px_45px_rgba(2,8,23,0.34)]"
+              : "bg-transparent"
+          }`}
+        >
+          <div
+            className={`absolute inset-x-0 bottom-0 h-px transition-opacity duration-500 ${
+              isScrolled
+                ? "opacity-100 bg-gradient-to-r from-transparent via-cyan-300/45 to-transparent"
+                : "opacity-0"
+            }`}
+          />
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between h-16">
               {/* Logo */}
