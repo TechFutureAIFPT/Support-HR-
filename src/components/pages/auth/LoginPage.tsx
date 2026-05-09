@@ -254,7 +254,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
 
   return (
     <div
-      className={`min-h-screen flex transition-all duration-1000 ease-out ${
+      className={`login-page-shell min-h-screen flex transition-all duration-1000 ease-out ${
         successStage === 'transitioning' ? 'opacity-0 scale-[1.02]' : 'opacity-100 scale-100'
       }`}
       style={{ backgroundColor: '#06091a' }}

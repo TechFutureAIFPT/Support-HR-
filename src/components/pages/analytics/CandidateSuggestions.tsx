@@ -263,7 +263,7 @@ const CandidateSuggestions: React.FC<CandidateSuggestionsProps> = ({ candidates,
 
   if (!candidates || candidates.length === 0) {
     return (
-      <div className="flex h-full min-h-0 w-full flex-1 flex-col items-center justify-center px-4 text-center" style={{ background: tc.pageBg }}>
+      <div className="feature-page-shell flex h-full min-h-0 w-full flex-1 flex-col items-center justify-center px-4 text-center" style={{ background: tc.pageBg }}>
         <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-full shadow-sm" style={{ background: tc.cardBg }}>
           <Bot className="w-10 h-10 text-slate-400" />
         </div>
@@ -274,7 +274,7 @@ const CandidateSuggestions: React.FC<CandidateSuggestionsProps> = ({ candidates,
   }
 
   return (
-    <div className="flex h-full flex-col overflow-hidden" style={{ background: tc.pageBg }}>
+    <div className="feature-page-shell flex h-full flex-col overflow-hidden" style={{ background: tc.pageBg }}>
       {/* ── Unified Global Header ─────────────────────────────────── */}
       <div className="shrink-0 flex items-center justify-between border-b px-4 py-3 md:px-6 md:py-4" style={{ background: tc.pageBg, borderColor: tc.borderColor }}>
         {/* Left: Dynamic Content */}
@@ -669,4 +669,3 @@ const CandidateSuggestions: React.FC<CandidateSuggestionsProps> = ({ candidates,
 };
 
 export default CandidateSuggestions;
-

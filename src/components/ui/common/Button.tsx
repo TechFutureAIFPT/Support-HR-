@@ -38,24 +38,24 @@ const Button: React.FC<ButtonProps> = ({
 
   const variantStyles = {
     primary: {
-      base: 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white shadow-lg shadow-blue-900/20 hover:shadow-blue-500/30',
-      focus: 'focus:ring-blue-500/50 focus:ring-offset-slate-900',
+      base: 'bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white shadow-[0_14px_30px_rgba(8,145,178,0.18)] hover:shadow-[0_18px_36px_rgba(59,130,246,0.2)]',
+      focus: 'focus:ring-cyan-500/40 focus:ring-offset-slate-900',
     },
     secondary: {
-      base: 'bg-gray-700 hover:bg-gray-600 text-white shadow-md',
-      focus: 'focus:ring-gray-400/50 focus:ring-offset-slate-900',
+      base: 'bg-slate-800/80 hover:bg-slate-700/85 text-white border border-white/[0.08] shadow-[0_12px_28px_rgba(15,23,42,0.14)]',
+      focus: 'focus:ring-slate-400/30 focus:ring-offset-slate-900',
     },
     outline: {
-      base: 'bg-transparent border-2 border-blue-600 hover:bg-blue-600/10 hover:border-blue-500 text-blue-600 hover:text-blue-500',
-      focus: 'focus:ring-blue-500/50 focus:ring-offset-slate-900',
+      base: 'bg-transparent border border-cyan-500/35 hover:bg-cyan-500/10 hover:border-cyan-400/45 text-cyan-200 hover:text-cyan-100',
+      focus: 'focus:ring-cyan-500/35 focus:ring-offset-slate-900',
     },
     ghost: {
-      base: 'bg-transparent hover:bg-slate-800/50 text-slate-300 hover:text-white border border-transparent',
-      focus: 'focus:ring-slate-400/50 focus:ring-offset-slate-900',
+      base: 'bg-transparent hover:bg-white/[0.05] text-slate-300 hover:text-white border border-transparent',
+      focus: 'focus:ring-slate-400/30 focus:ring-offset-slate-900',
     },
     danger: {
-      base: 'bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white shadow-lg shadow-red-900/20 hover:shadow-red-500/30',
-      focus: 'focus:ring-red-500/50 focus:ring-offset-slate-900',
+      base: 'bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white shadow-[0_14px_30px_rgba(127,29,29,0.2)] hover:shadow-[0_18px_36px_rgba(239,68,68,0.22)]',
+      focus: 'focus:ring-red-500/35 focus:ring-offset-slate-900',
     },
   };
 
@@ -79,11 +79,11 @@ const Button: React.FC<ButtonProps> = ({
         ${v.base}
         ${fullWidth ? 'w-full' : ''}
         flex items-center justify-center gap-2
-        font-medium rounded-lg
+        font-medium rounded-xl
         transition-all duration-200
         focus:outline-none focus:ring-2 ${v.focus}
         disabled:opacity-50 disabled:cursor-not-allowed
-        hover:scale-[1.02] active:scale-[0.98]
+        hover:-translate-y-px active:translate-y-0
         ${className}
       `}
       aria-busy={loading}

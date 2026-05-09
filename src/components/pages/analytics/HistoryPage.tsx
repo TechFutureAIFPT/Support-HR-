@@ -70,7 +70,7 @@ const HistoryPage: React.FC<HistoryPageProps> = ({ userEmail, onRestore }) => {
   );
 
   return (
-    <div className="space-y-5">
+    <div className="feature-page-shell space-y-5">
 
       {/* ── Header ──────────────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">

@@ -1,24 +1,29 @@
-import React, { Suspense, lazy, useState, useCallback } from 'react';
+import React, { Suspense, lazy, useCallback, useState } from 'react';
 import type { AppStep, Candidate, HardFilters, WeightCriteria } from '@/assets/types';
 import JDInput from '@/components/features/criteria-config/JDInput';
 import JDMetaToolbar from '@/components/features/criteria-config/JDMetaToolbar';
 import CVScreenerWelcome from '@/components/pages/main/CVScreenerWelcome';
-
-const WeightsConfig = lazy(() => import('@/components/features/criteria-config/WeightsConfig'));
-const AnalysisResults = lazy(() => import('@/components/features/cv-management/AnalysisResults'));
 import CVUploadMini from '@/components/features/cv-management/CVUploadMini';
 import { analyzeCVs } from '@/services/ai-ml/models/gemini/geminiService';
 
+const WeightsConfig = lazy(() => import('@/components/features/criteria-config/WeightsConfig'));
+const AnalysisResults = lazy(() => import('@/components/features/cv-management/AnalysisResults'));
+
 const ModuleLoader = () => (
-  <div className="flex flex-col items-center justify-center h-40 gap-4">
-    <div className="relative w-10 h-10">
-      <div className="absolute inset-0 -full border-[3px] border-transparent border-t-cyan-400 border-r-cyan-400/40 animate-spin"
-        style={{ animationDuration: '0.8s' }} />
-      <div className="absolute inset-1.5 -full border-[3px] border-transparent border-b-indigo-400 border-l-indigo-400/40 animate-spin"
-        style={{ animationDuration: '1.2s', animationDirection: 'reverse' }} />
+  <div className="flex h-40 flex-col items-center justify-center gap-4">
+    <div className="relative h-10 w-10">
+      <div
+        className="absolute inset-0 -full animate-spin border-[3px] border-transparent border-r-cyan-400/40 border-t-cyan-400"
+        style={{ animationDuration: '0.8s' }}
+      />
+      <div
+        className="absolute inset-1.5 -full animate-spin border-[3px] border-transparent border-b-indigo-400 border-l-indigo-400/40"
+        style={{ animationDuration: '1.2s', animationDirection: 'reverse' }}
+      />
     </div>
-    <span className="text-[10px] uppercase tracking-[0.3em] font-semibold animate-pulse text-slate-600">
-      Đang tải...</span>
+    <span className="animate-pulse text-[10px] font-semibold uppercase tracking-[0.3em] text-slate-600">
+      Đang tải...
+    </span>
   </div>
 );
 
@@ -69,22 +74,29 @@ const ScreenerPage: React.FC<ScreenerPageProps> = (props) => {
         if (result.status === 'progress') {
           props.setLoadingMessage(result.message);
         } else {
-          props.setAnalysisResults(prev => [...prev, result as Candidate]);
+          props.setAnalysisResults((prev) => [...prev, result as Candidate]);
         }
       }
     } catch (err) {
-      console.error("Lỗi phân tích CV:", err);
+      console.error('Lỗi phân tích CV:', err);
       const message = err instanceof Error ? err.message : 'Đã xảy ra lỗi không xác định. Vui lòng thử lại.';
-      props.setAnalysisResults(prev => {
-        if (prev.some(c => c.candidateName === 'Lỗi Hệ Thống')) return prev;
-        return [...prev, {
-          id: `system-error-${Date.now()}`,
-          status: 'FAILED',
-          error: message,
-          candidateName: 'Lỗi Hệ Thống',
-          fileName: 'N/A',
-          jobTitle: '', industry: '', department: '', experienceLevel: '', detectedLocation: '',
-        }];
+      props.setAnalysisResults((prev) => {
+        if (prev.some((candidate) => candidate.candidateName === 'Lỗi Hệ Thống')) return prev;
+        return [
+          ...prev,
+          {
+            id: `system-error-${Date.now()}`,
+            status: 'FAILED',
+            error: message,
+            candidateName: 'Lỗi Hệ Thống',
+            fileName: 'N/A',
+            jobTitle: '',
+            industry: '',
+            department: '',
+            experienceLevel: '',
+            detectedLocation: '',
+          },
+        ];
       });
     } finally {
       props.setIsLoading(false);
@@ -97,13 +109,15 @@ const ScreenerPage: React.FC<ScreenerPageProps> = (props) => {
       <div className="fixed inset-0 z-50 overflow-y-auto">
         <CVScreenerWelcome
           onGetStarted={hideWelcome}
+          cvFiles={props.cvFiles}
+          setCvFiles={props.setCvFiles}
+          hasPreparedJd={props.jdText.trim().length > 0}
           onFileProcessed={(data) => {
             props.setJdText(data.jdText);
             if (data.jobPosition) props.setJobPosition(data.jobPosition);
             if (data.hardFilters && Object.keys(data.hardFilters).length > 0) {
               props.setHardFilters((prev) => ({ ...prev, ...data.hardFilters }));
             }
-            hideWelcome();
           }}
         />
       </div>
@@ -111,7 +125,7 @@ const ScreenerPage: React.FC<ScreenerPageProps> = (props) => {
   }
 
   return (
-    <div className="flex h-full flex-1 flex-col overflow-hidden bg-[#0B192C]">
+    <div className="feature-page-shell flex h-full flex-1 flex-col overflow-hidden bg-[#0B192C]">
       {activeStep === 'jd' && (
         <JDMetaToolbar
           jdText={props.jdText}
@@ -134,7 +148,6 @@ const ScreenerPage: React.FC<ScreenerPageProps> = (props) => {
         />
       )}
 
-      {/* ── Nội dung module ────────────────────────────────────── */}
       <div
         className={`flex min-h-0 flex-1 flex-col ${
           activeStep === 'jd' || activeStep === 'analysis'
@@ -143,7 +156,7 @@ const ScreenerPage: React.FC<ScreenerPageProps> = (props) => {
         }`}
       >
         <div className={activeStep === 'jd' ? 'flex h-full min-h-0 flex-1 flex-col md:flex-row' : 'hidden'}>
-          <div className="flex-1 flex flex-col min-w-0 border-b md:border-b-0 md:border-r border-slate-800">
+          <div className="flex min-w-0 flex-1 flex-col border-b border-slate-800 md:border-b-0 md:border-r">
             <JDInput
               hideToolbar
               jdText={props.jdText}
@@ -163,8 +176,9 @@ const ScreenerPage: React.FC<ScreenerPageProps> = (props) => {
               onBackToWelcome={() => setShowWelcome(true)}
             />
           </div>
-          <div className="w-full md:w-[350px] lg:w-[400px] shrink-0 h-[40vh] md:h-full bg-[#0B192C]">
-            <CVUploadMini cvFiles={props.cvFiles} setCvFiles={props.setCvFiles} />
+
+          <div className="h-[40vh] w-full shrink-0 bg-[#0B192C] md:h-full md:w-[350px] lg:w-[400px]">
+            <CVUploadMini cvFiles={props.cvFiles} />
           </div>
         </div>
 
@@ -203,7 +217,9 @@ const ScreenerPage: React.FC<ScreenerPageProps> = (props) => {
 
         <div className={activeStep === 'chatbot' ? 'block h-full' : 'hidden'}>
           <Suspense fallback={<ModuleLoader />}>
-            <div className="p-4"><ModuleLoader /></div>
+            <div className="p-4">
+              <ModuleLoader />
+            </div>
           </Suspense>
         </div>
       </div>
@@ -212,6 +228,3 @@ const ScreenerPage: React.FC<ScreenerPageProps> = (props) => {
 };
 
 export default ScreenerPage;
-
-
-

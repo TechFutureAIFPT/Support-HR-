@@ -285,7 +285,7 @@ const TermsPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background text-slate-100 overflow-x-hidden">
+    <div className="legal-page-shell min-h-screen bg-background text-slate-100 overflow-x-hidden">
       {/* Background */}
       <div className="absolute inset-0 opacity-[0.02]"
         style={{

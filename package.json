@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:full": "vercel dev --listen 3000",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "embed:data": "tsx src/services/ai-ml/embedding-vector/indexer/embedData.ts"

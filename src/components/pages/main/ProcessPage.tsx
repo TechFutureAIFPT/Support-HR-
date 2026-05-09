@@ -61,7 +61,7 @@ const PROCESS_STEPS = [
 const ProcessPage: React.FC<ProcessPageProps> = ({ isIntroMode = false, onStart }) => {
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
+    <div className="feature-page-shell max-w-4xl mx-auto space-y-8">
 
       {/* ── Page Header ─────────────────────────────────────────── */}
       <div className="text-center">

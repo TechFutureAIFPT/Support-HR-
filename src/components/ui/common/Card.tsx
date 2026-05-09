@@ -30,16 +30,16 @@ const Card: React.FC<CardProps> = ({
 
   const variantStyles = {
     default: {
-      base: 'bg-slate-900/50 backdrop-blur-md border border-slate-800/60 shadow-md',
-      hover: 'hover:shadow-xl hover:-translate-y-1 hover:border-blue-600/50 hover:bg-slate-900/70',
+      base: 'bg-slate-900/58 backdrop-blur-xl border border-white/[0.08] shadow-[0_18px_48px_rgba(2,8,23,0.18)]',
+      hover: 'hover:shadow-[0_22px_60px_rgba(8,47,73,0.18)] hover:-translate-y-0.5 hover:border-cyan-500/28 hover:bg-slate-900/72',
     },
     elevated: {
-      base: 'bg-slate-900/70 backdrop-blur-md border border-slate-800/60 shadow-xl shadow-black/20',
-      hover: 'hover:shadow-2xl hover:-translate-y-1 hover:border-blue-600/50',
+      base: 'bg-slate-900/72 backdrop-blur-xl border border-white/[0.08] shadow-[0_24px_64px_rgba(2,8,23,0.24)]',
+      hover: 'hover:shadow-[0_28px_72px_rgba(15,23,42,0.28)] hover:-translate-y-0.5 hover:border-cyan-500/28',
     },
     bordered: {
-      base: 'bg-slate-950/80 backdrop-blur-sm border-2 border-blue-600/30 shadow-lg shadow-blue-900/10',
-      hover: 'hover:border-blue-500/50 hover:shadow-xl',
+      base: 'bg-slate-950/78 backdrop-blur-lg border border-blue-500/24 shadow-[0_18px_40px_rgba(15,23,42,0.2)]',
+      hover: 'hover:border-cyan-500/32 hover:shadow-[0_22px_54px_rgba(8,47,73,0.18)]',
     },
     ghost: {
       base: 'bg-transparent border border-transparent',
@@ -54,7 +54,7 @@ const Card: React.FC<CardProps> = ({
     <div
       className={`
         ${v.base} ${hoverClass}
-        rounded-xl transition-all duration-300
+        rounded-[18px] transition-all duration-300
         ${className}
       `}
       onClick={onClick}
@@ -66,7 +66,7 @@ const Card: React.FC<CardProps> = ({
         <div className={`
           flex items-center justify-between
           ${paddingConfig[padding]} ${padding !== 'none' && children ? 'pb-0' : ''}
-          border-b border-slate-800/60
+          border-b border-white/[0.08]
         `}>
           {title && (
             <h3 className="text-lg font-semibold text-white">

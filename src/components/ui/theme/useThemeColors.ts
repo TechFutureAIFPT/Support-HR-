@@ -10,30 +10,30 @@ export function useThemeColors() {
     isDark: true,
 
     // ── Backgrounds ──
-    pageBg:      'linear-gradient(180deg, #0B192C 0%, #0d1628 100%)',
-    cardBg:      'rgba(255,255,255,0.03)',
-    cardBg2:     'rgba(255,255,255,0.04)',
-    hoverBg:     'rgba(255,255,255,0.06)',
-    headerBg:    'linear-gradient(180deg, rgba(12,22,40,0.9) 0%, rgba(10,18,32,0.9) 100%)',
-    tableBg:     'rgba(10,18,32,0.9)',
+    pageBg:      'linear-gradient(180deg, #08111f 0%, #0b1322 52%, #0b1120 100%)',
+    cardBg:      'rgba(255,255,255,0.045)',
+    cardBg2:     'rgba(255,255,255,0.06)',
+    hoverBg:     'rgba(255,255,255,0.075)',
+    headerBg:    'linear-gradient(180deg, rgba(11,19,34,0.92) 0%, rgba(9,17,31,0.9) 100%)',
+    tableBg:     'rgba(9,17,31,0.88)',
     tableRowBg:  undefined,
-    modalBg:     'linear-gradient(180deg, #11213A 0%, #0B192C 100%)',
+    modalBg:     'linear-gradient(180deg, rgba(17,33,58,0.96) 0%, rgba(9,17,31,0.98) 100%)',
     overlayBg:   'rgba(0,0,0,0.65)',
     scrollBg:    'rgba(10,18,32,0.5)',
-    inputBg:     'rgba(255,255,255,0.04)',
+    inputBg:     'rgba(255,255,255,0.05)',
 
     // ── Borders ──
-    border:      '1px solid rgba(255,255,255,0.06)',
-    borderSoft:  '1px solid rgba(255,255,255,0.04)',
-    borderCard:  '1px solid rgba(255,255,255,0.08)',
-    borderAccent:'1px solid rgba(99,102,241,0.15)',
-    borderColor: 'rgba(255,255,255,0.06)',
+    border:      '1px solid rgba(226,232,240,0.08)',
+    borderSoft:  '1px solid rgba(226,232,240,0.06)',
+    borderCard:  '1px solid rgba(226,232,240,0.11)',
+    borderAccent:'1px solid rgba(99,102,241,0.18)',
+    borderColor: 'rgba(226,232,240,0.1)',
 
     // ── Text ──
     textPrimary: '#f1f5f9',
-    textSecondary: '#cbd5e1',
+    textSecondary: '#dbe7f3',
     textMuted:   '#94a3b8',
-    textDim:     '#475569',
+    textDim:     '#64748b',
     textAccent:  'rgba(99,102,241,0.6)',
 
     // ── Accent badges (keep same for both) ──
@@ -50,6 +50,6 @@ export function useThemeColors() {
     }),
 
     // ── Shadows ──
-    modalShadow: '0 0 60px rgba(99,102,241,0.1)',
+    modalShadow: '0 24px 64px rgba(2,8,23,0.24)',
   };
 }

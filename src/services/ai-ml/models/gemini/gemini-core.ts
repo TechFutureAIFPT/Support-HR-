@@ -35,49 +35,47 @@ export async function generateContentWithFallback(model: string, contents: any, 
   const params = { model, contents: typeof contents === 'string' ? contents.substring(0, 100) + '...' : 'complex', config };
   try {
     const result = await apiQueue.add(async () => {
-      try {
-        // LOCAL DEVELOPMENT: Call API directly if on localhost to avoid proxy issues
-        const isLocal = typeof window !== 'undefined' && (
-          window.location.hostname === 'localhost' || 
-          window.location.hostname === '127.0.0.1' || 
-          window.location.hostname === '0.0.0.0' || 
-          window.location.hostname.startsWith('192.168.') ||
-          (import.meta as any).env.DEV
-        );
+      // CHIẾN LƯỢC 1: Gọi SDK trực tiếp nếu có VITE_ key
+      // Hoạt động cả local lẫn Vercel vì VITE_ keys được baked vào bundle lúc build
+      const key1 = (import.meta as any).env.VITE_GEMINI_API_KEY_1;
+      const key2 = (import.meta as any).env.VITE_GEMINI_API_KEY_2;
+      const directKey = key1 || key2;
 
-        if (isLocal) {
-          const { GoogleGenAI } = await import('@google/genai');
-          const key = (import.meta as any).env.VITE_GEMINI_API_KEY_1 || (import.meta as any).env.VITE_GEMINI_API_KEY_2;
-          
-          if (key) {
-            console.log('[Gemini] Local development: calling API directly');
-            const ai = new GoogleGenAI({ apiKey: key });
-            const response = await ai.models.generateContent({ model, contents, config });
-            return { text: response.text };
+      if (directKey) {
+        const { GoogleGenAI } = await import('@google/genai');
+        const ai = new GoogleGenAI({ apiKey: directKey });
+        try {
+          const response = await ai.models.generateContent({ model, contents, config });
+          return { text: response.text };
+        } catch (sdkError) {
+          // Nếu key 1 bị rate-limit và có key 2 khác, thử key 2
+          if (key1 && key2 && key1 !== key2 && isRetryableGeminiError(sdkError)) {
+            console.warn('[Gemini] Key 1 bị rate-limit, thử Key 2...');
+            const ai2 = new GoogleGenAI({ apiKey: key2 });
+            const response2 = await ai2.models.generateContent({ model, contents, config });
+            return { text: response2.text };
           }
+          throw sdkError;
         }
-
-        // PRODUCTION: Use serverless proxy
-        const url = typeof window !== 'undefined' ? '/api/gemini-chat' : '';
-        if (!url) throw new Error('Cannot resolve proxy URL in Node environment without full host');
-        
-        const response = await fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ model, contents, config }),
-        });
-
-        if (!response.ok) {
-          const errData = await response.json().catch(() => null);
-          throw new Error(`Gemini Proxy Error: ${errData?.error?.message || response.statusText}`);
-        }
-
-        const data = await response.json();
-        return data;
-      } catch (error) {
-        console.warn('Gemini Proxy failed:', error);
-        throw error;
       }
+
+      // CHIẾN LƯỢC 2: Fallback về serverless proxy khi không có VITE_ key
+      console.warn('[Gemini] Không tìm thấy VITE_ keys, dùng serverless proxy /api/gemini-chat');
+      const url = typeof window !== 'undefined' ? '/api/gemini-chat' : '';
+      if (!url) throw new Error('Không có API key và không thể resolve proxy URL');
+
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ model, contents, config }),
+      });
+
+      if (!response.ok) {
+        const errData = await response.json().catch(() => null);
+        throw new Error(`Gemini Proxy Error: ${errData?.error?.message || response.statusText}`);
+      }
+
+      return await response.json();
     });
     console.log('generateContent success:', Date.now() - startTime);
     return result;

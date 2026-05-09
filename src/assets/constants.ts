@@ -92,7 +92,10 @@ export const initialWeights: WeightCriteria = {
   },
 };
 
-/** Model Gemini — ghi đè bằng VITE_GEMINI_MODEL trong .env nếu model mặc định không khả dụng */
+/** Model Gemini — ghi đè bằng VITE_GEMINI_MODEL trong .env nếu cần dùng model khác.
+ *  Dùng gemini-2.0-flash làm default: stable, miễn phí, hỗ trợ đầy đủ với @google/genai SDK mới.
+ *  Nếu muốn dùng 1.5-flash: set VITE_GEMINI_MODEL=gemini-1.5-flash-latest trong .env
+ */
 export const MODEL_NAME =
   (typeof import.meta !== 'undefined' && (import.meta as unknown as { env?: { VITE_GEMINI_MODEL?: string } }).env?.VITE_GEMINI_MODEL) ||
-  'gemini-1.5-flash';
+  'gemini-2.0-flash';

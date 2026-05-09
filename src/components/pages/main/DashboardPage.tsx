@@ -131,7 +131,7 @@ const DashboardPage: React.FC = () => {
 
   if (!analysisData) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4" style={{ background: tc.pageBg }}>
+      <div className="feature-page-shell flex flex-col items-center justify-center min-h-[60vh] text-center px-4" style={{ background: tc.pageBg }}>
         <div className="mb-4 w-16 h-16 rounded-2xl border flex items-center justify-center shadow-lg" style={{ background: tc.cardBg, borderColor: tc.borderColor }}>
           <Briefcase className="w-8 h-8 opacity-50" style={{ color: tc.textMuted }} />
         </div>
@@ -153,7 +153,7 @@ const DashboardPage: React.FC = () => {
   }, [analysisData]);
 
   return (
-    <div className="flex flex-col h-full min-h-0 relative" style={{ background: tc.pageBg }}>
+    <div className="feature-page-shell flex flex-col h-full min-h-0 relative" style={{ background: tc.pageBg }}>
 
       {/* ── Premium Global Header ─────────────────────────────────── */}
       <div className="shrink-0 flex flex-col md:flex-row md:items-center justify-between border-b px-5 py-3 gap-3" style={{ background: tc.headerBg, borderColor: tc.borderSoft }}>

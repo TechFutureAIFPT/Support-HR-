@@ -1,5 +1,8 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { GoogleGenAI } from '@google/genai';
+import { config as loadDotenv } from 'dotenv';
+
+loadDotenv();
 
 /**
  * Collect API keys from env variables without VITE_ prefix for security.
@@ -35,12 +38,15 @@ function isGeminiApiKeyInvalidError(error: unknown): boolean {
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  console.log('[api/gemini-chat] incoming request', { method: req.method });
+
   if (req.method !== 'POST') {
     res.status(405).setHeader('Allow', 'POST').json({ error: { message: 'Method Not Allowed' } });
     return;
   }
 
   if (apiKeys.length === 0) {
+    console.error('[api/gemini-chat] no server-side Gemini keys found');
     res.status(500).json({ error: { message: 'GEMINI_API_KEY not configured on server' } });
     return;
   }
@@ -48,6 +54,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const { model, contents, config } = req.body;
 
   if (!model || !contents) {
+    console.error('[api/gemini-chat] invalid request body', { hasModel: Boolean(model), hasContents: Boolean(contents) });
     res.status(400).json({ error: { message: 'Missing model or contents in request body' } });
     return;
   }
@@ -70,6 +77,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         
         const response = await ai.models.generateContent({ model: targetModel, contents, config });
         // Return only the text to ensure consistency and avoid serialization issues with SDK objects
+        console.log('[api/gemini-chat] success', { model: targetModel, keyIndex: currentKeyIndex + 1 });
         res.status(200).json({ text: response.text });
         return;
       } catch (error) {
@@ -93,5 +101,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   const msg = lastError instanceof Error ? lastError.message : 'All Gemini keys and models failed in proxy';
+  console.error('[api/gemini-chat] all attempts failed', { message: msg });
   res.status(500).json({ error: { message: msg } });
 }
