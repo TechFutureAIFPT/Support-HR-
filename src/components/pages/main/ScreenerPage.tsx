@@ -56,11 +56,50 @@ interface ScreenerPageProps {
 const ScreenerPage: React.FC<ScreenerPageProps> = (props) => {
   const { activeStep } = props;
   const [showWelcome, setShowWelcome] = useState<boolean>(() => props.jdText.trim().length === 0);
+  const [manualJdFlow, setManualJdFlow] = useState(false);
 
   const hideWelcome = useCallback(() => {
     setShowWelcome(false);
     props.onWelcomeChange?.(false);
   }, [props.onWelcomeChange]);
+
+  const showWelcomePanel = useCallback(() => {
+    setShowWelcome(true);
+    props.onWelcomeChange?.(true);
+  }, [props.onWelcomeChange]);
+
+  const handleManualEntry = useCallback(() => {
+    setManualJdFlow(true);
+    hideWelcome();
+  }, [hideWelcome]);
+
+  const moveToWeights = useCallback(() => {
+    props.markStepAsCompleted('jd');
+    props.setActiveStep('weights');
+    setManualJdFlow(false);
+  }, [props.markStepAsCompleted, props.setActiveStep]);
+
+  const handleContinueAfterWelcome = useCallback(() => {
+    hideWelcome();
+
+    if (manualJdFlow && props.jdText.trim().length > 0 && props.cvFiles.length > 0) {
+      moveToWeights();
+    }
+  }, [hideWelcome, manualJdFlow, moveToWeights, props.cvFiles.length, props.jdText]);
+
+  const handleJdComplete = useCallback(() => {
+    if (props.cvFiles.length === 0) {
+      if (manualJdFlow) {
+        showWelcomePanel();
+        return;
+      }
+
+      alert('Vui lòng tải lên ít nhất 1 CV để tiếp tục.');
+      return;
+    }
+
+    moveToWeights();
+  }, [manualJdFlow, moveToWeights, props.cvFiles.length, showWelcomePanel]);
 
   const handleStartAnalysis = async () => {
     props.setActiveStep('analysis');
@@ -108,11 +147,13 @@ const ScreenerPage: React.FC<ScreenerPageProps> = (props) => {
     return (
       <div className="fixed inset-0 z-50 overflow-y-auto">
         <CVScreenerWelcome
-          onGetStarted={hideWelcome}
+          onGetStarted={handleContinueAfterWelcome}
+          onManualEntry={handleManualEntry}
           cvFiles={props.cvFiles}
           setCvFiles={props.setCvFiles}
           hasPreparedJd={props.jdText.trim().length > 0}
           onFileProcessed={(data) => {
+            setManualJdFlow(false);
             props.setJdText(data.jdText);
             if (data.jobPosition) props.setJobPosition(data.jobPosition);
             if (data.hardFilters && Object.keys(data.hardFilters).length > 0) {
@@ -136,15 +177,8 @@ const ScreenerPage: React.FC<ScreenerPageProps> = (props) => {
           setJobPosition={props.setJobPosition}
           hardFilters={props.hardFilters}
           setHardFilters={props.setHardFilters}
-          onComplete={() => {
-            if (props.cvFiles.length === 0) {
-              alert('Vui lòng tải lên ít nhất 1 CV để tiếp tục.');
-              return;
-            }
-            props.markStepAsCompleted('jd');
-            props.setActiveStep('weights');
-          }}
-          onBackToWelcome={() => setShowWelcome(true)}
+          onComplete={handleJdComplete}
+          onBackToWelcome={showWelcomePanel}
         />
       )}
 
@@ -165,15 +199,8 @@ const ScreenerPage: React.FC<ScreenerPageProps> = (props) => {
               setJobPosition={props.setJobPosition}
               hardFilters={props.hardFilters}
               setHardFilters={props.setHardFilters}
-              onComplete={() => {
-                if (props.cvFiles.length === 0) {
-                  alert('Vui lòng tải lên ít nhất 1 CV để tiếp tục.');
-                  return;
-                }
-                props.markStepAsCompleted('jd');
-                props.setActiveStep('weights');
-              }}
-              onBackToWelcome={() => setShowWelcome(true)}
+              onComplete={handleJdComplete}
+              onBackToWelcome={showWelcomePanel}
             />
           </div>
 

@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useState, useRef } from "react";
-import ChatBubble from "@/components/shared/ChatBubble";
 import type { AppStep } from '@/assets/types';
 import { analysisCacheService } from '@/services/history-cache/analysisCache';
 import { cvFilterHistoryService } from '@/services/history-cache/analysisHistory';
@@ -853,7 +852,6 @@ const HomePage: React.FC<HomePageProps> = ({
         </div>
       )}
 
-      <ChatBubble />
     </div>
   );
 };

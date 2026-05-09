@@ -21,6 +21,7 @@ import type { HardFilters } from '@/assets/types';
 
 interface CVScreenerWelcomeProps {
   onGetStarted: () => void;
+  onManualEntry?: () => void;
   onFileProcessed: (data: {
     jdText: string;
     jobPosition: string;
@@ -44,10 +45,11 @@ const MAX_CV_PER_BATCH = 20;
 const FILE_ACCEPT = '.pdf,.docx,.png,.jpg,.jpeg';
 
 const cardClass =
-  'group flex min-h-[132px] flex-col justify-between border border-slate-800 bg-[#11213A]/45 p-4 text-left transition-all duration-300 hover:border-slate-700 hover:bg-[#132746]';
+  'group flex min-h-[132px] flex-col justify-between rounded-xl border border-slate-800 bg-[#11213A]/45 p-4 text-left transition-all duration-300 hover:border-slate-700 hover:bg-[#132746]';
 
 const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
   onGetStarted,
+  onManualEntry,
   onFileProcessed,
   cvFiles,
   setCvFiles,
@@ -272,7 +274,7 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(148,163,184,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.04)_1px,transparent_1px)] bg-[size:52px_52px] opacity-20" />
 
       <div className="relative z-10 mx-auto flex h-full w-full max-w-7xl flex-col overflow-hidden px-4 py-4 sm:px-6 lg:px-8">
-        <header className="mb-4 flex shrink-0 items-center justify-between gap-4 border border-slate-800 bg-[#0B192C]/94 px-5 py-4">
+        <header className="mb-4 flex shrink-0 items-center justify-between gap-4 rounded-2xl border border-slate-800 bg-[#0B192C]/94 px-5 py-4">
           <div className="min-w-0">
             <div className="text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-500">CV Screening</div>
             <h1 className="mt-1 text-2xl font-semibold text-white sm:text-3xl">Nạp JD và CV</h1>
@@ -282,7 +284,7 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
             <button
               type="button"
               onClick={() => setStep('jd')}
-              className={`inline-flex h-10 items-center gap-2 border px-3 text-sm font-medium transition-all ${
+                  className={`inline-flex h-10 items-center gap-2 rounded-xl border px-3 text-sm font-medium transition-all ${
                 step === 'jd'
                   ? 'border-sky-400/30 bg-sky-400/10 text-sky-100'
                   : 'border-slate-800 bg-[#11213A]/45 text-slate-400'
@@ -295,7 +297,7 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
               type="button"
               onClick={() => jdReady && setStep('cv')}
               disabled={!jdReady}
-              className={`inline-flex h-10 items-center gap-2 border px-3 text-sm font-medium transition-all ${
+                  className={`inline-flex h-10 items-center gap-2 rounded-xl border px-3 text-sm font-medium transition-all ${
                 step === 'cv'
                   ? 'border-emerald-400/30 bg-emerald-400/10 text-emerald-100'
                   : 'border-slate-800 bg-[#11213A]/45 text-slate-400'
@@ -308,7 +310,7 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
         </header>
 
         <div className="grid min-h-0 flex-1 gap-4 xl:grid-cols-[minmax(0,1.08fr)_minmax(340px,0.92fr)]">
-          <section className="grid min-h-0 grid-rows-[auto_1fr_auto] gap-4 border border-slate-800 bg-[#0B192C]/94 p-5">
+          <section className="grid min-h-0 grid-rows-[auto_1fr_auto] gap-4 rounded-2xl border border-slate-800 bg-[#0B192C]/94 p-5">
             <div className="flex items-center justify-between gap-3">
               <div>
                 <div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">
@@ -323,7 +325,8 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
                 <button
                   type="button"
                   onClick={onGetStarted}
-                  className="inline-flex h-10 items-center gap-2 border border-sky-500/30 bg-sky-500/10 px-4 text-sm font-semibold text-sky-100 transition-all hover:bg-sky-500/15"
+                  disabled={cvFiles.length === 0}
+                  className="inline-flex h-10 items-center gap-2 rounded-xl border border-sky-500/30 bg-sky-500/10 px-4 text-sm font-semibold text-sky-100 transition-all hover:bg-sky-500/15 disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   Tiếp tục
                   <ArrowRight className="h-4 w-4" />
@@ -344,7 +347,7 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
                     </div>
                   </button>
 
-                  <button type="button" onClick={onGetStarted} className={cardClass}>
+                  <button type="button" onClick={onManualEntry ?? onGetStarted} className={cardClass}>
                     <div className="inline-flex h-10 w-10 items-center justify-center border border-indigo-400/20 bg-indigo-400/10 text-indigo-300">
                       <FileText className="h-4.5 w-4.5" />
                     </div>
@@ -373,9 +376,9 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
                 <input ref={fileInputRef} type="file" className="hidden" accept={FILE_ACCEPT} onChange={handleFileChange} />
 
                 <div className="grid min-h-0 gap-4 lg:grid-cols-[minmax(0,1.2fr)_220px]">
-                  <div className="flex min-h-0 flex-col border border-slate-800 bg-[#11213A]/35 p-4">
+                  <div className="flex min-h-0 flex-col rounded-2xl border border-slate-800 bg-[#11213A]/35 p-4">
                     <div className="mb-4 flex items-center gap-3">
-                      <div className="inline-flex h-10 w-10 items-center justify-center border border-white/10 bg-white/[0.04] text-cyan-200">
+                      <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] text-cyan-200">
                         {jdReady ? <CheckCircle2 className="h-4.5 w-4.5" /> : <FileText className="h-4.5 w-4.5" />}
                       </div>
                       <div className="min-w-0">
@@ -397,7 +400,7 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
                           return (
                             <div
                               key={item}
-                              className={`flex items-center gap-3 border px-3 py-3 text-xs ${
+                              className={`flex items-center gap-3 rounded-xl border px-3 py-3 text-xs ${
                                 isCurrent
                                   ? 'border-cyan-400/30 bg-cyan-400/10 text-cyan-100'
                                   : isDone
@@ -414,18 +417,18 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
                         })}
                       </div>
                     ) : (
-                      <div className="flex flex-1 items-end border border-slate-800 bg-[#0B192C] px-4 py-4 text-sm text-slate-300">
+                      <div className="flex flex-1 items-end rounded-xl border border-slate-800 bg-[#0B192C] px-4 py-4 text-sm text-slate-300">
                         {errorMsg ? <span className="text-red-200">{errorMsg}</span> : <span>{successMsg || 'JD sẽ được xử lý trước khi sang bước CV.'}</span>}
                       </div>
                     )}
                   </div>
 
                   <div className="grid gap-3">
-                    <div className="border border-slate-800 bg-[#11213A]/35 p-4">
+                    <div className="rounded-2xl border border-slate-800 bg-[#11213A]/35 p-4">
                       <div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">Trạng thái</div>
                       <div className="mt-3 text-sm font-semibold text-white">{jdReady ? 'Đã nạp JD' : 'Chưa nạp JD'}</div>
                     </div>
-                    <div className="border border-slate-800 bg-[#11213A]/35 p-4">
+                    <div className="rounded-2xl border border-slate-800 bg-[#11213A]/35 p-4">
                       <div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">Tệp JD</div>
                       <div className="mt-3 truncate text-sm font-semibold text-white">{jdFileName || 'Chưa chọn tệp'}</div>
                     </div>
@@ -479,7 +482,7 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
                 />
 
                 <div
-                  className="flex min-h-0 flex-col border border-slate-800 bg-[#11213A]/35"
+                  className="flex min-h-0 flex-col rounded-2xl border border-slate-800 bg-[#11213A]/35"
                   onDragOver={handleDropCvFiles}
                   onDrop={handleDropCvFiles}
                 >
@@ -488,7 +491,7 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
                       <div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">Danh sách CV</div>
                       <div className="mt-1 text-xs text-slate-500">Chỉ hiển thị tên file</div>
                     </div>
-                    <div className="border border-slate-800 bg-[#0B192C] px-3 py-1.5 text-xs text-slate-300">
+                    <div className="rounded-xl border border-slate-800 bg-[#0B192C] px-3 py-1.5 text-xs text-slate-300">
                       {cvFiles.length}/{MAX_CV_PER_BATCH}
                     </div>
                   </div>
@@ -501,7 +504,7 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
 
                   <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto p-3">
                     {cvFiles.length === 0 ? (
-                      <div className="flex h-full min-h-[220px] flex-col items-center justify-center border border-dashed border-slate-800 bg-[#0B192C] px-4 text-center">
+                      <div className="flex h-full min-h-[220px] flex-col items-center justify-center rounded-xl border border-dashed border-slate-800 bg-[#0B192C] px-4 text-center">
                         <UploadCloud className="h-10 w-10 text-slate-600" />
                         <p className="mt-3 text-sm text-slate-400">Chưa có CV nào</p>
                       </div>
@@ -510,9 +513,9 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
                         {cvFiles.map((file, index) => (
                           <div
                             key={`${file.name}-${index}`}
-                            className="group flex items-center gap-3 border border-slate-800 bg-[#0B192C] px-4 py-3 transition-all hover:border-slate-700 hover:bg-[#11213A]"
+                            className="group flex items-center gap-3 rounded-xl border border-slate-800 bg-[#0B192C] px-4 py-3 transition-all hover:border-slate-700 hover:bg-[#11213A]"
                           >
-                            <div className="inline-flex h-9 w-9 shrink-0 items-center justify-center border border-slate-700 bg-white/[0.04] text-slate-300">
+                            <div className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-slate-700 bg-white/[0.04] text-slate-300">
                               <FileText className="h-4 w-4" />
                             </div>
                             <div className="min-w-0 flex-1">
@@ -521,7 +524,7 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
                             <button
                               type="button"
                               onClick={() => handleRemoveCv(index)}
-                              className="inline-flex h-8 w-8 items-center justify-center border border-transparent text-slate-500 transition-all hover:border-red-400/20 hover:bg-red-400/10 hover:text-red-200"
+                              className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-transparent text-slate-500 transition-all hover:border-red-400/20 hover:bg-red-400/10 hover:text-red-200"
                               aria-label={`Xóa ${file.name}`}
                             >
                               <X className="h-4 w-4" />
@@ -535,7 +538,7 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
               </div>
             )}
 
-            <div className="flex items-center justify-between gap-3 border border-slate-800 bg-[#11213A]/35 px-4 py-3">
+            <div className="flex items-center justify-between gap-3 rounded-2xl border border-slate-800 bg-[#11213A]/35 px-4 py-3">
               <div className="text-sm text-slate-400">
                 {step === 'jd' ? 'Hoàn tất JD để chuyển sang bước CV.' : 'Nạp xong CV rồi tiếp tục.'}
               </div>
@@ -543,7 +546,7 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
                 <button
                   type="button"
                   onClick={() => setStep('cv')}
-                  className="inline-flex h-10 items-center gap-2 border border-emerald-400/30 bg-emerald-400/10 px-4 text-sm font-semibold text-emerald-100 transition-all hover:bg-emerald-400/15"
+                  className="inline-flex h-10 items-center gap-2 rounded-xl border border-emerald-400/30 bg-emerald-400/10 px-4 text-sm font-semibold text-emerald-100 transition-all hover:bg-emerald-400/15"
                 >
                   Sang bước CV
                   <ArrowRight className="h-4 w-4" />
@@ -552,11 +555,11 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
             </div>
           </section>
 
-          <aside className="grid min-h-0 grid-rows-[auto_1fr] gap-4 border border-slate-800 bg-[#0B192C]/94 p-5">
+          <aside className="grid min-h-0 grid-rows-[auto_1fr] gap-4 rounded-2xl border border-slate-800 bg-[#0B192C]/94 p-5">
             <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
-              <div className="border border-slate-800 bg-[#11213A]/35 p-4">
+              <div className="rounded-2xl border border-slate-800 bg-[#11213A]/35 p-4">
                 <div className="flex items-center gap-3">
-                  <div className="inline-flex h-9 w-9 items-center justify-center border border-sky-400/20 bg-sky-400/10 text-sky-300">
+                  <div className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-sky-400/20 bg-sky-400/10 text-sky-300">
                     <BriefcaseBusiness className="h-4.5 w-4.5" />
                   </div>
                   <div className="min-w-0">
@@ -566,9 +569,9 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
                 </div>
               </div>
 
-              <div className="border border-slate-800 bg-[#11213A]/35 p-4">
+              <div className="rounded-2xl border border-slate-800 bg-[#11213A]/35 p-4">
                 <div className="flex items-center gap-3">
-                  <div className="inline-flex h-9 w-9 items-center justify-center border border-emerald-400/20 bg-emerald-400/10 text-emerald-300">
+                  <div className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-emerald-400/20 bg-emerald-400/10 text-emerald-300">
                     <UploadCloud className="h-4.5 w-4.5" />
                   </div>
                   <div>
@@ -579,7 +582,7 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
               </div>
             </div>
 
-            <div className="flex min-h-0 flex-col border border-slate-800 bg-[#11213A]/35">
+            <div className="flex min-h-0 flex-col rounded-2xl border border-slate-800 bg-[#11213A]/35">
               <div className="border-b border-slate-800 px-4 py-3">
                 <div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">Danh sách CV</div>
               </div>
@@ -595,7 +598,7 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
                     {cvFiles.map((file, index) => (
                       <div
                         key={`${file.name}-${index}`}
-                        className="flex items-center gap-3 border border-slate-800 bg-[#0B192C] px-4 py-3"
+                        className="flex items-center gap-3 rounded-xl border border-slate-800 bg-[#0B192C] px-4 py-3"
                       >
                         <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center border border-slate-700 bg-white/[0.04] text-slate-300">
                           <FileText className="h-4 w-4" />
