@@ -1,0 +1,20 @@
+{
+  "project": "Support HR",
+  "workspace": "support-hr-codex-system",
+  "stack": ["React", "TypeScript", "Vite", "Firebase", "Vercel", "Gemini"],
+  "commands": {
+    "dev": "npm run dev",
+    "devFull": "npm run dev:full",
+    "build": "npm run build"
+  },
+  "rules": {
+    "doNotInventProductInfo": true,
+    "preferScopedChanges": true,
+    "verifyBuildWhenPractical": true
+  },
+  "ui": {
+    "tone": "professional",
+    "radius": "light",
+    "palette": "navy-cyan"
+  }
+}
