@@ -1,0 +1,2290 @@
+﻿:root {
+  /* â”€â”€ Background â”€â”€ */
+  /* Navy Blue Theme â€” aligned with tokens.ts dark.bgPrimary */
+  --bg: #0B1120;
+  /* â”€â”€ Card / Surface â”€â”€ */
+  --card: rgba(30, 41, 59, 0.4);
+  /* slate-800 with opacity */
+  --card-stroke: rgba(255, 255, 255, 0.05);
+  /* â”€â”€ Text â”€â”€ */
+  --txt: #FFFFFF;
+  --muted: #94a3b8;
+  /* slate-400 */
+  /* â”€â”€ Brand â€” Primary: Light Blue #60a5fa (from tokens.dark.primary) â”€â”€ */
+  --primary: #60a5fa;
+  --primary-gradient: linear-gradient(135deg, #3B82F6 0%, #6366F1 100%);
+  /* â”€â”€ Accent â€” Indigo #818cf8 (from tokens.dark.accent) â”€â”€ */
+  --accent: #818cf8;
+  /* â”€â”€ Status â”€â”€ */
+  --success: #10b981;
+  --warning: #f59e0b;
+  --error: #ef4444;
+  /* â”€â”€ Shadows & Glass â”€â”€ */
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  --glass: rgba(255, 255, 255, 0.03);
+  --glass-border: rgba(255, 255, 255, 0.08);
+
+  /* Navy color palette */
+  --navy-900: #0c1419;
+  --navy-800: #15202b;
+  --navy-700: #1e2d3d;
+  --navy-600: #2d4458;
+  --navy-500: #3e5771;
+
+  /* Accent colors â€” aligned with tokens.dark */
+  --accent-blue: #60a5fa;         /* tokens.dark.primary */
+  --accent-blue-light: #93C5FD;  /* tokens.dark.primaryHover */
+  --accent-indigo: #818cf8;      /* tokens.dark.accent */
+
+  /* Spacing system (8px grid) */
+  --space-2: 0.5rem;
+  /* 8px */
+  --space-3: 0.75rem;
+  /* 12px */
+  --space-4: 1rem;
+  /* 16px */
+  --space-6: 1.5rem;
+  /* 24px */
+  --space-8: 2rem;
+  /* 32px */
+  --space-12: 3rem;
+  /* 48px */
+
+  /* Typography */
+  --text-xs: 0.75rem;
+  /* 12px */
+  --text-sm: 0.875rem;
+  /* 14px */
+  --text-base: 1rem;
+  /* 16px */
+  --text-lg: 1.125rem;
+  /* 18px */
+  --text-xl: 1.25rem;
+  /* 20px */
+  --text-2xl: 1.5rem;
+  /* 24px */
+
+  --lm-bg: #f0f4ff;
+  --lm-bg-secondary: #e8efff;
+  --lm-card: rgba(255, 255, 255, 0.85);
+  --lm-card-stroke: rgba(99, 102, 241, 0.15);
+  --lm-txt: #0f172a;
+  --lm-txt-muted: #475569;
+  --lm-nav-bg: rgba(255, 255, 255, 0.9);
+}
+
+/* Dark mode variables â€” aligned with tokens.ts dark mode */
+.dark {
+  --bg: #0B1120;                /* tokens.dark.bgPrimary */
+  --card: rgba(96, 165, 250, 0.04);    /* tokens.dark.surfaceCard */
+  --card-stroke: rgba(96, 165, 250, 0.08); /* tokens.dark.surfaceBorder */
+  --txt: #F1F5F9;               /* tokens.dark.textPrimary */
+  --muted: #94A3B8;             /* tokens.dark.textMuted */
+  --primary: #60a5fa;            /* tokens.dark.primary */
+  --accent: #818cf8;             /* tokens.dark.accent */
+  --success: #10b981;
+  --warning: #f59e0b;
+  --error: #ef4444;
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+/* ============================================================
+   PROFESSIONAL SURFACE POLISH
+   Keeps content unchanged while softening frames and borders
+   across marketing, auth, and legal pages.
+   ============================================================ */
+
+.home-page-shell,
+.login-page-shell,
+.legal-page-shell {
+  position: relative;
+  isolation: isolate;
+}
+
+.home-page-shell,
+.login-page-shell {
+  background-image: linear-gradient(180deg, #08101d 0%, #0b1322 52%, #0b1120 100%);
+}
+
+.legal-page-shell {
+  background-image: linear-gradient(180deg, #09111f 0%, #0b1322 100%);
+}
+
+.feature-page-shell {
+  position: relative;
+  isolation: isolate;
+}
+
+.feature-page-shell .rounded-none {
+  border-radius: 12px !important;
+}
+
+.feature-page-shell .rounded-md {
+  border-radius: 10px !important;
+}
+
+.feature-page-shell .rounded-lg {
+  border-radius: 12px !important;
+}
+
+.feature-page-shell .rounded-xl {
+  border-radius: 14px !important;
+}
+
+.feature-page-shell .rounded-2xl {
+  border-radius: 18px !important;
+}
+
+.feature-page-shell :is(button, a, img).rounded-none,
+.feature-page-shell :is(div, section, article, span).rounded-none,
+.feature-page-shell :is(div, section, article).overflow-hidden.rounded-none {
+  border-radius: 12px !important;
+}
+
+.feature-page-shell [class*="border-slate-800"] {
+  border-color: rgba(148, 163, 184, 0.14) !important;
+}
+
+.feature-page-shell [class*="border-slate-700"] {
+  border-color: rgba(148, 163, 184, 0.18) !important;
+}
+
+.feature-page-shell [class*="bg-[#11213A]"] {
+  box-shadow: 0 20px 48px rgba(2, 8, 23, 0.18);
+}
+
+.feature-page-shell [class*="bg-[#11213A]/35"] {
+  background-color: rgba(17, 33, 58, 0.3) !important;
+}
+
+.feature-page-shell [class*="bg-[#11213A]/45"] {
+  background-color: rgba(17, 33, 58, 0.4) !important;
+}
+
+.feature-page-shell [class*="bg-[#11213A]/80"] {
+  background-color: rgba(17, 33, 58, 0.7) !important;
+}
+
+.feature-page-shell [class*="bg-[#11213A]/94"] {
+  background-color: rgba(17, 33, 58, 0.82) !important;
+}
+
+.feature-page-shell [class*="bg-[#0B192C]/60"] {
+  background-color: rgba(11, 25, 44, 0.58) !important;
+}
+
+.feature-page-shell [class*="bg-[#0B192C]/70"] {
+  background-color: rgba(11, 25, 44, 0.66) !important;
+}
+
+.feature-page-shell [class*="bg-[#0B192C]/94"] {
+  background-color: rgba(11, 25, 44, 0.82) !important;
+}
+
+.feature-page-shell [class*="bg-slate-900/40"] {
+  background-color: rgba(15, 23, 42, 0.34) !important;
+}
+
+.feature-page-shell [class*="bg-slate-900/50"] {
+  background-color: rgba(15, 23, 42, 0.42) !important;
+}
+
+.feature-page-shell [class*="bg-slate-900/60"] {
+  background-color: rgba(15, 23, 42, 0.5) !important;
+}
+
+.feature-page-shell [class*="bg-slate-900/80"] {
+  background-color: rgba(15, 23, 42, 0.68) !important;
+}
+
+.home-page-shell :is(button, a, img)[class*="rounded-none"],
+.login-page-shell :is(button, a, img)[class*="rounded-none"],
+.legal-page-shell :is(button, a, img)[class*="rounded-none"],
+.home-page-shell :is(div, section, article, span)[class*="rounded-none"][class*="border"],
+.login-page-shell :is(div, section, article, span)[class*="rounded-none"][class*="border"],
+.legal-page-shell :is(div, section, article, span)[class*="rounded-none"][class*="border"],
+.home-page-shell :is(div, section, article)[class*="rounded-none"][class*="overflow-hidden"],
+.login-page-shell :is(div, section, article)[class*="rounded-none"][class*="overflow-hidden"],
+.legal-page-shell :is(div, section, article)[class*="rounded-none"][class*="overflow-hidden"] {
+  border-radius: 10px !important;
+}
+
+.home-page-shell [class*="border-white/5"],
+.login-page-shell [class*="border-white/5"],
+.legal-page-shell [class*="border-white/5"] {
+  border-color: rgba(148, 163, 184, 0.12) !important;
+}
+
+.home-page-shell [class*="border-white/10"],
+.login-page-shell [class*="border-white/10"],
+.legal-page-shell [class*="border-white/10"] {
+  border-color: rgba(226, 232, 240, 0.14) !important;
+}
+
+.home-page-shell [class*="border-white/[0.06]"],
+.login-page-shell [class*="border-white/[0.06]"],
+.legal-page-shell [class*="border-white/[0.06]"] {
+  border-color: rgba(226, 232, 240, 0.12) !important;
+}
+
+.home-page-shell [class*="border-white/[0.08]"],
+.login-page-shell [class*="border-white/[0.08]"],
+.legal-page-shell [class*="border-white/[0.08]"] {
+  border-color: rgba(226, 232, 240, 0.15) !important;
+}
+
+.home-page-shell [class*="bg-white/3"],
+.login-page-shell [class*="bg-white/3"],
+.legal-page-shell [class*="bg-white/3"],
+.home-page-shell [class*="bg-white/[0.03]"],
+.login-page-shell [class*="bg-white/[0.03]"],
+.legal-page-shell [class*="bg-white/[0.03]"] {
+  background-color: rgba(255, 255, 255, 0.045) !important;
+}
+
+.home-page-shell [class*="bg-white/[0.05]"],
+.login-page-shell [class*="bg-white/[0.05]"],
+.legal-page-shell [class*="bg-white/[0.05]"] {
+  background-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+.home-page-shell [class*="bg-[#11213A]/80"],
+.login-page-shell [class*="bg-[#11213A]/80"],
+.legal-page-shell [class*="bg-[#11213A]/80"] {
+  background-color: rgba(17, 33, 58, 0.72) !important;
+}
+
+.home-page-shell [class*="bg-[#11213A]"],
+.login-page-shell [class*="bg-[#11213A]"],
+.legal-page-shell [class*="bg-[#11213A]"] {
+  box-shadow: 0 20px 50px rgba(2, 8, 23, 0.2);
+}
+
+.home-terminal-caret {
+  animation: home-terminal-blink 1s steps(1) infinite;
+}
+
+.home-processing-text {
+  animation: home-terminal-fade 1.8s ease;
+}
+
+.home-processing-ticker {
+  position: relative;
+}
+
+.home-processing-ticker::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(34, 211, 238, 0.06) 48%, transparent 100%);
+  transform: translateX(-100%);
+  animation: home-scanline 2.6s linear infinite;
+  pointer-events: none;
+}
+
+.home-hero-stage {
+  isolation: isolate;
+}
+
+.home-hero-heading {
+  font-family: "Arial Black", "Helvetica Neue", Arial, sans-serif;
+  letter-spacing: 0;
+}
+
+.home-hero-grid {
+  opacity: 0.8;
+}
+
+.home-hero-grid-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.home-hero-grid-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 0%, rgba(34, 211, 238, 0.06) 48%, transparent 100%);
+  opacity: 0;
+  animation: home-grid-pulse 5.6s linear infinite;
+  pointer-events: none;
+}
+
+.home-hero-grid-card:nth-child(2n)::before {
+  animation-delay: 0.9s;
+}
+
+.home-hero-grid-card:nth-child(3n)::before {
+  animation-delay: 1.7s;
+}
+
+.home-hero-vignette {
+  background:
+    linear-gradient(90deg, rgba(8, 20, 39, 0.94) 0%, rgba(8, 20, 39, 0.82) 22%, rgba(8, 20, 39, 0.4) 46%, rgba(10, 25, 48, 0.18) 72%, rgba(10, 25, 48, 0.1) 100%),
+    linear-gradient(180deg, rgba(8, 20, 39, 0.06) 0%, rgba(8, 20, 39, 0.14) 100%);
+}
+
+.home-hero-scan {
+  background: linear-gradient(90deg, transparent 0%, rgba(147, 197, 253, 0.05) 18%, rgba(34, 211, 238, 0.18) 48%, rgba(147, 197, 253, 0.05) 74%, transparent 100%);
+  filter: blur(10px);
+  opacity: 0.65;
+  mix-blend-mode: screen;
+  animation: home-hero-scan 5.2s linear infinite;
+  pointer-events: none;
+}
+
+.home-cv-cloud {
+  position: absolute;
+  isolation: isolate;
+}
+
+.home-cv-cloud::before {
+  content: "";
+  position: absolute;
+  inset: -10% 18% -6% 8%;
+  background: linear-gradient(180deg, rgba(34, 211, 238, 0.1) 0%, rgba(59, 130, 246, 0.05) 42%, rgba(99, 102, 241, 0.02) 100%);
+  filter: blur(28px);
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.home-cv-cloud::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(34, 211, 238, 0.12) 50%, transparent 100%);
+  transform: translateX(-120%);
+  animation: home-cv-scan 4.8s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes home-terminal-blink {
+  0%, 49% {
+    opacity: 1;
+  }
+  50%, 100% {
+    opacity: 0;
+  }
+}
+
+@keyframes home-terminal-fade {
+  0% {
+    opacity: 0.55;
+    transform: translateY(4px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes home-scanline {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes home-hero-scan {
+  0% {
+    transform: translateX(-18%) skewX(-10deg);
+  }
+  100% {
+    transform: translateX(160%) skewX(-10deg);
+  }
+}
+
+@keyframes home-cv-scan {
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(120%);
+  }
+}
+
+@keyframes home-grid-pulse {
+  0%, 78%, 100% {
+    opacity: 0;
+  }
+  10%, 18% {
+    opacity: 0.9;
+  }
+  28% {
+    opacity: 0.18;
+  }
+}
+
+/* ============================================
+   LIGHT MODE â€” class-based (.light on <html>)
+   ============================================ */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Exceptions: keep branded colors (cyan, emerald, indigo, etc.) */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ============================================================
+   GLOBAL LIGHT MODE â€” applies to ALL pages when .light is on <html>
+   ============================================================ */
+
+/* --- Body & Root background --- */
+
+/* --- Sidebar --- */
+
+/* Sidebar brand area */
+
+/* Sidebar logo button */
+
+/* Sidebar headings */
+
+
+/* Sidebar nav items */
+
+
+/* Active nav item */
+
+/* Section headers */
+
+/* Sidebar user section */
+
+
+
+/* Sidebar user dropdown */
+
+
+
+
+
+
+
+
+
+/* --- Main App Layout --- */
+
+/* Top mobile navbar */
+
+
+/* --- Main content area --- */
+
+/* --- Cards & Containers (dark variants) --- */
+
+
+
+
+
+
+
+/* --- Border colors (white-based â†’ indigo-based) --- */
+
+
+/* --- Text overrides (global) --- */
+
+
+
+
+
+/* BUT: keep white text on dark buttons (primary CTAs) */
+
+/* Branded accent colors â€” preserve */
+
+
+
+
+
+
+
+
+
+
+/* --- Input fields --- */
+
+
+
+/* --- Scrollbar (light) --- */
+
+
+
+/* --- Modal overlays --- */
+
+/* --- Tables (comparison) --- */
+
+/* --- JD / Screener page --- */
+
+
+
+/* Progress bar track */
+
+/* --- Login page --- */
+
+/* --- Privacy / Terms pages --- */
+
+/* --- Backdrop blur elements --- */
+
+/* --- Glass/frosted panels --- */
+
+/* --- Dividers --- */
+/* (dividers handled by sidebar dropdown overrides above) */
+
+/* --- Progress bar (sidebar step indicator) --- */
+/* tokens.dark.gradientPrimary: blue-500 to indigo-500 â€” unified */
+
+/* --- Emerald dots (completed steps) --- */
+
+/* --- Alert / Notification panels --- */
+
+
+
+/* --- Skeleton/loading colors --- */
+
+/* --- Responsive: Ensure mobile header is also light --- */
+@media (max-width: 767px) {
+}
+
+
+/* Footer text overrides so it stays readable on dark footer */
+
+
+/* Sidebar dropdown header */
+
+
+
+
+/* Sidebar dropdown menu items */
+
+
+
+
+
+
+/* Keep logout red */
+
+
+
+
+/* Sidebar dropdown dividers */
+
+/* Transition smoothness for theme switch */
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: var(--bg);
+  color: var(--txt);
+  min-height: 100vh;
+  overflow-x: hidden;
+  max-width: 100vw;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+#root {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+/* Dark mode body adjustments */
+.dark body {
+  background-color: var(--bg);
+  color: var(--txt);
+}
+
+/* Animation for detailed analytics page */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.6s ease-out;
+}
+
+.ai-aurora {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(60% 60% at 20% 10%, rgba(6, 182, 212, 0.15), transparent 60%),
+    radial-gradient(50% 50% at 80% 30%, rgba(52, 211, 153, 0.1), transparent 60%),
+    radial-gradient(70% 70% at 50% 90%, rgba(59, 130, 246, 0.08), transparent 60%);
+  filter: blur(80px) saturate(150%);
+  opacity: 0.25;
+  z-index: -1;
+}
+
+/* Dark mode aurora with unified primary/accent palette (tokens.dark.primary #60a5fa, accent #818cf8) */
+.dark .ai-aurora {
+  background: radial-gradient(60% 60% at 20% 10%, rgba(96, 165, 250, 0.08), transparent 60%),
+    radial-gradient(50% 50% at 80% 30%, rgba(129, 140, 248, 0.06), transparent 60%),
+    radial-gradient(70% 70% at 50% 90%, rgba(16, 185, 129, 0.05), transparent 60%);
+  opacity: 0.2;
+  /* Reduced from 0.4 */
+}
+
+.grid-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 30px 30px;
+  mask-image: radial-gradient(circle at center, black, transparent 80%);
+  opacity: 0.4;
+  z-index: -1;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -100% 50%;
+  }
+
+  100% {
+    background-position: 200% 50%;
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s cubic-bezier(0.4, 0, 0.6, 1) 1;
+  background-size: 200% 100%;
+}
+
+.btn-glow {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-glow::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.7s ease-in-out;
+}
+
+.btn-glow:hover::before {
+  left: 150%;
+}
+
+.pulse-animation {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: .5;
+  }
+}
+
+.float-animation {
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+/* Partners logo scroll animation */
+@keyframes scroll-infinite {
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+/* Reverse scroll (right-to-left) for partner logos */
+@keyframes scroll-reverse {
+  0% {
+    transform: translateX(-50%);
+  }
+
+  100% {
+    transform: translateX(0);
+  }
+}
+
+.animate-scroll {
+  animation: scroll-infinite 20s linear infinite;
+}
+
+.animate-scroll-reverse {
+  animation: scroll-reverse 25s linear infinite;
+}
+
+.animate-scroll-infinite {
+  animation: scroll-infinite 20s linear infinite;
+}
+
+/* Double speed animation for partners */
+.animate-scroll-double-speed {
+  animation: scroll-infinite 10s linear infinite;
+}
+
+.animate-scroll-infinite:hover {
+  animation-play-state: paused;
+}
+
+/* Smooth scrolling optimizations */
+html {
+  scroll-behavior: smooth;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Performance optimizations for scrolling */
+.results-container {
+  will-change: scroll-position;
+  contain: layout style paint;
+}
+
+.table-row {
+  will-change: transform;
+  contain: layout style paint;
+}
+
+.expanded-content {
+  will-change: auto;
+  contain: layout style paint;
+}
+
+/* Sidebar vÃ  Main Content Layout Improvements */
+.sidebar-transition {
+  transition: margin-left 0.3s ease-in-out, width 0.3s ease-in-out;
+}
+
+/* Äáº£m báº£o main content luÃ´n cÃ³ Ä‘á»§ khÃ´ng gian */
+@media (min-width: 768px) {
+  .main-content-area {
+    width: calc(100vw - 220px);
+    max-width: calc(100vw - 220px);
+  }
+
+  .main-content-area.sidebar-closed {
+    width: 100vw;
+    max-width: 100vw;
+  }
+}
+
+/* Smooth sidebar animations */
+.sidebar-narrow {
+  transform: translateX(0);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar-narrow.closed {
+  transform: translateX(-100%);
+}
+
+/* Responsive content adjustment */
+.content-wrapper {
+  min-height: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Grid layout improvements for weights page */
+.weights-responsive {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 1024px) {
+  .weights-responsive {
+    grid-template-columns: 3fr 7fr;
+    gap: 2rem;
+  }
+}
+
+/* Main content responsive adjustments */
+.main-content {
+  width: 100%;
+  max-width: 100%;
+  transition: all 0.3s ease-in-out;
+  box-sizing: border-box;
+}
+
+/* Ensure content doesn't overflow when sidebar is open */
+@media (min-width: 768px) {
+  .main-content.with-sidebar {
+    width: calc(100vw - 220px);
+    max-width: calc(100vw - 220px);
+  }
+
+  .main-content.without-sidebar {
+    width: 100vw;
+    max-width: 100vw;
+  }
+}
+
+/* Container adjustments for better responsiveness */
+.container-responsive {
+  width: 100%;
+  max-width: none;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  box-sizing: border-box;
+}
+
+@media (min-width: 1024px) {
+  .container-responsive {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+
+
+/* === Custom UI Layout Enhancements (non-breaking additions) === */
+/* Two-column layout: desktop 40/60, mobile single col */
+.layout-2col {
+  display: grid;
+  grid-template-columns: 0.4fr 0.6fr;
+  gap: 24px;
+  align-items: start;
+  width: 100%;
+  margin: 0 auto;
+}
+
+@media (max-width: 1024px) {
+  .layout-2col {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+/* New weighted layout with internal vertical divider (40% / divider / 60%) */
+/* Updated: Responsive layout for weights */
+.weights-layout {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+  max-width: 100%;
+}
+
+@media (min-width: 1024px) {
+  .weights-layout {
+    display: grid;
+    grid-template-columns: 3fr 2px 7fr;
+    /* 3:7 layout with a 2px divider */
+    column-gap: 32px;
+    /* tightened for new proportions */
+    flex-direction: unset;
+    align-items: start;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 4px;
+    /* subtle horizontal breathing */
+    transition: grid-template-columns .25s ease;
+  }
+}
+
+/* Full expand variant for step 2 (Trá»ng sá»‘) to occupy entire available width */
+.weights-layout.full-expand {
+  grid-template-columns: 1fr !important;
+  /* single column */
+  max-width: 100% !important;
+  padding: 0 8px;
+  /* slightly more horizontal breathing */
+}
+
+.navbar {
+  box-shadow: 0 4px 18px -4px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+}
+
+.sidebar-narrow {
+  width: 220px;
+}
+
+.weights-layout.full-expand .weights-col {
+  padding: 12px 12px 8px;
+  /* expand internal padding for wider layout */
+}
+
+.weights-layout.full-expand .weights-body {
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+/* 992pxâ€“1199px: approximate 4:8 (still keeping divider track) */
+@media (max-width: 1199px) and (min-width: 992px) {
+  .weights-layout {
+    grid-template-columns: 4fr 2px 8fr;
+  }
+}
+
+/* Stack below 992px */
+@media (max-width: 991px) {
+  .weights-layout {
+    grid-template-columns: 1fr;
+    /* single column */
+    column-gap: 0;
+    row-gap: 32px;
+  }
+
+  .weights-layout .layout-divider {
+    display: none;
+  }
+}
+
+/* Actual divider element styled as vertical bar */
+.weights-layout .layout-divider {
+  width: 2px;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05));
+  border-radius: 1px;
+  align-self: stretch;
+  min-height: 100%;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.05), 0 0 6px -1px rgba(255, 255, 255, 0.15) inset;
+}
+
+/* Column semantic helpers (optional styling hooks) */
+.weights-layout .filters-col {
+  /* left column */
+  position: relative;
+  background: linear-gradient(145deg, rgba(30, 41, 59, 0.65), rgba(15, 23, 42, 0.55));
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 14px;
+  padding: 18px 18px 26px;
+  backdrop-filter: blur(6px);
+  display: flex;
+  flex-direction: column;
+}
+
+.weights-layout .weights-col {
+  /* right column */
+  position: relative;
+  background: linear-gradient(145deg, rgba(17, 24, 39, 0.75), rgba(11, 18, 30, 0.65));
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  padding: 8px 4px 4px;
+  backdrop-filter: blur(6px);
+}
+
+/* Ensure internal cards inside new column surfaces don't duplicate heavy borders */
+.weights-layout .filters-col .card,
+.weights-layout .weights-col .card {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: none;
+}
+
+/* Responsive: stack and hide divider under 900px */
+@media (max-width: 900px) {
+  .weights-layout {
+    grid-template-columns: 1fr;
+    /* single column */
+    column-gap: 0;
+    row-gap: 28px;
+  }
+
+  .weights-layout .layout-divider {
+    display: none;
+  }
+}
+
+/* Card container */
+.card {
+  background: #111827;
+  /* fallback dark */
+  background: linear-gradient(145deg, #111827 0%, #0E1624 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 18px 20px;
+  box-shadow: 0 4px 14px -2px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+  position: relative;
+}
+
+.card--flush {
+  padding: 0;
+}
+
+/* Unified form field stack */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.field+.field {
+  margin-top: 14px;
+}
+
+/* Control height normalization */
+.hf-control,
+.field select,
+.field input[type="text"],
+.field input[type="number"],
+.field input[type="range"] {
+  min-height: 40px;
+  height: 40px;
+  line-height: 40px;
+  border-radius: 8px;
+}
+
+/* Progress bars */
+.progress {
+  position: relative;
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress--thin {
+  height: 6px;
+}
+
+.progress__bar {
+  height: 100%;
+  border-radius: inherit;
+  /* tokens.dark.gradientPrimary: linear-gradient(90deg, #3B82F6, #6366F1) */
+  background: linear-gradient(90deg, #3B82F6, #6366F1);
+  transition: width 0.4s cubic-bezier(.4, 0, .2, 1);
+}
+
+/* Toolbar actions */
+.toolbar {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  align-items: center;
+}
+
+/* Button subtle elevation */
+.btn-elevate {
+  box-shadow: 0 4px 16px -4px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+  transition: box-shadow 180ms ease, transform 180ms ease;
+}
+
+.btn-elevate:hover {
+  box-shadow: 0 6px 20px -2px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+}
+
+.btn-elevate:active {
+  transform: translateY(1px);
+}
+
+/* Total weight footer center alignment helper */
+.total-weight-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (min-width: 640px) {
+  .total-weight-footer {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+/* Soft focus ring utility */
+.focus-soft:focus {
+  outline: 2px solid rgba(99, 102, 241, 0.4);
+  outline-offset: 2px;
+}
+
+/* Smooth transitions */
+.transition-base {
+  transition: all 160ms cubic-bezier(.4, 0, .2, 1);
+}
+
+/* Weight tile refined progress (override existing height when class applied) */
+.weight-tile .progress-inline {
+  height: 8px;
+}
+
+/* Prevent layout shift on range focus */
+input[type=range] {
+  background-clip: padding-box;
+}
+
+/* Evidence highlight tokens */
+.evidence-block .evidence-hl {
+  position: relative;
+  font-weight: 500;
+}
+
+.evidence-block .hl-0 {
+  background: linear-gradient(90deg, rgba(56, 189, 248, 0.15), rgba(59, 130, 246, 0.15));
+  color: #7dd3fc;
+  padding: 1px 3px;
+  border-radius: 4px;
+}
+
+.evidence-block .hl-1 {
+  background: linear-gradient(90deg, rgba(245, 158, 11, 0.18), rgba(234, 179, 8, 0.18));
+  color: #fbbf24;
+  padding: 1px 3px;
+  border-radius: 4px;
+}
+
+.evidence-block .hl-2 {
+  background: linear-gradient(90deg, rgba(167, 139, 250, 0.18), rgba(139, 92, 246, 0.18));
+  color: #c4b5fd;
+  padding: 1px 3px;
+  border-radius: 4px;
+}
+
+/* Compact progress styling used in analysis detail */
+.crit-progress {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.crit-progress>span {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #10b981, #059669);
+}
+
+/* Keyword pill status styles (experience quick analysis) */
+.pill {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: .3px;
+  border: 1px solid transparent;
+}
+
+.pill--match {
+  background: rgba(16, 185, 129, 0.18);
+  color: #34d399;
+  border-color: rgba(16, 185, 129, 0.4);
+}
+
+.pill--missing {
+  background: rgba(234, 179, 8, 0.18);
+  color: #fbbf24;
+  border-color: rgba(234, 179, 8, 0.4);
+}
+
+.pill--uncertain {
+  background: rgba(100, 116, 139, 0.25);
+  color: #cbd5e1;
+  border-color: rgba(100, 116, 139, 0.35);
+}
+
+/* Custom scrollbar styles for professional look */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.5) transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.5);
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.7);
+}
+
+/* Prevent horizontal overflow */
+.prevent-overflow {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+img,
+video,
+canvas,
+svg {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Gradient radial utility for background decorations */
+.bg-gradient-radial {
+  background: radial-gradient(circle, var(--tw-gradient-stops));
+}
+
+@keyframes scan-line {
+  0% {
+    top: 10%;
+    opacity: 0;
+  }
+
+  10% {
+    opacity: 1;
+  }
+
+  90% {
+    opacity: 1;
+  }
+
+  100% {
+    top: 90%;
+    opacity: 0;
+  }
+}
+
+.animate-scan-line {
+  animation: scan-line 3s linear infinite;
+}
+
+/* ==================== RESPONSIVE DESIGN UTILITIES ==================== */
+
+/* Mobile-first responsive breakpoints */
+/* Mobile: 0-767px */
+/* Tablet: 768-1023px */
+/* Desktop: 1024px+ */
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+
+  /* Touch-specific styles */
+  .touch-target {
+    min-height: 48px;
+    min-width: 48px;
+  }
+
+  .btn {
+    min-height: 48px;
+    padding: 12px 24px;
+  }
+
+  /* Remove hover effects on touch devices */
+  .hover-only:hover {
+    transform: none !important;
+    box-shadow: none !important;
+  }
+
+  /* Enhanced focus for touch navigation */
+  button:focus,
+  input:focus,
+  select:focus,
+  textarea:focus {
+    outline: 3px solid #06b6d4;
+    outline-offset: 2px;
+  }
+}
+
+/* Mobile specific styles (0-767px) */
+@media screen and (max-width: 767px) {
+
+  /* Prevent horizontal scrolling */
+  html,
+  body {
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
+
+  /* Mobile typography scale */
+  h1 {
+    font-size: 1.75rem;
+    line-height: 1.2;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+    line-height: 1.3;
+  }
+
+  h3 {
+    font-size: 1.25rem;
+    line-height: 1.4;
+  }
+
+  h4 {
+    font-size: 1.125rem;
+    line-height: 1.4;
+  }
+
+  /* Mobile form elements */
+  input,
+  textarea,
+  select {
+    font-size: 16px;
+    /* Prevents zoom on iOS */
+    padding: 16px;
+    border-radius: 12px;
+    min-height: 56px;
+  }
+
+  /* Mobile button sizes */
+  .btn-sm {
+    min-height: 44px;
+    padding: 10px 16px;
+    font-size: 14px;
+  }
+
+  .btn-md {
+    min-height: 48px;
+    padding: 12px 20px;
+    font-size: 16px;
+  }
+
+  .btn-lg {
+    min-height: 52px;
+    padding: 14px 24px;
+    font-size: 18px;
+  }
+
+  /* Mobile card spacing */
+  .card {
+    margin-bottom: 12px;
+    border-radius: 16px;
+    padding: 16px;
+  }
+
+  /* Mobile navigation */
+  .mobile-nav {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+  }
+
+  /* Safe area support for devices with notches */
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .safe-left {
+    padding-left: env(safe-area-inset-left);
+  }
+
+  .safe-right {
+    padding-right: env(safe-area-inset-right);
+  }
+
+  /* Mobile scrollable areas */
+  .scroll-area {
+    -webkit-overflow-scrolling: touch;
+    overflow-x: hidden;
+  }
+
+  /* Mobile image optimization */
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* Mobile table responsiveness */
+  .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .table-responsive table {
+    min-width: 600px;
+  }
+}
+
+/* Tablet specific styles (768px-1023px) */
+@media screen and (min-width: 768px) and (max-width: 1023px) {
+
+  /* Tablet typography */
+  h1 {
+    font-size: 2rem;
+  }
+
+  h2 {
+    font-size: 1.75rem;
+  }
+
+  h3 {
+    font-size: 1.5rem;
+  }
+
+  /* Tablet form elements */
+  input,
+  textarea,
+  select {
+    font-size: 16px;
+    padding: 14px 16px;
+    min-height: 48px;
+  }
+
+  /* Tablet button sizes */
+  .btn-sm {
+    min-height: 40px;
+    padding: 8px 16px;
+  }
+
+  .btn-md {
+    min-height: 44px;
+    padding: 10px 20px;
+  }
+
+  .btn-lg {
+    min-height: 48px;
+    padding: 12px 24px;
+  }
+
+  /* Tablet card spacing */
+  .card {
+    margin-bottom: 16px;
+    border-radius: 12px;
+    padding: 20px;
+  }
+
+  /* Tablet grid adjustments */
+  .tablet-grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .tablet-grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+}
+
+/* Desktop specific styles (1024px+) */
+@media screen and (min-width: 1024px) {
+
+  /* Desktop typography */
+  h1 {
+    font-size: 2.5rem;
+  }
+
+  h2 {
+    font-size: 2rem;
+  }
+
+  h3 {
+    font-size: 1.75rem;
+  }
+
+  /* Desktop hover effects */
+  .desktop-hover {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .desktop-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  }
+
+  /* Desktop button sizes */
+  .btn-sm {
+    min-height: 36px;
+    padding: 6px 12px;
+  }
+
+  .btn-md {
+    min-height: 40px;
+    padding: 8px 16px;
+  }
+
+  .btn-lg {
+    min-height: 44px;
+    padding: 10px 20px;
+  }
+
+  /* Desktop card spacing */
+  .card {
+    margin-bottom: 20px;
+    border-radius: 12px;
+    padding: 24px;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #1e293b;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #475569;
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #64748b;
+  }
+
+  /* Desktop grid layouts */
+  .desktop-grid-4 {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+  }
+
+  .desktop-grid-6 {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 24px;
+  }
+}
+
+/* Responsive utility classes */
+.mobile-only {
+  display: none;
+}
+
+.tablet-only {
+  display: none;
+}
+
+.desktop-only {
+  display: none;
+}
+
+@media screen and (max-width: 767px) {
+  .mobile-only {
+    display: block;
+  }
+
+  .mobile-hidden {
+    display: none !important;
+  }
+}
+
+@media screen and (min-width: 768px) and (max-width: 1023px) {
+  .tablet-only {
+    display: block;
+  }
+
+  .tablet-hidden {
+    display: none !important;
+  }
+}
+
+@media screen and (min-width: 1024px) {
+  .desktop-only {
+    display: block;
+  }
+
+  .desktop-hidden {
+    display: none !important;
+  }
+}
+
+/* Responsive spacing utilities */
+.spacing-mobile {
+  padding: 16px;
+}
+
+.spacing-tablet {
+  padding: 24px;
+}
+
+.spacing-desktop {
+  padding: 32px;
+}
+
+@media screen and (max-width: 767px) {
+  .spacing-responsive {
+    padding: 16px;
+  }
+}
+
+@media screen and (min-width: 768px) and (max-width: 1023px) {
+  .spacing-responsive {
+    padding: 24px;
+  }
+}
+
+@media screen and (min-width: 1024px) {
+  .spacing-responsive {
+    padding: 32px;
+  }
+}
+
+/* Responsive text utilities */
+.text-responsive-sm {
+  font-size: 0.875rem;
+}
+
+.text-responsive-base {
+  font-size: 1rem;
+}
+
+.text-responsive-lg {
+  font-size: 1.125rem;
+}
+
+@media screen and (max-width: 767px) {
+  .text-responsive-sm {
+    font-size: 0.75rem;
+  }
+
+  .text-responsive-base {
+    font-size: 0.875rem;
+  }
+
+  .text-responsive-lg {
+    font-size: 1rem;
+  }
+}
+
+@media screen and (min-width: 1024px) {
+  .text-responsive-sm {
+    font-size: 0.875rem;
+  }
+
+  .text-responsive-base {
+    font-size: 1rem;
+  }
+
+  .text-responsive-lg {
+    font-size: 1.25rem;
+  }
+}
+
+/* Animation utilities for responsive design */
+.mobile-scale-tap {
+  transition: transform 0.1s ease;
+}
+
+.mobile-scale-tap:active {
+  transform: scale(0.95);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .desktop-scale-hover {
+    transition: transform 0.2s ease;
+  }
+
+  .desktop-scale-hover:hover {
+    transform: scale(1.05);
+  }
+}
+
+/* Focus utilities for accessibility */
+.focus-responsive {
+  outline: none;
+}
+
+.focus-responsive:focus {
+  outline: 2px solid #06b6d4;
+  outline-offset: 2px;
+}
+
+@media screen and (max-width: 767px) {
+  .focus-responsive:focus {
+    outline-width: 3px;
+    outline-offset: 3px;
+  }
+}
+
+/* ==================== END RESPONSIVE UTILITIES ==================== */
+/* ====================================
+   NAVY BLUE DESIGN SYSTEM - ANIMATIONS & ACCESSIBILITY
+   ==================================== */
+
+/* Additional Animations for Modern UI */
+@keyframes scaleUp {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Apply animations */
+.animate-scale-up {
+  animation: scaleUp 0.3s ease-out;
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.3s ease-out;
+}
+
+.animate-slide-in-left {
+  animation: slideInLeft 0.3s ease-out;
+}
+
+/* Hover scale effect */
+.hover-scale {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hover-scale:hover {
+  transform: scale(1.02);
+}
+
+/* Hover lift effect */
+.hover-lift {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.3);
+}
+
+/* ====================================
+   ACCESSIBILITY ENHANCEMENTS
+   ==================================== */
+
+/* Focus ring for all interactive elements */
+.focus-ring:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+  border-radius: 0.375rem;
+}
+
+/* Focus ring variants for different elements */
+button:focus-visible,
+a:focus-visible,
+[role="button"]:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+}
+
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+}
+
+/* Skip to content link for screen readers */
+.skip-to-content {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: #3b82f6;
+  color: white;
+  padding: 8px 16px;
+  text-decoration: none;
+  z-index: 100;
+  border-radius: 0 0 4px 0;
+}
+
+.skip-to-content:focus {
+  top: 0;
+}
+
+/* Screen reader only text */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  * {
+    border-width: 2px !important;
+  }
+
+  button,
+  a,
+  [role="button"] {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+  }
+}
+
+/* Touch target size for mobile accessibility */
+@media (max-width: 768px) {
+
+  button,
+  a,
+  [role="button"],
+  input[type="checkbox"],
+  input[type="radio"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* Update old cyan focus to navy blue */
+.focus-responsive:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* ============================================================
+   LIGHT MODE â€” PHASE 2: SCREENER PAGES (all sub-pages)
+   Covers: ScreenerHeader, JDInput, WeightsConfig, CVUpload,
+           AnalysisResults, DetailedAnalytics, Modals, etc.
+   ============================================================ */
+
+/* --- ScreenerHeader bar --- */
+
+
+/* ScreenerHeader title & subtitle */
+
+
+/* --- JDInput: editor & drag/drop area --- */
+/* The dark textarea */
+
+
+/* JD editor inline input bars */
+
+
+
+/* Editor top toolbar border */
+
+/* JD upload area drag zone */
+
+
+/* Format badges (PDF/DOCX etc.) */
+
+/* Google Drive button */
+
+/* JD busy overlay */
+
+
+/* OCR message badge */
+
+/* --- WeightsConfig: column cards --- */
+
+
+
+
+/* Card headings & labels in screener pages */
+
+
+/* Field selects & inputs in card */
+
+
+/* Progress bars */
+
+/* Pills */
+
+
+
+/* --- ParseJD page --- */
+
+/* --- DetailedAnalytics / Dashboard page background --- */
+
+/* --- Modal panels (JDTemplatesModal, HistoryModal, etc.) --- */
+
+/* --- Mobile bottom nav (light) --- */
+
+
+
+/* --- Screener overall container --- */
+.dark .module-pane,
+.dark #module-jd {
+  background: #0B192C;
+}
+
+/* --- bg-[#020617] used in some JD overlays --- */
+
+/* --- Error / success banners --- */
+
+
+/* --- Loading spinner track --- */
+
+
+/* Feature card border divider */
+
+/* Border in JD module step divider */
+
+/* bg-[#0f172a] used in floating JD dropdowns */
+
+
+
+
+
+
+/* bg-slate-800/50 used in mobile menu dropdown items */
+
+/* ================================================================
+   LIGHT MODE â€” COMPREHENSIVE OVERRIDES FOR ALL APP PAGES
+   (Appended block â€” overrides Tailwind dark bg/text classes)
+   ================================================================ */
+
+/* â”€â”€ Font & Typography sync â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+
+/* â”€â”€ Text color catch-all â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+
+/* Exception: text on dark/colored buttons stays white */
+
+/* â”€â”€ JD Screener / Input page â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+
+
+/* JDMetaToolbar */
+
+/* JD textarea & input in toolbar */
+
+
+/* Toolbar pill inputs */
+
+/* â”€â”€ Analysis Results page â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* Candidate card rows */
+
+
+
+
+
+/* Candidate table borders */
+
+
+/* Score circles & badges â€” keep accent colors */
+
+/* â”€â”€ ExpandedContent panel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* Pre tag for JD content */
+
+/* Criterion accordion */
+
+/* Criterion score number */
+
+/* Evidence text */
+
+
+/* Tab headers in ExpandedContent */
+
+
+/* Pill badges (match/missing) */
+
+
+
+
+
+
+/* â”€â”€ Weights Config page â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+
+
+
+/* Weight tile sliders */
+
+
+
+
+/* â”€â”€ Candidate Suggestions / Chatbot â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+
+
+
+/* Chat bubbles */
+
+
+/* Message text in chat */
+
+/* â”€â”€ Analytics / Dashboard â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+
+
+
+/* Chart labels */
+
+
+/* â”€â”€ Modal / Dialog â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* JDTemplatesModal */
+
+/* History modal */
+
+/* â”€â”€ Loading states â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+
+/* â”€â”€ Bottom Mobile Nav â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+
+
+
+/* Active sidebar item */
+
+/* â”€â”€ JDMetaToolbar "AI tá»‘i Æ°u" & "Tiáº¿p theo" buttons â€” keep branded â”€ */
+
+
+/* â”€â”€ Divider lines â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+
+
+/* â”€â”€ Transition smooth for all theme changes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+
+
+
+
+/* ================================================================
+   LIGHT MODE â€” INLINE STYLE NUCLEAR OVERRIDES
+   These override hardcoded style={{}} attributes in React components.
+   CSS attribute selectors [style*="..."] catch inline dark colors.
+   ================================================================ */
+
+/* â”€â”€ Override ALL inline rgba(255,255,255,...) backgrounds â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+
+/* Override inline dark hex backgrounds */
+
+
+
+
+
+
+/* Override inline dark gradient backgrounds */
+
+/* â”€â”€ Override inline borders â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+
+
+
+
+
+/* â”€â”€ Override inline text colors â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+
+
+
+
+/* â”€â”€ Override dark table header backgrounds â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+
+/* â”€â”€ Override rgba(0,0,0,...) dark overlays â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+
+
+
+
+/* â”€â”€ Override inline glass/badge backgrounds â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+
+/* â”€â”€ Main App wrapper â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+
+/* â”€â”€ Aurora / Grid â€” dimmed in light â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+
+
+/* â”€â”€ Card deep override â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+
+
+
+
+/* Login button on navbar should stay white-on-colored */
+
+/* â”€â”€ Card-like containers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+
+
+/* â”€â”€ LoginPage â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+
+/* â”€â”€ Body base â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+
+/* â”€â”€ Divider â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+
+/* â”€â”€ Weight column surfaces â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+
+
+/* ================================================================
+   LIGHT MODE v2 â€” NUCLEAR FIX FOR ALL PAGES
+   Targets inline style={{}} via [style*=""] and structural selectors
+   ================================================================ */
+
+/* â•â•â•â•â•â• SIDEBAR NUCLEAR â•â•â•â•â•â• */
+
+/* â•â•â•â•â•â• NAVBAR â•â•â•â•â•â• */
+
+/* â•â•â•â•â•â• GLOBAL: override dark inline backgrounds â•â•â•â•â•â• */
+
+/* Override rgba(255,255,255,...) low-opacity backgrounds */
+
+/* Override border-bottom with rgba white */
+
+/* Override inline border compound property */
+
+/* Override inline text colors: light â†’ dark */
+
+/* Override inline backgrounds with dark hex - RGB form */
+
+/* Override inline gradient backgrounds */
+
+/* Override inline box-shadows with dark colors */
+
+/* â•â•â•â•â•â• MAIN CONTENT WRAPPER â•â•â•â•â•â• */
+
+/* â•â•â•â•â•â• ANALYSIS RESULTS PAGE â•â•â•â•â•â• */
+/* Stat summary cards */
+
+/* Table header/container */
+
+/* â•â•â•â•â•â• TEXT OVERRIDES â•â•â•â•â•â• */
+
+/* Branded accent colors â€“ darker for light bg */
+
+/* Keep white text on gradient/colored buttons */
+
+/* â•â•â•â•â•â• BORDERS â•â•â•â•â•â• */
+
+/* â•â•â•â•â•â• INPUTS â•â•â•â•â•â• */
+
+/* â•â•â•â•â•â• CARDS â•â•â•â•â•â• */
+
+/* â•â•â•â•â•â• WEIGHTS CONFIG PAGE â•â•â•â•â•â• */
+
+/* â•â•â•â•â•â• CHATBOT / CANDIDATE SUGGESTIONS â•â•â•â•â•â• */
+
+/* â•â•â•â•â•â• DASHBOARD / ANALYTICS â•â•â•â•â•â• */
+
+/* â•â•â•â•â•â• PRE / CODE â•â•â•â•â•â• */
+
+/* â•â•â•â•â•â• MODALS â•â•â•â•â•â• */
+
+/* â•â•â•â•â•â• SCROLLBAR â•â•â•â•â•â• */
+
+/* â•â•â•â•â•â• AURORA + GRID â€“ subtle in light â•â•â•â•â•â• */
+
+/* â•â•â•â•â•â• LOADING / SKELETON â•â•â•â•â•â• */
+
+/* â•â•â•â•â•â• BACKDROP BLUR â•â•â•â•â•â• */
+
+/* â•â•â•â•â•â• PILL BADGES â•â•â•â•â•â• */
+
+/* â•â•â•â•â•â• PROGRESS BARS â•â•â•â•â•â• */
+
+/* â•â•â•â•â•â• EVIDENCE HIGHLIGHTS â•â•â•â•â•â• */
+
+/* â•â•â•â•â•â• SMOOTH TRANSITION â•â•â•â•â•â• */
+

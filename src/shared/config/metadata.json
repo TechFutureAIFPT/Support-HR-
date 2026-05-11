@@ -1,0 +1,5 @@
+{
+  "name": "TechCV AI Candidate Screener",
+  "description": "An intelligent CV screening application that connects to the deployed SupportHR Render API for JD parsing, CV extraction, candidate scoring, ranking, and hiring workflow support.",
+  "requestFramePermissions": []
+}
