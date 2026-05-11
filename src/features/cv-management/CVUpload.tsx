@@ -4,6 +4,7 @@ import type { Candidate, HardFilters, WeightCriteria, AppStep } from '@/shared/t
 import { analyzeCVs } from '@/lib/services/screening/frontendScreeningService';
 import { googleDriveService } from '@/lib/services/file-processing/googleDriveService';
 import { useThemeColors } from '@/shared/ui/theme/useThemeColors';
+import { getSafeErrorMessage, isRedirectingToGoogle } from '@/shared/utils/errorMessages';
 
 interface CVUploadProps {
   cvFiles: File[];
@@ -85,14 +86,10 @@ const CVUpload: React.FC<CVUploadProps> = memo((props) => {
       }
     } catch (err: any) {
       console.error('Google Drive Error:', err);
-      if (err?.message?.includes('?ang chuy?n t?i Google')) {
+      if (isRedirectingToGoogle(err)) {
         return;
       }
-      if (err?.message?.includes('??ng nh?p')) {
-        setError('Vui l?ng ??ng nh?p ?? d?ng Google Drive.');
-      } else {
-        setError(err?.message || 'L?i khi k?t n?i Google Drive. Vui l?ng th? l?i.');
-      }
+      setError(getSafeErrorMessage(err, 'drive'));
     } finally {
       setIsLoading(false);
       setLoadingMessage('');
@@ -134,17 +131,17 @@ const CVUpload: React.FC<CVUploadProps> = memo((props) => {
       }
     } catch (err) {
       console.error("Lỗi phân tích CV:", err);
-      const message = err instanceof Error ? err.message : 'Đã xảy ra lỗi không xác định. Vui lòng thử lại.';
+      const message = getSafeErrorMessage(err, 'ai');
 
       setError(message);
 
       setAnalysisResults(prev => {
-        if (prev.some(c => c.candidateName === 'Lỗi Hệ Thống')) return prev;
+        if (prev.some(c => c.candidateName === 'Đang có lỗi')) return prev;
         return [...prev, {
           id: `system-error-${Date.now()}`,
           status: 'FAILED',
           error: message,
-          candidateName: 'Lỗi Hệ Thống',
+          candidateName: 'Đang có lỗi',
           fileName: 'N/A',
           jobTitle: '',
           industry: '',

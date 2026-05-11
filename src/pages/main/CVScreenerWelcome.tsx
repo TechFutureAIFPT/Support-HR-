@@ -18,6 +18,7 @@ import {
 } from '@/lib/services/screening/frontendScreeningService';
 import { googleDriveService } from '@/lib/services/file-processing/googleDriveService';
 import type { HardFilters } from '@/shared/types';
+import { getSafeErrorMessage, isRedirectingToGoogle } from '@/shared/utils/errorMessages';
 
 interface CVScreenerWelcomeProps {
   onGetStarted: () => void;
@@ -176,12 +177,7 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
         setSuccessMsg(`Đã nạp JD: ${file.name}`);
         setStep('cv');
       } catch (err: any) {
-        const message = err?.message || 'Đã xảy ra lỗi. Vui lòng thử lại.';
-        setErrorMsg(
-          message.includes('network') || message.includes('fetch')
-            ? 'Lỗi kết nối mạng.'
-            : message
-        );
+        setErrorMsg(getSafeErrorMessage(err, 'ai'));
       } finally {
         setIsProcessing(false);
       }
@@ -211,10 +207,10 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
         await processFile(driveFiles[0]);
       }
     } catch (err: any) {
-      if (err?.message?.includes('Đang chuyển tới Google')) {
+      if (isRedirectingToGoogle(err)) {
         return;
       }
-      setErrorMsg(err?.message || 'Không kết nối được Google Drive.');
+      setErrorMsg(getSafeErrorMessage(err, 'drive'));
     }
   };
 
@@ -239,14 +235,10 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
       if (driveFiles.length === 0) return;
       appendCvFiles(driveFiles);
     } catch (err: any) {
-      if (err?.message?.includes('Đang chuyển tới Google')) {
+      if (isRedirectingToGoogle(err)) {
         return;
       }
-      if (err?.message?.includes('đăng nhập')) {
-        setCvError('Vui lòng đăng nhập để dùng Google Drive.');
-      } else {
-        setCvError(err?.message || 'Không lấy được CV từ Google Drive.');
-      }
+      setCvError(getSafeErrorMessage(err, 'drive'));
     } finally {
       setIsLoadingCvDrive(false);
     }

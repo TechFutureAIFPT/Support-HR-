@@ -1,4 +1,5 @@
 import { auth } from '@/lib/services/firebase';
+import { SAFE_ERROR_MESSAGES, sanitizeApiErrorMessage } from '@/shared/utils/errorMessages';
 
 export const RENDER_API_URL = 'https://backendsupporthr.onrender.com';
 
@@ -20,9 +21,9 @@ function extractErrorMessage(payload: unknown, fallback: string): string {
 
   const record = payload as Record<string, unknown>;
 
-  if (typeof record.detail === 'string') return record.detail;
-  if (typeof record.message === 'string') return record.message;
-  if (typeof record.error === 'string') return record.error;
+  if (typeof record.detail === 'string') return sanitizeApiErrorMessage(record.detail, fallback);
+  if (typeof record.message === 'string') return sanitizeApiErrorMessage(record.message, fallback);
+  if (typeof record.error === 'string') return sanitizeApiErrorMessage(record.error, fallback);
 
   if (Array.isArray(record.detail)) {
     const combined = record.detail
@@ -36,7 +37,7 @@ function extractErrorMessage(payload: unknown, fallback: string): string {
       .filter(Boolean)
       .join(', ');
 
-    if (combined) return combined;
+    if (combined) return sanitizeApiErrorMessage(combined, fallback);
   }
 
   return fallback;
@@ -47,7 +48,7 @@ async function getAuthorizationHeader(authRequired: boolean): Promise<string | u
 
   const user = auth.currentUser;
   if (!user) {
-    throw new Error('Vui lòng đăng nhập để sử dụng tính năng này.');
+    throw new Error(SAFE_ERROR_MESSAGES.auth);
   }
 
   const token = await user.getIdToken();
@@ -97,13 +98,13 @@ async function request<T>(
       : null;
 
     if (!response.ok) {
-      throw new Error(extractErrorMessage(payload, `Yêu cầu API thất bại (${response.status}).`));
+      throw new Error(extractErrorMessage(payload, SAFE_ERROR_MESSAGES.generic));
     }
 
     return payload as T;
   } catch (error) {
     if (error instanceof DOMException && error.name === 'AbortError') {
-      throw new Error('Yêu cầu đến máy chủ bị quá thời gian chờ.');
+      throw new Error(SAFE_ERROR_MESSAGES.network);
     }
     throw error;
   } finally {

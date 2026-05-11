@@ -2,6 +2,7 @@ import type { Candidate, DetailedScore, HardFilters, WeightCriteria, AnalysisRun
 import { apiPost, pickArray } from '@/lib/services/api/renderClient';
 import { analysisCacheService } from '@/lib/services/history-cache/analysisCache';
 import { extractTextFromFile } from '@/lib/services/file-processing/ocrService';
+import { getSafeErrorMessage, sanitizeApiErrorMessage, SAFE_ERROR_MESSAGES } from '@/shared/utils/errorMessages';
 
 const RENDER_CHAT_MODEL = 'gemini-2.0-flash';
 
@@ -163,7 +164,7 @@ function normalizeCandidate(rawCandidate: unknown, fallbackFile?: File): Candida
       ? candidate.debiasingWarnings.map((warning) => String(warning))
       : undefined,
     status: candidate.status === 'FAILED' ? 'FAILED' : 'SUCCESS',
-    error: candidate.error ? String(candidate.error) : undefined,
+    error: candidate.error ? sanitizeApiErrorMessage(String(candidate.error), SAFE_ERROR_MESSAGES.ai) : undefined,
     _rawBatchJson: JSON.stringify(rawCandidate),
   };
 }
@@ -269,7 +270,7 @@ export async function* analyzeCVs(
         experienceLevel: '',
         detectedLocation: '',
         status: 'FAILED',
-        error: error instanceof Error ? error.message : 'Không thể xử lý CV này.',
+        error: getSafeErrorMessage(error, 'ai'),
       };
     }
   }

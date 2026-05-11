@@ -4,6 +4,8 @@
  * Sử dụng API: job-salary-data.p.rapidapi.com
  */
 
+import { getSafeErrorMessage } from '@/shared/utils/errorMessages';
+
 interface SalaryData {
   job_title: string;
   location: string;
@@ -513,7 +515,7 @@ export const analyzeSalary = async (
       recommendation: 'Vui lòng kiểm tra lại thông tin đầu vào hoặc thử lại sau.',
       negotiationTips: [],
       source: 'N/A',
-      error: error instanceof Error ? error.message : 'Unknown error',
+      error: getSafeErrorMessage(error, 'ai'),
     };
   }
 };

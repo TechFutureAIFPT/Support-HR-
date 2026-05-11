@@ -4,6 +4,7 @@ import { getChatbotAdvice } from '@/lib/services/screening/frontendScreeningServ
 import { analyzeSalary } from '@/lib/services/salary-analysis/salaryAnalysisService';
 import { ChatbotHistoryService } from '@/lib/services/data-sync/chatbotHistoryService';
 import { useThemeColors } from '@/shared/ui/theme/useThemeColors';
+import { getSafeErrorMessage } from '@/shared/utils/errorMessages';
 
 interface ChatbotPanelProps {
   analysisData: AnalysisRunData;
@@ -233,11 +234,11 @@ const ChatbotPanel: React.FC<ChatbotPanelProps> = ({ analysisData, onClose }) =>
         { id: botMessage.id, author: 'bot', content: responseText, timestamp: Date.now(), suggestedCandidateIds: candidateIds },
       ]);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Đã có lỗi xảy ra.';
+      const errorMessage = getSafeErrorMessage(error, 'ai');
       const botError: ChatMessage = {
         id: (Date.now() + 1).toString(),
         author: 'bot',
-        content: `Rất tiếc, đã có lỗi: ${errorMessage}`,
+        content: `Rất tiếc, ${errorMessage}`,
       };
       setMessages(prev => [...prev, botError]);
     } finally {
@@ -325,11 +326,11 @@ const ChatbotPanel: React.FC<ChatbotPanelProps> = ({ analysisData, onClose }) =>
       ]);
 
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Đã có lỗi xảy ra.';
+      const errorMessage = getSafeErrorMessage(error, 'ai');
       const botError: ChatMessage = {
         id: (Date.now() + 1).toString(),
         author: 'bot',
-        content: `Rất tiếc, đã có lỗi: ${errorMessage}`,
+        content: `Rất tiếc, ${errorMessage}`,
       };
       setMessages(prev => [...prev, botError]);
     } finally {

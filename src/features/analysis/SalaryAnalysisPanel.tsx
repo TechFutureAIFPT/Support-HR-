@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { TrendingUp, DollarSign, AlertCircle, CheckCircle, Info, Target, Lightbulb } from 'lucide-react';
 import { analyzeSalary } from '@/lib/services/salary-analysis/salaryAnalysisService';
 import type { Candidate } from '@/shared/types';
+import { getSafeErrorMessage } from '@/shared/utils/errorMessages';
 
 interface SalaryAnalysisPanelProps {
   candidate?: Candidate;
@@ -77,13 +78,14 @@ const SalaryAnalysisPanel: React.FC<SalaryAnalysisPanelProps> = ({
       onAnalysisComplete?.(analysisResult);
     } catch (error) {
       console.error('Salary analysis error:', error);
+      const safeMessage = getSafeErrorMessage(error, 'ai');
       setResult({
         summary: 'Có lỗi xảy ra khi phân tích mức lương.',
         marketSalary: null,
         recommendation: 'Vui lòng thử lại sau.',
         negotiationTips: [],
         source: 'N/A',
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: safeMessage,
       });
     } finally {
       setIsAnalyzing(false);

@@ -5,6 +5,7 @@ import JDMetaToolbar from '@/features/criteria-config/JDMetaToolbar';
 import CVScreenerWelcome from '@/pages/main/CVScreenerWelcome';
 import CVUploadMini from '@/features/cv-management/CVUploadMini';
 import { analyzeCVs } from '@/lib/services/screening/frontendScreeningService';
+import { getSafeErrorMessage } from '@/shared/utils/errorMessages';
 
 const WeightsConfig = lazy(() => import('@/features/criteria-config/WeightsConfig'));
 const AnalysisResults = lazy(() => import('@/features/cv-management/AnalysisResults'));
@@ -118,16 +119,16 @@ const ScreenerPage: React.FC<ScreenerPageProps> = (props) => {
       }
     } catch (err) {
       console.error('Lỗi phân tích CV:', err);
-      const message = err instanceof Error ? err.message : 'Đã xảy ra lỗi không xác định. Vui lòng thử lại.';
+      const message = getSafeErrorMessage(err, 'ai');
       props.setAnalysisResults((prev) => {
-        if (prev.some((candidate) => candidate.candidateName === 'Lỗi Hệ Thống')) return prev;
+        if (prev.some((candidate) => candidate.candidateName === 'Đang có lỗi')) return prev;
         return [
           ...prev,
           {
             id: `system-error-${Date.now()}`,
             status: 'FAILED',
             error: message,
-            candidateName: 'Lỗi Hệ Thống',
+            candidateName: 'Đang có lỗi',
             fileName: 'N/A',
             jobTitle: '',
             industry: '',
