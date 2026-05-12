@@ -4,8 +4,40 @@ import { useLocation } from 'react-router-dom';
 interface StepInfo {
   message: string;
   icon: string;
-  accent: string;
+  label: string;
+  tone: 'cyan' | 'violet' | 'emerald' | 'sky';
 }
+
+const toneMap = {
+  cyan: {
+    accent: 'text-cyan-300',
+    border: 'border-cyan-400/20',
+    surface: 'bg-cyan-400/[0.06]',
+    rule: 'via-cyan-300/28',
+    progress: 'bg-cyan-300',
+  },
+  violet: {
+    accent: 'text-violet-300',
+    border: 'border-violet-400/20',
+    surface: 'bg-violet-400/[0.06]',
+    rule: 'via-violet-300/28',
+    progress: 'bg-violet-300',
+  },
+  emerald: {
+    accent: 'text-emerald-300',
+    border: 'border-emerald-400/20',
+    surface: 'bg-emerald-400/[0.06]',
+    rule: 'via-emerald-300/28',
+    progress: 'bg-emerald-300',
+  },
+  sky: {
+    accent: 'text-sky-300',
+    border: 'border-sky-400/20',
+    surface: 'bg-sky-400/[0.06]',
+    rule: 'via-sky-300/28',
+    progress: 'bg-sky-300',
+  },
+} as const;
 
 const PageTransition: React.FC = () => {
   const location = useLocation();
@@ -16,25 +48,26 @@ const PageTransition: React.FC = () => {
   const getStepInfo = (path: string): StepInfo => {
     switch (path) {
       case '/jd':
-        return { message: 'Khởi tạo trình lọc CV thông minh...', icon: 'fa-wand-magic-sparkles', accent: 'from-violet-500 to-indigo-500' };
+        return { message: 'Khởi tạo trình lọc CV thông minh...', icon: 'fa-wand-magic-sparkles', label: 'Support HR // JD', tone: 'violet' };
       case '/weights':
-        return { message: 'Đã lưu mô tả! Thiết lập tiêu chí đánh giá...', icon: 'fa-sliders', accent: 'from-indigo-500 to-blue-500' };
+        return { message: 'Đã lưu mô tả. Chuyển sang thiết lập tiêu chí đánh giá...', icon: 'fa-sliders', label: 'Support HR // Weights', tone: 'sky' };
       case '/upload':
-        return { message: 'Sẵn sàng! Chuyển sang bước nạp hồ sơ...', icon: 'fa-cloud-arrow-up', accent: 'from-cyan-500 to-blue-500' };
+        return { message: 'Sẵn sàng. Chuyển sang bước nạp hồ sơ...', icon: 'fa-cloud-arrow-up', label: 'Support HR // Upload', tone: 'cyan' };
       case '/analysis':
-        return { message: 'Khởi động AI! Bắt đầu phân tích CV...', icon: 'fa-chart-line', accent: 'from-emerald-500 to-cyan-500' };
+        return { message: 'Khởi động AI và bắt đầu phân tích CV...', icon: 'fa-chart-line', label: 'Support HR // Analysis', tone: 'emerald' };
       case '/detailed-analytics':
-        return { message: 'Tổng hợp báo cáo chi tiết...', icon: 'fa-chart-bar', accent: 'from-blue-500 to-violet-500' };
+        return { message: 'Tổng hợp báo cáo chi tiết...', icon: 'fa-chart-bar', label: 'Support HR // Analytics', tone: 'sky' };
       case '/chatbot':
-        return { message: 'Kết nối với Trợ lý AI...', icon: 'fa-robot', accent: 'from-purple-500 to-pink-500' };
+        return { message: 'Kết nối với trợ lý AI...', icon: 'fa-robot', label: 'Support HR // Chat', tone: 'violet' };
       case '/':
-        return { message: 'Chuẩn bị trang chủ...', icon: 'fa-home', accent: 'from-slate-500 to-slate-600' };
+        return { message: 'Chuẩn bị trang chủ...', icon: 'fa-home', label: 'Support HR // Home', tone: 'cyan' };
       default:
-        return { message: 'Đang tối ưu trải nghiệm...', icon: 'fa-sparkles', accent: 'from-indigo-500 to-cyan-500' };
+        return { message: 'Đang tối ưu trải nghiệm...', icon: 'fa-sparkles', label: 'Support HR // Route', tone: 'sky' };
     }
   };
 
   const stepInfo = getStepInfo(location.pathname);
+  const tone = toneMap[stepInfo.tone];
 
   useEffect(() => {
     setProgress(0);
@@ -42,17 +75,21 @@ const PageTransition: React.FC = () => {
     setShouldRender(true);
 
     const progressTimer = setInterval(() => {
-      setProgress(prev => {
-        if (prev >= 90) { clearInterval(progressTimer); return 90; }
-        return prev + Math.random() * 15;
+      setProgress((prev) => {
+        if (prev >= 92) {
+          clearInterval(progressTimer);
+          return 92;
+        }
+
+        return prev + Math.random() * 13;
       });
     }, 100);
 
     const transitionTimer = setTimeout(() => {
       setIsTransitioning(false);
       setProgress(100);
-      setTimeout(() => setShouldRender(false), 300);
-    }, 400);
+      setTimeout(() => setShouldRender(false), 320);
+    }, 520);
 
     return () => {
       clearInterval(progressTimer);
@@ -66,29 +103,67 @@ const PageTransition: React.FC = () => {
     <div
       className={`
         fixed inset-0 z-[9999] flex items-center justify-center
-        transition-all duration-300
-        ${isTransitioning ? 'opacity-100' : 'opacity-0 pointer-events-none'}
-        bg-[#0B1120]
+        bg-black/96 backdrop-blur-md transition-all duration-300
+        ${isTransitioning ? 'opacity-100' : 'pointer-events-none opacity-0'}
       `}
     >
-      <div className="flex flex-col items-center gap-6">
-        <div className="relative w-24 h-24">
-          <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${stepInfo.accent} blur-xl opacity-30 animate-pulse`} />
-          <div className={`relative w-24 h-24 rounded-2xl bg-gradient-to-br ${stepInfo.accent} shadow-xl flex items-center justify-center`}>
-            <i className={`fa-solid ${stepInfo.icon} text-white text-3xl animate-pulse`} />
+      <div className="pointer-events-none absolute inset-0 supporthr-grid-mask opacity-35" />
+      <div
+        className="pointer-events-none absolute inset-y-0 left-[-16%] w-[28%] bg-gradient-to-r from-transparent via-cyan-300/[0.08] to-transparent blur-3xl"
+        style={{ animation: 'home-hero-scan 7.8s linear infinite' }}
+      />
+      <div
+        className="pointer-events-none absolute inset-y-0 right-[-18%] w-[28%] bg-gradient-to-r from-transparent via-violet-300/[0.08] to-transparent blur-3xl"
+        style={{ animation: 'home-hero-scan 9.1s linear infinite', animationDelay: '0.8s' }}
+      />
+
+      <div className={`relative w-[min(92vw,34rem)] overflow-hidden border ${tone.border} bg-black/88 px-6 py-7 shadow-[0_28px_90px_rgba(0,0,0,0.45)]`}>
+        <div className={`absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent ${tone.rule} to-transparent`} />
+
+        <div className="supporthr-mono text-[10px] uppercase tracking-[0.28em] text-zinc-500">
+          {stepInfo.label}
+        </div>
+
+        <div className="mt-5 flex items-center gap-5">
+          <div className={`relative flex h-16 w-16 shrink-0 items-center justify-center border ${tone.border} ${tone.surface}`}>
+            <div
+              className={`absolute inset-[-1px] border-[3px] border-transparent border-r-current border-t-current ${tone.accent} animate-spin opacity-90`}
+              style={{ animationDuration: '1.05s' }}
+            />
+            <div className="absolute inset-[10px] border border-white/8" />
+            <div
+              className={`absolute inset-[11px] border-[3px] border-transparent border-b-current border-l-current ${tone.accent} animate-spin opacity-35`}
+              style={{ animationDuration: '1.45s', animationDirection: 'reverse' }}
+            />
+            <i className={`fa-solid ${stepInfo.icon} relative text-lg ${tone.accent}`} />
+          </div>
+
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-medium tracking-wide text-zinc-300">
+              {stepInfo.message}
+            </p>
+            <div className="mt-4 h-1.5 w-full overflow-hidden bg-white/[0.06]">
+              <div
+                className={`h-full ${tone.progress} transition-all duration-150 ease-out`}
+                style={{ width: `${Math.min(progress, 100)}%` }}
+              />
+            </div>
+            <div className="mt-3 flex items-center justify-between supporthr-mono text-[10px] uppercase tracking-[0.2em] text-zinc-600">
+              <span>Đang chuyển trang</span>
+              <span>{Math.round(Math.min(progress, 100))}%</span>
+            </div>
           </div>
         </div>
 
-        <div className="text-center space-y-4">
-          <p className="text-slate-300 text-sm font-medium tracking-wide animate-pulse">
-            {stepInfo.message}
-          </p>
-          <div className="w-64 h-1.5 bg-slate-800 rounded-full overflow-hidden">
+        <div className="mt-5 flex items-center gap-2">
+          {[0, 1, 2].map((index) => (
             <div
-              className={`h-full bg-gradient-to-r ${stepInfo.accent} rounded-full transition-all duration-150 ease-out`}
-              style={{ width: `${Math.min(progress, 100)}%` }}
+              key={index}
+              className={`h-1.5 flex-1 transition-all duration-300 ${
+                index <= Math.floor(progress / 34) ? tone.progress : 'bg-white/[0.08]'
+              }`}
             />
-          </div>
+          ))}
         </div>
       </div>
     </div>

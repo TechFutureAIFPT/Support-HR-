@@ -1,27 +1,10 @@
 import { motion, useReducedMotion } from "framer-motion";
 import {
-  Check,
   Clock3,
   Sparkles,
   Tag,
   TrendingUp,
-  X,
 } from "lucide-react";
-
-const comparisonRows = [
-  {
-    title: "Quy trình thủ công",
-    description: "Đọc từng CV rời rạc, khó giữ nhịp nhanh khi số lượng hồ sơ tăng mạnh.",
-    tone: "border-rose-500/18 bg-rose-500/[0.06] text-rose-300",
-    Icon: X,
-  },
-  {
-    title: "Support HR",
-    description: "Đọc, đối sánh và đề cử trong cùng một luồng vận hành rõ ràng cho recruiter hiện đại.",
-    tone: "border-emerald-500/18 bg-emerald-500/[0.06] text-emerald-300",
-    Icon: Check,
-  },
-];
 
 const impactStats = [
   {
@@ -68,8 +51,8 @@ export default function WhySupportSection() {
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_left_center,rgba(255,255,255,0.03),transparent_34%),linear-gradient(180deg,rgba(255,255,255,0.015),transparent_62%)]" />
 
       <div className="relative mx-auto max-w-[96rem] px-4 sm:px-6 lg:px-8">
-        <div className="grid gap-12 xl:grid-cols-[1.05fr_0.95fr] xl:items-start">
-          <div className="max-w-3xl">
+        <div className="grid gap-10 xl:grid-cols-[0.9fr_1.1fr] xl:items-center">
+          <div className="max-w-2xl">
             <p className="supporthr-mono text-[11px] uppercase tracking-[0.24em] text-emerald-300/75">
               Support HR // Vì sao hiệu quả hơn
             </p>
@@ -80,25 +63,6 @@ export default function WhySupportSection() {
               Support HR được thiết kế như một lớp điều phối cho recruiter: đọc CV nhanh, chấm điểm có lý do và giữ
               toàn bộ phiên tuyển dụng trong một giao diện đủ sâu để làm việc thật.
             </p>
-
-            <div className="mt-10 space-y-px border border-white/[0.08] bg-white/[0.08]">
-              {comparisonRows.map(({ title, description, tone, Icon }) => (
-                <motion.div
-                  key={title}
-                  whileHover={hoverLift}
-                  transition={{ duration: 0.18, ease: "easeOut" }}
-                  className={`flex items-start gap-4 px-5 py-5 ${tone}`}
-                >
-                  <div className="flex h-10 w-10 flex-none items-center justify-center bg-black/30">
-                    <Icon className="h-4 w-4" />
-                  </div>
-                  <div>
-                    <p className="text-xl font-semibold tracking-[-0.03em] text-white">{title}</p>
-                    <p className="mt-1 text-sm leading-7 text-zinc-400">{description}</p>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
           </div>
 
           <div className="grid gap-px border border-white/[0.08] bg-white/[0.08] sm:grid-cols-2">

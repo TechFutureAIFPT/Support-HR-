@@ -20,6 +20,7 @@ import JDTemplatesModal, { JDTemplate } from '@/shared/ui/history-cache/JDTempla
 import HistoryModal from '@/shared/ui/history-cache/HistoryModal';
 import PageTransition from '@/shared/components/PageTransition';
 import MobileBottomNav from '@/shared/components/responsive/mobile/MobileBottomNav';
+import SupportHRLoading from '@/shared/ui/common/SupportHRLoading';
 
 // Lazy load pages for code-splitting
 const ScreenerPage = lazy(() => import('@/pages/main/ScreenerPage'));
@@ -142,6 +143,27 @@ const MainApp = () => {
       };
     }
   }, [isInitializing, currentUser, isLoggedIn]);
+
+  if (isInitializing) {
+    return (
+      <SupportHRLoading
+        mode="screen"
+        label="Support HR // Khởi tạo"
+        title="Đang đồng bộ phiên làm việc"
+        description="Hệ thống đang tải giao diện, kiểm tra trạng thái đăng nhập và chuẩn bị không gian làm việc cho bạn."
+        rotatingTitles={[
+          'Đang đồng bộ phiên làm việc',
+          'Đang tải nền tảng tuyển dụng AI',
+          'Đang chuẩn bị giao diện phân tích',
+        ]}
+        stages={[
+          { label: 'Xác thực', hint: 'Kiểm tra phiên hiện tại', tone: 'cyan' },
+          { label: 'Đồng bộ', hint: 'Tải dữ liệu người dùng', tone: 'violet' },
+          { label: 'Hoàn tất', hint: 'Hiển thị giao diện', tone: 'emerald' },
+        ]}
+      />
+    );
+  }
 
   return (
     <>
@@ -483,7 +505,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
   };
 
   return (
-    <div className={`h-[100dvh] bg-[#0B1120] text-slate-900 flex flex-col overflow-hidden ${className || ''}`}>
+    <div className={`h-[100dvh] bg-black text-slate-100 flex flex-col overflow-hidden ${className || ''}`}>
       {!isHomeView && (
         <div className="hidden md:block">
           <Sidebar
@@ -508,7 +530,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
       {!isHomeView && (
         <header
           className="md:hidden fixed top-0 left-0 right-0 h-14 z-[45] flex items-center justify-between px-4 min-w-0"
-          style={{ background: '#0B1120', borderBottom: '1px solid #1e293b' }}
+          style={{ background: '#000000', borderBottom: '1px solid rgba(255,255,255,0.08)' }}
         >
           <div className="flex items-center gap-2 min-w-0">
             <img src="/images/logos/logo.jpg" alt="Logo" className="w-8 h-8 rounded-lg object-contain shrink-0" />
@@ -547,7 +569,20 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
           </div>
         )}
         <div className={`flex h-full min-h-0 w-full flex-1 flex-col ${(activeStep === 'home' || activeStep === 'jd' || activeStep === 'weights' || activeStep === 'analysis' || activeStep === 'dashboard' || activeStep === 'chatbot' || activeStep === 'feedback') ? 'overflow-hidden' : 'max-w-7xl px-4 sm:px-6 lg:px-8 mx-auto py-4 overflow-y-auto custom-scrollbar'}`}>
-          <Suspense fallback={<div className="flex flex-col justify-center items-center h-64 gap-3"><div className="relative w-10 h-10"><div className="absolute inset-0 rounded-full border-[3px] border-transparent border-t-cyan-400 border-r-cyan-400/40 animate-spin" style={{ animationDuration: '0.8s' }} /><div className="absolute inset-1.5 rounded-full border-[3px] border-transparent border-b-indigo-400 border-l-indigo-400/40 animate-spin" style={{ animationDuration: '1.2s', animationDirection: 'reverse' }} /></div></div>}>
+          <Suspense fallback={
+            <SupportHRLoading
+              mode="panel"
+              minHeightClass="min-h-[52vh]"
+              label="Support HR // Route Loading"
+              title="Đang tải giao diện"
+              description="Hệ thống đang nạp module cần thiết để hiển thị trang tiếp theo."
+              stages={[
+                { label: 'Module', hint: 'Nạp thành phần giao diện', tone: 'cyan' },
+                { label: 'Dữ liệu', hint: 'Khôi phục trạng thái trang', tone: 'violet' },
+                { label: 'Hiển thị', hint: 'Sẵn sàng tương tác', tone: 'emerald' },
+              ]}
+            />
+          }>
             <Routes>
               <Route path="/" element={<HomePage setActiveStep={setActiveStep} isLoggedIn={isLoggedIn} onLoginRequest={onLoginRequest} completedSteps={completedSteps} userName={userName} userEmail={userEmail} />} />
               <Route path="/jd" element={isLoggedIn ? <ScreenerPage {...screenerPageProps} /> : <HomePage setActiveStep={setActiveStep} isLoggedIn={isLoggedIn} onLoginRequest={onLoginRequest} completedSteps={completedSteps} userName={userName} userEmail={userEmail} />} />

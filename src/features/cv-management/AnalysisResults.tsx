@@ -7,6 +7,7 @@ import type { Candidate, AppStep, WeightCriteria, HardFilters } from '@/shared/t
 import { FileText, CheckCircle2, BarChart3, Target, ArrowRight, Layers, GraduationCap, Briefcase, Award, Languages, Clock, MapPin, Users, XCircle } from 'lucide-react';
 import ExpandedContent from '@/features/cv-management/ExpandedContent';
 import { useThemeColors } from '@/shared/ui/theme/useThemeColors';
+import SupportHRLoading from '@/shared/ui/common/SupportHRLoading';
 
 interface AnalysisResultsProps {
   isLoading: boolean;
@@ -22,54 +23,6 @@ interface AnalysisResultsProps {
   hardFilters?: HardFilters;
 }
 
-// --- Loader ---
-const Loader: React.FC<{ message: string }> = ({ message }) => {
-  const [dots, setDots] = React.useState(0);
-  React.useEffect(() => {
-    const interval = setInterval(() => setDots(d => (d + 1) % 4), 400);
-    return () => clearInterval(interval);
-  }, []);
-
-  const steps = [
-    { icon: 'fa-file-lines', label: 'Đọc hồ sơ', color: 'text-cyan-400' },
-    { icon: 'fa-brain', label: 'Phân tích AI', color: 'text-violet-400' },
-    { icon: 'fa-chart-bar', label: 'Tính điểm', color: 'text-emerald-400' },
-  ];
-
-  return (
-    <div className="flex flex-1 flex-col items-center justify-center gap-8 px-4 py-12 text-center min-h-[min(60vh,100%)]">
-      <div className="relative">
-        <div className="absolute inset-0 -full animate-ping opacity-20 bg-gradient-to-r from-cyan-500 to-indigo-500" style={{ animationDuration: '1.8s' }} />
-        <div className="absolute -inset-4 -full opacity-10 bg-gradient-to-r from-cyan-500 to-indigo-500 blur-lg" />
-        <div className="relative w-20 h-20">
-          <div className="absolute inset-0 -full border-4 border-transparent border-t-cyan-400 border-r-cyan-400/50 animate-spin" style={{ animationDuration: '0.9s' }} />
-          <div className="absolute inset-2 -full border-4 border-transparent border-b-indigo-400 border-l-indigo-400/50 animate-spin" style={{ animationDuration: '1.4s', animationDirection: 'reverse' }} />
-          <div className="absolute inset-0 flex items-center justify-center">
-            <i className="fa-solid fa-robot text-xl text-indigo-400 animate-pulse" style={{ animationDuration: '2s' }} />
-          </div>
-        </div>
-      </div>
-      <div className="max-w-sm">
-        <h3 className="text-lg font-bold mb-1 text-slate-100">
-          {message || 'Đang phân tích CV với AI...'}
-          <span className="inline-block w-8 text-left">{'.'.repeat(dots)}</span>
-        </h3>
-        <p className="text-sm text-slate-400">Vui lòng chờ trong giây lát.</p>
-      </div>
-      <div className="flex items-center gap-6  border border-slate-700/60 bg-slate-900/60 px-6 py-4">
-        {steps.map((step, i) => (
-          <div key={i} className="flex flex-col items-center gap-2">
-            <div className="flex h-10 w-10 items-center justify-center  bg-slate-800">
-              <i className={`fa-solid ${step.icon} text-sm ${step.color} ${dots % 3 === i ? 'animate-bounce' : ''}`} />
-            </div>
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">{step.label}</span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-};
-
 const getFriendlyLoadingMessage = (message: string): string => {
   const normalized = message.toLowerCase();
 
@@ -82,101 +35,36 @@ const getFriendlyLoadingMessage = (message: string): string => {
   return 'Đang xử lý hồ sơ ứng viên';
 };
 
-const FullScreenAnalysisLoader: React.FC<{ message: string }> = ({ message }) => {
-  const [pulseIndex, setPulseIndex] = React.useState(0);
-  const [headlineIndex, setHeadlineIndex] = React.useState(0);
+const getLoadingStageIndex = (message: string): number => {
+  const normalized = message.toLowerCase();
 
-  React.useEffect(() => {
-    const pulseTimer = window.setInterval(() => setPulseIndex((value) => (value + 1) % 3), 900);
-    const headlineTimer = window.setInterval(() => setHeadlineIndex((value) => (value + 1) % 4), 2200);
+  if (normalized.includes('khởi tạo')) return 0;
+  if (normalized.includes('đọc cv') || normalized.includes('phân tích') || normalized.includes('xử lý')) return 1;
+  if (normalized.includes('hoàn tất') || normalized.includes('kết quả') || normalized.includes('tổng hợp')) return 2;
 
-    return () => {
-      window.clearInterval(pulseTimer);
-      window.clearInterval(headlineTimer);
-    };
-  }, []);
-
-  const rotatingHeadlines = [
-    'Hệ thống đang đánh giá ứng viên',
-    'Đang tổng hợp kết quả phù hợp nhất',
-    'Đang hoàn thiện bảng xếp hạng',
-    'Sắp hiển thị kết quả cho bạn',
-  ];
-
-  const progressPills = [
-    { label: 'Tiếp nhận hồ sơ', color: 'from-cyan-400/70 to-sky-400/40', hint: 'Chuẩn hóa đầu vào' },
-    { label: 'Đánh giá phù hợp', color: 'from-violet-400/70 to-fuchsia-400/40', hint: 'Đối chiếu tiêu chí' },
-    { label: 'Hoàn thiện kết quả', color: 'from-emerald-400/70 to-teal-400/40', hint: 'Chuẩn bị hiển thị' },
-  ];
-
-  return (
-    <div className="fixed inset-0 z-[100000] overflow-hidden bg-[#08111f]">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(99,102,241,0.16),_transparent_35%),radial-gradient(circle_at_bottom_right,_rgba(34,211,238,0.12),_transparent_32%),linear-gradient(180deg,_#08111f_0%,_#0b192c_45%,_#060b14_100%)]" />
-      <div className="absolute left-[-10%] top-[12%] h-72 w-72 rounded-full bg-cyan-500/10 blur-3xl" />
-      <div className="absolute bottom-[10%] right-[-6%] h-80 w-80 rounded-full bg-indigo-500/10 blur-3xl" />
-
-      <div className="relative flex h-full w-full items-center justify-center px-6">
-        <div className="mx-auto flex w-full max-w-3xl flex-col items-center text-center">
-          <div className="relative mb-10">
-            <div className="absolute inset-[-24px] rounded-full bg-cyan-400/10 blur-2xl" />
-            <div className="absolute inset-[-48px] rounded-full border border-white/5" />
-            <div className="relative flex h-28 w-28 items-center justify-center rounded-full border border-cyan-400/20 bg-slate-950/60 shadow-[0_0_80px_rgba(56,189,248,0.12)] backdrop-blur-xl">
-              <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-cyan-400/90 border-r-cyan-300/40 animate-spin" style={{ animationDuration: '1.1s' }} />
-              <div className="absolute inset-3 rounded-full border border-indigo-400/20" />
-              <div className="absolute inset-[18px] rounded-full border-2 border-transparent border-b-violet-400/80 border-l-violet-300/35 animate-spin" style={{ animationDuration: '1.7s', animationDirection: 'reverse' }} />
-              <div className="absolute inset-[30px] rounded-full bg-gradient-to-br from-cyan-400/20 to-indigo-500/20 blur-md" />
-              <i className="fa-solid fa-sparkles relative text-2xl text-cyan-300" />
-            </div>
-          </div>
-
-          <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-300 backdrop-blur-xl">
-            <span className="h-2 w-2 rounded-full bg-cyan-400 animate-pulse" />
-            Đang phân tích
-          </div>
-
-          <h2 className="mb-3 text-3xl font-black tracking-tight text-white md:text-5xl">
-            {rotatingHeadlines[headlineIndex]}
-          </h2>
-
-          <p className="mb-10 max-w-2xl text-sm leading-7 text-slate-400 md:text-base">
-            {getFriendlyLoadingMessage(message)}. Bạn chỉ cần chờ một lát, hệ thống sẽ trả về danh sách ứng viên cùng phần giải thích rõ ràng và dễ đọc.
-          </p>
-
-          <div className="mb-10 grid w-full max-w-2xl grid-cols-1 gap-3 md:grid-cols-3">
-            {progressPills.map((pill, index) => {
-              const active = pulseIndex === index;
-              return (
-                <div
-                  key={pill.label}
-                  className={`rounded-2xl border px-4 py-4 text-left transition-all duration-500 ${
-                    active
-                      ? 'border-white/15 bg-white/8 shadow-[0_0_30px_rgba(99,102,241,0.10)]'
-                      : 'border-white/8 bg-slate-950/25'
-                  }`}
-                >
-                  <div className={`mb-3 h-1.5 w-14 rounded-full bg-gradient-to-r ${pill.color} ${active ? 'opacity-100' : 'opacity-45'}`} />
-                  <div className="text-sm font-semibold text-slate-100">{pill.label}</div>
-                  <div className="mt-1 text-xs text-slate-500">{pill.hint}</div>
-                </div>
-              );
-            })}
-          </div>
-
-          <div className="flex items-center gap-2">
-            {[0, 1, 2].map((index) => (
-              <span
-                key={index}
-                className={`h-2.5 w-2.5 rounded-full transition-all duration-500 ${
-                  pulseIndex === index ? 'scale-125 bg-cyan-300 shadow-[0_0_18px_rgba(103,232,249,0.8)]' : 'bg-slate-600'
-                }`}
-              />
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+  return 1;
 };
+
+const FullScreenAnalysisLoader: React.FC<{ message: string }> = ({ message }) => (
+  <SupportHRLoading
+    mode="screen"
+    label="Support HR // Phân tích AI"
+    title="Hệ thống đang đánh giá ứng viên"
+    description={`${getFriendlyLoadingMessage(message)}. Bạn chỉ cần chờ một lát, hệ thống sẽ trả về danh sách ứng viên cùng phần giải thích rõ ràng và dễ đọc.`}
+    activeIndex={getLoadingStageIndex(message)}
+    rotatingTitles={[
+      'Hệ thống đang đánh giá ứng viên',
+      'Đang tổng hợp kết quả phù hợp nhất',
+      'Đang hoàn thiện bảng xếp hạng',
+      'Sắp hiển thị kết quả cho bạn',
+    ]}
+    stages={[
+      { label: 'Tiếp nhận hồ sơ', hint: 'Chuẩn hóa đầu vào', tone: 'cyan' },
+      { label: 'Đánh giá phù hợp', hint: 'Đối chiếu tiêu chí', tone: 'violet' },
+      { label: 'Hoàn thiện kết quả', hint: 'Chuẩn bị hiển thị', tone: 'emerald' },
+    ]}
+  />
+);
 
 type RankedCandidate = Candidate & { rank: number; jdFitScore: number; gradeValue: number };
 

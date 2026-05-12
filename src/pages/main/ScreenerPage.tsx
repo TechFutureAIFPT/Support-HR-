@@ -6,26 +6,24 @@ import CVScreenerWelcome from '@/pages/main/CVScreenerWelcome';
 import CVUploadMini from '@/features/cv-management/CVUploadMini';
 import { analyzeCVs } from '@/lib/services/screening/frontendScreeningService';
 import { getSafeErrorMessage } from '@/shared/utils/errorMessages';
+import SupportHRLoading from '@/shared/ui/common/SupportHRLoading';
 
 const WeightsConfig = lazy(() => import('@/features/criteria-config/WeightsConfig'));
 const AnalysisResults = lazy(() => import('@/features/cv-management/AnalysisResults'));
 
 const ModuleLoader = () => (
-  <div className="flex h-40 flex-col items-center justify-center gap-4">
-    <div className="relative h-10 w-10">
-      <div
-        className="absolute inset-0 -full animate-spin border-[3px] border-transparent border-r-cyan-400/40 border-t-cyan-400"
-        style={{ animationDuration: '0.8s' }}
-      />
-      <div
-        className="absolute inset-1.5 -full animate-spin border-[3px] border-transparent border-b-indigo-400 border-l-indigo-400/40"
-        style={{ animationDuration: '1.2s', animationDirection: 'reverse' }}
-      />
-    </div>
-    <span className="animate-pulse text-[10px] font-semibold uppercase tracking-[0.3em] text-slate-600">
-      Đang tải...
-    </span>
-  </div>
+  <SupportHRLoading
+    mode="inline"
+    minHeightClass="min-h-[12rem]"
+    label="Support HR // Module"
+    title="Đang tải module"
+    description="Chuẩn bị công cụ sàng lọc và hiển thị dữ liệu."
+    stages={[
+      { label: 'Nạp UI', hint: 'Khởi tạo thành phần', tone: 'cyan' },
+      { label: 'Kết nối', hint: 'Đồng bộ trạng thái', tone: 'violet' },
+      { label: 'Sẵn sàng', hint: 'Cho bước tiếp theo', tone: 'emerald' },
+    ]}
+  />
 );
 
 interface ScreenerPageProps {
@@ -167,7 +165,7 @@ const ScreenerPage: React.FC<ScreenerPageProps> = (props) => {
   }
 
   return (
-    <div className="feature-page-shell flex h-full flex-1 flex-col overflow-hidden bg-[#0B192C]">
+    <div className="feature-page-shell flex h-full flex-1 flex-col overflow-hidden bg-black">
       {activeStep === 'jd' && (
         <JDMetaToolbar
           jdText={props.jdText}
@@ -205,7 +203,7 @@ const ScreenerPage: React.FC<ScreenerPageProps> = (props) => {
             />
           </div>
 
-          <div className="h-[40vh] w-full shrink-0 bg-[#0B192C] md:h-full md:w-[350px] lg:w-[400px]">
+          <div className="h-[40vh] w-full shrink-0 bg-black md:h-full md:w-[350px] lg:w-[400px]">
             <CVUploadMini cvFiles={props.cvFiles} />
           </div>
         </div>

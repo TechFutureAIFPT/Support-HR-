@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { fetchRecentHistory, fetchManualHistory } from '@/lib/services/history-cache/historyService';
 import type { HistoryEntry } from '@/shared/types';
+import SupportHRLoading from '@/shared/ui/common/SupportHRLoading';
 
 interface HistoryPageProps { userEmail?: string; onRestore?: (payload: any) => void; }
 
@@ -51,10 +52,18 @@ const HistoryPage: React.FC<HistoryPageProps> = ({ userEmail, onRestore }) => {
   });
 
   if (loading) return (
-    <div className="flex flex-col items-center justify-center min-h-[50vh]">
-      <div className="w-10 h-10 rounded-full border-2 border-cyan-500/30 border-t-cyan-400 animate-spin mb-4"></div>
-      <p className="text-slate-500 text-sm">Đang tải lịch sử...</p>
-    </div>
+    <SupportHRLoading
+      mode="panel"
+      minHeightClass="min-h-[50vh]"
+      label="Support HR // History"
+      title="Đang tải lịch sử phân tích"
+      description="Hệ thống đang tổng hợp các phiên phân tích trước đó để bạn có thể rà soát và khôi phục nhanh."
+      stages={[
+        { label: 'Lấy dữ liệu', hint: 'Đọc từ lịch sử đã lưu', tone: 'cyan' },
+        { label: 'Tổng hợp', hint: 'Gộp và sắp xếp phiên', tone: 'violet' },
+        { label: 'Hiển thị', hint: 'Sẵn sàng rà soát', tone: 'emerald' },
+      ]}
+    />
   );
 
   if (error) return (

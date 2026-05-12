@@ -10,16 +10,16 @@ export function useThemeColors() {
     isDark: true,
 
     // ── Backgrounds ──
-    pageBg:      'linear-gradient(180deg, #08111f 0%, #0b1322 52%, #0b1120 100%)',
-    cardBg:      'rgba(255,255,255,0.045)',
-    cardBg2:     'rgba(255,255,255,0.06)',
-    hoverBg:     'rgba(255,255,255,0.075)',
-    headerBg:    'linear-gradient(180deg, rgba(11,19,34,0.92) 0%, rgba(9,17,31,0.9) 100%)',
-    tableBg:     'rgba(9,17,31,0.88)',
+    pageBg:      'linear-gradient(180deg, #000000 0%, #020202 52%, #000000 100%)',
+    cardBg:      'rgba(255,255,255,0.035)',
+    cardBg2:     'rgba(255,255,255,0.05)',
+    hoverBg:     'rgba(255,255,255,0.065)',
+    headerBg:    'linear-gradient(180deg, rgba(5,5,7,0.96) 0%, rgba(0,0,0,0.94) 100%)',
+    tableBg:     'rgba(4,4,6,0.9)',
     tableRowBg:  undefined,
-    modalBg:     'linear-gradient(180deg, rgba(17,33,58,0.96) 0%, rgba(9,17,31,0.98) 100%)',
+    modalBg:     'linear-gradient(180deg, rgba(10,10,12,0.98) 0%, rgba(2,2,4,0.98) 100%)',
     overlayBg:   'rgba(0,0,0,0.65)',
-    scrollBg:    'rgba(10,18,32,0.5)',
+    scrollBg:    'rgba(255,255,255,0.08)',
     inputBg:     'rgba(255,255,255,0.05)',
 
     // ── Borders ──

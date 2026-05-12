@@ -24,7 +24,7 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({ children }) => {
   const closeSidebar = () => setSidebarOpen(false);
 
   return (
-    <div className="min-h-screen relative bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+    <div className="min-h-screen relative bg-black">
       {/* Sidebar overlay */}
       <div className={`
         fixed inset-0 z-50 transform transition-transform duration-300 ease-in-out
@@ -32,7 +32,7 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({ children }) => {
         md:hidden
       `}>
         <div className="flex h-full">
-          <div className="w-64 bg-[#0B1120] border-slate-800">
+          <div className="w-64 bg-black border-white/10">
             <Sidebar
               activeStep={activeStep} setActiveStep={setActiveStep}
               completedSteps={completedSteps} onReset={handleReset}
@@ -46,7 +46,7 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({ children }) => {
       </div>
 
       {/* Mobile Navbar */}
-      <div className="sticky top-0 z-30 border-b bg-slate-900/95 border-slate-700 backdrop-blur-lg mobile-nav">
+      <div className="sticky top-0 z-30 border-b bg-black/95 border-white/10 backdrop-blur-lg mobile-nav">
         <Navbar
           userEmail={userEmail} onLogout={handleLogout}
           onLoginRequest={handleLoginRequest} onBrandClick={handleBrandClick}
@@ -63,7 +63,7 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({ children }) => {
       </div>
 
       {/* Bottom Navigation */}
-      <div className="fixed bottom-0 left-0 right-0 z-30 border-t bg-slate-900/95 border-slate-700 backdrop-blur-lg mobile-bottom-nav">
+      <div className="fixed bottom-0 left-0 right-0 z-30 border-t bg-black/95 border-white/10 backdrop-blur-lg mobile-bottom-nav">
         <div className="flex justify-around items-center h-16 px-2">
           {[
             { step: 'home' as AppStep, icon: 'fa-home', label: 'Trang chủ' },

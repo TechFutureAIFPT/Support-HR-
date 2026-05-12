@@ -22,7 +22,7 @@ const ScreenerHeader: React.FC<ScreenerHeaderProps> = ({
     <div className={`
       w-full flex flex-col md:flex-row md:items-center justify-between gap-4
       py-2.5 px-6 border-b sticky top-0 z-30
-      bg-[#0B1120] border-slate-800/60
+      bg-black border-white/10
       ${className}
     `}>
       <div className="flex items-center gap-3 min-w-max">

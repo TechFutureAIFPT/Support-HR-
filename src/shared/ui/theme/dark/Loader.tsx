@@ -2,6 +2,7 @@
  * Dark Loader — Component cho Dark Mode
  */
 import React from 'react';
+import SupportHRLoading from '@/shared/ui/common/SupportHRLoading';
 
 interface DarkLoaderProps {
   size?: 'sm' | 'md' | 'lg';
@@ -10,42 +11,24 @@ interface DarkLoaderProps {
   className?: string;
 }
 
-const sizeClasses = {
-  sm: 'w-5 h-5 border-[2px]',
-  md: 'w-8 h-8 border-[3px]',
-  lg: 'w-12 h-12 border-4',
-};
-
 export const DarkLoader: React.FC<DarkLoaderProps> = ({
   size = 'md',
   text,
   fullScreen = false,
   className = '',
 }) => {
-  const spinner = (
-    <div className={`flex flex-col items-center gap-3 ${className}`}>
-      <div
-        className={`
-          ${sizeClasses[size]}
-          border-slate-700/50 border-t-blue-400 rounded-full
-          animate-spin
-        `}
-      />
-      {text && (
-        <p className="text-sm text-slate-400 font-medium animate-pulse">{text}</p>
-      )}
-    </div>
+  const minHeightClass = size === 'sm' ? 'min-h-[9rem]' : size === 'lg' ? 'min-h-[18rem]' : 'min-h-[14rem]';
+
+  return (
+    <SupportHRLoading
+      mode={fullScreen ? 'screen' : 'inline'}
+      minHeightClass={fullScreen ? undefined : minHeightClass}
+      label="Support HR // Dark Loader"
+      title={text || 'Đang tải dữ liệu'}
+      description="Hệ thống đang chuẩn bị trạng thái hiển thị."
+      className={className}
+    />
   );
-
-  if (fullScreen) {
-    return (
-      <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-[#0B1120]/80 backdrop-blur-sm">
-        {spinner}
-      </div>
-    );
-  }
-
-  return spinner;
 };
 
 /* ======== Dark Skeleton ======== */
