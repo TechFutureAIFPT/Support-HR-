@@ -77,7 +77,7 @@ function formatFileSize(size: number): string {
 }
 
 function buildRedirectUri(): string {
-  return `${window.location.origin}${window.location.pathname}`;
+  return `${window.location.origin}/jd`;
 }
 
 function cleanupOAuthParams() {

@@ -5,7 +5,7 @@ if (workbox) {
 
   workbox.core.setCacheNameDetails({
     prefix: 'SupportHR-PWA-cache',
-    suffix: 'v1'
+    suffix: 'v2'
   });
 
   workbox.precaching.precacheAndRoute([
@@ -16,7 +16,7 @@ if (workbox) {
     ({ request }) => request.destination === 'style' || 
                      request.destination === 'script' || 
                      request.destination === 'font',
-    new workbox.strategies.CacheFirst({
+    new workbox.strategies.StaleWhileRevalidate({
       cacheName: 'SupportHR-PWA-cache-assets',
       plugins: [
         new workbox.expiration.ExpirationPlugin({
@@ -42,7 +42,7 @@ if (workbox) {
 
   workbox.routing.registerRoute(
     ({ request }) => request.mode === 'navigate',
-    new workbox.strategies.StaleWhileRevalidate({
+    new workbox.strategies.NetworkFirst({
       cacheName: 'SupportHR-PWA-cache-pages',
       plugins: [
         new workbox.expiration.ExpirationPlugin({

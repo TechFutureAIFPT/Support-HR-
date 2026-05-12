@@ -58,6 +58,10 @@ const App = () => {
 };
 
 const MainApp = () => {
+  const publicInitialPaths = new Set(['/', '/process', '/contact-ready', '/privacy-policy', '/terms']);
+  const initialPath = typeof window !== 'undefined' ? window.location.pathname : '/';
+  const shouldBlockInitialRender = !publicInitialPaths.has(initialPath);
+
   // Initialize state
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
@@ -93,21 +97,24 @@ const MainApp = () => {
         };
         setCurrentUser(authUser);
         setIsLoggedIn(true);
+        setShowLoginModal(false);
         localStorage.setItem('authEmail', user.email || '');
+        setIsInitializing(false);
 
-        try {
-          // Save/update user profile in Firestore
-          await UserProfileService.saveUserProfile(
-            user.uid,
-            user.email!,
-            user.displayName || undefined
-          );
+        void (async () => {
+          try {
+            await UserProfileService.saveUserProfile(
+              user.uid,
+              user.email!,
+              user.displayName || undefined
+            );
 
-          // Migrate local data to Firebase if needed
-          await UserProfileService.migrateLocalDataToFirebase(user.uid, user.email!);
-        } catch (error) {
-          console.error('Error syncing user profile:', error);
-        }
+            await UserProfileService.migrateLocalDataToFirebase(user.uid, user.email!);
+          } catch (error) {
+            console.error('Error syncing user profile:', error);
+          }
+        })();
+        return;
       } else {
         setCurrentUser(null);
         setIsLoggedIn(false);
@@ -144,7 +151,7 @@ const MainApp = () => {
     }
   }, [isInitializing, currentUser, isLoggedIn]);
 
-  if (isInitializing) {
+  if (isInitializing && shouldBlockInitialRender) {
     return (
       <SupportHRLoading
         mode="screen"

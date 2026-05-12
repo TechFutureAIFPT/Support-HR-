@@ -166,11 +166,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
     setAuthError('');
     setShowSuccess(true);
     setSuccessStage('celebrating');
-
-    setTimeout(() => {
-      setSuccessStage('transitioning');
-      setTimeout(() => onLogin(user), 900);
-    }, 1600);
+    window.setTimeout(() => onLogin(user), 180);
   }, [onLogin]);
 
   const handleSubmit = async (e: React.FormEvent) => {

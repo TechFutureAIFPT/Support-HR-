@@ -39,11 +39,14 @@ const toneMap = {
   },
 } as const;
 
+const instantRoutes = new Set(['/', '/process', '/contact-ready', '/privacy-policy', '/terms']);
+
 const PageTransition: React.FC = () => {
   const location = useLocation();
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [shouldRender, setShouldRender] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [hasMounted, setHasMounted] = useState(false);
 
   const getStepInfo = (path: string): StepInfo => {
     switch (path) {
@@ -70,6 +73,18 @@ const PageTransition: React.FC = () => {
   const tone = toneMap[stepInfo.tone];
 
   useEffect(() => {
+    if (!hasMounted) {
+      setHasMounted(true);
+      return;
+    }
+
+    if (instantRoutes.has(location.pathname)) {
+      setIsTransitioning(false);
+      setShouldRender(false);
+      setProgress(100);
+      return;
+    }
+
     setProgress(0);
     setIsTransitioning(true);
     setShouldRender(true);
@@ -95,7 +110,7 @@ const PageTransition: React.FC = () => {
       clearInterval(progressTimer);
       clearTimeout(transitionTimer);
     };
-  }, [location.pathname]);
+  }, [hasMounted, location.pathname]);
 
   if (!shouldRender) return null;
 

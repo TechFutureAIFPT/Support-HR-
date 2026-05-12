@@ -76,6 +76,14 @@ async function syncUserProfileSafely(
   }
 }
 
+function queueUserProfileSync(
+  user: FirebaseUser,
+  provider: 'google' | 'email',
+  displayName?: string,
+): void {
+  void syncUserProfileSafely(user, provider, displayName);
+}
+
 export function onAuthChange(callback: AuthCallback): () => void {
   return onAuthStateChanged(auth, async (user) => {
     if (!user) {
@@ -95,13 +103,13 @@ export async function signUpWithEmail(data: SignUpData): Promise<AuthUser> {
     await updateProfile(result.user, { displayName: data.displayName });
   }
 
-  await syncUserProfileSafely(result.user, 'email', data.displayName);
+  queueUserProfileSync(result.user, 'email', data.displayName);
   return toAuthUser(result.user, 'email');
 }
 
 export async function signInWithEmail(data: SignInData): Promise<AuthUser> {
   const result = await signInWithEmailAndPassword(auth, data.email, data.password);
-  await syncUserProfileSafely(result.user, 'email');
+  queueUserProfileSync(result.user, 'email');
   return toAuthUser(result.user, 'email');
 }
 
@@ -111,7 +119,7 @@ export async function signInWithGoogle(): Promise<AuthUser> {
 
   try {
     const result = await signInWithPopup(auth, provider);
-    await syncUserProfileSafely(result.user, 'google');
+    queueUserProfileSync(result.user, 'google');
     return toAuthUser(result.user, 'google');
   } catch (err: any) {
     if (err.code === 'auth/account-exists-with-different-credential') {
@@ -138,7 +146,7 @@ export async function linkGoogleAfterPasswordSignIn(
 ): Promise<AuthUser> {
   const result = await signInWithEmailAndPassword(auth, email, password);
   await linkWithCredential(result.user, pendingCred);
-  await syncUserProfileSafely(result.user, 'google');
+  queueUserProfileSync(result.user, 'google');
   return toAuthUser(result.user, 'google');
 }
 
@@ -146,7 +154,7 @@ export async function linkGoogleAccount(): Promise<AuthUser> {
   const provider = new GoogleAuthProvider();
   provider.addScope('https://www.googleapis.com/auth/drive.readonly');
   const result = await linkWithPopup(auth.currentUser!, provider);
-  await syncUserProfileSafely(result.user, 'google');
+  queueUserProfileSync(result.user, 'google');
   return toAuthUser(result.user, 'google');
 }
 

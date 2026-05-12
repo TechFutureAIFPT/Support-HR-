@@ -310,6 +310,45 @@ const JDTemplatesModal: React.FC<JDTemplatesModalProps> = ({ isOpen, onClose, on
     }
   }, [isLoggedIn, showToast]);
 
+  const syncTemplates = useCallback(async () => {
+    if (!isLoggedIn) {
+      setTemplates([]);
+      return;
+    }
+
+    const cachedTemplates = JDTemplatesService.getCachedUserTemplates();
+    if (cachedTemplates.length > 0) {
+      setTemplates(cachedTemplates);
+      setLoadingTemplates(false);
+    } else {
+      setLoadingTemplates(true);
+    }
+
+    try {
+      let nextTemplates = await JDTemplatesService.getUserTemplates();
+
+      if (nextTemplates.length === 0) {
+        try {
+          await JDTemplatesService.seedDefaultTemplatesIfEmpty();
+          nextTemplates = await JDTemplatesService.getUserTemplates();
+        } catch (error) {
+          console.warn('Failed to seed default JD templates:', error);
+        }
+      }
+
+      setTemplates(nextTemplates);
+    } catch (error) {
+      console.warn('Failed to load JD templates:', error);
+      if (cachedTemplates.length > 0) {
+        showToast('Không thể đồng bộ mẫu JD. Đang hiển thị bản gần nhất.', 'error');
+      } else {
+        showToast('Không thể tải danh sách mẫu JD.', 'error');
+      }
+    } finally {
+      setLoadingTemplates(false);
+    }
+  }, [isLoggedIn, showToast]);
+
   const loadHistoryData = useCallback(async () => {
     setHistoryLoading(true);
     try {
@@ -346,9 +385,9 @@ const JDTemplatesModal: React.FC<JDTemplatesModalProps> = ({ isOpen, onClose, on
     setSelectedHistoryIds([]);
     setCacheStats(analysisCacheService.getCacheStats());
 
-    loadTemplates();
-    loadHistoryData();
-  }, [isOpen, loadHistoryData, loadTemplates]);
+    void syncTemplates();
+    void loadHistoryData();
+  }, [isOpen, loadHistoryData, syncTemplates]);
 
   const combinedTemplates = useMemo<TemplateListItem[]>(() => {
     const savedItems: TemplateListItem[] = templates.map((template) => ({ ...template, origin: 'saved' }));
@@ -430,7 +469,7 @@ const JDTemplatesModal: React.FC<JDTemplatesModalProps> = ({ isOpen, onClose, on
         showToast('Đã tạo mẫu JD mới.');
       }
 
-      await loadTemplates();
+      await syncTemplates();
       setEditingTemplate(null);
       setView('list');
     } catch {
@@ -446,7 +485,7 @@ const JDTemplatesModal: React.FC<JDTemplatesModalProps> = ({ isOpen, onClose, on
     setIsDeleting(true);
     try {
       await JDTemplatesService.deleteTemplate(deletingTemplate.id);
-      await loadTemplates();
+      await syncTemplates();
       showToast('Đã xóa mẫu JD.');
       setDeletingTemplate(null);
       setView('list');
@@ -651,7 +690,7 @@ const JDTemplatesModal: React.FC<JDTemplatesModalProps> = ({ isOpen, onClose, on
                 </div>
 
                 <div className="flex-1 p-5">
-                  {loadingTemplates || historyLoading ? (
+                  {loadingTemplates ? (
                     <div className="flex flex-col items-center justify-center gap-4 py-16">
                       <div className="h-10 w-10 animate-spin rounded-full border-[3px] border-indigo-500/20 border-t-indigo-400" />
                       <p className="text-sm text-slate-500">Đang tải mẫu JD và dữ liệu đã dùng gần đây...</p>
