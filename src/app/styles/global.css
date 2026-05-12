@@ -1,7 +1,7 @@
 ﻿:root {
   /* â”€â”€ Background â”€â”€ */
   /* Navy Blue Theme â€” aligned with tokens.ts dark.bgPrimary */
-  --bg: #0B1120;
+  --bg: #000000;
   /* â”€â”€ Card / Surface â”€â”€ */
   --card: rgba(30, 41, 59, 0.4);
   /* slate-800 with opacity */
@@ -75,7 +75,7 @@
 
 /* Dark mode variables â€” aligned with tokens.ts dark mode */
 .dark {
-  --bg: #0B1120;                /* tokens.dark.bgPrimary */
+  --bg: #000000;                /* tokens.dark.bgPrimary */
   --card: rgba(96, 165, 250, 0.04);    /* tokens.dark.surfaceCard */
   --card-stroke: rgba(96, 165, 250, 0.08); /* tokens.dark.surfaceBorder */
   --txt: #F1F5F9;               /* tokens.dark.textPrimary */
@@ -103,11 +103,79 @@
 
 .home-page-shell,
 .login-page-shell {
-  background-image: linear-gradient(180deg, #08101d 0%, #0b1322 52%, #0b1120 100%);
+  background-image: linear-gradient(180deg, #000000 0%, #000000 100%);
 }
 
 .legal-page-shell {
-  background-image: linear-gradient(180deg, #09111f 0%, #0b1322 100%);
+  background-image: linear-gradient(180deg, #000000 0%, #000000 100%);
+}
+
+.supporthr-display {
+  font-family: "Space Grotesk", "Inter", sans-serif;
+}
+
+.supporthr-mono {
+  font-family: "JetBrains Mono", "SFMono-Regular", ui-monospace, monospace;
+}
+
+.supporthr-grid-mask {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(circle at top, rgba(0, 0, 0, 0.96) 0%, rgba(0, 0, 0, 0.76) 36%, transparent 82%);
+  opacity: 0.28;
+}
+
+.supporthr-surface {
+  position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.045) 0%, rgba(255, 255, 255, 0.02) 100%),
+    rgba(255, 255, 255, 0.02);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 30px 90px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+}
+
+.supporthr-border-beam {
+  isolation: isolate;
+}
+
+.supporthr-border-beam::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    120deg,
+    rgba(34, 211, 238, 0.06),
+    rgba(34, 211, 238, 0.95),
+    rgba(129, 140, 248, 0.9),
+    rgba(16, 185, 129, 0.8),
+    rgba(34, 211, 238, 0.06)
+  );
+  background-size: 220% 220%;
+  animation: supporthr-border-beam 8s linear infinite;
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.supporthr-neon-bar {
+  box-shadow:
+    0 0 12px rgba(56, 189, 248, 0.45),
+    0 0 28px rgba(56, 189, 248, 0.2);
+}
+
+.supporthr-terminal-caret {
+  animation: supporthr-terminal-blink 1s steps(1) infinite;
 }
 
 .feature-page-shell {
@@ -198,12 +266,15 @@
 }
 
 .home-page-shell :is(button, a, img)[class*="rounded-none"],
+.home-page-shell :is(div, section, article, span)[class*="rounded-none"][class*="border"],
+.home-page-shell :is(div, section, article)[class*="rounded-none"][class*="overflow-hidden"] {
+  border-radius: 0 !important;
+}
+
 .login-page-shell :is(button, a, img)[class*="rounded-none"],
 .legal-page-shell :is(button, a, img)[class*="rounded-none"],
-.home-page-shell :is(div, section, article, span)[class*="rounded-none"][class*="border"],
 .login-page-shell :is(div, section, article, span)[class*="rounded-none"][class*="border"],
 .legal-page-shell :is(div, section, article, span)[class*="rounded-none"][class*="border"],
-.home-page-shell :is(div, section, article)[class*="rounded-none"][class*="overflow-hidden"],
 .login-page-shell :is(div, section, article)[class*="rounded-none"][class*="overflow-hidden"],
 .legal-page-shell :is(div, section, article)[class*="rounded-none"][class*="overflow-hidden"] {
   border-radius: 10px !important;
@@ -414,6 +485,24 @@
   }
   28% {
     opacity: 0.18;
+  }
+}
+
+@keyframes supporthr-border-beam {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}
+
+@keyframes supporthr-terminal-blink {
+  0%, 49% {
+    opacity: 1;
+  }
+  50%, 100% {
+    opacity: 0;
   }
 }
 

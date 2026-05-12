@@ -12,6 +12,7 @@
     "@vercel/analytics": "^1.5.0",
     "@vercel/speed-insights": "^1.2.0",
     "firebase": "^12.3.0",
+    "framer-motion": "^12.38.0",
     "lodash.debounce": "^4.0.8",
     "lucide-react": "^0.553.0",
     "p-queue": "^8.1.1",
