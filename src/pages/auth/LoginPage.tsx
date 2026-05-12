@@ -1,9 +1,17 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { signInWithGoogle, signUpWithEmail, signInWithEmail, sendResetPassword, mapFirebaseError, linkGoogleAfterPasswordSignIn } from '@/lib/services/auth/authService';
+import React, { useCallback, useEffect, useState } from 'react';
+import {
+  linkGoogleAfterPasswordSignIn,
+  mapFirebaseError,
+  sendResetPassword,
+  signInWithEmail,
+  signInWithGoogle,
+  signUpWithEmail,
+} from '@/lib/services/auth/authService';
 import type { AuthUser } from '@/lib/services/auth/authTypes';
 
 interface LoginPageProps {
   onLogin: (user: AuthUser) => void;
+  onClose?: () => void;
 }
 
 type AuthTab = 'signin' | 'signup';
@@ -14,32 +22,34 @@ interface FormState {
   displayName: string;
 }
 
-const features = [
+const systemSignals = [
   {
     icon: 'fa-solid fa-brain',
-    title: 'AI Phân tích Thông minh',
-    desc: 'Đánh giá ứng viên tự động bằng Gemini GPT với độ chính xác 95%.',
+    title: 'Đối sánh ứng viên bằng AI',
+    status: 'Đang xử lý hồ sơ theo ngữ cảnh tuyển dụng',
   },
   {
-    icon: 'fa-solid fa-bolt',
-    title: 'Tuyển Dụng Nhanh 10x',
-    desc: 'Giảm 80% thời gian sàng lọc — từ ngày sang vài phút.',
+    icon: 'fa-solid fa-database',
+    title: 'Kho dữ liệu CV tập trung',
+    status: 'Đã kết nối workspace tuyển dụng của đội ngũ',
   },
   {
-    icon: 'fa-solid fa-chart-line',
-    title: 'Dữ Liệu Chi Tiết',
-    desc: 'Dashboard trực quan, so sánh điểm mạnh/yếu từng ứng viên.',
+    icon: 'fa-solid fa-ranking-star',
+    title: 'Bảng xếp hạng shortlist',
+    status: 'Điểm phù hợp được cập nhật theo thời gian thực',
+  },
+  {
+    icon: 'fa-solid fa-shield-halved',
+    title: 'Phiên truy cập bảo mật',
+    status: 'Mã hóa xác thực nhiều lớp cho recruiter hiện đại',
   },
 ];
 
-const stats = [
-  { value: '10,000+', label: 'CV đã phân tích' },
-  { value: '500+', label: 'Doanh nghiệp tin dùng' },
-  { value: '95%', label: 'Độ chính xác AI' },
+const PASSWORD_HINTS = [
+  '>> Gõ mật khẩu để xác thực phiên làm việc',
+  '>> Truy cập không gian tuyển dụng an toàn',
+  '>> Hệ thống đang chờ khóa truy cập của bạn',
 ];
-
-const DEMO_VIDEO_ID = 'SRrdNEkmeBU';
-const DEMO_VIDEO_EMBED = `https://www.youtube.com/embed/${DEMO_VIDEO_ID}?rel=0&modestbranding=1`;
 
 function validateEmail(email: string): string | null {
   if (!email.trim()) return 'Vui lòng nhập email.';
@@ -53,138 +63,126 @@ function validatePassword(password: string, minLen = 6): string | null {
   return null;
 }
 
-const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
+const CornerFrame = () => (
+  <>
+    <span className="absolute left-0 top-0 h-5 w-5 border-l border-t border-[#f5d6bb]/80" />
+    <span className="absolute right-0 top-0 h-5 w-5 border-r border-t border-[#f5d6bb]/80" />
+    <span className="absolute left-0 bottom-0 h-5 w-5 border-b border-l border-[#f5d6bb]/80" />
+    <span className="absolute right-0 bottom-0 h-5 w-5 border-b border-r border-[#f5d6bb]/80" />
+  </>
+);
+
+const inputBaseClass =
+  'w-full border border-white/10 bg-black/70 px-3.5 py-2.5 text-[13px] text-slate-100 outline-none transition-all placeholder:text-slate-600 focus:border-cyan-400/35 focus:bg-black';
+
+const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
   const [tab, setTab] = useState<AuthTab>('signin');
   const [form, setForm] = useState<FormState>({ email: '', password: '', displayName: '' });
   const [errors, setErrors] = useState<Partial<FormState>>({});
   const [authError, setAuthError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [loaded, setLoaded] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [successStage, setSuccessStage] = useState<'idle' | 'celebrating' | 'transitioning'>('idle');
-  const [loaded, setLoaded] = useState(false);
-  const [demoVideoOpen, setDemoVideoOpen] = useState(false);
-  const [iframeLoaded, setIframeLoaded] = useState(false);
-  const [iframeFailed, setIframeFailed] = useState(false);
+  const [showReset, setShowReset] = useState(false);
   const [resetSent, setResetSent] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
-  const [showReset, setShowReset] = useState(false);
-  // Link modal: khi Google login gặp email đã tồn tại theo email/password
+  const [passwordVisible, setPasswordVisible] = useState(false);
+  const [linkPasswordVisible, setLinkPasswordVisible] = useState(false);
+  const [typedHint, setTypedHint] = useState('');
+  const [hintIndex, setHintIndex] = useState(0);
   const [linkModal, setLinkModal] = useState<{
     open: boolean;
     email: string;
     password: string;
-    pendingCred: any;
+    pendingCred: unknown;
     error: string;
     loading: boolean;
   }>({
-    open: false, email: '', password: '', pendingCred: null, error: '', loading: false,
+    open: false,
+    email: '',
+    password: '',
+    pendingCred: null,
+    error: '',
+    loading: false,
   });
-  const [particles] = useState(() =>
-    Array.from({ length: 40 }, (_, i) => ({
-      id: i,
-      x: Math.random() * 100,
-      y: Math.random() * 100,
-      size: Math.random() * 2.5 + 0.5,
-      delay: Math.random() * 6,
-      duration: Math.random() * 4 + 3,
-      color: ['bg-cyan-400/30', 'bg-violet-400/25', 'bg-blue-400/20'][Math.floor(Math.random() * 3)],
-    })),
-  );
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    setLoaded(true);
+  }, []);
+
+  useEffect(() => {
+    const currentHint = PASSWORD_HINTS[hintIndex];
+    let charIndex = 0;
+    let rotateTimer: ReturnType<typeof setTimeout> | null = null;
+
+    setTypedHint('');
+
+    const typeTimer = setInterval(() => {
+      charIndex += 1;
+      setTypedHint(currentHint.slice(0, charIndex));
+
+      if (charIndex >= currentHint.length) {
+        clearInterval(typeTimer);
+        rotateTimer = setTimeout(() => {
+          setHintIndex((prev) => (prev + 1) % PASSWORD_HINTS.length);
+        }, 1200);
+      }
+    }, 28);
+
+    return () => {
+      clearInterval(typeTimer);
+      if (rotateTimer) clearTimeout(rotateTimer);
+    };
+  }, [hintIndex]);
+
+  const handleBackHome = useCallback(() => {
+    if (onClose) {
+      onClose();
+      return;
+    }
+
+    window.location.href = '/';
+  }, [onClose]);
+
+  const switchTab = useCallback((nextTab: AuthTab) => {
+    setTab(nextTab);
+    setShowReset(false);
+    setResetSent(false);
+    setResetEmail('');
+    setForm({ email: '', password: '', displayName: '' });
+    setErrors({});
+    setAuthError('');
+    setPasswordVisible(false);
+  }, []);
 
   const setField = useCallback((field: keyof FormState, value: string) => {
-    setForm(prev => ({ ...prev, [field]: value }));
-    setErrors(prev => ({ ...prev, [field]: undefined }));
+    setForm((prev) => ({ ...prev, [field]: value }));
+    setErrors((prev) => ({ ...prev, [field]: undefined }));
     setAuthError('');
   }, []);
 
-  useEffect(() => { setLoaded(true); }, []);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-    let animId: number;
-    let t = 0;
-    const resize = () => {
-      canvas.width = canvas.offsetWidth;
-      canvas.height = canvas.offsetHeight;
-    };
-    resize();
-    window.addEventListener('resize', resize);
-    const draw = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      const w = canvas.width;
-      const h = canvas.height;
-      for (let i = 0; i < 6; i++) {
-        const x = w * 0.5 + Math.cos(t * 0.3 + i * 1.05) * w * 0.35;
-        const y = h * 0.5 + Math.sin(t * 0.4 + i * 1.05) * h * 0.35;
-        const r = 120 + i * 30;
-        const grd = ctx.createRadialGradient(x, y, 0, x, y, r);
-        grd.addColorStop(0, `hsla(${180 + i * 25}, 80%, 55%, 0.07)`);
-        grd.addColorStop(1, 'transparent');
-        ctx.fillStyle = grd;
-        ctx.beginPath();
-        ctx.arc(x, y, r, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      for (let i = 0; i < 8; i++) {
-        const angle = t * 0.15 + (i / 8) * Math.PI * 2;
-        const r = Math.min(w, h) * 0.22;
-        const x = w * 0.5 + Math.cos(angle) * r;
-        const y = h * 0.5 + Math.sin(angle) * r;
-        const dotR = 2 + Math.sin(t + i) * 1;
-        const grd = ctx.createRadialGradient(x, y, 0, x, y, dotR * 3);
-        grd.addColorStop(0, `hsla(${200 + i * 20}, 90%, 65%, 0.6)`);
-        grd.addColorStop(1, 'transparent');
-        ctx.fillStyle = grd;
-        ctx.beginPath();
-        ctx.arc(x, y, dotR * 3, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      t += 0.008;
-      animId = requestAnimationFrame(draw);
-    };
-    draw();
-    return () => {
-      window.removeEventListener('resize', resize);
-      cancelAnimationFrame(animId);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!demoVideoOpen) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setDemoVideoOpen(false); };
-    window.addEventListener('keydown', onKey);
-    return () => {
-      document.body.style.overflow = prev;
-      window.removeEventListener('keydown', onKey);
-    };
-  }, [demoVideoOpen]);
-
-  useEffect(() => {
-    if (!demoVideoOpen) { setIframeLoaded(false); setIframeFailed(false); }
-  }, [demoVideoOpen]);
-
-  const runSuccessAnimation = (user: AuthUser) => {
+  const runSuccessAnimation = useCallback((user: AuthUser) => {
     setAuthError('');
     setShowSuccess(true);
     setSuccessStage('celebrating');
+
     setTimeout(() => {
       setSuccessStage('transitioning');
       setTimeout(() => onLogin(user), 900);
-    }, 2000);
-  };
+    }, 1600);
+  }, [onLogin]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (showReset) {
       const emailErr = validateEmail(resetEmail);
-      if (emailErr) { setErrors({ email: emailErr }); return; }
+      if (emailErr) {
+        setErrors({ email: emailErr });
+        return;
+      }
+
       setLoading(true);
       setAuthError('');
       try {
@@ -199,18 +197,30 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
     }
 
     const emailErr = validateEmail(form.email);
-    const pwErr = validatePassword(form.password);
-    if (emailErr || pwErr) { setErrors({ email: emailErr || undefined, password: pwErr || undefined }); return; }
-    if (tab === 'signup') {
-      const nameErr = !form.displayName.trim() ? 'Vui lòng nhập họ tên.' : null;
-      if (nameErr) { setErrors({ displayName: nameErr }); return; }
+    const passwordErr = validatePassword(form.password);
+    if (emailErr || passwordErr) {
+      setErrors({ email: emailErr || undefined, password: passwordErr || undefined });
+      return;
     }
+
+    if (tab === 'signup' && !form.displayName.trim()) {
+      setErrors({ displayName: 'Vui lòng nhập họ tên.' });
+      return;
+    }
+
     setLoading(true);
     setAuthError('');
+
     try {
-      const user = tab === 'signup'
-        ? await signUpWithEmail({ email: form.email, password: form.password, displayName: form.displayName })
-        : await signInWithEmail({ email: form.email, password: form.password });
+      const user =
+        tab === 'signup'
+          ? await signUpWithEmail({
+              email: form.email,
+              password: form.password,
+              displayName: form.displayName,
+            })
+          : await signInWithEmail({ email: form.email, password: form.password });
+
       runSuccessAnimation(user);
     } catch (err: any) {
       setAuthError(mapFirebaseError(err.code));
@@ -222,13 +232,20 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
   const handleGoogleSignIn = async () => {
     setLoading(true);
     setAuthError('');
+
     try {
       const user = await signInWithGoogle();
       runSuccessAnimation(user);
     } catch (err: any) {
       if (err.code === 'auth/link-required') {
-        // Mở modal yêu cầu nhập mật khẩu cũ để link tài khoản
-        setLinkModal({ open: true, email: err.email, password: '', pendingCred: err.pendingCred, error: '', loading: false });
+        setLinkModal({
+          open: true,
+          email: err.email,
+          password: '',
+          pendingCred: err.pendingCred,
+          error: '',
+          loading: false,
+        });
       } else {
         setAuthError(mapFirebaseError(err.code));
       }
@@ -239,485 +256,480 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
 
   const handleLinkAccount = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!linkModal.password) {
-      setLinkModal(prev => ({ ...prev, error: 'Vui lòng nhập mật khẩu.' }));
+      setLinkModal((prev) => ({ ...prev, error: 'Vui lòng nhập mật khẩu.' }));
       return;
     }
-    setLinkModal(prev => ({ ...prev, loading: true, error: '' }));
+
+    setLinkModal((prev) => ({ ...prev, loading: true, error: '' }));
+
     try {
-      const user = await linkGoogleAfterPasswordSignIn(linkModal.email, linkModal.password, linkModal.pendingCred);
-      setLinkModal({ open: false, email: '', password: '', pendingCred: null, error: '', loading: false });
+      const user = await linkGoogleAfterPasswordSignIn(
+        linkModal.email,
+        linkModal.password,
+        linkModal.pendingCred as never,
+      );
+
+      setLinkModal({
+        open: false,
+        email: '',
+        password: '',
+        pendingCred: null,
+        error: '',
+        loading: false,
+      });
+
       runSuccessAnimation(user);
     } catch (err: any) {
-      setLinkModal(prev => ({ ...prev, loading: false, error: mapFirebaseError(err.code) }));
+      setLinkModal((prev) => ({
+        ...prev,
+        loading: false,
+        error: mapFirebaseError(err.code),
+      }));
     }
   };
 
   return (
     <div
-      className={`login-page-shell min-h-screen flex transition-all duration-1000 ease-out ${
-        successStage === 'transitioning' ? 'opacity-0 scale-[1.02]' : 'opacity-100 scale-100'
+      className={`login-page-shell relative min-h-screen overflow-hidden bg-black text-slate-100 transition-all duration-700 ${
+        successStage === 'transitioning' ? 'opacity-0' : 'opacity-100'
       }`}
-      style={{ backgroundColor: '#06091a' }}
     >
-      {/* ── LEFT PANEL ─────────────────────────────────────────── */}
-      <div
-        className={`hidden lg:flex flex-col justify-start w-[46%] relative overflow-hidden shrink-0 transition-all duration-1200 ease-out ${
-          loaded ? 'translate-x-0 opacity-100' : '-translate-x-8 opacity-0'
-        }`}
-        style={{ background: 'linear-gradient(160deg, #0a1628 0%, #0d1f3c 50%, #091525 100%)' }}
-      >
-        <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" style={{ pointerEvents: 'none' }} />
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage: 'linear-gradient(rgba(255,255,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.03) 1px,transparent 1px)',
-            backgroundSize: '40px 40px',
-          }}
-        />
-        {particles.map(p => (
-          <div
-            key={p.id}
-            className={`absolute rounded-none animate-pulse ${p.color}`}
-            style={{
-              left: `${p.x}%`, top: `${p.y}%`,
-              width: p.size, height: p.size,
-              animationDuration: `${p.duration}s`, animationDelay: `${p.delay}s`, opacity: 0.5,
-            }}
-          />
-        ))}
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.035)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.035)_1px,transparent_1px)] bg-[size:56px_56px] opacity-20" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(34,211,238,0.08),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(99,102,241,0.08),transparent_24%)]" />
 
-        <div className="relative z-10 p-6 lg:p-8 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-none overflow-hidden shadow-lg shadow-cyan-500/15 border border-slate-700/50">
-            <img src="/images/logos/logo.jpg" alt="SupportHR" className="w-full h-full object-cover" />
-          </div>
-          <div>
-            <h2 className="text-white font-bold text-base tracking-tight">SupportHR</h2>
-            <p className="text-slate-500 text-[11px]">AI Recruitment Intelligence</p>
-          </div>
-        </div>
+      <div className="relative z-10 grid min-h-screen lg:grid-cols-[1.02fr_0.98fr]">
+        <section
+          className={`hidden border-r border-white/8 px-8 py-8 lg:flex lg:flex-col lg:justify-between xl:px-10 xl:py-9 transition-all duration-700 ${
+            loaded ? 'translate-x-0 opacity-100' : '-translate-x-6 opacity-0'
+          }`}
+        >
+          <div className="max-w-lg">
+            <div className="inline-flex items-center gap-3 border border-[#f5d6bb]/20 bg-white/[0.03] px-3 py-2.5 font-mono text-[11px] uppercase tracking-[0.22em] text-[#f5d6bb]">
+              <span className="h-2.5 w-2.5 rounded-full bg-[#f5d6bb]/80 animate-pulse" />
+              SYSTEM_STATUS: ONLINE
+            </div>
 
-        <div className="relative z-10 px-8 lg:px-10 py-6 flex-1 flex flex-col justify-center">
-          <div className="mb-6">
-            <h1 className="text-3xl font-black text-white leading-tight mb-3 tracking-tight">
-              Tuyển dụng thông minh.<br />
-              <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-violet-400 bg-clip-text text-transparent">
-                Quyết định chính xác.
-              </span>
-            </h1>
-            <p className="text-slate-400 text-sm leading-relaxed max-w-sm">
-              Nền tảng AI phân tích CV tự động, giúp đội ngũ tuyển dụng sàng lọc ứng viên nhanh hơn 10 lần với độ chính xác cao nhất.
-            </p>
-          </div>
-          <div className="grid grid-cols-3 gap-3 mb-6">
-            {stats.map(s => (
-              <div key={s.label} className="text-center">
-                <div className="text-xl font-black text-white mb-0.5">{s.value}</div>
-                <div className="text-slate-500 text-[10px] leading-tight">{s.label}</div>
+            <div className="mt-9">
+              <h1 className="max-w-md text-4xl font-black uppercase leading-[0.92] tracking-[-0.04em] text-white xl:text-5xl">
+                Mở khóa
+                <br />
+                <span className="text-cyan-300">tuyển dụng AI</span>
+              </h1>
+
+              <div className="mt-7 border-l border-[#f5d6bb]/70 pl-5">
+                <p className="max-w-sm text-lg leading-8 text-slate-300">
+                  Truy cập không gian sàng lọc của Support HR để đối sánh CV, chuẩn hóa JD và
+                  ra quyết định tuyển dụng nhanh hơn trong một hệ thống thống nhất.
+                </p>
               </div>
-            ))}
+            </div>
           </div>
-          <div className="space-y-2">
-            {features.map(f => (
-              <div key={f.title} className="flex items-start gap-2.5 p-2.5 rounded-none bg-white/[0.03] border border-white/[0.06] backdrop-blur-sm">
-                <div className="w-7 h-7 rounded-none bg-gradient-to-br from-cyan-500/20 to-blue-500/20 border border-cyan-500/20 flex items-center justify-center shrink-0 mt-0.5">
-                  <i className={`${f.icon} text-cyan-400 text-[10px]`} />
+
+          <div className="grid max-w-xl gap-3">
+            {systemSignals.map((signal) => (
+              <div
+                key={signal.title}
+                className="flex items-start gap-4 border border-white/8 bg-white/[0.035] px-4 py-4"
+              >
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center border border-white/10 bg-black/80 text-slate-100">
+                  <i className={`${signal.icon} text-base`} />
                 </div>
                 <div>
-                  <div className="text-white text-xs font-semibold mb-0.5">{f.title}</div>
-                  <div className="text-slate-500 text-[11px] leading-snug">{f.desc}</div>
+                  <p className="text-lg font-bold uppercase tracking-[-0.02em] text-white">
+                    {signal.title}
+                  </p>
+                  <p className="mt-1 font-mono text-sm leading-6 text-[#f5d6bb]">{signal.status}</p>
                 </div>
               </div>
             ))}
           </div>
-        </div>
+        </section>
 
-        <div className="relative z-10 px-8 pb-3 lg:pb-4">
-          <div className="flex items-center gap-2.5 p-3 rounded-none bg-white/[0.03] border border-white/[0.06]">
-            <div className="w-9 h-9 rounded-none bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-white text-xs font-bold shrink-0">NT</div>
-            <div>
-              <p className="text-slate-300 text-[11px] italic leading-relaxed">
-                "SupportHR giúp tôi giảm 70% thời gian sàng lọc. Đội ngũ HR của tôi giờ tập trung vào phỏng vấn thay vì đọc hàng trăm CV."
-              </p>
-              <p className="text-slate-600 text-[10px] mt-1">Nguyễn Thu Hà — HR Manager, FPT Software</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="relative z-10 px-8 pb-8 -mt-1">
-          <p className="text-[10px] text-slate-600 uppercase tracking-widest font-semibold mb-2 pl-0.5">Video demo</p>
-          <button
-            type="button"
-            onClick={() => setDemoVideoOpen(true)}
-            className="group w-full text-left flex items-center gap-3 p-3 rounded-none bg-white/[0.03] border border-white/[0.06] hover:border-cyan-500/30 hover:bg-white/[0.05] transition-all duration-200"
-          >
-            <div className="w-14 h-10 rounded-none shrink-0 relative overflow-hidden"
-              style={{ background: 'linear-gradient(135deg, #0f2a3d 0%, #0a1e30 40%, #0d2e45 70%, #061224 100%)' }}>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-6 h-6 rounded-none bg-white/20 border border-white/30 flex items-center justify-center backdrop-blur-sm">
-                  <svg width="8" height="10" viewBox="0 0 8 10" fill="white"><path d="M0 0L8 5L0 10V0Z" /></svg>
-                </div>
-              </div>
-            </div>
-            <div className="min-w-0">
-              <p className="text-slate-300 text-xs font-medium leading-snug truncate pr-2">Xem video giới thiệu SupportHR</p>
-              <p className="text-slate-600 text-[10px] mt-0.5">Phát trong trang · YouTube</p>
-            </div>
-            <i className="fa-solid fa-circle-play text-cyan-500/70 text-sm shrink-0 ml-auto pr-1 group-hover:text-cyan-400 transition-colors" />
-          </button>
-        </div>
-      </div>
-
-      {/* ── RIGHT PANEL ──────────────────────────────────────── */}
-      <div className={`flex-1 flex flex-col items-center justify-center px-5 py-8 lg:py-10 transition-all duration-1200 ease-out ${
-        loaded ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
-      }`}>
-        <div className="w-full max-w-sm">
-
-          {/* Mobile logo */}
-          <div className="lg:hidden flex items-center justify-center gap-3 mb-6">
-            <div className="w-11 h-11 rounded-none overflow-hidden shadow-xl border border-slate-700/50">
-              <img src="/images/logos/logo.jpg" alt="SupportHR" className="w-full h-full object-cover" />
-            </div>
-            <div>
-              <h2 className="text-white font-bold text-xl">SupportHR</h2>
-              <p className="text-slate-500 text-xs">AI Recruitment Intelligence</p>
-            </div>
-          </div>
-
-          {/* Card */}
-          <div
-            className={`bg-white/[0.03] border border-white/[0.08] rounded-none p-6 backdrop-blur-xl transition-all duration-700 ${
-              successStage === 'celebrating' ? 'border-emerald-400/30 shadow-emerald-500/10' : ''
-            }`}
-          >
-            {/* Success banner */}
-            {showSuccess && (
-              <div className={`mb-6 p-4 rounded-none border backdrop-blur-sm transition-all duration-700 ${
-                successStage === 'celebrating'
-                  ? 'bg-gradient-to-r from-emerald-500/20 to-cyan-500/20 border-emerald-400/40 scale-100 opacity-100'
-                  : 'scale-95 opacity-0'
-              }`}>
-                <div className="flex items-center gap-3">
-                  <div className={`w-8 h-8 rounded-none bg-emerald-500/20 flex items-center justify-center ${successStage === 'celebrating' ? 'animate-bounce' : ''}`}>
-                    <i className="fa-solid fa-check text-emerald-400 text-sm" />
-                  </div>
-                  <span className="text-emerald-200 text-sm font-semibold">
-                    {tab === 'signup' ? 'Đăng ký thành công!' : 'Đăng nhập thành công!'}
-                  </span>
-                </div>
-              </div>
-            )}
-
-            {/* Auth error */}
-            {authError && (
-              <div className="mb-5 p-4 rounded-none bg-red-500/10 border border-red-500/25 backdrop-blur-sm">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-none bg-red-500/20 flex items-center justify-center shrink-0">
-                    <i className="fa-solid fa-triangle-exclamation text-red-400 text-sm" />
-                  </div>
-                  <span className="text-red-300 text-sm">{authError}</span>
-                </div>
-              </div>
-            )}
-
-            {/* Tabs */}
-            <div className="flex rounded-none p-1 mb-6" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
-              {(['signin', 'signup'] as AuthTab[]).map(t => (
-                <button
-                  key={t}
-                  type="button"
-                  onClick={() => { setTab(t); setErrors({}); setAuthError(''); setForm({ email: '', password: '', displayName: '' }); setResetSent(false); setResetEmail(''); setShowReset(false); }}
-                  className={`flex-1 py-2 rounded-none text-[12px] font-semibold transition-all duration-200 ${
-                    tab === t
-                      ? 'bg-indigo-500/25 border border-indigo-500/30 text-indigo-200 shadow-sm'
-                      : 'text-slate-500 hover:text-slate-300'
-                  }`}
-                >
-                  {t === 'signin' ? 'Đăng nhập' : 'Đăng ký'}
-                </button>
-              ))}
-            </div>
-
-            {/* Form */}
-            {showReset ? (
-              <form onSubmit={handleSubmit} className="space-y-3.5">
-                <div>
-                  <label className="block text-[11px] font-semibold mb-1.5" style={{ color: '#94a3b8' }}>Email</label>
-                  <input
-                    type="email"
-                    value={resetEmail}
-                    onChange={e => setResetEmail(e.target.value)}
-                    placeholder="you@example.com"
-                    className={`w-full px-3.5 py-2.5 rounded-none text-sm text-white placeholder:text-slate-600 focus:outline-none transition-all ${
-                      errors.email ? 'border border-red-500/50 bg-red-500/5' : 'border border-slate-700/60 bg-slate-800/40 focus:border-indigo-500/50'
-                    }`}
-                    style={{ background: 'rgba(255,255,255,0.04)' }}
-                  />
-                  {errors.email && <p className="text-red-400 text-[10px] mt-1">{errors.email}</p>}
-                </div>
-
-                <div className="p-3 rounded-none text-[12px] text-slate-400 leading-relaxed" style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)' }}>
-                  Nhập email đã đăng ký. Chúng tôi sẽ gửi liên kết đặt lại mật khẩu vào hộp thư của bạn.
-                </div>
-
-                {resetSent && (
-                  <div className="p-3 rounded-none text-[12px] text-emerald-300 leading-relaxed" style={{ background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.25)' }}>
-                    <i className="fa-solid fa-envelope-circle-check mr-1.5" />
-                    Đã gửi! Kiểm tra hộp thư <strong>{resetEmail}</strong> và làm theo hướng dẫn trong email.
-                  </div>
-                )}
-
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full py-3 rounded-none text-sm font-bold text-white transition-all hover:-translate-y-0.5 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:translate-y-0"
-                  style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', boxShadow: '0 4px 16px rgba(99,102,241,0.3)' }}
-                >
-                  {loading ? 'Đang xử lý...' : 'Gửi liên kết'}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => { setShowReset(false); setResetSent(false); setResetEmail(''); setErrors({}); setAuthError(''); }}
-                  className="w-full py-2 text-[11px] text-slate-500 hover:text-slate-300 transition-colors"
-                >
-                  ← Quay lại đăng nhập
-                </button>
-              </form>
-            ) : (
-              <form onSubmit={handleSubmit} className="space-y-3.5">
-                {tab === 'signup' && (
-                  <div>
-                    <label className="block text-[11px] font-semibold mb-1.5" style={{ color: '#94a3b8' }}>Họ tên</label>
-                    <input
-                      type="text"
-                      value={form.displayName}
-                      onChange={e => setField('displayName', e.target.value)}
-                      placeholder="Nhập họ tên của bạn"
-                      className={`w-full px-3.5 py-2.5 rounded-none text-sm text-white placeholder:text-slate-600 focus:outline-none transition-all ${
-                        errors.displayName ? 'border border-red-500/50 bg-red-500/5' : 'border border-slate-700/60 bg-slate-800/40 focus:border-indigo-500/50'
-                      }`}
-                      style={{ background: 'rgba(255,255,255,0.04)' }}
-                    />
-                    {errors.displayName && <p className="text-red-400 text-[10px] mt-1">{errors.displayName}</p>}
-                  </div>
-                )}
-
-                <div>
-                  <label className="block text-[11px] font-semibold mb-1.5" style={{ color: '#94a3b8' }}>Email</label>
-                  <input
-                    type="email"
-                    value={form.email}
-                    onChange={e => setField('email', e.target.value)}
-                    placeholder="you@example.com"
-                    className={`w-full px-3.5 py-2.5 rounded-none text-sm text-white placeholder:text-slate-600 focus:outline-none transition-all ${
-                      errors.email ? 'border border-red-500/50 bg-red-500/5' : 'border border-slate-700/60 bg-slate-800/40 focus:border-indigo-500/50'
-                    }`}
-                    style={{ background: 'rgba(255,255,255,0.04)' }}
-                  />
-                  {errors.email && <p className="text-red-400 text-[10px] mt-1">{errors.email}</p>}
-                </div>
-
-                <div>
-                  <label className="block text-[11px] font-semibold mb-1.5" style={{ color: '#94a3b8' }}>Mật khẩu</label>
-                  <input
-                    type="password"
-                    value={form.password}
-                    onChange={e => setField('password', e.target.value)}
-                    placeholder={tab === 'signup' ? 'Ít nhất 6 ký tự' : 'Nhập mật khẩu'}
-                    className={`w-full px-3.5 py-2.5 rounded-none text-sm text-white placeholder:text-slate-600 focus:outline-none transition-all ${
-                      errors.password ? 'border border-red-500/50 bg-red-500/5' : 'border border-slate-700/60 bg-slate-800/40 focus:border-indigo-500/50'
-                    }`}
-                    style={{ background: 'rgba(255,255,255,0.04)' }}
-                  />
-                  {errors.password && <p className="text-red-400 text-[10px] mt-1">{errors.password}</p>}
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full py-3 rounded-none text-sm font-bold text-white transition-all hover:-translate-y-0.5 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:translate-y-0"
-                  style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', boxShadow: '0 4px 16px rgba(99,102,241,0.3)' }}
-                >
-                  {loading ? 'Đang xử lý...' : tab === 'signup' ? 'Tạo tài khoản' : 'Đăng nhập'}
-                </button>
-
-                {tab === 'signin' && (
-                  <button
-                    type="button"
-                    onClick={() => setShowReset(true)}
-                    className="w-full py-1.5 text-[11px] text-indigo-400 hover:text-indigo-300 transition-colors text-center"
-                  >
-                    Quên mật khẩu?
-                  </button>
-                )}
-              </form>
-            )}
-
-            {/* Divider */}
-            <div className="flex items-center gap-3 my-5">
-              <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.07)' }} />
-              <span className="text-[10px] text-slate-600 font-semibold uppercase tracking-wider">hoặc</span>
-              <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.07)' }} />
-            </div>
-
-            {/* Google */}
+        <section
+          className={`flex flex-col px-5 py-5 sm:px-7 lg:px-10 transition-all duration-700 ${
+            loaded ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
+          }`}
+        >
+          <div className="flex items-center justify-between">
             <button
               type="button"
-              onClick={handleGoogleSignIn}
-              disabled={loading}
-              className="w-full flex items-center justify-center gap-3 py-3.5 px-5 rounded-none
-                bg-white text-slate-800 font-semibold text-sm
-                hover:bg-slate-100 active:scale-[0.98]
-                focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:ring-offset-2 focus:ring-offset-[#06091a]
-                transition-all duration-200 shadow-lg shadow-black/20 hover:shadow-xl hover:shadow-black/30 hover:-translate-y-0.5
-                disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={handleBackHome}
+              className="inline-flex items-center gap-3 font-mono text-xs uppercase tracking-[0.24em] text-[#f5d6bb] transition-colors hover:text-white"
             >
-              <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24">
-                <path fill="#EA4335" d="M5.26620003,9.76452941 C6.19878754,6.93863203 8.85444915,4.90909091 12,4.90909091 C13.6909091,4.90909091 15.2181818,5.50909091 16.4181818,6.49090909 L19.9090909,3 C17.7818182,1.14545455 15.0545455,0 12,0 C7.27006974,0 3.1977497,2.69829785 1.23999023,6.65002441 L5.26620003,9.76452941 Z"/>
-                <path fill="#34A853" d="M16.0407269,18.0125889 C14.9509167,18.7163016 13.5660892,19.0909091 12,19.0909091 C8.86648613,19.0909091 6.21911939,17.076871 5.27698177,14.2678769 L1.23746264,17.3349879 C3.19279051,21.2936293 7.26500293,24 12,24 C14.9328362,24 17.7353462,22.9573905 19.834192,20.9995801 L16.0407269,18.0125889 Z"/>
-                <path fill="#4A90E2" d="M19.834192,20.9995801 C22.0291676,18.9520994 23.4545455,15.903663 23.4545455,12 C23.4545455,11.2909091 23.3454545,10.5818182 23.1818182,9.90909091 L12,9.90909091 L12,14.4545455 L18.4363636,14.4545455 C18.1187732,16.013626 17.2662994,17.2212117 16.0407269,18.0125889 L19.834192,20.9995801 Z"/>
-                <path fill="#FBBC05" d="M5.27698177,14.2678769 C5.03832634,13.556323 4.90909091,12.7937589 4.90909091,12 C4.90909091,11.2182781 5.03443647,10.4668121 5.26620003,9.76452941 L1.23999023,6.65002441 C0.43658717,8.26043162 0,10.0753848 0,12 C0,13.9195484 0.444780743,15.7301709 1.23746264,17.3349879 L5.27698177,14.2678769 Z"/>
-              </svg>
-              Tiếp tục với Google
+              <i className="fa-solid fa-arrow-left text-[11px]" />
+              TRỞ_VỀ_TRANG_CHỦ
             </button>
-          </div>
 
-          {/* Footer links */}
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-[11px] text-slate-700">
-            <button type="button" onClick={() => setDemoVideoOpen(true)} className="lg:hidden text-cyan-600 hover:text-cyan-400 transition-colors">Video demo</button>
-            <span className="lg:hidden text-slate-800">·</span>
-            <a href="/terms" className="hover:text-slate-400 transition-colors">Điều khoản</a>
-            <span>·</span>
-            <a href="/privacy-policy" className="hover:text-slate-400 transition-colors">Bảo mật</a>
-            <span>·</span>
-            <a href="mailto:support@supporthr.io" className="hover:text-slate-400 transition-colors">Liên hệ</a>
-          </div>
-          <p className="mt-3 text-center text-[11px] text-slate-800 uppercase tracking-widest font-semibold">
-            © 2026 SupportHR · AI Recruitment Intelligence Platform
-          </p>
-        </div>
-      </div>
-
-      {/* Video demo modal */}
-      {demoVideoOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6" role="dialog" aria-modal="true">
-          <button type="button" className="absolute inset-0 bg-black/75 backdrop-blur-sm" onClick={() => setDemoVideoOpen(false)} />
-          <div className="relative w-full max-w-4xl rounded-none overflow-hidden border border-white/[0.08] bg-[#0b1220] shadow-2xl shadow-black/50">
-            <div className="flex items-center justify-between gap-3 px-4 py-3 border-b border-white/[0.08] bg-[#0f1729]">
-              <div className="flex items-center gap-2.5 min-w-0">
-                <div className="w-8 h-8 rounded-none bg-cyan-500/20 border border-cyan-500/35 flex items-center justify-center shrink-0">
-                  <i className="fa-solid fa-play text-cyan-400 text-[10px] ml-0.5" />
-                </div>
-                <h2 className="text-sm sm:text-base font-semibold text-white truncate">Video Demo – SupportHR</h2>
+            <div className="inline-flex items-center gap-3 lg:hidden">
+              <div className="h-10 w-10 overflow-hidden border border-white/10 bg-black/70">
+                <img src="/images/logos/logo.jpg" alt="Support HR" className="h-full w-full object-cover" />
               </div>
-              <button type="button" onClick={() => setDemoVideoOpen(false)} className="shrink-0 w-9 h-9 rounded-none flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-colors">
-                <i className="fa-solid fa-xmark text-lg" />
-              </button>
+              <div>
+                <p className="text-sm font-bold text-white">Support HR</p>
+                <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-slate-500">
+                  Access Layer
+                </p>
+              </div>
             </div>
-            <div className="aspect-video bg-black relative overflow-hidden">
-              {iframeFailed ? (
-                <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-[#0d1629]">
-                  <div className="w-16 h-16 rounded-none bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
-                    <i className="fa-solid fa-video text-cyan-400 text-2xl" />
+          </div>
+
+          <div className="flex flex-1 items-center justify-center py-6">
+            <div className="w-full max-w-lg">
+              <div className="relative border border-white/10 bg-white/[0.04] px-5 py-6 sm:px-8 sm:py-7">
+                <CornerFrame />
+
+                <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center border border-[#f5d6bb]/60 bg-[#f5d6bb]/5 text-[#f5d6bb]">
+                  <div className="flex h-10 w-10 items-center justify-center border border-[#f5d6bb]/25 bg-black/65">
+                    <i className="fa-solid fa-user-shield text-lg" />
                   </div>
-                  <div className="text-center px-6">
-                    <p className="text-white font-semibold text-sm mb-1">Không thể tải video trong trang</p>
-                    <p className="text-slate-400 text-xs mb-4">Có thể YouTube bị chặn trong mạng của bạn</p>
-                    <a href={`https://youtu.be/${DEMO_VIDEO_ID}`} target="_blank" rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 px-4 py-2 rounded-none bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 text-xs font-medium hover:bg-cyan-500/30 transition-colors">
-                      <i className="fa-brands fa-youtube text-sm" />
-                      Xem trên YouTube
+                </div>
+
+                <div className="text-center">
+                  <h2 className="text-3xl font-black uppercase tracking-[-0.04em] text-white sm:text-[2rem]">
+                    {showReset ? 'Khôi phục truy cập' : 'Access Control'}
+                  </h2>
+                  <p className="mt-3 font-mono text-[12px] uppercase tracking-[0.22em] text-[#f5d6bb]">
+                    {showReset ? '>> PASSWORD_RECOVERY_REQUIRED' : '>> AUTHENTICATION_REQUIRED'}
+                  </p>
+                </div>
+
+                {showSuccess && (
+                  <div
+                    className={`mt-6 border px-4 py-3 transition-all duration-500 ${
+                      successStage === 'celebrating'
+                        ? 'border-emerald-400/35 bg-emerald-400/10 opacity-100'
+                        : 'opacity-0'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-8 w-8 items-center justify-center border border-emerald-400/35 bg-emerald-400/10 text-emerald-300">
+                        <i className="fa-solid fa-check text-sm" />
+                      </div>
+                      <span className="font-mono text-sm text-emerald-200">
+                        {tab === 'signup' ? 'Đăng ký thành công' : 'Xác thực thành công'}
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {authError && (
+                  <div className="mt-6 border border-red-500/30 bg-red-500/8 px-4 py-3 text-sm text-red-200">
+                    {authError}
+                  </div>
+                )}
+
+                {!showReset && (
+                  <div className="mt-5 flex border border-white/10 bg-black/60 p-1">
+                    {(['signin', 'signup'] as AuthTab[]).map((mode) => (
+                      <button
+                        key={mode}
+                        type="button"
+                        onClick={() => switchTab(mode)}
+                        className={`flex-1 px-3 py-2 font-mono text-[10px] uppercase tracking-[0.22em] transition-all ${
+                          tab === mode
+                            ? 'bg-white text-black'
+                            : 'text-slate-500 hover:text-slate-200'
+                        }`}
+                      >
+                        {mode === 'signin' ? 'Đăng nhập' : 'Đăng ký'}
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                <div className="mt-6">
+                  {showReset ? (
+                    <form onSubmit={handleSubmit} className="space-y-3">
+                      <div>
+                        <label className="mb-1.5 block font-mono text-[10px] uppercase tracking-[0.22em] text-slate-400">
+                          EMAIL_TRUY_CẬP
+                        </label>
+                        <input
+                          type="email"
+                          value={resetEmail}
+                          onChange={(e) => {
+                            setResetEmail(e.target.value);
+                            setErrors((prev) => ({ ...prev, email: undefined }));
+                            setAuthError('');
+                          }}
+                          placeholder="you@example.com"
+                          className={`${inputBaseClass} ${
+                            errors.email ? 'border-red-500/40' : ''
+                          }`}
+                        />
+                        {errors.email && <p className="mt-1 text-xs text-red-400">{errors.email}</p>}
+                      </div>
+
+                      <div className="border border-white/8 bg-black/65 px-4 py-3 text-[13px] leading-6 text-slate-400">
+                        Nhập email đã đăng ký. Support HR sẽ gửi liên kết đặt lại mật khẩu để bạn
+                        khôi phục quyền truy cập phiên làm việc.
+                      </div>
+
+                      {resetSent && (
+                        <div className="border border-emerald-500/25 bg-emerald-500/8 px-4 py-3 text-[13px] text-emerald-200">
+                          Đã gửi liên kết đến <strong>{resetEmail}</strong>. Kiểm tra hộp thư và
+                          làm theo hướng dẫn trong email.
+                        </div>
+                      )}
+
+                      <button
+                        type="submit"
+                        disabled={loading}
+                        className="w-full border border-white bg-white px-4 py-3 text-[13px] font-black uppercase tracking-[0.14em] text-black transition-all hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        {loading ? 'ĐANG_GỬI_LIÊN_KẾT' : 'GỬI_LIÊN_KẾT'}
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowReset(false);
+                          setResetSent(false);
+                          setResetEmail('');
+                          setErrors({});
+                          setAuthError('');
+                        }}
+                        className="w-full font-mono text-[10px] uppercase tracking-[0.22em] text-slate-500 transition-colors hover:text-slate-200"
+                      >
+                        ← QUAY_LẠI_ĐĂNG_NHẬP
+                      </button>
+                    </form>
+                  ) : (
+                    <form onSubmit={handleSubmit} className="space-y-3">
+                      {tab === 'signup' && (
+                        <div>
+                          <label className="mb-1.5 block font-mono text-[10px] uppercase tracking-[0.22em] text-slate-400">
+                            HỌ_TÊN
+                          </label>
+                          <input
+                            type="text"
+                            value={form.displayName}
+                            onChange={(e) => setField('displayName', e.target.value)}
+                            placeholder="Nhập tên của bạn"
+                            className={`${inputBaseClass} ${
+                              errors.displayName ? 'border-red-500/40' : ''
+                            }`}
+                          />
+                          {errors.displayName && (
+                            <p className="mt-1 text-xs text-red-400">{errors.displayName}</p>
+                          )}
+                        </div>
+                      )}
+
+                      <div>
+                        <label className="mb-1.5 block font-mono text-[10px] uppercase tracking-[0.22em] text-slate-400">
+                          EMAIL_TRUY_CẬP
+                        </label>
+                        <input
+                          type="email"
+                          value={form.email}
+                          onChange={(e) => setField('email', e.target.value)}
+                          placeholder="you@example.com"
+                          className={`${inputBaseClass} ${
+                            errors.email ? 'border-red-500/40' : ''
+                          }`}
+                        />
+                        {errors.email && <p className="mt-1 text-xs text-red-400">{errors.email}</p>}
+                      </div>
+
+                      <div>
+                        <div className="mb-1.5 flex items-end justify-between gap-3">
+                          <label className="block font-mono text-[10px] uppercase tracking-[0.22em] text-slate-400">
+                            MẬT_KHẨU
+                          </label>
+                          <div className="min-h-[14px] font-mono text-[9px] uppercase tracking-[0.16em] text-cyan-300/85">
+                            {typedHint}
+                            <span className="ml-1 inline-block h-3 w-px bg-cyan-300 align-middle animate-pulse" />
+                          </div>
+                        </div>
+
+                        <div className="relative">
+                          <input
+                            type={passwordVisible ? 'text' : 'password'}
+                            value={form.password}
+                            onChange={(e) => setField('password', e.target.value)}
+                            placeholder={tab === 'signup' ? 'Ít nhất 6 ký tự' : 'Nhập mật khẩu'}
+                            className={`${inputBaseClass} pr-16 ${
+                              errors.password ? 'border-red-500/40' : ''
+                            }`}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setPasswordVisible((prev) => !prev)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 font-mono text-[9px] uppercase tracking-[0.18em] text-slate-500 transition-colors hover:text-slate-200"
+                          >
+                            {passwordVisible ? 'HIDE' : 'SHOW'}
+                          </button>
+                        </div>
+
+                        {errors.password && (
+                          <p className="mt-1 text-xs text-red-400">{errors.password}</p>
+                        )}
+                      </div>
+
+                      <button
+                        type="submit"
+                        disabled={loading}
+                        className="w-full border border-white bg-white px-4 py-3 text-[13px] font-black uppercase tracking-[0.14em] text-black transition-all hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        {loading
+                          ? tab === 'signup'
+                            ? 'ĐANG_TẠO_TÀI_KHOẢN'
+                            : 'ĐANG_XÁC_THỰC'
+                          : tab === 'signup'
+                            ? 'TẠO_TÀI_KHOẢN'
+                            : 'ĐĂNG_NHẬP'}
+                      </button>
+
+                      {tab === 'signin' && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setShowReset(true);
+                            setErrors({});
+                            setAuthError('');
+                            setResetSent(false);
+                          }}
+                          className="w-full font-mono text-[10px] uppercase tracking-[0.22em] text-slate-500 transition-colors hover:text-slate-200"
+                        >
+                          QUÊN_MẬT_KHẨU?
+                        </button>
+                      )}
+                    </form>
+                  )}
+                </div>
+
+                {!showReset && (
+                  <>
+                    <div className="my-5 flex items-center gap-3">
+                      <div className="h-px flex-1 bg-white/8" />
+                      <span className="font-mono text-[10px] uppercase tracking-[0.24em] text-slate-600">
+                        OR
+                      </span>
+                      <div className="h-px flex-1 bg-white/8" />
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={handleGoogleSignIn}
+                      disabled={loading}
+                      className="flex w-full items-center justify-center gap-3 border border-white/10 bg-black/65 px-4 py-3 text-[13px] font-bold uppercase tracking-[0.12em] text-white transition-all hover:border-white/20 hover:bg-white/[0.04] disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <svg className="h-5 w-5 shrink-0" viewBox="0 0 24 24">
+                        <path
+                          fill="#EA4335"
+                          d="M5.2662 9.76453C6.19879 6.93863 8.85445 4.90909 12 4.90909C13.6909 4.90909 15.2182 5.50909 16.4182 6.49091L19.9091 3C17.7818 1.14545 15.0545 0 12 0C7.27007 0 3.19775 2.6983 1.23999 6.65002L5.2662 9.76453Z"
+                        />
+                        <path
+                          fill="#34A853"
+                          d="M16.0407 18.0126C14.9509 18.7163 13.5661 19.0909 12 19.0909C8.86649 19.0909 6.21912 17.0769 5.27698 14.2679L1.23746 17.335C3.19279 21.2936 7.265 24 12 24C14.9328 24 17.7353 22.9574 19.8342 20.9996L16.0407 18.0126Z"
+                        />
+                        <path
+                          fill="#4A90E2"
+                          d="M19.8342 20.9996C22.0292 18.9521 23.4545 15.9037 23.4545 12C23.4545 11.2909 23.3455 10.5818 23.1818 9.90909H12V14.4545H18.4364C18.1188 16.0136 17.2663 17.2212 16.0407 18.0126L19.8342 20.9996Z"
+                        />
+                        <path
+                          fill="#FBBC05"
+                          d="M5.27698 14.2679C5.03833 13.5563 4.90909 12.7938 4.90909 12C4.90909 11.2183 5.03444 10.4668 5.2662 9.76453L1.23999 6.65002C0.436587 8.26043 0 10.0754 0 12C0 13.9195 0.444781 15.7302 1.23746 17.335L5.27698 14.2679Z"
+                        />
+                      </svg>
+                      Tiếp tục với Google
+                    </button>
+                  </>
+                )}
+
+                <div className="mt-6 border-t border-white/8 pt-5 text-center">
+                  <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-slate-500">
+                    Khi truy cập, bạn đồng ý với
+                  </p>
+                  <div className="mt-2 flex flex-wrap items-center justify-center gap-2 text-sm text-slate-300">
+                    <a href="/terms" className="transition-colors hover:text-white">
+                      Điều khoản dịch vụ
+                    </a>
+                    <span className="text-slate-600">&amp;</span>
+                    <a href="/privacy-policy" className="transition-colors hover:text-white">
+                      Chính sách bảo mật
                     </a>
                   </div>
                 </div>
-              ) : (
-                <>
-                  {!iframeLoaded && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/50 z-10">
-                      <div className="flex flex-col items-center gap-2">
-                        <div className="w-8 h-8 border-2 border-cyan-400/30 border-t-cyan-400 rounded-none animate-spin" />
-                        <span className="text-slate-500 text-xs">Đang tải video…</span>
-                      </div>
-                    </div>
-                  )}
-                  <iframe
-                    title="Video demo SupportHR"
-                    src={DEMO_VIDEO_EMBED}
-                    className="w-full h-full"
-                    onLoad={() => setIframeLoaded(true)}
-                    onError={() => setIframeFailed(true)}
-                    allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    allowFullScreen
-                  />
-                </>
-              )}
-            </div>
-            <div className="flex items-center justify-end gap-3 px-4 py-2.5 border-t border-white/[0.06] bg-[#0f1729]/80">
-              <a href={`https://youtu.be/${DEMO_VIDEO_ID}`} target="_blank" rel="noopener noreferrer" className="text-[11px] text-slate-500 hover:text-cyan-400 transition-colors">
-                Mở trên YouTube
-              </a>
-            </div>
-          </div>
-        </div>
-      )}
-      {/* ── LINK ACCOUNT MODAL ─────────────────────────────── */}
-      {linkModal.open && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
-          {/* Backdrop */}
-          <div
-            className="absolute inset-0 bg-black/70 backdrop-blur-sm"
-            onClick={() => setLinkModal(prev => ({ ...prev, open: false }))}
-          />
-
-          {/* Modal card */}
-          <div className="relative w-full max-w-sm rounded-none border border-white/[0.1] backdrop-blur-xl p-6 shadow-2xl shadow-black/60"
-            style={{ background: 'linear-gradient(160deg, #0d1629 0%, #111827 100%)' }}>
-
-            {/* Icon */}
-            <div className="flex justify-center mb-4">
-              <div className="w-14 h-14 rounded-none bg-gradient-to-br from-indigo-500/20 to-cyan-500/20 border border-indigo-500/30 flex items-center justify-center">
-                <i className="fa-solid fa-link-slash text-indigo-400 text-xl" />
               </div>
             </div>
+          </div>
+        </section>
+      </div>
 
-            <h3 className="text-white font-bold text-base text-center mb-1">Liên kết tài khoản</h3>
-            <p className="text-slate-400 text-[12px] text-center mb-5 leading-relaxed">
-              Email <span className="text-cyan-400 font-semibold">{linkModal.email}</span>{' '}
-              đã được đăng ký bằng mật khẩu. Nhập mật khẩu để liên kết với Google và dùng chung 1 tài khoản.
+      {linkModal.open && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+          <button
+            type="button"
+            className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+            onClick={() => setLinkModal((prev) => ({ ...prev, open: false }))}
+          />
+
+          <div className="relative w-full max-w-md border border-white/10 bg-[#090909] px-6 py-8 text-slate-100 shadow-2xl shadow-black/60">
+            <CornerFrame />
+
+            <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center border border-[#f5d6bb]/60 bg-[#f5d6bb]/5 text-[#f5d6bb]">
+              <i className="fa-solid fa-link text-lg" />
+            </div>
+
+            <h3 className="text-center text-3xl font-black uppercase tracking-[-0.04em] text-white">
+              Liên kết tài khoản
+            </h3>
+            <p className="mt-4 text-center text-sm leading-7 text-slate-400">
+              Email <span className="text-cyan-300">{linkModal.email}</span> đã tồn tại bằng mật
+              khẩu. Xác thực lại để gộp với đăng nhập Google trong cùng một phiên.
             </p>
 
-            <form onSubmit={handleLinkAccount} className="space-y-3.5">
+            <form onSubmit={handleLinkAccount} className="mt-8 space-y-4">
               <div>
-                <label className="block text-[11px] font-semibold mb-1.5" style={{ color: '#94a3b8' }}>Mật khẩu hiện tại</label>
-                <input
-                  type="password"
-                  autoFocus
-                  value={linkModal.password}
-                  onChange={e => setLinkModal(prev => ({ ...prev, password: e.target.value, error: '' }))}
-                  placeholder="Nhập mật khẩu của bạn"
-                  className="w-full px-3.5 py-2.5 rounded-none text-sm text-white placeholder:text-slate-600 focus:outline-none transition-all border border-slate-700/60 focus:border-indigo-500/50"
-                  style={{ background: 'rgba(255,255,255,0.04)' }}
-                />
-                {linkModal.error && <p className="text-red-400 text-[10px] mt-1">{linkModal.error}</p>}
+                <label className="mb-2 block font-mono text-[11px] uppercase tracking-[0.24em] text-slate-400">
+                  MẬT_KHẨU_HIỆN_TẠI
+                </label>
+                <div className="relative">
+                  <input
+                    type={linkPasswordVisible ? 'text' : 'password'}
+                    autoFocus
+                    value={linkModal.password}
+                    onChange={(e) =>
+                      setLinkModal((prev) => ({
+                        ...prev,
+                        password: e.target.value,
+                        error: '',
+                      }))
+                    }
+                    placeholder="Nhập mật khẩu của bạn"
+                    className={`${inputBaseClass} pr-20 ${
+                      linkModal.error ? 'border-red-500/40' : ''
+                    }`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setLinkPasswordVisible((prev) => !prev)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 font-mono text-[10px] uppercase tracking-[0.24em] text-slate-500 transition-colors hover:text-slate-200"
+                  >
+                    {linkPasswordVisible ? 'HIDE' : 'SHOW'}
+                  </button>
+                </div>
+                {linkModal.error && <p className="mt-1 text-xs text-red-400">{linkModal.error}</p>}
               </div>
 
               <button
                 type="submit"
                 disabled={linkModal.loading}
-                className="w-full py-3 rounded-none text-sm font-bold text-white transition-all hover:-translate-y-0.5 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
-                style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', boxShadow: '0 4px 16px rgba(99,102,241,0.3)' }}
+                className="w-full border border-white bg-white px-5 py-4 text-sm font-black uppercase tracking-[0.14em] text-black transition-all hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {linkModal.loading ? 'Đang liên kết...' : 'Xác nhận & Liên kết'}
+                {linkModal.loading ? 'ĐANG_LIÊN_KẾT' : 'XÁC_NHẬN_VÀ_LIÊN_KẾT'}
               </button>
 
               <button
                 type="button"
-                onClick={() => setLinkModal(prev => ({ ...prev, open: false }))}
-                className="w-full py-2 text-[11px] text-slate-600 hover:text-slate-400 transition-colors"
+                onClick={() => setLinkModal((prev) => ({ ...prev, open: false }))}
+                className="w-full font-mono text-[11px] uppercase tracking-[0.24em] text-slate-500 transition-colors hover:text-slate-200"
               >
-                Hủy
+                HỦY
               </button>
             </form>
           </div>

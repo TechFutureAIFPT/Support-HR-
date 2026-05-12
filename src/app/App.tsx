@@ -176,13 +176,7 @@ const MainApp = () => {
       />
       {showLoginModal && (
         <div className="fixed inset-0 z-50">
-          <button
-            onClick={() => setShowLoginModal(false)}
-            className="absolute top-4 right-4 w-12 h-12 bg-slate-800/80 backdrop-blur-sm border border-slate-600 rounded-full flex items-center justify-center text-slate-400 hover:text-white hover:border-slate-500 transition-colors z-10"
-          >
-            <i className="fa-solid fa-xmark text-xl"></i>
-          </button>
-          <LoginPage onLogin={handleLogin} />
+          <LoginPage onLogin={handleLogin} onClose={() => setShowLoginModal(false)} />
         </div>
       )}
     </>

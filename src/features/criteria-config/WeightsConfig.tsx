@@ -133,16 +133,16 @@ const WeightsConfig: React.FC<WeightsConfigProps> = memo(({ weights, setWeights,
   return (
     <section id="module-weights" className={`module-pane active relative w-full h-[calc(100vh)] min-h-[400px] flex flex-col`} style={{ background: tc.pageBg }}>
       {/* Background decorations */}
-      <div className="absolute top-0 right-0 w-96 h-96 -full bg-indigo-500/5 blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-72 h-72 -full bg-emerald-500/5 blur-3xl pointer-events-none" />
-      <div className="absolute top-1/3 left-1/4 w-64 h-64 -full bg-violet-500/3 blur-3xl pointer-events-none" />
+      <div className="absolute top-0 right-0 w-96 h-96 -full bg-cyan-500/[0.035] blur-3xl pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-72 h-72 -full bg-emerald-500/[0.03] blur-3xl pointer-events-none" />
+      <div className="absolute top-1/3 left-1/4 w-64 h-64 -full bg-violet-500/[0.025] blur-3xl pointer-events-none" />
 
       {/* ── Header ──────────────────────────────────────────── */}
       <div
         className="shrink-0 border-b flex flex-col md:flex-row md:items-center justify-between px-4 py-3 gap-3"
         style={{
-          background: tc.headerBg,
-          borderColor: 'rgba(99,102,241,0.18)',
+          background: 'linear-gradient(180deg, rgba(4,4,6,0.98) 0%, rgba(0,0,0,0.96) 100%)',
+          borderColor: tc.borderColor,
         }}
       >
         {/* Dòng 1: Logo + Tiêu đề */}
@@ -150,7 +150,7 @@ const WeightsConfig: React.FC<WeightsConfigProps> = memo(({ weights, setWeights,
           {/* Accent bar */}
           <div
             className="h-8 w-[3px] rounded-full shrink-0"
-            style={{ background: 'linear-gradient(180deg, #6366f1, #8b5cf6)' }}
+            style={{ background: 'linear-gradient(180deg, #38bdf8, #818cf8)' }}
           />
 
           <div className="min-w-0 flex-1">
@@ -162,7 +162,7 @@ const WeightsConfig: React.FC<WeightsConfigProps> = memo(({ weights, setWeights,
             </h1>
             <p
               className="text-[9px] font-semibold uppercase tracking-[0.16em] leading-tight mt-0.5"
-              style={{ color: tc.textAccent }}
+              style={{ color: tc.textMuted }}
             >
               Weight Configuration & Hard Filters
             </p>
@@ -181,9 +181,9 @@ const WeightsConfig: React.FC<WeightsConfigProps> = memo(({ weights, setWeights,
                   className="flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-bold transition-all duration-300 whitespace-nowrap"
                   style={
                     isActive
-                      ? { background: 'rgba(99,102,241,0.18)', border: '1px solid rgba(99,102,241,0.35)', color: tc.textSecondary, boxShadow: '0 4px 20px -5px rgba(99,102,241,0.25)' }
+                      ? { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(129,140,248,0.3)', color: tc.textPrimary, boxShadow: '0 10px 28px -20px rgba(96,165,250,0.55)' }
                       : isDone
-                        ? { background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.3)', color: '#34d399' }
+                        ? { background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.24)', color: '#34d399' }
                         : { background: tc.cardBg2, border: tc.borderCard, color: tc.textDim }
                   }
                 >
@@ -191,7 +191,7 @@ const WeightsConfig: React.FC<WeightsConfigProps> = memo(({ weights, setWeights,
                     className="w-5 h-5 rounded flex items-center justify-center text-[9px] font-black shrink-0"
                     style={
                       isActive
-                        ? { background: 'rgba(99,102,241,0.25)', color: '#818cf8' }
+                        ? { background: 'rgba(56,189,248,0.12)', color: '#7dd3fc' }
                         : isDone
                           ? { background: 'rgba(16,185,129,0.2)', color: '#34d399' }
                           : { background: tc.cardBg2, color: tc.textDim }
@@ -204,7 +204,7 @@ const WeightsConfig: React.FC<WeightsConfigProps> = memo(({ weights, setWeights,
                 {i < STEPS.length - 1 && (
                   <div
                     className="h-px w-4 md:w-8 shrink-0"
-                    style={{ background: step > s.num ? 'rgba(16,185,129,0.4)' : (tc.isDark ? 'rgba(255,255,255,0.07)' : 'rgba(99,102,241,0.1)') }}
+                    style={{ background: step > s.num ? 'rgba(16,185,129,0.32)' : 'rgba(255,255,255,0.08)' }}
                   />
                 )}
               </React.Fragment>
@@ -226,7 +226,7 @@ const WeightsConfig: React.FC<WeightsConfigProps> = memo(({ weights, setWeights,
                 <div className="flex items-center gap-3 mb-4">
                   <div
                     className="h-8 w-[3px] -full shrink-0"
-                    style={{ background: 'linear-gradient(180deg, #8b5cf6, #6366f1)' }}
+                    style={{ background: 'linear-gradient(180deg, #38bdf8, #818cf8)' }}
                   />
                   <div>
                     <h3 className="text-sm font-bold text-white">Phân bổ trọng số cho từng tiêu chí</h3>
@@ -250,41 +250,41 @@ const WeightsConfig: React.FC<WeightsConfigProps> = memo(({ weights, setWeights,
         </div>
 
         {/* Right Column: Fixed Controls & Info */}
-        <div className={`w-[340px] lg:w-[400px] shrink-0 border-l flex flex-col h-full relative z-10 backdrop-blur-xl`} style={{ borderColor: tc.borderColor, background: tc.isDark ? 'linear-gradient(180deg, rgba(17,33,58,0.95), rgba(11,25,44,0.95))' : 'linear-gradient(180deg, rgba(248,250,255,0.98), rgba(240,244,255,0.95))', boxShadow: tc.isDark ? '-10px 0 40px -20px rgba(0,0,0,0.3)' : '-10px 0 40px -20px rgba(99,102,241,0.06)' }}>
+        <div className={`w-[340px] lg:w-[400px] shrink-0 border-l flex flex-col h-full relative z-10 backdrop-blur-xl`} style={{ borderColor: tc.borderColor, background: 'linear-gradient(180deg, rgba(4,4,6,0.98), rgba(0,0,0,0.98))', boxShadow: '-14px 0 42px -28px rgba(0,0,0,0.95)' }}>
           <div className="flex flex-col flex-1 h-full overflow-y-auto custom-scrollbar">
             {step === 1 ? (
               <>
                 <div className="p-4 lg:p-5">
                   {/* Progress card */}
-                  <div className=" border mb-3 p-4 relative overflow-hidden" style={{ background: tc.headerBg, borderColor: 'rgba(99,102,241,0.15)' }}>
-                    <div className="absolute top-0 right-0 w-40 h-40 bg-indigo-500/8 -full blur-3xl pointer-events-none -translate-y-1/2 translate-x-1/4" />
+                  <div className=" border mb-3 p-4 relative overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(4,4,6,0.98), rgba(1,1,2,0.96))', borderColor: 'rgba(226,232,240,0.08)' }}>
+                    <div className="absolute top-0 right-0 w-40 h-40 bg-cyan-500/[0.06] -full blur-3xl pointer-events-none -translate-y-1/2 translate-x-1/4" />
 
                     <h4 className="flex items-center gap-2 text-[10px] font-bold mb-3 uppercase tracking-[0.2em] text-white relative z-10">
                       <div
                         className="h-6 w-[2px] -full shrink-0"
-                        style={{ background: 'linear-gradient(180deg, #6366f1, #8b5cf6)' }}
+                        style={{ background: 'linear-gradient(180deg, #38bdf8, #818cf8)' }}
                       />
                       Tiến trình bộ lọc
                     </h4>
 
                     <div className="grid grid-cols-2 gap-2 mb-3">
-                      <div className=" p-3 flex flex-col justify-center items-center relative overflow-hidden" style={{ background: tc.cardBg2, border: tc.border }}>
+                      <div className=" p-3 flex flex-col justify-center items-center relative overflow-hidden" style={{ background: 'rgba(255,255,255,0.03)', border: tc.border }}>
                         <span className="text-2xl font-black text-white mb-0.5 tracking-tighter">{mandatoryProgress.active}</span>
                         <span className="text-[9px] uppercase tracking-[0.2em] font-bold text-slate-400">Đã bật</span>
                       </div>
-                      <div className=" p-3 flex flex-col justify-center items-center relative overflow-hidden" style={{ background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.2)' }}>
+                      <div className=" p-3 flex flex-col justify-center items-center relative overflow-hidden" style={{ background: 'rgba(16,185,129,0.05)', border: '1px solid rgba(16,185,129,0.18)' }}>
                         <span className="text-2xl font-black mb-0.5 tracking-tighter" style={{ color: '#34d399', textShadow: '0 0 20px rgba(52,211,153,0.4)' }}>{mandatoryProgress.fulfilled}</span>
                         <span className="text-[9px] uppercase tracking-[0.2em] font-bold" style={{ color: '#34d399' }}>Hợp lệ</span>
                       </div>
                     </div>
 
-                    <div className="space-y-1.5 p-2.5 relative" style={{ background: tc.cardBg, border: tc.borderSoft }}>
+                    <div className="space-y-1.5 p-2.5 relative" style={{ background: 'rgba(255,255,255,0.025)', border: tc.borderSoft }}>
                       <div className="flex justify-between text-[10px] font-bold tracking-[0.15em]">
                         <span className="uppercase" style={{ color: tc.textMuted }}>Hoàn tất</span>
-                        <span style={{ color: '#818cf8', textShadow: '0 0 10px rgba(99,102,241,0.4)' }}>{mandatoryProgress.percent}%</span>
+                        <span style={{ color: '#7dd3fc', textShadow: '0 0 10px rgba(56,189,248,0.25)' }}>{mandatoryProgress.percent}%</span>
                       </div>
-                      <div className="h-2 -full overflow-hidden relative" style={{ background: tc.isDark ? 'rgba(255,255,255,0.06)' : 'rgba(99,102,241,0.08)', border: tc.borderSoft }}>
-                        <div className="h-full transition-all duration-700 ease-out flex justify-end relative" style={{ width: `${mandatoryProgress.percent}%`, background: 'linear-gradient(90deg, #6366f1, #818cf8)', boxShadow: '0 0 15px rgba(99,102,241,0.5)' }}>
+                      <div className="h-2 -full overflow-hidden relative" style={{ background: 'rgba(255,255,255,0.06)', border: tc.borderSoft }}>
+                        <div className="h-full transition-all duration-700 ease-out flex justify-end relative" style={{ width: `${mandatoryProgress.percent}%`, background: 'linear-gradient(90deg, #38bdf8, #818cf8)', boxShadow: '0 0 15px rgba(56,189,248,0.25)' }}>
                           <div className="absolute top-0 right-0 w-6 h-full" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.3))', filter: 'blur(2px)' }} />
                         </div>
                       </div>
@@ -292,8 +292,8 @@ const WeightsConfig: React.FC<WeightsConfigProps> = memo(({ weights, setWeights,
                   </div>
 
                   {/* Info card */}
-                  <div className="flex items-start gap-2.5 p-3 relative overflow-hidden" style={{ background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.15)' }}>
-                    <div className="h-full w-[2px] -full shrink-0" style={{ background: 'linear-gradient(180deg, #6366f1, #8b5cf6)' }} />
+                  <div className="flex items-start gap-2.5 p-3 relative overflow-hidden" style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(226,232,240,0.08)' }}>
+                    <div className="h-full w-[2px] -full shrink-0" style={{ background: 'linear-gradient(180deg, #38bdf8, #818cf8)' }} />
                     <div>
                       <p className="text-[11px] leading-relaxed font-medium text-slate-300">
                         Tiêu chí được bật <strong className="text-white font-bold">"Bắt buộc"</strong> nhưng chưa điền giá trị sẽ bị <strong className="text-white font-bold">bỏ qua</strong> khi AI phân tích.
@@ -308,9 +308,9 @@ const WeightsConfig: React.FC<WeightsConfigProps> = memo(({ weights, setWeights,
                     onClick={handleFiltersComplete}
                     className="w-full py-2.5 rounded-lg text-white font-bold text-[11px] transition-all flex items-center justify-center gap-2"
                     style={{
-                      background: 'linear-gradient(135deg, #4f46e5, #6366f1)',
-                      border: '1px solid rgba(99,102,241,0.35)',
-                      boxShadow: '0 4px 15px -4px rgba(99,102,241,0.3)',
+                      background: 'linear-gradient(135deg, rgba(10,16,26,0.98), rgba(4,8,14,0.98))',
+                      border: '1px solid rgba(96,165,250,0.28)',
+                      boxShadow: '0 10px 28px -18px rgba(96,165,250,0.55)',
                     }}
                   >
                     Tiếp tục phân bổ trọng số
@@ -329,19 +329,19 @@ const WeightsConfig: React.FC<WeightsConfigProps> = memo(({ weights, setWeights,
               <>
                 <div className="p-4 lg:p-5">
                   {/* Weight display */}
-                  <div className=" border mb-3 p-4 relative overflow-hidden" style={{ background: tc.headerBg, borderColor: 'rgba(99,102,241,0.15)' }}>
+                  <div className=" border mb-3 p-4 relative overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(4,4,6,0.98), rgba(1,1,2,0.96))', borderColor: 'rgba(226,232,240,0.08)' }}>
                     <div className={`absolute top-0 right-0 w-40 h-40 -full blur-3xl -translate-y-1/2 translate-x-1/4 transition-colors duration-700 pointer-events-none ${totalWeight === 100 ? 'bg-emerald-500/10' : totalWeight > 100 ? 'bg-red-500/10' : 'bg-amber-500/10'}`} />
 
                     <h4 className="flex items-center gap-2 text-[10px] font-bold mb-3 uppercase tracking-[0.2em] text-white relative z-10">
                       <div
                         className="h-6 w-[2px] -full shrink-0"
-                        style={{ background: 'linear-gradient(180deg, #6366f1, #8b5cf6)' }}
+                        style={{ background: 'linear-gradient(180deg, #38bdf8, #818cf8)' }}
                       />
                       Tổng trọng số
                     </h4>
 
                     {/* Big number display */}
-                    <div className=" p-3 flex flex-col justify-center items-center relative overflow-hidden mb-3" style={{ background: tc.isDark ? 'rgba(0,0,0,0.2)' : 'rgba(99,102,241,0.03)', border: tc.border }}>
+                    <div className=" p-3 flex flex-col justify-center items-center relative overflow-hidden mb-3" style={{ background: 'rgba(255,255,255,0.025)', border: tc.border }}>
                       <div className="flex items-baseline gap-1 relative z-10 transition-transform duration-500">
                         <span className="text-4xl font-black tracking-tighter transition-all duration-500" style={{
                           color: tc.textPrimary,
@@ -373,7 +373,7 @@ const WeightsConfig: React.FC<WeightsConfigProps> = memo(({ weights, setWeights,
                       const subTotal = c.children?.reduce((s, ch) => s + ch.weight, 0) || 0;
                       const pct = Math.round(subTotal);
                       return (
-                        <div key={c.key} className="flex items-center gap-2 p-1.5 px-2" style={{ background: tc.cardBg, border: tc.border }}>
+                        <div key={c.key} className="flex items-center gap-2 p-1.5 px-2" style={{ background: 'rgba(255,255,255,0.025)', border: tc.border }}>
                           <div className="h-5 w-[2px] -full overflow-hidden flex-shrink-0" style={{ background: pct >= 30 ? '#10b981' : pct >= 15 ? '#3b82f6' : '#f59e0b' }} />
                           <span className="text-[10px] font-medium flex-1 truncate" style={{ color: tc.textSecondary }}>{c.name}</span>
                           <span className="text-[10px] font-bold" style={{ color: tc.textMuted }}>{pct}%</span>
@@ -391,7 +391,7 @@ const WeightsConfig: React.FC<WeightsConfigProps> = memo(({ weights, setWeights,
                     className="w-full py-2.5 rounded-lg font-bold text-[11px] transition-all flex items-center justify-center gap-2"
                     style={
                       totalWeight === 100
-                        ? { background: 'linear-gradient(135deg, #059669, #10b981)', border: '1px solid rgba(16,185,129,0.35)', color: '#fff', boxShadow: '0 4px 15px -4px rgba(16,185,129,0.3)' }
+                        ? { background: 'linear-gradient(135deg, rgba(5,24,18,0.98), rgba(2,8,10,0.98))', border: '1px solid rgba(16,185,129,0.3)', color: '#ecfdf5', boxShadow: '0 10px 28px -18px rgba(16,185,129,0.45)' }
                         : { background: tc.cardBg2, border: tc.borderCard, color: tc.textDim, cursor: 'not-allowed' }
                     }
                   >

@@ -51,10 +51,10 @@ const WeightTile: React.FC<WeightTileProps> = ({ criterion, setWeights, isExpand
 
   return (
     <div
-      className={`rounded-none-none border transition-all duration-300 hover:border-indigo-500/40 ${
+      className={`rounded-none-none border transition-all duration-300 hover:border-sky-400/35 ${
         isExpanded
-          ? 'border-indigo-500/50 bg-[#0F172A] shadow-[0_4px_20px_-4px_rgba(99,102,241,0.1)]'
-          : 'border-slate-800/80 bg-transparent'
+          ? 'border-white/12 bg-white/[0.03] shadow-[0_12px_30px_-20px_rgba(0,0,0,0.9)]'
+          : 'border-white/[0.07] bg-transparent'
       }`}
     >
       <button
@@ -64,13 +64,13 @@ const WeightTile: React.FC<WeightTileProps> = ({ criterion, setWeights, isExpand
         aria-expanded={isExpanded}
       >
         <div className="flex items-center gap-3">
-          <div className={`w-10 h-10 rounded-none-none flex items-center justify-center text-lg ${isExpanded ? 'bg-indigo-500/20 text-indigo-500 border border-indigo-500/30' : 'bg-transparent text-slate-400'}`}>
+          <div className={`w-10 h-10 rounded-none-none flex items-center justify-center text-lg ${isExpanded ? 'bg-sky-500/10 text-sky-300 border border-sky-400/25' : 'bg-white/[0.03] text-slate-400 border border-white/8'}`}>
               <i className={`${criterion.icon}`}></i>
             </div>
             <div>
               <p className={`text-[13px] font-bold tracking-wide ${isExpanded ? 'text-white' : 'text-slate-300'}`}>{criterion.name}</p>
               <div className="flex items-center gap-2 mt-1">
-                 <div className={`h-1.5 w-24 rounded-none-full overflow-hidden bg-[#0B192C]`}>
+                 <div className={`h-1.5 w-24 rounded-none-full overflow-hidden bg-white/[0.06]`}>
                     <div
                         className={`h-full rounded-none-full bg-gradient-to-r ${getProgressColor()}`}
                         style={{ width: `${Math.min(total, 100)}%` }}
@@ -86,7 +86,7 @@ const WeightTile: React.FC<WeightTileProps> = ({ criterion, setWeights, isExpand
               <span className={`text-xl font-bold tracking-tighter ${total > 0 ? 'text-emerald-400' : 'text-slate-500'}`}>{total}</span>
               <span className="text-[10px] text-slate-500 ml-0.5">%</span>
             </div>
-            <div className={`w-6 h-6 rounded-none-none flex items-center justify-center transition-colors ${isExpanded ? 'bg-indigo-500/10 text-indigo-500' : 'bg-transparent text-slate-500'}`}>
+            <div className={`w-6 h-6 rounded-none-none flex items-center justify-center transition-colors ${isExpanded ? 'bg-white/[0.04] text-sky-300' : 'bg-transparent text-slate-500'}`}>
                 <i className={`fa-solid fa-chevron-down text-[10px] transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}></i>
             </div>
         </div>
@@ -96,18 +96,18 @@ const WeightTile: React.FC<WeightTileProps> = ({ criterion, setWeights, isExpand
         className="overflow-hidden transition-[height,opacity] duration-300 ease-in-out"
         style={{ height: isExpanded ? measuredHeight : 0, opacity: isExpanded ? 1 : 0 }}
       >
-        <div ref={contentRef} className={`border-t p-4 space-y-4 rounded-none-none relative border-slate-800/60 bg-transparent`}>
+        <div ref={contentRef} className={`border-t p-4 space-y-4 rounded-none-none relative border-white/[0.07] bg-transparent`}>
             <div className="absolute inset-x-0 top-0 h-4 bg-gradient-to-b from-black/20 to-transparent pointer-events-none"></div>
 
           {criterion.children?.map((child) => {
             const sliderMax = Math.max(60, child.weight);
             const sliderPercent = (child.weight / sliderMax) * 100;
             return (
-              <div key={child.key} className="flex items-center gap-4 p-2.5 rounded-none-none border border-transparent hover:border-slate-700/50 hover:bg-transparent transition-all">
+              <div key={child.key} className="flex items-center gap-4 p-2.5 rounded-none-none border border-transparent hover:border-white/[0.08] hover:bg-white/[0.015] transition-all">
                   <div className="flex-1 min-w-0">
                     <div className="flex justify-between items-center mb-2">
                         <p className={`text-[11px] font-bold truncate tracking-wide text-slate-300`}>{child.name}</p>
-                        <span className="text-[10px] text-indigo-400 font-medium">{child.weight}%</span>
+                        <span className="text-[10px] text-sky-300 font-medium">{child.weight}%</span>
                     </div>
                     <div className="relative group">
                         <input
@@ -116,9 +116,9 @@ const WeightTile: React.FC<WeightTileProps> = ({ criterion, setWeights, isExpand
                             max={sliderMax}
                             value={child.weight}
                             onChange={(e) => handleSubChange(child.key, parseInt(e.target.value, 10))}
-                            className="w-full h-1.5 rounded-none-full appearance-none cursor-pointer bg-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all z-10 relative"
+                            className="w-full h-1.5 rounded-none-full appearance-none cursor-pointer bg-transparent focus:outline-none focus:ring-2 focus:ring-sky-400/20 transition-all z-10 relative"
                             style={{
-                            background: `linear-gradient(90deg, rgba(99,102,241,1) ${sliderPercent}%, rgba(30,41,59,1) ${sliderPercent}%)`,
+                            background: `linear-gradient(90deg, rgba(56,189,248,0.95) ${sliderPercent}%, rgba(255,255,255,0.08) ${sliderPercent}%)`,
                             }}
                         />
                     </div>
@@ -130,7 +130,7 @@ const WeightTile: React.FC<WeightTileProps> = ({ criterion, setWeights, isExpand
                           max={100}
                           value={child.weight}
                           onChange={(e) => handleSubChange(child.key, parseInt(e.target.value, 10))}
-                          className={`w-14 rounded-none-none border pl-2 pr-4 py-1.5 text-xs font-bold text-center focus:outline-none focus:ring-1 focus:ring-indigo-500/50 transition-all appearance-none border-slate-700/60 bg-transparent text-white focus:border-indigo-500/50 focus:bg-[#0B1221]`}
+                          className={`w-14 rounded-none-none border pl-2 pr-4 py-1.5 text-xs font-bold text-center focus:outline-none focus:ring-1 focus:ring-sky-400/30 transition-all appearance-none border-white/[0.08] bg-[#040506] text-white focus:border-sky-400/35 focus:bg-[#07090d]`}
                       />
                       <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-500 pointer-events-none font-bold">%</span>
                   </div>

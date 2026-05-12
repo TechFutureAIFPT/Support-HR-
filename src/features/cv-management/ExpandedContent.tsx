@@ -277,7 +277,7 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
   }
 
   return (
-    <div className={`rounded-xl border transition-all duration-200 hover:shadow-md ${isAdvanced ? `${meta.accent} hover:shadow-fuchsia-500/5` : 'border-slate-800/60 bg-[#0f1729] hover:border-cyan-500/25 hover:shadow-cyan-500/5'}`}>
+    <div className={`rounded-xl border transition-all duration-200 hover:shadow-md ${isAdvanced ? `${meta.accent} hover:shadow-fuchsia-500/5` : 'border-white/[0.08] bg-[#05070b] hover:border-cyan-500/25 hover:shadow-cyan-500/5'}`}>
       <button className="flex min-h-[56px] w-full items-center justify-between p-3.5 text-left" onClick={onToggle} aria-expanded={isExpanded}>
         <div className="flex min-w-0 items-center gap-3">
           <i className={`${meta.icon} ${meta.color} w-5 text-center text-lg`}></i>
@@ -327,7 +327,7 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
 
           <div className={`grid grid-cols-1 ${isExperience || requirementComparison ? 'xl:grid-cols-3' : 'xl:grid-cols-2'} gap-4`}>
             {/* Dẫn chứng */}
-            <div className="rounded-xl border border-slate-800/60 bg-slate-900/40 p-5">
+            <div className="rounded-xl border border-white/[0.08] bg-white/[0.025] p-5">
               <div className="mb-2 flex items-center justify-between">
                 <h5 className="text-base font-bold text-slate-200">Dẫn chứng (trích từ CV)</h5>
                 <button type="button" onClick={(e) => { e.stopPropagation(); handleCopy(); }} className="flex items-center gap-1.5 text-xs text-slate-500 transition-colors hover:text-cyan-400">
@@ -370,7 +370,7 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
             )}
 
             {/* Giải thích & Công thức */}
-            <div className="rounded-xl border border-slate-800/60 bg-slate-900/40 p-5">
+            <div className="rounded-xl border border-white/[0.08] bg-white/[0.025] p-5">
               <h5 className="mb-4 text-base font-bold text-slate-100">Giải thích & Công thức</h5>
 
               {/* Giải thích đa chỉ — hiển thị cả basic lẫn advanced */}
@@ -517,7 +517,7 @@ const JDOriginalPanel: React.FC<JDOriginalPanelProps> = ({ jdText, rawJdText }) 
   };
 
   return (
-    <div className="rounded-xl border border-slate-800/60 bg-[#0f1729] shadow-sm overflow-hidden">
+    <div className="rounded-xl border border-white/[0.08] bg-[#05070b] shadow-sm overflow-hidden">
       {/* ── Header (luôn hiển thị) */}
       <button
         onClick={() => setIsOpen(prev => !prev)}
@@ -702,26 +702,26 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
     <div className="space-y-4 p-2 md:p-4">
 
       {/* ── Tổng hợp đánh giá ─────────────────────────────── */}
-      <div className="rounded-xl border border-slate-800/60 bg-[#0f1729] p-5 shadow-sm">
+      <div className="rounded-xl border border-white/[0.08] bg-[#05070b] p-5 shadow-sm">
         <div className="flex flex-col items-start justify-between gap-4 md:flex-row">
           <h4 className="flex items-center gap-2 text-lg font-semibold text-slate-100">
             <i className="fa-solid fa-chart-pie text-cyan-400" />
             Tổng hợp đánh giá
           </h4>
           <div className="grid w-full grid-cols-4 gap-2 md:w-auto">
-            <div className="rounded-lg border border-slate-800/60 bg-slate-900/50 px-3 py-2 text-xs">
+            <div className="rounded-lg border border-white/[0.08] bg-white/[0.025] px-3 py-2 text-xs">
               <div className="text-slate-500">Tổng điểm</div>
               <div className="font-semibold text-slate-100">{totalScore}<span className="text-slate-500">/100</span></div>
             </div>
-            <div className="rounded-lg border border-cyan-500/25 bg-cyan-500/5 px-3 py-2 text-xs">
+            <div className="rounded-lg border border-cyan-500/20 bg-cyan-500/[0.045] px-3 py-2 text-xs">
               <div className="text-cyan-500/70">Cơ bản</div>
               <div className="font-semibold text-cyan-300">{basicScore.toFixed(1)}<span className="text-slate-500">/{BASIC_TOTAL_MAX}</span></div>
             </div>
-            <div className="rounded-lg border border-violet-500/25 bg-violet-500/5 px-3 py-2 text-xs">
+            <div className="rounded-lg border border-violet-500/20 bg-violet-500/[0.045] px-3 py-2 text-xs">
               <div className="text-violet-400/70">Nâng cao</div>
               <div className="font-semibold text-violet-300">{advancedScore.toFixed(1)}<span className="text-slate-500">/{ADVANCED_TOTAL_MAX}</span></div>
             </div>
-            <div className="rounded-lg border border-slate-800/60 bg-slate-900/50 px-3 py-2 text-xs">
+            <div className="rounded-lg border border-white/[0.08] bg-white/[0.025] px-3 py-2 text-xs">
               <div className="text-slate-500">Phù hợp JD</div>
               <div className="font-semibold text-emerald-400">{matchPercent}%</div>
             </div>
@@ -732,7 +732,7 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
         <div className="mt-4 space-y-1.5">
           <div className="flex items-center gap-2 text-[11px] text-slate-500">
             <span className="w-16 text-cyan-500/80">Cơ bản</span>
-            <div className="flex-1 h-2 rounded-full bg-slate-800 overflow-hidden">
+            <div className="flex-1 h-2 rounded-full bg-white/[0.08] overflow-hidden">
               <div className="h-full rounded-full bg-cyan-500 transition-all duration-700"
                 style={{ width: `${Math.min(100, (basicScore / BASIC_TOTAL_MAX) * 100)}%` }} />
             </div>
@@ -740,7 +740,7 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
           </div>
           <div className="flex items-center gap-2 text-[11px] text-slate-500">
             <span className="w-16 text-violet-400/80">Nâng cao</span>
-            <div className="flex-1 h-2 rounded-full bg-slate-800 overflow-hidden">
+            <div className="flex-1 h-2 rounded-full bg-white/[0.08] overflow-hidden">
               <div className="h-full rounded-full bg-violet-500 transition-all duration-700"
                 style={{ width: `${Math.min(100, (advancedScore / ADVANCED_TOTAL_MAX) * 100)}%` }} />
             </div>
@@ -748,7 +748,7 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
           </div>
         </div>
 
-        <div className="mt-3 rounded-lg border border-slate-800/60 bg-slate-900/40 px-4 py-3 text-sm">
+        <div className="mt-3 rounded-lg border border-white/[0.08] bg-white/[0.025] px-4 py-3 text-sm">
           <span className="font-semibold text-slate-200">Nhận định:</span>{' '}
           <span className="text-slate-400">{recommendation}</span>
         </div>
@@ -757,7 +757,7 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
       {/* ── Điểm mạnh / yếu ────────────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {candidate.analysis?.['Điểm mạnh CV'] && (
-          <div className="p-4 bg-emerald-900/20 border border-emerald-500/25 rounded-xl">
+          <div className="p-4 bg-[#05070b] border border-emerald-500/20 rounded-xl">
             <p className="font-semibold text-green-300 mb-2 flex items-center gap-2 text-base">
               <i className="fa-solid fa-wand-magic-sparkles"></i>Điểm mạnh CV
             </p>
@@ -767,7 +767,7 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
           </div>
         )}
         {candidate.analysis?.['Điểm yếu CV'] && (
-          <div className="p-4 bg-rose-900/20 border border-rose-500/25 rounded-xl">
+          <div className="p-4 bg-[#05070b] border border-rose-500/20 rounded-xl">
             <p className="font-semibold text-red-300 mb-2 flex items-center gap-2 text-base">
               <i className="fa-solid fa-flag"></i>Điểm yếu CV
             </p>
@@ -780,13 +780,13 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
 
       {/* ── Cảnh báo AI Debiasing ────────────────────────────── */}
       {candidate.debiasingWarnings && candidate.debiasingWarnings.length > 0 && (
-        <div className="rounded-xl border border-amber-500/30 bg-amber-900/15 p-4 shadow-sm">
+        <div className="rounded-xl border border-amber-500/25 bg-[#05070b] p-4 shadow-sm">
           <h4 className="mb-3 flex items-center gap-2 text-base font-bold text-amber-300">
             <i className="fa-solid fa-scale-balanced"></i> Cảnh báo Đạo đức AI
           </h4>
           <ul className="space-y-2">
             {candidate.debiasingWarnings.map((w, idx) => (
-              <li key={idx} className="flex items-start gap-2 rounded-lg border border-amber-500/20 bg-amber-950/30 p-2.5">
+              <li key={idx} className="flex items-start gap-2 rounded-lg border border-amber-500/20 bg-white/[0.025] p-2.5">
                 <i className="fa-solid fa-triangle-exclamation text-amber-400 mt-0.5 shrink-0"></i>
                 <span className="text-sm text-amber-200/80 leading-relaxed">{w}</span>
               </li>
@@ -797,11 +797,11 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
 
       {/* ── Education Validation ─────────────────────────────── */}
       {candidate.analysis?.educationValidation && (
-        <div className="rounded-xl border border-slate-800/60 bg-[#0f1729] p-4 shadow-sm">
+        <div className="rounded-xl border border-white/[0.08] bg-[#05070b] p-4 shadow-sm">
           <h4 className="mb-3 flex items-center gap-2 text-base font-bold text-slate-100">
             <i className="fa-solid fa-graduation-cap text-indigo-400"></i> Xác thực học vấn
           </h4>
-          <div className="flex items-center justify-between gap-2 rounded-lg border border-slate-800/60 bg-slate-900/40 p-3">
+          <div className="flex items-center justify-between gap-2 rounded-lg border border-white/[0.08] bg-white/[0.025] p-3">
             <p className="font-mono text-sm text-slate-300">{candidate.analysis.educationValidation.standardizedEducation || 'Không có thông tin'}</p>
             <span className={`shrink-0 rounded border px-2 py-1 text-xs font-semibold ${candidate.analysis.educationValidation.validationNote === 'Hợp lệ' ? 'border-emerald-500/35 bg-emerald-500/10 text-emerald-300' : 'border-red-500/35 bg-red-500/10 text-red-300'}`}>
               {candidate.analysis.educationValidation.validationNote}
@@ -816,15 +816,15 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
       )}
 
       {/* ── Tab chuyển đổi Cơ bản / Nâng cao ───────────────── */}
-      <div className="rounded-xl border border-slate-800/60 bg-[#0a0f1e] overflow-hidden">
+      <div className="rounded-xl border border-white/[0.08] bg-[#030405] overflow-hidden">
 
         {/* Tab header */}
-        <div className="flex border-b border-slate-800/60">
+        <div className="flex border-b border-white/[0.08]">
           <button
             onClick={() => setActiveTab('basic')}
             className={`relative flex-1 flex items-center justify-center gap-2.5 px-4 py-4 text-sm font-semibold transition-all duration-200 ${activeTab === 'basic'
               ? 'text-cyan-300 bg-cyan-500/8'
-              : 'text-slate-500 hover:text-slate-300 hover:bg-slate-800/30'
+              : 'text-slate-500 hover:text-slate-300 hover:bg-white/[0.025]'
               }`}
           >
             {activeTab === 'basic' && (
@@ -834,19 +834,19 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
             <span>Tiêu chí cơ bản</span>
             <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold border ${activeTab === 'basic'
               ? 'border-cyan-500/40 bg-cyan-500/15 text-cyan-300'
-              : 'border-slate-700 bg-slate-800 text-slate-400'
+               : 'border-white/[0.08] bg-white/[0.025] text-slate-400'
               }`}>{BASIC_TOTAL_MAX} điểm</span>
             <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${basicScore / BASIC_TOTAL_MAX >= 0.8 ? 'text-emerald-400' : basicScore / BASIC_TOTAL_MAX >= 0.6 ? 'text-amber-400' : 'text-red-400'
               }`}>{basicScore.toFixed(1)}/{BASIC_TOTAL_MAX}</span>
           </button>
 
-          <div className="w-px bg-slate-800/60 my-2" />
+          <div className="w-px bg-white/[0.08] my-2" />
 
           <button
             onClick={() => setActiveTab('advanced')}
             className={`relative flex-1 flex items-center justify-center gap-2.5 px-4 py-4 text-sm font-semibold transition-all duration-200 ${activeTab === 'advanced'
               ? 'text-violet-300 bg-violet-500/8'
-              : 'text-slate-500 hover:text-slate-300 hover:bg-slate-800/30'
+              : 'text-slate-500 hover:text-slate-300 hover:bg-white/[0.025]'
               }`}
           >
             {activeTab === 'advanced' && (
@@ -856,7 +856,7 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
             <span>Tiêu chí nâng cao</span>
             <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold border ${activeTab === 'advanced'
               ? 'border-violet-500/40 bg-violet-500/15 text-violet-300'
-              : 'border-slate-700 bg-slate-800 text-slate-400'
+               : 'border-white/[0.08] bg-white/[0.025] text-slate-400'
               }`}>{ADVANCED_TOTAL_MAX} điểm</span>
             <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${advancedScore / ADVANCED_TOTAL_MAX >= 0.8 ? 'text-emerald-400' : advancedScore / ADVANCED_TOTAL_MAX >= 0.6 ? 'text-amber-400' : 'text-red-400'
               }`}>{advancedScore.toFixed(1)}/{ADVANCED_TOTAL_MAX}</span>
@@ -868,7 +868,7 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
         <div className="p-4">
           {activeTab === 'basic' && (
             <div className="space-y-3">
-              <div className="flex items-center gap-2 mb-3 pb-2 border-b border-slate-800/40">
+              <div className="flex items-center gap-2 mb-3 pb-2 border-b border-white/[0.06]">
                 <i className="fa-solid fa-circle-info text-cyan-500/60 text-xs"></i>
                 <p className="text-[11px] text-slate-500">10 tiêu chí cốt lõi · Tổng phổ điểm <span className="text-cyan-400 font-bold">{BASIC_TOTAL_MAX}</span> điểm · Đánh giá nền tảng ứng viên</p>
               </div>
@@ -899,7 +899,7 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
 
           {activeTab === 'advanced' && (
             <div className="space-y-3">
-              <div className="flex items-center gap-2 mb-3 pb-2 border-b border-slate-800/40">
+              <div className="flex items-center gap-2 mb-3 pb-2 border-b border-white/[0.06]">
                 <i className="fa-solid fa-circle-info text-violet-500/60 text-xs"></i>
                 <p className="text-[11px] text-slate-500">5 tiêu chí AI nâng cao · Mỗi tiêu chí tối đa <span className="text-violet-400 font-bold">{ADVANCED_MAX_PER}</span> điểm · Tổng <span className="text-violet-400 font-bold">{ADVANCED_TOTAL_MAX}</span> điểm · Phân tích hành vi & tiềm năng</p>
               </div>

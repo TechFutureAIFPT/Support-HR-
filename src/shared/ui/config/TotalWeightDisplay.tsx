@@ -18,11 +18,11 @@ const TotalWeightDisplay: React.FC<TotalWeightDisplayProps> = ({ totalWeight }) 
   }, [totalWeight]);
 
   return (
-    <div className={`flex items-center gap-4 p-3 rounded-xl border bg-slate-900/40 border-slate-800`}>
+    <div className={`flex items-center gap-4 p-3 rounded-xl border bg-white/[0.025] border-white/[0.08]`}>
       <div className="relative w-16 h-16 shrink-0">
         <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
           <path
-            className="text-slate-800"
+            className="text-white/10"
             d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
             fill="none"
             stroke="currentColor"
@@ -43,7 +43,7 @@ const TotalWeightDisplay: React.FC<TotalWeightDisplayProps> = ({ totalWeight }) 
 
       <div className="flex-1">
         <p className={`text-sm font-medium ${status.color} mb-1`}>{status.label}</p>
-        <div className={`h-1.5 w-full rounded-full overflow-hidden bg-slate-800`}>
+        <div className={`h-1.5 w-full rounded-full overflow-hidden bg-white/[0.08]`}>
           <div
             className="h-full rounded-full transition-all duration-500"
             style={{
