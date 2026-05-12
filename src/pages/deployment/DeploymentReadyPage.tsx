@@ -9,7 +9,7 @@ const DeploymentReadyPage: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-[#040814] flex items-center justify-center relative overflow-hidden">
+    <div className="min-h-screen bg-black flex items-center justify-center relative overflow-hidden">
       {/* Background grid */}
       <div className="absolute inset-0 opacity-[0.025]"
         style={{

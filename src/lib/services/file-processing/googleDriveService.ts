@@ -111,7 +111,7 @@ function createDriveSelectionModal(files: DriveFile[], multiSelect: boolean): Pr
     const panel = document.createElement('div');
     panel.style.width = 'min(860px, 100%)';
     panel.style.maxHeight = '80vh';
-    panel.style.background = '#0B1120';
+    panel.style.background = '#000000';
     panel.style.border = '1px solid rgba(148, 163, 184, 0.16)';
     panel.style.borderRadius = '20px';
     panel.style.overflow = 'hidden';

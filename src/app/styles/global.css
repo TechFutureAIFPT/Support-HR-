@@ -292,6 +292,10 @@
   background-color: rgba(8, 8, 10, 0.3) !important;
 }
 
+[class~="bg-[#11213A]/40"] {
+  background-color: rgba(8, 8, 10, 0.4) !important;
+}
+
 [class~="bg-[#11213A]/50"] {
   background-color: rgba(8, 8, 10, 0.5) !important;
 }
@@ -312,13 +316,27 @@
   background-color: rgba(4, 4, 6, 0.8) !important;
 }
 
+[class~="bg-[#040814]/50"] {
+  background-color: rgba(2, 2, 4, 0.5) !important;
+}
+
 [class~="hover:bg-[#11213A]"]:hover {
   background-color: rgba(14, 14, 18, 0.96) !important;
+}
+
+[class~="focus:bg-[#11213A]"]:focus {
+  background-color: rgba(10, 10, 12, 0.96) !important;
 }
 
 [class~="from-[#0B1120]"] {
   --tw-gradient-from: #000000 var(--tw-gradient-from-position) !important;
   --tw-gradient-to: rgb(0 0 0 / 0) var(--tw-gradient-to-position) !important;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
+}
+
+[class~="from-[#0f172a]"] {
+  --tw-gradient-from: rgba(9, 9, 11, 0.96) var(--tw-gradient-from-position) !important;
+  --tw-gradient-to: rgb(9 9 11 / 0) var(--tw-gradient-to-position) !important;
   --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
 }
 

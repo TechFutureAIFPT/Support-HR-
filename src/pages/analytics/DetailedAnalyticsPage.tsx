@@ -137,7 +137,7 @@ const DetailedAnalyticsPage: React.FC<DetailedAnalyticsPageProps> = ({ candidate
 
   if (!analyticsData) {
     return (
-      <div className="feature-page-shell flex h-full min-h-0 w-full flex-1 flex-col items-center justify-center bg-gradient-to-br from-[#0B192C] via-[#11213A] to-[#0B192C] px-4 text-center">
+      <div className="feature-page-shell flex h-full min-h-0 w-full flex-1 flex-col items-center justify-center bg-black px-4 text-center">
         <div className="mb-6 flex h-24 w-24 items-center justify-center  border border-slate-800/60 bg-[#11213A] shadow-2xl shadow-black/30">
           <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#475569" strokeWidth="1.5" className="text-slate-600">
             <path d="M3 3v18h18" strokeLinecap="round" strokeLinejoin="round" />
@@ -187,7 +187,7 @@ const DetailedAnalyticsPage: React.FC<DetailedAnalyticsPageProps> = ({ candidate
   ];
 
   return (
-    <div className="feature-page-shell flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden bg-gradient-to-br from-[#0B192C] via-[#11213A] to-[#0B192C]">
+    <div className="feature-page-shell flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden bg-black">
 
       {/* ── Unified Global Header ─────────────────────────────────── */}
       <div className="shrink-0 flex flex-col md:flex-row md:items-center justify-between border-b px-5 py-3 gap-3 z-10" style={{ background: tc.headerBg, borderColor: tc.borderSoft }}>

@@ -253,7 +253,7 @@ const CVUpload: React.FC<CVUploadProps> = memo((props) => {
             <div className="lg:col-span-5 flex flex-col h-full gap-4">
               {/* Upload Zone */}
               <div className="relative group flex-1 flex flex-col">
-                 <div className="relative flex-1 flex flex-col p-6 text-center justify-center items-center transition-all border-2 border-dashed border-indigo-500/20 hover:border-indigo-500/40 hover:bg-indigo-500/5" style={{ background: tc.isDark ? '#11213A' : '#f8faff' }}>
+                 <div className="relative flex-1 flex flex-col p-6 text-center justify-center items-center transition-all border-2 border-dashed border-indigo-500/20 hover:border-indigo-500/40 hover:bg-indigo-500/5" style={{ background: tc.isDark ? '#08080a' : '#f8faff' }}>
                      <div
                        className="w-16 h-16 mx-auto mb-6 flex items-center justify-center transition-transform duration-300 group-hover:scale-110 group-hover:-translate-y-1 shadow-lg shadow-indigo-500/10"
                        style={{ background: 'linear-gradient(135deg, rgba(99,102,241,0.15), rgba(59,130,246,0.1))', border: '1px solid rgba(99,102,241,0.2)' }}
@@ -332,7 +332,7 @@ const CVUpload: React.FC<CVUploadProps> = memo((props) => {
             </div>
 
             {/* Right Column: File List (7 cols) */}
-            <div className="lg:col-span-7 flex flex-col h-full overflow-hidden" style={{ background: tc.isDark ? '#11213A' : '#ffffff', border: tc.border }}>
+            <div className="lg:col-span-7 flex flex-col h-full overflow-hidden" style={{ background: tc.isDark ? '#08080a' : '#ffffff', border: tc.border }}>
                <div className="p-4 flex items-center justify-between" style={{ borderBottom: tc.borderSoft }}>
                   <h4 className="font-medium text-sm text-white">Danh sách hồ sơ</h4>
                   <div className="flex items-center gap-2">

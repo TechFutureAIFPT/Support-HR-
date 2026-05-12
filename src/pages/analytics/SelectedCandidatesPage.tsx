@@ -151,7 +151,7 @@ const SelectedCandidatesPage: React.FC<SelectedCandidatesPageProps> = ({ candida
     : 0;
 
   return (
-    <div className="feature-page-shell flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden bg-gradient-to-br from-[#0B192C] via-[#11213A] to-[#0B192C]">
+    <div className="feature-page-shell flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden bg-black">
 
       {/* ── Actions & Summary Stats ──────────────────────────────── */}
       {selectedCandidates.length > 0 && (

@@ -34,7 +34,7 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({ candidates, jobPosition
 
   if (validCandidates.length === 0) {
     return (
-      <div className="feature-page-shell flex h-full flex-col items-center justify-center p-8 text-center bg-gradient-to-br from-[#0B192C] via-[#11213A] to-[#0B192C]">
+      <div className="feature-page-shell flex h-full flex-col items-center justify-center p-8 text-center bg-black">
         <div className="mb-6 flex h-24 w-24 items-center justify-center border border-slate-800/60 bg-[#11213A] shadow-2xl shadow-black/30 rounded-2xl">
           <Brain className="h-10 w-10 text-slate-600" />
         </div>
@@ -55,8 +55,8 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({ candidates, jobPosition
 
   if (currentView === 'summary') {
     return (
-      <div className="feature-page-shell fixed inset-0 z-[9999] bg-[#0B192C]/80 backdrop-blur-md flex items-center justify-center p-4">
-        <div className="bg-gradient-to-br from-[#11213A] to-[#0A1628] border border-slate-700/60 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] rounded-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-300">
+      <div className="feature-page-shell fixed inset-0 z-[9999] bg-black/82 backdrop-blur-md flex items-center justify-center p-4">
+        <div className="bg-gradient-to-br from-[#0b0b0f] to-[#020202] border border-slate-700/60 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] rounded-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-300">
           
           <div className="p-8 text-center">
             <div className="mx-auto flex items-center justify-center w-14 h-14 rounded-full bg-emerald-500/10 border border-emerald-500/20 mb-6">
@@ -130,7 +130,7 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({ candidates, jobPosition
 
   // --- Feedback View ---
   return (
-    <div className="feature-page-shell flex h-full flex-col lg:flex-row bg-[#0B192C] p-4 md:p-6 gap-4 md:gap-6 animate-in fade-in duration-300">
+    <div className="feature-page-shell flex h-full flex-col lg:flex-row bg-black p-4 md:p-6 gap-4 md:gap-6 animate-in fade-in duration-300">
       {/* ── Sidebar Danh sách Ứng viên ── */}
       <div className="w-full lg:w-[320px] shrink-0 flex flex-col bg-[#11213A] border border-slate-800/50 overflow-hidden shadow-xl shadow-black/20 rounded-xl">
         <div className="p-4 border-b border-slate-800/60 bg-slate-900/40">
@@ -188,7 +188,7 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({ candidates, jobPosition
       <div className="flex-1 bg-[#11213A] border border-slate-800/50 overflow-y-auto custom-scrollbar shadow-xl shadow-black/20 rounded-xl">
         {selectedCandidate ? (
           <div className="h-full flex flex-col">
-            <div className="px-6 py-5 border-b border-slate-800/50 bg-gradient-to-r from-[#11213A] to-slate-900/50 shrink-0">
+            <div className="px-6 py-5 border-b border-slate-800/50 bg-gradient-to-r from-[#0b0b0f] to-slate-950/60 shrink-0">
               <h1 className="text-xl font-bold flex items-center gap-3 text-slate-100">
                 Hiệu chỉnh AI cho ứng viên: 
                 <span className="text-rose-400">{selectedCandidate.candidateName}</span>
