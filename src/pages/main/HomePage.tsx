@@ -40,7 +40,7 @@ const statusStyles: Record<ComparisonCell["status"], { icon: string; badgeClass:
 const comparisonRowsMobile = comparisonRows.slice(0, 5);
 
 const ComparisonTable = ({ rows }: { rows: typeof comparisonRows }) => (
-  <div className="min-w-[680px] overflow-hidden rounded-none border border-white/8 bg-black/90 shadow-[0_28px_65px_rgba(0,0,0,0.28)]">
+  <div className="w-full min-w-[880px] overflow-hidden rounded-none border border-white/8 bg-black/90 shadow-[0_28px_65px_rgba(0,0,0,0.28)]">
     <div className="grid grid-cols-[1.5fr_1fr_1fr] border-b border-white/6 bg-white/[0.035] px-5 py-3 text-[10px] uppercase tracking-[0.35em] text-slate-600 font-mono">
       <div>Tiêu chí</div>
       <div><p className="text-slate-300 text-xs normal-case font-semibold">ChatGPT</p><p className="text-[10px] text-slate-600 normal-case mt-0.5">AI tổng quát</p></div>
@@ -292,7 +292,7 @@ const HomePage: React.FC<HomePageProps> = ({
             </div>
 
             {/* Desktop Table */}
-            <div className="hidden md:block overflow-x-auto"><ComparisonTable rows={comparisonRows} /></div>
+            <div className="hidden w-full md:block overflow-x-auto"><ComparisonTable rows={comparisonRows} /></div>
 
             {/* Mobile Cards */}
             <div className="md:hidden space-y-3">
