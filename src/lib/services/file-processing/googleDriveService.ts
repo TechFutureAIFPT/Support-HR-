@@ -45,6 +45,15 @@ type ImportedDriveFile = File & {
 };
 
 const GOOGLE_OAUTH_QUERY_KEYS = ['code', 'state', 'scope', 'prompt', 'authuser', 'error'];
+const GOOGLE_DRIVE_PENDING_IMPORT_KEY = 'supporthr.google-drive.pending-import';
+const GOOGLE_REDIRECT_IN_PROGRESS_MESSAGE = 'Đang chuyển tới Google để kết nối Google Drive.';
+
+interface PendingGoogleDriveImportRequest {
+  mimeTypes?: string;
+  multiSelect?: boolean;
+  fileType: 'cv' | 'jd';
+  redirectUri: string;
+}
 
 function normalizeDriveFile(raw: Record<string, unknown>): DriveFile {
   return {
@@ -77,7 +86,46 @@ function formatFileSize(size: number): string {
 }
 
 function buildRedirectUri(): string {
+  const configuredRedirectUri = import.meta.env.VITE_GOOGLE_DRIVE_REDIRECT_URI?.trim();
+  if (configuredRedirectUri) return configuredRedirectUri;
   return `${window.location.origin}/jd`;
+}
+
+function getPendingGoogleDriveImport(): PendingGoogleDriveImportRequest | null {
+  try {
+    const raw = window.sessionStorage.getItem(GOOGLE_DRIVE_PENDING_IMPORT_KEY);
+    if (!raw) return null;
+
+    const parsed = JSON.parse(raw) as Partial<PendingGoogleDriveImportRequest>;
+    if (parsed.fileType !== 'cv' && parsed.fileType !== 'jd') return null;
+
+    return {
+      mimeTypes: typeof parsed.mimeTypes === 'string' ? parsed.mimeTypes : undefined,
+      multiSelect: Boolean(parsed.multiSelect),
+      fileType: parsed.fileType,
+      redirectUri: typeof parsed.redirectUri === 'string' && parsed.redirectUri.trim()
+        ? parsed.redirectUri
+        : buildRedirectUri(),
+    };
+  } catch {
+    return null;
+  }
+}
+
+function setPendingGoogleDriveImport(payload: PendingGoogleDriveImportRequest) {
+  try {
+    window.sessionStorage.setItem(GOOGLE_DRIVE_PENDING_IMPORT_KEY, JSON.stringify(payload));
+  } catch {
+    // Ignore storage failures and let the normal OAuth flow continue.
+  }
+}
+
+function clearPendingGoogleDriveImport() {
+  try {
+    window.sessionStorage.removeItem(GOOGLE_DRIVE_PENDING_IMPORT_KEY);
+  } catch {
+    // Ignore storage failures.
+  }
 }
 
 function cleanupOAuthParams() {
@@ -264,6 +312,27 @@ function createDriveSelectionModal(files: DriveFile[], multiSelect: boolean): Pr
 class GoogleDriveService {
   private pendingExchangePromise: Promise<void> | null = null;
 
+  private isGoogleRedirectInProgress(error: unknown): boolean {
+    return error instanceof Error && error.message === GOOGLE_REDIRECT_IN_PROGRESS_MESSAGE;
+  }
+
+  private async performPickAndImport(options: {
+    mimeTypes?: string;
+    multiSelect?: boolean;
+    fileType: 'cv' | 'jd';
+    redirectUri?: string;
+  }): Promise<ImportedDriveFile[]> {
+    const selectedFiles = await this.openPicker(options);
+    if (selectedFiles.length === 0) return [];
+
+    const imported: ImportedDriveFile[] = [];
+    for (const file of selectedFiles) {
+      imported.push(await this.importFile(file.id, options.fileType));
+    }
+
+    return imported;
+  }
+
   private async completeOAuthCallbackIfNeeded(): Promise<void> {
     if (this.pendingExchangePromise) return this.pendingExchangePromise;
 
@@ -282,12 +351,13 @@ class GoogleDriveService {
         }
 
         if (code && state) {
+          const pendingImport = getPendingGoogleDriveImport();
           await apiPost(
             '/api/account/google-drive/exchange-code',
             {
               code,
               state,
-              redirectUri: buildRedirectUri(),
+              redirectUri: pendingImport?.redirectUri || buildRedirectUri(),
             },
             { authRequired: true }
           );
@@ -306,7 +376,7 @@ class GoogleDriveService {
     return apiGet<GoogleDriveConnectionStatus>('/api/account/google-drive/status', { authRequired: true });
   }
 
-  public async authenticate(): Promise<string> {
+  public async authenticate(redirectUri: string = buildRedirectUri()): Promise<string> {
     await this.completeOAuthCallbackIfNeeded();
     const status = await this.getStatus();
 
@@ -316,16 +386,18 @@ class GoogleDriveService {
 
     const response = await apiPost<GoogleDriveOAuthUrlResponse>(
       '/api/account/google-drive/oauth-url',
-      { redirectUri: buildRedirectUri() },
+      { redirectUri },
       { authRequired: true }
     );
 
     window.location.href = response.authUrl;
+    throw new Error(GOOGLE_REDIRECT_IN_PROGRESS_MESSAGE);
     throw new Error('Đang chuyển tới Google để kết nối Google Drive.');
   }
 
-  public async listFiles(options: { mimeTypes?: string; pageSize?: number } = {}): Promise<DriveFile[]> {
+  public async listFiles(options: { mimeTypes?: string; pageSize?: number; redirectUri?: string } = {}): Promise<DriveFile[]> {
     await this.completeOAuthCallbackIfNeeded();
+    await this.authenticate(options.redirectUri);
 
     let pageToken: string | null | undefined;
     const files: DriveFile[] = [];
@@ -351,9 +423,8 @@ class GoogleDriveService {
     return filterByMimeTypes(files, options.mimeTypes);
   }
 
-  public async openPicker(options: { mimeTypes?: string; multiSelect?: boolean }): Promise<DriveFile[]> {
-    await this.authenticate();
-    const files = await this.listFiles({ mimeTypes: options.mimeTypes });
+  public async openPicker(options: { mimeTypes?: string; multiSelect?: boolean; redirectUri?: string }): Promise<DriveFile[]> {
+    const files = await this.listFiles({ mimeTypes: options.mimeTypes, redirectUri: options.redirectUri });
     return createDriveSelectionModal(files, Boolean(options.multiSelect));
   }
 
@@ -386,15 +457,53 @@ class GoogleDriveService {
     multiSelect?: boolean;
     fileType: 'cv' | 'jd';
   }): Promise<ImportedDriveFile[]> {
-    const selectedFiles = await this.openPicker(options);
-    if (selectedFiles.length === 0) return [];
+    const pendingRequest: PendingGoogleDriveImportRequest = {
+      ...options,
+      redirectUri: buildRedirectUri(),
+    };
+    setPendingGoogleDriveImport(pendingRequest);
 
-    const imported: ImportedDriveFile[] = [];
-    for (const file of selectedFiles) {
-      imported.push(await this.importFile(file.id, options.fileType));
+    try {
+      const imported = await this.performPickAndImport(pendingRequest);
+      clearPendingGoogleDriveImport();
+      return imported;
+    } catch (error) {
+      if (!this.isGoogleRedirectInProgress(error)) {
+        clearPendingGoogleDriveImport();
+      }
+      throw error;
+    }
+  }
+
+  public async resumePendingPickAndImportIfNeeded(): Promise<ImportedDriveFile[] | null> {
+    const pendingRequest = getPendingGoogleDriveImport();
+    const currentUrl = new URL(window.location.href);
+    const hasOAuthParams = GOOGLE_OAUTH_QUERY_KEYS.some((key) => currentUrl.searchParams.has(key));
+
+    if (!pendingRequest && !hasOAuthParams) {
+      return null;
     }
 
-    return imported;
+    try {
+      await this.completeOAuthCallbackIfNeeded();
+
+      if (!pendingRequest) {
+        return [];
+      }
+
+      const imported = await this.performPickAndImport(pendingRequest);
+      clearPendingGoogleDriveImport();
+      return imported;
+    } catch (error) {
+      if (!this.isGoogleRedirectInProgress(error)) {
+        clearPendingGoogleDriveImport();
+      }
+      throw error;
+    }
+  }
+
+  public getPendingImportFileType(): 'cv' | 'jd' | null {
+    return getPendingGoogleDriveImport()?.fileType || null;
   }
 
   public clearToken() {

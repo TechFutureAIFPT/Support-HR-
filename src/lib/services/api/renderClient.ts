@@ -1,8 +1,10 @@
+import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '@/lib/services/firebase';
 import { SAFE_ERROR_MESSAGES, sanitizeApiErrorMessage } from '@/shared/utils/errorMessages';
 
 const LOCAL_API_URL = 'http://localhost:8000';
 const REMOTE_API_URL = 'https://backendsupporthr.onrender.com';
+const AUTH_READY_TIMEOUT_MS = 8000;
 const FIREBASE_AUTH_ERROR_MARKERS = [
   'không thể xác thực firebase token',
   'firebase admin',
@@ -99,8 +101,36 @@ function shouldRetryWithRemote(
   return false;
 }
 
+async function waitForFirebaseUser(timeoutMs: number = AUTH_READY_TIMEOUT_MS): Promise<void> {
+  if (auth.currentUser || typeof window === 'undefined') return;
+
+  await new Promise<void>((resolve) => {
+    let settled = false;
+    let unsubscribe: (() => void) | null = null;
+
+    const finish = () => {
+      if (settled) return;
+      settled = true;
+      if (unsubscribe) unsubscribe();
+      window.clearTimeout(timeoutId);
+      resolve();
+    };
+
+    const timeoutId = window.setTimeout(finish, timeoutMs);
+    unsubscribe = onAuthStateChanged(
+      auth,
+      () => finish(),
+      () => finish(),
+    );
+  });
+}
+
 async function getAuthorizationHeader(authRequired: boolean): Promise<string | undefined> {
   if (!authRequired) return undefined;
+
+  if (!auth.currentUser) {
+    await waitForFirebaseUser();
+  }
 
   const user = auth.currentUser;
   if (!user) {

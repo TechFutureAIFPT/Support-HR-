@@ -12,7 +12,7 @@ import { ThemeProvider } from '@/shared/ui/theme/ThemeProvider';
 import { UserProfileService } from '@/lib/services/data-sync/userProfileService';
 import { onAuthChange } from '@/lib/services/auth/authService';
 import type { AuthUser } from '@/lib/services/auth/authTypes';
-import type { AppStep, Candidate, HardFilters, WeightCriteria, AnalysisRunData } from '@/shared/types';
+import type { AppStep, Candidate, HardFilters, WeightCriteria, AnalysisRunData, ActiveAnalysisContext } from '@/shared/types';
 import { initialWeights } from '@/shared/config/constants';
 import Sidebar from '@/shared/layout/Sidebar';
 import ProgressBar from '@/shared/ui/common/ProgressBar';
@@ -38,6 +38,13 @@ import CandidateSuggestions from '@/pages/analytics/CandidateSuggestions';
 // HistoryPage removed from UI (still saving to Firestore silently)
 import { saveHistorySession } from '@/lib/services/history-cache/historyService';
 import { cvFilterHistoryService } from '@/lib/services/history-cache/analysisHistory';
+import {
+  buildAnalysisSessionId,
+  buildJdHash,
+  clearActiveAnalysisContext,
+  getActiveAnalysisContext,
+  saveActiveAnalysisContext,
+} from '@/lib/services/history-cache/activeAnalysisContext';
 
 function usePrevious<T>(value: T): T | undefined {
   const ref = useRef<T | undefined>(undefined);
@@ -288,6 +295,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
   });
   const [cvFiles, setCvFiles] = useState<File[]>([]);
   const [analysisResults, setAnalysisResults] = useState<Candidate[]>([]);
+  const [activeAnalysisContext, setActiveAnalysisContext] = useState<ActiveAnalysisContext | null>(() => getActiveAnalysisContext());
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [loadingMessage, setLoadingMessage] = useState<string>('');
 
@@ -382,6 +390,15 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
         };
         localStorage.setItem('cvAnalysis.latest', JSON.stringify(analysisRun));
 
+        const baseContext: ActiveAnalysisContext = {
+          sessionId: buildAnalysisSessionId(analysisRun.timestamp),
+          timestamp: analysisRun.timestamp,
+          jobPosition: jobPosition || analysisRun.job.position,
+          jdHash: buildJdHash(jdText),
+        };
+        saveActiveAnalysisContext(baseContext);
+        setActiveAnalysisContext(baseContext);
+
         // Save to CV filter history (always enabled)
         try {
           cvFilterHistoryService.addFilterSession(
@@ -401,7 +418,17 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
           userEmail: userEmail || 'anonymous',
           weights,
           hardFilters,
-        }).catch(err => console.warn('Save history failed', err));
+        })
+          .then((historyId) => {
+            if (!historyId) return;
+            const nextContext: ActiveAnalysisContext = {
+              ...baseContext,
+              historyId,
+            };
+            saveActiveAnalysisContext(nextContext);
+            setActiveAnalysisContext(nextContext);
+          })
+          .catch(err => console.warn('Save history failed', err));
       }
     }
   }, [isLoading, prevIsLoading, analysisResults, jobPosition, hardFilters.location, jdText, userEmail, weights, hardFilters]);
@@ -453,6 +480,8 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
     });
     setCvFiles([]);
     setAnalysisResults([]);
+    setActiveAnalysisContext(null);
+    clearActiveAnalysisContext();
     setCompletedSteps([]);
     navigate('/jd');
   }, [navigate]);
@@ -592,7 +621,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
 
               <Route path="/detailed-analytics" element={isLoggedIn ? <DetailedAnalyticsPage candidates={analysisResults} jobPosition={jobPosition} onReset={onResetRequest} /> : <HomePage setActiveStep={setActiveStep} isLoggedIn={isLoggedIn} onLoginRequest={onLoginRequest} completedSteps={completedSteps} userName={userName} userEmail={userEmail} />} />
               <Route path="/chatbot" element={isLoggedIn ? <CandidateSuggestions candidates={analysisResults} jobPosition={jobPosition} /> : <HomePage setActiveStep={setActiveStep} isLoggedIn={isLoggedIn} onLoginRequest={onLoginRequest} completedSteps={completedSteps} userName={userName} userEmail={userEmail} />} />
-              <Route path="/feedback" element={isLoggedIn ? <AIFeedbackPage candidates={analysisResults} jobPosition={jobPosition} weights={weights} hardFilters={hardFilters} /> : <HomePage setActiveStep={setActiveStep} isLoggedIn={isLoggedIn} onLoginRequest={onLoginRequest} completedSteps={completedSteps} userName={userName} userEmail={userEmail} />} />
+              <Route path="/feedback" element={isLoggedIn ? <AIFeedbackPage candidates={analysisResults} jobPosition={jobPosition} weights={weights} hardFilters={hardFilters} analysisContext={activeAnalysisContext} /> : <HomePage setActiveStep={setActiveStep} isLoggedIn={isLoggedIn} onLoginRequest={onLoginRequest} completedSteps={completedSteps} userName={userName} userEmail={userEmail} />} />
               <Route path="/process" element={<ProcessPage />} />
               <Route path="/contact-ready" element={<DeploymentReadyPage />} />
               <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />

@@ -77,6 +77,7 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
   const [isLoadingCvDrive, setIsLoadingCvDrive] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cvFileInputRef = useRef<HTMLInputElement>(null);
+  const hasHandledPendingDriveRef = useRef(false);
 
   useEffect(() => {
     const timer = setTimeout(() => setMounted(true), 60);
@@ -243,6 +244,62 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
       setIsLoadingCvDrive(false);
     }
   };
+
+  useEffect(() => {
+    if (hasHandledPendingDriveRef.current) return;
+    hasHandledPendingDriveRef.current = true;
+
+    let cancelled = false;
+
+    const resumePendingDriveImport = async () => {
+      const pendingType = googleDriveService.getPendingImportFileType();
+
+      try {
+        if (pendingType === 'jd') {
+          setErrorMsg('');
+          setSuccessMsg('Dang tiep tuc ket noi Google Drive cho tep JD...');
+          setIsProcessing(true);
+        } else if (pendingType === 'cv') {
+          setCvError('');
+          setIsLoadingCvDrive(true);
+          setStep('cv');
+        }
+
+        const driveFiles = await googleDriveService.resumePendingPickAndImportIfNeeded();
+        if (cancelled || !driveFiles || driveFiles.length === 0) return;
+
+        if (pendingType === 'jd') {
+          await processFile(driveFiles[0]);
+          return;
+        }
+
+        appendCvFiles(driveFiles);
+        setSuccessMsg(`Da nhap ${driveFiles.length} CV tu Google Drive.`);
+      } catch (err: any) {
+        if (isRedirectingToGoogle(err)) return;
+
+        if (pendingType === 'jd') {
+          setErrorMsg(getSafeErrorMessage(err, 'drive'));
+        } else if (pendingType === 'cv') {
+          setCvError(getSafeErrorMessage(err, 'drive'));
+        }
+      } finally {
+        if (cancelled) return;
+        if (pendingType === 'jd') {
+          setIsProcessing(false);
+        }
+        if (pendingType === 'cv') {
+          setIsLoadingCvDrive(false);
+        }
+      }
+    };
+
+    void resumePendingDriveImport();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [appendCvFiles, processFile]);
 
   const handleRemoveCv = (index: number) => {
     setCvFiles((prev) => prev.filter((_, fileIndex) => fileIndex !== index));

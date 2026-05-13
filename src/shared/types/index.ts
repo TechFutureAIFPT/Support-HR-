@@ -106,6 +106,15 @@ export interface AnalysisRunData {
   candidates: Candidate[];
 }
 
+export interface ActiveAnalysisContext {
+  sessionId: string;
+  timestamp: number;
+  jobPosition?: string;
+  jdHash?: string;
+  historyId?: string;
+  syncHistoryId?: string;
+}
+
 export interface CandidateEmbeddingMatch {
   id: string;
   name?: string;
@@ -116,9 +125,53 @@ export interface CandidateEmbeddingMatch {
 
 export interface CandidateEmbeddingInsight {
   industry: string;
+  provider?: string;
+  collectionKey?: string;
+  queryModel?: string;
+  recordCount?: number;
   averageSimilarity: number;
   topMatches: CandidateEmbeddingMatch[];
   bonusPoints: number;
+}
+
+export type AnalysisFeedbackAction = 'like' | 'dislike' | 'shortlist' | 'reject' | 'interview' | 'hire' | 'neutral';
+
+export interface AnalysisFeedbackDraft {
+  candidateId: string;
+  finalScore: number;
+  scoreDifference: number;
+  selectedCriteria: string[];
+  notes: string;
+  action: AnalysisFeedbackAction;
+  reason: string;
+}
+
+export interface AnalysisFeedbackRecord {
+  id: string;
+  uid: string;
+  userEmail: string;
+  displayName: string;
+  photoUrl: string;
+  sessionId?: string | null;
+  historyId?: string | null;
+  syncHistoryId?: string | null;
+  candidateId?: string | null;
+  candidateName?: string | null;
+  fileName?: string | null;
+  jobPosition?: string | null;
+  jdHash?: string | null;
+  promptKey?: string | null;
+  promptVersion?: string | null;
+  modelVersion?: string | null;
+  action: AnalysisFeedbackAction;
+  aiScore?: number | null;
+  finalScore?: number | null;
+  rank?: string | null;
+  reason?: string | null;
+  notes?: string | null;
+  metadata?: Record<string, unknown>;
+  createdAt?: number | null;
+  updatedAt?: number | null;
 }
 
 export interface HistoryEntry {
