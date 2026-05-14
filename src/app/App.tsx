@@ -213,6 +213,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
   });
   const [completedSteps, setCompletedSteps] = useState<AppStep[]>([]);
   const [jdTemplatesModalOpen, setJdTemplatesModalOpen] = useState<boolean>(false);
+  const [jdTemplateSelectionMode, setJdTemplateSelectionMode] = useState<'analysis' | 'welcome'>('analysis');
   const [historyModalOpen, setHistoryModalOpen] = useState<boolean>(false);
   const [userAvatar, setUserAvatar] = useState<string | null>(null);
   const [userName, setUserName] = useState<string>('');
@@ -532,6 +533,10 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
     loadingMessage, setLoadingMessage,
     activeStep, setActiveStep,
     completedSteps, markStepAsCompleted,
+    onOpenJdTemplates: () => {
+      setJdTemplateSelectionMode('welcome');
+      setJdTemplatesModalOpen(true);
+    },
   };
 
   return (
@@ -549,7 +554,10 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
             userName={userName}
             onLoginRequest={onLoginRequest}
             isOpen={true}
-            onShowSettings={() => setJdTemplatesModalOpen(true)}
+            onShowSettings={() => {
+              setJdTemplateSelectionMode('analysis');
+              setJdTemplatesModalOpen(true);
+            }}
             onShowHistory={() => setHistoryModalOpen(true)}
             onNewSession={handleNewSession}
           />
@@ -649,10 +657,16 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
         onSelectTemplate={(template: JDTemplate) => {
           setJdText(template.jdText);
           setJobPosition(template.jobPosition);
-          setHardFilters({
-            ...hardFilters,
+          setHardFilters((prev) => ({
+            ...prev,
             ...template.hardFilters
-          });
+          }));
+
+          if (jdTemplateSelectionMode === 'welcome') {
+            setActiveStep('jd');
+            return;
+          }
+
           markStepAsCompleted('jd');
           markStepAsCompleted('weights');
           setActiveStep('analysis');

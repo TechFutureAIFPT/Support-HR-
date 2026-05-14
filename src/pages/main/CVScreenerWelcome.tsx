@@ -22,7 +22,7 @@ import { getSafeErrorMessage, isRedirectingToGoogle } from '@/shared/utils/error
 
 interface CVScreenerWelcomeProps {
   onGetStarted: () => void;
-  onManualEntry?: () => void;
+  onUseTemplate?: () => void;
   onFileProcessed: (data: {
     jdText: string;
     jobPosition: string;
@@ -61,7 +61,7 @@ const sectionEyebrowClass = 'supporthr-mono text-[10px] font-medium uppercase tr
 
 const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
   onGetStarted,
-  onManualEntry,
+  onUseTemplate,
   onFileProcessed,
   cvFiles,
   setCvFiles,
@@ -327,7 +327,9 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(148,163,184,0.035)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.035)_1px,transparent_1px)] bg-[size:52px_52px] opacity-20" />
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.02)_0%,rgba(0,0,0,0.42)_100%)]" />
 
-      <div className="relative z-10 mx-auto flex h-full w-full max-w-7xl flex-col overflow-hidden px-4 py-4 sm:px-6 lg:px-8">
+      <div className="relative z-10 h-full w-full overflow-auto">
+        <div className="origin-top-left lg:h-[125%] lg:w-[125%] lg:scale-[0.8]">
+          <div className="mx-auto flex h-full w-full max-w-7xl flex-col overflow-hidden px-4 py-4 sm:px-6 lg:px-8">
         <header className={`mb-4 flex shrink-0 items-center justify-between gap-4 px-5 py-5 ${panelClass}`}>
           <div className="min-w-0">
             <div className={`${sectionEyebrowClass} text-cyan-300/75`}>CV Screening</div>
@@ -404,15 +406,15 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
                     <div className={helperPillClass}>Tác vụ nhanh</div>
                   </button>
 
-                  <button type="button" onClick={onManualEntry ?? onGetStarted} className={cardClass}>
+                  <button type="button" onClick={onUseTemplate ?? onGetStarted} className={cardClass}>
                   <div className="inline-flex h-11 w-11 items-center justify-center rounded-none border border-indigo-400/20 bg-indigo-400/10 text-indigo-300">
                       <FileText className="h-4.5 w-4.5" />
                     </div>
                     <div>
-                      <div className="supporthr-display text-base font-semibold tracking-[-0.03em] text-white">Nhập tay</div>
-                      <div className="supporthr-mono mt-2 text-[10px] uppercase tracking-[0.2em] text-zinc-500">Dán trực tiếp</div>
+                      <div className="supporthr-display text-base font-semibold tracking-[-0.03em] text-white">Dùng mẫu</div>
+                      <div className="supporthr-mono mt-2 text-[10px] uppercase tracking-[0.2em] text-zinc-500">Chọn JD mẫu</div>
                     </div>
-                    <div className={helperPillClass}>Linh hoạt</div>
+                    <div className={helperPillClass}>Kho mẫu</div>
                   </button>
 
                   <button
@@ -721,6 +723,8 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
               </div>
             </div>
           </aside>
+        </div>
+          </div>
         </div>
       </div>
     </div>

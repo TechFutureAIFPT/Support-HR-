@@ -50,6 +50,7 @@ interface ScreenerPageProps {
   completedSteps: AppStep[];
   markStepAsCompleted: (step: AppStep) => void;
   onWelcomeChange?: (visible: boolean) => void;
+  onOpenJdTemplates?: () => void;
 }
 
 const ScreenerPage: React.FC<ScreenerPageProps> = (props) => {
@@ -67,10 +68,9 @@ const ScreenerPage: React.FC<ScreenerPageProps> = (props) => {
     props.onWelcomeChange?.(true);
   }, [props.onWelcomeChange]);
 
-  const handleManualEntry = useCallback(() => {
-    setManualJdFlow(true);
-    hideWelcome();
-  }, [hideWelcome]);
+  const handleUseTemplate = useCallback(() => {
+    props.onOpenJdTemplates?.();
+  }, [props.onOpenJdTemplates]);
 
   const moveToWeights = useCallback(() => {
     props.markStepAsCompleted('jd');
@@ -147,7 +147,7 @@ const ScreenerPage: React.FC<ScreenerPageProps> = (props) => {
       <div className="fixed inset-0 z-50 overflow-y-auto">
         <CVScreenerWelcome
           onGetStarted={handleContinueAfterWelcome}
-          onManualEntry={handleManualEntry}
+          onUseTemplate={handleUseTemplate}
           cvFiles={props.cvFiles}
           setCvFiles={props.setCvFiles}
           hasPreparedJd={props.jdText.trim().length > 0}
