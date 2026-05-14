@@ -1,6 +1,7 @@
-import React, { useMemo, useState } from 'react';
-import type { Candidate, DetailedScore } from '@/shared/types';
+import React, { useEffect, useMemo, useState } from 'react';
+import type { Candidate, DetailedScore, UploadedFileRecord } from '@/shared/types';
 import { analyzeExperience, extractJDRequirements, compareEvidence } from '@/lib/services/screening/frontendInsights';
+import { UploadedFilesService } from '@/lib/services/data-sync/uploadedFilesService';
 
 // ── Phân loại tiêu chí ──────────────────────────────────────────────────────
 
@@ -10,7 +11,7 @@ const BASIC_CRITERIA = [
   'Hệ số uy tín công ty', // chuyển về cơ bản
 ];
 
-const LOYALTY_CRITERION = 'Muc do trung thanh';
+const LOYALTY_CRITERION = 'Mức độ trung thành';
 
 const REMOVED_ADVANCED_CRITERIA = [
   'Ky nang hanh dong & chu dong',
@@ -80,9 +81,9 @@ const BASIC_DESCRIPTIONS: Record<string, { what: string; why: string; signals: s
 const CRITERION_DESCRIPTIONS: Record<string, { what: string; why: string; signals: string[] }> = {
   ...BASIC_DESCRIPTIONS,
   [LOYALTY_CRITERION]: {
-    what: 'Phan tich lich su lam viec de uoc luong muc do on dinh, cam ket va xu huong gan bo cua ung vien.',
-    why: 'Muc do trung thanh giup nha tuyen dung nhin ro rui ro nghi som, chi phi dao tao lai va do ben cua ung vien trong moi truong thuc te.',
-    signals: ['Thoi gian o moi cong ty du dai', 'It nhay viec ngan han lien tiep', 'Cac lan chuyen viec co xu huong tang truong hop ly'],
+    what: 'Phân tích lịch sử làm việc để ước lượng mức độ ổn định, cam kết và xu hướng gắn bó của ứng viên.',
+    why: 'Mức độ trung thành giúp nhà tuyển dụng nhìn rõ rủi ro nghỉ sớm, chi phí đào tạo lại và độ bền của ứng viên trong môi trường thực tế.',
+    signals: ['Thời gian ở mỗi công ty đủ dài', 'Ít nhảy việc ngắn hạn liên tiếp', 'Các lần chuyển việc có xu hướng tăng trưởng hợp lý'],
   },
 };
 
@@ -165,7 +166,30 @@ function getDetailExplanation(item: DetailedScore): string {
   return getRecordValueByAliases(record, ['giai thich', 'explanation']);
 }
 
-const MISSING_DETAIL_EVIDENCE = 'AI chua tra ve dan chung cu the cho tieu chi nay.';
+const MISSING_DETAIL_EVIDENCE = 'AI chưa trả về dẫn chứng cụ thể cho tiêu chí này.';
+const CV_TEXT_FIELD_ALIASES = new Set([
+  'cv text',
+  'cvtext',
+  'resume text',
+  'resumetext',
+  'extracted text',
+  'extractedtext',
+  'raw text',
+  'rawtext',
+  'full text',
+  'fulltext',
+  'content',
+  'text',
+]);
+
+interface CareerTimelineItem {
+  id: string;
+  periodLabel: string;
+  summary: string;
+  isCurrent: boolean;
+}
+
+const uploadedCvTextCache = new Map<string, string>();
 
 function buildSyntheticLoyaltyDetail(source: DetailedScore): DetailedScore {
   const inheritedEvidence = getDetailEvidence(source) || MISSING_DETAIL_EVIDENCE;
@@ -176,12 +200,195 @@ function buildSyntheticLoyaltyDetail(source: DetailedScore): DetailedScore {
   return {
     'Tiêu chí': LOYALTY_CRITERION,
     'Điểm': inheritedScore,
-    'Công thức': inheritedFormula || 'Suy ra tu tieu chi Gan bo & Lich su CV',
+    'Công thức': inheritedFormula || 'Suy ra từ tiêu chí Gắn bó & Lịch sử CV',
     'Dẫn chứng': inheritedEvidence,
     'Giải thích': inheritedExplanation && inheritedExplanation !== '...'
-      ? `${inheritedExplanation} (Duoc suy ra tu tieu chi Gan bo & Lich su CV.)`
-      : 'Phien phan tich nay chua tach rieng Muc do trung thanh, nen he thong suy ra tu tieu chi Gan bo & Lich su CV.',
+      ? `${inheritedExplanation} (Được suy ra từ tiêu chí Gắn bó & Lịch sử CV.)`
+      : 'Phiên phân tích này chưa tách riêng Mức độ trung thành, nên hệ thống suy ra từ tiêu chí Gắn bó & Lịch sử CV.',
   };
+}
+
+function extractNestedCvText(value: unknown, depth: number = 0): string {
+  if (depth > 5 || value === null || value === undefined) {
+    return '';
+  }
+
+  if (typeof value === 'string') {
+    return value.trim().length > 120 ? value.trim() : '';
+  }
+
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      const nested = extractNestedCvText(item, depth + 1);
+      if (nested) return nested;
+    }
+    return '';
+  }
+
+  if (typeof value !== 'object') {
+    return '';
+  }
+
+  const record = value as Record<string, unknown>;
+
+  for (const [key, nestedValue] of Object.entries(record)) {
+    const normalizedKey = normalizeAscii(key).replace(/\s+/g, ' ');
+    if (CV_TEXT_FIELD_ALIASES.has(normalizedKey) && typeof nestedValue === 'string' && nestedValue.trim().length > 120) {
+      return nestedValue.trim();
+    }
+  }
+
+  for (const nestedValue of Object.values(record)) {
+    const nested = extractNestedCvText(nestedValue, depth + 1);
+    if (nested) return nested;
+  }
+
+  return '';
+}
+
+function scoreUploadedFileMatch(file: UploadedFileRecord, candidate: Candidate): number {
+  let score = 0;
+
+  if (normalizeAscii(file.fileName) === normalizeAscii(candidate.fileName)) score += 6;
+  if (file.candidateName && normalizeAscii(file.candidateName) === normalizeAscii(candidate.candidateName)) score += 4;
+  if (file.jobPosition && candidate.jobTitle && normalizeAscii(file.jobPosition) === normalizeAscii(candidate.jobTitle)) score += 1;
+
+  return score;
+}
+
+async function resolveCandidateCvText(candidate: Candidate): Promise<string> {
+  const cacheKey = `${candidate.fileName}::${candidate.candidateName}`;
+  const cachedText = uploadedCvTextCache.get(cacheKey);
+  if (cachedText) {
+    return cachedText;
+  }
+
+  if (candidate._rawBatchJson) {
+    try {
+      const rawCandidate = JSON.parse(candidate._rawBatchJson) as unknown;
+      const embeddedText = extractNestedCvText(rawCandidate);
+      if (embeddedText) {
+        uploadedCvTextCache.set(cacheKey, embeddedText);
+        return embeddedText;
+      }
+    } catch {
+      // Ignore malformed raw candidate payloads and continue with uploaded file lookup.
+    }
+  }
+
+  const uploadedCvFiles = await UploadedFilesService.getUserFilesByType('cv', 200).catch(() => [] as UploadedFileRecord[]);
+  const matchedFile = [...uploadedCvFiles]
+    .map((file) => ({ file, score: scoreUploadedFileMatch(file, candidate) }))
+    .filter((entry) => entry.score > 0 && entry.file.extractedText.trim())
+    .sort((left, right) => {
+      if (right.score !== left.score) return right.score - left.score;
+      return Number(right.file.lastAccessedAt || right.file.uploadedAt || 0) - Number(left.file.lastAccessedAt || left.file.uploadedAt || 0);
+    })[0]?.file;
+
+  if (!matchedFile?.extractedText.trim()) {
+    return '';
+  }
+
+  uploadedCvTextCache.set(cacheKey, matchedFile.extractedText.trim());
+  return matchedFile.extractedText.trim();
+}
+
+function cleanTimelineText(value: string): string {
+  return value
+    .replace(/\r\n/g, '\n')
+    .replace(/\r/g, '\n')
+    .replace(/[|]+/g, ' • ')
+    .replace(/\s{2,}/g, ' ')
+    .replace(/\s*•\s*/g, ' • ')
+    .replace(/^[•\-–—,:;\s]+/, '')
+    .replace(/[•\-–—,:;\s]+$/, '')
+    .trim();
+}
+
+function isLikelyTimelineHeading(line: string): boolean {
+  const normalized = normalizeAscii(line);
+  return [
+    'kinh nghiem',
+    'work experience',
+    'experience',
+    'employment history',
+    'lich su lam viec',
+    'qua trinh cong tac',
+    'projects',
+    'du an',
+    'hoc van',
+    'education',
+    'skills',
+    'ky nang',
+  ].some((keyword) => normalized === keyword || normalized.startsWith(`${keyword} `));
+}
+
+function formatPeriodLabel(start: string, end: string): string {
+  const normalizedEnd = /^(hiện tại|hien tai|nay|present|current)$/i.test(end.trim()) ? 'Hiện tại' : end.trim();
+  return `${start.trim()} - ${normalizedEnd}`;
+}
+
+function extractCareerTimeline(text: string): CareerTimelineItem[] {
+  const lines = text
+    .split('\n')
+    .map((line) => cleanTimelineText(line))
+    .filter(Boolean);
+
+  const rangeRegex = /((?:(?:0?[1-9]|1[0-2])\/\d{4}|\d{4}))\s*(?:-|–|—|to|đến|tới)\s*((?:(?:0?[1-9]|1[0-2])\/\d{4}|\d{4}|hiện tại|hien tai|nay|present|current))/i;
+  const items: CareerTimelineItem[] = [];
+
+  for (let index = 0; index < lines.length; index += 1) {
+    const currentLine = lines[index];
+    const dateMatch = currentLine.match(rangeRegex);
+    if (!dateMatch) {
+      continue;
+    }
+
+    const previousLine = lines[index - 1] || '';
+    const nextLine = lines[index + 1] || '';
+    const nextNextLine = lines[index + 2] || '';
+    const strippedCurrent = cleanTimelineText(currentLine.replace(dateMatch[0], ''));
+
+    let summary = strippedCurrent;
+    let secondary = '';
+
+    if (!summary || summary.length < 4) {
+      if (nextLine && !rangeRegex.test(nextLine) && !isLikelyTimelineHeading(nextLine)) {
+        summary = nextLine;
+        if (nextNextLine && !rangeRegex.test(nextNextLine) && !isLikelyTimelineHeading(nextNextLine)) {
+          secondary = nextNextLine;
+        }
+      } else if (previousLine && !rangeRegex.test(previousLine) && !isLikelyTimelineHeading(previousLine)) {
+        summary = previousLine;
+      }
+    } else if (nextLine && !rangeRegex.test(nextLine) && !isLikelyTimelineHeading(nextLine)) {
+      secondary = nextLine;
+    }
+
+    const combinedSummary = [summary, secondary]
+      .map((item) => cleanTimelineText(item))
+      .filter(Boolean)
+      .join(' • ');
+
+    if (!combinedSummary) {
+      continue;
+    }
+
+    items.push({
+      id: `${dateMatch[1]}-${dateMatch[2]}-${index}`,
+      periodLabel: formatPeriodLabel(dateMatch[1], dateMatch[2]),
+      summary: combinedSummary,
+      isCurrent: /^(hiện tại|hien tai|nay|present|current)$/i.test(dateMatch[2].trim()),
+    });
+  }
+
+  const seen = new Set<string>();
+  return items.filter((item) => {
+    const signature = `${normalizeAscii(item.periodLabel)}::${normalizeAscii(item.summary)}`;
+    if (seen.has(signature)) return false;
+    seen.add(signature);
+    return true;
+  }).slice(0, 8);
 }
 
 function formatScoreValue(value: number): string {
@@ -242,7 +449,7 @@ function parseDetailScore(
   const weightMatch = detailFormula.match(/trong so\s*([\d.]+)%/i);
   const weight = Number.parseFloat(weightMatch?.[1] || '0');
 
-  let scoreLabel = 'Chua co';
+  let scoreLabel = 'Chưa có';
   if (displayScore !== null && displayMax !== null) {
     scoreLabel = `${formatScoreValue(displayScore)}/${formatScoreValue(displayMax)}`;
   } else if (displayScore !== null && trimmedScore) {
@@ -329,11 +536,11 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
         ? 'bg-amber-500/15 text-amber-300 border-amber-500/35'
         : 'bg-red-500/15 text-red-300 border-red-500/35';
 
-  const proficiency = !parsedData.hasScore ? 'Chua co'
-    : scorePercentage >= 90 ? 'Expert'
-      : scorePercentage >= 75 ? 'Advanced'
-        : scorePercentage >= 55 ? 'Intermediate'
-          : 'Beginner';
+  const proficiency = !parsedData.hasScore ? 'Chưa có'
+    : scorePercentage >= 90 ? 'Xuất sắc'
+      : scorePercentage >= 75 ? 'Nâng cao'
+        : scorePercentage >= 55 ? 'Trung bình'
+          : 'Cơ bản';
 
   const isExperience = criterionName === BASIC_CRITERIA[1];
   const jdRequirements = useMemo(() => extractJDRequirements(jdText), [jdText]);
@@ -349,14 +556,14 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
     matchMeta = analyzeExperience(jdText, detailEvidence || '');
     experienceBlock = (
       <div className="space-y-3 rounded-xl border border-slate-800/60 bg-[#080f1e] p-5">
-        <h5 className="mb-1 text-base font-bold text-slate-100">Phan tich nhanh</h5>
+        <h5 className="mb-1 text-base font-bold text-slate-100">Phân tích nhanh</h5>
         {matchMeta.matchPercent === 'N/A' ? (
-          <p className="text-xs text-slate-500 italic">JD chua co muc yeu cau kinh nghiem ro rang</p>
+          <p className="text-xs text-slate-500 italic">JD chưa có mức yêu cầu kinh nghiệm rõ ràng</p>
         ) : (
           <>
             <div className="space-y-2">
               <div className="flex items-center justify-between text-xs text-slate-400">
-                <span>Muc do phu hop JD</span>
+                <span>Mức độ phù hợp JD</span>
                 <span className="font-semibold text-cyan-400">{matchMeta.matchPercent}%</span>
               </div>
               <div className="h-2 w-full overflow-hidden rounded bg-slate-800">
@@ -397,15 +604,15 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
           <div className={`grid grid-cols-1 ${isExperience || requirementComparison ? 'xl:grid-cols-3' : 'xl:grid-cols-2'} gap-4`}>
             <div className="rounded-xl border border-white/[0.08] bg-white/[0.025] p-5">
               <div className="mb-2 flex items-center justify-between">
-                <h5 className="text-base font-bold text-slate-200">Dan chung (trich tu CV)</h5>
+                <h5 className="text-base font-bold text-slate-200">Dẫn chứng (trích từ CV)</h5>
                 <button type="button" onClick={(e) => { e.stopPropagation(); handleCopy(); }} className="flex items-center gap-1.5 text-xs text-slate-500 transition-colors hover:text-cyan-400">
                   <i className={`fa-solid ${copied ? 'fa-check text-emerald-400' : 'fa-copy'}`}></i>
-                  {copied ? 'Da chep' : 'Chep'}
+                  {copied ? 'Đã chép' : 'Chép'}
                 </button>
               </div>
               <blockquote className="border-l-4 border-cyan-500/60 pl-4 text-base italic leading-relaxed text-slate-300" dangerouslySetInnerHTML={{
                 __html: detailEvidence === 'Khong tim thay thong tin trong CV' || detailEvidence === MISSING_DETAIL_EVIDENCE
-                  ? '<span class="not-italic rounded-md border border-amber-500/35 bg-amber-500/10 px-2 py-1 text-xs font-semibold text-amber-300">Chua tim thay trong CV</span>'
+                  ? '<span class="not-italic rounded-md border border-amber-500/35 bg-amber-500/10 px-2 py-1 text-xs font-semibold text-amber-300">Chưa tìm thấy trong CV</span>'
                   : detailEvidence
               }} />
             </div>
@@ -413,37 +620,37 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
             {isExperience && experienceBlock}
             {!isExperience && requirementComparison && (
               <div className="space-y-3 rounded-xl border border-slate-800/60 bg-[#080f1e] p-5">
-                <h5 className="mb-1 text-base font-bold text-slate-100">Phan tich nhanh</h5>
-                <div className="text-[11px] text-slate-400">Tu khoa JD ({requirementComparison.jdKeywords.length})</div>
+                <h5 className="mb-1 text-base font-bold text-slate-100">Phân tích nhanh</h5>
+                <div className="text-[11px] text-slate-400">Từ khóa JD ({requirementComparison.jdKeywords.length})</div>
                 <div className="flex flex-wrap gap-1 mb-2">
                   {requirementComparison.jdKeywords.slice(0, 12).map(k => <span key={k} className="pill pill--uncertain">{k}</span>)}
                 </div>
-                <div className="text-[11px] text-slate-400 font-medium">Khop</div>
+                <div className="text-[11px] text-slate-400 font-medium">Khớp</div>
                 <div className="flex flex-wrap gap-1">
-                  {requirementComparison.matched.length > 0 ? requirementComparison.matched.slice(0, 10).map(k => <span key={k} className="pill pill--match">{k}</span>) : <span className="text-[11px] text-slate-500">(Khong)</span>}
+                  {requirementComparison.matched.length > 0 ? requirementComparison.matched.slice(0, 10).map(k => <span key={k} className="pill pill--match">{k}</span>) : <span className="text-[11px] text-slate-500">(Không)</span>}
                 </div>
-                <div className="text-[11px] text-slate-400 font-medium mt-2">Thieu</div>
+                <div className="text-[11px] text-slate-400 font-medium mt-2">Thiếu</div>
                 <div className="flex flex-wrap gap-1">
-                  {requirementComparison.missing.length > 0 ? requirementComparison.missing.slice(0, 10).map(k => <span key={k} className="pill pill--missing">{k}</span>) : <span className="text-[11px] text-slate-500">(Khong)</span>}
+                  {requirementComparison.missing.length > 0 ? requirementComparison.missing.slice(0, 10).map(k => <span key={k} className="pill pill--missing">{k}</span>) : <span className="text-[11px] text-slate-500">(Không)</span>}
                 </div>
               </div>
             )}
 
             <div className="rounded-xl border border-white/[0.08] bg-white/[0.025] p-5">
-              <h5 className="mb-4 text-base font-bold text-slate-100">Giai thich & Cong thuc</h5>
+              <h5 className="mb-4 text-base font-bold text-slate-100">Giải thích & Công thức</h5>
 
               {description ? (
                 <div className={`mb-4 rounded-xl border p-4 space-y-3 ${isLoyalty ? 'border-amber-500/20 bg-amber-500/5' : 'border-cyan-500/20 bg-cyan-500/5'}`}>
                   <div>
-                    <p className={`text-[10px] font-bold uppercase tracking-widest mb-1 ${isLoyalty ? 'text-amber-400/70' : 'text-cyan-400/70'}`}>Day la gi?</p>
+                    <p className={`text-[10px] font-bold uppercase tracking-widest mb-1 ${isLoyalty ? 'text-amber-400/70' : 'text-cyan-400/70'}`}>Đây là gì?</p>
                     <p className="text-sm leading-relaxed text-slate-300">{description.what}</p>
                   </div>
                   <div className="pt-2 border-t border-slate-800/50">
-                    <p className={`text-[10px] font-bold uppercase tracking-widest mb-1 ${isLoyalty ? 'text-amber-400/70' : 'text-cyan-400/70'}`}>Tai sao quan trong?</p>
+                    <p className={`text-[10px] font-bold uppercase tracking-widest mb-1 ${isLoyalty ? 'text-amber-400/70' : 'text-cyan-400/70'}`}>Tại sao quan trọng?</p>
                     <p className="text-sm leading-relaxed text-slate-400">{description.why}</p>
                   </div>
                   <div className="pt-2 border-t border-slate-800/50">
-                    <p className={`text-[10px] font-bold uppercase tracking-widest mb-2 ${isLoyalty ? 'text-amber-400/70' : 'text-cyan-400/70'}`}>Dau hieu nhan biet</p>
+                    <p className={`text-[10px] font-bold uppercase tracking-widest mb-2 ${isLoyalty ? 'text-amber-400/70' : 'text-cyan-400/70'}`}>Dấu hiệu nhận biết</p>
                     <ul className="space-y-1.5">
                       {description.signals.map((signal, index) => (
                         <li key={index} className="flex items-start gap-2 text-xs text-slate-400">
@@ -455,7 +662,7 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
                   </div>
                   {detailExplanation && detailExplanation !== '...' && (
                     <div className="pt-2 border-t border-slate-800/50">
-                      <p className={`text-[10px] font-bold uppercase tracking-widest mb-1 ${isLoyalty ? 'text-amber-400/70' : 'text-cyan-400/70'}`}>Nhan xet cua AI voi CV nay</p>
+                      <p className={`text-[10px] font-bold uppercase tracking-widest mb-1 ${isLoyalty ? 'text-amber-400/70' : 'text-cyan-400/70'}`}>Nhận xét của AI với CV này</p>
                       <p className="text-xs leading-relaxed text-slate-300 italic">"{detailExplanation}"</p>
                     </div>
                   )}
@@ -469,19 +676,19 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
               )}
 
               <div className="space-y-2">
-                <div className="text-xs font-medium text-slate-500">Cong thuc tinh diem</div>
+                <div className="text-xs font-medium text-slate-500">Công thức tính điểm</div>
 
                 {parsedData.hasScore ? (
                   <>
                     <div className="rounded-lg border border-slate-700/60 bg-slate-950/50 p-2.5">
                       <div className="flex items-center justify-between text-xs">
-                        <span className="text-slate-500">Danh gia thuc te</span>
+                        <span className="text-slate-500">Đánh giá thực tế</span>
                         <span className="font-mono font-semibold text-cyan-400">{parsedData.scoreLabel}</span>
                       </div>
                     </div>
 
                     <div className="rounded-lg border border-slate-700/60 bg-slate-950/50 p-2.5">
-                      <div className="mb-1 text-xs text-slate-500">Cong thuc subscore</div>
+                      <div className="mb-1 text-xs text-slate-500">Công thức subscore</div>
                       <div className="font-mono text-xs">
                         {parsedData.maxScore !== null ? (
                           <span>
@@ -491,14 +698,14 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
                             {' = '}
                             <span className="font-bold text-amber-400">{parsedData.contributionPct}%</span>
                             {parsedData.weight > 0 && (
-                              <span className="text-slate-500"> ({parsedData.weight}% trong so)</span>
+                              <span className="text-slate-500"> ({parsedData.weight}% trọng số)</span>
                             )}
                           </span>
                         ) : (
                           <span>
                             <span className="text-sky-400">{parsedData.scoreLabel}</span>
                             {parsedData.weight > 0 && (
-                              <span className="text-slate-500"> ({parsedData.weight}% trong so)</span>
+                              <span className="text-slate-500"> ({parsedData.weight}% trọng số)</span>
                             )}
                           </span>
                         )}
@@ -506,7 +713,7 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
                     </div>
 
                     <div className="rounded-lg border border-slate-700/60 bg-slate-950/50 p-2.5">
-                      <div className="mb-1 text-xs text-slate-500">Dong gop vao diem tong</div>
+                      <div className="mb-1 text-xs text-slate-500">Đóng góp vào điểm tổng</div>
                       <div className="space-y-1.5">
                         <div className="flex items-center gap-2">
                           <div className="flex-1 h-1.5 rounded-full bg-slate-800 overflow-hidden">
@@ -518,22 +725,22 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
                           <span className={`text-[11px] font-bold tabular-nums ${parsedData.achievedPct >= 80 ? 'text-emerald-400' : parsedData.achievedPct >= 60 ? 'text-amber-400' : 'text-red-400'}`}>{parsedData.achievedPct}%</span>
                         </div>
                         <div className="text-xs text-slate-300">
-                          Tieu chi nay dong gop{' '}
+                          Tiêu chí này đóng góp{' '}
                           <span className="font-bold text-amber-400 font-mono">{parsedData.score !== null ? formatScoreValue(parsedData.score) : '0'}</span>
                           {parsedData.maxScore !== null && (
                             <>
                               {' / '}
-                              <span className="text-slate-400 font-mono">{formatScoreValue(parsedData.maxScore)}</span> diem
+                              <span className="text-slate-400 font-mono">{formatScoreValue(parsedData.maxScore)}</span> điểm
                             </>
                           )}
-                          {parsedData.maxScore === null && ' diem'}
+                          {parsedData.maxScore === null && ' điểm'}
                         </div>
                       </div>
                     </div>
                   </>
                 ) : (
                   <div className="rounded-lg border border-slate-700/60 bg-slate-950/50 p-3 text-xs text-slate-400">
-                    Chua co du lieu diem chi tiet cho tieu chi nay trong ket qua AI hien tai.
+                    Chưa có dữ liệu điểm chi tiết cho tiêu chí này trong kết quả AI hiện tại.
                   </div>
                 )}
               </div>
@@ -787,14 +994,61 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
     return Math.min(100, parseFloat((basicScore + loyaltyContribution).toFixed(1)));
   }, [analysisRecord, basicScore, loyaltyDerivedFromBasic, loyaltyScore]);
 
+  const [employmentTimeline, setEmploymentTimeline] = useState<CareerTimelineItem[]>([]);
+  const [timelineSource, setTimelineSource] = useState<'cv' | 'evidence' | 'none'>('none');
+  const [timelineLoading, setTimelineLoading] = useState(false);
+
+  useEffect(() => {
+    let isDisposed = false;
+
+    const hydrateTimeline = async () => {
+      setTimelineLoading(true);
+
+      try {
+        const cvText = await resolveCandidateCvText(candidate);
+        let nextTimeline = cvText ? extractCareerTimeline(cvText) : [];
+        let nextSource: 'cv' | 'evidence' | 'none' = nextTimeline.length > 0 ? 'cv' : 'none';
+
+        if (nextTimeline.length === 0 && loyaltyDetail) {
+          const evidenceTimeline = extractCareerTimeline(getDetailEvidence(loyaltyDetail));
+          if (evidenceTimeline.length > 0) {
+            nextTimeline = evidenceTimeline;
+            nextSource = 'evidence';
+          }
+        }
+
+        if (!isDisposed) {
+          setEmploymentTimeline(nextTimeline);
+          setTimelineSource(nextSource);
+        }
+      } catch {
+        if (!isDisposed) {
+          const fallbackTimeline = loyaltyDetail ? extractCareerTimeline(getDetailEvidence(loyaltyDetail)) : [];
+          setEmploymentTimeline(fallbackTimeline);
+          setTimelineSource(fallbackTimeline.length > 0 ? 'evidence' : 'none');
+        }
+      } finally {
+        if (!isDisposed) {
+          setTimelineLoading(false);
+        }
+      }
+    };
+
+    void hydrateTimeline();
+
+    return () => {
+      isDisposed = true;
+    };
+  }, [candidate.id, candidate.fileName, candidate.candidateName, candidate.jobTitle, candidate._rawBatchJson, loyaltyDetail]);
+
   const matchPercent = Math.min(100, Math.round(totalScore));
   const recommendation = totalScore >= 75
-    ? 'Ung vien xuat sac, nen uu tien moi phong van som.'
+    ? 'Ứng viên xuất sắc, nên ưu tiên mời phỏng vấn sớm.'
     : totalScore >= 60
-      ? 'Ung vien co nen tang tot, nen xem xet moi phong van.'
+      ? 'Ứng viên có nền tảng tốt, nên xem xét mời phỏng vấn.'
       : totalScore >= 40
-        ? 'Ung vien co tiem nang, can nhac neu thieu nguon.'
-        : 'Nen uu tien ung vien khac co muc phu hop cao hon.';
+        ? 'Ứng viên có tiềm năng, cân nhắc nếu thiếu nguồn.'
+        : 'Nên ưu tiên ứng viên khác có mức phù hợp cao hơn.';
 
   return (
     <div className="space-y-4 p-2 md:p-4">
@@ -804,23 +1058,23 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
         <div className="flex flex-col items-start justify-between gap-4 md:flex-row">
           <h4 className="flex items-center gap-2 text-lg font-semibold text-slate-100">
             <i className="fa-solid fa-chart-pie text-cyan-400" />
-            Tong hop danh gia
+            Tổng hợp đánh giá
           </h4>
           <div className="grid w-full grid-cols-2 gap-2 md:w-auto md:grid-cols-4">
             <div className="rounded-lg border border-white/[0.08] bg-white/[0.025] px-3 py-2 text-xs">
-              <div className="text-slate-500">Tong diem</div>
+              <div className="text-slate-500">Tổng điểm</div>
               <div className="font-semibold text-slate-100">{totalScore.toFixed(1)}<span className="text-slate-500">/100</span></div>
             </div>
             <div className="rounded-lg border border-cyan-500/20 bg-cyan-500/[0.045] px-3 py-2 text-xs">
-              <div className="text-cyan-500/70">Cot loi</div>
+              <div className="text-cyan-500/70">Cốt lõi</div>
               <div className="font-semibold text-cyan-300">{basicScore.toFixed(1)}<span className="text-slate-500">/{BASIC_TOTAL_MAX}</span></div>
             </div>
             <div className="rounded-lg border border-amber-500/20 bg-amber-500/[0.045] px-3 py-2 text-xs">
-              <div className="text-amber-400/70">Muc do trung thanh</div>
+              <div className="text-amber-400/70">Mức độ trung thành</div>
               <div className="font-semibold text-amber-300">{loyaltyScore.toFixed(1)}<span className="text-slate-500">/{LOYALTY_TOTAL_MAX}</span></div>
             </div>
             <div className="rounded-lg border border-white/[0.08] bg-white/[0.025] px-3 py-2 text-xs">
-              <div className="text-slate-500">Phu hop JD</div>
+              <div className="text-slate-500">Phù hợp JD</div>
               <div className="font-semibold text-emerald-400">{matchPercent}%</div>
             </div>
           </div>
@@ -828,7 +1082,7 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
 
         <div className="mt-4 space-y-1.5">
           <div className="flex items-center gap-2 text-[11px] text-slate-500">
-            <span className="w-20 text-cyan-500/80">Cot loi</span>
+            <span className="w-20 text-cyan-500/80">Cốt lõi</span>
             <div className="flex-1 h-2 rounded-full bg-white/[0.08] overflow-hidden">
               <div className="h-full rounded-full bg-cyan-500 transition-all duration-700"
                 style={{ width: `${Math.min(100, (basicScore / BASIC_TOTAL_MAX) * 100)}%` }} />
@@ -836,7 +1090,7 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
             <span className="w-10 text-right font-mono text-cyan-400">{Math.round((basicScore / BASIC_TOTAL_MAX) * 100)}%</span>
           </div>
           <div className="flex items-center gap-2 text-[11px] text-slate-500">
-            <span className="w-20 text-amber-400/80">Trung thanh</span>
+            <span className="w-20 text-amber-400/80">Trung thành</span>
             <div className="flex-1 h-2 rounded-full bg-white/[0.08] overflow-hidden">
               <div className="h-full rounded-full bg-amber-500 transition-all duration-700"
                 style={{ width: `${Math.min(100, (loyaltyScore / LOYALTY_TOTAL_MAX) * 100)}%` }} />
@@ -846,7 +1100,7 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
         </div>
 
         <div className="mt-3 rounded-lg border border-white/[0.08] bg-white/[0.025] px-4 py-3 text-sm">
-          <span className="font-semibold text-slate-200">Nhan dinh:</span>{' '}
+          <span className="font-semibold text-slate-200">Nhận định:</span>{' '}
           <span className="text-slate-400">{recommendation}</span>
         </div>
       </div>
@@ -855,11 +1109,11 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
         <div className="flex items-center justify-between border-b border-amber-500/15 px-4 py-4">
           <div className="flex items-center gap-2.5 text-sm font-semibold text-amber-300">
             <i className="fa-solid fa-shield-halved text-base"></i>
-            <span>Muc do trung thanh</span>
-            <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[10px] font-bold text-amber-300">{LOYALTY_TOTAL_MAX} diem</span>
+            <span>Mức độ trung thành</span>
+            <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[10px] font-bold text-amber-300">{LOYALTY_TOTAL_MAX} điểm</span>
             {loyaltyDerivedFromBasic && (
               <span className="rounded-full border border-white/[0.08] bg-white/[0.04] px-2 py-0.5 text-[10px] font-medium text-slate-300">
-                Su dung tu Gan bo & Lich su CV
+                Suy ra từ Gắn bó & Lịch sử CV
               </span>
             )}
           </div>
@@ -876,9 +1130,52 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
           ) : (
             <div className="flex flex-col items-center justify-center py-10 text-slate-500">
               <i className="fa-solid fa-shield-halved text-3xl mb-3 opacity-30"></i>
-              <p className="text-sm">Chua co du lieu muc do trung thanh</p>
+              <p className="text-sm">Chưa có dữ liệu mức độ trung thành</p>
             </div>
           )}
+
+          <div className="mt-4 rounded-xl border border-white/[0.08] bg-white/[0.025] p-4">
+            <div className="mb-4 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2 text-sm font-semibold text-amber-200">
+                <i className="fa-solid fa-briefcase text-amber-400" />
+                Timeline làm việc
+              </div>
+              <span className="rounded-full border border-white/[0.08] bg-black/30 px-2.5 py-1 text-[10px] font-medium text-slate-400">
+                {timelineSource === 'cv' ? 'Từ CV OCR' : timelineSource === 'evidence' ? 'Từ dẫn chứng AI' : 'Chưa có dữ liệu'}
+              </span>
+            </div>
+
+            {timelineLoading ? (
+              <div className="flex items-center gap-3 py-6 text-sm text-slate-500">
+                <div className="h-5 w-5 animate-spin rounded-full border-2 border-amber-500/20 border-t-amber-400" />
+                Đang dựng timeline từ CV...
+              </div>
+            ) : employmentTimeline.length > 0 ? (
+              <div className="space-y-4">
+                {employmentTimeline.map((item, index) => (
+                  <div key={item.id} className="grid gap-3 md:grid-cols-[11rem_minmax(0,1fr)]">
+                    <div className="supporthr-mono rounded-none border border-white/[0.08] bg-black/40 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-amber-100">
+                      {item.periodLabel}
+                    </div>
+                    <div className="relative pl-5">
+                      <span className="absolute left-0 top-1.5 h-2.5 w-2.5 rounded-full bg-amber-400" />
+                      {index < employmentTimeline.length - 1 && (
+                        <span className="absolute left-[4px] top-4 bottom-[-18px] w-px bg-white/[0.08]" />
+                      )}
+                      <div className="text-sm leading-6 text-slate-300">{item.summary}</div>
+                      {item.isCurrent && (
+                        <div className="mt-1 text-[11px] font-medium text-emerald-300">Đang làm việc</div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="rounded-lg border border-white/[0.08] bg-black/30 px-4 py-6 text-sm text-slate-500">
+                Chưa trích xuất được mốc thời gian làm việc rõ ràng từ CV này.
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -947,8 +1244,8 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
         <div className="border-b border-white/[0.08] px-4 py-4">
           <div className="flex flex-wrap items-center gap-2.5 text-sm font-semibold text-cyan-300">
             <i className="fa-solid fa-layer-group text-base"></i>
-            <span>Tieu chi cot loi</span>
-            <span className="rounded-full border border-cyan-500/30 bg-cyan-500/10 px-2 py-0.5 text-[10px] font-bold text-cyan-300">{BASIC_TOTAL_MAX} diem</span>
+            <span>Tiêu chí cốt lõi</span>
+            <span className="rounded-full border border-cyan-500/30 bg-cyan-500/10 px-2 py-0.5 text-[10px] font-bold text-cyan-300">{BASIC_TOTAL_MAX} điểm</span>
             <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${basicScore / BASIC_TOTAL_MAX >= 0.8 ? 'text-emerald-400' : basicScore / BASIC_TOTAL_MAX >= 0.6 ? 'text-amber-400' : 'text-red-400'}`}>{basicScore.toFixed(1)}/{BASIC_TOTAL_MAX}</span>
           </div>
         </div>
@@ -957,7 +1254,7 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
           <div className="flex items-center gap-2 pb-2 border-b border-white/[0.06]">
             <i className="fa-solid fa-circle-info text-cyan-500/60 text-xs"></i>
             <p className="text-[11px] text-slate-500">
-              {basicDetails.length} tieu chi hien thi ? {BASIC_CRITERIA.length} tieu chi cot loi ? Tong pho diem <span className="text-cyan-400 font-bold">{BASIC_TOTAL_MAX}</span> diem ? Danh gia nen tang ung vien
+              {basicDetails.length} tiêu chí hiển thị • {BASIC_CRITERIA.length} tiêu chí cốt lõi • Tổng phổ điểm <span className="text-cyan-400 font-bold">{BASIC_TOTAL_MAX}</span> điểm • Đánh giá nền tảng ứng viên
             </p>
           </div>
 
@@ -977,7 +1274,7 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
           ) : (
             <div className="flex flex-col items-center justify-center py-10 text-slate-500">
               <i className="fa-solid fa-layer-group text-3xl mb-3 opacity-30"></i>
-              <p className="text-sm">Chua co du lieu tieu chi cot loi</p>
+              <p className="text-sm">Chưa có dữ liệu tiêu chí cốt lõi</p>
             </div>
           )}
 
