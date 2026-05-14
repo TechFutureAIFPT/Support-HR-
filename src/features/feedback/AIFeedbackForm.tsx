@@ -1,6 +1,21 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { AlertCircle, CheckCircle2, CircleOff, ClipboardList, MessageSquareText, Sparkles, Trophy } from 'lucide-react';
-import type { AnalysisFeedbackAction, AnalysisFeedbackDraft, AnalysisFeedbackRecord } from '@/shared/types';
+import {
+  AlertCircle,
+  CheckCircle2,
+  CircleOff,
+  ClipboardList,
+  Lightbulb,
+  MessageSquareText,
+  ShieldAlert,
+  Sparkles,
+  Trophy,
+} from 'lucide-react';
+import type {
+  AnalysisFeedbackAction,
+  AnalysisFeedbackDraft,
+  AnalysisFeedbackRecord,
+  AnalysisFeedbackSeverity,
+} from '@/shared/types';
 
 interface AIFeedbackFormProps {
   candidateId: string;
@@ -13,6 +28,9 @@ interface AIFeedbackFormProps {
   onSubmit: (feedback: AnalysisFeedbackDraft) => void | Promise<void>;
   onCancel: () => void;
 }
+
+const HIGH_SEVERITY_SCORE_DELTA = 15;
+const MEDIUM_SEVERITY_SCORE_DELTA = 8;
 
 const FEEDBACK_CRITERIA = [
   'Kỹ năng chuyên môn cần xem lại',
@@ -59,6 +77,19 @@ const ACTION_OPTIONS: Array<{
   },
 ];
 
+const REUSE_OPTIONS = [
+  {
+    value: false,
+    title: 'Chỉ áp dụng cho CV này',
+    description: 'Dùng khi phản hồi chủ yếu là tình huống riêng của ứng viên hiện tại.',
+  },
+  {
+    value: true,
+    title: 'Dùng làm lưu ý chung',
+    description: 'Dùng khi đây là kiểu lỗi AI nên lưu ý lại cho các CV tương tự về sau.',
+  },
+];
+
 function readSelectedCriteria(initialFeedback?: AnalysisFeedbackRecord | null): string[] {
   const raw = initialFeedback?.metadata?.selectedCriteria;
   if (!Array.isArray(raw)) return [];
@@ -66,6 +97,57 @@ function readSelectedCriteria(initialFeedback?: AnalysisFeedbackRecord | null): 
   return raw
     .map((item) => String(item || '').trim())
     .filter(Boolean);
+}
+
+function readIsReusableGuidance(initialFeedback?: AnalysisFeedbackRecord | null): boolean {
+  if (typeof initialFeedback?.isReusableGuidance === 'boolean') {
+    return initialFeedback.isReusableGuidance;
+  }
+
+  const raw = initialFeedback?.metadata?.isReusableGuidance;
+  if (typeof raw === 'boolean') return raw;
+  if (typeof raw === 'string') {
+    const normalized = raw.trim().toLowerCase();
+    if (normalized === 'true') return true;
+    if (normalized === 'false') return false;
+  }
+
+  return initialFeedback?.metadata?.feedbackScope === 'reusable-guidance';
+}
+
+function deriveSeverity(scoreDifference: number): AnalysisFeedbackSeverity {
+  const delta = Math.abs(scoreDifference);
+  if (delta >= HIGH_SEVERITY_SCORE_DELTA) return 'high';
+  if (delta >= MEDIUM_SEVERITY_SCORE_DELTA) return 'medium';
+  return 'low';
+}
+
+function getSeverityMeta(severity: AnalysisFeedbackSeverity): {
+  label: string;
+  description: string;
+  className: string;
+} {
+  if (severity === 'high') {
+    return {
+      label: 'Mức độ cao',
+      description: 'Độ lệch từ 15 điểm trở lên. Đây là nhóm phản hồi nên ưu tiên xem lại và cân nhắc tái sử dụng.',
+      className: 'border-rose-400/30 bg-rose-400/10 text-rose-100',
+    };
+  }
+
+  if (severity === 'medium') {
+    return {
+      label: 'Mức độ trung bình',
+      description: 'Độ lệch đủ đáng chú ý. Nên ghi chú rõ nguyên nhân để hỗ trợ review về sau.',
+      className: 'border-amber-400/30 bg-amber-400/10 text-amber-100',
+    };
+  }
+
+  return {
+    label: 'Mức độ nhẹ',
+    description: 'Độ lệch nhỏ. Thường phù hợp với các tinh chỉnh cục bộ cho ứng viên hiện tại.',
+    className: 'border-emerald-400/30 bg-emerald-400/10 text-emerald-100',
+  };
 }
 
 const AIFeedbackForm: React.FC<AIFeedbackFormProps> = ({
@@ -83,12 +165,14 @@ const AIFeedbackForm: React.FC<AIFeedbackFormProps> = ({
   const [selectedCriteria, setSelectedCriteria] = useState<string[]>([]);
   const [notes, setNotes] = useState<string>('');
   const [action, setAction] = useState<AnalysisFeedbackAction | null>(null);
+  const [isReusableGuidance, setIsReusableGuidance] = useState<boolean>(false);
 
   useEffect(() => {
     setFinalScore(Math.round(initialFeedback?.finalScore ?? aiScore));
     setSelectedCriteria(readSelectedCriteria(initialFeedback));
     setNotes(initialFeedback?.notes || '');
     setAction(initialFeedback?.action || null);
+    setIsReusableGuidance(readIsReusableGuidance(initialFeedback));
   }, [candidateId, aiScore, initialFeedback]);
 
   const scoreDifference = useMemo(
@@ -104,6 +188,16 @@ const AIFeedbackForm: React.FC<AIFeedbackFormProps> = ({
     }
     return 'Phản hồi từ recruiter';
   }, [action, notes, selectedCriteria]);
+
+  const severity = useMemo<AnalysisFeedbackSeverity>(
+    () => deriveSeverity(scoreDifference),
+    [scoreDifference]
+  );
+
+  const severityMeta = useMemo(
+    () => getSeverityMeta(severity),
+    [severity]
+  );
 
   const scoreDeltaClassName = scoreDifference > 0
     ? 'text-emerald-300'
@@ -135,6 +229,7 @@ const AIFeedbackForm: React.FC<AIFeedbackFormProps> = ({
       notes: notes.trim(),
       action,
       reason: derivedReason,
+      isReusableGuidance,
     };
 
     await onSubmit(feedback);
@@ -195,9 +290,15 @@ const AIFeedbackForm: React.FC<AIFeedbackFormProps> = ({
               </div>
             </div>
 
-            <p className="mt-4 text-sm leading-6 text-slate-400">
-              Điều chỉnh điểm số khi bạn thấy AI đang chấm quá cao, quá thấp hoặc chưa phản ánh đúng mức độ phù hợp.
-            </p>
+            <div className={`mt-4 rounded-[20px] border px-4 py-3 ${severityMeta.className}`}>
+              <div className="flex items-start gap-3">
+                <ShieldAlert className="mt-0.5 h-4.5 w-4.5 shrink-0" />
+                <div>
+                  <p className="text-sm font-semibold">{severityMeta.label}</p>
+                  <p className="mt-1 text-xs leading-5 opacity-90">{severityMeta.description}</p>
+                </div>
+              </div>
+            </div>
           </section>
 
           <section className="rounded-[24px] border border-slate-800/70 bg-slate-950/30 p-4 md:p-5">
@@ -248,6 +349,53 @@ const AIFeedbackForm: React.FC<AIFeedbackFormProps> = ({
             </div>
           </section>
         </div>
+
+        <section className="rounded-[24px] border border-slate-800/70 bg-slate-950/30 p-4 md:p-5">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-800/80 bg-slate-900/70">
+              <Lightbulb className="h-4.5 w-4.5 text-slate-300" />
+            </div>
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                Phạm vi áp dụng phản hồi
+              </p>
+              <p className="mt-1 text-sm text-slate-500">
+                Giúp hệ thống phân biệt giữa lỗi riêng của CV này và lưu ý nên dùng lại cho các CV sau.
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-4 grid gap-2.5 md:grid-cols-2">
+            {REUSE_OPTIONS.map((option) => {
+              const isActive = isReusableGuidance === option.value;
+              return (
+                <button
+                  key={option.title}
+                  type="button"
+                  onClick={() => setIsReusableGuidance(option.value)}
+                  className={`rounded-[20px] border px-4 py-4 text-left transition-all duration-200 ${
+                    isActive
+                      ? 'border-sky-400/35 bg-sky-400/10 text-sky-100'
+                      : 'border-slate-800/70 bg-slate-900/25 text-slate-300 hover:border-slate-700 hover:bg-slate-900/55'
+                  }`}
+                >
+                  <div className="text-sm font-semibold">{option.title}</div>
+                  <div className="mt-1 text-xs leading-5 opacity-85">{option.description}</div>
+                </button>
+              );
+            })}
+          </div>
+
+          {severity === 'high' && !isReusableGuidance ? (
+            <div className="mt-4 flex items-start gap-3 rounded-[20px] border border-amber-400/25 bg-amber-400/10 px-4 py-3 text-sm text-amber-100">
+              <AlertCircle className="mt-0.5 h-4.5 w-4.5 shrink-0" />
+              <span>
+                Độ lệch hiện đang ở mức cao. Nếu đây là lỗi AI có thể lặp lại với các CV tương tự,
+                bạn nên bật tùy chọn “Dùng làm lưu ý chung”.
+              </span>
+            </div>
+          ) : null}
+        </section>
 
         <section className="rounded-[24px] border border-slate-800/70 bg-slate-950/30 p-4 md:p-5">
           <div className="flex items-center gap-3">
@@ -309,7 +457,8 @@ const AIFeedbackForm: React.FC<AIFeedbackFormProps> = ({
           />
 
           <p className="mt-3 text-sm leading-6 text-slate-500">
-            Hệ thống sẽ lưu lại quyết định, điểm số cuối cùng, lý do tổng hợp và ghi chú này cho mục đích đánh giá nội bộ.
+            Hệ thống sẽ lưu lại quyết định, điểm số cuối cùng, lý do tổng hợp, ghi chú này
+            và phạm vi áp dụng của phản hồi để phục vụ bước học sau.
           </p>
         </section>
 

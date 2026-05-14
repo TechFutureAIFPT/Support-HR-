@@ -344,12 +344,15 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
         action: draft.action,
         aiScore: getCandidateScore(selectedCandidate),
         finalScore: draft.finalScore,
+        isReusableGuidance: draft.isReusableGuidance,
         rank: getCandidateRank(selectedCandidate),
         reason: draft.reason,
         notes: draft.notes,
         metadata: {
           selectedCriteria: draft.selectedCriteria,
           scoreDifference: draft.scoreDifference,
+          isReusableGuidance: draft.isReusableGuidance,
+          feedbackScope: draft.isReusableGuidance ? 'reusable-guidance' : 'candidate-specific',
           source: 'ui-feedback-page',
         },
       });

@@ -1,5 +1,5 @@
 import { apiDelete, apiGet, apiPost, pickArray } from '@/lib/services/api/renderClient';
-import type { AnalysisFeedbackAction, AnalysisFeedbackRecord } from '@/shared/types';
+import type { AnalysisFeedbackAction, AnalysisFeedbackRecord, AnalysisFeedbackSeverity } from '@/shared/types';
 
 export interface SaveAnalysisFeedbackPayload {
   sessionId?: string;
@@ -16,6 +16,7 @@ export interface SaveAnalysisFeedbackPayload {
   action: AnalysisFeedbackAction;
   aiScore?: number;
   finalScore?: number;
+  isReusableGuidance?: boolean;
   rank?: string;
   reason?: string;
   notes?: string;
@@ -49,8 +50,24 @@ function normalizeTimestamp(value: unknown): number | null {
   return null;
 }
 
+function normalizeBoolean(value: unknown): boolean {
+  if (typeof value === 'boolean') return value;
+  if (typeof value === 'string') {
+    const normalized = value.trim().toLowerCase();
+    if (normalized === 'true') return true;
+    if (normalized === 'false') return false;
+  }
+  return Boolean(value);
+}
+
 function normalizeFeedbackRecord(raw: unknown): AnalysisFeedbackRecord {
   const item = (raw && typeof raw === 'object') ? raw as Record<string, unknown> : {};
+  const severityValue = item.severity ? String(item.severity).toLowerCase() : 'low';
+  const normalizedSeverity: AnalysisFeedbackSeverity = severityValue === 'high'
+    ? 'high'
+    : severityValue === 'medium'
+      ? 'medium'
+      : 'low';
 
   return {
     id: String(item.id || ''),
@@ -72,6 +89,8 @@ function normalizeFeedbackRecord(raw: unknown): AnalysisFeedbackRecord {
     action: String(item.action || 'neutral') as AnalysisFeedbackAction,
     aiScore: typeof item.aiScore === 'number' ? item.aiScore : null,
     finalScore: typeof item.finalScore === 'number' ? item.finalScore : null,
+    isReusableGuidance: normalizeBoolean(item.isReusableGuidance),
+    severity: normalizedSeverity,
     rank: item.rank ? String(item.rank) : null,
     reason: item.reason ? String(item.reason) : null,
     notes: item.notes ? String(item.notes) : null,

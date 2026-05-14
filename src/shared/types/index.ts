@@ -136,6 +136,7 @@ export interface CandidateEmbeddingInsight {
 }
 
 export type AnalysisFeedbackAction = 'like' | 'dislike' | 'shortlist' | 'reject' | 'interview' | 'hire' | 'neutral';
+export type AnalysisFeedbackSeverity = 'low' | 'medium' | 'high';
 
 export interface AnalysisFeedbackDraft {
   candidateId: string;
@@ -145,6 +146,7 @@ export interface AnalysisFeedbackDraft {
   notes: string;
   action: AnalysisFeedbackAction;
   reason: string;
+  isReusableGuidance: boolean;
 }
 
 export interface AnalysisFeedbackRecord {
@@ -167,6 +169,8 @@ export interface AnalysisFeedbackRecord {
   action: AnalysisFeedbackAction;
   aiScore?: number | null;
   finalScore?: number | null;
+  isReusableGuidance?: boolean;
+  severity?: AnalysisFeedbackSeverity;
   rank?: string | null;
   reason?: string | null;
   notes?: string | null;
