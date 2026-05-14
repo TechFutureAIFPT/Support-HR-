@@ -118,7 +118,9 @@ const TOOL_ITEMS: Array<{
   { key: 'dashboard', label: 'Thống kê chi tiết', sub: 'Analytics Dashboard',
     icon: PieChart,      color: '#60a5fa', bgActive: 'rgba(96,165,250,0.1)' },
   { key: 'chatbot',    label: 'Gợi ý ứng viên AI',  sub: 'AI Recruitment Assistant',
-    icon: MessageSquare, color: '#60a5fa', bgActive: 'rgba(96,165,250,0.1)' }
+    icon: MessageSquare, color: '#60a5fa', bgActive: 'rgba(96,165,250,0.1)' },
+  { key: 'feedback',   label: 'Phản hồi AI', sub: 'Hiệu chỉnh đánh giá',
+    icon: Brain,        color: '#60a5fa', bgActive: 'rgba(96,165,250,0.1)' }
 ];
 
 // ── Helpers ────────────────────────────────────────────────────────────────

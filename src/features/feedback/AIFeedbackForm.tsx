@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { AlertCircle, CheckCircle2, CircleOff, ClipboardList, MessageSquareText, Sparkles, Trophy } from 'lucide-react';
 import type { AnalysisFeedbackAction, AnalysisFeedbackDraft, AnalysisFeedbackRecord } from '@/shared/types';
 
 interface AIFeedbackFormProps {
@@ -14,11 +15,11 @@ interface AIFeedbackFormProps {
 }
 
 const FEEDBACK_CRITERIA = [
-  'Ky nang chuyen mon can xem lai',
-  'Kinh nghiem thuc te chua sat',
-  'Du an thuc te can danh gia sau hon',
-  'Ky nang mem va giao tiep',
-  'Hoc van, chung chi hoac ngoai ngu',
+  'Kỹ năng chuyên môn cần xem lại',
+  'Kinh nghiệm thực tế chưa sát yêu cầu',
+  'Dự án thực tế cần đánh giá sâu hơn',
+  'Kỹ năng mềm và giao tiếp',
+  'Học vấn, chứng chỉ hoặc ngoại ngữ',
 ];
 
 const ACTION_OPTIONS: Array<{
@@ -26,30 +27,35 @@ const ACTION_OPTIONS: Array<{
   label: string;
   description: string;
   tone: string;
+  icon: React.ComponentType<{ className?: string }>;
 }> = [
   {
     value: 'shortlist',
-    label: 'Shortlist',
-    description: 'Ung vien dat muc de dua vao danh sach can nhac tiep.',
-    tone: 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300',
+    label: 'Đưa vào shortlist',
+    description: 'Ứng viên phù hợp để tiếp tục theo dõi hoặc so sánh với nhóm top đầu.',
+    tone: 'border-emerald-400/35 bg-emerald-400/10 text-emerald-100 shadow-[0_0_0_1px_rgba(52,211,153,0.12)]',
+    icon: ClipboardList,
   },
   {
     value: 'interview',
-    label: 'Phong van',
-    description: 'Nen moi phong van de xac nhan them nang luc va fit van hoa.',
-    tone: 'border-sky-500/30 bg-sky-500/10 text-sky-300',
+    label: 'Mời phỏng vấn',
+    description: 'Nên bước sang vòng trao đổi để kiểm chứng thêm năng lực và độ phù hợp.',
+    tone: 'border-sky-400/35 bg-sky-400/10 text-sky-100 shadow-[0_0_0_1px_rgba(56,189,248,0.12)]',
+    icon: MessageSquareText,
   },
   {
     value: 'hire',
-    label: 'De xuat tuyen',
-    description: 'Ung vien rat manh, co the day nhanh sang buoc offer.',
-    tone: 'border-violet-500/30 bg-violet-500/10 text-violet-300',
+    label: 'Đề xuất tuyển',
+    description: 'Ứng viên rất mạnh, có thể ưu tiên sang bước chốt offer hoặc đàm phán.',
+    tone: 'border-violet-400/35 bg-violet-400/10 text-violet-100 shadow-[0_0_0_1px_rgba(167,139,250,0.14)]',
+    icon: Trophy,
   },
   {
     value: 'reject',
-    label: 'Loai',
-    description: 'Khong phu hop o thoi diem hien tai hoac chua dat muc toi thieu.',
-    tone: 'border-rose-500/30 bg-rose-500/10 text-rose-300',
+    label: 'Từ chối',
+    description: 'Chưa phù hợp ở thời điểm hiện tại hoặc chưa đạt ngưỡng tối thiểu của vị trí.',
+    tone: 'border-rose-400/35 bg-rose-400/10 text-rose-100 shadow-[0_0_0_1px_rgba(251,113,133,0.14)]',
+    icon: CircleOff,
   },
 ];
 
@@ -96,8 +102,14 @@ const AIFeedbackForm: React.FC<AIFeedbackFormProps> = ({
     if (action) {
       return ACTION_OPTIONS.find((option) => option.value === action)?.label || action;
     }
-    return 'Feedback tu recruiter';
+    return 'Phản hồi từ recruiter';
   }, [action, notes, selectedCriteria]);
+
+  const scoreDeltaClassName = scoreDifference > 0
+    ? 'text-emerald-300'
+    : scoreDifference < 0
+      ? 'text-rose-300'
+      : 'text-slate-200';
 
   const handleCriteriaChange = (criterion: string) => {
     setSelectedCriteria((previous) => (
@@ -111,7 +123,7 @@ const AIFeedbackForm: React.FC<AIFeedbackFormProps> = ({
     event.preventDefault();
 
     if (!action) {
-      window.alert('Vui long chon ket qua danh gia cho ung vien.');
+      window.alert('Vui lòng chọn kết quả đánh giá cho ứng viên.');
       return;
     }
 
@@ -129,31 +141,37 @@ const AIFeedbackForm: React.FC<AIFeedbackFormProps> = ({
   };
 
   return (
-    <div className="mt-4 rounded-2xl border border-slate-800/60 bg-[#11213A] p-6 shadow-xl shadow-black/20">
-      <div className="mb-5 flex items-center gap-3 border-b border-slate-800/60 pb-4">
-        <div className="flex h-8 w-8 items-center justify-center rounded-xl border border-rose-500/20 bg-rose-500/10">
-          <i className="fa-solid fa-brain text-sm text-rose-400"></i>
+    <div className="rounded-[28px] border border-slate-800/80 bg-[#091427] p-5 shadow-[0_18px_60px_-24px_rgba(15,23,42,0.82)] md:p-6">
+      <div className="mb-6 flex items-start gap-4 border-b border-slate-800/70 pb-5">
+        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-sky-400/25 bg-sky-400/10">
+          <Sparkles className="h-5 w-5 text-sky-300" />
         </div>
-        <div>
-          <h4 className="text-sm font-bold text-slate-100">Feedback recruiter cho AI</h4>
-          <p className="text-xs text-slate-500">
-            Dang danh gia: <span className="font-semibold text-slate-300">{candidateName}</span>
+        <div className="min-w-0">
+          <h2 className="text-lg font-bold text-white">Phản hồi đánh giá AI</h2>
+          <p className="mt-1 text-sm leading-6 text-slate-400">
+            Bạn đang hiệu chỉnh kết quả cho <span className="font-semibold text-slate-200">{candidateName}</span>.
+            Các thay đổi dưới đây sẽ được lưu cùng phiên phân tích hiện tại.
           </p>
         </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="grid gap-4 md:grid-cols-[1.1fr_0.9fr]">
-          <div className="rounded-2xl border border-slate-800/60 bg-slate-950/30 p-4">
-            <div className="flex items-center justify-between">
-              <label className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
-                Diem danh gia cuoi
-              </label>
-              <div className="text-[11px] text-slate-500">
-                AI: <span className="font-semibold text-slate-300">{aiScore.toFixed(1)}</span>
+        <div className="grid gap-4 xl:grid-cols-[1.05fr_0.95fr]">
+          <section className="rounded-[24px] border border-slate-800/70 bg-slate-950/30 p-4 md:p-5">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                  Điểm hiệu chỉnh cuối cùng
+                </p>
+                <h3 className="mt-2 text-xl font-bold text-white">{finalScore} điểm</h3>
+              </div>
+              <div className="rounded-2xl border border-slate-800/70 bg-slate-900/70 px-4 py-2 text-right">
+                <p className="text-[11px] uppercase tracking-[0.16em] text-slate-500">Điểm AI gốc</p>
+                <p className="text-lg font-bold text-slate-100">{aiScore.toFixed(1)}</p>
               </div>
             </div>
-            <div className="mt-4 flex items-center gap-4">
+
+            <div className="mt-5 rounded-[22px] border border-slate-800/70 bg-[#081120] px-4 py-4">
               <input
                 type="range"
                 min="0"
@@ -161,117 +179,175 @@ const AIFeedbackForm: React.FC<AIFeedbackFormProps> = ({
                 step="1"
                 value={finalScore}
                 onChange={(event) => setFinalScore(Number(event.target.value))}
-                className="w-full accent-rose-500"
+                className="w-full accent-sky-400"
               />
-              <div className="w-16 shrink-0 rounded-xl border border-slate-800/60 bg-slate-900/50 px-3 py-2 text-center">
-                <span className="text-lg font-bold text-slate-100">{finalScore}</span>
+
+              <div className="mt-4 flex flex-wrap items-center gap-2 text-sm">
+                <span className="rounded-full border border-slate-700/80 bg-slate-900/70 px-3 py-1.5 text-slate-300">
+                  AI gốc: <strong className="font-semibold text-white">{aiScore.toFixed(1)}</strong>
+                </span>
+                <span className="rounded-full border border-slate-700/80 bg-slate-900/70 px-3 py-1.5 text-slate-300">
+                  Recruiter chốt: <strong className="font-semibold text-white">{finalScore}</strong>
+                </span>
+                <span className={`rounded-full border border-transparent bg-slate-900/70 px-3 py-1.5 font-semibold ${scoreDeltaClassName}`}>
+                  Độ lệch: {scoreDifference > 0 ? '+' : ''}{scoreDifference}
+                </span>
               </div>
             </div>
-            <div className="mt-3 text-xs text-slate-500">
-              Do lech:
-              <span className={`ml-2 font-semibold ${scoreDifference > 0 ? 'text-emerald-400' : scoreDifference < 0 ? 'text-rose-400' : 'text-slate-300'}`}>
-                {scoreDifference > 0 ? '+' : ''}{scoreDifference}
-              </span>
-            </div>
-          </div>
 
-          <div className="rounded-2xl border border-slate-800/60 bg-slate-950/30 p-4">
-            <label className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
-              Ket qua recruiter
-            </label>
-            <div className="mt-3 grid gap-2">
+            <p className="mt-4 text-sm leading-6 text-slate-400">
+              Điều chỉnh điểm số khi bạn thấy AI đang chấm quá cao, quá thấp hoặc chưa phản ánh đúng mức độ phù hợp.
+            </p>
+          </section>
+
+          <section className="rounded-[24px] border border-slate-800/70 bg-slate-950/30 p-4 md:p-5">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-800/80 bg-slate-900/70">
+                <ClipboardList className="h-4.5 w-4.5 text-slate-300" />
+              </div>
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                  Quyết định của recruiter
+                </p>
+                <p className="mt-1 text-sm text-slate-500">Chọn một trạng thái chính cho ứng viên này.</p>
+              </div>
+            </div>
+
+            <div className="mt-4 grid gap-2.5">
               {ACTION_OPTIONS.map((option) => {
                 const isActive = action === option.value;
+                const Icon = option.icon;
+
                 return (
                   <button
                     key={option.value}
                     type="button"
                     onClick={() => setAction(option.value)}
-                    className={`rounded-xl border px-3 py-3 text-left transition-all ${
+                    className={`rounded-[20px] border px-4 py-3.5 text-left transition-all duration-200 ${
                       isActive
                         ? option.tone
-                        : 'border-slate-800/60 bg-slate-900/20 text-slate-400 hover:bg-slate-900/40 hover:text-slate-200'
+                        : 'border-slate-800/70 bg-slate-900/30 text-slate-300 hover:border-slate-700 hover:bg-slate-900/60'
                     }`}
                   >
-                    <div className="text-sm font-bold">{option.label}</div>
-                    <div className="mt-1 text-[11px] leading-relaxed opacity-80">{option.description}</div>
+                    <div className="flex items-start gap-3">
+                      <div className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border ${
+                        isActive
+                          ? 'border-current/20 bg-black/10'
+                          : 'border-slate-800/70 bg-slate-950/60 text-slate-400'
+                      }`}>
+                        <Icon className="h-4.5 w-4.5" />
+                      </div>
+                      <div>
+                        <div className="text-sm font-bold">{option.label}</div>
+                        <div className="mt-1 text-xs leading-5 opacity-85">{option.description}</div>
+                      </div>
+                    </div>
                   </button>
                 );
               })}
             </div>
-          </div>
+          </section>
         </div>
 
-        <div className="space-y-3">
-          <label className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
-            Tieu chi can AI hoc lai
-          </label>
-          <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+        <section className="rounded-[24px] border border-slate-800/70 bg-slate-950/30 p-4 md:p-5">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-800/80 bg-slate-900/70">
+              <CheckCircle2 className="h-4.5 w-4.5 text-slate-300" />
+            </div>
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                Tiêu chí cần AI học lại
+              </p>
+              <p className="mt-1 text-sm text-slate-500">
+                Chọn các điểm mà bạn muốn lưu lại để phục vụ việc review hoặc evaluation sau này.
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-4 grid grid-cols-1 gap-2.5 md:grid-cols-2">
             {FEEDBACK_CRITERIA.map((criterion) => (
               <label
                 key={criterion}
-                className="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-800/60 bg-slate-900/30 p-3 transition hover:bg-slate-800/50"
+                className={`flex cursor-pointer items-start gap-3 rounded-[20px] border p-3.5 transition-all ${
+                  selectedCriteria.includes(criterion)
+                    ? 'border-sky-400/30 bg-sky-400/10'
+                    : 'border-slate-800/70 bg-slate-900/25 hover:border-slate-700 hover:bg-slate-900/50'
+                }`}
               >
                 <input
                   type="checkbox"
-                  className="mt-0.5 rounded border-slate-700 bg-transparent accent-rose-500"
+                  className="mt-0.5 rounded border-slate-700 bg-transparent accent-sky-400"
                   checked={selectedCriteria.includes(criterion)}
                   onChange={() => handleCriteriaChange(criterion)}
                 />
-                <span className="text-xs leading-snug text-slate-300">{criterion}</span>
+                <span className="text-sm leading-6 text-slate-200">{criterion}</span>
               </label>
             ))}
           </div>
-        </div>
+        </section>
 
-        <div className="space-y-2">
-          <label className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
-            Ghi chu chi tiet
-          </label>
+        <section className="rounded-[24px] border border-slate-800/70 bg-slate-950/30 p-4 md:p-5">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-800/80 bg-slate-900/70">
+              <MessageSquareText className="h-4.5 w-4.5 text-slate-300" />
+            </div>
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                Ghi chú chi tiết
+              </p>
+              <p className="mt-1 text-sm text-slate-500">
+                Mô tả ngắn gọn vì sao bạn thay đổi điểm hoặc quyết định hiện tại của recruiter.
+              </p>
+            </div>
+          </div>
+
           <textarea
-            className="min-h-[120px] w-full rounded-2xl border border-slate-800/60 bg-slate-900/30 p-4 text-sm text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-rose-500/40 focus:bg-[#11213A] focus:ring-1 focus:ring-rose-500/40"
-            placeholder="Vi du: diem AI hoi cao vi ung vien co ghi nhieu keyword nhung kinh nghiem trien khai thuc te chua sau..."
+            className="mt-4 min-h-[140px] w-full rounded-[22px] border border-slate-800/70 bg-[#081120] p-4 text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-sky-400/40 focus:ring-1 focus:ring-sky-400/30"
+            placeholder="Ví dụ: Ứng viên có từ khóa khá tốt nhưng kinh nghiệm triển khai thực tế ở môi trường production còn mỏng, cần kiểm chứng thêm ở vòng phỏng vấn."
             value={notes}
             onChange={(event) => setNotes(event.target.value)}
           />
-          <p className="text-[11px] leading-relaxed text-slate-500">
-            Backend se luu action, diem cuoi, ly do tong hop va ghi chu nay de dung cho evaluation ve sau.
+
+          <p className="mt-3 text-sm leading-6 text-slate-500">
+            Hệ thống sẽ lưu lại quyết định, điểm số cuối cùng, lý do tổng hợp và ghi chú này cho mục đích đánh giá nội bộ.
           </p>
-        </div>
+        </section>
 
         {submitError ? (
-          <div className="rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
-            {submitError}
+          <div className="flex items-start gap-3 rounded-[20px] border border-rose-400/25 bg-rose-400/10 px-4 py-3 text-sm text-rose-100">
+            <AlertCircle className="mt-0.5 h-4.5 w-4.5 shrink-0" />
+            <span>{submitError}</span>
           </div>
         ) : null}
 
         {submitSuccessMessage ? (
-          <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
-            {submitSuccessMessage}
+          <div className="flex items-start gap-3 rounded-[20px] border border-emerald-400/25 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-100">
+            <CheckCircle2 className="mt-0.5 h-4.5 w-4.5 shrink-0" />
+            <span>{submitSuccessMessage}</span>
           </div>
         ) : null}
 
-        <div className="flex flex-col justify-between gap-3 border-t border-slate-800/60 pt-4 md:flex-row md:items-center">
-          <div className="text-xs text-slate-500">
+        <div className="flex flex-col justify-between gap-4 border-t border-slate-800/70 pt-5 md:flex-row md:items-center">
+          <div className="text-sm leading-6 text-slate-500">
             {initialFeedback?.updatedAt
-              ? `Feedback nay da tung duoc cap nhat truoc do. Ban co the sua lai va gui de overwrite document hien tai.`
-              : 'Feedback moi se duoc gan vao candidate va phien phan tich hien tai.'}
+              ? 'Phản hồi này đã được lưu trước đó. Bạn có thể chỉnh sửa và gửi lại để cập nhật bản ghi hiện tại.'
+              : 'Phản hồi mới sẽ được gắn trực tiếp với ứng viên và phiên phân tích mà bạn đang mở.'}
           </div>
 
           <div className="flex justify-end gap-3">
             <button
               type="button"
               onClick={onCancel}
-              className="rounded-xl border border-slate-800/60 px-5 py-2 text-xs font-bold text-slate-400 transition-colors hover:bg-slate-800/50 hover:text-slate-200"
+              className="rounded-2xl border border-slate-800/80 px-5 py-2.5 text-sm font-semibold text-slate-300 transition-colors hover:bg-slate-900/60 hover:text-white"
             >
-              Huy
+              Quay lại
             </button>
             <button
               type="submit"
-              className="rounded-xl border border-rose-500 bg-rose-600 px-6 py-2 text-xs font-bold text-white shadow-sm transition-colors hover:bg-rose-500 disabled:cursor-not-allowed disabled:opacity-60"
+              className="rounded-2xl border border-sky-400/40 bg-sky-500 px-6 py-2.5 text-sm font-semibold text-white shadow-[0_14px_30px_-16px_rgba(14,165,233,0.75)] transition-all hover:bg-sky-400 disabled:cursor-not-allowed disabled:opacity-60"
               disabled={isSubmitting || !action}
             >
-              {isSubmitting ? 'Dang luu...' : initialFeedback ? 'Cap nhat feedback' : 'Gui feedback'}
+              {isSubmitting ? 'Đang lưu phản hồi...' : initialFeedback ? 'Cập nhật phản hồi' : 'Lưu phản hồi'}
             </button>
           </div>
         </div>

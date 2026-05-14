@@ -198,7 +198,7 @@ const SelectedCandidatesPage: React.FC<SelectedCandidatesPageProps> = ({ candida
             </button>
             <button
               onClick={() => navigate('/feedback')}
-              className="flex items-center gap-1.5 px-4 py-1.5 text-xs font-bold bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white transition-all shadow shadow-emerald-900/30 border border-emerald-400/20 rounded-md"
+              className="flex items-center gap-1.5 rounded-md border border-sky-400/20 bg-gradient-to-r from-sky-600 to-cyan-600 px-4 py-1.5 text-xs font-bold text-white shadow shadow-sky-950/30 transition-all hover:from-sky-500 hover:to-cyan-500"
             >
               <Flag className="w-3.5 h-3.5" />
               Hoàn tất quy trình
