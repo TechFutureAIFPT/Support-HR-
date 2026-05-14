@@ -21,7 +21,7 @@ class AnalysisCacheService {
   private cache = new Map<string, AnalysisCacheEntry>();
   private readonly CACHE_EXPIRY = 24 * 60 * 60 * 1000; // 24 hours
   private readonly MAX_CACHE_SIZE = 100; // Maximum cached entries
-  private readonly CACHE_SCHEMA_VERSION = 'criteria-v2';
+  private readonly CACHE_SCHEMA_VERSION = 'criteria-v3';
 
   /**
    * Generate a unique cache key for a file and analysis parameters

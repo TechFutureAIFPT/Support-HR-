@@ -10,51 +10,18 @@ const BASIC_CRITERIA = [
   'Hệ số uy tín công ty', // chuyển về cơ bản
 ];
 
-const ADVANCED_CRITERIA = [
-  'Kỹ năng hành động & chủ động',
-  'Trình bày STAR & Kết quả',
-  'Sự ổn định & Trung thành',
-  'Kỹ năng chuyển đổi (Skill Graph)',
-  'Tiềm năng phát triển (Career Velocity)',
+const LOYALTY_CRITERION = 'Muc do trung thanh';
+
+const REMOVED_ADVANCED_CRITERIA = [
+  'Ky nang hanh dong & chu dong',
+  'Trinh bay STAR & Ket qua',
+  'Ky nang chuyen doi (Skill Graph)',
+  'Tiem nang phat trien (Career Velocity)',
 ];
 
-// Thang điểm chuẩn
-const BASIC_TOTAL_MAX = 80;    // 10 tiêu chí cơ bản cộng lại tối đa 80
-const ADVANCED_MAX_PER = 4;   // mỗi tiêu chí nâng cao tối đa 4 điểm
-const ADVANCED_TOTAL_MAX = ADVANCED_CRITERIA.length * ADVANCED_MAX_PER; // 5 × 4 = 20
-
-const ADVANCED_DESCRIPTIONS: Record<string, { what: string; why: string; signals: string[] }> = {
-  'Kỹ năng hành động & chủ động': {
-    what: 'Đo lường mức độ chủ động, sáng tạo và tự giác trong công việc qua ngôn từ hành động trong CV.',
-    why: 'Ứng viên chủ động thường tạo ra giá trị vượt kỳ vọng — đây là tín hiệu soft skill quan trọng.',
-    signals: ['Động từ mạnh: dẫn dắt, xây dựng, tối ưu, triển khai', 'Sáng kiến cá nhân ngoài KPI', 'Cải tiến quy trình tự nguyện'],
-  },
-  'Trình bày STAR & Kết quả': {
-    what: 'Đánh giá cấu trúc trình bày theo khúng STAR (Situation-Task-Action-Result) với kết quả số liệu cụ thể.',
-    why: 'CV có STAR rõ ràng phản ánh tư duy có hệ thống và khả năng trình bày có kết quả đo lường được.',
-    signals: ['Bối cảnh + nhiệm vụ được mô tả', 'Hành động cụ thể, có thể verify', 'Kết quả định lượng (%, số người dùng, doanh thu)'],
-  },
-  'Sự ổn định & Trung thành': {
-    what: 'Phân tích lịch sử làm việc: thời gian ở mỗi công ty, tần suất chuyển việc và xu hướng phát triển.',
-    why: 'Ổn định tại công ty giúp giảm chi phí tuyển dụng và đào tạo; trung thành là tín hiệu văn hóa quan trọng.',
-    signals: ['≥ 2 năm/công ty được coi là ổn định', 'Nhảy việc liên tục (< 1 năm) cần giải thích', 'Xu hướng tăng cấp qua các lần chuyển'],
-  },
-  'Kỹ năng chuyển đổi (Skill Graph)': {
-    what: 'Đánh giá khả năng áp dụng kỹ năng từ lĩnh vực này sang lĩnh vực khác — tư duy linh hoạt và adaptability.',
-    why: 'Trong môi trường công nghệ thay đổi nhanh, ứng viên có transferable skills thích nghi tốt hơn.',
-    signals: ['React ↔ Vue (cùng hệ sinh thái frontend)', 'Node ↔ Python backend', 'Từ product sang startup hoặc ngược lại'],
-  },
-  'Tiềm năng phát triển (Career Velocity)': {
-    what: 'Đo tốc độ thăng tiến — thời gian để đạt mỗi cấp bậc cao hơn so với trung bình ngành.',
-    why: 'Ứng viên có career velocity cao thường là A-player, mang lại ROI tốt hơn trong dài hạn.',
-    signals: ['Senior trước 5 năm', 'Lead/Manager trước 8 năm', 'Tăng scope/responsibility qua mỗi lần chuyển'],
-  },
-  'Hệ số uy tín công ty': {
-    what: 'Điều chỉnh trọng số điểm dựa trên uy tín của các công ty từng làm — tier 1, tier 2, hay startup unknown.',
-    why: 'Kinh nghiệm tại công ty uy tín (Big Tech, Top Consulting) thường đảm bảo chất lượng đào tạo và quy trình.',
-    signals: ['Tier 1: FAANG, McKinsey, Goldman Sachs', 'Tier 2: Top regional tech, Fortune 500 VN', 'Bonus nếu lead/senior tại startup tăng trưởng nhanh'],
-  },
-};
+// Thang diem chu?n
+const BASIC_TOTAL_MAX = 80;    // 10 tieu chi c? b?n c?ng l?i t?i ?a 80
+const LOYALTY_TOTAL_MAX = 10;
 
 const BASIC_DESCRIPTIONS: Record<string, { what: string; why: string; signals: string[] }> = {
   'Phù hợp JD (Job Fit)': {
@@ -110,83 +77,95 @@ const BASIC_DESCRIPTIONS: Record<string, { what: string; why: string; signals: s
 };
 
 
-const CARD_CRITERIA_META: { [key: string]: { icon: string; color: string; accent: string } } = {
-  'Phù hợp JD (Job Fit)': { icon: 'fa-solid fa-bullseye', color: 'text-sky-400', accent: 'border-sky-500/30 bg-sky-500/5' },
-  'Kinh nghiệm': { icon: 'fa-solid fa-briefcase', color: 'text-green-400', accent: 'border-green-500/30 bg-green-500/5' },
-  'Kỹ năng': { icon: 'fa-solid fa-gears', color: 'text-purple-400', accent: 'border-purple-500/30 bg-purple-500/5' },
-  'Thành tựu/KPI': { icon: 'fa-solid fa-trophy', color: 'text-yellow-400', accent: 'border-yellow-500/30 bg-yellow-500/5' },
-  'Học vấn': { icon: 'fa-solid fa-graduation-cap', color: 'text-indigo-400', accent: 'border-indigo-500/30 bg-indigo-500/5' },
-  'Ngôn ngữ': { icon: 'fa-solid fa-language', color: 'text-orange-400', accent: 'border-orange-500/30 bg-orange-500/5' },
-  'Chuyên nghiệp': { icon: 'fa-solid fa-file-invoice', color: 'text-cyan-400', accent: 'border-cyan-500/30 bg-cyan-500/5' },
-  'Gắn bó & Lịch sử CV': { icon: 'fa-solid fa-hourglass-half', color: 'text-lime-400', accent: 'border-lime-500/30 bg-lime-500/5' },
-  'Phù hợp văn hoá': { icon: 'fa-solid fa-users-gear', color: 'text-pink-400', accent: 'border-pink-500/30 bg-pink-500/5' },
-  'Kỹ năng hành động & chủ động': { icon: 'fa-solid fa-hand-fist', color: 'text-rose-400', accent: 'border-rose-500/30 bg-rose-500/5' },
-  'Trình bày STAR & Kết quả': { icon: 'fa-solid fa-chart-line', color: 'text-teal-400', accent: 'border-teal-500/30 bg-teal-500/5' },
-  'Sự ổn định & Trung thành': { icon: 'fa-solid fa-shield-halved', color: 'text-amber-400', accent: 'border-amber-500/30 bg-amber-500/5' },
-  'Kỹ năng chuyển đổi (Skill Graph)': { icon: 'fa-solid fa-diagram-project', color: 'text-fuchsia-400', accent: 'border-fuchsia-500/30 bg-fuchsia-500/5' },
-  'Tiềm năng phát triển (Career Velocity)': { icon: 'fa-solid fa-rocket', color: 'text-violet-400', accent: 'border-violet-500/30 bg-violet-500/5' },
-  'Hệ số uy tín công ty': { icon: 'fa-solid fa-building-columns', color: 'text-emerald-400', accent: 'border-emerald-500/30 bg-emerald-500/5' },
+const CRITERION_DESCRIPTIONS: Record<string, { what: string; why: string; signals: string[] }> = {
+  ...BASIC_DESCRIPTIONS,
+  [LOYALTY_CRITERION]: {
+    what: 'Phan tich lich su lam viec de uoc luong muc do on dinh, cam ket va xu huong gan bo cua ung vien.',
+    why: 'Muc do trung thanh giup nha tuyen dung nhin ro rui ro nghi som, chi phi dao tao lai va do ben cua ung vien trong moi truong thuc te.',
+    signals: ['Thoi gian o moi cong ty du dai', 'It nhay viec ngan han lien tiep', 'Cac lan chuyen viec co xu huong tang truong hop ly'],
+  },
 };
 
-// ── Accordion dùng chung ─────────────────────────────────────────────────────
+const CARD_CRITERIA_META: { [key: string]: { icon: string; color: string; accent: string } } = {
+  [BASIC_CRITERIA[0]]: { icon: 'fa-solid fa-bullseye', color: 'text-sky-400', accent: 'border-sky-500/30 bg-sky-500/5' },
+  [BASIC_CRITERIA[1]]: { icon: 'fa-solid fa-briefcase', color: 'text-green-400', accent: 'border-green-500/30 bg-green-500/5' },
+  [BASIC_CRITERIA[2]]: { icon: 'fa-solid fa-gears', color: 'text-purple-400', accent: 'border-purple-500/30 bg-purple-500/5' },
+  [BASIC_CRITERIA[3]]: { icon: 'fa-solid fa-trophy', color: 'text-yellow-400', accent: 'border-yellow-500/30 bg-yellow-500/5' },
+  [BASIC_CRITERIA[4]]: { icon: 'fa-solid fa-graduation-cap', color: 'text-indigo-400', accent: 'border-indigo-500/30 bg-indigo-500/5' },
+  [BASIC_CRITERIA[5]]: { icon: 'fa-solid fa-language', color: 'text-orange-400', accent: 'border-orange-500/30 bg-orange-500/5' },
+  [BASIC_CRITERIA[6]]: { icon: 'fa-solid fa-file-invoice', color: 'text-cyan-400', accent: 'border-cyan-500/30 bg-cyan-500/5' },
+  [BASIC_CRITERIA[7]]: { icon: 'fa-solid fa-hourglass-half', color: 'text-lime-400', accent: 'border-lime-500/30 bg-lime-500/5' },
+  [BASIC_CRITERIA[8]]: { icon: 'fa-solid fa-users-gear', color: 'text-pink-400', accent: 'border-pink-500/30 bg-pink-500/5' },
+  [LOYALTY_CRITERION]: { icon: 'fa-solid fa-shield-halved', color: 'text-amber-400', accent: 'border-amber-500/30 bg-amber-500/5' },
+  [BASIC_CRITERIA[9]]: { icon: 'fa-solid fa-building-columns', color: 'text-emerald-400', accent: 'border-emerald-500/30 bg-emerald-500/5' },
+};
+
+// ?? Accordion d?ng chung ?????????????????????????????????????????????????????
+
+// ?? Accordion d?ng chung ?????????????????????????????????????????????????????
+
+function normalizeAscii(value: string): string {
+  return (value || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\u0111/gi, 'd')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
+}
+
+function getRecordValueByAliases(record: Record<string, unknown>, aliases: string[]): string {
+  for (const [key, value] of Object.entries(record)) {
+    if (value === null || value === undefined || !String(value).trim()) {
+      continue;
+    }
+
+    const normalizedKey = normalizeAscii(key).replace(/\s+/g, ' ');
+    if (aliases.includes(normalizedKey)) {
+      return String(value).trim();
+    }
+  }
+
+  return '';
+}
+
+function getRawRecordValueByAliases(record: Record<string, unknown>, aliases: string[]): unknown {
+  for (const [key, value] of Object.entries(record)) {
+    const normalizedKey = normalizeAscii(key).replace(/\s+/g, ' ');
+    if (aliases.includes(normalizedKey)) {
+      return value;
+    }
+  }
+
+  return undefined;
+}
 
 function getDetailCriterion(item: DetailedScore): string {
   const record = item as unknown as Record<string, unknown>;
-  return String(
-    record['Tiêu chí'] ??
-    record['Tieu chi'] ??
-    record['TieuChi'] ??
-    record['criterion'] ??
-    record['TiÃªu chÃ­'] ??
-    ''
-  ).trim();
+  return getRecordValueByAliases(record, ['tieu chi', 'tieuchi', 'criterion']);
 }
 
 function getDetailScore(item: DetailedScore): string {
   const record = item as unknown as Record<string, unknown>;
-  return String(
-    record['Điểm'] ??
-    record['Diem'] ??
-    record['score'] ??
-    record['Äiá»ƒm'] ??
-    ''
-  ).trim();
+  return getRecordValueByAliases(record, ['diem', 'score']);
 }
 
 function getDetailFormula(item: DetailedScore): string {
   const record = item as unknown as Record<string, unknown>;
-  return String(
-    record['Công thức'] ??
-    record['Cong thuc'] ??
-    record['formula'] ??
-    record['CÃ´ng thá»©c'] ??
-    ''
-  ).trim();
+  return getRecordValueByAliases(record, ['cong thuc', 'formula']);
 }
 
 function getDetailEvidence(item: DetailedScore): string {
   const record = item as unknown as Record<string, unknown>;
-  return String(
-    record['Dẫn chứng'] ??
-    record['Dan chung'] ??
-    record['evidence'] ??
-    record['Dáº«n chá»©ng'] ??
-    ''
-  ).trim();
+  return getRecordValueByAliases(record, ['dan chung', 'evidence']);
 }
 
 function getDetailExplanation(item: DetailedScore): string {
   const record = item as unknown as Record<string, unknown>;
-  return String(
-    record['Giải thích'] ??
-    record['Giai thich'] ??
-    record['explanation'] ??
-    record['Giáº£i thÃ­ch'] ??
-    ''
-  ).trim();
+  return getRecordValueByAliases(record, ['giai thich', 'explanation']);
 }
 
-const MISSING_DETAIL_EVIDENCE = 'AI chưa trả về dẫn chứng cụ thể cho tiêu chí này.';
+const MISSING_DETAIL_EVIDENCE = 'AI chua tra ve dan chung cu the cho tieu chi nay.';
 
 function formatScoreValue(value: number): string {
   if (Number.isInteger(value)) {
@@ -209,7 +188,6 @@ function parseNumericValue(value: string): number | null {
 function parseDetailScore(
   scoreText: string,
   detailFormula: string,
-  isAdvanced: boolean
 ): {
   score: number | null;
   maxScore: number | null;
@@ -235,13 +213,8 @@ function parseDetailScore(
   }
 
   const hasScore = rawScore !== null;
-  let displayScore = rawScore;
-  let displayMax = rawMax;
-
-  if (isAdvanced && rawScore !== null && rawMax && rawMax > 0) {
-    displayScore = Number.parseFloat(((rawScore / rawMax) * ADVANCED_MAX_PER).toFixed(2));
-    displayMax = ADVANCED_MAX_PER;
-  }
+  const displayScore = rawScore;
+  const displayMax = rawMax;
 
   const achievedPct = rawScore !== null && rawMax && rawMax > 0
     ? Math.round((rawScore / rawMax) * 100)
@@ -249,10 +222,10 @@ function parseDetailScore(
       ? Math.round((displayScore / displayMax) * 100)
       : 0;
 
-  const weightMatch = detailFormula.match(/trọng số\s*([\d.]+)%/i);
+  const weightMatch = detailFormula.match(/trong so\s*([\d.]+)%/i);
   const weight = Number.parseFloat(weightMatch?.[1] || '0');
 
-  let scoreLabel = 'Chưa có';
+  let scoreLabel = 'Chua co';
   if (displayScore !== null && displayMax !== null) {
     scoreLabel = `${formatScoreValue(displayScore)}/${formatScoreValue(displayMax)}`;
   } else if (displayScore !== null && trimmedScore) {
@@ -274,45 +247,23 @@ function parseDetailScore(
 
 function canonicalizeCriterionName(rawName: string): string {
   const value = rawName.trim();
-  const normalized = value
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/đ/gi, 'd')
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, ' ')
-    .trim();
+  const normalized = normalizeAscii(value);
 
-  if (/^Phù hợp JD(?:\s*\(Job Fit\))?$/i.test(value)) return 'Phù hợp JD (Job Fit)';
-  if (/^Kinh nghiệm$/i.test(value)) return 'Kinh nghiệm';
-  if (/^Kỹ năng$/i.test(value)) return 'Kỹ năng';
-  if (/^Thành tựu\/KPI$/i.test(value)) return 'Thành tựu/KPI';
-  if (/^Học vấn$/i.test(value)) return 'Học vấn';
-  if (/^Ngôn ngữ$/i.test(value)) return 'Ngôn ngữ';
-  if (/^Chuyên nghiệp$/i.test(value)) return 'Chuyên nghiệp';
-  if (/^Gắn bó\s*&\s*Lịch sử CV$/i.test(value)) return 'Gắn bó & Lịch sử CV';
-  if (/^Phù hợp văn hoá$/i.test(value)) return 'Phù hợp văn hoá';
-  if (/^Kỹ năng hành động\s*&\s*chủ động$/i.test(value)) return 'Kỹ năng hành động & chủ động';
-  if (/^Trình bày STAR\s*&\s*Kết quả$/i.test(value)) return 'Trình bày STAR & Kết quả';
-  if (/^Sự ổn định\s*&\s*Trung thành$/i.test(value)) return 'Sự ổn định & Trung thành';
-  if (/^Kỹ năng chuyển đổi\s*\(Skill Graph\)$/i.test(value)) return 'Kỹ năng chuyển đổi (Skill Graph)';
-  if (/^Tiềm năng phát triển\s*\(Career Velocity\)$/i.test(value)) return 'Tiềm năng phát triển (Career Velocity)';
-  if (/^Hệ số uy tín công ty$/i.test(value)) return 'Hệ số uy tín công ty';
-
-  if (normalized === 'phu hop jd' || normalized === 'phu hop jd job fit' || normalized === 'job fit') return 'Phù hợp JD (Job Fit)';
-  if (normalized === 'kinh nghiem') return 'Kinh nghiệm';
-  if (normalized === 'ky nang') return 'Kỹ năng';
-  if (normalized === 'thanh tuu kpi' || normalized === 'thanh tuu') return 'Thành tựu/KPI';
-  if (normalized === 'hoc van') return 'Học vấn';
-  if (normalized === 'ngon ngu') return 'Ngôn ngữ';
-  if (normalized === 'chuyen nghiep') return 'Chuyên nghiệp';
-  if (normalized.includes('gan bo') || normalized.includes('lich su cv')) return 'Gắn bó & Lịch sử CV';
-  if (normalized === 'phu hop van hoa' || normalized === 'culture fit') return 'Phù hợp văn hoá';
-  if (normalized.includes('ky nang hanh dong') || normalized.includes('chu dong')) return 'Kỹ năng hành động & chủ động';
-  if (normalized.includes('trinh bay star') || normalized.includes('star ket qua')) return 'Trình bày STAR & Kết quả';
-  if (normalized.includes('su on dinh') || normalized.includes('trung thanh')) return 'Sự ổn định & Trung thành';
-  if (normalized.includes('skill graph') || normalized.includes('ky nang chuyen doi')) return 'Kỹ năng chuyển đổi (Skill Graph)';
-  if (normalized.includes('career velocity') || normalized.includes('tiem nang phat trien')) return 'Tiềm năng phát triển (Career Velocity)';
-  if (normalized.includes('uy tin cong ty') || normalized.includes('company tier')) return 'Hệ số uy tín công ty';
+  if (normalized === 'phu hop jd' || normalized === 'phu hop jd job fit' || normalized === 'job fit') return BASIC_CRITERIA[0];
+  if (normalized === 'kinh nghiem') return BASIC_CRITERIA[1];
+  if (normalized === 'ky nang') return BASIC_CRITERIA[2];
+  if (normalized === 'thanh tuu kpi' || normalized === 'thanh tuu') return BASIC_CRITERIA[3];
+  if (normalized === 'hoc van') return BASIC_CRITERIA[4];
+  if (normalized === 'ngon ngu') return BASIC_CRITERIA[5];
+  if (normalized === 'chuyen nghiep') return BASIC_CRITERIA[6];
+  if (normalized.includes('gan bo') || normalized.includes('lich su cv')) return BASIC_CRITERIA[7];
+  if (normalized === 'phu hop van hoa' || normalized === 'culture fit') return BASIC_CRITERIA[8];
+  if (normalized.includes('uy tin cong ty') || normalized.includes('company tier')) return BASIC_CRITERIA[9];
+  if (normalized.includes('muc do trung thanh') || normalized.includes('su on dinh') || normalized.includes('trung thanh')) return LOYALTY_CRITERION;
+  if (normalized.includes('ky nang hanh dong') || normalized.includes('chu dong')) return REMOVED_ADVANCED_CRITERIA[0];
+  if (normalized.includes('trinh bay star') || normalized.includes('star ket qua')) return REMOVED_ADVANCED_CRITERIA[1];
+  if (normalized.includes('skill graph') || normalized.includes('ky nang chuyen doi')) return REMOVED_ADVANCED_CRITERIA[2];
+  if (normalized.includes('career velocity') || normalized.includes('tiem nang phat trien')) return REMOVED_ADVANCED_CRITERIA[3];
 
   return value;
 }
@@ -322,10 +273,9 @@ interface CriterionAccordionProps {
   isExpanded: boolean;
   onToggle: () => void;
   jdText: string;
-  isAdvanced?: boolean;
 }
 
-const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpanded, onToggle, jdText, isAdvanced = false }) => {
+const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpanded, onToggle, jdText }) => {
   const [copied, setCopied] = React.useState(false);
   const criterionName = canonicalizeCriterionName(getDetailCriterion(item));
   const detailScore = getDetailScore(item);
@@ -334,8 +284,8 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
   const detailExplanation = getDetailExplanation(item);
 
   const parsedData = useMemo(
-    () => parseDetailScore(detailScore, detailFormula, isAdvanced),
-    [detailFormula, detailScore, isAdvanced]
+    () => parseDetailScore(detailScore, detailFormula),
+    [detailFormula, detailScore]
   );
 
   const handleCopy = () => {
@@ -345,10 +295,11 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
   };
 
   const meta = CARD_CRITERIA_META[criterionName] || { icon: 'fa-solid fa-question-circle', color: 'text-slate-400', accent: 'border-slate-700 bg-slate-900/20' };
-  const advDesc = ADVANCED_DESCRIPTIONS[criterionName];
+  const description = CRITERION_DESCRIPTIONS[criterionName];
+  const isLoyalty = criterionName === LOYALTY_CRITERION;
   const hasRealEvidence = Boolean(
     detailEvidence &&
-    detailEvidence !== 'Không tìm thấy thông tin trong CV' &&
+    normalizeAscii(detailEvidence) !== 'khong tim thay thong tin trong cv' &&
     detailEvidence !== MISSING_DETAIL_EVIDENCE
   );
 
@@ -356,18 +307,18 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
   const scoreBadgeClass = !parsedData.hasScore
     ? 'bg-slate-800/60 text-slate-400 border-slate-700/80'
     : scorePercentage >= 85
-    ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/35'
-    : scorePercentage >= 65
-      ? 'bg-amber-500/15 text-amber-300 border-amber-500/35'
-      : 'bg-red-500/15 text-red-300 border-red-500/35';
+      ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/35'
+      : scorePercentage >= 65
+        ? 'bg-amber-500/15 text-amber-300 border-amber-500/35'
+        : 'bg-red-500/15 text-red-300 border-red-500/35';
 
-  const proficiency = !parsedData.hasScore ? 'Chưa có'
+  const proficiency = !parsedData.hasScore ? 'Chua co'
     : scorePercentage >= 90 ? 'Expert'
-    : scorePercentage >= 75 ? 'Advanced'
-      : scorePercentage >= 55 ? 'Intermediate'
-        : 'Beginner';
+      : scorePercentage >= 75 ? 'Advanced'
+        : scorePercentage >= 55 ? 'Intermediate'
+          : 'Beginner';
 
-  const isExperience = /Kinh nghiệm/i.test(criterionName);
+  const isExperience = criterionName === BASIC_CRITERIA[1];
   const jdRequirements = useMemo(() => extractJDRequirements(jdText), [jdText]);
   const thisRequirement = useMemo(() => jdRequirements.find(r => r.display === criterionName), [criterionName, jdRequirements]);
   const requirementComparison = useMemo(() => {
@@ -381,18 +332,19 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
     matchMeta = analyzeExperience(jdText, detailEvidence || '');
     experienceBlock = (
       <div className="space-y-3 rounded-xl border border-slate-800/60 bg-[#080f1e] p-5">
-        <h5 className="mb-1 text-base font-bold text-slate-100">Phân tích nhanh</h5>
+        <h5 className="mb-1 text-base font-bold text-slate-100">Phan tich nhanh</h5>
         {matchMeta.matchPercent === 'N/A' ? (
-          <p className="text-xs text-slate-500 italic">JD chưa có mục yêu cầu kinh nghiệm rõ ràng</p>
+          <p className="text-xs text-slate-500 italic">JD chua co muc yeu cau kinh nghiem ro rang</p>
         ) : (
           <>
             <div className="space-y-2">
               <div className="flex items-center justify-between text-xs text-slate-400">
-                <span>Mức độ phù hợp JD</span>
+                <span>Muc do phu hop JD</span>
                 <span className="font-semibold text-cyan-400">{matchMeta.matchPercent}%</span>
               </div>
               <div className="h-2 w-full overflow-hidden rounded bg-slate-800">
-                <div className={`h-full ${typeof matchMeta.matchPercent === 'number' && matchMeta.matchPercent >= 80 ? 'bg-emerald-500' : typeof matchMeta.matchPercent === 'number' && matchMeta.matchPercent >= 65 ? 'bg-yellow-500' : typeof matchMeta.matchPercent === 'number' && matchMeta.matchPercent >= 50 ? 'bg-orange-500' : 'bg-red-500'}`}
+                <div
+                  className={`h-full ${typeof matchMeta.matchPercent === 'number' && matchMeta.matchPercent >= 80 ? 'bg-emerald-500' : typeof matchMeta.matchPercent === 'number' && matchMeta.matchPercent >= 65 ? 'bg-yellow-500' : typeof matchMeta.matchPercent === 'number' && matchMeta.matchPercent >= 50 ? 'bg-orange-500' : 'bg-red-500'}`}
                   style={{ width: `${typeof matchMeta.matchPercent === 'number' ? Math.min(100, Math.max(0, matchMeta.matchPercent)) : 0}%` }}
                 />
               </div>
@@ -408,13 +360,12 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
   }
 
   return (
-    <div className={`rounded-xl border transition-all duration-200 hover:shadow-md ${isAdvanced ? `${meta.accent} hover:shadow-fuchsia-500/5` : 'border-white/[0.08] bg-[#05070b] hover:border-cyan-500/25 hover:shadow-cyan-500/5'}`}>
+    <div className={`rounded-xl border transition-all duration-200 hover:shadow-md ${isLoyalty ? `${meta.accent} hover:shadow-amber-500/5` : 'border-white/[0.08] bg-[#05070b] hover:border-cyan-500/25 hover:shadow-cyan-500/5'}`}>
       <button className="flex min-h-[56px] w-full items-center justify-between p-3.5 text-left" onClick={onToggle} aria-expanded={isExpanded}>
         <div className="flex min-w-0 items-center gap-3">
           <i className={`${meta.icon} ${meta.color} w-5 text-center text-lg`}></i>
           <span className="truncate font-semibold text-slate-100">{criterionName}</span>
           <span className="ml-1 rounded border border-slate-700/80 bg-slate-800/80 px-2 py-0.5 text-[10px] font-semibold tracking-wide text-slate-400">{proficiency}</span>
-          {isAdvanced && <span className="ml-1 rounded border border-violet-500/40 bg-violet-500/10 px-2 py-0.5 text-[9px] font-bold tracking-wider text-violet-400 uppercase">AI+</span>}
         </div>
         <div className="flex shrink-0 items-center gap-3">
           <span className={`rounded-lg border px-3 py-1.5 text-sm font-bold ${scoreBadgeClass}`}>
@@ -426,131 +377,73 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
 
       {isExpanded && (
         <div className="border-t border-slate-800/60 px-4 pb-4 pt-3">
-
-          {/* Nâng cao: Thẻ giải thích đặc biệt */}
-          {isAdvanced && advDesc && (
-            <div className={`mb-4 rounded-xl border p-4 ${meta.accent}`}>
-              <div className="flex items-start gap-3">
-                <div className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border ${meta.accent}`}>
-                  <i className={`${meta.icon} ${meta.color} text-sm`}></i>
-                </div>
-                <div className="flex-1 space-y-2.5">
-                  <div>
-                    <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">Tiêu chí đo gì</p>
-                    <p className="text-sm text-slate-200 leading-relaxed">{advDesc.what}</p>
-                  </div>
-                  <div>
-                    <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">Tại sao quan trọng</p>
-                    <p className="text-sm text-slate-300 leading-relaxed">{advDesc.why}</p>
-                  </div>
-                  <div>
-                    <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">Tín hiệu nhận diện</p>
-                    <div className="flex flex-wrap gap-1.5">
-                      {advDesc.signals.map((s, i) => (
-                        <span key={i} className={`px-2.5 py-1 rounded-lg border text-[11px] font-medium ${meta.accent} ${meta.color}`}>{s}</span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
           <div className={`grid grid-cols-1 ${isExperience || requirementComparison ? 'xl:grid-cols-3' : 'xl:grid-cols-2'} gap-4`}>
-            {/* Dẫn chứng */}
             <div className="rounded-xl border border-white/[0.08] bg-white/[0.025] p-5">
               <div className="mb-2 flex items-center justify-between">
-                <h5 className="text-base font-bold text-slate-200">Dẫn chứng (trích từ CV)</h5>
+                <h5 className="text-base font-bold text-slate-200">Dan chung (trich tu CV)</h5>
                 <button type="button" onClick={(e) => { e.stopPropagation(); handleCopy(); }} className="flex items-center gap-1.5 text-xs text-slate-500 transition-colors hover:text-cyan-400">
                   <i className={`fa-solid ${copied ? 'fa-check text-emerald-400' : 'fa-copy'}`}></i>
-                  {copied ? 'Đã chép' : 'Chép'}
+                  {copied ? 'Da chep' : 'Chep'}
                 </button>
               </div>
               <blockquote className="border-l-4 border-cyan-500/60 pl-4 text-base italic leading-relaxed text-slate-300" dangerouslySetInnerHTML={{
-                __html: detailEvidence === 'Không tìm thấy thông tin trong CV' || detailEvidence === MISSING_DETAIL_EVIDENCE
-                  ? '<span class="not-italic rounded-md border border-amber-500/35 bg-amber-500/10 px-2 py-1 text-xs font-semibold text-amber-300">Chưa tìm thấy trong CV</span>'
+                __html: detailEvidence === 'Khong tim thay thong tin trong CV' || detailEvidence === MISSING_DETAIL_EVIDENCE
+                  ? '<span class="not-italic rounded-md border border-amber-500/35 bg-amber-500/10 px-2 py-1 text-xs font-semibold text-amber-300">Chua tim thay trong CV</span>'
                   : detailEvidence
               }} />
-
-              {/* Nâng cao: badge lý do dẫn chứng */}
-              {isAdvanced && detailEvidence && detailEvidence !== 'Không tìm thấy thông tin trong CV' && detailEvidence !== MISSING_DETAIL_EVIDENCE && (
-                <div className="mt-3 pt-3 border-t border-slate-800/50">
-                  <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Lý do chấm điểm</p>
-                  <p className="text-xs text-slate-400 leading-relaxed">{detailExplanation}</p>
-                </div>
-              )}
             </div>
 
             {isExperience && experienceBlock}
             {!isExperience && requirementComparison && (
               <div className="space-y-3 rounded-xl border border-slate-800/60 bg-[#080f1e] p-5">
-                <h5 className="mb-1 text-base font-bold text-slate-100">Phân tích nhanh</h5>
-                <div className="text-[11px] text-slate-400">Từ khóa JD ({requirementComparison.jdKeywords.length})</div>
+                <h5 className="mb-1 text-base font-bold text-slate-100">Phan tich nhanh</h5>
+                <div className="text-[11px] text-slate-400">Tu khoa JD ({requirementComparison.jdKeywords.length})</div>
                 <div className="flex flex-wrap gap-1 mb-2">
                   {requirementComparison.jdKeywords.slice(0, 12).map(k => <span key={k} className="pill pill--uncertain">{k}</span>)}
                 </div>
-                <div className="text-[11px] text-slate-400 font-medium">Khớp</div>
+                <div className="text-[11px] text-slate-400 font-medium">Khop</div>
                 <div className="flex flex-wrap gap-1">
-                  {requirementComparison.matched.length > 0 ? requirementComparison.matched.slice(0, 10).map(k => <span key={k} className="pill pill--match">{k}</span>) : <span className="text-[11px] text-slate-500">(Không)</span>}
+                  {requirementComparison.matched.length > 0 ? requirementComparison.matched.slice(0, 10).map(k => <span key={k} className="pill pill--match">{k}</span>) : <span className="text-[11px] text-slate-500">(Khong)</span>}
                 </div>
-                <div className="text-[11px] text-slate-400 font-medium mt-2">Thiếu</div>
+                <div className="text-[11px] text-slate-400 font-medium mt-2">Thieu</div>
                 <div className="flex flex-wrap gap-1">
-                  {requirementComparison.missing.length > 0 ? requirementComparison.missing.slice(0, 10).map(k => <span key={k} className="pill pill--missing">{k}</span>) : <span className="text-[11px] text-slate-500">(Không)</span>}
+                  {requirementComparison.missing.length > 0 ? requirementComparison.missing.slice(0, 10).map(k => <span key={k} className="pill pill--missing">{k}</span>) : <span className="text-[11px] text-slate-500">(Khong)</span>}
                 </div>
               </div>
             )}
 
-            {/* Giải thích & Công thức */}
             <div className="rounded-xl border border-white/[0.08] bg-white/[0.025] p-5">
-              <h5 className="mb-4 text-base font-bold text-slate-100">Giải thích & Công thức</h5>
+              <h5 className="mb-4 text-base font-bold text-slate-100">Giai thich & Cong thuc</h5>
 
-              {/* Giải thích đa chỉ — hiển thị cả basic lẫn advanced */}
-              {(BASIC_DESCRIPTIONS[criterionName] || ADVANCED_DESCRIPTIONS[criterionName]) ? (() => {
-                const desc = BASIC_DESCRIPTIONS[criterionName] || ADVANCED_DESCRIPTIONS[criterionName];
-                const isAdv = !!ADVANCED_DESCRIPTIONS[criterionName];
-                return (
-                  <div className={`mb-4 rounded-xl border p-4 space-y-3 ${isAdv
-                    ? 'border-violet-500/20 bg-violet-500/5'
-                    : 'border-cyan-500/20 bg-cyan-500/5'
-                    }`}>
-                    {/* What */}
-                    <div>
-                      <p className={`text-[10px] font-bold uppercase tracking-widest mb-1 ${isAdv ? 'text-violet-400/70' : 'text-cyan-400/70'
-                        }`}>Ðây là gì?</p>
-                      <p className="text-sm leading-relaxed text-slate-300">{desc.what}</p>
-                    </div>
-                    {/* Why */}
-                    <div className="pt-2 border-t border-slate-800/50">
-                      <p className={`text-[10px] font-bold uppercase tracking-widest mb-1 ${isAdv ? 'text-violet-400/70' : 'text-cyan-400/70'
-                        }`}>Tại sao quan trọng?</p>
-                      <p className="text-sm leading-relaxed text-slate-400">{desc.why}</p>
-                    </div>
-                    {/* Signals */}
-                    <div className="pt-2 border-t border-slate-800/50">
-                      <p className={`text-[10px] font-bold uppercase tracking-widest mb-2 ${isAdv ? 'text-violet-400/70' : 'text-cyan-400/70'
-                        }`}>Dấu hiệu nhận biết</p>
-                      <ul className="space-y-1.5">
-                        {desc.signals.map((s, i) => (
-                          <li key={i} className="flex items-start gap-2 text-xs text-slate-400">
-                            <i className={`fa-solid fa-circle-check mt-0.5 shrink-0 text-[10px] ${isAdv ? 'text-violet-400' : 'text-cyan-400'
-                              }`} />
-                            {s}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                    {/* AI result */}
-                    {detailExplanation && detailExplanation !== '...' && (
-                      <div className="pt-2 border-t border-slate-800/50">
-                        <p className={`text-[10px] font-bold uppercase tracking-widest mb-1 ${isAdv ? 'text-violet-400/70' : 'text-cyan-400/70'
-                          }`}>Nhận xét của AI với CV này</p>
-                        <p className="text-xs leading-relaxed text-slate-300 italic">"{detailExplanation}"</p>
-                      </div>
-                    )}
+              {description ? (
+                <div className={`mb-4 rounded-xl border p-4 space-y-3 ${isLoyalty ? 'border-amber-500/20 bg-amber-500/5' : 'border-cyan-500/20 bg-cyan-500/5'}`}>
+                  <div>
+                    <p className={`text-[10px] font-bold uppercase tracking-widest mb-1 ${isLoyalty ? 'text-amber-400/70' : 'text-cyan-400/70'}`}>Day la gi?</p>
+                    <p className="text-sm leading-relaxed text-slate-300">{description.what}</p>
                   </div>
-                );
-              })() : (
-                // Fallback: chỉ hiển thị text thô nếu không có mô tả
+                  <div className="pt-2 border-t border-slate-800/50">
+                    <p className={`text-[10px] font-bold uppercase tracking-widest mb-1 ${isLoyalty ? 'text-amber-400/70' : 'text-cyan-400/70'}`}>Tai sao quan trong?</p>
+                    <p className="text-sm leading-relaxed text-slate-400">{description.why}</p>
+                  </div>
+                  <div className="pt-2 border-t border-slate-800/50">
+                    <p className={`text-[10px] font-bold uppercase tracking-widest mb-2 ${isLoyalty ? 'text-amber-400/70' : 'text-cyan-400/70'}`}>Dau hieu nhan biet</p>
+                    <ul className="space-y-1.5">
+                      {description.signals.map((signal, index) => (
+                        <li key={index} className="flex items-start gap-2 text-xs text-slate-400">
+                          <i className={`fa-solid fa-circle-check mt-0.5 shrink-0 text-[10px] ${isLoyalty ? 'text-amber-400' : 'text-cyan-400'}`} />
+                          {signal}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  {detailExplanation && detailExplanation !== '...' && (
+                    <div className="pt-2 border-t border-slate-800/50">
+                      <p className={`text-[10px] font-bold uppercase tracking-widest mb-1 ${isLoyalty ? 'text-amber-400/70' : 'text-cyan-400/70'}`}>Nhan xet cua AI voi CV nay</p>
+                      <p className="text-xs leading-relaxed text-slate-300 italic">"{detailExplanation}"</p>
+                    </div>
+                  )}
+                </div>
+              ) : (
                 detailExplanation && (
                   <div className="mb-4">
                     <p className="text-sm leading-relaxed text-slate-300">{detailExplanation}</p>
@@ -559,19 +452,19 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
               )}
 
               <div className="space-y-2">
-                <div className="text-xs font-medium text-slate-500">Công thức tính điểm</div>
+                <div className="text-xs font-medium text-slate-500">Cong thuc tinh diem</div>
 
                 {parsedData.hasScore ? (
                   <>
                     <div className="rounded-lg border border-slate-700/60 bg-slate-950/50 p-2.5">
                       <div className="flex items-center justify-between text-xs">
-                        <span className="text-slate-500">Đánh giá thực tế</span>
+                        <span className="text-slate-500">Danh gia thuc te</span>
                         <span className="font-mono font-semibold text-cyan-400">{parsedData.scoreLabel}</span>
                       </div>
                     </div>
 
                     <div className="rounded-lg border border-slate-700/60 bg-slate-950/50 p-2.5">
-                      <div className="mb-1 text-xs text-slate-500">Công thức subscore</div>
+                      <div className="mb-1 text-xs text-slate-500">Cong thuc subscore</div>
                       <div className="font-mono text-xs">
                         {parsedData.maxScore !== null ? (
                           <span>
@@ -581,14 +474,14 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
                             {' = '}
                             <span className="font-bold text-amber-400">{parsedData.contributionPct}%</span>
                             {parsedData.weight > 0 && (
-                              <span className="text-slate-500"> ({parsedData.weight}% trọng số)</span>
+                              <span className="text-slate-500"> ({parsedData.weight}% trong so)</span>
                             )}
                           </span>
                         ) : (
                           <span>
                             <span className="text-sky-400">{parsedData.scoreLabel}</span>
                             {parsedData.weight > 0 && (
-                              <span className="text-slate-500"> ({parsedData.weight}% trọng số)</span>
+                              <span className="text-slate-500"> ({parsedData.weight}% trong so)</span>
                             )}
                           </span>
                         )}
@@ -596,7 +489,7 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
                     </div>
 
                     <div className="rounded-lg border border-slate-700/60 bg-slate-950/50 p-2.5">
-                      <div className="mb-1 text-xs text-slate-500">Đóng góp vào điểm tổng</div>
+                      <div className="mb-1 text-xs text-slate-500">Dong gop vao diem tong</div>
                       <div className="space-y-1.5">
                         <div className="flex items-center gap-2">
                           <div className="flex-1 h-1.5 rounded-full bg-slate-800 overflow-hidden">
@@ -608,25 +501,22 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
                           <span className={`text-[11px] font-bold tabular-nums ${parsedData.achievedPct >= 80 ? 'text-emerald-400' : parsedData.achievedPct >= 60 ? 'text-amber-400' : 'text-red-400'}`}>{parsedData.achievedPct}%</span>
                         </div>
                         <div className="text-xs text-slate-300">
-                          Tiêu chí này đóng góp{' '}
+                          Tieu chi nay dong gop{' '}
                           <span className="font-bold text-amber-400 font-mono">{parsedData.score !== null ? formatScoreValue(parsedData.score) : '0'}</span>
                           {parsedData.maxScore !== null && (
                             <>
                               {' / '}
-                              <span className="text-slate-400 font-mono">{formatScoreValue(parsedData.maxScore)}</span> điểm
+                              <span className="text-slate-400 font-mono">{formatScoreValue(parsedData.maxScore)}</span> diem
                             </>
                           )}
-                          {parsedData.maxScore === null && ' điểm'}
-                          {isAdvanced && parsedData.maxScore !== null && (
-                            <span className="text-violet-400/70 ml-1 text-[10px]">(thang chuẩn nâng cao)</span>
-                          )}
+                          {parsedData.maxScore === null && ' diem'}
                         </div>
                       </div>
                     </div>
                   </>
                 ) : (
                   <div className="rounded-lg border border-slate-700/60 bg-slate-950/50 p-3 text-xs text-slate-400">
-                    Chưa có dữ liệu điểm chi tiết cho tiêu chí này trong kết quả AI hiện tại.
+                    Chua co du lieu diem chi tiet cho tieu chi nay trong ket qua AI hien tai.
                   </div>
                 )}
               </div>
@@ -638,7 +528,7 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
   );
 };
 
-// ── JDOriginalPanel ─────────────────────────────────────────────────────────
+// ?? JDOriginalPanel ??????????????????????????????????????????????????????????
 
 interface JDOriginalPanelProps {
   jdText: string;
@@ -785,27 +675,32 @@ interface ExpandedContentProps {
 }
 
 const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCriteria, onToggleCriterion, jdText, rawJdText }) => {
-  const [activeTab, setActiveTab] = useState<'basic' | 'advanced'>('basic');
-
   const analysisRecord = candidate.analysis as Record<string, unknown> | undefined;
   const allDetails = useMemo(() => {
-    const rawDetails =
-      analysisRecord?.['Chi tiết'] ??
-      analysisRecord?.['Chi tiet'] ??
-      analysisRecord?.['Chi tiáº¿t'];
+    const rawDetails = analysisRecord ? getRawRecordValueByAliases(analysisRecord, ['chi tiet']) : undefined;
 
     return Array.isArray(rawDetails) ? rawDetails as DetailedScore[] : [];
   }, [analysisRecord]);
 
-  const { basicDetails, advancedDetails } = useMemo(() => {
+  const { loyaltyDetail, basicDetails, supplementalDetails } = useMemo(() => {
     const basicMap = new Map<string, DetailedScore>();
-    const advancedMap = new Map<string, DetailedScore>();
-    const extraBasic: DetailedScore[] = [];
-    const extraAdvanced: DetailedScore[] = [];
+    const supplementalMap = new Map<string, DetailedScore>();
+    let loyaltyItem: DetailedScore | null = null;
 
     allDetails.forEach((item) => {
       const canonical = canonicalizeCriterionName(getDetailCriterion(item));
       if (!canonical) {
+        return;
+      }
+
+      if (canonical === LOYALTY_CRITERION) {
+        if (!loyaltyItem) {
+          loyaltyItem = item;
+        }
+        return;
+      }
+
+      if (REMOVED_ADVANCED_CRITERIA.includes(canonical)) {
         return;
       }
 
@@ -816,61 +711,62 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
         return;
       }
 
-      if (ADVANCED_CRITERIA.includes(canonical)) {
-        if (!advancedMap.has(canonical)) {
-          advancedMap.set(canonical, item);
-        }
-        return;
+      if (!supplementalMap.has(canonical)) {
+        supplementalMap.set(canonical, item);
       }
-
-      if (/^dynamic boost:/i.test(canonical)) {
-        extraAdvanced.push(item);
-        return;
-      }
-
-      extraBasic.push(item);
     });
 
     return {
-      basicDetails: [
-        ...BASIC_CRITERIA.map((criterionName) => basicMap.get(criterionName)).filter((item): item is DetailedScore => Boolean(item)),
-        ...extraBasic,
-      ],
-      advancedDetails: [
-        ...ADVANCED_CRITERIA.map((criterionName) => advancedMap.get(criterionName)).filter((item): item is DetailedScore => Boolean(item)),
-        ...extraAdvanced,
-      ],
+      loyaltyDetail: loyaltyItem,
+      basicDetails: BASIC_CRITERIA
+        .map((criterionName) => basicMap.get(criterionName))
+        .filter((item): item is DetailedScore => Boolean(item)),
+      supplementalDetails: Array.from(supplementalMap.values()),
     };
   }, [allDetails]);
 
-  // Tổng điểm phân loại — normalize vào đúng thang
   const basicScore = useMemo(() =>
     basicDetails.reduce((sum, item) => {
-      const parsed = parseDetailScore(getDetailScore(item), getDetailFormula(item), false);
+      const parsed = parseDetailScore(getDetailScore(item), getDetailFormula(item));
       return sum + (parsed.score || 0);
     }, 0),
     [basicDetails]
   );
 
-  // Normalize tất cả tiêu chí nâng cao về thang /4 rồi cộng lại (≤ 20)
-  const advancedScore = useMemo(() =>
-    advancedDetails.reduce((sum, item) => {
-      const parsed = parseDetailScore(getDetailScore(item), getDetailFormula(item), true);
-      return sum + (parsed.score || 0);
-    }, 0),
-    [advancedDetails]
-  );
+  const loyaltyScore = useMemo(() => {
+    if (!loyaltyDetail) {
+      return 0;
+    }
 
-  // Tổng điểm đúng = cơ bản (max 80) + nâng cao đã normalize (max 20) = tối đa 100
-  const totalScore = parseFloat((basicScore + Math.min(advancedScore, ADVANCED_TOTAL_MAX)).toFixed(1));
-  const matchPercent = Math.min(100, Math.round((totalScore / 100) * 100));
+    const parsed = parseDetailScore(getDetailScore(loyaltyDetail), getDetailFormula(loyaltyDetail));
+    return parsed.score || 0;
+  }, [loyaltyDetail]);
+
+  const totalScore = useMemo(() => {
+    const rawTotal = analysisRecord ? getRawRecordValueByAliases(analysisRecord, ['tong diem']) : undefined;
+
+    if (typeof rawTotal === 'number' && Number.isFinite(rawTotal)) {
+      return Math.min(100, Math.max(0, rawTotal));
+    }
+
+    if (typeof rawTotal === 'string') {
+      const parsed = parseNumericValue(rawTotal);
+      if (parsed !== null) {
+        return Math.min(100, Math.max(0, parsed));
+      }
+    }
+
+    return Math.min(100, parseFloat((basicScore + loyaltyScore).toFixed(1)));
+  }, [analysisRecord, basicScore, loyaltyScore]);
+
+  const matchPercent = Math.min(100, Math.round(totalScore));
   const recommendation = totalScore >= 75
-    ? 'Ứng viên xuất sắc, nên ưu tiên mời phỏng vấn sớm.'
+    ? 'Ung vien xuat sac, nen uu tien moi phong van som.'
     : totalScore >= 60
-      ? 'Ứng viên có nền tảng tốt, nên xem xét mời phỏng vấn.'
+      ? 'Ung vien co nen tang tot, nen xem xet moi phong van.'
       : totalScore >= 40
-        ? 'Ứng viên có tiềm năng, cân nhắc nếu thiếu nguồn.'
-        : 'Nên ưu tiên ứng viên khác có mức phù hợp cao hơn.';
+        ? 'Ung vien co tiem nang, can nhac neu thieu nguon.'
+        : 'Nen uu tien ung vien khac co muc phu hop cao hon.';
 
   return (
     <div className="space-y-4 p-2 md:p-4">
@@ -880,32 +776,31 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
         <div className="flex flex-col items-start justify-between gap-4 md:flex-row">
           <h4 className="flex items-center gap-2 text-lg font-semibold text-slate-100">
             <i className="fa-solid fa-chart-pie text-cyan-400" />
-            Tổng hợp đánh giá
+            Tong hop danh gia
           </h4>
-          <div className="grid w-full grid-cols-4 gap-2 md:w-auto">
+          <div className="grid w-full grid-cols-2 gap-2 md:w-auto md:grid-cols-4">
             <div className="rounded-lg border border-white/[0.08] bg-white/[0.025] px-3 py-2 text-xs">
-              <div className="text-slate-500">Tổng điểm</div>
-              <div className="font-semibold text-slate-100">{totalScore}<span className="text-slate-500">/100</span></div>
+              <div className="text-slate-500">Tong diem</div>
+              <div className="font-semibold text-slate-100">{totalScore.toFixed(1)}<span className="text-slate-500">/100</span></div>
             </div>
             <div className="rounded-lg border border-cyan-500/20 bg-cyan-500/[0.045] px-3 py-2 text-xs">
-              <div className="text-cyan-500/70">Cơ bản</div>
+              <div className="text-cyan-500/70">Cot loi</div>
               <div className="font-semibold text-cyan-300">{basicScore.toFixed(1)}<span className="text-slate-500">/{BASIC_TOTAL_MAX}</span></div>
             </div>
-            <div className="rounded-lg border border-violet-500/20 bg-violet-500/[0.045] px-3 py-2 text-xs">
-              <div className="text-violet-400/70">Nâng cao</div>
-              <div className="font-semibold text-violet-300">{advancedScore.toFixed(1)}<span className="text-slate-500">/{ADVANCED_TOTAL_MAX}</span></div>
+            <div className="rounded-lg border border-amber-500/20 bg-amber-500/[0.045] px-3 py-2 text-xs">
+              <div className="text-amber-400/70">Muc do trung thanh</div>
+              <div className="font-semibold text-amber-300">{loyaltyScore.toFixed(1)}<span className="text-slate-500">/{LOYALTY_TOTAL_MAX}</span></div>
             </div>
             <div className="rounded-lg border border-white/[0.08] bg-white/[0.025] px-3 py-2 text-xs">
-              <div className="text-slate-500">Phù hợp JD</div>
+              <div className="text-slate-500">Phu hop JD</div>
               <div className="font-semibold text-emerald-400">{matchPercent}%</div>
             </div>
           </div>
         </div>
 
-        {/* Progress bar kép */}
         <div className="mt-4 space-y-1.5">
           <div className="flex items-center gap-2 text-[11px] text-slate-500">
-            <span className="w-16 text-cyan-500/80">Cơ bản</span>
+            <span className="w-20 text-cyan-500/80">Cot loi</span>
             <div className="flex-1 h-2 rounded-full bg-white/[0.08] overflow-hidden">
               <div className="h-full rounded-full bg-cyan-500 transition-all duration-700"
                 style={{ width: `${Math.min(100, (basicScore / BASIC_TOTAL_MAX) * 100)}%` }} />
@@ -913,22 +808,47 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
             <span className="w-10 text-right font-mono text-cyan-400">{Math.round((basicScore / BASIC_TOTAL_MAX) * 100)}%</span>
           </div>
           <div className="flex items-center gap-2 text-[11px] text-slate-500">
-            <span className="w-16 text-violet-400/80">Nâng cao</span>
+            <span className="w-20 text-amber-400/80">Trung thanh</span>
             <div className="flex-1 h-2 rounded-full bg-white/[0.08] overflow-hidden">
-              <div className="h-full rounded-full bg-violet-500 transition-all duration-700"
-                style={{ width: `${Math.min(100, (advancedScore / ADVANCED_TOTAL_MAX) * 100)}%` }} />
+              <div className="h-full rounded-full bg-amber-500 transition-all duration-700"
+                style={{ width: `${Math.min(100, (loyaltyScore / LOYALTY_TOTAL_MAX) * 100)}%` }} />
             </div>
-            <span className="w-10 text-right font-mono text-violet-400">{Math.round((advancedScore / ADVANCED_TOTAL_MAX) * 100)}%</span>
+            <span className="w-10 text-right font-mono text-amber-400">{Math.round((loyaltyScore / LOYALTY_TOTAL_MAX) * 100)}%</span>
           </div>
         </div>
 
         <div className="mt-3 rounded-lg border border-white/[0.08] bg-white/[0.025] px-4 py-3 text-sm">
-          <span className="font-semibold text-slate-200">Nhận định:</span>{' '}
+          <span className="font-semibold text-slate-200">Nhan dinh:</span>{' '}
           <span className="text-slate-400">{recommendation}</span>
         </div>
       </div>
 
-      {/* ── Điểm mạnh / yếu ────────────────────────────────── */}
+      <div className="rounded-xl border border-amber-500/20 bg-[#030405] overflow-hidden">
+        <div className="flex items-center justify-between border-b border-amber-500/15 px-4 py-4">
+          <div className="flex items-center gap-2.5 text-sm font-semibold text-amber-300">
+            <i className="fa-solid fa-shield-halved text-base"></i>
+            <span>Muc do trung thanh</span>
+            <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[10px] font-bold text-amber-300">{LOYALTY_TOTAL_MAX} diem</span>
+          </div>
+          <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${loyaltyScore / LOYALTY_TOTAL_MAX >= 0.8 ? 'text-emerald-400' : loyaltyScore / LOYALTY_TOTAL_MAX >= 0.6 ? 'text-amber-400' : 'text-red-400'}`}>{loyaltyScore.toFixed(1)}/{LOYALTY_TOTAL_MAX}</span>
+        </div>
+        <div className="p-4">
+          {loyaltyDetail ? (
+            <CriterionAccordion
+              item={loyaltyDetail}
+              isExpanded={!!expandedCriteria[candidate.id]?.[LOYALTY_CRITERION]}
+              onToggle={() => onToggleCriterion(candidate.id, LOYALTY_CRITERION)}
+              jdText={jdText}
+            />
+          ) : (
+            <div className="flex flex-col items-center justify-center py-10 text-slate-500">
+              <i className="fa-solid fa-shield-halved text-3xl mb-3 opacity-30"></i>
+              <p className="text-sm">Chua co du lieu muc do trung thanh</p>
+            </div>
+          )}
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {candidate.analysis?.['Điểm mạnh CV'] && (
           <div className="p-4 bg-[#05070b] border border-emerald-500/20 rounded-xl">
@@ -991,119 +911,61 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
 
       {/* ── Tab chuyển đổi Cơ bản / Nâng cao ───────────────── */}
       <div className="rounded-xl border border-white/[0.08] bg-[#030405] overflow-hidden">
-
-        {/* Tab header */}
-        <div className="flex border-b border-white/[0.08]">
-          <button
-            onClick={() => setActiveTab('basic')}
-            className={`relative flex-1 flex items-center justify-center gap-2.5 px-4 py-4 text-sm font-semibold transition-all duration-200 ${activeTab === 'basic'
-              ? 'text-cyan-300 bg-cyan-500/8'
-              : 'text-slate-500 hover:text-slate-300 hover:bg-white/[0.025]'
-              }`}
-          >
-            {activeTab === 'basic' && (
-              <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-cyan-400 to-transparent" />
-            )}
+        <div className="border-b border-white/[0.08] px-4 py-4">
+          <div className="flex flex-wrap items-center gap-2.5 text-sm font-semibold text-cyan-300">
             <i className="fa-solid fa-layer-group text-base"></i>
-            <span>Tiêu chí cơ bản</span>
-            <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold border ${activeTab === 'basic'
-              ? 'border-cyan-500/40 bg-cyan-500/15 text-cyan-300'
-               : 'border-white/[0.08] bg-white/[0.025] text-slate-400'
-              }`}>{BASIC_TOTAL_MAX} điểm</span>
-            <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${basicScore / BASIC_TOTAL_MAX >= 0.8 ? 'text-emerald-400' : basicScore / BASIC_TOTAL_MAX >= 0.6 ? 'text-amber-400' : 'text-red-400'
-              }`}>{basicScore.toFixed(1)}/{BASIC_TOTAL_MAX}</span>
-          </button>
-
-          <div className="w-px bg-white/[0.08] my-2" />
-
-          <button
-            onClick={() => setActiveTab('advanced')}
-            className={`relative flex-1 flex items-center justify-center gap-2.5 px-4 py-4 text-sm font-semibold transition-all duration-200 ${activeTab === 'advanced'
-              ? 'text-violet-300 bg-violet-500/8'
-              : 'text-slate-500 hover:text-slate-300 hover:bg-white/[0.025]'
-              }`}
-          >
-            {activeTab === 'advanced' && (
-              <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-violet-400 to-transparent" />
-            )}
-            <i className="fa-solid fa-rocket text-base"></i>
-            <span>Tiêu chí nâng cao</span>
-            <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold border ${activeTab === 'advanced'
-              ? 'border-violet-500/40 bg-violet-500/15 text-violet-300'
-               : 'border-white/[0.08] bg-white/[0.025] text-slate-400'
-              }`}>{ADVANCED_TOTAL_MAX} điểm</span>
-            <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${advancedScore / ADVANCED_TOTAL_MAX >= 0.8 ? 'text-emerald-400' : advancedScore / ADVANCED_TOTAL_MAX >= 0.6 ? 'text-amber-400' : 'text-red-400'
-              }`}>{advancedScore.toFixed(1)}/{ADVANCED_TOTAL_MAX}</span>
-            <span className="rounded border border-violet-500/30 bg-violet-500/10 px-1.5 py-0.5 text-[9px] font-bold text-violet-400 uppercase tracking-wider">AI+</span>
-          </button>
+            <span>Tieu chi cot loi</span>
+            <span className="rounded-full border border-cyan-500/30 bg-cyan-500/10 px-2 py-0.5 text-[10px] font-bold text-cyan-300">{BASIC_TOTAL_MAX} diem</span>
+            <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${basicScore / BASIC_TOTAL_MAX >= 0.8 ? 'text-emerald-400' : basicScore / BASIC_TOTAL_MAX >= 0.6 ? 'text-amber-400' : 'text-red-400'}`}>{basicScore.toFixed(1)}/{BASIC_TOTAL_MAX}</span>
+          </div>
         </div>
 
-        {/* Tab body */}
-        <div className="p-4">
-          {activeTab === 'basic' && (
-            <div className="space-y-3">
-              <div className="flex items-center gap-2 mb-3 pb-2 border-b border-white/[0.06]">
-                <i className="fa-solid fa-circle-info text-cyan-500/60 text-xs"></i>
-                <p className="text-[11px] text-slate-500">
-                  {basicDetails.length} tiêu chí hiển thị · {BASIC_CRITERIA.length} tiêu chí cốt lõi · Tổng phổ điểm <span className="text-cyan-400 font-bold">{BASIC_TOTAL_MAX}</span> điểm · Đánh giá nền tảng ứng viên
-                </p>
-              </div>
-              {basicDetails.length > 0 ? (
-                basicDetails.map(item => (
-                  (() => {
-                    const criterionName = canonicalizeCriterionName(getDetailCriterion(item));
-                    return (
-                  <CriterionAccordion
-                    key={criterionName}
-                    item={item}
-                    isExpanded={!!expandedCriteria[candidate.id]?.[criterionName]}
-                    onToggle={() => onToggleCriterion(candidate.id, criterionName)}
-                    jdText={jdText}
-                    isAdvanced={false}
-                  />
-                    );
-                  })()
-                ))
-              ) : (
-                <div className="flex flex-col items-center justify-center py-10 text-slate-500">
-                  <i className="fa-solid fa-layer-group text-3xl mb-3 opacity-30"></i>
-                  <p className="text-sm">Chưa có dữ liệu tiêu chí cơ bản</p>
-                </div>
-              )}
+        <div className="p-4 space-y-4">
+          <div className="flex items-center gap-2 pb-2 border-b border-white/[0.06]">
+            <i className="fa-solid fa-circle-info text-cyan-500/60 text-xs"></i>
+            <p className="text-[11px] text-slate-500">
+              {basicDetails.length} tieu chi hien thi ? {BASIC_CRITERIA.length} tieu chi cot loi ? Tong pho diem <span className="text-cyan-400 font-bold">{BASIC_TOTAL_MAX}</span> diem ? Danh gia nen tang ung vien
+            </p>
+          </div>
+
+          {basicDetails.length > 0 ? (
+            basicDetails.map((item) => {
+              const criterionName = canonicalizeCriterionName(getDetailCriterion(item));
+              return (
+                <CriterionAccordion
+                  key={criterionName}
+                  item={item}
+                  isExpanded={!!expandedCriteria[candidate.id]?.[criterionName]}
+                  onToggle={() => onToggleCriterion(candidate.id, criterionName)}
+                  jdText={jdText}
+                />
+              );
+            })
+          ) : (
+            <div className="flex flex-col items-center justify-center py-10 text-slate-500">
+              <i className="fa-solid fa-layer-group text-3xl mb-3 opacity-30"></i>
+              <p className="text-sm">Chua co du lieu tieu chi cot loi</p>
             </div>
           )}
 
-          {activeTab === 'advanced' && (
-            <div className="space-y-3">
-              <div className="flex items-center gap-2 mb-3 pb-2 border-b border-white/[0.06]">
-                <i className="fa-solid fa-circle-info text-violet-500/60 text-xs"></i>
-                <p className="text-[11px] text-slate-500">
-                  {advancedDetails.length} tiêu chí hiển thị · {ADVANCED_CRITERIA.length} tiêu chí AI nâng cao · Mỗi tiêu chí tối đa <span className="text-violet-400 font-bold">{ADVANCED_MAX_PER}</span> điểm · Tổng <span className="text-violet-400 font-bold">{ADVANCED_TOTAL_MAX}</span> điểm · Phân tích hành vi & tiềm năng
-                </p>
+          {supplementalDetails.length > 0 && (
+            <div className="pt-4 border-t border-white/[0.06] space-y-3">
+              <div className="flex items-center gap-2">
+                <i className="fa-solid fa-sparkles text-emerald-400/70 text-xs"></i>
+                <p className="text-[11px] text-slate-500">Cac phan tich bo sung do backend tra ve</p>
               </div>
-              {advancedDetails.length > 0 ? (
-                advancedDetails.map(item => (
-                  (() => {
-                    const criterionName = canonicalizeCriterionName(getDetailCriterion(item));
-                    return (
+              {supplementalDetails.map((item, index) => {
+                const criterionName = canonicalizeCriterionName(getDetailCriterion(item)) || `supplemental-${index}`;
+                return (
                   <CriterionAccordion
-                    key={criterionName}
+                    key={`${criterionName}-${index}`}
                     item={item}
                     isExpanded={!!expandedCriteria[candidate.id]?.[criterionName]}
                     onToggle={() => onToggleCriterion(candidate.id, criterionName)}
                     jdText={jdText}
-                    isAdvanced={true}
                   />
-                    );
-                  })()
-                ))
-              ) : (
-                <div className="flex flex-col items-center justify-center py-10 text-slate-500">
-                  <i className="fa-solid fa-rocket text-3xl mb-3 opacity-30"></i>
-                  <p className="text-sm">Chưa có dữ liệu tiêu chí nâng cao</p>
-                  <p className="text-xs mt-1 text-slate-600">Cần phân tích CV với model hỗ trợ tiêu chí nâng cao</p>
-                </div>
-              )}
+                );
+              })}
             </div>
           )}
         </div>
