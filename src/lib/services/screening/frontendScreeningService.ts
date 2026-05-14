@@ -1,6 +1,7 @@
 import type { Candidate, DetailedScore, HardFilters, WeightCriteria, AnalysisRunData } from '@/shared/types';
 import { apiPost, pickArray } from '@/lib/services/api/renderClient';
 import { analysisCacheService } from '@/lib/services/history-cache/analysisCache';
+import { UploadedFilesService } from '@/lib/services/data-sync/uploadedFilesService';
 import { extractTextFromFile } from '@/lib/services/file-processing/ocrService';
 import { getSafeErrorMessage, sanitizeApiErrorMessage, SAFE_ERROR_MESSAGES } from '@/shared/utils/errorMessages';
 
@@ -245,6 +246,7 @@ export async function* analyzeCVs(
   const cvEntries: Array<{ file_name: string; text: string }> = [];
   const cvTextMap: Record<string, string> = {};
   const pendingFiles: File[] = [];
+  let persistUploadedFilesPromise: Promise<string[]> | null = null;
 
   for (let index = 0; index < uncached.length; index += 1) {
     const file = uncached[index];
@@ -277,6 +279,25 @@ export async function* analyzeCVs(
 
   if (!cvEntries.length) return;
 
+  persistUploadedFilesPromise = UploadedFilesService.saveUploadedFiles(
+    cvEntries.map((entry, index) => {
+      const file = pendingFiles[index];
+      return {
+        fileName: file?.name || entry.file_name,
+        fileType: 'cv' as const,
+        fileSize: file?.size || 0,
+        mimeType: file?.type || 'application/octet-stream',
+        ocrMethod: 'browser-local',
+        extractedText: entry.text,
+        processingTimeMs: 0,
+        candidateName: (file?.name || entry.file_name).replace(/\.[^.]+$/, ''),
+      };
+    })
+  ).catch((error) => {
+    console.warn('Persist uploaded files failed, continuing analysis without vector sync:', error);
+    return [];
+  });
+
   yield {
     status: 'progress',
     message: `Đang phân tích ${cvEntries.length} CV qua Render API...`,
@@ -292,12 +313,18 @@ export async function* analyzeCVs(
   let candidates = pickArray<unknown>(coreResponse, ['candidates']);
 
   if (candidates.length > 0) {
+    if (persistUploadedFilesPromise) {
+      await persistUploadedFilesPromise;
+    }
+
     try {
       const enrichmentResponse = await apiPost<EnrichmentResponse>('/api/cv/enrich', {
         jd_text: jdText,
         hard_filters: serializeHardFilters(hardFilters),
         candidates,
         cv_text_map: cvTextMap,
+      }, {
+        authRequired: true,
       });
 
       const enrichedCandidates = pickArray<unknown>(enrichmentResponse, ['candidates']);

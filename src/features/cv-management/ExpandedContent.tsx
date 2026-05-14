@@ -152,6 +152,13 @@ function getDetailExplanation(item: DetailedScore): string {
 
 function canonicalizeCriterionName(rawName: string): string {
   const value = rawName.trim();
+  const normalized = value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/đ/gi, 'd')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
 
   if (/^Phù hợp JD(?:\s*\(Job Fit\))?$/i.test(value)) return 'Phù hợp JD (Job Fit)';
   if (/^Kinh nghiệm$/i.test(value)) return 'Kinh nghiệm';
@@ -168,6 +175,22 @@ function canonicalizeCriterionName(rawName: string): string {
   if (/^Kỹ năng chuyển đổi\s*\(Skill Graph\)$/i.test(value)) return 'Kỹ năng chuyển đổi (Skill Graph)';
   if (/^Tiềm năng phát triển\s*\(Career Velocity\)$/i.test(value)) return 'Tiềm năng phát triển (Career Velocity)';
   if (/^Hệ số uy tín công ty$/i.test(value)) return 'Hệ số uy tín công ty';
+
+  if (normalized === 'phu hop jd' || normalized === 'phu hop jd job fit' || normalized === 'job fit') return 'Phù hợp JD (Job Fit)';
+  if (normalized === 'kinh nghiem') return 'Kinh nghiệm';
+  if (normalized === 'ky nang') return 'Kỹ năng';
+  if (normalized === 'thanh tuu kpi' || normalized === 'thanh tuu') return 'Thành tựu/KPI';
+  if (normalized === 'hoc van') return 'Học vấn';
+  if (normalized === 'ngon ngu') return 'Ngôn ngữ';
+  if (normalized === 'chuyen nghiep') return 'Chuyên nghiệp';
+  if (normalized.includes('gan bo') || normalized.includes('lich su cv')) return 'Gắn bó & Lịch sử CV';
+  if (normalized === 'phu hop van hoa' || normalized === 'culture fit') return 'Phù hợp văn hoá';
+  if (normalized.includes('ky nang hanh dong') || normalized.includes('chu dong')) return 'Kỹ năng hành động & chủ động';
+  if (normalized.includes('trinh bay star') || normalized.includes('star ket qua')) return 'Trình bày STAR & Kết quả';
+  if (normalized.includes('su on dinh') || normalized.includes('trung thanh')) return 'Sự ổn định & Trung thành';
+  if (normalized.includes('skill graph') || normalized.includes('ky nang chuyen doi')) return 'Kỹ năng chuyển đổi (Skill Graph)';
+  if (normalized.includes('career velocity') || normalized.includes('tiem nang phat trien')) return 'Tiềm năng phát triển (Career Velocity)';
+  if (normalized.includes('uy tin cong ty') || normalized.includes('company tier')) return 'Hệ số uy tín công ty';
 
   return value;
 }
@@ -646,11 +669,14 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
 
   const basicDetails = useMemo(() =>
     allDetails
-      .filter(item => BASIC_CRITERIA.includes(canonicalizeCriterionName(getDetailCriterion(item))))
+      .filter(item => {
+        const canonical = canonicalizeCriterionName(getDetailCriterion(item));
+        return BASIC_CRITERIA.includes(canonical) || !ADVANCED_CRITERIA.includes(canonical);
+      })
       .sort(
         (a, b) =>
-          BASIC_CRITERIA.indexOf(canonicalizeCriterionName(getDetailCriterion(a)))
-          - BASIC_CRITERIA.indexOf(canonicalizeCriterionName(getDetailCriterion(b)))
+          (BASIC_CRITERIA.indexOf(canonicalizeCriterionName(getDetailCriterion(a))) === -1 ? Number.MAX_SAFE_INTEGER : BASIC_CRITERIA.indexOf(canonicalizeCriterionName(getDetailCriterion(a))))
+          - (BASIC_CRITERIA.indexOf(canonicalizeCriterionName(getDetailCriterion(b))) === -1 ? Number.MAX_SAFE_INTEGER : BASIC_CRITERIA.indexOf(canonicalizeCriterionName(getDetailCriterion(b))))
       ),
     [allDetails]
   );
