@@ -20,6 +20,19 @@ const EMPTY_STATS: ActivityHistoryStats = {
   thisMonthCount: 0,
 };
 
+const modalMetaClass = 'supporthr-mono text-[10px] font-medium uppercase tracking-[0.22em] text-zinc-500';
+const modalValueClass = 'supporthr-display mt-2 text-[1.55rem] font-semibold tracking-[-0.05em] text-white';
+const modalPanelClass =
+  'rounded-none border border-white/[0.08] bg-[linear-gradient(180deg,rgba(255,255,255,0.03)_0%,rgba(255,255,255,0.012)_100%)] p-5 shadow-[0_20px_50px_rgba(0,0,0,0.24)]';
+const modalSecondaryButtonClass =
+  'supporthr-mono rounded-none border border-white/[0.08] bg-black/70 px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300 transition-colors hover:border-white/[0.16] hover:text-white disabled:cursor-not-allowed disabled:border-white/[0.05] disabled:bg-black/35 disabled:text-slate-600';
+const modalCacheButtonClass =
+  'supporthr-mono rounded-none border border-cyan-400/20 bg-cyan-400/8 px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-100 transition-colors hover:bg-cyan-400/14 disabled:cursor-not-allowed disabled:border-white/[0.05] disabled:bg-black/35 disabled:text-slate-600';
+const modalDangerButtonClass =
+  'supporthr-mono rounded-none border border-red-500/20 bg-red-500/10 px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-red-200 transition-colors hover:bg-red-500/14 disabled:cursor-not-allowed disabled:border-white/[0.05] disabled:bg-black/35 disabled:text-slate-600';
+const historyCardClass =
+  'rounded-none border border-white/[0.08] bg-[linear-gradient(180deg,rgba(255,255,255,0.03)_0%,rgba(255,255,255,0.012)_100%)] p-4 transition-all hover:border-emerald-400/22 hover:bg-[linear-gradient(180deg,rgba(255,255,255,0.05)_0%,rgba(255,255,255,0.018)_100%)]';
+
 const HistoryModal: React.FC<HistoryModalProps> = ({ isOpen, onClose }) => {
   const [cacheStats, setCacheStats] = useState({
     size: 0,
@@ -47,7 +60,7 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ isOpen, onClose }) => {
   useEffect(() => {
     if (!isOpen) return;
     setCacheStats(analysisCacheService.getCacheStats());
-    loadHistory();
+    void loadHistory();
   }, [isOpen, loadHistory]);
 
   const handleClearCache = () => {
@@ -70,52 +83,64 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ isOpen, onClose }) => {
       <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm" onClick={onClose} />
 
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div className="max-h-[85vh] w-full max-w-md overflow-y-auto rounded-2xl border border-slate-800 bg-[#0B1120] shadow-2xl shadow-blue-900/20">
-          <div className="flex items-center justify-between border-b border-slate-800 bg-slate-900/50 p-6">
-            <h2 className="flex items-center gap-3 text-xl font-bold text-white">
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg border border-blue-500/20 bg-blue-500/10">
-                <i className="fa-solid fa-clock-rotate-left text-blue-400" />
+        <div className="flex max-h-[88vh] w-full max-w-[46rem] flex-col overflow-hidden rounded-none border border-white/[0.08] bg-[radial-gradient(circle_at_top_left,rgba(52,211,153,0.08),transparent_28%),linear-gradient(180deg,rgba(8,12,23,0.98)_0%,rgba(4,7,15,0.98)_100%)] shadow-[0_38px_120px_rgba(0,0,0,0.56)]">
+          <div className="flex items-center justify-between border-b border-white/[0.08] bg-black/35 px-6 py-4">
+            <div className="flex items-center gap-3">
+              <span className="flex h-11 w-11 items-center justify-center rounded-none border border-emerald-400/20 bg-emerald-400/10">
+                <i className="fa-solid fa-clock-rotate-left text-emerald-200" />
               </span>
-              Lịch sử & Thống kê
-            </h2>
+              <div>
+                <h2 className="supporthr-display text-[1.45rem] font-semibold tracking-[-0.05em] text-white">
+                  Lịch sử hoạt động
+                </h2>
+                <p className="supporthr-mono text-[10px] uppercase tracking-[0.2em] text-zinc-500">
+                  Cache hệ thống và các phiên phân tích gần đây
+                </p>
+              </div>
+            </div>
+
             <button
               onClick={onClose}
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-800/60 hover:text-white"
+              className="flex h-9 w-9 items-center justify-center rounded-none border border-white/[0.08] bg-black/55 text-slate-400 transition-colors hover:border-emerald-400/30 hover:text-white"
             >
               <i className="fa-solid fa-xmark" />
             </button>
           </div>
 
-          <div className="space-y-6 p-6">
-            <section>
-              <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-slate-400">
-                <i className="fa-solid fa-database text-blue-400" />
-                Cache hệ thống
-              </h3>
+          <div className="min-h-0 space-y-6 overflow-y-auto p-6">
+            <section className="space-y-4">
+              <div className="flex items-center gap-2">
+                <i className="fa-solid fa-database text-cyan-300" />
+                <h3 className="supporthr-mono text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-300">
+                  Cache hệ thống
+                </h3>
+              </div>
 
-              <div className="space-y-4 rounded-xl border border-slate-800 bg-slate-900/50 p-5">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="rounded-lg border border-slate-800 bg-slate-950/50 p-3 text-center">
-                    <div className="text-xs text-slate-400">Entries</div>
-                    <div className="mt-1 text-2xl font-bold text-white">{cacheStats.size}</div>
+              <div className={modalPanelClass}>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="rounded-none border border-white/[0.08] bg-black/55 p-4 text-center">
+                    <div className={modalMetaClass}>Entries</div>
+                    <div className={modalValueClass}>{cacheStats.size}</div>
                   </div>
-                  <div className="rounded-lg border border-slate-800 bg-slate-950/50 p-3 text-center">
-                    <div className="text-xs text-slate-400">Hit Rate</div>
-                    <div className="mt-1 text-2xl font-bold text-cyan-300">{cacheStats.hitRate.toFixed(1)}%</div>
+                  <div className="rounded-none border border-white/[0.08] bg-black/55 p-4 text-center">
+                    <div className={modalMetaClass}>Hit Rate</div>
+                    <div className="supporthr-display mt-2 text-[1.55rem] font-semibold tracking-[-0.05em] text-cyan-100">
+                      {cacheStats.hitRate.toFixed(1)}%
+                    </div>
                   </div>
                 </div>
 
-                <div className="flex gap-3">
+                <div className="mt-4 flex gap-3">
                   <button
                     onClick={() => setCacheStats(analysisCacheService.getCacheStats())}
-                    className="flex-1 rounded-lg border border-slate-700 bg-slate-800/50 px-3 py-2.5 text-sm text-slate-200 transition-colors hover:bg-slate-700"
+                    className={`flex-1 ${modalCacheButtonClass}`}
                   >
                     Làm mới
                   </button>
                   <button
                     onClick={handleClearCache}
                     disabled={cacheStats.size === 0}
-                    className="flex-1 rounded-lg border border-red-500/20 bg-red-500/10 px-3 py-2.5 text-sm text-red-300 transition-colors hover:bg-red-500/20 disabled:cursor-not-allowed disabled:border-slate-800 disabled:bg-slate-900 disabled:text-slate-600"
+                    className={`flex-1 ${modalDangerButtonClass}`}
                   >
                     Xóa cache
                   </button>
@@ -123,76 +148,84 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ isOpen, onClose }) => {
               </div>
             </section>
 
-            <section>
-              <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-slate-400">
-                <i className="fa-solid fa-chart-line text-emerald-400" />
-                Lịch sử hoạt động
-              </h3>
+            <section className="space-y-4">
+              <div className="flex items-center gap-2">
+                <i className="fa-solid fa-chart-line text-emerald-300" />
+                <h3 className="supporthr-mono text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-300">
+                  Lịch sử hoạt động
+                </h3>
+              </div>
 
-              <div className="space-y-4 rounded-xl border border-slate-800 bg-slate-900/50 p-5">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="rounded-lg border border-slate-800 bg-slate-950/50 p-3 text-center">
-                    <div className="text-xs text-slate-400">Tổng phiên</div>
-                    <div className="mt-1 text-2xl font-bold text-blue-300">{historyStats.totalSessions}</div>
+              <div className={modalPanelClass}>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="rounded-none border border-white/[0.08] bg-black/55 p-4 text-center">
+                    <div className={modalMetaClass}>Tổng phiên</div>
+                    <div className="supporthr-display mt-2 text-[1.55rem] font-semibold tracking-[-0.05em] text-cyan-100">
+                      {historyStats.totalSessions}
+                    </div>
                   </div>
-                  <div className="rounded-lg border border-slate-800 bg-slate-950/50 p-3 text-center">
-                    <div className="text-xs text-slate-400">Tuần này</div>
-                    <div className="mt-1 text-2xl font-bold text-emerald-300">{historyStats.thisWeekCount}</div>
+                  <div className="rounded-none border border-white/[0.08] bg-black/55 p-4 text-center">
+                    <div className={modalMetaClass}>Tuần này</div>
+                    <div className="supporthr-display mt-2 text-[1.55rem] font-semibold tracking-[-0.05em] text-emerald-100">
+                      {historyStats.thisWeekCount}
+                    </div>
                   </div>
                 </div>
 
-                <div className="rounded-lg border border-slate-800/70 bg-slate-950/40 px-3 py-2 text-xs text-slate-400">
-                  Nguồn dữ liệu: {historySource === 'render' ? 'Render API' : historySource === 'local' ? 'Cục bộ' : 'Chưa có dữ liệu'}
+                <div className="mt-3 grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto]">
+                  <div className="supporthr-mono rounded-none border border-white/[0.08] bg-black/55 px-3 py-3 text-[10px] uppercase tracking-[0.18em] text-slate-400">
+                    Nguồn dữ liệu: {historySource === 'render' ? 'Render API' : historySource === 'local' ? 'Cục bộ' : 'Chưa có dữ liệu'}
+                  </div>
+                  <div className="supporthr-mono rounded-none border border-white/[0.08] bg-black/55 px-3 py-3 text-[10px] uppercase tracking-[0.18em] text-slate-400">
+                    Gần nhất: <span className="text-slate-200">{historyStats.lastSession || 'Chưa có'}</span>
+                  </div>
                 </div>
 
-                {historyStats.lastSession && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-slate-500">Gần nhất:</span>
-                    <span className="font-mono text-xs text-slate-300">{historyStats.lastSession}</span>
+                <div className="mt-4 border-t border-white/[0.06] pt-4">
+                  <div className="supporthr-mono mb-3 text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-500">
+                    Gần đây
                   </div>
-                )}
 
-                {loading ? (
-                  <div className="py-6 text-center text-sm text-slate-500">Đang tải lịch sử...</div>
-                ) : recentHistory.length > 0 ? (
-                  <div className="border-t border-slate-800 pt-3">
-                    <div className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-500">Gần đây</div>
-                    <div className="max-h-48 space-y-2 overflow-y-auto pr-1">
-                      {recentHistory.slice(0, 8).map((entry) => (
-                        <div
-                          key={entry.id}
-                          className="rounded-lg border border-slate-800/60 bg-slate-800/30 p-2.5 text-xs transition-colors hover:bg-slate-800/50"
-                        >
+                  {loading ? (
+                    <div className="flex flex-col items-center justify-center gap-4 py-10">
+                      <div className="h-10 w-10 animate-spin rounded-none border-[3px] border-emerald-500/15 border-t-emerald-300" />
+                      <p className="text-sm text-slate-500">Đang tải lịch sử...</p>
+                    </div>
+                  ) : recentHistory.length > 0 ? (
+                    <div className="max-h-64 space-y-3 overflow-y-auto pr-1">
+                      {recentHistory.slice(0, 8).map((entry: ActivityHistoryEntry) => (
+                        <div key={entry.id} className={historyCardClass}>
                           <div className="flex items-start justify-between gap-3">
                             <div className="min-w-0">
-                              <div className="truncate font-medium text-slate-200">{entry.jobPosition || 'Không rõ vị trí'}</div>
-                              <div className="mt-1 text-[11px] text-slate-500">
+                              <div className="supporthr-display truncate text-[1.1rem] font-semibold tracking-[-0.04em] text-white">
+                                {entry.jobPosition || 'Không rõ vị trí'}
+                              </div>
+                              <div className="supporthr-mono mt-1 text-[10px] uppercase tracking-[0.18em] text-emerald-200/75">
                                 {new Date(entry.timestamp).toLocaleString('vi-VN')}
                               </div>
                             </div>
-                            <span className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2 py-0.5 text-[10px] text-emerald-300">
+                            <span className="supporthr-mono border border-emerald-500/20 bg-emerald-500/10 px-2.5 py-1 text-[9px] uppercase tracking-[0.16em] text-emerald-100">
                               {entry.industry || 'Khác'}
                             </span>
                           </div>
                         </div>
                       ))}
                     </div>
-                  </div>
-                ) : (
-                  <div className="border-t border-slate-800 pt-4 text-center text-sm text-slate-500">Chưa có lịch sử hoạt động nào.</div>
-                )}
+                  ) : (
+                    <div className="rounded-none border border-white/[0.08] bg-black/40 px-4 py-8 text-center text-sm text-slate-500">
+                      Chưa có lịch sử hoạt động nào.
+                    </div>
+                  )}
+                </div>
 
-                <div className="flex gap-3">
-                  <button
-                    onClick={loadHistory}
-                    className="flex-1 rounded-lg border border-slate-700 bg-slate-800/50 px-3 py-2.5 text-sm text-slate-200 transition-colors hover:bg-slate-700"
-                  >
+                <div className="mt-4 flex gap-3">
+                  <button onClick={() => void loadHistory()} className={`flex-1 ${modalSecondaryButtonClass}`}>
                     Cập nhật
                   </button>
                   <button
                     onClick={handleClearLocalHistory}
                     disabled={historySource !== 'local' || historyStats.totalSessions === 0}
-                    className="flex-1 rounded-lg border border-red-500/20 bg-red-500/10 px-3 py-2.5 text-sm text-red-300 transition-colors hover:bg-red-500/20 disabled:cursor-not-allowed disabled:border-slate-800 disabled:bg-slate-900 disabled:text-slate-600"
+                    className={`flex-1 ${modalDangerButtonClass}`}
                   >
                     Xóa cục bộ
                   </button>
