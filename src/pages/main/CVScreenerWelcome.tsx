@@ -327,9 +327,9 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(148,163,184,0.035)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.035)_1px,transparent_1px)] bg-[size:52px_52px] opacity-20" />
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.02)_0%,rgba(0,0,0,0.42)_100%)]" />
 
-      <div className="relative z-10 h-full w-full overflow-auto">
-        <div className="origin-top-left lg:h-[125%] lg:w-[125%] lg:scale-[0.8]">
-          <div className="mx-auto flex h-full w-full max-w-7xl flex-col overflow-hidden px-4 py-4 sm:px-6 lg:px-8">
+      <div className="relative z-10 flex h-full w-full items-start justify-center overflow-hidden px-4 py-3 sm:px-6 lg:px-8">
+        <div className="h-full w-full max-w-[106rem] lg:[zoom:0.8] 2xl:max-w-[118rem]">
+          <div className="flex h-full w-full flex-col overflow-hidden">
         <header className={`mb-4 flex shrink-0 items-center justify-between gap-4 px-5 py-5 ${panelClass}`}>
           <div className="min-w-0">
             <div className={`${sectionEyebrowClass} text-cyan-300/75`}>CV Screening</div>
@@ -367,8 +367,8 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
           </div>
         </header>
 
-        <div className="grid min-h-0 flex-1 gap-4 xl:grid-cols-[minmax(0,1.08fr)_minmax(340px,0.92fr)]">
-          <section className={`grid min-h-0 grid-rows-[auto_1fr_auto] gap-4 p-5 ${panelClass}`}>
+        <div className="grid min-h-0 flex-1 gap-5 xl:grid-cols-[minmax(0,1.32fr)_minmax(420px,0.98fr)]">
+          <section className={`grid min-h-0 grid-rows-[auto_1fr_auto] gap-5 p-6 ${panelClass}`}>
             <div className="flex items-start justify-between gap-3 border-b border-white/[0.08] pb-4">
               <div>
                 <div className={sectionEyebrowClass}>
@@ -436,7 +436,7 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
 
                 <input ref={fileInputRef} type="file" className="hidden" accept={FILE_ACCEPT} onChange={handleFileChange} />
 
-                <div className="grid min-h-0 gap-4 lg:grid-cols-[minmax(0,1.25fr)_240px]">
+                <div className="grid min-h-0 gap-5 lg:grid-cols-[minmax(0,1.38fr)_320px]">
                   <div className={`flex min-h-0 flex-col overflow-hidden ${subPanelClass}`}>
                     <div className="flex items-start justify-between gap-4 border-b border-white/[0.08] px-5 py-4">
                       <div className="flex items-start gap-4">
@@ -656,8 +656,8 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
             </div>
           </section>
 
-          <aside className={`grid min-h-0 grid-rows-[auto_1fr] gap-4 p-5 ${panelClass}`}>
-            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
+            <aside className={`grid min-h-0 grid-rows-[auto_1fr] gap-5 p-6 ${panelClass}`}>
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-2">
               <div className={`p-4 ${subPanelClass}`}>
                 <div className="flex items-center gap-3">
                   <div className="inline-flex h-9 w-9 items-center justify-center rounded-none border border-sky-400/20 bg-sky-400/10 text-sky-300">

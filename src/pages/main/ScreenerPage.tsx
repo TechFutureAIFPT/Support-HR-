@@ -144,7 +144,7 @@ const ScreenerPage: React.FC<ScreenerPageProps> = (props) => {
 
   if (activeStep === 'jd' && showWelcome) {
     return (
-      <div className="fixed inset-0 z-50 overflow-y-auto">
+      <div className="fixed inset-0 z-50 overflow-hidden">
         <CVScreenerWelcome
           onGetStarted={handleContinueAfterWelcome}
           onUseTemplate={handleUseTemplate}
