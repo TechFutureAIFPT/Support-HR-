@@ -167,6 +167,23 @@ function getDetailExplanation(item: DetailedScore): string {
 
 const MISSING_DETAIL_EVIDENCE = 'AI chua tra ve dan chung cu the cho tieu chi nay.';
 
+function buildSyntheticLoyaltyDetail(source: DetailedScore): DetailedScore {
+  const inheritedEvidence = getDetailEvidence(source) || MISSING_DETAIL_EVIDENCE;
+  const inheritedExplanation = getDetailExplanation(source);
+  const inheritedFormula = getDetailFormula(source);
+  const inheritedScore = getDetailScore(source) || `0/${LOYALTY_TOTAL_MAX}`;
+
+  return {
+    'Tiêu chí': LOYALTY_CRITERION,
+    'Điểm': inheritedScore,
+    'Công thức': inheritedFormula || 'Suy ra tu tieu chi Gan bo & Lich su CV',
+    'Dẫn chứng': inheritedEvidence,
+    'Giải thích': inheritedExplanation && inheritedExplanation !== '...'
+      ? `${inheritedExplanation} (Duoc suy ra tu tieu chi Gan bo & Lich su CV.)`
+      : 'Phien phan tich nay chua tach rieng Muc do trung thanh, nen he thong suy ra tu tieu chi Gan bo & Lich su CV.',
+  };
+}
+
 function formatScoreValue(value: number): string {
   if (Number.isInteger(value)) {
     return String(value);
@@ -682,10 +699,11 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
     return Array.isArray(rawDetails) ? rawDetails as DetailedScore[] : [];
   }, [analysisRecord]);
 
-  const { loyaltyDetail, basicDetails, supplementalDetails } = useMemo(() => {
+  const { loyaltyDetail, loyaltyDerivedFromBasic, basicDetails, supplementalDetails } = useMemo(() => {
     const basicMap = new Map<string, DetailedScore>();
     const supplementalMap = new Map<string, DetailedScore>();
     let loyaltyItem: DetailedScore | null = null;
+    let loyaltyFallbackSource: DetailedScore | null = null;
 
     allDetails.forEach((item) => {
       const canonical = canonicalizeCriterionName(getDetailCriterion(item));
@@ -705,6 +723,9 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
       }
 
       if (BASIC_CRITERIA.includes(canonical)) {
+        if (canonical === BASIC_CRITERIA[7] && !loyaltyFallbackSource) {
+          loyaltyFallbackSource = item;
+        }
         if (!basicMap.has(canonical)) {
           basicMap.set(canonical, item);
         }
@@ -716,8 +737,14 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
       }
     });
 
+    const derivedFromBasic = !loyaltyItem && Boolean(loyaltyFallbackSource);
+    if (!loyaltyItem && loyaltyFallbackSource) {
+      loyaltyItem = buildSyntheticLoyaltyDetail(loyaltyFallbackSource);
+    }
+
     return {
       loyaltyDetail: loyaltyItem,
+      loyaltyDerivedFromBasic: derivedFromBasic,
       basicDetails: BASIC_CRITERIA
         .map((criterionName) => basicMap.get(criterionName))
         .filter((item): item is DetailedScore => Boolean(item)),
@@ -756,8 +783,9 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
       }
     }
 
-    return Math.min(100, parseFloat((basicScore + loyaltyScore).toFixed(1)));
-  }, [analysisRecord, basicScore, loyaltyScore]);
+    const loyaltyContribution = loyaltyDerivedFromBasic ? 0 : loyaltyScore;
+    return Math.min(100, parseFloat((basicScore + loyaltyContribution).toFixed(1)));
+  }, [analysisRecord, basicScore, loyaltyDerivedFromBasic, loyaltyScore]);
 
   const matchPercent = Math.min(100, Math.round(totalScore));
   const recommendation = totalScore >= 75
@@ -829,6 +857,11 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
             <i className="fa-solid fa-shield-halved text-base"></i>
             <span>Muc do trung thanh</span>
             <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[10px] font-bold text-amber-300">{LOYALTY_TOTAL_MAX} diem</span>
+            {loyaltyDerivedFromBasic && (
+              <span className="rounded-full border border-white/[0.08] bg-white/[0.04] px-2 py-0.5 text-[10px] font-medium text-slate-300">
+                Su dung tu Gan bo & Lich su CV
+              </span>
+            )}
           </div>
           <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${loyaltyScore / LOYALTY_TOTAL_MAX >= 0.8 ? 'text-emerald-400' : loyaltyScore / LOYALTY_TOTAL_MAX >= 0.6 ? 'text-amber-400' : 'text-red-400'}`}>{loyaltyScore.toFixed(1)}/{LOYALTY_TOTAL_MAX}</span>
         </div>
