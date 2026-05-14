@@ -42,6 +42,7 @@ export interface Candidate {
   status: 'SUCCESS' | 'FAILED';
   error?: string;
   _rawBatchJson?: string;
+  _cvText?: string;
 }
 
 export interface HardFilters {

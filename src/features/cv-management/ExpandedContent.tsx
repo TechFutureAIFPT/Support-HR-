@@ -181,12 +181,24 @@ const CV_TEXT_FIELD_ALIASES = new Set([
   'content',
   'text',
 ]);
+const EXPERIENCE_TEXT_FIELD_ALIASES = new Set([
+  'experience',
+  'work experience',
+  'employment history',
+  'kinh nghiem',
+  'qua trinh cong tac',
+  'lich su lam viec',
+]);
+const MONTH_NAME_TOKEN = '(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:t|tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?|thg\\.?\\s*\\d{1,2}|tháng\\s*\\d{1,2})';
+const TIMELINE_DATE_TOKEN = `(?:(?:0?[1-9]|1[0-2])\\/\\d{4}|\\d{4}|${MONTH_NAME_TOKEN}\\s*\\/?\\s*\\d{4})`;
 
 interface CareerTimelineItem {
   id: string;
   periodLabel: string;
   summary: string;
+  companyName: string;
   isCurrent: boolean;
+  durationMonths: number | null;
 }
 
 const uploadedCvTextCache = new Map<string, string>();
@@ -246,6 +258,47 @@ function extractNestedCvText(value: unknown, depth: number = 0): string {
   return '';
 }
 
+function extractStructuredExperienceText(value: unknown, depth: number = 0): string {
+  if (depth > 6 || value === null || value === undefined) {
+    return '';
+  }
+
+  if (typeof value === 'string') {
+    return value.trim().length > 24 ? value.trim() : '';
+  }
+
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      const nested = extractStructuredExperienceText(item, depth + 1);
+      if (nested) return nested;
+    }
+    return '';
+  }
+
+  if (typeof value !== 'object') {
+    return '';
+  }
+
+  const record = value as Record<string, unknown>;
+
+  for (const [key, nestedValue] of Object.entries(record)) {
+    const normalizedKey = normalizeAscii(key).replace(/\s+/g, ' ');
+    if (EXPERIENCE_TEXT_FIELD_ALIASES.has(normalizedKey)) {
+      const matchedText = extractStructuredExperienceText(nestedValue, depth + 1);
+      if (matchedText) {
+        return matchedText;
+      }
+    }
+  }
+
+  for (const nestedValue of Object.values(record)) {
+    const nested = extractStructuredExperienceText(nestedValue, depth + 1);
+    if (nested) return nested;
+  }
+
+  return '';
+}
+
 function scoreUploadedFileMatch(file: UploadedFileRecord, candidate: Candidate): number {
   let score = 0;
 
@@ -257,6 +310,10 @@ function scoreUploadedFileMatch(file: UploadedFileRecord, candidate: Candidate):
 }
 
 async function resolveCandidateCvText(candidate: Candidate): Promise<string> {
+  if (candidate._cvText?.trim()) {
+    return candidate._cvText.trim();
+  }
+
   const cacheKey = `${candidate.fileName}::${candidate.candidateName}`;
   const cachedText = uploadedCvTextCache.get(cacheKey);
   if (cachedText) {
@@ -270,6 +327,11 @@ async function resolveCandidateCvText(candidate: Candidate): Promise<string> {
       if (embeddedText) {
         uploadedCvTextCache.set(cacheKey, embeddedText);
         return embeddedText;
+      }
+      const structuredExperience = extractStructuredExperienceText(rawCandidate);
+      if (structuredExperience) {
+        uploadedCvTextCache.set(cacheKey, structuredExperience);
+        return structuredExperience;
       }
     } catch {
       // Ignore malformed raw candidate payloads and continue with uploaded file lookup.
@@ -325,7 +387,155 @@ function isLikelyTimelineHeading(line: string): boolean {
 
 function formatPeriodLabel(start: string, end: string): string {
   const normalizedEnd = /^(hiện tại|hien tai|nay|present|current)$/i.test(end.trim()) ? 'Hiện tại' : end.trim();
-  return `${start.trim()} - ${normalizedEnd}`;
+  return `Từ ${start.trim()} đến ${normalizedEnd}`;
+}
+
+function parseTimelineDateToken(token: string, isEnd: boolean): { year: number; month: number } | null {
+  const trimmed = token.trim();
+  const normalized = normalizeAscii(trimmed);
+
+  if (/^(hien tai|present|current|nay)$/.test(normalized)) {
+    const now = new Date();
+    return { year: now.getFullYear(), month: now.getMonth() + 1 };
+  }
+
+  const monthYearMatch = trimmed.match(/^(\d{1,2})\/(\d{4})$/);
+  if (monthYearMatch) {
+    const month = Number.parseInt(monthYearMatch[1], 10);
+    const year = Number.parseInt(monthYearMatch[2], 10);
+    if (month >= 1 && month <= 12) {
+      return { year, month };
+    }
+  }
+
+  const yearMatch = trimmed.match(/^(\d{4})$/);
+  if (yearMatch) {
+    return {
+      year: Number.parseInt(yearMatch[1], 10),
+      month: isEnd ? 12 : 1,
+    };
+  }
+
+  const monthNameMatch = normalized.match(
+    /^(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:t|tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?|thg\.?\s*(\d{1,2})|thang\s*(\d{1,2}))\s*\/?\s*(\d{4})$/
+  );
+  if (monthNameMatch) {
+    const monthMap: Record<string, number> = {
+      jan: 1,
+      january: 1,
+      feb: 2,
+      february: 2,
+      mar: 3,
+      march: 3,
+      apr: 4,
+      april: 4,
+      may: 5,
+      jun: 6,
+      june: 6,
+      jul: 7,
+      july: 7,
+      aug: 8,
+      august: 8,
+      sep: 9,
+      sept: 9,
+      september: 9,
+      oct: 10,
+      october: 10,
+      nov: 11,
+      november: 11,
+      dec: 12,
+      december: 12,
+    };
+
+    const monthWord = monthNameMatch[1];
+    const monthFromWord = monthMap[monthWord];
+    const monthFromNumericWord = Number.parseInt(monthNameMatch[2] || monthNameMatch[3] || '', 10);
+    const month = monthFromWord || monthFromNumericWord;
+    const year = Number.parseInt(monthNameMatch[4], 10);
+
+    if (month >= 1 && month <= 12) {
+      return { year, month };
+    }
+  }
+
+  return null;
+}
+
+function getTimelineDurationMonths(start: string, end: string): number | null {
+  const startDate = parseTimelineDateToken(start, false);
+  const endDate = parseTimelineDateToken(end, true);
+
+  if (!startDate || !endDate) {
+    return null;
+  }
+
+  const monthSpan = (endDate.year - startDate.year) * 12 + (endDate.month - startDate.month) + 1;
+  return monthSpan > 0 ? monthSpan : null;
+}
+
+function formatTimelineDuration(months: number): string {
+  const years = Math.floor(months / 12);
+  const remainingMonths = months % 12;
+
+  if (years > 0 && remainingMonths > 0) {
+    return `${years} năm ${remainingMonths} tháng`;
+  }
+
+  if (years > 0) {
+    return `${years} năm`;
+  }
+
+  return `${remainingMonths} tháng`;
+}
+
+function guessTimelineCompany(primary: string, secondary: string): { companyName: string; detail: string } {
+  const first = cleanTimelineText(primary);
+  const second = cleanTimelineText(secondary);
+
+  const inlineAtMatch = first.match(/^(.+?)\s+(?:at|tại)\s+(.+)$/i);
+  if (inlineAtMatch) {
+    return {
+      companyName: cleanTimelineText(inlineAtMatch[2]),
+      detail: cleanTimelineText(inlineAtMatch[1]),
+    };
+  }
+
+  const candidates = [first, second].filter(Boolean);
+  if (candidates.length === 0) {
+    return { companyName: '', detail: '' };
+  }
+
+  if (candidates.length === 1) {
+    return { companyName: '', detail: candidates[0] };
+  }
+
+  const companyHintRegex = /\b(company|co\.|corp|corporation|group|studio|solutions|software|bank|university|college|school|hospital|lab|labs|jsc|inc|llc|ltd|tnhh|tập đoàn|công ty|ngân hàng|trường|viện|bệnh viện)\b/i;
+  const roleHintRegex = /\b(intern|developer|engineer|manager|director|lead|leader|consultant|analyst|designer|specialist|executive|architect|thực tập|nhân viên|chuyên viên|quản lý|trưởng|giám đốc|kỹ sư|lập trình viên)\b/i;
+
+  const scoreCandidate = (value: string) => {
+    const normalized = normalizeAscii(value);
+    let score = 0;
+    if (companyHintRegex.test(value) || companyHintRegex.test(normalized)) score += 4;
+    if (!roleHintRegex.test(value) && !roleHintRegex.test(normalized)) score += 2;
+    if (value.length <= 52) score += 1;
+    if (!/[,:;]/.test(value)) score += 1;
+    return score;
+  };
+
+  const [left, right] = candidates;
+  const leftScore = scoreCandidate(left);
+  const rightScore = scoreCandidate(right);
+
+  if (leftScore === rightScore) {
+    if (left.length <= right.length) {
+      return { companyName: left, detail: right };
+    }
+    return { companyName: right, detail: left };
+  }
+
+  return leftScore > rightScore
+    ? { companyName: left, detail: right }
+    : { companyName: right, detail: left };
 }
 
 function extractCareerTimeline(text: string): CareerTimelineItem[] {
@@ -334,7 +544,10 @@ function extractCareerTimeline(text: string): CareerTimelineItem[] {
     .map((line) => cleanTimelineText(line))
     .filter(Boolean);
 
-  const rangeRegex = /((?:(?:0?[1-9]|1[0-2])\/\d{4}|\d{4}))\s*(?:-|–|—|to|đến|tới)\s*((?:(?:0?[1-9]|1[0-2])\/\d{4}|\d{4}|hiện tại|hien tai|nay|present|current))/i;
+  const rangeRegex = new RegExp(
+    `(${TIMELINE_DATE_TOKEN})\\s*(?:-|–|—|to|đến|tới)\\s*(${TIMELINE_DATE_TOKEN}|hiện tại|hien tai|nay|present|current)`,
+    'i'
+  );
   const items: CareerTimelineItem[] = [];
 
   for (let index = 0; index < lines.length; index += 1) {
@@ -365,20 +578,23 @@ function extractCareerTimeline(text: string): CareerTimelineItem[] {
       secondary = nextLine;
     }
 
-    const combinedSummary = [summary, secondary]
+    const { companyName, detail } = guessTimelineCompany(summary, secondary);
+    const combinedSummary = [detail]
       .map((item) => cleanTimelineText(item))
       .filter(Boolean)
       .join(' • ');
 
-    if (!combinedSummary) {
+    if (!combinedSummary && !companyName) {
       continue;
     }
 
     items.push({
       id: `${dateMatch[1]}-${dateMatch[2]}-${index}`,
       periodLabel: formatPeriodLabel(dateMatch[1], dateMatch[2]),
-      summary: combinedSummary,
+      summary: combinedSummary || companyName,
+      companyName,
       isCurrent: /^(hiện tại|hien tai|nay|present|current)$/i.test(dateMatch[2].trim()),
+      durationMonths: getTimelineDurationMonths(dateMatch[1], dateMatch[2]),
     });
   }
 
@@ -1041,6 +1257,23 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
     };
   }, [candidate.id, candidate.fileName, candidate.candidateName, candidate.jobTitle, candidate._rawBatchJson, loyaltyDetail]);
 
+  const averageTimelineTenure = useMemo(() => {
+    const durations = employmentTimeline
+      .map((item) => item.durationMonths)
+      .filter((value): value is number => typeof value === 'number' && value > 0);
+
+    if (durations.length === 0) {
+      return null;
+    }
+
+    const averageMonths = Math.round(durations.reduce((sum, value) => sum + value, 0) / durations.length);
+    return {
+      averageMonths,
+      averageLabel: formatTimelineDuration(averageMonths),
+      companyCount: durations.length,
+    };
+  }, [employmentTimeline]);
+
   const matchPercent = Math.min(100, Math.round(totalScore));
   const recommendation = totalScore >= 75
     ? 'Ứng viên xuất sắc, nên ưu tiên mời phỏng vấn sớm.'
@@ -1162,13 +1395,42 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
                       {index < employmentTimeline.length - 1 && (
                         <span className="absolute left-[4px] top-4 bottom-[-18px] w-px bg-white/[0.08]" />
                       )}
-                      <div className="text-sm leading-6 text-slate-300">{item.summary}</div>
+                      <div className="text-sm font-semibold leading-6 text-amber-100">
+                        {item.companyName || item.summary}
+                      </div>
+                      {item.companyName && item.summary && item.summary !== item.companyName && (
+                        <div className="mt-1 text-sm leading-6 text-slate-300">{item.summary}</div>
+                      )}
+                      {item.durationMonths && (
+                        <div className="mt-1 text-[11px] font-medium text-slate-500">
+                          Gắn bó khoảng {formatTimelineDuration(item.durationMonths)}
+                        </div>
+                      )}
                       {item.isCurrent && (
                         <div className="mt-1 text-[11px] font-medium text-emerald-300">Đang làm việc</div>
                       )}
                     </div>
                   </div>
                 ))}
+
+                {averageTimelineTenure && (
+                  <div className="rounded-lg border border-amber-500/20 bg-amber-500/[0.05] px-4 py-3">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div>
+                        <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-amber-300/75">
+                          Trung bình gắn bó
+                        </div>
+                        <div className="mt-1 text-sm text-slate-300">
+                          Trung bình mỗi công ty ứng viên gắn bó khoảng{' '}
+                          <span className="font-semibold text-amber-200">{averageTimelineTenure.averageLabel}</span>.
+                        </div>
+                      </div>
+                      <div className="supporthr-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-amber-100">
+                        {averageTimelineTenure.companyCount} mốc làm việc
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             ) : (
               <div className="rounded-lg border border-white/[0.08] bg-black/30 px-4 py-6 text-sm text-slate-500">

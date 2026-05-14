@@ -140,10 +140,17 @@ function normalizeAnalysis(rawAnalysis: unknown): CandidateAnalysis | undefined 
   };
 }
 
-function normalizeCandidate(rawCandidate: unknown, fallbackFile?: File): Candidate {
+function normalizeCandidate(rawCandidate: unknown, fallbackFile?: File, cvText?: string): Candidate {
   const candidate = (rawCandidate && typeof rawCandidate === 'object') ? rawCandidate as Record<string, unknown> : {};
   const fileName = String(candidate.fileName || fallbackFile?.name || 'unknown');
   const candidateName = String(candidate.candidateName || fileName.replace(/\.[^.]+$/, ''));
+  const embeddedCvText = typeof candidate._cvText === 'string' && candidate._cvText.trim()
+    ? candidate._cvText.trim()
+    : undefined;
+  const effectiveCvText = cvText?.trim() || embeddedCvText;
+  const rawPayload = effectiveCvText
+    ? { ...candidate, cvText: effectiveCvText, _cvText: effectiveCvText }
+    : rawCandidate;
 
   return {
     id: String(candidate.id || `${fileName}-${candidateName}`),
@@ -166,7 +173,8 @@ function normalizeCandidate(rawCandidate: unknown, fallbackFile?: File): Candida
       : undefined,
     status: candidate.status === 'FAILED' ? 'FAILED' : 'SUCCESS',
     error: candidate.error ? sanitizeApiErrorMessage(String(candidate.error), SAFE_ERROR_MESSAGES.ai) : undefined,
-    _rawBatchJson: JSON.stringify(rawCandidate),
+    _rawBatchJson: JSON.stringify(rawPayload),
+    _cvText: effectiveCvText,
   };
 }
 
@@ -240,7 +248,13 @@ export async function* analyzeCVs(
       message: `Đang dùng kết quả đã lưu cho CV ${index + 1}/${cached.length}: ${item.file.name}`,
     };
 
-    yield normalizeCandidate(item.result, item.file);
+    yield normalizeCandidate(
+      item.result,
+      item.file,
+      typeof (item.result as Record<string, unknown>)?._cvText === 'string'
+        ? String((item.result as Record<string, unknown>)._cvText)
+        : undefined
+    );
   }
 
   const cvEntries: Array<{ file_name: string; text: string }> = [];
@@ -341,7 +355,11 @@ export async function* analyzeCVs(
     const matchedFile =
       pendingFiles.find((file) => file.name === String((rawCandidate as Record<string, unknown>)?.fileName || ''))
       || pendingFiles[index];
-    const normalizedCandidate = normalizeCandidate(rawCandidate, matchedFile);
+    const normalizedCandidate = normalizeCandidate(
+      rawCandidate,
+      matchedFile,
+      matchedFile ? cvTextMap[matchedFile.name] : undefined
+    );
 
     if (matchedFile) {
       await analysisCacheService.cacheAnalysis(
