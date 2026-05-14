@@ -131,23 +131,145 @@ const CARD_CRITERIA_META: { [key: string]: { icon: string; color: string; accent
 // ── Accordion dùng chung ─────────────────────────────────────────────────────
 
 function getDetailCriterion(item: DetailedScore): string {
-  return String(item['Tiêu chí'] || ((item as unknown) as Record<string, unknown>)['TiÃªu chÃ­'] || '');
+  const record = item as unknown as Record<string, unknown>;
+  return String(
+    record['Tiêu chí'] ??
+    record['Tieu chi'] ??
+    record['TieuChi'] ??
+    record['criterion'] ??
+    record['TiÃªu chÃ­'] ??
+    ''
+  ).trim();
 }
 
 function getDetailScore(item: DetailedScore): string {
-  return String(item['Điểm'] || ((item as unknown) as Record<string, unknown>)['Äiá»ƒm'] || '');
+  const record = item as unknown as Record<string, unknown>;
+  return String(
+    record['Điểm'] ??
+    record['Diem'] ??
+    record['score'] ??
+    record['Äiá»ƒm'] ??
+    ''
+  ).trim();
 }
 
 function getDetailFormula(item: DetailedScore): string {
-  return String(item['Công thức'] || ((item as unknown) as Record<string, unknown>)['CÃ´ng thá»©c'] || '');
+  const record = item as unknown as Record<string, unknown>;
+  return String(
+    record['Công thức'] ??
+    record['Cong thuc'] ??
+    record['formula'] ??
+    record['CÃ´ng thá»©c'] ??
+    ''
+  ).trim();
 }
 
 function getDetailEvidence(item: DetailedScore): string {
-  return String(item['Dẫn chứng'] || ((item as unknown) as Record<string, unknown>)['Dáº«n chá»©ng'] || '');
+  const record = item as unknown as Record<string, unknown>;
+  return String(
+    record['Dẫn chứng'] ??
+    record['Dan chung'] ??
+    record['evidence'] ??
+    record['Dáº«n chá»©ng'] ??
+    ''
+  ).trim();
 }
 
 function getDetailExplanation(item: DetailedScore): string {
-  return String(item['Giải thích'] || ((item as unknown) as Record<string, unknown>)['Giáº£i thÃ­ch'] || '');
+  const record = item as unknown as Record<string, unknown>;
+  return String(
+    record['Giải thích'] ??
+    record['Giai thich'] ??
+    record['explanation'] ??
+    record['Giáº£i thÃ­ch'] ??
+    ''
+  ).trim();
+}
+
+const MISSING_DETAIL_EVIDENCE = 'AI chưa trả về dẫn chứng cụ thể cho tiêu chí này.';
+
+function formatScoreValue(value: number): string {
+  if (Number.isInteger(value)) {
+    return String(value);
+  }
+
+  return value.toFixed(value >= 10 ? 1 : 2).replace(/\.0+$/, '').replace(/(\.\d*[1-9])0+$/, '$1');
+}
+
+function parseNumericValue(value: string): number | null {
+  const match = value.match(/[+-]?\d+(?:\.\d+)?/);
+  if (!match) {
+    return null;
+  }
+
+  const parsed = Number.parseFloat(match[0]);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function parseDetailScore(
+  scoreText: string,
+  detailFormula: string,
+  isAdvanced: boolean
+): {
+  score: number | null;
+  maxScore: number | null;
+  rawScore: number | null;
+  rawMax: number | null;
+  weight: number;
+  achievedPct: number;
+  contributionPct: number;
+  hasScore: boolean;
+  scoreLabel: string;
+} {
+  const trimmedScore = scoreText.trim();
+  const ratioMatch = trimmedScore.match(/([+-]?\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+)?)/);
+
+  let rawScore: number | null = null;
+  let rawMax: number | null = null;
+
+  if (ratioMatch) {
+    rawScore = Number.parseFloat(ratioMatch[1]);
+    rawMax = Number.parseFloat(ratioMatch[2]);
+  } else {
+    rawScore = parseNumericValue(trimmedScore);
+  }
+
+  const hasScore = rawScore !== null;
+  let displayScore = rawScore;
+  let displayMax = rawMax;
+
+  if (isAdvanced && rawScore !== null && rawMax && rawMax > 0) {
+    displayScore = Number.parseFloat(((rawScore / rawMax) * ADVANCED_MAX_PER).toFixed(2));
+    displayMax = ADVANCED_MAX_PER;
+  }
+
+  const achievedPct = rawScore !== null && rawMax && rawMax > 0
+    ? Math.round((rawScore / rawMax) * 100)
+    : displayScore !== null && displayMax && displayMax > 0
+      ? Math.round((displayScore / displayMax) * 100)
+      : 0;
+
+  const weightMatch = detailFormula.match(/trọng số\s*([\d.]+)%/i);
+  const weight = Number.parseFloat(weightMatch?.[1] || '0');
+
+  let scoreLabel = 'Chưa có';
+  if (displayScore !== null && displayMax !== null) {
+    scoreLabel = `${formatScoreValue(displayScore)}/${formatScoreValue(displayMax)}`;
+  } else if (displayScore !== null && trimmedScore) {
+    scoreLabel = trimmedScore;
+  }
+
+  return {
+    score: displayScore,
+    maxScore: displayMax,
+    rawScore,
+    rawMax,
+    weight: Number.isFinite(weight) ? weight : 0,
+    achievedPct,
+    contributionPct: achievedPct,
+    hasScore,
+    scoreLabel,
+  };
 }
 
 function canonicalizeCriterionName(rawName: string): string {
@@ -211,32 +333,10 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
   const detailEvidence = getDetailEvidence(item);
   const detailExplanation = getDetailExplanation(item);
 
-  const parsedData = useMemo(() => {
-    const scoreMatch = detailScore.match(/([\d.]+)\/([\d.]+)/);
-    const rawScore = parseFloat(scoreMatch?.[1] || '0');
-    const rawMax = parseFloat(scoreMatch?.[2] || '0');
-
-    // Normalize về đúng thang:
-    // - Nâng cao: mỗi tiêu chí /4 điểm (normalize từ scale AI gốc)
-    // - Cơ bản: giữ nguyên scale AI (tổng 80)
-    const displayMax = isAdvanced ? ADVANCED_MAX_PER : rawMax;
-    const displayScore = isAdvanced && rawMax > 0
-      ? parseFloat(((rawScore / rawMax) * ADVANCED_MAX_PER).toFixed(2))
-      : rawScore;
-
-    const achievedPct = rawMax > 0 ? Math.round((rawScore / rawMax) * 100) : 0;
-
-    let formulaMatch = detailFormula.match(/subscore ([\d.]+)\/([\d.]+)% = ([\d.]+) points/);
-    let weight = parseFloat(formulaMatch?.[2] || '0');
-
-    if (!formulaMatch) {
-      formulaMatch = detailFormula.match(/subscore ([\d.]+) × trọng số ([\d]+)% = (.*)$/);
-      weight = parseFloat(formulaMatch?.[2] || '0');
-    }
-
-    const contributionPct = parseFloat((achievedPct).toFixed(1));
-    return { score: displayScore, maxScore: displayMax, rawScore, rawMax, weight, achievedPct, contributionPct };
-  }, [detailFormula, detailScore, isAdvanced]);
+  const parsedData = useMemo(
+    () => parseDetailScore(detailScore, detailFormula, isAdvanced),
+    [detailFormula, detailScore, isAdvanced]
+  );
 
   const handleCopy = () => {
     navigator.clipboard.writeText(detailEvidence);
@@ -246,15 +346,23 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
 
   const meta = CARD_CRITERIA_META[criterionName] || { icon: 'fa-solid fa-question-circle', color: 'text-slate-400', accent: 'border-slate-700 bg-slate-900/20' };
   const advDesc = ADVANCED_DESCRIPTIONS[criterionName];
+  const hasRealEvidence = Boolean(
+    detailEvidence &&
+    detailEvidence !== 'Không tìm thấy thông tin trong CV' &&
+    detailEvidence !== MISSING_DETAIL_EVIDENCE
+  );
 
   const scorePercentage = parsedData.achievedPct;
-  const scoreBadgeClass = scorePercentage >= 85
+  const scoreBadgeClass = !parsedData.hasScore
+    ? 'bg-slate-800/60 text-slate-400 border-slate-700/80'
+    : scorePercentage >= 85
     ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/35'
     : scorePercentage >= 65
       ? 'bg-amber-500/15 text-amber-300 border-amber-500/35'
       : 'bg-red-500/15 text-red-300 border-red-500/35';
 
-  const proficiency = scorePercentage >= 90 ? 'Expert'
+  const proficiency = !parsedData.hasScore ? 'Chưa có'
+    : scorePercentage >= 90 ? 'Expert'
     : scorePercentage >= 75 ? 'Advanced'
       : scorePercentage >= 55 ? 'Intermediate'
         : 'Beginner';
@@ -263,13 +371,13 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
   const jdRequirements = useMemo(() => extractJDRequirements(jdText), [jdText]);
   const thisRequirement = useMemo(() => jdRequirements.find(r => r.display === criterionName), [criterionName, jdRequirements]);
   const requirementComparison = useMemo(() => {
-    if (isExperience || !thisRequirement) return null;
+    if (isExperience || !thisRequirement || !hasRealEvidence) return null;
     return compareEvidence(criterionName, thisRequirement.keywords, detailEvidence);
-  }, [criterionName, detailEvidence, isExperience, thisRequirement]);
+  }, [criterionName, detailEvidence, hasRealEvidence, isExperience, thisRequirement]);
 
   let experienceBlock: React.ReactNode = null;
   let matchMeta: ReturnType<typeof analyzeExperience> | null = null;
-  if (isExperience) {
+  if (isExperience && hasRealEvidence) {
     matchMeta = analyzeExperience(jdText, detailEvidence || '');
     experienceBlock = (
       <div className="space-y-3 rounded-xl border border-slate-800/60 bg-[#080f1e] p-5">
@@ -310,7 +418,7 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
         </div>
         <div className="flex shrink-0 items-center gap-3">
           <span className={`rounded-lg border px-3 py-1.5 text-sm font-bold ${scoreBadgeClass}`}>
-            {parsedData.score}<span className="ml-0.5 text-xs opacity-80">/{parsedData.maxScore}</span>
+            {parsedData.scoreLabel}
           </span>
           <i className={`fa-solid fa-chevron-down text-slate-500 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}></i>
         </div>
@@ -359,13 +467,13 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
                 </button>
               </div>
               <blockquote className="border-l-4 border-cyan-500/60 pl-4 text-base italic leading-relaxed text-slate-300" dangerouslySetInnerHTML={{
-                __html: detailEvidence === 'Không tìm thấy thông tin trong CV'
+                __html: detailEvidence === 'Không tìm thấy thông tin trong CV' || detailEvidence === MISSING_DETAIL_EVIDENCE
                   ? '<span class="not-italic rounded-md border border-amber-500/35 bg-amber-500/10 px-2 py-1 text-xs font-semibold text-amber-300">Chưa tìm thấy trong CV</span>'
                   : detailEvidence
               }} />
 
               {/* Nâng cao: badge lý do dẫn chứng */}
-              {isAdvanced && detailEvidence && detailEvidence !== 'Không tìm thấy thông tin trong CV' && (
+              {isAdvanced && detailEvidence && detailEvidence !== 'Không tìm thấy thông tin trong CV' && detailEvidence !== MISSING_DETAIL_EVIDENCE && (
                 <div className="mt-3 pt-3 border-t border-slate-800/50">
                   <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Lý do chấm điểm</p>
                   <p className="text-xs text-slate-400 leading-relaxed">{detailExplanation}</p>
@@ -453,60 +561,74 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
               <div className="space-y-2">
                 <div className="text-xs font-medium text-slate-500">Công thức tính điểm</div>
 
-                <div className="rounded-lg border border-slate-700/60 bg-slate-950/50 p-2.5">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-slate-500">Đánh giá thực tế</span>
-                    <span className="font-mono font-semibold text-cyan-400">{parsedData.score}/{parsedData.maxScore}</span>
-                  </div>
-                </div>
-
-                <div className="rounded-lg border border-slate-700/60 bg-slate-950/50 p-2.5">
-                  <div className="mb-1 text-xs text-slate-500">Công thức subscore</div>
-                  <div className="font-mono text-xs">
-                    {parsedData.weight > 0 ? (
-                      <span>
-                        <span className="text-sky-400">{parsedData.score.toFixed(1)}</span>
-                        {' / '}
-                        <span className="text-violet-400">{parsedData.maxScore}</span>
-                        {' = '}
-                        <span className="font-bold text-amber-400">{parsedData.contributionPct}%</span>
-                        <span className="text-slate-500"> ({parsedData.weight}% trọng số)</span>
-                      </span>
-                    ) : (
-                      <span>
-                        <span className="text-sky-400">{parsedData.score.toFixed(1)}</span>
-                        {' / '}
-                        <span className="text-violet-400">{parsedData.maxScore}</span>
-                        {' = '}
-                        <span className="font-bold text-amber-400">{parsedData.achievedPct}%</span>
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                <div className="rounded-lg border border-slate-700/60 bg-slate-950/50 p-2.5">
-                  <div className="mb-1 text-xs text-slate-500">Đóng góp vào điểm tổng</div>
-                  <div className="space-y-1.5">
-                    <div className="flex items-center gap-2">
-                      <div className="flex-1 h-1.5 rounded-full bg-slate-800 overflow-hidden">
-                        <div
-                          className={`h-full rounded-full transition-all duration-500 ${parsedData.achievedPct >= 80 ? 'bg-emerald-500' : parsedData.achievedPct >= 60 ? 'bg-amber-400' : 'bg-red-500'}`}
-                          style={{ width: `${Math.min(100, parsedData.achievedPct)}%` }}
-                        />
+                {parsedData.hasScore ? (
+                  <>
+                    <div className="rounded-lg border border-slate-700/60 bg-slate-950/50 p-2.5">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-slate-500">Đánh giá thực tế</span>
+                        <span className="font-mono font-semibold text-cyan-400">{parsedData.scoreLabel}</span>
                       </div>
-                      <span className={`text-[11px] font-bold tabular-nums ${parsedData.achievedPct >= 80 ? 'text-emerald-400' : parsedData.achievedPct >= 60 ? 'text-amber-400' : 'text-red-400'}`}>{parsedData.achievedPct}%</span>
                     </div>
-                    <div className="text-xs text-slate-300">
-                      Tiêu chí này đóng góp{' '}
-                      <span className="font-bold text-amber-400 font-mono">{parsedData.score.toFixed(2)}</span>
-                      {' / '}
-                      <span className="text-slate-400 font-mono">{parsedData.maxScore}</span> điểm
-                      {isAdvanced && (
-                        <span className="text-violet-400/70 ml-1 text-[10px]">(thang chuẩn nâng cao)</span>
-                      )}
+
+                    <div className="rounded-lg border border-slate-700/60 bg-slate-950/50 p-2.5">
+                      <div className="mb-1 text-xs text-slate-500">Công thức subscore</div>
+                      <div className="font-mono text-xs">
+                        {parsedData.maxScore !== null ? (
+                          <span>
+                            <span className="text-sky-400">{formatScoreValue(parsedData.score || 0)}</span>
+                            {' / '}
+                            <span className="text-violet-400">{formatScoreValue(parsedData.maxScore)}</span>
+                            {' = '}
+                            <span className="font-bold text-amber-400">{parsedData.contributionPct}%</span>
+                            {parsedData.weight > 0 && (
+                              <span className="text-slate-500"> ({parsedData.weight}% trọng số)</span>
+                            )}
+                          </span>
+                        ) : (
+                          <span>
+                            <span className="text-sky-400">{parsedData.scoreLabel}</span>
+                            {parsedData.weight > 0 && (
+                              <span className="text-slate-500"> ({parsedData.weight}% trọng số)</span>
+                            )}
+                          </span>
+                        )}
+                      </div>
                     </div>
+
+                    <div className="rounded-lg border border-slate-700/60 bg-slate-950/50 p-2.5">
+                      <div className="mb-1 text-xs text-slate-500">Đóng góp vào điểm tổng</div>
+                      <div className="space-y-1.5">
+                        <div className="flex items-center gap-2">
+                          <div className="flex-1 h-1.5 rounded-full bg-slate-800 overflow-hidden">
+                            <div
+                              className={`h-full rounded-full transition-all duration-500 ${parsedData.achievedPct >= 80 ? 'bg-emerald-500' : parsedData.achievedPct >= 60 ? 'bg-amber-400' : 'bg-red-500'}`}
+                              style={{ width: `${Math.min(100, parsedData.achievedPct)}%` }}
+                            />
+                          </div>
+                          <span className={`text-[11px] font-bold tabular-nums ${parsedData.achievedPct >= 80 ? 'text-emerald-400' : parsedData.achievedPct >= 60 ? 'text-amber-400' : 'text-red-400'}`}>{parsedData.achievedPct}%</span>
+                        </div>
+                        <div className="text-xs text-slate-300">
+                          Tiêu chí này đóng góp{' '}
+                          <span className="font-bold text-amber-400 font-mono">{parsedData.score !== null ? formatScoreValue(parsedData.score) : '0'}</span>
+                          {parsedData.maxScore !== null && (
+                            <>
+                              {' / '}
+                              <span className="text-slate-400 font-mono">{formatScoreValue(parsedData.maxScore)}</span> điểm
+                            </>
+                          )}
+                          {parsedData.maxScore === null && ' điểm'}
+                          {isAdvanced && parsedData.maxScore !== null && (
+                            <span className="text-violet-400/70 ml-1 text-[10px]">(thang chuẩn nâng cao)</span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <div className="rounded-lg border border-slate-700/60 bg-slate-950/50 p-3 text-xs text-slate-400">
+                    Chưa có dữ liệu điểm chi tiết cho tiêu chí này trong kết quả AI hiện tại.
                   </div>
-                </div>
+                )}
               </div>
             </div>
           </div>
@@ -665,38 +787,67 @@ interface ExpandedContentProps {
 const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCriteria, onToggleCriterion, jdText, rawJdText }) => {
   const [activeTab, setActiveTab] = useState<'basic' | 'advanced'>('basic');
 
-  const allDetails = candidate.analysis?.['Chi tiết'] || [];
+  const analysisRecord = candidate.analysis as Record<string, unknown> | undefined;
+  const allDetails = useMemo(() => {
+    const rawDetails =
+      analysisRecord?.['Chi tiết'] ??
+      analysisRecord?.['Chi tiet'] ??
+      analysisRecord?.['Chi tiáº¿t'];
 
-  const basicDetails = useMemo(() =>
-    allDetails
-      .filter(item => {
-        const canonical = canonicalizeCriterionName(getDetailCriterion(item));
-        return BASIC_CRITERIA.includes(canonical) || !ADVANCED_CRITERIA.includes(canonical);
-      })
-      .sort(
-        (a, b) =>
-          (BASIC_CRITERIA.indexOf(canonicalizeCriterionName(getDetailCriterion(a))) === -1 ? Number.MAX_SAFE_INTEGER : BASIC_CRITERIA.indexOf(canonicalizeCriterionName(getDetailCriterion(a))))
-          - (BASIC_CRITERIA.indexOf(canonicalizeCriterionName(getDetailCriterion(b))) === -1 ? Number.MAX_SAFE_INTEGER : BASIC_CRITERIA.indexOf(canonicalizeCriterionName(getDetailCriterion(b))))
-      ),
-    [allDetails]
-  );
+    return Array.isArray(rawDetails) ? rawDetails as DetailedScore[] : [];
+  }, [analysisRecord]);
 
-  const advancedDetails = useMemo(() =>
-    allDetails
-      .filter(item => ADVANCED_CRITERIA.includes(canonicalizeCriterionName(getDetailCriterion(item))))
-      .sort(
-        (a, b) =>
-          ADVANCED_CRITERIA.indexOf(canonicalizeCriterionName(getDetailCriterion(a)))
-          - ADVANCED_CRITERIA.indexOf(canonicalizeCriterionName(getDetailCriterion(b)))
-      ),
-    [allDetails]
-  );
+  const { basicDetails, advancedDetails } = useMemo(() => {
+    const basicMap = new Map<string, DetailedScore>();
+    const advancedMap = new Map<string, DetailedScore>();
+    const extraBasic: DetailedScore[] = [];
+    const extraAdvanced: DetailedScore[] = [];
+
+    allDetails.forEach((item) => {
+      const canonical = canonicalizeCriterionName(getDetailCriterion(item));
+      if (!canonical) {
+        return;
+      }
+
+      if (BASIC_CRITERIA.includes(canonical)) {
+        if (!basicMap.has(canonical)) {
+          basicMap.set(canonical, item);
+        }
+        return;
+      }
+
+      if (ADVANCED_CRITERIA.includes(canonical)) {
+        if (!advancedMap.has(canonical)) {
+          advancedMap.set(canonical, item);
+        }
+        return;
+      }
+
+      if (/^dynamic boost:/i.test(canonical)) {
+        extraAdvanced.push(item);
+        return;
+      }
+
+      extraBasic.push(item);
+    });
+
+    return {
+      basicDetails: [
+        ...BASIC_CRITERIA.map((criterionName) => basicMap.get(criterionName)).filter((item): item is DetailedScore => Boolean(item)),
+        ...extraBasic,
+      ],
+      advancedDetails: [
+        ...ADVANCED_CRITERIA.map((criterionName) => advancedMap.get(criterionName)).filter((item): item is DetailedScore => Boolean(item)),
+        ...extraAdvanced,
+      ],
+    };
+  }, [allDetails]);
 
   // Tổng điểm phân loại — normalize vào đúng thang
   const basicScore = useMemo(() =>
     basicDetails.reduce((sum, item) => {
-      const m = getDetailScore(item).match(/([\d.]+)\//);
-      return sum + parseFloat(m?.[1] || '0');
+      const parsed = parseDetailScore(getDetailScore(item), getDetailFormula(item), false);
+      return sum + (parsed.score || 0);
     }, 0),
     [basicDetails]
   );
@@ -704,11 +855,8 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
   // Normalize tất cả tiêu chí nâng cao về thang /4 rồi cộng lại (≤ 20)
   const advancedScore = useMemo(() =>
     advancedDetails.reduce((sum, item) => {
-      const m = getDetailScore(item).match(/([\d.]+)\/([\d.]+)/);
-      const raw = parseFloat(m?.[1] || '0');
-      const max = parseFloat(m?.[2] || '0');
-      const normalized = max > 0 ? (raw / max) * ADVANCED_MAX_PER : 0;
-      return sum + normalized;
+      const parsed = parseDetailScore(getDetailScore(item), getDetailFormula(item), true);
+      return sum + (parsed.score || 0);
     }, 0),
     [advancedDetails]
   );
@@ -896,7 +1044,9 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
             <div className="space-y-3">
               <div className="flex items-center gap-2 mb-3 pb-2 border-b border-white/[0.06]">
                 <i className="fa-solid fa-circle-info text-cyan-500/60 text-xs"></i>
-                <p className="text-[11px] text-slate-500">10 tiêu chí cốt lõi · Tổng phổ điểm <span className="text-cyan-400 font-bold">{BASIC_TOTAL_MAX}</span> điểm · Đánh giá nền tảng ứng viên</p>
+                <p className="text-[11px] text-slate-500">
+                  {basicDetails.length} tiêu chí hiển thị · {BASIC_CRITERIA.length} tiêu chí cốt lõi · Tổng phổ điểm <span className="text-cyan-400 font-bold">{BASIC_TOTAL_MAX}</span> điểm · Đánh giá nền tảng ứng viên
+                </p>
               </div>
               {basicDetails.length > 0 ? (
                 basicDetails.map(item => (
@@ -927,7 +1077,9 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
             <div className="space-y-3">
               <div className="flex items-center gap-2 mb-3 pb-2 border-b border-white/[0.06]">
                 <i className="fa-solid fa-circle-info text-violet-500/60 text-xs"></i>
-                <p className="text-[11px] text-slate-500">5 tiêu chí AI nâng cao · Mỗi tiêu chí tối đa <span className="text-violet-400 font-bold">{ADVANCED_MAX_PER}</span> điểm · Tổng <span className="text-violet-400 font-bold">{ADVANCED_TOTAL_MAX}</span> điểm · Phân tích hành vi & tiềm năng</p>
+                <p className="text-[11px] text-slate-500">
+                  {advancedDetails.length} tiêu chí hiển thị · {ADVANCED_CRITERIA.length} tiêu chí AI nâng cao · Mỗi tiêu chí tối đa <span className="text-violet-400 font-bold">{ADVANCED_MAX_PER}</span> điểm · Tổng <span className="text-violet-400 font-bold">{ADVANCED_TOTAL_MAX}</span> điểm · Phân tích hành vi & tiềm năng
+                </p>
               </div>
               {advancedDetails.length > 0 ? (
                 advancedDetails.map(item => (

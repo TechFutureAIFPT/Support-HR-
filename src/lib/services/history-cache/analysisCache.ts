@@ -21,12 +21,13 @@ class AnalysisCacheService {
   private cache = new Map<string, AnalysisCacheEntry>();
   private readonly CACHE_EXPIRY = 24 * 60 * 60 * 1000; // 24 hours
   private readonly MAX_CACHE_SIZE = 100; // Maximum cached entries
+  private readonly CACHE_SCHEMA_VERSION = 'criteria-v2';
 
   /**
    * Generate a unique cache key for a file and analysis parameters
    */
   private generateCacheKey(file: File, jdHash: string, weightsHash: string, filtersHash: string): string {
-    return `${file.name}_${file.size}_${file.lastModified}_${jdHash}_${weightsHash}_${filtersHash}`;
+    return `${this.CACHE_SCHEMA_VERSION}_${file.name}_${file.size}_${file.lastModified}_${jdHash}_${weightsHash}_${filtersHash}`;
   }
 
   /**
@@ -51,9 +52,9 @@ class AnalysisCacheService {
     filtersHash: string;
   } {
     return {
-      jdHash: this.hashString(jdText),
-      weightsHash: this.hashString(JSON.stringify(weights)),
-      filtersHash: this.hashString(JSON.stringify(hardFilters))
+      jdHash: this.hashString(`${this.CACHE_SCHEMA_VERSION}:${jdText}`),
+      weightsHash: this.hashString(`${this.CACHE_SCHEMA_VERSION}:${JSON.stringify(weights)}`),
+      filtersHash: this.hashString(`${this.CACHE_SCHEMA_VERSION}:${JSON.stringify(hardFilters)}`)
     };
   }
 
