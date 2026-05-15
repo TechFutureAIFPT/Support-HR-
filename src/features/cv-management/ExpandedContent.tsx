@@ -1,4 +1,22 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import type { LucideIcon } from 'lucide-react';
+import {
+  Award,
+  BriefcaseBusiness,
+  Building2,
+  Check,
+  ChevronDown,
+  CircleHelp,
+  Copy,
+  FileCheck2,
+  GraduationCap,
+  Hourglass,
+  Languages,
+  ShieldCheck,
+  Target,
+  UsersRound,
+  Wrench,
+} from 'lucide-react';
 import type { Candidate, DetailedScore, UploadedFileRecord } from '@/shared/types';
 import { analyzeExperience, extractJDRequirements, compareEvidence } from '@/lib/services/screening/frontendInsights';
 import { UploadedFilesService } from '@/lib/services/data-sync/uploadedFilesService';
@@ -87,18 +105,18 @@ const CRITERION_DESCRIPTIONS: Record<string, { what: string; why: string; signal
   },
 };
 
-const CARD_CRITERIA_META: { [key: string]: { icon: string; color: string; accent: string } } = {
-  [BASIC_CRITERIA[0]]: { icon: 'fa-solid fa-bullseye', color: 'text-sky-400', accent: 'border-sky-500/30 bg-sky-500/5' },
-  [BASIC_CRITERIA[1]]: { icon: 'fa-solid fa-briefcase', color: 'text-green-400', accent: 'border-green-500/30 bg-green-500/5' },
-  [BASIC_CRITERIA[2]]: { icon: 'fa-solid fa-gears', color: 'text-purple-400', accent: 'border-purple-500/30 bg-purple-500/5' },
-  [BASIC_CRITERIA[3]]: { icon: 'fa-solid fa-trophy', color: 'text-yellow-400', accent: 'border-yellow-500/30 bg-yellow-500/5' },
-  [BASIC_CRITERIA[4]]: { icon: 'fa-solid fa-graduation-cap', color: 'text-indigo-400', accent: 'border-indigo-500/30 bg-indigo-500/5' },
-  [BASIC_CRITERIA[5]]: { icon: 'fa-solid fa-language', color: 'text-orange-400', accent: 'border-orange-500/30 bg-orange-500/5' },
-  [BASIC_CRITERIA[6]]: { icon: 'fa-solid fa-file-invoice', color: 'text-cyan-400', accent: 'border-cyan-500/30 bg-cyan-500/5' },
-  [BASIC_CRITERIA[7]]: { icon: 'fa-solid fa-hourglass-half', color: 'text-lime-400', accent: 'border-lime-500/30 bg-lime-500/5' },
-  [BASIC_CRITERIA[8]]: { icon: 'fa-solid fa-users-gear', color: 'text-pink-400', accent: 'border-pink-500/30 bg-pink-500/5' },
-  [LOYALTY_CRITERION]: { icon: 'fa-solid fa-shield-halved', color: 'text-amber-400', accent: 'border-amber-500/30 bg-amber-500/5' },
-  [BASIC_CRITERIA[9]]: { icon: 'fa-solid fa-building-columns', color: 'text-emerald-400', accent: 'border-emerald-500/30 bg-emerald-500/5' },
+const CARD_CRITERIA_META: { [key: string]: { Icon: LucideIcon; color: string; accent: string } } = {
+  [BASIC_CRITERIA[0]]: { Icon: Target, color: 'text-sky-400', accent: 'border-sky-500/30 bg-sky-500/5' },
+  [BASIC_CRITERIA[1]]: { Icon: BriefcaseBusiness, color: 'text-green-400', accent: 'border-green-500/30 bg-green-500/5' },
+  [BASIC_CRITERIA[2]]: { Icon: Wrench, color: 'text-purple-400', accent: 'border-purple-500/30 bg-purple-500/5' },
+  [BASIC_CRITERIA[3]]: { Icon: Award, color: 'text-yellow-400', accent: 'border-yellow-500/30 bg-yellow-500/5' },
+  [BASIC_CRITERIA[4]]: { Icon: GraduationCap, color: 'text-indigo-400', accent: 'border-indigo-500/30 bg-indigo-500/5' },
+  [BASIC_CRITERIA[5]]: { Icon: Languages, color: 'text-orange-400', accent: 'border-orange-500/30 bg-orange-500/5' },
+  [BASIC_CRITERIA[6]]: { Icon: FileCheck2, color: 'text-cyan-400', accent: 'border-cyan-500/30 bg-cyan-500/5' },
+  [BASIC_CRITERIA[7]]: { Icon: Hourglass, color: 'text-lime-400', accent: 'border-lime-500/30 bg-lime-500/5' },
+  [BASIC_CRITERIA[8]]: { Icon: UsersRound, color: 'text-pink-400', accent: 'border-pink-500/30 bg-pink-500/5' },
+  [LOYALTY_CRITERION]: { Icon: ShieldCheck, color: 'text-amber-400', accent: 'border-amber-500/30 bg-amber-500/5' },
+  [BASIC_CRITERIA[9]]: { Icon: Building2, color: 'text-emerald-400', accent: 'border-emerald-500/30 bg-emerald-500/5' },
 };
 
 // ?? Accordion d?ng chung ?????????????????????????????????????????????????????
@@ -774,7 +792,8 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const meta = CARD_CRITERIA_META[criterionName] || { icon: 'fa-solid fa-question-circle', color: 'text-slate-400', accent: 'border-slate-700 bg-slate-900/20' };
+  const meta = CARD_CRITERIA_META[criterionName] || { Icon: CircleHelp, color: 'text-slate-400', accent: 'border-slate-700 bg-slate-900/20' };
+  const MetaIcon = meta.Icon;
   const description = CRITERION_DESCRIPTIONS[criterionName];
   const hasRealEvidence = shouldShowRawEvidence;
 
@@ -838,7 +857,9 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
     <div className={`rounded-xl border transition-all duration-200 hover:shadow-md ${isLoyalty ? `${meta.accent} hover:shadow-amber-500/5` : 'border-white/[0.08] bg-[#05070b] hover:border-cyan-500/25 hover:shadow-cyan-500/5'}`}>
       <button className="flex min-h-[56px] w-full items-center justify-between p-3.5 text-left" onClick={onToggle} aria-expanded={isExpanded}>
         <div className="flex min-w-0 items-center gap-3">
-          <i className={`${meta.icon} ${meta.color} w-5 text-center text-lg`}></i>
+          <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.035] ${meta.color}`}>
+            <MetaIcon className="h-5 w-5" strokeWidth={2.2} />
+          </span>
           <span className="truncate font-semibold text-slate-100">{criterionName}</span>
           <span className="ml-1 rounded border border-slate-700/80 bg-slate-800/80 px-2 py-0.5 text-[10px] font-semibold tracking-wide text-slate-400">{proficiency}</span>
         </div>
@@ -846,7 +867,7 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
           <span className={`rounded-lg border px-3 py-1.5 text-sm font-bold ${scoreBadgeClass}`}>
             {parsedData.scoreLabel}
           </span>
-          <i className={`fa-solid fa-chevron-down text-slate-500 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}></i>
+          <ChevronDown className={`h-4 w-4 text-slate-500 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`} />
         </div>
       </button>
 
@@ -857,7 +878,7 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
               <div className="mb-2 flex items-center justify-between">
                 <h5 className="text-base font-bold text-slate-200">Dẫn chứng (trích từ CV)</h5>
                 <button type="button" onClick={(e) => { e.stopPropagation(); handleCopy(); }} className="flex items-center gap-1.5 text-xs text-slate-500 transition-colors hover:text-cyan-400">
-                  <i className={`fa-solid ${copied ? 'fa-check text-emerald-400' : 'fa-copy'}`}></i>
+                  {copied ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
                   {copied ? 'Đã chép' : 'Chép'}
                 </button>
               </div>
@@ -940,7 +961,7 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
                     <ul className="space-y-1.5">
                       {description.signals.map((signal, index) => (
                         <li key={index} className="flex items-start gap-2 text-xs text-slate-400">
-                          <i className={`fa-solid fa-circle-check mt-0.5 shrink-0 text-[10px] ${isLoyalty ? 'text-amber-400' : 'text-cyan-400'}`} />
+                          <Check className={`mt-0.5 h-3 w-3 shrink-0 ${isLoyalty ? 'text-amber-400' : 'text-cyan-400'}`} />
                           {signal}
                         </li>
                       ))}
