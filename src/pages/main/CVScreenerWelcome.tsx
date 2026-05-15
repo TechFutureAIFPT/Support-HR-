@@ -46,7 +46,7 @@ const MAX_CV_PER_BATCH = 20;
 const FILE_ACCEPT = '.pdf,.docx,.png,.jpg,.jpeg';
 
 const cardClass =
-  'group supporthr-display relative flex min-h-[156px] flex-col justify-between overflow-hidden rounded-none border border-white/[0.1] bg-[linear-gradient(180deg,rgba(255,255,255,0.04)_0%,rgba(255,255,255,0.012)_100%)] p-5 text-left shadow-[0_20px_50px_rgba(0,0,0,0.34)] transition-all duration-300 before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-white/35 before:to-transparent hover:-translate-y-0.5 hover:border-cyan-400/30 hover:bg-[linear-gradient(180deg,rgba(255,255,255,0.06)_0%,rgba(255,255,255,0.018)_100%)] hover:shadow-[0_28px_60px_rgba(0,0,0,0.42)]';
+  'group supporthr-display relative flex min-h-[138px] flex-col justify-between overflow-hidden rounded-none border border-white/[0.1] bg-[linear-gradient(180deg,rgba(255,255,255,0.04)_0%,rgba(255,255,255,0.012)_100%)] p-4 text-left shadow-[0_20px_50px_rgba(0,0,0,0.34)] transition-all duration-300 before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-white/35 before:to-transparent hover:-translate-y-0.5 hover:border-cyan-400/30 hover:bg-[linear-gradient(180deg,rgba(255,255,255,0.06)_0%,rgba(255,255,255,0.018)_100%)] hover:shadow-[0_28px_60px_rgba(0,0,0,0.42)]';
 
 const panelClass =
   'rounded-none border border-white/[0.08] bg-[linear-gradient(180deg,rgba(7,7,9,0.98)_0%,rgba(2,2,4,0.98)_100%)] shadow-[0_24px_70px_rgba(0,0,0,0.4)]';
@@ -55,7 +55,7 @@ const subPanelClass =
   'rounded-none border border-white/[0.08] bg-[linear-gradient(180deg,rgba(255,255,255,0.03)_0%,rgba(255,255,255,0.012)_100%)] shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]';
 
 const helperPillClass =
-  'supporthr-mono mt-4 inline-flex w-fit rounded-none border border-white/[0.08] bg-black/90 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.18em] text-zinc-300';
+  'supporthr-mono mt-3 inline-flex w-fit rounded-none border border-white/[0.08] bg-black/90 px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.18em] text-zinc-300';
 
 const sectionEyebrowClass = 'supporthr-mono text-[10px] font-medium uppercase tracking-[0.26em] text-zinc-500';
 
@@ -317,6 +317,22 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
     }
   };
 
+  const jdStatusLabel = isProcessing
+    ? 'Đang xử lý'
+    : errorMsg
+      ? 'Cần kiểm tra'
+      : jdReady
+        ? 'Sẵn sàng'
+        : 'Chờ nạp';
+
+  const jdStatusToneClass = isProcessing
+    ? 'border-cyan-400/30 bg-cyan-400/10 text-cyan-100'
+    : errorMsg
+      ? 'border-red-400/30 bg-red-400/10 text-red-100'
+      : jdReady
+        ? 'border-emerald-400/30 bg-emerald-400/10 text-emerald-100'
+        : 'border-white/[0.08] bg-black/80 text-zinc-400';
+
   return (
     <div
       className={`feature-page-shell relative flex h-[100dvh] w-full overflow-hidden bg-black text-slate-100 transition-all duration-500 ${
@@ -436,30 +452,35 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
 
                 <input ref={fileInputRef} type="file" className="hidden" accept={FILE_ACCEPT} onChange={handleFileChange} />
 
-                <div className="grid min-h-0 gap-5 lg:grid-cols-[minmax(0,1.38fr)_320px]">
+                <div className="grid min-h-0 gap-4">
                   <div className={`flex min-h-0 flex-col overflow-hidden ${subPanelClass}`}>
-                    <div className="flex items-start justify-between gap-4 border-b border-white/[0.08] px-5 py-4">
+                    <div className="flex flex-col gap-4 border-b border-white/[0.08] px-4 py-4 md:flex-row md:items-start md:justify-between">
                       <div className="flex items-start gap-4">
-                        <div className="inline-flex h-12 w-12 items-center justify-center rounded-none border border-white/10 bg-white/[0.04] text-cyan-200">
-                          {jdReady ? <CheckCircle2 className="h-5 w-5" /> : <FileText className="h-5 w-5" />}
+                        <div className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-none border border-white/10 bg-white/[0.04] text-cyan-200">
+                          {jdReady ? <CheckCircle2 className="h-4.5 w-4.5" /> : <FileText className="h-4.5 w-4.5" />}
                         </div>
                         <div className="min-w-0">
                           <div className={sectionEyebrowClass}>Bộ nạp JD</div>
-                          <div className="supporthr-display mt-2 text-[1.75rem] font-semibold tracking-[-0.05em] text-white">
+                          <div className="supporthr-display mt-2 text-[1.45rem] font-semibold tracking-[-0.05em] text-white">
                             {isProcessing ? 'AI đang xử lý JD' : jdReady ? 'JD đã sẵn sàng' : 'Chưa có JD'}
                           </div>
-                          <div className="supporthr-mono mt-2 text-[11px] uppercase tracking-[0.18em] text-zinc-500">
+                          <div className="supporthr-mono mt-2 text-[10px] uppercase tracking-[0.18em] text-zinc-500">
                             {isProcessing ? PROCESSING_STEPS[processingStep] : successMsg || errorMsg || 'Chọn nguồn để nạp JD'}
                           </div>
                         </div>
                       </div>
-                      <div className="hidden shrink-0 border border-white/[0.08] bg-black/70 px-3 py-2 supporthr-mono text-[10px] uppercase tracking-[0.18em] text-zinc-400 sm:block">
-                        {jdReady ? 'Ready' : 'Waiting'}
+                      <div className="flex flex-wrap gap-2">
+                        <div className={`hidden shrink-0 items-center border px-3 py-1.5 supporthr-mono text-[10px] uppercase tracking-[0.18em] sm:inline-flex ${jdStatusToneClass}`}>
+                          {jdStatusLabel}
+                        </div>
+                        <div className="hidden shrink-0 items-center border border-white/[0.08] bg-black/70 px-3 py-1.5 supporthr-mono text-[10px] uppercase tracking-[0.18em] text-zinc-400 sm:inline-flex">
+                          {jdFileName ? '1 tệp đã chọn' : 'Chưa có tệp'}
+                        </div>
                       </div>
                     </div>
 
                     {isProcessing ? (
-                      <div className="grid flex-1 gap-2 px-5 py-5 sm:grid-cols-2">
+                      <div className="grid flex-1 gap-2 p-4 sm:grid-cols-2 xl:grid-cols-4">
                         {PROCESSING_STEPS.map((item, index) => {
                           const isCurrent = processingStep === index;
                           const isDone = processingStep > index;
@@ -467,7 +488,7 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
                           return (
                             <div
                               key={item}
-                              className={`supporthr-mono flex items-center gap-3 rounded-none border px-4 py-3 text-[11px] uppercase tracking-[0.16em] ${
+                              className={`supporthr-mono flex items-center gap-3 rounded-none border px-3 py-3 text-[11px] uppercase tracking-[0.16em] ${
                                 isCurrent
                                   ? 'border-cyan-400/30 bg-cyan-400/10 text-cyan-100'
                                   : isDone
@@ -484,13 +505,15 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
                         })}
                       </div>
                     ) : (
-                      <div className="flex flex-1 flex-col justify-between gap-4 px-5 py-5">
-                        <div className="border border-white/[0.08] bg-black/75 p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
+                      <div className="flex flex-1 flex-col gap-4 p-4">
+                        <div className={`border p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] sm:p-5 ${
+                          errorMsg ? 'border-red-400/20 bg-red-500/[0.06]' : 'border-white/[0.08] bg-black/75'
+                        }`}>
                           <div className={sectionEyebrowClass}>{errorMsg ? 'Cần kiểm tra' : jdReady ? 'Đã đồng bộ' : 'Sẵn sàng nạp'}</div>
-                          <div className="supporthr-display mt-3 text-[1.35rem] font-semibold tracking-[-0.04em] text-white">
+                          <div className="supporthr-display mt-3 text-[1.1rem] font-semibold tracking-[-0.04em] text-white sm:text-[1.2rem]">
                             {errorMsg ? 'Kiểm tra lại tệp JD' : jdReady ? 'JD đã được chuẩn hóa' : 'Chọn nguồn để bắt đầu'}
                           </div>
-                          <p className={`mt-3 text-sm leading-7 ${errorMsg ? 'text-red-200' : 'text-slate-300'}`}>
+                          <p className={`mt-3 text-sm leading-6 ${errorMsg ? 'text-red-100' : 'text-slate-300'}`}>
                             {errorMsg
                               ? errorMsg
                               : successMsg || 'Hệ thống sẽ đọc, chuẩn hóa và trích xuất tiêu chí JD trước khi chuyển sang bước CV.'}
@@ -513,7 +536,7 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
                     )}
                   </div>
 
-                  <div className="grid gap-3">
+                  <div className="hidden">
                     <div className={`flex min-h-[120px] flex-col justify-between p-4 ${subPanelClass}`}>
                       <div className={sectionEyebrowClass}>Trạng thái</div>
                       <div className="supporthr-display text-[1.2rem] font-semibold tracking-[-0.04em] text-white">
