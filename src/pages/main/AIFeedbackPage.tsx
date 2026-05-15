@@ -657,7 +657,7 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
         >
         {selectedCandidate ? (
           <div className="flex h-full flex-col">
-            <div className="border-b px-6 py-6" style={headerSurfaceStyle}>
+            <div className="border-b px-5 py-4" style={headerSurfaceStyle}>
               <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
                 <div>
                   <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-sky-300/80">
@@ -701,7 +701,7 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
             </div>
 
             <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto">
-              <div className="mx-auto w-full max-w-5xl p-4 pb-20 md:p-6 xl:px-8">
+              <div className="w-full px-0 pb-10">
                 <AIFeedbackForm
                   candidateId={selectedCandidate.id}
                   candidateName={selectedCandidate.candidateName}
