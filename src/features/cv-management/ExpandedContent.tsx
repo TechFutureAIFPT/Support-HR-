@@ -323,15 +323,15 @@ async function resolveCandidateCvText(candidate: Candidate): Promise<string> {
   if (candidate._rawBatchJson) {
     try {
       const rawCandidate = JSON.parse(candidate._rawBatchJson) as unknown;
-      const embeddedText = extractNestedCvText(rawCandidate);
-      if (embeddedText) {
-        uploadedCvTextCache.set(cacheKey, embeddedText);
-        return embeddedText;
-      }
       const structuredExperience = extractStructuredExperienceText(rawCandidate);
       if (structuredExperience) {
         uploadedCvTextCache.set(cacheKey, structuredExperience);
         return structuredExperience;
+      }
+      const embeddedText = extractNestedCvText(rawCandidate);
+      if (embeddedText && !looksLikeAnalysisPayload(embeddedText)) {
+        uploadedCvTextCache.set(cacheKey, embeddedText);
+        return embeddedText;
       }
     } catch {
       // Ignore malformed raw candidate payloads and continue with uploaded file lookup.
@@ -488,6 +488,19 @@ function formatTimelineDuration(months: number): string {
   return `${remainingMonths} tháng`;
 }
 
+function looksLikeAnalysisPayload(value: string): boolean {
+  const trimmed = value.trim();
+  return (
+    trimmed.startsWith('{') ||
+    trimmed.startsWith('[') ||
+    trimmed.includes('"analysis"') ||
+    trimmed.includes('"softFilterWarnings"') ||
+    trimmed.includes('"detectedLocation"') ||
+    trimmed.includes('"Tong diem"') ||
+    trimmed.includes('"Tổng điểm"')
+  );
+}
+
 function guessTimelineCompany(primary: string, secondary: string): { companyName: string; detail: string } {
   const first = cleanTimelineText(primary);
   const second = cleanTimelineText(secondary);
@@ -552,6 +565,10 @@ function extractCareerTimeline(text: string): CareerTimelineItem[] {
 
   for (let index = 0; index < lines.length; index += 1) {
     const currentLine = lines[index];
+    if (currentLine.length > 260 || looksLikeAnalysisPayload(currentLine)) {
+      continue;
+    }
+
     const dateMatch = currentLine.match(rangeRegex);
     if (!dateMatch) {
       continue;
@@ -576,6 +593,13 @@ function extractCareerTimeline(text: string): CareerTimelineItem[] {
       }
     } else if (nextLine && !rangeRegex.test(nextLine) && !isLikelyTimelineHeading(nextLine)) {
       secondary = nextLine;
+    }
+
+    if (summary.length > 180 || looksLikeAnalysisPayload(summary)) {
+      summary = '';
+    }
+    if (secondary.length > 180 || looksLikeAnalysisPayload(secondary)) {
+      secondary = '';
     }
 
     const { companyName, detail } = guessTimelineCompany(summary, secondary);
@@ -713,15 +737,31 @@ interface CriterionAccordionProps {
   isExpanded: boolean;
   onToggle: () => void;
   jdText: string;
+  employmentTimeline?: CareerTimelineItem[];
 }
 
-const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpanded, onToggle, jdText }) => {
+const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpanded, onToggle, jdText, employmentTimeline = [] }) => {
   const [copied, setCopied] = React.useState(false);
   const criterionName = canonicalizeCriterionName(getDetailCriterion(item));
   const detailScore = getDetailScore(item);
   const detailFormula = getDetailFormula(item);
   const detailEvidence = getDetailEvidence(item);
   const detailExplanation = getDetailExplanation(item);
+  const isLoyalty = criterionName === LOYALTY_CRITERION;
+  const timelineEvidence = isLoyalty ? employmentTimeline : [];
+  const shouldShowRawEvidence = Boolean(
+    detailEvidence &&
+    detailEvidence !== MISSING_DETAIL_EVIDENCE &&
+    normalizeAscii(detailEvidence) !== 'khong tim thay thong tin trong cv' &&
+    !looksLikeAnalysisPayload(detailEvidence)
+  );
+  const copyEvidenceText = timelineEvidence.length > 0
+    ? timelineEvidence.map((entry) => {
+      const company = entry.companyName || entry.summary || 'Không rõ công ty';
+      const duration = entry.durationMonths ? ` (${formatTimelineDuration(entry.durationMonths)})` : '';
+      return `${company}: ${entry.periodLabel}${duration}`;
+    }).join('\n')
+    : detailEvidence;
 
   const parsedData = useMemo(
     () => parseDetailScore(detailScore, detailFormula),
@@ -729,19 +769,14 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
   );
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(detailEvidence);
+    navigator.clipboard.writeText(copyEvidenceText);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
   const meta = CARD_CRITERIA_META[criterionName] || { icon: 'fa-solid fa-question-circle', color: 'text-slate-400', accent: 'border-slate-700 bg-slate-900/20' };
   const description = CRITERION_DESCRIPTIONS[criterionName];
-  const isLoyalty = criterionName === LOYALTY_CRITERION;
-  const hasRealEvidence = Boolean(
-    detailEvidence &&
-    normalizeAscii(detailEvidence) !== 'khong tim thay thong tin trong cv' &&
-    detailEvidence !== MISSING_DETAIL_EVIDENCE
-  );
+  const hasRealEvidence = shouldShowRawEvidence;
 
   const scorePercentage = parsedData.achievedPct;
   const scoreBadgeClass = !parsedData.hasScore
@@ -826,11 +861,46 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
                   {copied ? 'Đã chép' : 'Chép'}
                 </button>
               </div>
-              <blockquote className="border-l-4 border-cyan-500/60 pl-4 text-base italic leading-relaxed text-slate-300" dangerouslySetInnerHTML={{
-                __html: detailEvidence === 'Khong tim thay thong tin trong CV' || detailEvidence === MISSING_DETAIL_EVIDENCE
-                  ? '<span class="not-italic rounded-md border border-amber-500/35 bg-amber-500/10 px-2 py-1 text-xs font-semibold text-amber-300">Chưa tìm thấy trong CV</span>'
-                  : detailEvidence
-              }} />
+              {timelineEvidence.length > 0 ? (
+                <div className="space-y-2">
+                  <div className="mb-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-cyan-300/75">
+                    Thời gian làm việc theo từng công ty
+                  </div>
+                  {timelineEvidence.map((entry) => (
+                    <div key={entry.id} className="rounded-lg border border-cyan-500/15 bg-cyan-500/[0.045] p-3">
+                      <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
+                        <div className="min-w-0">
+                          <div className="truncate text-sm font-semibold text-slate-100">
+                            {entry.companyName || entry.summary || 'Không rõ công ty'}
+                          </div>
+                          {entry.companyName && entry.summary && entry.summary !== entry.companyName && (
+                            <div className="mt-0.5 text-xs leading-5 text-slate-400">{entry.summary}</div>
+                          )}
+                        </div>
+                        <div className="supporthr-mono shrink-0 text-[11px] font-semibold uppercase tracking-[0.12em] text-cyan-200">
+                          {entry.periodLabel}
+                        </div>
+                      </div>
+                      {entry.durationMonths && (
+                        <div className="mt-2 text-[11px] font-medium text-slate-500">
+                          Thời gian làm việc khoảng {formatTimelineDuration(entry.durationMonths)}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                  {shouldShowRawEvidence && (
+                    <blockquote className="mt-3 border-l-4 border-cyan-500/60 pl-4 text-sm italic leading-relaxed text-slate-400">
+                      {detailEvidence}
+                    </blockquote>
+                  )}
+                </div>
+              ) : (
+                <blockquote className="border-l-4 border-cyan-500/60 pl-4 text-base italic leading-relaxed text-slate-300" dangerouslySetInnerHTML={{
+                  __html: shouldShowRawEvidence
+                    ? detailEvidence
+                    : '<span class="not-italic rounded-md border border-amber-500/35 bg-amber-500/10 px-2 py-1 text-xs font-semibold text-amber-300">Chưa tìm thấy trong CV</span>'
+                }} />
+              )}
             </div>
 
             {isExperience && experienceBlock}
@@ -1211,41 +1281,29 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
   }, [analysisRecord, basicScore, loyaltyDerivedFromBasic, loyaltyScore]);
 
   const [employmentTimeline, setEmploymentTimeline] = useState<CareerTimelineItem[]>([]);
-  const [timelineSource, setTimelineSource] = useState<'cv' | 'evidence' | 'none'>('none');
-  const [timelineLoading, setTimelineLoading] = useState(false);
 
   useEffect(() => {
     let isDisposed = false;
 
     const hydrateTimeline = async () => {
-      setTimelineLoading(true);
-
       try {
         const cvText = await resolveCandidateCvText(candidate);
         let nextTimeline = cvText ? extractCareerTimeline(cvText) : [];
-        let nextSource: 'cv' | 'evidence' | 'none' = nextTimeline.length > 0 ? 'cv' : 'none';
 
         if (nextTimeline.length === 0 && loyaltyDetail) {
           const evidenceTimeline = extractCareerTimeline(getDetailEvidence(loyaltyDetail));
           if (evidenceTimeline.length > 0) {
             nextTimeline = evidenceTimeline;
-            nextSource = 'evidence';
           }
         }
 
         if (!isDisposed) {
           setEmploymentTimeline(nextTimeline);
-          setTimelineSource(nextSource);
         }
       } catch {
         if (!isDisposed) {
           const fallbackTimeline = loyaltyDetail ? extractCareerTimeline(getDetailEvidence(loyaltyDetail)) : [];
           setEmploymentTimeline(fallbackTimeline);
-          setTimelineSource(fallbackTimeline.length > 0 ? 'evidence' : 'none');
-        }
-      } finally {
-        if (!isDisposed) {
-          setTimelineLoading(false);
         }
       }
     };
@@ -1256,23 +1314,6 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
       isDisposed = true;
     };
   }, [candidate.id, candidate.fileName, candidate.candidateName, candidate.jobTitle, candidate._rawBatchJson, loyaltyDetail]);
-
-  const averageTimelineTenure = useMemo(() => {
-    const durations = employmentTimeline
-      .map((item) => item.durationMonths)
-      .filter((value): value is number => typeof value === 'number' && value > 0);
-
-    if (durations.length === 0) {
-      return null;
-    }
-
-    const averageMonths = Math.round(durations.reduce((sum, value) => sum + value, 0) / durations.length);
-    return {
-      averageMonths,
-      averageLabel: formatTimelineDuration(averageMonths),
-      companyCount: durations.length,
-    };
-  }, [employmentTimeline]);
 
   const matchPercent = Math.min(100, Math.round(totalScore));
   const recommendation = totalScore >= 75
@@ -1359,6 +1400,7 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
               isExpanded={!!expandedCriteria[candidate.id]?.[LOYALTY_CRITERION]}
               onToggle={() => onToggleCriterion(candidate.id, LOYALTY_CRITERION)}
               jdText={jdText}
+              employmentTimeline={employmentTimeline}
             />
           ) : (
             <div className="flex flex-col items-center justify-center py-10 text-slate-500">
@@ -1366,78 +1408,6 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
               <p className="text-sm">Chưa có dữ liệu mức độ trung thành</p>
             </div>
           )}
-
-          <div className="mt-4 rounded-xl border border-white/[0.08] bg-white/[0.025] p-4">
-            <div className="mb-4 flex items-center justify-between gap-3">
-              <div className="flex items-center gap-2 text-sm font-semibold text-amber-200">
-                <i className="fa-solid fa-briefcase text-amber-400" />
-                Timeline làm việc
-              </div>
-              <span className="rounded-full border border-white/[0.08] bg-black/30 px-2.5 py-1 text-[10px] font-medium text-slate-400">
-                {timelineSource === 'cv' ? 'Từ CV OCR' : timelineSource === 'evidence' ? 'Từ dẫn chứng AI' : 'Chưa có dữ liệu'}
-              </span>
-            </div>
-
-            {timelineLoading ? (
-              <div className="flex items-center gap-3 py-6 text-sm text-slate-500">
-                <div className="h-5 w-5 animate-spin rounded-full border-2 border-amber-500/20 border-t-amber-400" />
-                Đang dựng timeline từ CV...
-              </div>
-            ) : employmentTimeline.length > 0 ? (
-              <div className="space-y-4">
-                {employmentTimeline.map((item, index) => (
-                  <div key={item.id} className="grid gap-3 md:grid-cols-[11rem_minmax(0,1fr)]">
-                    <div className="supporthr-mono rounded-none border border-white/[0.08] bg-black/40 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-amber-100">
-                      {item.periodLabel}
-                    </div>
-                    <div className="relative pl-5">
-                      <span className="absolute left-0 top-1.5 h-2.5 w-2.5 rounded-full bg-amber-400" />
-                      {index < employmentTimeline.length - 1 && (
-                        <span className="absolute left-[4px] top-4 bottom-[-18px] w-px bg-white/[0.08]" />
-                      )}
-                      <div className="text-sm font-semibold leading-6 text-amber-100">
-                        {item.companyName || item.summary}
-                      </div>
-                      {item.companyName && item.summary && item.summary !== item.companyName && (
-                        <div className="mt-1 text-sm leading-6 text-slate-300">{item.summary}</div>
-                      )}
-                      {item.durationMonths && (
-                        <div className="mt-1 text-[11px] font-medium text-slate-500">
-                          Gắn bó khoảng {formatTimelineDuration(item.durationMonths)}
-                        </div>
-                      )}
-                      {item.isCurrent && (
-                        <div className="mt-1 text-[11px] font-medium text-emerald-300">Đang làm việc</div>
-                      )}
-                    </div>
-                  </div>
-                ))}
-
-                {averageTimelineTenure && (
-                  <div className="rounded-lg border border-amber-500/20 bg-amber-500/[0.05] px-4 py-3">
-                    <div className="flex flex-wrap items-center justify-between gap-3">
-                      <div>
-                        <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-amber-300/75">
-                          Trung bình gắn bó
-                        </div>
-                        <div className="mt-1 text-sm text-slate-300">
-                          Trung bình mỗi công ty ứng viên gắn bó khoảng{' '}
-                          <span className="font-semibold text-amber-200">{averageTimelineTenure.averageLabel}</span>.
-                        </div>
-                      </div>
-                      <div className="supporthr-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-amber-100">
-                        {averageTimelineTenure.companyCount} mốc làm việc
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="rounded-lg border border-white/[0.08] bg-black/30 px-4 py-6 text-sm text-slate-500">
-                Chưa trích xuất được mốc thời gian làm việc rõ ràng từ CV này.
-              </div>
-            )}
-          </div>
         </div>
       </div>
 
