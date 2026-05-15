@@ -1209,6 +1209,31 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
                 <div className="flex flex-wrap gap-1">
                   {requirementComparison.matched.length > 0 ? requirementComparison.matched.slice(0, 10).map(k => <span key={k} className="pill pill--match">{k}</span>) : <span className="text-[11px] text-slate-500">(Không)</span>}
                 </div>
+
+                {requirementComparison.semanticMatched.length > 0 && (
+                  <div className="mt-3 rounded-lg border border-cyan-500/20 bg-cyan-500/[0.06] p-3">
+                    <div className="mb-2 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-cyan-300">
+                      <i className="fa-solid fa-vector-square text-[10px]" />
+                      Vector embedding / ngữ nghĩa
+                    </div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {requirementComparison.semanticMatched.map((item) => (
+                        <span key={item.keyword} className="rounded-full border border-cyan-400/35 bg-cyan-400/10 px-2 py-0.5 text-[10px] font-semibold text-cyan-200">
+                          {item.keyword} · {Math.round(item.score * 100)}%
+                        </span>
+                      ))}
+                    </div>
+                    <div className="mt-2 space-y-1.5">
+                      {requirementComparison.semanticMatched.slice(0, 3).map((item) => (
+                        <p key={`${item.keyword}-reason`} className="text-[11px] leading-5 text-slate-300">
+                          <span className="font-semibold text-cyan-200">{item.keyword}:</span> {item.reason}
+                          <span className="block text-slate-500">Dẫn chứng: “{item.evidence}”</span>
+                        </p>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 <div className="text-[11px] text-slate-400 font-medium mt-2">Thiếu</div>
                 <div className="flex flex-wrap gap-1">
                   {requirementComparison.missing.length > 0 ? requirementComparison.missing.slice(0, 10).map(k => <span key={k} className="pill pill--missing">{k}</span>) : <span className="text-[11px] text-slate-500">(Không)</span>}
