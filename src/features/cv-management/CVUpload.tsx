@@ -1,10 +1,12 @@
-import React, { useState, useCallback, memo, useMemo } from 'react';
-import { UploadCloud, FileText, Upload } from 'lucide-react';
+import React, { memo, useCallback, useMemo, useState } from 'react';
+import type { CSSProperties } from 'react';
+import { UploadCloud } from 'lucide-react';
 import type { Candidate, HardFilters, WeightCriteria, AppStep } from '@/shared/types';
 import { analyzeCVs } from '@/lib/services/screening/frontendScreeningService';
 import { googleDriveService } from '@/lib/services/file-processing/googleDriveService';
 import { useThemeColors } from '@/shared/ui/theme/useThemeColors';
 import { getSafeErrorMessage, isRedirectingToGoogle } from '@/shared/utils/errorMessages';
+import '@/features/cv-management/styles/cv-upload.css';
 
 interface CVUploadProps {
   cvFiles: File[];
@@ -20,70 +22,110 @@ interface CVUploadProps {
 }
 
 const MAX_CV_PER_BATCH = 20;
+const REQUIRED_STEPS: AppStep[] = ['jd', 'weights'];
+
+type CVUploadThemeVars = CSSProperties & {
+  '--cv-page-bg': string;
+  '--cv-header-bg': string;
+  '--cv-border-soft': string;
+  '--cv-card-bg': string;
+  '--cv-card-bg-2': string;
+  '--cv-card-border': string;
+  '--cv-panel-border': string;
+  '--cv-text-primary': string;
+  '--cv-text-muted': string;
+  '--cv-text-dim': string;
+  '--cv-dropzone-bg': string;
+  '--cv-file-panel-bg': string;
+};
 
 const CVUpload: React.FC<CVUploadProps> = memo((props) => {
-  const { cvFiles, setCvFiles, jdText, weights, hardFilters, setAnalysisResults, setIsLoading, setLoadingMessage, onAnalysisStart, completedSteps } = props;
+  const {
+    cvFiles,
+    setCvFiles,
+    jdText,
+    weights,
+    hardFilters,
+    setAnalysisResults,
+    setIsLoading,
+    setLoadingMessage,
+    onAnalysisStart,
+    completedSteps,
+  } = props;
+
   const [error, setError] = useState('');
   const [showUploadOptions, setShowUploadOptions] = useState(false);
 
-  const readyForAnalysis = useMemo(() => {
-    const requiredSteps: AppStep[] = ['jd', 'weights'];
-    return requiredSteps.every((step) => completedSteps.includes(step));
-  }, [completedSteps]);
+  const readyForAnalysis = useMemo(
+    () => REQUIRED_STEPS.every((step) => completedSteps.includes(step)),
+    [completedSteps],
+  );
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const newFiles = Array.from(e.target.files);
-
-      setCvFiles((prev: File[]) => {
-        const existingMap = new Map(prev.map((f: File) => [`${f.name}-${f.size}`, true]));
-        const uniqueNewFiles = newFiles.filter((f: File) => !existingMap.has(`${f.name}-${f.size}`));
-
-        if (uniqueNewFiles.length === 0) return prev;
-
-        const totalFiles = prev.length + uniqueNewFiles.length;
-
-        if (totalFiles > MAX_CV_PER_BATCH) {
-          setError(`Chỉ được phép tải lên tối đa ${MAX_CV_PER_BATCH} CV. Bạn đang có ${prev.length} và muốn thêm ${uniqueNewFiles.length}.`);
-          return prev;
-        }
-
-        setError('');
-        return [...prev, ...uniqueNewFiles];
-      });
-
-      e.target.value = '';
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!event.target.files || event.target.files.length === 0) {
+      return;
     }
+
+    const newFiles = Array.from(event.target.files);
+
+    setCvFiles((prevFiles: File[]) => {
+      const existingMap = new Map(prevFiles.map((file: File) => [`${file.name}-${file.size}`, true]));
+      const uniqueNewFiles = newFiles.filter((file: File) => !existingMap.has(`${file.name}-${file.size}`));
+
+      if (uniqueNewFiles.length === 0) {
+        return prevFiles;
+      }
+
+      const totalFiles = prevFiles.length + uniqueNewFiles.length;
+      if (totalFiles > MAX_CV_PER_BATCH) {
+        setError(
+          `Chỉ được phép tải lên tối đa ${MAX_CV_PER_BATCH} CV. Bạn đang có ${prevFiles.length} và muốn thêm ${uniqueNewFiles.length}.`,
+        );
+        return prevFiles;
+      }
+
+      setError('');
+      return [...prevFiles, ...uniqueNewFiles];
+    });
+
+    event.target.value = '';
   };
 
   const handleGoogleDriveSelect = async () => {
     try {
       const driveFiles = await googleDriveService.pickAndImportFiles({
-        mimeTypes: 'application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,image/png,image/jpeg',
+        mimeTypes:
+          'application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,image/png,image/jpeg',
         multiSelect: true,
         fileType: 'cv',
       });
 
-      if (driveFiles.length > 0) {
-        setIsLoading(true);
-        setLoadingMessage(`?ang nh?p ${driveFiles.length} file t? Google Drive...`);
-
-        setCvFiles((prev: File[]) => {
-          const existingMap = new Map(prev.map((file: File) => [`${file.name}-${file.size}`, true]));
-          const uniqueNewFiles = driveFiles.filter((file: File) => !existingMap.has(`${file.name}-${file.size}`));
-
-          if (uniqueNewFiles.length === 0) return prev;
-
-          const totalFiles = prev.length + uniqueNewFiles.length;
-          if (totalFiles > MAX_CV_PER_BATCH) {
-            setError(`Ch? ???c ph?p t?i l?n t?i ?a ${MAX_CV_PER_BATCH} CV. B?n ?ang c? ${prev.length} v? mu?n th?m ${uniqueNewFiles.length}.`);
-            return prev;
-          }
-
-          setError('');
-          return [...prev, ...uniqueNewFiles];
-        });
+      if (driveFiles.length === 0) {
+        return;
       }
+
+      setIsLoading(true);
+      setLoadingMessage(`Đang nhập ${driveFiles.length} file từ Google Drive...`);
+
+      setCvFiles((prevFiles: File[]) => {
+        const existingMap = new Map(prevFiles.map((file: File) => [`${file.name}-${file.size}`, true]));
+        const uniqueNewFiles = driveFiles.filter((file: File) => !existingMap.has(`${file.name}-${file.size}`));
+
+        if (uniqueNewFiles.length === 0) {
+          return prevFiles;
+        }
+
+        const totalFiles = prevFiles.length + uniqueNewFiles.length;
+        if (totalFiles > MAX_CV_PER_BATCH) {
+          setError(
+            `Chỉ được phép tải lên tối đa ${MAX_CV_PER_BATCH} CV. Bạn đang có ${prevFiles.length} và muốn thêm ${uniqueNewFiles.length}.`,
+          );
+          return prevFiles;
+        }
+
+        setError('');
+        return [...prevFiles, ...uniqueNewFiles];
+      });
     } catch (err: any) {
       console.error('Google Drive Error:', err);
       if (isRedirectingToGoogle(err)) {
@@ -97,15 +139,17 @@ const CVUpload: React.FC<CVUploadProps> = memo((props) => {
   };
 
   const handleAnalyzeClick = async () => {
-    const requiredSteps: AppStep[] = ['jd', 'weights'];
-    const missingSteps = requiredSteps.filter(step => !completedSteps.includes(step));
+    const missingSteps = REQUIRED_STEPS.filter((step) => !completedSteps.includes(step));
 
     if (missingSteps.length > 0) {
-      const stepNames = missingSteps.map(s => {
-        if (s === 'jd') return 'Mô tả công việc';
-        if (s === 'weights') return 'Phân bổ trọng số';
-        return s;
-      }).join(', ');
+      const stepNames = missingSteps
+        .map((step) => {
+          if (step === 'jd') return 'Mô tả công việc';
+          if (step === 'weights') return 'Phân bổ trọng số';
+          return step;
+        })
+        .join(', ');
+
       setError(`Vui lòng hoàn thành các bước trước: ${stepNames}.`);
       return;
     }
@@ -122,33 +166,40 @@ const CVUpload: React.FC<CVUploadProps> = memo((props) => {
 
     try {
       const analysisGenerator = analyzeCVs(jdText, weights, hardFilters, cvFiles);
+
       for await (const result of analysisGenerator) {
         if (result.status === 'progress') {
           setLoadingMessage(result.message);
-        } else {
-          setAnalysisResults(prev => [...prev, result as Candidate]);
+          continue;
         }
+
+        setAnalysisResults((prev) => [...prev, result as Candidate]);
       }
     } catch (err) {
-      console.error("Lỗi phân tích CV:", err);
+      console.error('Lỗi phân tích CV:', err);
       const message = getSafeErrorMessage(err, 'ai');
 
       setError(message);
+      setAnalysisResults((prev) => {
+        if (prev.some((candidate) => candidate.candidateName === 'Đang có lỗi')) {
+          return prev;
+        }
 
-      setAnalysisResults(prev => {
-        if (prev.some(c => c.candidateName === 'Đang có lỗi')) return prev;
-        return [...prev, {
-          id: `system-error-${Date.now()}`,
-          status: 'FAILED',
-          error: message,
-          candidateName: 'Đang có lỗi',
-          fileName: 'N/A',
-          jobTitle: '',
-          industry: '',
-          department: '',
-          experienceLevel: '',
-          detectedLocation: '',
-        }];
+        return [
+          ...prev,
+          {
+            id: `system-error-${Date.now()}`,
+            status: 'FAILED',
+            error: message,
+            candidateName: 'Đang có lỗi',
+            fileName: 'N/A',
+            jobTitle: '',
+            industry: '',
+            department: '',
+            experienceLevel: '',
+            detectedLocation: '',
+          },
+        ];
       });
     } finally {
       setIsLoading(false);
@@ -157,7 +208,7 @@ const CVUpload: React.FC<CVUploadProps> = memo((props) => {
   };
 
   const handleRemoveFile = useCallback((index: number) => {
-    setCvFiles((prev) => prev.filter((_, idx) => idx !== index));
+    setCvFiles((prevFiles) => prevFiles.filter((_, currentIndex) => currentIndex !== index));
   }, [setCvFiles]);
 
   const handleClearFiles = useCallback(() => {
@@ -165,225 +216,236 @@ const CVUpload: React.FC<CVUploadProps> = memo((props) => {
   }, [setCvFiles]);
 
   const tc = useThemeColors();
+  const themeVars: CVUploadThemeVars = {
+    '--cv-page-bg': tc.pageBg,
+    '--cv-header-bg': tc.headerBg,
+    '--cv-border-soft': tc.borderSoft,
+    '--cv-card-bg': tc.cardBg,
+    '--cv-card-bg-2': tc.cardBg2,
+    '--cv-card-border': tc.borderCard,
+    '--cv-panel-border': tc.border,
+    '--cv-text-primary': tc.textPrimary,
+    '--cv-text-muted': tc.textMuted,
+    '--cv-text-dim': tc.textDim,
+    '--cv-dropzone-bg': tc.isDark ? '#08080a' : '#f8faff',
+    '--cv-file-panel-bg': tc.isDark ? '#08080a' : '#ffffff',
+  };
 
   return (
-    <section id="module-upload" className="module-pane active relative w-full h-[calc(100vh)] min-h-[400px] flex flex-col" style={{ background: tc.pageBg }}>
-      <div className="absolute top-0 right-0 w-64 h-64 rounded-none blur-3xl pointer-events-none" style={{ background: 'rgba(99,102,241,0.06)' }} />
-      <div className="absolute bottom-0 left-0 w-64 h-64 rounded-none blur-3xl pointer-events-none" style={{ background: 'rgba(59,130,246,0.05)' }} />
+    <section
+      id="module-upload"
+      className="cv-upload-page module-pane active relative flex h-[calc(100vh)] min-h-[400px] w-full flex-col"
+      style={themeVars}
+    >
+      <div className="cv-upload-page__glow cv-upload-page__glow--top" />
+      <div className="cv-upload-page__glow cv-upload-page__glow--bottom" />
 
-      {/* ── Header ──────────────────────────────────────────── */}
-      <div
-        className="shrink-0 border-b"
-        style={{
-          background: tc.headerBg,
-          borderColor: 'rgba(99,102,241,0.18)',
-        }}
-      >
-        {/* Dòng 1: Tiêu đề */}
-        <div
-          className="flex items-center gap-3 px-4 py-3"
-          style={{ borderBottom: tc.borderSoft }}
-        >
-          {/* Accent bar */}
-          <div
-            className="h-8 w-[3px] -full shrink-0"
-            style={{ background: 'linear-gradient(180deg, #3b82f6, #6366f1)' }}
-          />
+      <div className="cv-upload-page__header shrink-0 border-b">
+        <div className="cv-upload-page__title-row flex items-center gap-3 px-4 py-3">
+          <div className="cv-upload-page__accent shrink-0" />
 
           <div className="min-w-0">
-            <h1
-              className="text-base font-bold leading-tight tracking-tight"
-              style={{ color: tc.textPrimary }}
-            >
-              Tải lên & Phân tích CV
+            <h1 className="cv-upload-page__heading text-base font-bold leading-tight tracking-tight">
+              Tải lên và phân tích CV
             </h1>
-            <p
-              className="text-[9px] font-semibold uppercase tracking-[0.16em] leading-tight mt-0.5"
-              style={{ color: 'rgba(59,130,246,0.7)' }}
-            >
-              CV Upload & AI Analysis
+            <p className="cv-upload-page__subheading mt-0.5 text-[9px] font-semibold uppercase tracking-[0.16em] leading-tight">
+              CV Upload and AI Analysis
             </p>
           </div>
 
-          {/* Mô tả phụ */}
-          <div className="hidden lg:flex items-center gap-2 ml-4 pl-4" style={{ borderLeft: '1px solid rgba(255,255,255,0.06)' }}>
-            <span className="text-[10px] font-medium" style={{ color: 'rgba(148,163,184,0.6)' }}>
-              Tải CV · Kiểm tra · Phân tích bằng AI
-            </span>
+          <div className="cv-upload-page__support hidden items-center gap-2 lg:flex">
+            <span className="text-[10px] font-medium">Tải CV · Kiểm tra · Phân tích bằng AI</span>
           </div>
 
-          {/* Status badges */}
-          <div className="ml-auto flex items-center gap-2 shrink-0">
-            <div
-              className="px-3 py-1.5  text-[10px] font-bold uppercase tracking-wider"
-              style={
-                completedSteps.includes('jd')
-                  ? { background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.25)', color: '#34d399' }
-                  : { background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.25)', color: '#fbbf24' }
-              }
-            >
+          <div className="ml-auto flex shrink-0 items-center gap-2">
+            <div className="cv-upload-page__status-pill" data-state={completedSteps.includes('jd') ? 'done' : 'pending'}>
               JD {completedSteps.includes('jd') ? '✓' : '○'}
             </div>
             <div
-              className="px-3 py-1.5  text-[10px] font-bold uppercase tracking-wider"
-              style={
-                completedSteps.includes('weights')
-                  ? { background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.25)', color: '#34d399' }
-                  : { background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.25)', color: '#fbbf24' }
-              }
+              className="cv-upload-page__status-pill"
+              data-state={completedSteps.includes('weights') ? 'done' : 'pending'}
             >
               Trọng số {completedSteps.includes('weights') ? '✓' : '○'}
             </div>
-            <div
-              className="px-3 py-1.5  text-[10px] font-bold uppercase tracking-wider"
-              style={{ background: tc.cardBg2, border: tc.borderCard, color: tc.textMuted }}
-            >
+            <div className="cv-upload-page__count-pill">
               {cvFiles.length} / {MAX_CV_PER_BATCH} CV
             </div>
           </div>
         </div>
       </div>
 
-      {/* Main Content Area */}
-      <div className="flex flex-1 overflow-hidden relative z-10 w-full">
-        <div className="w-full h-full p-4 lg:p-6 lg:px-8 overflow-y-auto custom-scrollbar">
+      <div className="relative z-10 flex flex-1 overflow-hidden">
+        <div className="custom-scrollbar h-full w-full overflow-y-auto p-4 lg:px-8 lg:py-6">
+          <div className="grid h-full min-h-[500px] gap-6 lg:grid-cols-12">
+            <div className="flex h-full flex-col gap-4 lg:col-span-5">
+              <div className="group relative flex flex-1 flex-col">
+                <div className="cv-upload-page__dropzone relative flex flex-1 flex-col items-center justify-center p-6 text-center transition-all">
+                  <div className="cv-upload-page__dropzone-icon mb-6 flex h-16 w-16 items-center justify-center shadow-lg shadow-indigo-500/10 transition-transform duration-300 group-hover:-translate-y-1 group-hover:scale-110">
+                    <UploadCloud className="h-8 w-8 text-indigo-400" />
+                  </div>
 
-          <div className="grid lg:grid-cols-12 gap-6 h-full min-h-[500px]">
-            {/* Left Column: Upload & Actions (5 cols) */}
-            <div className="lg:col-span-5 flex flex-col h-full gap-4">
-              {/* Upload Zone */}
-              <div className="relative group flex-1 flex flex-col">
-                 <div className="relative flex-1 flex flex-col p-6 text-center justify-center items-center transition-all border-2 border-dashed border-indigo-500/20 hover:border-indigo-500/40 hover:bg-indigo-500/5" style={{ background: tc.isDark ? '#08080a' : '#f8faff' }}>
-                     <div
-                       className="w-16 h-16 mx-auto mb-6 flex items-center justify-center transition-transform duration-300 group-hover:scale-110 group-hover:-translate-y-1 shadow-lg shadow-indigo-500/10"
-                       style={{ background: 'linear-gradient(135deg, rgba(99,102,241,0.15), rgba(59,130,246,0.1))', border: '1px solid rgba(99,102,241,0.2)' }}
-                     >
-                        <UploadCloud className="w-8 h-8 text-indigo-400" />
-                     </div>
-                     <h4 className="text-lg font-bold mb-1.5 text-white flex items-center gap-2">
-                        Kéo thả hoặc chọn file
-                     </h4>
-                     <p className="text-[10px] mb-6" style={{ color: '#475569' }}>PDF, DOCX, PNG, JPG (Tối đa {MAX_CV_PER_BATCH} file)</p>
+                  <h4 className="cv-upload-page__dropzone-title mb-1.5 text-lg font-bold">
+                    Kéo thả hoặc chọn file
+                  </h4>
+                  <p className="cv-upload-page__dropzone-hint mb-6 text-[10px]">
+                    PDF, DOCX, PNG, JPG (tối đa {MAX_CV_PER_BATCH} file)
+                  </p>
 
-                    {/* Upload Buttons */}
-                    <div className="flex flex-col gap-2 w-full mt-auto">
-                        {!showUploadOptions ? (
-                            <button
-                                onClick={() => setShowUploadOptions(true)}
-                                className="w-full py-3  text-white font-semibold text-sm transition-all"
-                                style={{ background: 'linear-gradient(135deg, #4f46e5, #6366f1)', border: '1px solid rgba(99,102,241,0.3)', boxShadow: '0 4px 15px rgba(99,102,241,0.2)' }}
-                            >
-                                Tải CV lên
-                            </button>
-                        ) : (
-                            <div className="grid grid-cols-2 gap-2 animate-in fade-in zoom-in duration-200">
-                                <label className="cursor-pointer py-2.5  text-sm font-medium flex items-center justify-center gap-2 transition-all" style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.2)', color: '#818cf8' }}>
-                                    Từ máy
-                                    <input type="file" multiple accept=".pdf,.docx,.png,.jpg,.jpeg" className="hidden" onChange={handleFileChange} />
-                                </label>
-                                <button onClick={handleGoogleDriveSelect} className="py-2.5  text-sm font-medium flex items-center justify-center gap-2 transition-all" style={{ background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)', color: '#34d399' }}>
-                                    Google Drive
-                                </button>
-                                <button onClick={() => setShowUploadOptions(false)} className="col-span-2 py-1 text-xs" style={{ color: '#475569' }}>Hủy bỏ</button>
-                            </div>
-                        )}
-                    </div>
-                 </div>
+                  <div className="mt-auto flex w-full flex-col gap-2">
+                    {!showUploadOptions ? (
+                      <button
+                        type="button"
+                        onClick={() => setShowUploadOptions(true)}
+                        className="cv-upload-page__primary-action w-full py-3 text-sm font-semibold text-white transition-all"
+                      >
+                        Tải CV lên
+                      </button>
+                    ) : (
+                      <div className="grid grid-cols-2 gap-2 animate-in fade-in zoom-in duration-200">
+                        <label className="cv-upload-page__source-button cv-upload-page__source-button--machine cursor-pointer py-2.5 text-sm font-medium">
+                          Từ máy
+                          <input
+                            type="file"
+                            multiple
+                            accept=".pdf,.docx,.png,.jpg,.jpeg"
+                            className="hidden"
+                            onChange={handleFileChange}
+                          />
+                        </label>
+                        <button
+                          type="button"
+                          onClick={handleGoogleDriveSelect}
+                          className="cv-upload-page__source-button cv-upload-page__source-button--drive py-2.5 text-sm font-medium"
+                        >
+                          Google Drive
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setShowUploadOptions(false)}
+                          className="cv-upload-page__source-button cv-upload-page__source-button--cancel col-span-2 py-1 text-xs"
+                        >
+                          Hủy bỏ
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
 
-              {/* Analyze Button */}
               <button
+                type="button"
                 onClick={handleAnalyzeClick}
                 disabled={cvFiles.length === 0 || !readyForAnalysis}
-                className="w-full py-3  font-bold text-base transition-all flex items-center justify-center gap-3"
-                style={
-                  cvFiles.length > 0 && readyForAnalysis
-                    ? { background: 'linear-gradient(135deg, #4f46e5, #6366f1)', border: '1px solid rgba(99,102,241,0.35)', color: '#fff', boxShadow: '0 4px 20px rgba(99,102,241,0.25)' }
-                    : { background: tc.cardBg2, border: tc.borderCard, color: tc.textDim, cursor: 'not-allowed' }
-                }
+                data-ready={cvFiles.length > 0 && readyForAnalysis}
+                className="cv-upload-page__analyze-button flex w-full items-center justify-center gap-3 py-3 text-base font-bold transition-all"
               >
                 {cvFiles.length > 0 && readyForAnalysis ? 'Phân tích ngay' : 'Chưa sẵn sàng'}
                 <span className="text-[10px] opacity-80">→</span>
               </button>
 
-              {/* Error Message */}
               {error && (
-                <div className="p-3  flex items-start gap-3" style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.2)' }}>
-                  <div className="h-full w-[3px] -full shrink-0" style={{ background: '#ef4444' }} />
-                  <p className="text-xs font-medium" style={{ color: '#fca5a5' }}>{error}</p>
+                <div className="cv-upload-page__alert flex items-start gap-3 p-3">
+                  <div className="cv-upload-page__alert-bar shrink-0" />
+                  <p className="cv-upload-page__alert-text text-xs font-medium">{error}</p>
                 </div>
               )}
 
-              {/* Mini Checklist */}
-              <div className=" p-4" style={{ background: tc.cardBg, border: tc.border }}>
-                <h5 className="text-[10px] font-bold uppercase tracking-wider mb-3" style={{ color: tc.textDim }}>Yêu cầu trước khi phân tích</h5>
+              <div className="cv-upload-page__checklist p-4">
+                <h5 className="cv-upload-page__checklist-title mb-3 text-[10px] font-bold uppercase tracking-wider">
+                  Yêu cầu trước khi phân tích
+                </h5>
                 <ul className="space-y-2 text-xs">
-                   <li className="flex items-center gap-2" style={{ color: completedSteps.includes('jd') ? '#34d399' : '#475569' }}>
-                     <span className="w-4 text-center">{completedSteps.includes('jd') ? '✓' : '○'}</span> Có mô tả công việc (JD)
-                   </li>
-                   <li className="flex items-center gap-2" style={{ color: completedSteps.includes('weights') ? '#34d399' : '#475569' }}>
-                     <span className="w-4 text-center">{completedSteps.includes('weights') ? '✓' : '○'}</span> Đã phân bổ trọng số
-                   </li>
-                   <li className="flex items-center gap-2" style={{ color: cvFiles.length > 0 ? '#34d399' : '#475569' }}>
-                     <span className="w-4 text-center">{cvFiles.length > 0 ? '✓' : '○'}</span> Đã chọn CV ({cvFiles.length})
-                   </li>
+                  <li className="cv-upload-page__checklist-item flex items-center gap-2" data-complete={completedSteps.includes('jd')}>
+                    <span className="w-4 text-center">{completedSteps.includes('jd') ? '✓' : '○'}</span>
+                    Có mô tả công việc (JD)
+                  </li>
+                  <li
+                    className="cv-upload-page__checklist-item flex items-center gap-2"
+                    data-complete={completedSteps.includes('weights')}
+                  >
+                    <span className="w-4 text-center">{completedSteps.includes('weights') ? '✓' : '○'}</span>
+                    Đã phân bổ trọng số
+                  </li>
+                  <li className="cv-upload-page__checklist-item flex items-center gap-2" data-complete={cvFiles.length > 0}>
+                    <span className="w-4 text-center">{cvFiles.length > 0 ? '✓' : '○'}</span>
+                    Đã chọn CV ({cvFiles.length})
+                  </li>
                 </ul>
               </div>
             </div>
 
-            {/* Right Column: File List (7 cols) */}
-            <div className="lg:col-span-7 flex flex-col h-full overflow-hidden" style={{ background: tc.isDark ? '#08080a' : '#ffffff', border: tc.border }}>
-               <div className="p-4 flex items-center justify-between" style={{ borderBottom: tc.borderSoft }}>
-                  <h4 className="font-medium text-sm text-white">Danh sách hồ sơ</h4>
-                  <div className="flex items-center gap-2">
-                    <label className="cursor-pointer text-xs transition-colors flex items-center gap-1 px-2 py-1 " style={{ color: '#818cf8' }} title="Thêm từ máy tính">
-                        <input type="file" multiple accept=".pdf,.docx,.png,.jpg,.jpeg" className="hidden" onChange={handleFileChange} />
-                        Thêm file
-                    </label>
-                    <button onClick={handleGoogleDriveSelect} className="text-xs transition-colors flex items-center gap-1 px-2 py-1 " style={{ color: '#34d399' }} title="Thêm từ Google Drive">
-                        Google Drive
-                    </button>
-                    {cvFiles.length > 0 && (
-                        <>
-                            <div className="w-px h-4" style={{ background: 'rgba(255,255,255,0.08)' }} />
-                            <button onClick={handleClearFiles} className="text-xs transition-colors px-2 py-1 " style={{ color: '#f87171' }}>
-                            Xóa tất cả
-                            </button>
-                        </>
-                    )}
-                  </div>
-               </div>
-
-               <div className="flex-1 overflow-y-auto p-3 custom-scrollbar" style={{ minHeight: '140px' }}>
-                  {cvFiles.length === 0 ? (
-                     <div className="h-full flex flex-col items-center justify-center space-y-3 py-12" style={{ color: '#334155' }}>
-                        <div className="w-12 h-12 " style={{ background: 'rgba(255,255,255,0.04)' }} />
-                        <p className="text-sm">Chưa có CV nào được chọn</p>
-                    </div>
-                  ) : (
-                    <div className="grid gap-2">
-                      {cvFiles.map((file, index) => (
-                        <div key={`${file.name}-${index}`} className="group flex items-center gap-3 p-3  transition-all" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                           <div className="w-8 h-8  shrink-0" style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.15)' }} />
-                           <div className="flex-1 min-w-0">
-                             <p className="text-sm truncate" style={{ color: '#cbd5e1' }}>{file.name}</p>
-                             <p className="text-[10px]" style={{ color: '#475569' }}>{(file.size / 1024).toFixed(1)} KB</p>
-                           </div>
-                           <button onClick={() => handleRemoveFile(index)} className="w-8 h-8 flex items-center justify-center -full transition-colors" style={{ color: '#475569' }}
-                             onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(239,68,68,0.1)'; (e.currentTarget as HTMLElement).style.color = '#f87171'; }}
-                             onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.color = '#475569'; }}>
-                             ×
-                           </button>
-                        </div>
-                      ))}
-                    </div>
+            <div className="cv-upload-page__file-panel flex h-full flex-col overflow-hidden lg:col-span-7">
+              <div className="cv-upload-page__file-panel-header flex items-center justify-between p-4">
+                <h4 className="cv-upload-page__file-panel-title text-sm font-medium">Danh sách hồ sơ</h4>
+                <div className="flex items-center gap-2">
+                  <label
+                    className="cv-upload-page__secondary-action cv-upload-page__secondary-action--machine cursor-pointer px-2 py-1 text-xs transition-colors"
+                    title="Thêm từ máy tính"
+                  >
+                    <input
+                      type="file"
+                      multiple
+                      accept=".pdf,.docx,.png,.jpg,.jpeg"
+                      className="hidden"
+                      onChange={handleFileChange}
+                    />
+                    Thêm file
+                  </label>
+                  <button
+                    type="button"
+                    onClick={handleGoogleDriveSelect}
+                    className="cv-upload-page__secondary-action cv-upload-page__secondary-action--drive px-2 py-1 text-xs transition-colors"
+                    title="Thêm từ Google Drive"
+                  >
+                    Google Drive
+                  </button>
+                  {cvFiles.length > 0 && (
+                    <>
+                      <div className="cv-upload-page__divider h-4 w-px" />
+                      <button
+                        type="button"
+                        onClick={handleClearFiles}
+                        className="cv-upload-page__secondary-action cv-upload-page__secondary-action--danger px-2 py-1 text-xs transition-colors"
+                      >
+                        Xóa tất cả
+                      </button>
+                    </>
                   )}
-               </div>
+                </div>
+              </div>
 
-               {/* Footer Info */}
-               <div className="p-3 text-center" style={{ borderTop: '1px solid rgba(255,255,255,0.05)', color: '#334155', fontSize: '10px' }}>
-                  Nhóm CV theo vị trí để AI phân tích chính xác nhất
-               </div>
+              <div className="custom-scrollbar min-h-[140px] flex-1 overflow-y-auto p-3">
+                {cvFiles.length === 0 ? (
+                  <div className="cv-upload-page__empty-state flex h-full flex-col items-center justify-center space-y-3 py-12">
+                    <div className="cv-upload-page__empty-icon h-12 w-12" />
+                    <p className="text-sm">Chưa có CV nào được chọn</p>
+                  </div>
+                ) : (
+                  <div className="grid gap-2">
+                    {cvFiles.map((file, index) => (
+                      <div key={`${file.name}-${index}`} className="cv-upload-page__file-row group flex items-center gap-3 p-3 transition-all">
+                        <div className="cv-upload-page__file-icon h-8 w-8 shrink-0" />
+                        <div className="min-w-0 flex-1">
+                          <p className="cv-upload-page__file-name truncate text-sm">{file.name}</p>
+                          <p className="cv-upload-page__file-size text-[10px]">{(file.size / 1024).toFixed(1)} KB</p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveFile(index)}
+                          className="cv-upload-page__remove-button flex h-8 w-8 items-center justify-center transition-colors"
+                          aria-label={`Xóa ${file.name}`}
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="cv-upload-page__footer p-3 text-center text-[10px]">
+                Nhóm CV theo vị trí để AI phân tích chính xác nhất
+              </div>
             </div>
           </div>
         </div>
@@ -395,7 +457,3 @@ const CVUpload: React.FC<CVUploadProps> = memo((props) => {
 CVUpload.displayName = 'CVUpload';
 
 export default CVUpload;
-
-
-
-

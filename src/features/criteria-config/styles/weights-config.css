@@ -1,0 +1,356 @@
+.weights-config {
+  background: var(--weights-page-bg);
+}
+
+.weights-config__glow {
+  pointer-events: none;
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(48px);
+}
+
+.weights-config__glow--top {
+  top: 0;
+  right: 0;
+  height: 24rem;
+  width: 24rem;
+  background: rgba(6, 182, 212, 0.035);
+}
+
+.weights-config__glow--bottom {
+  bottom: 0;
+  left: 0;
+  height: 18rem;
+  width: 18rem;
+  background: rgba(16, 185, 129, 0.03);
+}
+
+.weights-config__glow--center {
+  top: 33%;
+  left: 25%;
+  height: 16rem;
+  width: 16rem;
+  background: rgba(139, 92, 246, 0.025);
+}
+
+.weights-config__header {
+  background: linear-gradient(180deg, rgba(4, 4, 6, 0.98) 0%, rgba(0, 0, 0, 0.96) 100%);
+  border-color: var(--weights-border-color);
+}
+
+.weights-config__accent,
+.weights-config__card-accent,
+.weights-config__note-accent {
+  border-radius: 9999px;
+  background: linear-gradient(180deg, #38bdf8, #818cf8);
+}
+
+.weights-config__accent {
+  height: 2rem;
+  width: 3px;
+}
+
+.weights-config__heading,
+.weights-config__section-title {
+  color: var(--weights-text-primary);
+}
+
+.weights-config__subheading {
+  color: var(--weights-text-muted);
+}
+
+.weights-config__section-copy {
+  color: #64748b;
+}
+
+.weights-config__step-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid transparent;
+  border-radius: 0.75rem;
+}
+
+.weights-config__step-button[data-state='idle'] {
+  background: var(--weights-card-bg-2);
+  border: var(--weights-card-border);
+  color: var(--weights-text-dim);
+}
+
+.weights-config__step-button[data-state='active'] {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(129, 140, 248, 0.3);
+  box-shadow: 0 10px 28px -20px rgba(96, 165, 250, 0.55);
+  color: var(--weights-text-primary);
+}
+
+.weights-config__step-button[data-state='done'] {
+  background: rgba(16, 185, 129, 0.08);
+  border-color: rgba(16, 185, 129, 0.24);
+  color: #34d399;
+}
+
+.weights-config__step-index {
+  border-radius: 0.5rem;
+}
+
+.weights-config__step-button[data-state='idle'] .weights-config__step-index {
+  background: var(--weights-card-bg-2);
+  color: var(--weights-text-dim);
+}
+
+.weights-config__step-button[data-state='active'] .weights-config__step-index {
+  background: rgba(56, 189, 248, 0.12);
+  color: #7dd3fc;
+}
+
+.weights-config__step-button[data-state='done'] .weights-config__step-index {
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+}
+
+.weights-config__step-connector[data-state='idle'] {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.weights-config__step-connector[data-state='done'] {
+  background: rgba(16, 185, 129, 0.32);
+}
+
+.weights-config__side-panel {
+  border-left: 1px solid var(--weights-border-color);
+  background: linear-gradient(180deg, rgba(4, 4, 6, 0.98), rgba(0, 0, 0, 0.98));
+  box-shadow: -14px 0 42px -28px rgba(0, 0, 0, 0.95);
+}
+
+.weights-config__card {
+  border: 1px solid rgba(226, 232, 240, 0.08);
+  border-radius: 1rem;
+  background: linear-gradient(180deg, rgba(4, 4, 6, 0.98), rgba(1, 1, 2, 0.96));
+}
+
+.weights-config__card-title {
+  color: #ffffff;
+}
+
+.weights-config__card-glow {
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 10rem;
+  width: 10rem;
+  border-radius: 9999px;
+  filter: blur(48px);
+  transform: translate(25%, -50%);
+  transition: background 0.4s ease;
+}
+
+.weights-config__card-glow--info,
+.weights-config__card-glow[data-status='balanced'] {
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.weights-config__card-glow[data-status='over'] {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.weights-config__card-glow[data-status='under'] {
+  background: rgba(245, 158, 11, 0.1);
+}
+
+.weights-config__metric-card,
+.weights-config__total-card,
+.weights-config__summary-row {
+  border-radius: 0.875rem;
+}
+
+.weights-config__metric-card {
+  border: var(--weights-panel-border);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.weights-config__metric-card--success {
+  border: 1px solid rgba(16, 185, 129, 0.18);
+  background: rgba(16, 185, 129, 0.05);
+}
+
+.weights-config__metric-value,
+.weights-config__metric-label {
+  color: #34d399;
+}
+
+.weights-config__metric-value {
+  text-shadow: 0 0 20px rgba(52, 211, 153, 0.4);
+}
+
+.weights-config__progress-shell {
+  border: var(--weights-border-soft);
+  border-radius: 0.875rem;
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.weights-config__progress-label {
+  color: var(--weights-text-muted);
+}
+
+.weights-config__progress-value {
+  color: #7dd3fc;
+  text-shadow: 0 0 10px rgba(56, 189, 248, 0.25);
+}
+
+.weights-config__progress-track {
+  border: var(--weights-border-soft);
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.weights-config__progress-fill {
+  width: var(--weights-progress-width);
+  border-radius: 9999px;
+  background: linear-gradient(90deg, #38bdf8, #818cf8);
+  box-shadow: 0 0 15px rgba(56, 189, 248, 0.25);
+}
+
+.weights-config__progress-shine {
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3));
+  filter: blur(2px);
+}
+
+.weights-config__note {
+  border: 1px solid rgba(226, 232, 240, 0.08);
+  border-radius: 0.875rem;
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.weights-config__footer-actions {
+  border-top: var(--weights-border-soft);
+}
+
+.weights-config__primary-cta,
+.weights-config__finish-cta,
+.weights-config__back-button {
+  border-radius: 0.75rem;
+}
+
+.weights-config__primary-cta {
+  border: 1px solid rgba(96, 165, 250, 0.28);
+  background: linear-gradient(135deg, rgba(10, 16, 26, 0.98), rgba(4, 8, 14, 0.98));
+  box-shadow: 0 10px 28px -18px rgba(96, 165, 250, 0.55);
+}
+
+.weights-config__finish-cta[data-ready='true'] {
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  background: linear-gradient(135deg, rgba(5, 24, 18, 0.98), rgba(2, 8, 10, 0.98));
+  box-shadow: 0 10px 28px -18px rgba(16, 185, 129, 0.45);
+  color: #ecfdf5;
+}
+
+.weights-config__finish-cta[data-ready='false'] {
+  background: var(--weights-card-bg-2);
+  border: var(--weights-card-border);
+  color: var(--weights-text-dim);
+  cursor: not-allowed;
+}
+
+.weights-config__back-button {
+  border: 1px solid transparent;
+  color: var(--weights-text-dim);
+}
+
+.weights-config__back-button:hover {
+  background: var(--weights-card-bg-2);
+  color: var(--weights-text-muted);
+}
+
+.weights-config__error {
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 0.75rem;
+  background: rgba(239, 68, 68, 0.06);
+}
+
+.weights-config__error-bar {
+  border-radius: 9999px;
+  background: #ef4444;
+}
+
+.weights-config__total-card {
+  border: var(--weights-panel-border);
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.weights-config__total-value {
+  color: var(--weights-text-primary);
+}
+
+.weights-config__total-value[data-status='balanced'] {
+  text-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+}
+
+.weights-config__total-value[data-status='over'] {
+  text-shadow: 0 0 20px rgba(244, 63, 94, 0.3);
+}
+
+.weights-config__total-value[data-status='under'] {
+  text-shadow: 0 0 20px rgba(245, 158, 11, 0.3);
+}
+
+.weights-config__total-suffix[data-status='balanced'],
+.weights-config__status-pill[data-status='balanced'] {
+  color: #6ee7b7;
+}
+
+.weights-config__total-suffix[data-status='over'],
+.weights-config__status-pill[data-status='over'] {
+  color: #fda4af;
+}
+
+.weights-config__total-suffix[data-status='under'],
+.weights-config__status-pill[data-status='under'] {
+  color: #fcd34d;
+}
+
+.weights-config__status-pill {
+  border: 1px solid transparent;
+  border-radius: 9999px;
+}
+
+.weights-config__status-pill[data-status='balanced'] {
+  background: rgba(16, 185, 129, 0.12);
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.weights-config__status-pill[data-status='over'] {
+  background: rgba(244, 63, 94, 0.12);
+  border-color: rgba(244, 63, 94, 0.3);
+}
+
+.weights-config__status-pill[data-status='under'] {
+  background: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+.weights-config__summary-row {
+  border: var(--weights-panel-border);
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.weights-config__summary-accent[data-tone='high'] {
+  background: #10b981;
+}
+
+.weights-config__summary-accent[data-tone='medium'] {
+  background: #3b82f6;
+}
+
+.weights-config__summary-accent[data-tone='low'] {
+  background: #f59e0b;
+}
+
+.weights-config__summary-label {
+  color: var(--weights-text-secondary);
+}
+
+.weights-config__summary-value {
+  color: var(--weights-text-muted);
+}

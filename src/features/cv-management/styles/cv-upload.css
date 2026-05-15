@@ -1,0 +1,303 @@
+.cv-upload-page {
+  background: var(--cv-page-bg);
+}
+
+.cv-upload-page__glow {
+  pointer-events: none;
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(48px);
+}
+
+.cv-upload-page__glow--top {
+  top: 0;
+  right: 0;
+  height: 16rem;
+  width: 16rem;
+  background: rgba(99, 102, 241, 0.06);
+}
+
+.cv-upload-page__glow--bottom {
+  bottom: 0;
+  left: 0;
+  height: 16rem;
+  width: 16rem;
+  background: rgba(59, 130, 246, 0.05);
+}
+
+.cv-upload-page__header {
+  background: var(--cv-header-bg);
+  border-color: rgba(99, 102, 241, 0.18);
+}
+
+.cv-upload-page__title-row {
+  border-bottom: var(--cv-border-soft);
+}
+
+.cv-upload-page__accent {
+  height: 2rem;
+  width: 3px;
+  border-radius: 9999px;
+  background: linear-gradient(180deg, #3b82f6, #6366f1);
+}
+
+.cv-upload-page__heading {
+  color: var(--cv-text-primary);
+}
+
+.cv-upload-page__subheading {
+  color: rgba(59, 130, 246, 0.7);
+}
+
+.cv-upload-page__support {
+  margin-left: 1rem;
+  padding-left: 1rem;
+  border-left: 1px solid rgba(255, 255, 255, 0.06);
+  color: rgba(148, 163, 184, 0.6);
+}
+
+.cv-upload-page__status-pill,
+.cv-upload-page__count-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  border-radius: 9999px;
+  padding: 0.375rem 0.75rem;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.cv-upload-page__status-pill[data-state='done'] {
+  background: rgba(16, 185, 129, 0.1);
+  border-color: rgba(16, 185, 129, 0.25);
+  color: #34d399;
+}
+
+.cv-upload-page__status-pill[data-state='pending'] {
+  background: rgba(245, 158, 11, 0.1);
+  border-color: rgba(245, 158, 11, 0.25);
+  color: #fbbf24;
+}
+
+.cv-upload-page__count-pill {
+  background: var(--cv-card-bg-2);
+  border: var(--cv-card-border);
+  color: var(--cv-text-muted);
+}
+
+.cv-upload-page__dropzone {
+  border: 2px dashed rgba(99, 102, 241, 0.2);
+  border-radius: 1rem;
+  background: var(--cv-dropzone-bg);
+}
+
+.cv-upload-page__dropzone:hover {
+  border-color: rgba(99, 102, 241, 0.4);
+  background: color-mix(in srgb, var(--cv-dropzone-bg) 92%, rgba(99, 102, 241, 0.08));
+}
+
+.cv-upload-page__dropzone-icon {
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  border-radius: 1rem;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(59, 130, 246, 0.1));
+}
+
+.cv-upload-page__dropzone-title {
+  color: #f8fafc;
+}
+
+.cv-upload-page__dropzone-hint {
+  color: #475569;
+}
+
+.cv-upload-page__primary-action,
+.cv-upload-page__source-button,
+.cv-upload-page__analyze-button,
+.cv-upload-page__secondary-action,
+.cv-upload-page__remove-button {
+  border-radius: 0.875rem;
+}
+
+.cv-upload-page__primary-action {
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  background: linear-gradient(135deg, #4f46e5, #6366f1);
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.2);
+}
+
+.cv-upload-page__primary-action:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(99, 102, 241, 0.22);
+}
+
+.cv-upload-page__source-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border: 1px solid transparent;
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.cv-upload-page__source-button:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
+
+.cv-upload-page__source-button--machine {
+  border-color: rgba(99, 102, 241, 0.2);
+  background: rgba(99, 102, 241, 0.1);
+  color: #818cf8;
+}
+
+.cv-upload-page__source-button--drive {
+  border-color: rgba(16, 185, 129, 0.2);
+  background: rgba(16, 185, 129, 0.1);
+  color: #34d399;
+}
+
+.cv-upload-page__source-button--cancel {
+  color: #475569;
+}
+
+.cv-upload-page__analyze-button {
+  border: 1px solid transparent;
+}
+
+.cv-upload-page__analyze-button[data-ready='true'] {
+  border-color: rgba(99, 102, 241, 0.35);
+  background: linear-gradient(135deg, #4f46e5, #6366f1);
+  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.25);
+  color: #ffffff;
+}
+
+.cv-upload-page__analyze-button[data-ready='false'] {
+  background: var(--cv-card-bg-2);
+  border: var(--cv-card-border);
+  color: var(--cv-text-dim);
+  cursor: not-allowed;
+}
+
+.cv-upload-page__alert {
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 1rem;
+  background: rgba(239, 68, 68, 0.06);
+}
+
+.cv-upload-page__alert-bar {
+  width: 3px;
+  border-radius: 9999px;
+  background: #ef4444;
+}
+
+.cv-upload-page__alert-text {
+  color: #fca5a5;
+}
+
+.cv-upload-page__checklist {
+  border: var(--cv-panel-border);
+  border-radius: 1rem;
+  background: var(--cv-card-bg);
+}
+
+.cv-upload-page__checklist-title {
+  color: var(--cv-text-dim);
+}
+
+.cv-upload-page__checklist-item[data-complete='true'] {
+  color: #34d399;
+}
+
+.cv-upload-page__checklist-item[data-complete='false'] {
+  color: #475569;
+}
+
+.cv-upload-page__file-panel {
+  border: var(--cv-panel-border);
+  border-radius: 1rem;
+  background: var(--cv-file-panel-bg);
+}
+
+.cv-upload-page__file-panel-header {
+  border-bottom: var(--cv-border-soft);
+}
+
+.cv-upload-page__file-panel-title {
+  color: #f8fafc;
+}
+
+.cv-upload-page__secondary-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cv-upload-page__secondary-action--machine {
+  color: #818cf8;
+}
+
+.cv-upload-page__secondary-action--drive {
+  color: #34d399;
+}
+
+.cv-upload-page__secondary-action--danger {
+  color: #f87171;
+}
+
+.cv-upload-page__secondary-action:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.cv-upload-page__divider {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.cv-upload-page__empty-state {
+  color: #334155;
+}
+
+.cv-upload-page__empty-icon {
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.cv-upload-page__file-row {
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.cv-upload-page__file-row:hover {
+  border-color: rgba(99, 102, 241, 0.18);
+  transform: translateY(-1px);
+}
+
+.cv-upload-page__file-icon {
+  border: 1px solid rgba(99, 102, 241, 0.15);
+  border-radius: 0.875rem;
+  background: rgba(99, 102, 241, 0.1);
+}
+
+.cv-upload-page__file-name {
+  color: #cbd5e1;
+}
+
+.cv-upload-page__file-size {
+  color: #475569;
+}
+
+.cv-upload-page__remove-button {
+  color: #475569;
+}
+
+.cv-upload-page__remove-button:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: #f87171;
+}
+
+.cv-upload-page__footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  color: #334155;
+}
