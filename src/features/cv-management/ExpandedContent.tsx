@@ -236,12 +236,18 @@ function buildSyntheticLoyaltyDetail(source: DetailedScore): DetailedScore {
   const inheritedEvidence = getDetailEvidence(source) || MISSING_DETAIL_EVIDENCE;
   const inheritedExplanation = getDetailExplanation(source);
   const inheritedFormula = getDetailFormula(source);
-  const inheritedScore = getDetailScore(source) || `0/${LOYALTY_TOTAL_MAX}`;
+  const inheritedScore = normalizeScoreTextToMax(
+    getDetailScore(source) || `0/${LOYALTY_TOTAL_MAX}`,
+    inheritedFormula,
+    LOYALTY_TOTAL_MAX,
+  );
 
   return {
     'Tiêu chí': LOYALTY_CRITERION,
     'Điểm': inheritedScore,
-    'Công thức': inheritedFormula || 'Suy ra từ tiêu chí Gắn bó & Lịch sử CV',
+    'Công thức': inheritedFormula
+      ? `${inheritedFormula} | Quy đổi thang ${LOYALTY_TOTAL_MAX}`
+      : `Suy ra từ tiêu chí Gắn bó & Lịch sử CV, quy đổi thang ${LOYALTY_TOTAL_MAX}`,
     'Dẫn chứng': inheritedEvidence,
     'Giải thích': inheritedExplanation && inheritedExplanation !== '...'
       ? `${inheritedExplanation} (Được suy ra từ tiêu chí Gắn bó & Lịch sử CV.)`
@@ -991,6 +997,35 @@ function parseDetailScore(
   };
 }
 
+type ParsedDetailScore = ReturnType<typeof parseDetailScore>;
+
+function normalizeParsedScoreToMax(parsed: ParsedDetailScore, targetMax: number): ParsedDetailScore {
+  if (!parsed.hasScore || parsed.score === null) {
+    return parsed;
+  }
+
+  const sourceMax = parsed.maxScore && parsed.maxScore > 0 ? parsed.maxScore : targetMax;
+  const normalizedScore = Math.min(targetMax, Math.max(0, (parsed.score / sourceMax) * targetMax));
+  const achievedPct = Math.round((normalizedScore / targetMax) * 100);
+
+  return {
+    ...parsed,
+    score: normalizedScore,
+    maxScore: targetMax,
+    achievedPct,
+    contributionPct: achievedPct,
+    scoreLabel: `${formatScoreValue(normalizedScore)}/${formatScoreValue(targetMax)}`,
+  };
+}
+
+function normalizeScoreTextToMax(scoreText: string, detailFormula: string, targetMax: number): string {
+  return normalizeParsedScoreToMax(parseDetailScore(scoreText, detailFormula), targetMax).scoreLabel;
+}
+
+function getNormalizedScoreValue(scoreText: string, detailFormula: string, targetMax: number): number {
+  return normalizeParsedScoreToMax(parseDetailScore(scoreText, detailFormula), targetMax).score || 0;
+}
+
 function canonicalizeCriterionName(rawName: string): string {
   const value = rawName.trim();
   const normalized = normalizeAscii(value);
@@ -1042,10 +1077,10 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
     : detailEvidence;
   const canShowRawEvidence = shouldShowRawEvidence && !(isLoyalty && isGenericTimelineEvidence(detailEvidence));
 
-  const parsedData = useMemo(
-    () => parseDetailScore(detailScore, detailFormula),
-    [detailFormula, detailScore]
-  );
+  const parsedData = useMemo(() => {
+    const parsed = parseDetailScore(detailScore, detailFormula);
+    return isLoyalty ? normalizeParsedScoreToMax(parsed, LOYALTY_TOTAL_MAX) : parsed;
+  }, [detailFormula, detailScore, isLoyalty]);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(copyEvidenceText);
@@ -1186,7 +1221,7 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
                 </div>
               ) : isLoyalty ? (
                 <div className="rounded-lg border border-amber-500/25 bg-amber-500/10 p-3 text-sm leading-6 text-amber-100">
-                  Chưa tìm thấy đủ tên công ty và mốc thời gian trong CV để tách rõ từng giai đoạn. Cần CV có dòng dạng “Tên công ty - 2019 đến 2021” hoặc “Vị trí tại Tên công ty, 2021 - hiện tại” để hiển thị chính xác thời lượng.
+                  Chưa đủ mốc thời gian để tách theo công ty. Cần dòng như “Tên công ty - 2019 đến 2021”.
                 </div>
               ) : (
                 <blockquote className="border-l-4 border-cyan-500/60 pl-4 text-base italic leading-relaxed text-slate-300" dangerouslySetInnerHTML={{
@@ -1200,44 +1235,58 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
             {isExperience && experienceBlock}
             {!isExperience && requirementComparison && (
               <div className="space-y-3 rounded-xl border border-slate-800/60 bg-[#080f1e] p-5">
-                <h5 className="mb-1 text-base font-bold text-slate-100">Phân tích nhanh</h5>
-                <div className="text-[11px] text-slate-400">Từ khóa JD ({requirementComparison.jdKeywords.length})</div>
-                <div className="flex flex-wrap gap-1 mb-2">
-                  {requirementComparison.jdKeywords.slice(0, 12).map(k => <span key={k} className="pill pill--uncertain">{k}</span>)}
-                </div>
-                <div className="text-[11px] text-slate-400 font-medium">Khớp</div>
-                <div className="flex flex-wrap gap-1">
-                  {requirementComparison.matched.length > 0 ? requirementComparison.matched.slice(0, 10).map(k => <span key={k} className="pill pill--match">{k}</span>) : <span className="text-[11px] text-slate-500">(Không)</span>}
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <h5 className="mb-1 text-base font-bold text-slate-100">Phân tích nhanh</h5>
+                    <p className="text-[11px] text-slate-500">Khớp trực tiếp và vector ngữ nghĩa, chỉ giữ tín hiệu quan trọng.</p>
+                  </div>
+                  <span className="rounded-full border border-cyan-400/25 bg-cyan-400/10 px-2.5 py-1 text-[10px] font-bold text-cyan-200">
+                    {requirementComparison.matched.length + requirementComparison.semanticMatched.length}/{requirementComparison.jdKeywords.length}
+                  </span>
                 </div>
 
-                {requirementComparison.semanticMatched.length > 0 && (
-                  <div className="mt-3 rounded-lg border border-cyan-500/20 bg-cyan-500/[0.06] p-3">
-                    <div className="mb-2 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-cyan-300">
-                      <i className="fa-solid fa-vector-square text-[10px]" />
-                      Vector embedding / ngữ nghĩa
-                    </div>
-                    <div className="flex flex-wrap gap-1.5">
-                      {requirementComparison.semanticMatched.map((item) => (
+                <div className="grid gap-3 md:grid-cols-2">
+                  <div>
+                    <div className="mb-1 text-[11px] font-medium text-slate-400">Đã khớp</div>
+                    <div className="flex flex-wrap gap-1">
+                      {requirementComparison.matched.length > 0
+                        ? requirementComparison.matched.slice(0, 6).map(k => <span key={k} className="pill pill--match">{k}</span>)
+                        : requirementComparison.semanticMatched.length === 0
+                          ? <span className="text-[11px] text-slate-500">(Không)</span>
+                          : null}
+                      {requirementComparison.semanticMatched.slice(0, 4).map((item) => (
                         <span key={item.keyword} className="rounded-full border border-cyan-400/35 bg-cyan-400/10 px-2 py-0.5 text-[10px] font-semibold text-cyan-200">
                           {item.keyword} · {Math.round(item.score * 100)}%
                         </span>
                       ))}
                     </div>
-                    <div className="mt-2 space-y-1.5">
-                      {requirementComparison.semanticMatched.slice(0, 3).map((item) => (
+                  </div>
+
+                  <div>
+                    <div className="mb-1 text-[11px] font-medium text-slate-400">Còn thiếu</div>
+                    <div className="flex flex-wrap gap-1">
+                      {requirementComparison.missing.length > 0
+                        ? requirementComparison.missing.slice(0, 5).map(k => <span key={k} className="pill pill--missing">{k}</span>)
+                        : <span className="text-[11px] text-slate-500">(Không)</span>}
+                    </div>
+                  </div>
+                </div>
+
+                {requirementComparison.semanticMatched.length > 0 && (
+                  <div className="rounded-lg border border-cyan-500/20 bg-cyan-500/[0.06] p-3">
+                    <div className="mb-2 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-cyan-300">
+                      <Target className="h-3 w-3" />
+                      Vector embedding
+                    </div>
+                    <div className="space-y-1.5">
+                      {requirementComparison.semanticMatched.slice(0, 2).map((item) => (
                         <p key={`${item.keyword}-reason`} className="text-[11px] leading-5 text-slate-300">
                           <span className="font-semibold text-cyan-200">{item.keyword}:</span> {item.reason}
-                          <span className="block text-slate-500">Dẫn chứng: “{item.evidence}”</span>
                         </p>
                       ))}
                     </div>
                   </div>
                 )}
-
-                <div className="text-[11px] text-slate-400 font-medium mt-2">Thiếu</div>
-                <div className="flex flex-wrap gap-1">
-                  {requirementComparison.missing.length > 0 ? requirementComparison.missing.slice(0, 10).map(k => <span key={k} className="pill pill--missing">{k}</span>) : <span className="text-[11px] text-slate-500">(Không)</span>}
-                </div>
               </div>
             )}
 
@@ -1577,8 +1626,7 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
       return 0;
     }
 
-    const parsed = parseDetailScore(getDetailScore(loyaltyDetail), getDetailFormula(loyaltyDetail));
-    return parsed.score || 0;
+    return getNormalizedScoreValue(getDetailScore(loyaltyDetail), getDetailFormula(loyaltyDetail), LOYALTY_TOTAL_MAX);
   }, [loyaltyDetail]);
 
   const totalScore = useMemo(() => {

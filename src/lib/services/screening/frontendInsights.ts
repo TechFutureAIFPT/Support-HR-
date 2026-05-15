@@ -64,6 +64,13 @@ const STOPWORDS = new Set([
   'from',
   'years',
   'năm',
+  'va',
+  'la',
+  'co',
+  'voi',
+  'cac',
+  'duoc',
+  'nam',
 ]);
 
 function normalize(text: string): string {
@@ -74,13 +81,12 @@ function normalizeSemantic(text: string): string {
   return normalize(text)
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
-    .replace(/đ/g, 'd')
-    .replace(/Đ/g, 'd');
+    .replace(/[đĐ]/g, 'd');
 }
 
 function tokenize(text: string): string[] {
-  return normalize(text)
-    .split(/[^a-z0-9à-ỹđ#+./-]+/i)
+  return normalizeSemantic(text)
+    .split(/[^a-z0-9#+./-]+/i)
     .map((token) => token.trim())
     .filter((token) => token.length >= 3 && !STOPWORDS.has(token));
 }
@@ -104,14 +110,123 @@ function cosineSimilarity(left: number[], right: number[]): number {
 function buildSemanticVector(text: string): number[] {
   const normalized = normalizeSemantic(text);
   return [
-    hasAny(normalized, ['%', 'phan tram', 'percent', '20%', '30%']) ? 1 : 0,
-    hasAny(normalized, ['giam', 'tiet kiem', 'toi uu', 'rut ngan', 'cai thien', 'tang', 'nang']) ? 1 : 0,
-    hasAny(normalized, ['truy van', 'query', 'latency', 'response time', 'database', 'sql', 'api', 'hieu suat', 'toc do']) ? 1 : 0,
-    hasAny(normalized, ['kpi', 'chi so', 'metric', 'sla', 'okr', 'hieu qua']) ? 1 : 0,
-    hasAny(normalized, ['doanh thu', 'revenue', 'sales', 'conversion', 'tang truong', 'growth', 'business']) ? 1 : 0,
-    hasAny(normalized, ['quan ly nhom', 'team', 'leader', 'leadership', '5 nguoi', 'nhom']) ? 1 : 0,
+    hasAny(normalized, ['%', 'phan tram', 'percent', 'nam', 'years', 'year']) ? 1 : 0,
+    hasAny(normalized, ['giam', 'tiet kiem', 'toi uu', 'rut ngan', 'cai thien', 'tang', 'nang', 'trien khai', 'xay dung', 'dat', 'hoan thanh']) ? 1 : 0,
+    hasAny(normalized, ['truy van', 'query', 'latency', 'response time', 'database', 'sql', 'api', 'hieu suat', 'toc do', 'performance', 'backend', 'frontend']) ? 1 : 0,
+    hasAny(normalized, ['kpi', 'chi so', 'metric', 'sla', 'okr', 'hieu qua', 'doanh thu', 'revenue', 'sales', 'conversion', 'tang truong', 'growth', 'business']) ? 1 : 0,
+    hasAny(normalized, ['java', 'spring', 'node', 'react', 'docker', 'mysql', 'postgres', 'mongodb', 'redis', 'aws', 'microservice', 'framework', 'tool', 'stack']) ? 1 : 0,
+    hasAny(normalized, ['dai hoc', 'university', 'college', 'bachelor', 'master', 'degree', 'chung chi', 'certification', 'aws certified', 'pmp']) ? 1 : 0,
+    hasAny(normalized, ['english', 'ielts', 'toeic', 'toefl', 'japanese', 'korean', 'giao tiep', 'ngoai ngu', 'language']) ? 1 : 0,
+    hasAny(normalized, ['portfolio', 'github', 'linkedin', 'cv', 'format', 'trinh bay', 'lien he', 'email', 'phone']) ? 1 : 0,
+    hasAny(normalized, ['gan bo', 'on dinh', 'tenure', 'career', 'promotion', 'hien tai', 'present', 'cong ty', 'company']) ? 1 : 0,
+    hasAny(normalized, ['teamwork', 'leadership', 'ownership', 'collaboration', 'agile', 'scrum', 'mentor', 'nhom', 'phoi hop']) ? 1 : 0,
+    hasAny(normalized, ['google', 'microsoft', 'amazon', 'meta', 'fpt', 'viettel', 'vin', 'vng', 'tiki', 'shopee', 'bigtech']) ? 1 : 0,
+    hasAny(normalized, ['quan ly nhom', 'lead', 'leader', 'manager', 'mentor', '5 nguoi', 'nhom']) ? 1 : 0,
   ];
 }
+
+interface SemanticRule {
+  keywords: string[];
+  vector: number[];
+  reason: string;
+  minimumScore: number;
+  evidenceTerms?: string[];
+  requiresQuantifiedImpact?: boolean;
+}
+
+const SEMANTIC_RULES: SemanticRule[] = [
+  {
+    keywords: ['kpi', 'metric', 'chi so'],
+    vector: [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+    reason: 'Có cải thiện định lượng, nên được tính là KPI vận hành/hiệu suất.',
+    minimumScore: 0.5,
+    requiresQuantifiedImpact: true,
+  },
+  {
+    keywords: ['achievement', 'thanh tuu'],
+    vector: [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+    reason: 'Có kết quả đo được bằng số, đủ xem là thành tựu thực tế.',
+    minimumScore: 0.5,
+    requiresQuantifiedImpact: true,
+  },
+  {
+    keywords: ['tang truong', 'growth'],
+    vector: [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+    reason: 'Cải thiện hiệu suất hỗ trợ tăng trưởng năng lực hệ thống và KPI sản phẩm.',
+    minimumScore: 0.48,
+    requiresQuantifiedImpact: true,
+  },
+  {
+    keywords: ['doanh thu', 'revenue'],
+    vector: [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+    reason: 'Tác động doanh thu là gián tiếp: hệ thống nhanh hơn giúp vận hành và trải nghiệm tốt hơn.',
+    minimumScore: 0.48,
+    requiresQuantifiedImpact: true,
+  },
+  {
+    keywords: ['skills', 'ky nang', 'technology', 'tool', 'framework', 'stack'],
+    vector: [0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+    reason: 'Dẫn chứng có công nghệ/công cụ và ngữ cảnh sử dụng thực tế.',
+    minimumScore: 0.42,
+    evidenceTerms: ['java', 'spring', 'node', 'react', 'docker', 'sql', 'api', 'framework', 'tool', 'stack', 'database'],
+  },
+  {
+    keywords: ['phu hop', 'jd', 'requirement', 'domain'],
+    vector: [0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+    reason: 'Có tín hiệu khớp vai trò qua stack, domain hoặc nhiệm vụ tương tự JD.',
+    minimumScore: 0.42,
+    evidenceTerms: ['java', 'spring', 'node', 'react', 'api', 'backend', 'frontend', 'domain', 'du an', 'trien khai'],
+  },
+  {
+    keywords: ['experience', 'kinh nghiem', 'senior', 'lead', 'manager', 'trien khai', 'thuc chien'],
+    vector: [1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 0, 1],
+    reason: 'Có dấu hiệu thời lượng, vai trò hoặc triển khai thực tế.',
+    minimumScore: 0.38,
+    evidenceTerms: ['nam', 'years', 'senior', 'lead', 'manager', 'trien khai', 'du an', 'thuc chien', 'cong ty'],
+  },
+  {
+    keywords: ['bachelor', 'master', 'degree', 'dai hoc', 'chung chi'],
+    vector: [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+    reason: 'Có cơ sở đào tạo, bằng cấp hoặc chứng chỉ liên quan.',
+    minimumScore: 0.45,
+    evidenceTerms: ['dai hoc', 'university', 'bachelor', 'master', 'degree', 'chung chi', 'certification'],
+  },
+  {
+    keywords: ['english', 'ielts', 'toeic', 'japanese', 'korean', 'giao tiep'],
+    vector: [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+    reason: 'Có tín hiệu ngoại ngữ hoặc khả năng giao tiếp liên quan.',
+    minimumScore: 0.45,
+    evidenceTerms: ['english', 'ielts', 'toeic', 'toefl', 'japanese', 'korean', 'giao tiep', 'ngoai ngu'],
+  },
+  {
+    keywords: ['cv', 'trinh bay', 'format', 'lien he', 'portfolio'],
+    vector: [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+    reason: 'Có tín hiệu trình bày, hồ sơ hoặc kênh xác thực chuyên nghiệp.',
+    minimumScore: 0.45,
+    evidenceTerms: ['cv', 'portfolio', 'github', 'linkedin', 'format', 'trinh bay', 'email', 'phone'],
+  },
+  {
+    keywords: ['tenure', 'on dinh', 'gan bo', 'career', 'promotion'],
+    vector: [1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+    reason: 'Có mốc làm việc/công ty, đủ để đánh giá độ ổn định nghề nghiệp.',
+    minimumScore: 0.45,
+    evidenceTerms: ['nam', 'years', 'cong ty', 'company', 'hien tai', 'present', 'promotion', 'gan bo'],
+  },
+  {
+    keywords: ['teamwork', 'leadership', 'ownership', 'collaboration', 'agile'],
+    vector: [0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1],
+    reason: 'Có tín hiệu làm việc nhóm, phối hợp hoặc vai trò dẫn dắt.',
+    minimumScore: 0.42,
+    evidenceTerms: ['team', 'nhom', 'lead', 'leader', 'mentor', 'ownership', 'collaboration', 'agile', 'scrum'],
+  },
+  {
+    keywords: ['google', 'microsoft', 'fpt', 'viettel', 'vin', 'bigtech'],
+    vector: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+    reason: 'Có tên công ty/tổ chức thuộc nhóm uy tín hoặc dễ xác thực.',
+    minimumScore: 0.45,
+    evidenceTerms: ['google', 'microsoft', 'amazon', 'meta', 'fpt', 'viettel', 'vin', 'vng', 'tiki', 'shopee'],
+  },
+];
 
 function getBestEvidenceSentence(evidence: string): string {
   const sentences = evidence
@@ -139,42 +254,16 @@ function getSemanticReason(keyword: string, evidence: string): SemanticMatch | n
     hasAny(normalizedEvidence, ['giam', 'tang', 'toi uu', 'rut ngan', 'cai thien', 'tiet kiem', 'nang']) &&
     hasAny(normalizedEvidence, ['truy van', 'query', 'thoi gian', 'latency', 'toc do', 'hieu suat', 'sql', 'database', 'api']);
 
-  const semanticKeywordVectors: Array<{
-    keywords: string[];
-    vector: number[];
-    reason: string;
-    minimumScore: number;
-  }> = [
-    {
-      keywords: ['kpi', 'metric', 'chi so'],
-      vector: [1, 1, 1, 1, 0, 0],
-      reason: 'Vector embedding nhận diện đây là KPI vận hành/hiệu suất vì có cải thiện định lượng theo phần trăm.',
-      minimumScore: 0.55,
-    },
-    {
-      keywords: ['achievement', 'thanh tuu', 'thành tựu'],
-      vector: [1, 1, 1, 0, 0, 0],
-      reason: 'Có thành tựu định lượng rõ: cải thiện hiệu suất/thời gian xử lý bằng con số phần trăm.',
-      minimumScore: 0.55,
-    },
-    {
-      keywords: ['tang truong', 'tăng trưởng', 'growth'],
-      vector: [1, 1, 1, 0, 1, 0],
-      reason: 'Cải thiện tốc độ truy vấn là tín hiệu tăng trưởng năng lực hệ thống, hỗ trợ KPI sản phẩm/kinh doanh.',
-      minimumScore: 0.5,
-    },
-    {
-      keywords: ['doanh thu', 'revenue'],
-      vector: [1, 1, 1, 0, 1, 0],
-      reason: 'Suy luận tác động kinh doanh gián tiếp: truy vấn nhanh hơn giúp tăng hiệu quả vận hành, trải nghiệm và khả năng hỗ trợ doanh thu.',
-      minimumScore: 0.5,
-    },
-  ];
-
-  if (!hasQuantifiedImprovement) return null;
-
-  for (const item of semanticKeywordVectors) {
+  for (const item of SEMANTIC_RULES) {
     if (!item.keywords.some((candidate) => normalizedKeyword.includes(normalizeSemantic(candidate)))) {
+      continue;
+    }
+
+    if (item.requiresQuantifiedImpact && !hasQuantifiedImprovement) {
+      continue;
+    }
+
+    if (item.evidenceTerms && !hasAny(normalizedEvidence, item.evidenceTerms)) {
       continue;
     }
 
@@ -184,7 +273,7 @@ function getSemanticReason(keyword: string, evidence: string): SemanticMatch | n
         keyword,
         reason: item.reason,
         evidence: bestEvidence,
-        score,
+        score: Math.min(0.96, Math.max(score, item.minimumScore)),
       };
     }
   }
@@ -197,13 +286,22 @@ export function extractJDRequirements(jdText: string): CriterionRequirement[] {
 
   return Object.entries(CRITERION_KEYWORDS).map(([display, baseKeywords]) => ({
     display,
-    keywords: unique([...baseKeywords, ...jdKeywords.filter((token) => baseKeywords.some((base) => token.includes(base) || base.includes(token)))]).slice(0, 12),
+    keywords: unique([
+      ...baseKeywords,
+      ...jdKeywords.filter((token) => baseKeywords.some((base) => {
+        const normalizedBase = normalizeSemantic(base);
+        return token.includes(normalizedBase) || normalizedBase.includes(token);
+      })),
+    ]).slice(0, 12),
   }));
 }
 
 export function compareEvidence(_display: string, jdKeywords: string[], evidence: string): RequirementComparison {
-  const lowerEvidence = normalize(evidence);
-  const matched = jdKeywords.filter((keyword) => lowerEvidence.includes(keyword.toLowerCase()));
+  const normalizedEvidence = normalizeSemantic(evidence);
+  const matched = jdKeywords.filter((keyword) => {
+    const normalizedKeyword = normalizeSemantic(keyword);
+    return normalizedKeyword.length > 1 && normalizedEvidence.includes(normalizedKeyword);
+  });
   const semanticMatched = jdKeywords
     .filter((keyword) => !matched.includes(keyword))
     .map((keyword) => getSemanticReason(keyword, evidence))

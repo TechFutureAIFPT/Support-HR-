@@ -198,10 +198,17 @@ function buildFallbackChatbotAdvice(analysisData: AnalysisRunData): ChatbotAdvic
 
   return {
     responseText: top.length
-      ? `Mình đang ưu tiên ${top.map((candidate) => `${candidate.candidateName} (${candidate.analysis?.['Tổng điểm'] || 0} điểm)`).join(', ')}.`
+      ? `Ưu tiên phỏng vấn: ${top.map((candidate) => `${candidate.candidateName} (${candidate.analysis?.['Tổng điểm'] || 0} điểm)`).join(', ')}.`
       : 'Hiện chưa có đủ dữ liệu để gợi ý thêm.',
     candidateIds: top.map((candidate) => candidate.id),
   };
+}
+
+function compactPromptText(value: unknown, maxLength: number = 160): string {
+  return String(value || '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, maxLength);
 }
 
 export async function filterAndStructureJD(rawJdText: string): Promise<string> {
@@ -389,6 +396,12 @@ export async function getChatbotAdvice(
       jobTitle: candidate.jobTitle,
       strengths: candidate.analysis?.['Điểm mạnh CV'] || [],
       weaknesses: candidate.analysis?.['Điểm yếu CV'] || [],
+      details: (candidate.analysis?.['Chi tiết'] || []).slice(0, 8).map((detail) => ({
+        criterion: compactPromptText(detail['Tiêu chí'], 60),
+        score: compactPromptText(detail['Điểm'], 24),
+        evidence: compactPromptText(detail['Dẫn chứng'], 140),
+        note: compactPromptText(detail['Giải thích'], 120),
+      })),
     }))
     .slice(0, 12);
 
@@ -397,6 +410,10 @@ export async function getChatbotAdvice(
     'Hãy trả lời ngắn gọn bằng tiếng Việt và xuất ra JSON hợp lệ.',
     'JSON phải có dạng: {"responseText":"...","candidateIds":["id-1","id-2"]}.',
     'Chỉ chọn candidateIds từ danh sách ứng viên đã cho nếu thực sự liên quan.',
+    'Phong cách responseText: tối đa 5 gạch đầu dòng, mỗi dòng dưới 22 từ, không mở bài dài.',
+    'Dùng khớp ngữ nghĩa/vector: hiểu ý nghĩa kỹ năng và kết quả, không chỉ so trùng từ khóa.',
+    'Ví dụ: "giảm 20% thời gian truy vấn" là KPI hiệu suất/thành tựu; nếu nói doanh thu/tăng trưởng thì ghi là tác động gián tiếp.',
+    'Nếu thiếu dữ liệu, nói đúng phần thiếu; không phóng đại năng lực ứng viên.',
     '',
     `Vị trí tuyển dụng: ${analysisData.job.position || 'Chưa rõ'}`,
     `Số ứng viên: ${candidateContext.length}`,
