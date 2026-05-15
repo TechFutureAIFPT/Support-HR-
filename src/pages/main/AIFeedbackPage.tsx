@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { AlertCircle, ArrowLeft, Brain, CheckCircle2, FileText } from 'lucide-react';
 import type {
   ActiveAnalysisContext,
   AnalysisFeedbackAction,
@@ -22,7 +23,6 @@ import {
   buildAnalysisSessionId,
   getActiveAnalysisContext,
 } from '@/lib/services/history-cache/activeAnalysisContext';
-import { AlertCircle, ArrowLeft, ArrowRight, Brain, CheckCircle2, Clock3, FileText, Sparkles, User, Users } from 'lucide-react';
 
 interface AIFeedbackPageProps {
   candidates: Candidate[];
@@ -97,7 +97,6 @@ function buildEffectiveContext(
 
   const cachedContext = getActiveAnalysisContext();
   if (cachedContext) return cachedContext;
-
   if (!storedRun) return null;
 
   return {
@@ -119,7 +118,7 @@ function readAnalysisValue<T>(candidate: Candidate, keys: string[]): T | undefin
 }
 
 function getCandidateScore(candidate: Candidate): number {
-  const score = readAnalysisValue<number>(candidate, ['Tổng điểm', 'Tong diem', 'Tá»•ng Ä‘iá»ƒm']);
+  const score = readAnalysisValue<number>(candidate, ['Tổng điểm', 'Tong diem']);
   return typeof score === 'number' ? score : 0;
 }
 
@@ -130,15 +129,13 @@ function getDisplayedScore(candidate: Candidate): number {
 }
 
 function getCandidateRank(candidate: Candidate): string | undefined {
-  return readAnalysisValue<string>(candidate, ['Hạng', 'Hang', 'Háº¡ng']);
+  return readAnalysisValue<string>(candidate, ['Hạng', 'Hang']);
 }
 
 function getFeedbackMap(entries: AnalysisFeedbackRecord[]): Record<string, AnalysisFeedbackRecord> {
   return entries.reduce<Record<string, AnalysisFeedbackRecord>>((accumulator, entry) => {
     const key = entry.candidateId || entry.fileName || entry.candidateName;
-    if (key) {
-      accumulator[key] = entry;
-    }
+    if (key) accumulator[key] = entry;
     return accumulator;
   }, {});
 }
@@ -199,18 +196,8 @@ function persistLatestRunFeedback(candidateId: string, finalScore: number): void
 
     window.localStorage.setItem('cvAnalysis.latest', JSON.stringify(nextRun));
   } catch {
-    // Ignore local persistence failures for feedback hints.
+    // LocalStorage is only a convenience cache; backend save remains the source of truth.
   }
-}
-
-function getWeightsSummary(weights?: WeightCriteria): string {
-  if (!weights) return 'Chưa cấu hình trọng số cho phiên này.';
-
-  const experienceWeight = weights.workExperience?.children?.reduce((acc, item) => acc + item.weight, 0) || 0;
-  const skillWeight = weights.technicalSkills?.children?.reduce((acc, item) => acc + item.weight, 0) || 0;
-  const educationWeight = weights.education?.children?.reduce((acc, item) => acc + item.weight, 0) || 0;
-
-  return `Kinh nghiệm ${experienceWeight}% · Kỹ năng ${skillWeight}% · Học vấn ${educationWeight}%`;
 }
 
 function getActionPresentation(action?: AnalysisFeedbackAction | null): { label: string; className: string } | null {
@@ -221,14 +208,11 @@ function getActionPresentation(action?: AnalysisFeedbackAction | null): { label:
 const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
   candidates,
   jobPosition,
-  weights,
-  hardFilters,
   analysisContext,
 }) => {
   const navigate = useNavigate();
   const tc = useThemeColors();
   const storedRun = useMemo(() => getStoredAnalysisRun(), []);
-  const [currentView, setCurrentView] = useState<'summary' | 'feedback'>('summary');
   const [selectedCandidateId, setSelectedCandidateId] = useState<string | null>(null);
   const [feedbackByCandidate, setFeedbackByCandidate] = useState<Record<string, AnalysisFeedbackRecord>>({});
   const [feedbackStats, setFeedbackStats] = useState<AnalysisFeedbackStats | null>(null);
@@ -272,31 +256,21 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
 
   const effectiveJobPosition = jobPosition || effectiveContext?.jobPosition || storedRun?.job.position || '';
   const submittedCount = feedbackEntries.length;
-  const avgScore = validCandidates.length > 0
-    ? validCandidates.reduce((acc, candidate) => acc + getDisplayedScore(candidate), 0) / validCandidates.length
-    : 0;
-  const topCandidatesCount = validCandidates.filter((candidate) => getDisplayedScore(candidate) >= 75).length;
-  const weightsSummary = useMemo(() => getWeightsSummary(weights), [weights]);
-  const elevatedPanelStyle = {
-    background: 'linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.022) 100%)',
-    borderColor: tc.borderColor,
-    boxShadow: '0 24px 72px rgba(2,8,23,0.24)',
-  } as const;
-  const flatPanelStyle = {
-    background: tc.cardBg,
-    borderColor: tc.borderColor,
-    boxShadow: '0 18px 48px rgba(2,8,23,0.2)',
-  } as const;
-  const mutedPanelStyle = {
-    background: tc.inputBg,
-    borderColor: tc.borderColor,
-  } as const;
+  const selectedActionPresentation = getActionPresentation(currentFeedbackEntry?.action);
+  const latestFeedbackLabel = feedbackStats?.latestFeedbackAt
+    ? new Date(feedbackStats.latestFeedbackAt).toLocaleString('vi-VN')
+    : 'Chưa có phản hồi';
+
   const headerSurfaceStyle = {
     background: tc.headerBg,
     borderColor: tc.borderColor,
   } as const;
   const workspaceSurfaceStyle = {
     background: 'linear-gradient(180deg, rgba(255,255,255,0.028) 0%, rgba(255,255,255,0.018) 100%)',
+  } as const;
+  const selectSurfaceStyle = {
+    background: 'rgba(15, 23, 42, 0.82)',
+    borderColor: tc.borderColor,
   } as const;
 
   const reloadFeedback = useCallback(async () => {
@@ -330,7 +304,10 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
   }, [effectiveContext]);
 
   useEffect(() => {
-    if (validCandidates.length > 0 && !selectedCandidateId) {
+    if (
+      validCandidates.length > 0
+      && (!selectedCandidateId || !validCandidates.some((candidate) => candidate.id === selectedCandidateId))
+    ) {
       setSelectedCandidateId(validCandidates[0].id);
     }
   }, [validCandidates, selectedCandidateId]);
@@ -340,6 +317,12 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
     setSubmitSuccessMessage(null);
     void reloadFeedback();
   }, [reloadFeedback]);
+
+  const handleSelectCandidate = useCallback((candidateId: string) => {
+    setSelectedCandidateId(candidateId);
+    setSubmitError(null);
+    setSubmitSuccessMessage(null);
+  }, []);
 
   const handleSubmit = useCallback(async (draft: AnalysisFeedbackDraft) => {
     if (!selectedCandidate) return;
@@ -407,278 +390,107 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
         <p className="max-w-md text-sm leading-7 text-slate-400">
           Không tìm thấy ứng viên nào đã được phân tích. Hãy chạy lại bước phân tích CV trước khi mở màn phản hồi AI.
         </p>
-      </div>
-    );
-  }
-
-  if (currentView === 'summary') {
-    return (
-      <div className="feature-page-shell flex h-full flex-col bg-black p-4 md:p-6 lg:p-8">
-        <div className="mx-auto flex w-full max-w-6xl flex-1 items-center">
-          <div className="grid w-full gap-6 xl:grid-cols-[1.15fr_0.85fr]">
-            <section
-              className="rounded-[32px] border p-6 md:p-8"
-              style={elevatedPanelStyle}
-            >
-              <div className="flex h-14 w-14 items-center justify-center rounded-3xl border border-sky-400/25 bg-sky-400/10">
-                <CheckCircle2 className="h-7 w-7 text-sky-300" />
-              </div>
-
-              <h1 className="mt-6 text-3xl font-black tracking-tight text-white md:text-4xl">
-                Hoàn tất phiên đánh giá
-              </h1>
-              <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-300 md:text-[15px]">
-                Hệ thống đã lưu kết quả phân tích ứng viên cho phiên này. Bây giờ bạn có thể phản hồi để hiệu chỉnh điểm số,
-                ghi chú lý do tuyển dụng và tạo dữ liệu review nhất quán cho các lần đánh giá sau.
-              </p>
-
-              <div className="mt-8 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                <div className="rounded-[22px] border p-4" style={mutedPanelStyle}>
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">CV đã phân tích</p>
-                  <p className="mt-2 text-2xl font-bold text-white">{validCandidates.length}</p>
-                </div>
-                <div className="rounded-[22px] border p-4" style={mutedPanelStyle}>
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Điểm trung bình</p>
-                  <p className="mt-2 text-2xl font-bold text-sky-300">{avgScore.toFixed(1)}</p>
-                </div>
-                <div className="rounded-[22px] border p-4" style={mutedPanelStyle}>
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Từ 75 điểm trở lên</p>
-                  <p className="mt-2 text-2xl font-bold text-emerald-300">{topCandidatesCount}</p>
-                </div>
-                <div className="rounded-[22px] border p-4" style={mutedPanelStyle}>
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Đã có phản hồi</p>
-                  <p className="mt-2 text-2xl font-bold text-violet-300">{submittedCount}</p>
-                </div>
-              </div>
-
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <button
-                  onClick={() => setCurrentView('feedback')}
-                  className="inline-flex items-center justify-center gap-2 rounded-2xl border border-sky-400/40 bg-sky-500 px-6 py-3 text-sm font-semibold text-white shadow-[0_14px_30px_-18px_rgba(14,165,233,0.78)] transition-all hover:bg-sky-400"
-                >
-                  Bắt đầu phản hồi AI
-                  <ArrowRight className="h-4 w-4" />
-                </button>
-                <button
-                  onClick={() => navigate('/analysis')}
-                  className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-800/80 px-6 py-3 text-sm font-semibold text-slate-300 transition-colors hover:bg-slate-900/60 hover:text-white"
-                >
-                  <ArrowLeft className="h-4 w-4" />
-                  Quay về kết quả phân tích
-                </button>
-              </div>
-            </section>
-
-            <aside
-              className="rounded-[32px] border p-6 md:p-7"
-              style={flatPanelStyle}
-            >
-              <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-800/80 bg-slate-900/70">
-                  <Sparkles className="h-5 w-5 text-slate-300" />
-                </div>
-                <div>
-                  <h2 className="text-lg font-bold text-white">Thông tin phiên</h2>
-                  <p className="mt-1 text-sm text-slate-500">Tóm tắt nhanh trước khi bạn gửi phản hồi.</p>
-                </div>
-              </div>
-
-              <div className="mt-6 space-y-4">
-                <div className="rounded-[22px] border p-4" style={mutedPanelStyle}>
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Vị trí ứng tuyển</p>
-                  <p className="mt-2 text-sm font-semibold leading-6 text-slate-100">
-                    {effectiveJobPosition || 'Chưa có dữ liệu'}
-                  </p>
-                </div>
-
-                <div className="rounded-[22px] border p-4" style={mutedPanelStyle}>
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Ngành nghề</p>
-                  <p className="mt-2 text-sm font-semibold leading-6 text-slate-100">
-                    {hardFilters?.industry || 'Chưa xác định'}
-                  </p>
-                </div>
-
-                <div className="rounded-[22px] border p-4" style={mutedPanelStyle}>
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Trọng số chính</p>
-                  <p className="mt-2 text-sm leading-6 text-slate-300">{weightsSummary}</p>
-                </div>
-
-                <div className="rounded-[22px] border p-4" style={mutedPanelStyle}>
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Context phản hồi</p>
-                  <p className="mt-2 break-all text-sm leading-6 text-slate-300">
-                    {effectiveContext?.historyId || effectiveContext?.sessionId || 'Đang dùng context local'}
-                  </p>
-                </div>
-
-                <div className="rounded-[22px] border p-4" style={mutedPanelStyle}>
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Trạng thái đồng bộ</p>
-                  <p className="mt-2 text-sm leading-6 text-slate-300">
-                    {isLoadingFeedback
-                      ? 'Đang đồng bộ phản hồi từ hệ thống...'
-                      : `${feedbackStats?.positiveCount || 0} phản hồi tích cực · ${feedbackStats?.negativeCount || 0} phản hồi loại hoặc cần xem lại`}
-                  </p>
-                </div>
-              </div>
-            </aside>
-          </div>
-        </div>
+        <button
+          onClick={() => navigate('/analysis')}
+          className="mt-6 inline-flex items-center gap-2 rounded-xl border border-slate-800/80 px-4 py-2 text-sm font-semibold text-slate-300 transition-colors hover:bg-slate-900/60 hover:text-white"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Quay về kết quả phân tích
+        </button>
       </div>
     );
   }
 
   return (
     <div className="feature-page-shell flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden bg-black">
-      <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
-        <aside
-          className="flex w-full shrink-0 flex-col overflow-hidden border-b lg:w-[360px] lg:border-r lg:border-b-0"
-          style={headerSurfaceStyle}
-        >
-          <div className="border-b px-5 py-5" style={headerSurfaceStyle}>
-          <button
-            onClick={() => setCurrentView('summary')}
-            className="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-400 transition-colors hover:text-white"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Quay về tổng quan
-          </button>
-
-          <div className="mt-5 flex items-start gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-sky-400/25 bg-sky-400/10">
-              <Users className="h-5 w-5 text-sky-300" />
-            </div>
-            <div>
-              <h2 className="text-lg font-bold text-white">Danh sách ứng viên</h2>
-              <p className="mt-1 text-sm text-slate-400">
-                {submittedCount}/{validCandidates.length} ứng viên đã có phản hồi
+      <header className="shrink-0 border-b px-4 py-3 md:px-5" style={headerSurfaceStyle}>
+        <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="h-9 w-[3px] shrink-0 rounded-full bg-gradient-to-b from-sky-300 to-indigo-400" />
+            <div className="min-w-0">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-sky-300/80">
+                Phản hồi đánh giá AI
               </p>
+              <h1 className="truncate text-xl font-bold tracking-tight text-white md:text-2xl">
+                {effectiveJobPosition || 'Phiên phân tích hiện tại'}
+              </h1>
             </div>
           </div>
 
-          <div className="mt-5 grid grid-cols-2 gap-3">
-            <div className="rounded-[20px] border p-3" style={mutedPanelStyle}>
-              <p className="text-[11px] uppercase tracking-[0.16em] text-slate-500">Vị trí</p>
-              <p className="mt-2 line-clamp-2 text-sm font-semibold leading-6 text-slate-100">
-                {effectiveJobPosition || 'Chưa rõ vị trí'}
-              </p>
-            </div>
-            <div className="rounded-[20px] border p-3" style={mutedPanelStyle}>
-              <p className="text-[11px] uppercase tracking-[0.16em] text-slate-500">Phản hồi</p>
-              <p className="mt-2 text-sm font-semibold leading-6 text-slate-100">
-                {feedbackStats?.totalFeedback || submittedCount} bản ghi
-              </p>
-            </div>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <label className="sr-only" htmlFor="feedback-candidate-select">
+              Chọn ứng viên phản hồi
+            </label>
+            <select
+              id="feedback-candidate-select"
+              value={selectedCandidateId || validCandidates[0]?.id || ''}
+              onChange={(event) => handleSelectCandidate(event.target.value)}
+              className="h-10 min-w-[260px] rounded-xl border px-3 text-sm font-semibold text-slate-100 outline-none transition focus:border-sky-400/60 focus:ring-1 focus:ring-sky-400/35"
+              style={selectSurfaceStyle}
+            >
+              {validCandidates.map((candidate) => (
+                <option key={candidate.id} value={candidate.id}>
+                  {candidate.candidateName} - {getDisplayedScore(candidate).toFixed(1)} điểm - Hạng {getCandidateRank(candidate) || 'C'}
+                </option>
+              ))}
+            </select>
+
+            <button
+              onClick={() => navigate('/analysis')}
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-slate-800/80 px-4 text-sm font-semibold text-slate-300 transition-colors hover:bg-slate-900/70 hover:text-white"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Kết quả phân tích
+            </button>
           </div>
         </div>
 
-        <div className="border-b px-5 py-3 text-[12px] text-slate-500" style={mutedPanelStyle}>
-          <div className="flex items-center justify-between gap-3">
-            <span className="flex min-w-0 items-center gap-1.5 truncate">
-              <Clock3 className="h-3.5 w-3.5 shrink-0" />
-              {feedbackStats?.latestFeedbackAt
-                ? new Date(feedbackStats.latestFeedbackAt).toLocaleString('vi-VN')
-                : 'Chưa có phản hồi nào'}
-            </span>
-            <span className="shrink-0">{isLoadingFeedback ? 'Đang tải...' : 'Sẵn sàng'}</span>
-          </div>
+        <div className="mt-3 flex flex-wrap items-center gap-2 text-[12px] text-slate-400">
+          <span className="rounded-full border border-slate-800/80 bg-slate-950/35 px-3 py-1">
+            {submittedCount}/{validCandidates.length} ứng viên đã phản hồi
+          </span>
+          <span className="rounded-full border border-slate-800/80 bg-slate-950/35 px-3 py-1">
+            Tổng bản ghi: {feedbackStats?.totalFeedback ?? submittedCount}
+          </span>
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-800/80 bg-slate-950/35 px-3 py-1">
+            <CheckCircle2 className="h-3.5 w-3.5 text-emerald-300" />
+            {isLoadingFeedback ? 'Đang đồng bộ...' : 'Sẵn sàng'}
+          </span>
+          <span className="rounded-full border border-slate-800/80 bg-slate-950/35 px-3 py-1">
+            Mới nhất: {latestFeedbackLabel}
+          </span>
         </div>
+      </header>
 
-        <div className="custom-scrollbar flex flex-1 flex-col overflow-y-auto">
-          {validCandidates.map((candidate) => {
-            const isSelected = candidate.id === selectedCandidateId;
-            const feedbackEntry = feedbackByCandidate[candidate.id]
-              || feedbackByCandidate[candidate.fileName]
-              || feedbackByCandidate[candidate.candidateName];
-            const score = getDisplayedScore(candidate);
-            const actionPresentation = getActionPresentation(feedbackEntry?.action);
-
-            return (
-              <button
-                key={candidate.id}
-                onClick={() => {
-                  setSelectedCandidateId(candidate.id);
-                  setSubmitError(null);
-                  setSubmitSuccessMessage(null);
-                }}
-                className={`w-full border-b border-slate-800/60 border-l-4 px-5 py-4 text-left transition-all duration-200 ${
-                  isSelected
-                    ? 'border-l-indigo-400 bg-indigo-500/10'
-                    : 'border-l-transparent hover:bg-slate-900/55'
-                }`}
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className={`truncate text-sm font-semibold ${isSelected ? 'text-white' : 'text-slate-200'}`}>
-                      {candidate.candidateName}
-                    </p>
-                    <p className="mt-1 truncate text-xs text-slate-500">
-                      {candidate.jobTitle || 'Chưa rõ vị trí'}
-                    </p>
-                  </div>
-
-                  <span className={`rounded-full border px-2.5 py-1 text-xs font-semibold ${
-                    score >= 75
-                      ? 'border-emerald-400/30 bg-emerald-400/10 text-emerald-100'
-                      : score >= 50
-                        ? 'border-amber-400/30 bg-amber-400/10 text-amber-100'
-                        : 'border-rose-400/30 bg-rose-400/10 text-rose-100'
-                  }`}>
-                    {score.toFixed(1)}
-                  </span>
-                </div>
-
-                <div className="mt-3 flex items-center gap-1.5 text-[12px] text-slate-500">
-                  <User className="h-3.5 w-3.5 shrink-0" />
-                  <span className="truncate">{candidate.fileName}</span>
-                </div>
-
-                <div className="mt-3 flex items-center justify-between gap-3">
-                  <span className="text-[12px] text-slate-500">
-                    Hạng {getCandidateRank(candidate) || 'C'}
-                  </span>
-                  {actionPresentation ? (
-                    <span className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold ${actionPresentation.className}`}>
-                      {actionPresentation.label}
-                    </span>
-                  ) : (
-                    <span className="rounded-full border border-slate-700/70 px-2.5 py-1 text-[11px] font-semibold text-slate-500">
-                      Chưa gửi phản hồi
-                    </span>
-                  )}
-                </div>
-              </button>
-            );
-          })}
-        </div>
-      </aside>
-
-        <section
-          className="min-h-0 flex-1 overflow-hidden"
-          style={workspaceSurfaceStyle}
-        >
+      <main className="min-h-0 flex-1 overflow-hidden" style={workspaceSurfaceStyle}>
         {selectedCandidate ? (
           <div className="flex h-full flex-col">
-            <div className="border-b px-5 py-4" style={headerSurfaceStyle}>
-              <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
-                <div>
+            <section className="border-b px-4 py-4 md:px-5" style={headerSurfaceStyle}>
+              <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
+                <div className="min-w-0">
                   <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-sky-300/80">
-                    Phản hồi kết quả AI
+                    Ứng viên đang phản hồi
                   </p>
-                  <h1 className="mt-2 text-2xl font-bold text-white md:text-[28px]">
+                  <h2 className="mt-1 truncate text-2xl font-bold text-white md:text-[28px]">
                     {selectedCandidate.candidateName}
-                  </h1>
-                  <p className="mt-2 max-w-3xl text-sm leading-7 text-slate-300">
+                  </h2>
+                  <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-300">
                     Hiệu chỉnh đánh giá, lưu ghi chú tuyển dụng và đồng bộ phản hồi cho phiên phân tích hiện tại.
                   </p>
                 </div>
 
-                {currentFeedbackEntry ? (
-                  <div className={`rounded-full border px-3 py-1.5 text-sm font-semibold ${getActionPresentation(currentFeedbackEntry.action)?.className || ACTION_META.neutral.className}`}>
-                    {getActionPresentation(currentFeedbackEntry.action)?.label || 'Đã có phản hồi'}
-                  </div>
-                ) : null}
+                {selectedActionPresentation ? (
+                  <span className={`w-fit rounded-full border px-3 py-1.5 text-sm font-semibold ${selectedActionPresentation.className}`}>
+                    {selectedActionPresentation.label}
+                  </span>
+                ) : (
+                  <span className="w-fit rounded-full border border-slate-700/70 bg-slate-950/35 px-3 py-1.5 text-sm font-semibold text-slate-500">
+                    Chưa gửi phản hồi
+                  </span>
+                )}
               </div>
 
-              <div className="mt-5 flex flex-wrap gap-2.5">
+              <div className="mt-4 flex flex-wrap gap-2.5">
                 <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-700/70 bg-slate-950/35 px-3 py-1.5 text-sm text-slate-300">
                   <FileText className="h-4 w-4 text-slate-500" />
                   {selectedCandidate.fileName}
@@ -698,7 +510,7 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
                 <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-sky-300/80" />
                 Phản hồi này sẽ được lưu vào backend và gắn với session phân tích để phục vụ review và đánh giá chất lượng sau này.
               </p>
-            </div>
+            </section>
 
             <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto">
               <div className="w-full px-0 pb-10">
@@ -719,16 +531,15 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
         ) : (
           <div className="flex h-full flex-col items-center justify-center px-6 text-center text-slate-500">
             <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-3xl border border-slate-800/70 bg-slate-950/40">
-              <User className="h-7 w-7 text-slate-600" />
+              <Brain className="h-7 w-7 text-slate-600" />
             </div>
-            <p className="text-base font-semibold text-slate-300">Hãy chọn một ứng viên ở cột bên trái</p>
+            <p className="text-base font-semibold text-slate-300">Không tìm thấy ứng viên đang chọn</p>
             <p className="mt-2 max-w-md text-sm leading-6 text-slate-500">
-              Sau khi chọn ứng viên, bạn có thể điều chỉnh điểm số, ghi chú lý do và lưu phản hồi ngay trong màn hình này.
+              Hãy chọn lại một ứng viên trong dropdown ở header để tiếp tục gửi phản hồi.
             </p>
           </div>
         )}
-        </section>
-      </div>
+      </main>
     </div>
   );
 };
