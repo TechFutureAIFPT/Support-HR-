@@ -6,10 +6,10 @@ import SupportHRLoading from '@/components/common/SupportHRLoading';
 interface HistoryPageProps { userEmail?: string; onRestore?: (payload: any) => void; }
 
 const TIME_FILTERS = [
-  { key: 'all', label: 'Tất cả' },
-  { key: '24h', label: '24 giờ' },
-  { key: '7d', label: '7 ngày' },
-  { key: '30d', label: '30 ngày' },
+  { key: 'all', label: 'Táº¥t cáº£' },
+  { key: '24h', label: '24 giá»' },
+  { key: '7d', label: '7 ngÃ y' },
+  { key: '30d', label: '30 ngÃ y' },
 ] as const;
 
 const HistoryPage: React.FC<HistoryPageProps> = ({ userEmail, onRestore }) => {
@@ -31,7 +31,7 @@ const HistoryPage: React.FC<HistoryPageProps> = ({ userEmail, onRestore }) => {
         .sort((a, b) => b.timestamp - a.timestamp);
       setItems(merged);
     } catch {
-      setError('Không tải được lịch sử. Vui lòng thử lại.');
+      setError('KhÃ´ng táº£i Ä‘Æ°á»£c lá»‹ch sá»­. Vui lÃ²ng thá»­ láº¡i.');
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -56,12 +56,12 @@ const HistoryPage: React.FC<HistoryPageProps> = ({ userEmail, onRestore }) => {
       mode="panel"
       minHeightClass="min-h-[50vh]"
       label="Support HR // History"
-      title="Đang tải lịch sử phân tích"
-      description="Hệ thống đang tổng hợp các phiên phân tích trước đó để bạn có thể rà soát và khôi phục nhanh."
+      title="Äang táº£i lá»‹ch sá»­ phÃ¢n tÃ­ch"
+      description="Há»‡ thá»‘ng Ä‘ang tá»•ng há»£p cÃ¡c phiÃªn phÃ¢n tÃ­ch trÆ°á»›c Ä‘Ã³ Ä‘á»ƒ báº¡n cÃ³ thá»ƒ rÃ  soÃ¡t vÃ  khÃ´i phá»¥c nhanh."
       stages={[
-        { label: 'Lấy dữ liệu', hint: 'Đọc từ lịch sử đã lưu', tone: 'cyan' },
-        { label: 'Tổng hợp', hint: 'Gộp và sắp xếp phiên', tone: 'violet' },
-        { label: 'Hiển thị', hint: 'Sẵn sàng rà soát', tone: 'emerald' },
+        { label: 'Láº¥y dá»¯ liá»‡u', hint: 'Äá»c tá»« lá»‹ch sá»­ Ä‘Ã£ lÆ°u', tone: 'cyan' },
+        { label: 'Tá»•ng há»£p', hint: 'Gá»™p vÃ  sáº¯p xáº¿p phiÃªn', tone: 'violet' },
+        { label: 'Hiá»ƒn thá»‹', hint: 'Sáºµn sÃ ng rÃ  soÃ¡t', tone: 'emerald' },
       ]}
     />
   );
@@ -73,7 +73,7 @@ const HistoryPage: React.FC<HistoryPageProps> = ({ userEmail, onRestore }) => {
       </div>
       <p className="text-red-400 font-medium mb-4">{error}</p>
       <button onClick={handleRefresh} className="px-4 py-2 rounded-xl bg-slate-800 border border-slate-700 text-slate-300 text-sm font-medium hover:bg-slate-700 transition-all">
-        Thử lại
+        Thá»­ láº¡i
       </button>
     </div>
   );
@@ -81,17 +81,17 @@ const HistoryPage: React.FC<HistoryPageProps> = ({ userEmail, onRestore }) => {
   return (
     <div className="feature-page-shell space-y-5">
 
-      {/* ── Header ──────────────────────────────────────────── */}
+      {/* â”€â”€ Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
           <div className="flex items-center gap-2.5 mb-1.5">
             <div className="w-8 h-8 rounded-xl bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center">
               <i className="fa-solid fa-clock-rotate-left text-cyan-400 text-sm"></i>
             </div>
-            <span className="text-[10px] text-slate-500 tracking-widest uppercase font-medium">Lịch sử</span>
+            <span className="text-[10px] text-slate-500 tracking-widest uppercase font-medium">Lá»‹ch sá»­</span>
           </div>
-          <h1 className="text-2xl font-black text-white">Lịch sử phân tích</h1>
-          <p className="text-xs text-slate-500 mt-0.5">Xem lại và quản lý các phiên phân tích CV trước đây</p>
+          <h1 className="text-2xl font-black text-white">Lá»‹ch sá»­ phÃ¢n tÃ­ch</h1>
+          <p className="text-xs text-slate-500 mt-0.5">Xem láº¡i vÃ  quáº£n lÃ½ cÃ¡c phiÃªn phÃ¢n tÃ­ch CV trÆ°á»›c Ä‘Ã¢y</p>
         </div>
 
         <div className="flex items-center gap-2">
@@ -123,27 +123,27 @@ const HistoryPage: React.FC<HistoryPageProps> = ({ userEmail, onRestore }) => {
         </div>
       </div>
 
-      {/* ── Stats bar ────────────────────────────────────────── */}
+      {/* â”€â”€ Stats bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <div className="flex items-center justify-between px-1">
         <p className="text-xs text-slate-500">
-          Hiển thị <span className="font-bold text-slate-300">{filtered.length}</span> phiên phân tích
+          Hiá»ƒn thá»‹ <span className="font-bold text-slate-300">{filtered.length}</span> phiÃªn phÃ¢n tÃ­ch
         </p>
       </div>
 
-      {/* ── Empty state ─────────────────────────────────────── */}
+      {/* â”€â”€ Empty state â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       {filtered.length === 0 && (
         <div className="text-center py-24 bg-[#11213A]/40 rounded-2xl border border-slate-800/60 border-dashed">
           <div className="w-16 h-16 rounded-2xl bg-slate-800/60 flex items-center justify-center mx-auto mb-4">
             <i className="fa-solid fa-box-open text-2xl text-slate-600"></i>
           </div>
-          <p className="text-slate-400 font-medium mb-3">Không có phiên phân tích nào</p>
+          <p className="text-slate-400 font-medium mb-3">KhÃ´ng cÃ³ phiÃªn phÃ¢n tÃ­ch nÃ o</p>
           <button onClick={() => setTimeFilter('all')} className="text-cyan-400 hover:text-cyan-300 text-sm font-medium transition-colors">
-            Xem tất cả
+            Xem táº¥t cáº£
           </button>
         </div>
       )}
 
-      {/* ── History Grid ─────────────────────────────────────── */}
+      {/* â”€â”€ History Grid â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
         {filtered.map(item => (
           <div
@@ -155,7 +155,7 @@ const HistoryPage: React.FC<HistoryPageProps> = ({ userEmail, onRestore }) => {
             <div className="flex items-start justify-between mb-4">
               <div className="flex-1 min-w-0 pr-3">
                 <h3 className="font-bold text-slate-200 text-base truncate group-hover:text-cyan-300 transition-colors">
-                  {item.jobPosition || 'Chức danh chưa đặt'}
+                  {item.jobPosition || 'Chá»©c danh chÆ°a Ä‘áº·t'}
                 </h3>
                 <div className="flex items-center gap-2 mt-1.5 flex-wrap">
                   <span className="text-[10px] text-slate-500 flex items-center gap-1 bg-slate-800/60 px-2 py-0.5 rounded-full">
@@ -164,7 +164,7 @@ const HistoryPage: React.FC<HistoryPageProps> = ({ userEmail, onRestore }) => {
                   </span>
                   {item.id.startsWith('manual-') && (
                     <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 font-semibold">
-                      Thủ công
+                      Thá»§ cÃ´ng
                     </span>
                   )}
                 </div>
@@ -177,26 +177,26 @@ const HistoryPage: React.FC<HistoryPageProps> = ({ userEmail, onRestore }) => {
             {/* JD snippet */}
             <div className="mb-4 bg-slate-900/60 rounded-xl p-3 border border-slate-800/40">
               <p className="text-[11px] text-slate-400 line-clamp-2 leading-relaxed font-mono">
-                {item.jdTextSnippet || 'Không có nội dung JD'}
+                {item.jdTextSnippet || 'KhÃ´ng cÃ³ ná»™i dung JD'}
               </p>
             </div>
 
             {/* Stats row */}
             <div className="grid grid-cols-4 gap-2 mb-4">
               <div className="bg-slate-800/40 rounded-lg p-2 text-center border border-slate-800/40">
-                <div className="text-[10px] text-slate-500 uppercase tracking-wider mb-0.5">Tổng</div>
+                <div className="text-[10px] text-slate-500 uppercase tracking-wider mb-0.5">Tá»•ng</div>
                 <div className="font-black text-white text-sm">{item.totalCandidates}</div>
               </div>
               <div className="bg-emerald-500/8 rounded-lg p-2 text-center border border-emerald-500/15">
-                <div className="text-[10px] text-emerald-400/70 uppercase tracking-wider mb-0.5">Hạng A</div>
+                <div className="text-[10px] text-emerald-400/70 uppercase tracking-wider mb-0.5">Háº¡ng A</div>
                 <div className="font-black text-emerald-400 text-sm">{item.grades.A}</div>
               </div>
               <div className="bg-blue-500/8 rounded-lg p-2 text-center border border-blue-500/15">
-                <div className="text-[10px] text-blue-400/70 uppercase tracking-wider mb-0.5">Hạng B</div>
+                <div className="text-[10px] text-blue-400/70 uppercase tracking-wider mb-0.5">Háº¡ng B</div>
                 <div className="font-black text-blue-400 text-sm">{item.grades.B}</div>
               </div>
               <div className="bg-red-500/8 rounded-lg p-2 text-center border border-red-500/15">
-                <div className="text-[10px] text-red-400/70 uppercase tracking-wider mb-0.5">Hạng C</div>
+                <div className="text-[10px] text-red-400/70 uppercase tracking-wider mb-0.5">Háº¡ng C</div>
                 <div className="font-black text-red-400 text-sm">{item.grades.C}</div>
               </div>
             </div>
@@ -204,12 +204,12 @@ const HistoryPage: React.FC<HistoryPageProps> = ({ userEmail, onRestore }) => {
             {/* Top candidates */}
             {item.topCandidates?.length > 0 && (
               <div className="mb-4">
-                <div className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold mb-2">Top ứng viên</div>
+                <div className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold mb-2">Top á»©ng viÃªn</div>
                 <div className="space-y-1.5">
                   {item.topCandidates.slice(0, 2).map(c => (
                     <div key={c.id} className="flex justify-between items-center text-xs bg-slate-800/30 p-2 rounded-lg border border-slate-800/40">
                       <span className="truncate max-w-[60%] text-slate-300 font-medium" title={c.name}>{c.name}</span>
-                      <span className="text-cyan-400 font-bold">{c.score}đ</span>
+                      <span className="text-cyan-400 font-bold">{c.score}Ä‘</span>
                     </div>
                   ))}
                 </div>
@@ -228,18 +228,18 @@ const HistoryPage: React.FC<HistoryPageProps> = ({ userEmail, onRestore }) => {
                       : 'border-slate-800/60 text-slate-600 cursor-not-allowed'
                   }`}
                 >
-                  <i className="fa-solid fa-rotate-left text-[10px]"></i> Khôi phục
+                  <i className="fa-solid fa-rotate-left text-[10px]"></i> KhÃ´i phá»¥c
                 </button>
               )}
               <button className="flex-1 px-3 py-2 rounded-xl text-xs font-bold border border-cyan-500/25 text-cyan-400 hover:bg-cyan-500/10 transition-all flex items-center justify-center gap-1.5">
-                <i className="fa-solid fa-circle-info text-[10px]"></i> Chi tiết
+                <i className="fa-solid fa-circle-info text-[10px]"></i> Chi tiáº¿t
               </button>
             </div>
           </div>
         ))}
       </div>
 
-      {/* ── Detail Modal ────────────────────────────────────── */}
+      {/* â”€â”€ Detail Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       {selected && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm overflow-y-auto"
@@ -253,15 +253,15 @@ const HistoryPage: React.FC<HistoryPageProps> = ({ userEmail, onRestore }) => {
             <div className="flex items-start justify-between p-5 border-b border-slate-800/60 bg-slate-900/50">
               <div>
                 <h3 className="text-xl font-black text-white flex items-center gap-2">
-                  {selected.jobPosition || 'Chức danh chưa đặt'}
+                  {selected.jobPosition || 'Chá»©c danh chÆ°a Ä‘áº·t'}
                   {selected.id.startsWith('manual-') && (
-                    <span className="text-[10px] px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 font-semibold">Thủ công</span>
+                    <span className="text-[10px] px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 font-semibold">Thá»§ cÃ´ng</span>
                   )}
                 </h3>
                 <div className="flex items-center gap-4 mt-2 text-xs text-slate-500">
                   <span className="flex items-center gap-1.5"><i className="fa-regular fa-calendar text-[10px]"></i> {new Date(selected.timestamp).toLocaleString('vi-VN')}</span>
-                  <span>·</span>
-                  <span className="flex items-center gap-1.5"><i className="fa-solid fa-users text-[10px]"></i> {selected.totalCandidates} ứng viên</span>
+                  <span>Â·</span>
+                  <span className="flex items-center gap-1.5"><i className="fa-solid fa-users text-[10px]"></i> {selected.totalCandidates} á»©ng viÃªn</span>
                 </div>
               </div>
               <div className="flex items-center gap-2">
@@ -270,7 +270,7 @@ const HistoryPage: React.FC<HistoryPageProps> = ({ userEmail, onRestore }) => {
                     onClick={() => onRestore && selected.fullPayload && onRestore(selected.fullPayload)}
                     className="px-4 py-2 rounded-xl text-sm font-bold bg-emerald-600 hover:bg-emerald-500 text-white transition-all flex items-center gap-2 shadow-lg shadow-emerald-900/20"
                   >
-                    <i className="fa-solid fa-rotate-left text-xs"></i> Khôi phục
+                    <i className="fa-solid fa-rotate-left text-xs"></i> KhÃ´i phá»¥c
                   </button>
                 )}
                 <button onClick={() => setSelected(null)} className="w-9 h-9 rounded-xl border border-slate-800/60 text-slate-500 hover:bg-slate-800 hover:text-white transition-all flex items-center justify-center">
@@ -284,18 +284,6 @@ const HistoryPage: React.FC<HistoryPageProps> = ({ userEmail, onRestore }) => {
               <div className="grid lg:grid-cols-3 gap-5">
                 {/* JD section */}
                 <div className="lg:col-span-2 space-y-5">
-                  <div className="bg-slate-900/60 rounded-xl border border-slate-800/60 overflow-hidden">
-                    <div className="px-4 py-3 border-b border-slate-800/60 bg-slate-900/80 flex items-center gap-2">
-                      <i className="fa-solid fa-file-lines text-blue-400 text-xs"></i>
-                      <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider">Mô tả công việc (JD)</h4>
-                    </div>
-                    <div className="p-4">
-                      <div className="max-h-56 overflow-y-auto rounded-lg bg-slate-900/80 p-4 text-xs leading-relaxed whitespace-pre-wrap text-slate-400 border border-slate-800/40 custom-scrollbar">
-                        {selected.fullPayload?.jdText || selected.jdTextSnippet}
-                      </div>
-                    </div>
-                  </div>
-
                   {/* Hard filters & weights */}
                   <div className="grid md:grid-cols-2 gap-4">
                     {selected.fullPayload?.hardFilters && (
@@ -315,7 +303,7 @@ const HistoryPage: React.FC<HistoryPageProps> = ({ userEmail, onRestore }) => {
                       <div className="bg-slate-900/60 rounded-xl border border-slate-800/60 overflow-hidden">
                         <div className="px-4 py-3 border-b border-slate-800/60 bg-slate-900/80 flex items-center gap-2">
                           <i className="fa-solid fa-scale-balanced text-amber-400 text-xs"></i>
-                          <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider">Trọng số</h4>
+                          <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider">Trá»ng sá»‘</h4>
                         </div>
                         <div className="p-4">
                           <pre className="text-[11px] text-slate-500 font-mono overflow-auto max-h-40 custom-scrollbar bg-slate-900/80 rounded-lg p-3 border border-slate-800/40">
@@ -333,14 +321,14 @@ const HistoryPage: React.FC<HistoryPageProps> = ({ userEmail, onRestore }) => {
                   <div className="bg-slate-900/60 rounded-xl border border-slate-800/60 overflow-hidden">
                     <div className="px-4 py-3 border-b border-slate-800/60 bg-slate-900/80 flex items-center gap-2">
                       <i className="fa-solid fa-chart-pie text-emerald-400 text-xs"></i>
-                      <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider">Phân bố hạng</h4>
+                      <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider">PhÃ¢n bá»‘ háº¡ng</h4>
                     </div>
                     <div className="p-5">
                       <div className="flex justify-between items-end gap-3">
                         {[
-                          { label: 'Hạng A', value: selected.grades.A, color: 'text-emerald-400', bg: 'bg-emerald-500/15', border: 'border-emerald-500/25' },
-                          { label: 'Hạng B', value: selected.grades.B, color: 'text-blue-400', bg: 'bg-blue-500/15', border: 'border-blue-500/25' },
-                          { label: 'Hạng C', value: selected.grades.C, color: 'text-red-400', bg: 'bg-red-500/15', border: 'border-red-500/25' },
+                          { label: 'Háº¡ng A', value: selected.grades.A, color: 'text-emerald-400', bg: 'bg-emerald-500/15', border: 'border-emerald-500/25' },
+                          { label: 'Háº¡ng B', value: selected.grades.B, color: 'text-blue-400', bg: 'bg-blue-500/15', border: 'border-blue-500/25' },
+                          { label: 'Háº¡ng C', value: selected.grades.C, color: 'text-red-400', bg: 'bg-red-500/15', border: 'border-red-500/25' },
                         ].map(g => (
                           <div key={g.label} className="flex-1 text-center">
                             <div className={`text-2xl font-black ${g.color} mb-1`}>{g.value}</div>
@@ -359,7 +347,7 @@ const HistoryPage: React.FC<HistoryPageProps> = ({ userEmail, onRestore }) => {
                     <div className="bg-slate-900/60 rounded-xl border border-slate-800/60 overflow-hidden">
                       <div className="px-4 py-3 border-b border-slate-800/60 bg-slate-900/80 flex items-center gap-2">
                         <i className="fa-solid fa-trophy text-amber-400 text-xs"></i>
-                        <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider">Top ứng viên</h4>
+                        <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider">Top á»©ng viÃªn</h4>
                       </div>
                       <div className="p-3">
                         <ul className="space-y-2">
@@ -372,7 +360,7 @@ const HistoryPage: React.FC<HistoryPageProps> = ({ userEmail, onRestore }) => {
                                 <span className="truncate text-xs text-slate-200 font-medium" title={c.name}>{c.name}</span>
                               </div>
                               <div className="text-right flex-shrink-0">
-                                <div className="text-sm font-black text-cyan-400">{c.score}đ</div>
+                                <div className="text-sm font-black text-cyan-400">{c.score}Ä‘</div>
                                 <div className="text-[9px] text-slate-600">{c.jdFit}% JD</div>
                               </div>
                             </li>
@@ -387,15 +375,15 @@ const HistoryPage: React.FC<HistoryPageProps> = ({ userEmail, onRestore }) => {
                     <div className="bg-slate-900/60 rounded-xl border border-slate-800/60 overflow-hidden flex flex-col max-h-72">
                       <div className="px-4 py-3 border-b border-slate-800/60 bg-slate-900/80 flex items-center gap-2">
                         <i className="fa-solid fa-list-ul text-slate-400 text-xs"></i>
-                        <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider">Danh sách chi tiết</h4>
+                        <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider">Danh sÃ¡ch chi tiáº¿t</h4>
                       </div>
                       <div className="overflow-y-auto custom-scrollbar">
                         <table className="w-full text-[11px]">
                           <thead className="text-slate-500 bg-slate-900/50 sticky top-0 z-10">
                             <tr>
-                              <th className="py-2 px-3 text-left font-medium">Tên</th>
-                              <th className="py-2 px-3 text-center font-medium">Hạng</th>
-                              <th className="py-2 px-3 text-right font-medium">Điểm</th>
+                              <th className="py-2 px-3 text-left font-medium">TÃªn</th>
+                              <th className="py-2 px-3 text-center font-medium">Háº¡ng</th>
+                              <th className="py-2 px-3 text-right font-medium">Äiá»ƒm</th>
                             </tr>
                           </thead>
                           <tbody className="text-slate-300 divide-y divide-slate-800/30">
@@ -404,12 +392,12 @@ const HistoryPage: React.FC<HistoryPageProps> = ({ userEmail, onRestore }) => {
                                 <td className="py-2 px-3 truncate max-w-[120px]" title={c.candidateName}>{c.candidateName}</td>
                                 <td className="py-2 px-3 text-center">
                                   <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${
-                                    c.analysis?.['Hạng'] === 'A' ? 'bg-emerald-500/15 text-emerald-400' :
-                                    c.analysis?.['Hạng'] === 'B' ? 'bg-blue-500/15 text-blue-400' :
+                                    c.analysis?.['Háº¡ng'] === 'A' ? 'bg-emerald-500/15 text-emerald-400' :
+                                    c.analysis?.['Háº¡ng'] === 'B' ? 'bg-blue-500/15 text-blue-400' :
                                     'bg-red-500/15 text-red-400'
-                                  }`}>{c.analysis?.['Hạng'] || '—'}</span>
+                                  }`}>{c.analysis?.['Háº¡ng'] || 'â€”'}</span>
                                 </td>
-                                <td className="py-2 px-3 text-right font-mono text-slate-400">{c.analysis?.['Tổng điểm'] ?? '—'}</td>
+                                <td className="py-2 px-3 text-right font-mono text-slate-400">{c.analysis?.['Tá»•ng Ä‘iá»ƒm'] ?? 'â€”'}</td>
                               </tr>
                             ))}
                           </tbody>
@@ -423,7 +411,7 @@ const HistoryPage: React.FC<HistoryPageProps> = ({ userEmail, onRestore }) => {
               {!selected.fullPayload && !selected.id.startsWith('manual-') && (
                 <div className="mt-4 p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl flex items-center gap-3 text-amber-400 text-xs">
                   <i className="fa-solid fa-triangle-exclamation flex-shrink-0"></i>
-                  Dữ liệu cũ không lưu đầy đủ chi tiết nên chỉ hiển thị thông tin tóm tắt.
+                  Dá»¯ liá»‡u cÅ© khÃ´ng lÆ°u Ä‘áº§y Ä‘á»§ chi tiáº¿t nÃªn chá»‰ hiá»ƒn thá»‹ thÃ´ng tin tÃ³m táº¯t.
                 </div>
               )}
             </div>

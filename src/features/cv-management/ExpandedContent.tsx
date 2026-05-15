@@ -12,7 +12,6 @@ import {
   GraduationCap,
   Hourglass,
   Languages,
-  ShieldCheck,
   Target,
   UsersRound,
   Wrench,
@@ -21,17 +20,16 @@ import type { Candidate, DetailedScore, UploadedFileRecord } from '@/types';
 import { analyzeExperience, extractJDRequirements, compareEvidence } from '@/services/screening/frontendInsights';
 import { UploadedFilesService } from '@/services/data-sync/uploadedFilesService';
 
-// ── Phân loại tiêu chí ──────────────────────────────────────────────────────
+// Ã¢â€â‚¬Ã¢â€â‚¬ PhÃƒÂ¢n loÃ¡ÂºÂ¡i tiÃƒÂªu chÃƒÂ­ Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
 const BASIC_CRITERIA = [
-  'Phù hợp JD (Job Fit)', 'Kinh nghiệm', 'Kỹ năng', 'Thành tựu/KPI',
-  'Học vấn', 'Ngôn ngữ', 'Chuyên nghiệp', 'Gắn bó & Lịch sử CV', 'Phù hợp văn hoá',
-  'Hệ số uy tín công ty', // chuyển về cơ bản
+  'PhÃƒÂ¹ hÃ¡Â»Â£p JD (Job Fit)', 'Kinh nghiÃ¡Â»â€¡m', 'KÃ¡Â»Â¹ nÃ„Æ’ng', 'ThÃƒÂ nh tÃ¡Â»Â±u/KPI',
+  'HÃ¡Â»Âc vÃ¡ÂºÂ¥n', 'NgÃƒÂ´n ngÃ¡Â»Â¯', 'ChuyÃƒÂªn nghiÃ¡Â»â€¡p', 'GÃ¡ÂºÂ¯n bÃƒÂ³ & LÃ¡Â»â€¹ch sÃ¡Â»Â­ CV', 'PhÃƒÂ¹ hÃ¡Â»Â£p vÃ„Æ’n hoÃƒÂ¡',
+  'HÃ¡Â»â€¡ sÃ¡Â»â€˜ uy tÃƒÂ­n cÃƒÂ´ng ty', // chuyÃ¡Â»Æ’n vÃ¡Â»Â cÃ†Â¡ bÃ¡ÂºÂ£n
 ];
 
-const LOYALTY_CRITERION = 'Mức độ trung thành';
-
-const REMOVED_ADVANCED_CRITERIA = [
+const REMOVED_CRITERIA = [
+  'MÃ¡Â»Â©c Ã„â€˜Ã¡Â»â„¢ trung thÃƒÂ nh',
   'Ky nang hanh dong & chu dong',
   'Trinh bay STAR & Ket qua',
   'Ky nang chuyen doi (Skill Graph)',
@@ -40,70 +38,61 @@ const REMOVED_ADVANCED_CRITERIA = [
 
 // Thang diem chu?n
 const BASIC_TOTAL_MAX = 80;    // 10 tieu chi c? b?n c?ng l?i t?i ?a 80
-const LOYALTY_TOTAL_MAX = 10;
-
 const BASIC_DESCRIPTIONS: Record<string, { what: string; why: string; signals: string[] }> = {
-  'Phù hợp JD (Job Fit)': {
-    what: 'So sánh từ khóa JD với nội dung CV: kỹ năng, công nghệ, ngành nghề, yêu cầu vai trò.',
-    why: 'Tiêu chí này trực tiếp phản ánh ứng viên có đáp ứng đúng vị trí tuyển dụng hay không — trọng số cao nhất.',
-    signals: ['Trùng đồng kỹ năng bắt buộc trong JD', 'Tên ngành/lĩnh vực giống nhau', 'Trình độ yêu cầu khớp (mà không quá cao/thấp)'],
+  'PhÃƒÂ¹ hÃ¡Â»Â£p JD (Job Fit)': {
+    what: 'So sÃƒÂ¡nh tÃ¡Â»Â« khÃƒÂ³a JD vÃ¡Â»â€ºi nÃ¡Â»â„¢i dung CV: kÃ¡Â»Â¹ nÃ„Æ’ng, cÃƒÂ´ng nghÃ¡Â»â€¡, ngÃƒÂ nh nghÃ¡Â»Â, yÃƒÂªu cÃ¡ÂºÂ§u vai trÃƒÂ².',
+    why: 'TiÃƒÂªu chÃƒÂ­ nÃƒÂ y trÃ¡Â»Â±c tiÃ¡ÂºÂ¿p phÃ¡ÂºÂ£n ÃƒÂ¡nh Ã¡Â»Â©ng viÃƒÂªn cÃƒÂ³ Ã„â€˜ÃƒÂ¡p Ã¡Â»Â©ng Ã„â€˜ÃƒÂºng vÃ¡Â»â€¹ trÃƒÂ­ tuyÃ¡Â»Æ’n dÃ¡Â»Â¥ng hay khÃƒÂ´ng Ã¢â‚¬â€ trÃ¡Â»Âng sÃ¡Â»â€˜ cao nhÃ¡ÂºÂ¥t.',
+    signals: ['TrÃƒÂ¹ng Ã„â€˜Ã¡Â»â€œng kÃ¡Â»Â¹ nÃ„Æ’ng bÃ¡ÂºÂ¯t buÃ¡Â»â„¢c trong JD', 'TÃƒÂªn ngÃƒÂ nh/lÃ„Â©nh vÃ¡Â»Â±c giÃ¡Â»â€˜ng nhau', 'TrÃƒÂ¬nh Ã„â€˜Ã¡Â»â„¢ yÃƒÂªu cÃ¡ÂºÂ§u khÃ¡Â»â€ºp (mÃƒÂ  khÃƒÂ´ng quÃƒÂ¡ cao/thÃ¡ÂºÂ¥p)'],
   },
-  'Kinh nghiệm': {
-    what: 'Tổng số năm kinh nghiệm thực tế có liên quan đến vị trí hiện tại.',
-    why: 'Kinh nghiệm là chỉ báo nằng nề nhất cho khả năng thực chiến — giảm thời gian onboard.',
-    signals: ['Số năm kinh nghiệm khớp yêu cầu JD', 'Vai trò tương đương ở công ty trước', 'Đã làm việc với công nghệ/stack tương tự'],
+  'Kinh nghiÃ¡Â»â€¡m': {
+    what: 'TÃ¡Â»â€¢ng sÃ¡Â»â€˜ nÃ„Æ’m kinh nghiÃ¡Â»â€¡m thÃ¡Â»Â±c tÃ¡ÂºÂ¿ cÃƒÂ³ liÃƒÂªn quan Ã„â€˜Ã¡ÂºÂ¿n vÃ¡Â»â€¹ trÃƒÂ­ hiÃ¡Â»â€¡n tÃ¡ÂºÂ¡i.',
+    why: 'Kinh nghiÃ¡Â»â€¡m lÃƒÂ  chÃ¡Â»â€° bÃƒÂ¡o nÃ¡ÂºÂ±ng nÃ¡Â»Â nhÃ¡ÂºÂ¥t cho khÃ¡ÂºÂ£ nÃ„Æ’ng thÃ¡Â»Â±c chiÃ¡ÂºÂ¿n Ã¢â‚¬â€ giÃ¡ÂºÂ£m thÃ¡Â»Âi gian onboard.',
+    signals: ['SÃ¡Â»â€˜ nÃ„Æ’m kinh nghiÃ¡Â»â€¡m khÃ¡Â»â€ºp yÃƒÂªu cÃ¡ÂºÂ§u JD', 'Vai trÃƒÂ² tÃ†Â°Ã†Â¡ng Ã„â€˜Ã†Â°Ã†Â¡ng Ã¡Â»Å¸ cÃƒÂ´ng ty trÃ†Â°Ã¡Â»â€ºc', 'Ã„ÂÃƒÂ£ lÃƒÂ m viÃ¡Â»â€¡c vÃ¡Â»â€ºi cÃƒÂ´ng nghÃ¡Â»â€¡/stack tÃ†Â°Ã†Â¡ng tÃ¡Â»Â±'],
   },
-  'Kỹ năng': {
-    what: 'Kỹ năng cứng (technical) và mềm (soft) được liệt kê có khớp với yêu cầu không.',
-    why: 'Kỹ năng đúng giúp ứng viên làm việc hiệu quả ngay từ ngày đầu, giảm chi phí đào tạo.',
-    signals: ['Công cụ/framework được dùng tích cực trong JD', 'Không chỉ liệt kê mà có dẫn chứng sử dụng', 'Kỹ năng được xác nhận qua dự án cụ thể'],
+  'KÃ¡Â»Â¹ nÃ„Æ’ng': {
+    what: 'KÃ¡Â»Â¹ nÃ„Æ’ng cÃ¡Â»Â©ng (technical) vÃƒÂ  mÃ¡Â»Âm (soft) Ã„â€˜Ã†Â°Ã¡Â»Â£c liÃ¡Â»â€¡t kÃƒÂª cÃƒÂ³ khÃ¡Â»â€ºp vÃ¡Â»â€ºi yÃƒÂªu cÃ¡ÂºÂ§u khÃƒÂ´ng.',
+    why: 'KÃ¡Â»Â¹ nÃ„Æ’ng Ã„â€˜ÃƒÂºng giÃƒÂºp Ã¡Â»Â©ng viÃƒÂªn lÃƒÂ m viÃ¡Â»â€¡c hiÃ¡Â»â€¡u quÃ¡ÂºÂ£ ngay tÃ¡Â»Â« ngÃƒÂ y Ã„â€˜Ã¡ÂºÂ§u, giÃ¡ÂºÂ£m chi phÃƒÂ­ Ã„â€˜ÃƒÂ o tÃ¡ÂºÂ¡o.',
+    signals: ['CÃƒÂ´ng cÃ¡Â»Â¥/framework Ã„â€˜Ã†Â°Ã¡Â»Â£c dÃƒÂ¹ng tÃƒÂ­ch cÃ¡Â»Â±c trong JD', 'KhÃƒÂ´ng chÃ¡Â»â€° liÃ¡Â»â€¡t kÃƒÂª mÃƒÂ  cÃƒÂ³ dÃ¡ÂºÂ«n chÃ¡Â»Â©ng sÃ¡Â»Â­ dÃ¡Â»Â¥ng', 'KÃ¡Â»Â¹ nÃ„Æ’ng Ã„â€˜Ã†Â°Ã¡Â»Â£c xÃƒÂ¡c nhÃ¡ÂºÂ­n qua dÃ¡Â»Â± ÃƒÂ¡n cÃ¡Â»Â¥ thÃ¡Â»Æ’'],
   },
-  'Thành tựu/KPI': {
-    what: 'Kết quả định lượng đạt được: tăng trưởng, tiết kiệm, tối ưu, tạo ra giá trị đo được.',
-    why: 'Thành tựu số liệu cụ thể là bằng chứng mạnh nhất cho năng lực thực của ứng viên.',
-    signals: ['Tăng doanh thu/hiệu quả bằng con số cụ thể', 'Tiết kiệm chi phí hoặc thời gian (%)', 'Đạt hoặc vượt KPI được giao'],
+  'ThÃƒÂ nh tÃ¡Â»Â±u/KPI': {
+    what: 'KÃ¡ÂºÂ¿t quÃ¡ÂºÂ£ Ã„â€˜Ã¡Â»â€¹nh lÃ†Â°Ã¡Â»Â£ng Ã„â€˜Ã¡ÂºÂ¡t Ã„â€˜Ã†Â°Ã¡Â»Â£c: tÃ„Æ’ng trÃ†Â°Ã¡Â»Å¸ng, tiÃ¡ÂºÂ¿t kiÃ¡Â»â€¡m, tÃ¡Â»â€˜i Ã†Â°u, tÃ¡ÂºÂ¡o ra giÃƒÂ¡ trÃ¡Â»â€¹ Ã„â€˜o Ã„â€˜Ã†Â°Ã¡Â»Â£c.',
+    why: 'ThÃƒÂ nh tÃ¡Â»Â±u sÃ¡Â»â€˜ liÃ¡Â»â€¡u cÃ¡Â»Â¥ thÃ¡Â»Æ’ lÃƒÂ  bÃ¡ÂºÂ±ng chÃ¡Â»Â©ng mÃ¡ÂºÂ¡nh nhÃ¡ÂºÂ¥t cho nÃ„Æ’ng lÃ¡Â»Â±c thÃ¡Â»Â±c cÃ¡Â»Â§a Ã¡Â»Â©ng viÃƒÂªn.',
+    signals: ['TÃ„Æ’ng doanh thu/hiÃ¡Â»â€¡u quÃ¡ÂºÂ£ bÃ¡ÂºÂ±ng con sÃ¡Â»â€˜ cÃ¡Â»Â¥ thÃ¡Â»Æ’', 'TiÃ¡ÂºÂ¿t kiÃ¡Â»â€¡m chi phÃƒÂ­ hoÃ¡ÂºÂ·c thÃ¡Â»Âi gian (%)', 'Ã„ÂÃ¡ÂºÂ¡t hoÃ¡ÂºÂ·c vÃ†Â°Ã¡Â»Â£t KPI Ã„â€˜Ã†Â°Ã¡Â»Â£c giao'],
   },
-  'Học vấn': {
-    what: 'Bằng cấp, trường học, chuyên ngành và chứng chỉ chuyên môn có đáp ứng yêu cầu không.',
-    why: 'Học vấn phù hợp đảm bảo nền tảng lý thuyết cho công việc — đặc biệt quan trọng với ngành kỹ thuật.',
-    signals: ['Chuyên ngành đúng ngành nghề', 'Trường đào tạo uy tín (cộng điểm)', 'Chứng chỉ chuyên nghiệp: AWS, CFA, PMP...'],
+  'HÃ¡Â»Âc vÃ¡ÂºÂ¥n': {
+    what: 'BÃ¡ÂºÂ±ng cÃ¡ÂºÂ¥p, trÃ†Â°Ã¡Â»Âng hÃ¡Â»Âc, chuyÃƒÂªn ngÃƒÂ nh vÃƒÂ  chÃ¡Â»Â©ng chÃ¡Â»â€° chuyÃƒÂªn mÃƒÂ´n cÃƒÂ³ Ã„â€˜ÃƒÂ¡p Ã¡Â»Â©ng yÃƒÂªu cÃ¡ÂºÂ§u khÃƒÂ´ng.',
+    why: 'HÃ¡Â»Âc vÃ¡ÂºÂ¥n phÃƒÂ¹ hÃ¡Â»Â£p Ã„â€˜Ã¡ÂºÂ£m bÃ¡ÂºÂ£o nÃ¡Â»Ân tÃ¡ÂºÂ£ng lÃƒÂ½ thuyÃ¡ÂºÂ¿t cho cÃƒÂ´ng viÃ¡Â»â€¡c Ã¢â‚¬â€ Ã„â€˜Ã¡ÂºÂ·c biÃ¡Â»â€¡t quan trÃ¡Â»Âng vÃ¡Â»â€ºi ngÃƒÂ nh kÃ¡Â»Â¹ thuÃ¡ÂºÂ­t.',
+    signals: ['ChuyÃƒÂªn ngÃƒÂ nh Ã„â€˜ÃƒÂºng ngÃƒÂ nh nghÃ¡Â»Â', 'TrÃ†Â°Ã¡Â»Âng Ã„â€˜ÃƒÂ o tÃ¡ÂºÂ¡o uy tÃƒÂ­n (cÃ¡Â»â„¢ng Ã„â€˜iÃ¡Â»Æ’m)', 'ChÃ¡Â»Â©ng chÃ¡Â»â€° chuyÃƒÂªn nghiÃ¡Â»â€¡p: AWS, CFA, PMP...'],
   },
-  'Ngôn ngữ': {
-    what: 'Trình độ ngoại ngữ được kê khai so với yêu cầu ngôn ngữ của JD.',
-    why: 'Vị trí quốc tế hoặc có đối tác nước ngoài cần ngôn ngữ đủ mạnh để giao tiếp hiệu quả.',
-    signals: ['Tiếng Anh B2+ / IELTS 6.5+ nếu JD yêu cầu', 'Ngoại ngữ hiếm (Nhật, Hàn) là lợi thế', 'Có chứng chỉ ngôn ngữ uy tín'],
+  'NgÃƒÂ´n ngÃ¡Â»Â¯': {
+    what: 'TrÃƒÂ¬nh Ã„â€˜Ã¡Â»â„¢ ngoÃ¡ÂºÂ¡i ngÃ¡Â»Â¯ Ã„â€˜Ã†Â°Ã¡Â»Â£c kÃƒÂª khai so vÃ¡Â»â€ºi yÃƒÂªu cÃ¡ÂºÂ§u ngÃƒÂ´n ngÃ¡Â»Â¯ cÃ¡Â»Â§a JD.',
+    why: 'VÃ¡Â»â€¹ trÃƒÂ­ quÃ¡Â»â€˜c tÃ¡ÂºÂ¿ hoÃ¡ÂºÂ·c cÃƒÂ³ Ã„â€˜Ã¡Â»â€˜i tÃƒÂ¡c nÃ†Â°Ã¡Â»â€ºc ngoÃƒÂ i cÃ¡ÂºÂ§n ngÃƒÂ´n ngÃ¡Â»Â¯ Ã„â€˜Ã¡Â»Â§ mÃ¡ÂºÂ¡nh Ã„â€˜Ã¡Â»Æ’ giao tiÃ¡ÂºÂ¿p hiÃ¡Â»â€¡u quÃ¡ÂºÂ£.',
+    signals: ['TiÃ¡ÂºÂ¿ng Anh B2+ / IELTS 6.5+ nÃ¡ÂºÂ¿u JD yÃƒÂªu cÃ¡ÂºÂ§u', 'NgoÃ¡ÂºÂ¡i ngÃ¡Â»Â¯ hiÃ¡ÂºÂ¿m (NhÃ¡ÂºÂ­t, HÃƒÂ n) lÃƒÂ  lÃ¡Â»Â£i thÃ¡ÂºÂ¿', 'CÃƒÂ³ chÃ¡Â»Â©ng chÃ¡Â»â€° ngÃƒÂ´n ngÃ¡Â»Â¯ uy tÃƒÂ­n'],
   },
-  'Chuyên nghiệp': {
-    what: 'Đánh giá chất lượng trình bày CV: cấu trúc rõ ràng, không lỗi chính tả, format nhất quán.',
-    why: 'CV chuyên nghiệp phản ánh tác phong làm việc — ứng viên đầu tư vào chi tiết sẽ chăm chỉ hơn trong công việc.',
-    signals: ['Không có lỗi chính tả, ngữ pháp', 'Layout gọn gàng, có phân mục rõ ràng', 'Không insert thông tin không liên quan'],
+  'ChuyÃƒÂªn nghiÃ¡Â»â€¡p': {
+    what: 'Ã„ÂÃƒÂ¡nh giÃƒÂ¡ chÃ¡ÂºÂ¥t lÃ†Â°Ã¡Â»Â£ng trÃƒÂ¬nh bÃƒÂ y CV: cÃ¡ÂºÂ¥u trÃƒÂºc rÃƒÂµ rÃƒÂ ng, khÃƒÂ´ng lÃ¡Â»â€”i chÃƒÂ­nh tÃ¡ÂºÂ£, format nhÃ¡ÂºÂ¥t quÃƒÂ¡n.',
+    why: 'CV chuyÃƒÂªn nghiÃ¡Â»â€¡p phÃ¡ÂºÂ£n ÃƒÂ¡nh tÃƒÂ¡c phong lÃƒÂ m viÃ¡Â»â€¡c Ã¢â‚¬â€ Ã¡Â»Â©ng viÃƒÂªn Ã„â€˜Ã¡ÂºÂ§u tÃ†Â° vÃƒÂ o chi tiÃ¡ÂºÂ¿t sÃ¡ÂºÂ½ chÃ„Æ’m chÃ¡Â»â€° hÃ†Â¡n trong cÃƒÂ´ng viÃ¡Â»â€¡c.',
+    signals: ['KhÃƒÂ´ng cÃƒÂ³ lÃ¡Â»â€”i chÃƒÂ­nh tÃ¡ÂºÂ£, ngÃ¡Â»Â¯ phÃƒÂ¡p', 'Layout gÃ¡Â»Ân gÃƒÂ ng, cÃƒÂ³ phÃƒÂ¢n mÃ¡Â»Â¥c rÃƒÂµ rÃƒÂ ng', 'KhÃƒÂ´ng insert thÃƒÂ´ng tin khÃƒÂ´ng liÃƒÂªn quan'],
   },
-  'Gắn bó & Lịch sử CV': {
-    what: 'Phân tích xu hướng thay đổi công việc: số lần chuyển, tần suất và lý do có hợp lý.',
-    why: 'Lịch sử CV cho thấy ứng viên có cam kết dài hạn hay không — tránh tuyển dụng rồi nghỉ sớm.',
-    signals: ['Không chuyển việc liên tục (< 1 năm/công ty)', 'Khoảng trống giữa các công việc có giải thích hợp lý', 'Xu hướng tăng trưởng rõ ràng qua các công ty'],
+  'GÃ¡ÂºÂ¯n bÃƒÂ³ & LÃ¡Â»â€¹ch sÃ¡Â»Â­ CV': {
+    what: 'PhÃƒÂ¢n tÃƒÂ­ch xu hÃ†Â°Ã¡Â»â€ºng thay Ã„â€˜Ã¡Â»â€¢i cÃƒÂ´ng viÃ¡Â»â€¡c: sÃ¡Â»â€˜ lÃ¡ÂºÂ§n chuyÃ¡Â»Æ’n, tÃ¡ÂºÂ§n suÃ¡ÂºÂ¥t vÃƒÂ  lÃƒÂ½ do cÃƒÂ³ hÃ¡Â»Â£p lÃƒÂ½.',
+    why: 'LÃ¡Â»â€¹ch sÃ¡Â»Â­ CV cho thÃ¡ÂºÂ¥y Ã¡Â»Â©ng viÃƒÂªn cÃƒÂ³ cam kÃ¡ÂºÂ¿t dÃƒÂ i hÃ¡ÂºÂ¡n hay khÃƒÂ´ng Ã¢â‚¬â€ trÃƒÂ¡nh tuyÃ¡Â»Æ’n dÃ¡Â»Â¥ng rÃ¡Â»â€œi nghÃ¡Â»â€° sÃ¡Â»â€ºm.',
+    signals: ['KhÃƒÂ´ng chuyÃ¡Â»Æ’n viÃ¡Â»â€¡c liÃƒÂªn tÃ¡Â»Â¥c (< 1 nÃ„Æ’m/cÃƒÂ´ng ty)', 'KhoÃ¡ÂºÂ£ng trÃ¡Â»â€˜ng giÃ¡Â»Â¯a cÃƒÂ¡c cÃƒÂ´ng viÃ¡Â»â€¡c cÃƒÂ³ giÃ¡ÂºÂ£i thÃƒÂ­ch hÃ¡Â»Â£p lÃƒÂ½', 'Xu hÃ†Â°Ã¡Â»â€ºng tÃ„Æ’ng trÃ†Â°Ã¡Â»Å¸ng rÃƒÂµ rÃƒÂ ng qua cÃƒÂ¡c cÃƒÂ´ng ty'],
   },
-  'Phù hợp văn hoá': {
-    what: 'Dấu hiệu văn hóa phù hợp với công ty: teamwork, innovation, agile, leadership...',
-    why: 'Phù hợp văn hóa ảnh hưởng gần 50% quyết định gữ chân — thiếu sự fit này đồng nghĩa turnover cao.',
-    signals: ['Hoạt động ngoại khóa, tình nguyện, community', 'Phong cách viết CV reflect văn hóa', 'Vị trí cũ có văn hóa tương đồng'],
+  'PhÃƒÂ¹ hÃ¡Â»Â£p vÃ„Æ’n hoÃƒÂ¡': {
+    what: 'DÃ¡ÂºÂ¥u hiÃ¡Â»â€¡u vÃ„Æ’n hÃƒÂ³a phÃƒÂ¹ hÃ¡Â»Â£p vÃ¡Â»â€ºi cÃƒÂ´ng ty: teamwork, innovation, agile, leadership...',
+    why: 'PhÃƒÂ¹ hÃ¡Â»Â£p vÃ„Æ’n hÃƒÂ³a Ã¡ÂºÂ£nh hÃ†Â°Ã¡Â»Å¸ng gÃ¡ÂºÂ§n 50% quyÃ¡ÂºÂ¿t Ã„â€˜Ã¡Â»â€¹nh gÃ¡Â»Â¯ chÃƒÂ¢n Ã¢â‚¬â€ thiÃ¡ÂºÂ¿u sÃ¡Â»Â± fit nÃƒÂ y Ã„â€˜Ã¡Â»â€œng nghÃ„Â©a turnover cao.',
+    signals: ['HoÃ¡ÂºÂ¡t Ã„â€˜Ã¡Â»â„¢ng ngoÃ¡ÂºÂ¡i khÃƒÂ³a, tÃƒÂ¬nh nguyÃ¡Â»â€¡n, community', 'Phong cÃƒÂ¡ch viÃ¡ÂºÂ¿t CV reflect vÃ„Æ’n hÃƒÂ³a', 'VÃ¡Â»â€¹ trÃƒÂ­ cÃ…Â© cÃƒÂ³ vÃ„Æ’n hÃƒÂ³a tÃ†Â°Ã†Â¡ng Ã„â€˜Ã¡Â»â€œng'],
   },
-  'Hệ số uy tín công ty': {
-    what: 'AI phân loại từng công ty đã làm thành Tier 1/2/3 và áp hệ số nhân tương ứng vào điểm kinh nghiệm.',
-    why: 'Cùng bạn năm kinh nghiệm: người làm Google và công ty vô danh chất lượng đào tạo khác rất lớn.',
-    signals: ['Tier 1 (x1.5): FAANG, Top Consulting (McKinsey, BCG), Goldman Sachs', 'Tier 2 (x1.2): Các công ty Fortune 500, Big 4, công ty tech hàng đầu Việt Nam', 'Tier 3 (x1.0): Công ty thông thường | Startup chưa nổi tiếng (không trừ điểm)'],
+  'HÃ¡Â»â€¡ sÃ¡Â»â€˜ uy tÃƒÂ­n cÃƒÂ´ng ty': {
+    what: 'AI phÃƒÂ¢n loÃ¡ÂºÂ¡i tÃ¡Â»Â«ng cÃƒÂ´ng ty Ã„â€˜ÃƒÂ£ lÃƒÂ m thÃƒÂ nh Tier 1/2/3 vÃƒÂ  ÃƒÂ¡p hÃ¡Â»â€¡ sÃ¡Â»â€˜ nhÃƒÂ¢n tÃ†Â°Ã†Â¡ng Ã¡Â»Â©ng vÃƒÂ o Ã„â€˜iÃ¡Â»Æ’m kinh nghiÃ¡Â»â€¡m.',
+    why: 'CÃƒÂ¹ng bÃ¡ÂºÂ¡n nÃ„Æ’m kinh nghiÃ¡Â»â€¡m: ngÃ†Â°Ã¡Â»Âi lÃƒÂ m Google vÃƒÂ  cÃƒÂ´ng ty vÃƒÂ´ danh chÃ¡ÂºÂ¥t lÃ†Â°Ã¡Â»Â£ng Ã„â€˜ÃƒÂ o tÃ¡ÂºÂ¡o khÃƒÂ¡c rÃ¡ÂºÂ¥t lÃ¡Â»â€ºn.',
+    signals: ['Tier 1 (x1.5): FAANG, Top Consulting (McKinsey, BCG), Goldman Sachs', 'Tier 2 (x1.2): CÃƒÂ¡c cÃƒÂ´ng ty Fortune 500, Big 4, cÃƒÂ´ng ty tech hÃƒÂ ng Ã„â€˜Ã¡ÂºÂ§u ViÃ¡Â»â€¡t Nam', 'Tier 3 (x1.0): CÃƒÂ´ng ty thÃƒÂ´ng thÃ†Â°Ã¡Â»Âng | Startup chÃ†Â°a nÃ¡Â»â€¢i tiÃ¡ÂºÂ¿ng (khÃƒÂ´ng trÃ¡Â»Â« Ã„â€˜iÃ¡Â»Æ’m)'],
   },
 };
 
 
-const CRITERION_DESCRIPTIONS: Record<string, { what: string; why: string; signals: string[] }> = {
-  ...BASIC_DESCRIPTIONS,
-  [LOYALTY_CRITERION]: {
-    what: 'Phân tích lịch sử làm việc để ước lượng mức độ ổn định, cam kết và xu hướng gắn bó của ứng viên.',
-    why: 'Mức độ trung thành giúp nhà tuyển dụng nhìn rõ rủi ro nghỉ sớm, chi phí đào tạo lại và độ bền của ứng viên trong môi trường thực tế.',
-    signals: ['Thời gian ở mỗi công ty đủ dài', 'Ít nhảy việc ngắn hạn liên tiếp', 'Các lần chuyển việc có xu hướng tăng trưởng hợp lý'],
-  },
-};
+const CRITERION_DESCRIPTIONS: Record<string, { what: string; why: string; signals: string[] }> = BASIC_DESCRIPTIONS;
 
 const CARD_CRITERIA_META: { [key: string]: { Icon: LucideIcon; color: string; accent: string } } = {
   [BASIC_CRITERIA[0]]: { Icon: Target, color: 'text-sky-400', accent: 'border-sky-500/30 bg-sky-500/5' },
@@ -115,7 +104,6 @@ const CARD_CRITERIA_META: { [key: string]: { Icon: LucideIcon; color: string; ac
   [BASIC_CRITERIA[6]]: { Icon: FileCheck2, color: 'text-cyan-400', accent: 'border-cyan-500/30 bg-cyan-500/5' },
   [BASIC_CRITERIA[7]]: { Icon: Hourglass, color: 'text-lime-400', accent: 'border-lime-500/30 bg-lime-500/5' },
   [BASIC_CRITERIA[8]]: { Icon: UsersRound, color: 'text-pink-400', accent: 'border-pink-500/30 bg-pink-500/5' },
-  [LOYALTY_CRITERION]: { Icon: ShieldCheck, color: 'text-amber-400', accent: 'border-amber-500/30 bg-amber-500/5' },
   [BASIC_CRITERIA[9]]: { Icon: Building2, color: 'text-emerald-400', accent: 'border-emerald-500/30 bg-emerald-500/5' },
 };
 
@@ -184,7 +172,7 @@ function getDetailExplanation(item: DetailedScore): string {
   return getRecordValueByAliases(record, ['giai thich', 'explanation']);
 }
 
-const MISSING_DETAIL_EVIDENCE = 'AI chưa trả về dẫn chứng cụ thể cho tiêu chí này.';
+const MISSING_DETAIL_EVIDENCE = 'AI chÃ†Â°a trÃ¡ÂºÂ£ vÃ¡Â»Â dÃ¡ÂºÂ«n chÃ¡Â»Â©ng cÃ¡Â»Â¥ thÃ¡Â»Æ’ cho tiÃƒÂªu chÃƒÂ­ nÃƒÂ y.';
 const CV_TEXT_FIELD_ALIASES = new Set([
   'cv text',
   'cvtext',
@@ -207,10 +195,10 @@ const EXPERIENCE_TEXT_FIELD_ALIASES = new Set([
   'qua trinh cong tac',
   'lich su lam viec',
 ]);
-const MONTH_NAME_TOKEN = '(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:t|tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?|thg\\.?\\s*\\d{1,2}|tháng\\s*\\d{1,2})';
+const MONTH_NAME_TOKEN = '(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:t|tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?|thg\\.?\\s*\\d{1,2}|thÃƒÂ¡ng\\s*\\d{1,2})';
 const TIMELINE_DATE_TOKEN = `(?:(?:0?[1-9]|1[0-2])\\/\\d{4}|\\d{4}|${MONTH_NAME_TOKEN}\\s*\\/?\\s*\\d{4})`;
 const TIMELINE_RANGE_REGEX = new RegExp(
-  `(${TIMELINE_DATE_TOKEN})\\s*(?:-|â€“|â€”|to|Ä‘áº¿n|tá»›i)\\s*(${TIMELINE_DATE_TOKEN}|hiá»‡n táº¡i|hien tai|nay|present|current)`,
+  `(${TIMELINE_DATE_TOKEN})\\s*(?:-|ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“|ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â|to|Ãƒâ€žÃ¢â‚¬ËœÃƒÂ¡Ã‚ÂºÃ‚Â¿n|tÃƒÂ¡Ã‚Â»Ã¢â‚¬Âºi)\\s*(${TIMELINE_DATE_TOKEN}|hiÃƒÂ¡Ã‚Â»Ã¢â‚¬Â¡n tÃƒÂ¡Ã‚ÂºÃ‚Â¡i|hien tai|nay|present|current)`,
   'i'
 );
 
@@ -231,29 +219,6 @@ interface EducationSummary {
 }
 
 const uploadedCvTextCache = new Map<string, string>();
-
-function buildSyntheticLoyaltyDetail(source: DetailedScore): DetailedScore {
-  const inheritedEvidence = getDetailEvidence(source) || MISSING_DETAIL_EVIDENCE;
-  const inheritedExplanation = getDetailExplanation(source);
-  const inheritedFormula = getDetailFormula(source);
-  const inheritedScore = normalizeScoreTextToMax(
-    getDetailScore(source) || `0/${LOYALTY_TOTAL_MAX}`,
-    inheritedFormula,
-    LOYALTY_TOTAL_MAX,
-  );
-
-  return {
-    'Tiêu chí': LOYALTY_CRITERION,
-    'Điểm': inheritedScore,
-    'Công thức': inheritedFormula
-      ? `${inheritedFormula} | Quy đổi thang ${LOYALTY_TOTAL_MAX}`
-      : `Suy ra từ tiêu chí Gắn bó & Lịch sử CV, quy đổi thang ${LOYALTY_TOTAL_MAX}`,
-    'Dẫn chứng': inheritedEvidence,
-    'Giải thích': inheritedExplanation && inheritedExplanation !== '...'
-      ? `${inheritedExplanation} (Được suy ra từ tiêu chí Gắn bó & Lịch sử CV.)`
-      : 'Phiên phân tích này chưa tách riêng Mức độ trung thành, nên hệ thống suy ra từ tiêu chí Gắn bó & Lịch sử CV.',
-  };
-}
 
 function extractNestedCvText(value: unknown, depth: number = 0): string {
   if (depth > 5 || value === null || value === undefined) {
@@ -394,11 +359,11 @@ function cleanTimelineText(value: string): string {
   return value
     .replace(/\r\n/g, '\n')
     .replace(/\r/g, '\n')
-    .replace(/[|]+/g, ' • ')
+    .replace(/[|]+/g, ' Ã¢â‚¬Â¢ ')
     .replace(/\s{2,}/g, ' ')
-    .replace(/\s*•\s*/g, ' • ')
-    .replace(/^[•\-–—,:;\s]+/, '')
-    .replace(/[•\-–—,:;\s]+$/, '')
+    .replace(/\s*Ã¢â‚¬Â¢\s*/g, ' Ã¢â‚¬Â¢ ')
+    .replace(/^[Ã¢â‚¬Â¢\-Ã¢â‚¬â€œÃ¢â‚¬â€,:;\s]+/, '')
+    .replace(/[Ã¢â‚¬Â¢\-Ã¢â‚¬â€œÃ¢â‚¬â€,:;\s]+$/, '')
     .trim();
 }
 
@@ -421,8 +386,8 @@ function isLikelyTimelineHeading(line: string): boolean {
 }
 
 function formatPeriodLabel(start: string, end: string): string {
-  const normalizedEnd = /^(hiện tại|hien tai|nay|present|current)$/i.test(end.trim()) ? 'Hiện tại' : end.trim();
-  return `Từ ${start.trim()} đến ${normalizedEnd}`;
+  const normalizedEnd = /^(hiÃ¡Â»â€¡n tÃ¡ÂºÂ¡i|hien tai|nay|present|current)$/i.test(end.trim()) ? 'HiÃ¡Â»â€¡n tÃ¡ÂºÂ¡i' : end.trim();
+  return `TÃ¡Â»Â« ${start.trim()} Ã„â€˜Ã¡ÂºÂ¿n ${normalizedEnd}`;
 }
 
 function parseTimelineDateToken(token: string, isEnd: boolean): { year: number; month: number } | null {
@@ -513,14 +478,14 @@ function formatTimelineDuration(months: number): string {
   const remainingMonths = months % 12;
 
   if (years > 0 && remainingMonths > 0) {
-    return `${years} năm ${remainingMonths} tháng`;
+    return `${years} nÃ„Æ’m ${remainingMonths} thÃƒÂ¡ng`;
   }
 
   if (years > 0) {
-    return `${years} năm`;
+    return `${years} nÃ„Æ’m`;
   }
 
-  return `${remainingMonths} tháng`;
+  return `${remainingMonths} thÃƒÂ¡ng`;
 }
 
 function matchTimelineRange(value: string): RegExpMatchArray | null {
@@ -538,8 +503,8 @@ function dedupeCareerTimelineItems(items: CareerTimelineItem[]): CareerTimelineI
 }
 
 function formatTimelineEvidenceLine(entry: CareerTimelineItem): string {
-  const company = entry.companyName || entry.summary || 'Không rõ công ty';
-  const duration = entry.durationMonths ? `, tổng thời gian khoảng ${formatTimelineDuration(entry.durationMonths)}` : '';
+  const company = entry.companyName || entry.summary || 'KhÃƒÂ´ng rÃƒÂµ cÃƒÂ´ng ty';
+  const duration = entry.durationMonths ? `, tÃ¡Â»â€¢ng thÃ¡Â»Âi gian khoÃ¡ÂºÂ£ng ${formatTimelineDuration(entry.durationMonths)}` : '';
   return `${company}: ${entry.periodLabel}${duration}`;
 }
 
@@ -565,7 +530,7 @@ function looksLikeAnalysisPayload(value: string): boolean {
     trimmed.includes('"softFilterWarnings"') ||
     trimmed.includes('"detectedLocation"') ||
     trimmed.includes('"Tong diem"') ||
-    trimmed.includes('"Tổng điểm"')
+    trimmed.includes('"TÃ¡Â»â€¢ng Ã„â€˜iÃ¡Â»Æ’m"')
   );
 }
 
@@ -573,7 +538,7 @@ function guessTimelineCompany(primary: string, secondary: string): { companyName
   const first = cleanTimelineText(primary);
   const second = cleanTimelineText(secondary);
 
-  const inlineAtMatch = first.match(/^(.+?)\s+(?:at|tại)\s+(.+)$/i);
+  const inlineAtMatch = first.match(/^(.+?)\s+(?:at|tÃ¡ÂºÂ¡i)\s+(.+)$/i);
   if (inlineAtMatch) {
     return {
       companyName: cleanTimelineText(inlineAtMatch[2]),
@@ -590,8 +555,8 @@ function guessTimelineCompany(primary: string, secondary: string): { companyName
     return { companyName: '', detail: candidates[0] };
   }
 
-  const companyHintRegex = /\b(company|co\.|corp|corporation|group|studio|solutions|software|bank|university|college|school|hospital|lab|labs|jsc|inc|llc|ltd|tnhh|tập đoàn|công ty|ngân hàng|trường|viện|bệnh viện)\b/i;
-  const roleHintRegex = /\b(intern|developer|engineer|manager|director|lead|leader|consultant|analyst|designer|specialist|executive|architect|thực tập|nhân viên|chuyên viên|quản lý|trưởng|giám đốc|kỹ sư|lập trình viên)\b/i;
+  const companyHintRegex = /\b(company|co\.|corp|corporation|group|studio|solutions|software|bank|university|college|school|hospital|lab|labs|jsc|inc|llc|ltd|tnhh|tÃ¡ÂºÂ­p Ã„â€˜oÃƒÂ n|cÃƒÂ´ng ty|ngÃƒÂ¢n hÃƒÂ ng|trÃ†Â°Ã¡Â»Âng|viÃ¡Â»â€¡n|bÃ¡Â»â€¡nh viÃ¡Â»â€¡n)\b/i;
+  const roleHintRegex = /\b(intern|developer|engineer|manager|director|lead|leader|consultant|analyst|designer|specialist|executive|architect|thÃ¡Â»Â±c tÃ¡ÂºÂ­p|nhÃƒÂ¢n viÃƒÂªn|chuyÃƒÂªn viÃƒÂªn|quÃ¡ÂºÂ£n lÃƒÂ½|trÃ†Â°Ã¡Â»Å¸ng|giÃƒÂ¡m Ã„â€˜Ã¡Â»â€˜c|kÃ¡Â»Â¹ sÃ†Â°|lÃ¡ÂºÂ­p trÃƒÂ¬nh viÃƒÂªn)\b/i;
 
   const scoreCandidate = (value: string) => {
     const normalized = normalizeAscii(value);
@@ -626,7 +591,7 @@ function extractCareerTimeline(text: string): CareerTimelineItem[] {
     .filter(Boolean);
 
   const rangeRegex = new RegExp(
-    `(${TIMELINE_DATE_TOKEN})\\s*(?:-|–|—|to|đến|tới)\\s*(${TIMELINE_DATE_TOKEN}|hiện tại|hien tai|nay|present|current)`,
+    `(${TIMELINE_DATE_TOKEN})\\s*(?:-|Ã¢â‚¬â€œ|Ã¢â‚¬â€|to|Ã„â€˜Ã¡ÂºÂ¿n|tÃ¡Â»â€ºi)\\s*(${TIMELINE_DATE_TOKEN}|hiÃ¡Â»â€¡n tÃ¡ÂºÂ¡i|hien tai|nay|present|current)`,
     'i'
   );
   const items: CareerTimelineItem[] = [];
@@ -674,7 +639,7 @@ function extractCareerTimeline(text: string): CareerTimelineItem[] {
     const combinedSummary = [detail]
       .map((item) => cleanTimelineText(item))
       .filter(Boolean)
-      .join(' • ');
+      .join(' Ã¢â‚¬Â¢ ');
 
     if (!combinedSummary && !companyName) {
       continue;
@@ -685,7 +650,7 @@ function extractCareerTimeline(text: string): CareerTimelineItem[] {
       periodLabel: formatPeriodLabel(dateMatch[1], dateMatch[2]),
       summary: combinedSummary || companyName,
       companyName,
-      isCurrent: /^(hiện tại|hien tai|nay|present|current)$/i.test(dateMatch[2].trim()),
+      isCurrent: /^(hiÃ¡Â»â€¡n tÃ¡ÂºÂ¡i|hien tai|nay|present|current)$/i.test(dateMatch[2].trim()),
       durationMonths: getTimelineDurationMonths(dateMatch[1], dateMatch[2]),
     });
   }
@@ -749,7 +714,7 @@ function buildTimelineItemFromParts(
     periodLabel: formatPeriodLabel(cleanedStart, cleanedEnd),
     summary: detail || company,
     companyName: company,
-    isCurrent: /^(hiá»‡n táº¡i|hien tai|nay|present|current)$/i.test(cleanedEnd),
+    isCurrent: /^(hiÃƒÂ¡Ã‚Â»Ã¢â‚¬Â¡n tÃƒÂ¡Ã‚ÂºÃ‚Â¡i|hien tai|nay|present|current)$/i.test(cleanedEnd),
     durationMonths: getTimelineDurationMonths(cleanedStart, cleanedEnd),
   };
 }
@@ -793,7 +758,7 @@ function extractCareerTimelineFromStructuredValue(value: unknown, depth: number 
     'vi tri cong viec',
   ]);
   const start = getRecordValueByAliases(record, ['start', 'start date', 'from', 'tu', 'bat dau']);
-  const end = getRecordValueByAliases(record, ['end', 'end date', 'to', 'den', 'ket thuc']) || 'Hiện tại';
+  const end = getRecordValueByAliases(record, ['end', 'end date', 'to', 'den', 'ket thuc']) || 'HiÃ¡Â»â€¡n tÃ¡ÂºÂ¡i';
   const period = getRecordValueByAliases(record, ['period', 'duration', 'time', 'timeline', 'thoi gian', 'khoang thoi gian']);
   const ownItems: CareerTimelineItem[] = [];
 
@@ -834,20 +799,20 @@ function extractCareerTimelineFromCandidatePayload(candidate: Candidate): Career
 
 function isGenericEducationValidation(value: string): boolean {
   const normalized = normalizeAscii(value).replace(/\s+/g, ' ').trim();
-  return ['hop le', 'valid', 'khong hop le', 'invalid', 'phu hop'].includes(normalized.replace(/[.。]+$/, ''));
+  return ['hop le', 'valid', 'khong hop le', 'invalid', 'phu hop'].includes(normalized.replace(/[.Ã£â‚¬â€š]+$/, ''));
 }
 
 function getEducationInstitutionFromLine(line: string): string {
   const cleaned = cleanTimelineText(line)
-    .replace(/^(education|hoc van|học vấn|truong|trường|co so dao tao|cơ sở đào tạo)\s*[:：-]\s*/i, '')
+    .replace(/^(education|hoc van|hÃ¡Â»Âc vÃ¡ÂºÂ¥n|truong|trÃ†Â°Ã¡Â»Âng|co so dao tao|cÃ†Â¡ sÃ¡Â»Å¸ Ã„â€˜ÃƒÂ o tÃ¡ÂºÂ¡o)\s*[:Ã¯Â¼Å¡-]\s*/i, '')
     .trim();
-  const [beforeDash] = cleaned.split(/\s[-–—|]\s/);
+  const [beforeDash] = cleaned.split(/\s[-Ã¢â‚¬â€œÃ¢â‚¬â€|]\s/);
   return cleanTimelineText(beforeDash || cleaned);
 }
 
 function extractEducationSummaryFromText(text: string): EducationSummary | null {
   const lines = text
-    .split(/\n|•|;|,/)
+    .split(/\n|Ã¢â‚¬Â¢|;|,/)
     .map((line) => cleanTimelineText(line))
     .filter((line) => line && line.length <= 180 && !isGenericEducationValidation(line));
 
@@ -873,9 +838,9 @@ function extractEducationSummaryFromText(text: string): EducationSummary | null 
     return null;
   }
 
-  const majorMatch = text.match(/(?:chuyên ngành|chuyen nganh|ngành|nganh|major|faculty)\s*[:：-]\s*([^.;\n]+)/i);
-  const degreeMatch = text.match(/\b(cử nhân|cu nhan|kỹ sư|ky su|thạc sĩ|thac si|tiến sĩ|tien si|bachelor|master|engineer|bsc|msc)\b/i);
-  const dashParts = source.split(/\s[-–—|]\s/).map((part) => cleanTimelineText(part)).filter(Boolean);
+  const majorMatch = text.match(/(?:chuyÃƒÂªn ngÃƒÂ nh|chuyen nganh|ngÃƒÂ nh|nganh|major|faculty)\s*[:Ã¯Â¼Å¡-]\s*([^.;\n]+)/i);
+  const degreeMatch = text.match(/\b(cÃ¡Â»Â­ nhÃƒÂ¢n|cu nhan|kÃ¡Â»Â¹ sÃ†Â°|ky su|thÃ¡ÂºÂ¡c sÃ„Â©|thac si|tiÃ¡ÂºÂ¿n sÃ„Â©|tien si|bachelor|master|engineer|bsc|msc)\b/i);
+  const dashParts = source.split(/\s[-Ã¢â‚¬â€œÃ¢â‚¬â€|]\s/).map((part) => cleanTimelineText(part)).filter(Boolean);
 
   return {
     institution: getEducationInstitutionFromLine(source),
@@ -977,7 +942,7 @@ function parseDetailScore(
   const weightMatch = detailFormula.match(/trong so\s*([\d.]+)%/i);
   const weight = Number.parseFloat(weightMatch?.[1] || '0');
 
-  let scoreLabel = 'Chưa có';
+  let scoreLabel = 'ChÃ†Â°a cÃƒÂ³';
   if (displayScore !== null && displayMax !== null) {
     scoreLabel = `${formatScoreValue(displayScore)}/${formatScoreValue(displayMax)}`;
   } else if (displayScore !== null && trimmedScore) {
@@ -1018,14 +983,6 @@ function normalizeParsedScoreToMax(parsed: ParsedDetailScore, targetMax: number)
   };
 }
 
-function normalizeScoreTextToMax(scoreText: string, detailFormula: string, targetMax: number): string {
-  return normalizeParsedScoreToMax(parseDetailScore(scoreText, detailFormula), targetMax).scoreLabel;
-}
-
-function getNormalizedScoreValue(scoreText: string, detailFormula: string, targetMax: number): number {
-  return normalizeParsedScoreToMax(parseDetailScore(scoreText, detailFormula), targetMax).score || 0;
-}
-
 function canonicalizeCriterionName(rawName: string): string {
   const value = rawName.trim();
   const normalized = normalizeAscii(value);
@@ -1040,11 +997,11 @@ function canonicalizeCriterionName(rawName: string): string {
   if (normalized.includes('gan bo') || normalized.includes('lich su cv')) return BASIC_CRITERIA[7];
   if (normalized === 'phu hop van hoa' || normalized === 'culture fit') return BASIC_CRITERIA[8];
   if (normalized.includes('uy tin cong ty') || normalized.includes('company tier')) return BASIC_CRITERIA[9];
-  if (normalized.includes('muc do trung thanh') || normalized.includes('su on dinh') || normalized.includes('trung thanh')) return LOYALTY_CRITERION;
-  if (normalized.includes('ky nang hanh dong') || normalized.includes('chu dong')) return REMOVED_ADVANCED_CRITERIA[0];
-  if (normalized.includes('trinh bay star') || normalized.includes('star ket qua')) return REMOVED_ADVANCED_CRITERIA[1];
-  if (normalized.includes('skill graph') || normalized.includes('ky nang chuyen doi')) return REMOVED_ADVANCED_CRITERIA[2];
-  if (normalized.includes('career velocity') || normalized.includes('tiem nang phat trien')) return REMOVED_ADVANCED_CRITERIA[3];
+  if (normalized.includes('muc do trung thanh') || normalized.includes('su on dinh') || normalized.includes('trung thanh')) return REMOVED_CRITERIA[0];
+  if (normalized.includes('ky nang hanh dong') || normalized.includes('chu dong')) return REMOVED_CRITERIA[1];
+  if (normalized.includes('trinh bay star') || normalized.includes('star ket qua')) return REMOVED_CRITERIA[2];
+  if (normalized.includes('skill graph') || normalized.includes('ky nang chuyen doi')) return REMOVED_CRITERIA[3];
+  if (normalized.includes('career velocity') || normalized.includes('tiem nang phat trien')) return REMOVED_CRITERIA[4];
 
   return value;
 }
@@ -1054,33 +1011,27 @@ interface CriterionAccordionProps {
   isExpanded: boolean;
   onToggle: () => void;
   jdText: string;
-  employmentTimeline?: CareerTimelineItem[];
 }
 
-const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpanded, onToggle, jdText, employmentTimeline = [] }) => {
+const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpanded, onToggle, jdText }) => {
   const [copied, setCopied] = React.useState(false);
   const criterionName = canonicalizeCriterionName(getDetailCriterion(item));
   const detailScore = getDetailScore(item);
   const detailFormula = getDetailFormula(item);
   const detailEvidence = getDetailEvidence(item);
   const detailExplanation = getDetailExplanation(item);
-  const isLoyalty = criterionName === LOYALTY_CRITERION;
-  const timelineEvidence = isLoyalty ? employmentTimeline : [];
   const shouldShowRawEvidence = Boolean(
     detailEvidence &&
     detailEvidence !== MISSING_DETAIL_EVIDENCE &&
     normalizeAscii(detailEvidence) !== 'khong tim thay thong tin trong cv' &&
     !looksLikeAnalysisPayload(detailEvidence)
   );
-  const copyEvidenceText = timelineEvidence.length > 0
-    ? timelineEvidence.map(formatTimelineEvidenceLine).join('\n')
-    : detailEvidence;
-  const canShowRawEvidence = shouldShowRawEvidence && !(isLoyalty && isGenericTimelineEvidence(detailEvidence));
+  const copyEvidenceText = detailEvidence;
+  const canShowRawEvidence = shouldShowRawEvidence;
 
   const parsedData = useMemo(() => {
-    const parsed = parseDetailScore(detailScore, detailFormula);
-    return isLoyalty ? normalizeParsedScoreToMax(parsed, LOYALTY_TOTAL_MAX) : parsed;
-  }, [detailFormula, detailScore, isLoyalty]);
+    return parseDetailScore(detailScore, detailFormula);
+  }, [detailFormula, detailScore]);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(copyEvidenceText);
@@ -1102,11 +1053,11 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
         ? 'bg-amber-500/15 text-amber-300 border-amber-500/35'
         : 'bg-red-500/15 text-red-300 border-red-500/35';
 
-  const proficiency = !parsedData.hasScore ? 'Chưa có'
-    : scorePercentage >= 90 ? 'Xuất sắc'
-      : scorePercentage >= 75 ? 'Nâng cao'
-        : scorePercentage >= 55 ? 'Trung bình'
-          : 'Cơ bản';
+  const proficiency = !parsedData.hasScore ? 'ChÃ†Â°a cÃƒÂ³'
+    : scorePercentage >= 90 ? 'XuÃ¡ÂºÂ¥t sÃ¡ÂºÂ¯c'
+      : scorePercentage >= 75 ? 'NÃƒÂ¢ng cao'
+        : scorePercentage >= 55 ? 'Trung bÃƒÂ¬nh'
+          : 'CÃ†Â¡ bÃ¡ÂºÂ£n';
 
   const isExperience = criterionName === BASIC_CRITERIA[1];
   const jdRequirements = useMemo(() => extractJDRequirements(jdText), [jdText]);
@@ -1122,14 +1073,14 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
     matchMeta = analyzeExperience(jdText, detailEvidence || '');
     experienceBlock = (
       <div className="space-y-3 rounded-xl border border-slate-800/60 bg-[#080f1e] p-5">
-        <h5 className="mb-1 text-base font-bold text-slate-100">Phân tích nhanh</h5>
+        <h5 className="mb-1 text-base font-bold text-slate-100">PhÃƒÂ¢n tÃƒÂ­ch nhanh</h5>
         {matchMeta.matchPercent === 'N/A' ? (
-          <p className="text-xs text-slate-500 italic">JD chưa có mức yêu cầu kinh nghiệm rõ ràng</p>
+          <p className="text-xs text-slate-500 italic">JD chÃ†Â°a cÃƒÂ³ mÃ¡Â»Â©c yÃƒÂªu cÃ¡ÂºÂ§u kinh nghiÃ¡Â»â€¡m rÃƒÂµ rÃƒÂ ng</p>
         ) : (
           <>
             <div className="space-y-2">
               <div className="flex items-center justify-between text-xs text-slate-400">
-                <span>Mức độ phù hợp JD</span>
+                <span>MÃ¡Â»Â©c Ã„â€˜Ã¡Â»â„¢ phÃƒÂ¹ hÃ¡Â»Â£p JD</span>
                 <span className="font-semibold text-cyan-400">{matchMeta.matchPercent}%</span>
               </div>
               <div className="h-2 w-full overflow-hidden rounded bg-slate-800">
@@ -1150,7 +1101,7 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
   }
 
   return (
-    <div className={`rounded-xl border transition-all duration-200 hover:shadow-md ${isLoyalty ? `${meta.accent} hover:shadow-amber-500/5` : 'border-white/[0.08] bg-[#05070b] hover:border-cyan-500/25 hover:shadow-cyan-500/5'}`}>
+    <div className="rounded-xl border border-white/[0.08] bg-[#05070b] transition-all duration-200 hover:border-cyan-500/25 hover:shadow-md hover:shadow-cyan-500/5">
       <button className="flex min-h-[56px] w-full items-center justify-between p-3.5 text-left" onClick={onToggle} aria-expanded={isExpanded}>
         <div className="flex min-w-0 items-center gap-3">
           <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.035] ${meta.color}`}>
@@ -1172,62 +1123,19 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
           <div className={`grid grid-cols-1 ${isExperience || requirementComparison ? 'xl:grid-cols-3' : 'xl:grid-cols-2'} gap-4`}>
             <div className="rounded-xl border border-white/[0.08] bg-white/[0.025] p-5">
               <div className="mb-2 flex items-center justify-between">
-                <h5 className="text-base font-bold text-slate-200">Dẫn chứng (trích từ CV)</h5>
+                <h5 className="text-base font-bold text-slate-200">DÃ¡ÂºÂ«n chÃ¡Â»Â©ng (trÃƒÂ­ch tÃ¡Â»Â« CV)</h5>
                 <button type="button" onClick={(e) => { e.stopPropagation(); handleCopy(); }} className="flex items-center gap-1.5 text-xs text-slate-500 transition-colors hover:text-cyan-400">
                   {copied ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
-                  {copied ? 'Đã chép' : 'Chép'}
+                  {copied ? 'Ã„ÂÃƒÂ£ chÃƒÂ©p' : 'ChÃƒÂ©p'}
                 </button>
               </div>
-              {timelineEvidence.length > 0 ? (
-                <div className="space-y-2">
-                  <div className="mb-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-cyan-300/75">
-                    Thời gian làm việc theo từng công ty
-                  </div>
-                  {timelineEvidence.map((entry) => (
-                    <div key={entry.id} className="rounded-lg border border-cyan-500/15 bg-cyan-500/[0.045] p-3">
-                      <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
-                        <div className="min-w-0">
-                          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-cyan-300/80">
-                            Công ty
-                          </div>
-                          <div className="mt-1 truncate text-sm font-semibold text-slate-100">
-                            {entry.companyName || entry.summary || 'Chưa rõ tên công ty'}
-                          </div>
-                          {entry.companyName && entry.summary && entry.summary !== entry.companyName && (
-                            <div className="mt-1 text-xs leading-5 text-slate-400">Vai trò/ghi chú: {entry.summary}</div>
-                          )}
-                        </div>
-                        <div className="shrink-0 rounded-md border border-cyan-500/20 bg-cyan-500/10 px-2.5 py-1.5 text-right">
-                          <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-cyan-300/70">
-                            Từ năm nào đến năm nào
-                          </div>
-                          <div className="supporthr-mono mt-0.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-cyan-100">
-                            {entry.periodLabel}
-                          </div>
-                        </div>
-                      </div>
-                      {entry.durationMonths && (
-                        <div className="mt-2 rounded-md border border-white/[0.06] bg-black/20 px-2.5 py-1.5 text-[11px] font-medium text-slate-300">
-                          Tổng thời gian làm tại công ty này: khoảng <span className="font-semibold text-cyan-200">{formatTimelineDuration(entry.durationMonths)}</span>.
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                  {canShowRawEvidence && (
-                    <blockquote className="mt-3 border-l-4 border-cyan-500/60 pl-4 text-sm italic leading-relaxed text-slate-400">
-                      {detailEvidence}
-                    </blockquote>
-                  )}
-                </div>
-              ) : isLoyalty ? (
-                <div className="rounded-lg border border-amber-500/25 bg-amber-500/10 p-3 text-sm leading-6 text-amber-100">
-                  Chưa đủ mốc thời gian để tách theo công ty. Cần dòng như “Tên công ty - 2019 đến 2021”.
-                </div>
+              {canShowRawEvidence ? (
+                <blockquote className="border-l-4 border-cyan-500/60 pl-4 text-base italic leading-relaxed text-slate-300" dangerouslySetInnerHTML={{
+                  __html: detailEvidence
+                }} />
               ) : (
                 <blockquote className="border-l-4 border-cyan-500/60 pl-4 text-base italic leading-relaxed text-slate-300" dangerouslySetInnerHTML={{
-                  __html: canShowRawEvidence
-                    ? detailEvidence
-                    : '<span class="not-italic rounded-md border border-amber-500/35 bg-amber-500/10 px-2 py-1 text-xs font-semibold text-amber-300">Chưa tìm thấy trong CV</span>'
+                  __html: '<span class="not-italic rounded-md border border-amber-500/35 bg-amber-500/10 px-2 py-1 text-xs font-semibold text-amber-300">ChÃ†Â°a tÃƒÂ¬m thÃ¡ÂºÂ¥y trong CV</span>'
                 }} />
               )}
             </div>
@@ -1237,8 +1145,8 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
               <div className="space-y-3 rounded-xl border border-slate-800/60 bg-[#080f1e] p-5">
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <h5 className="mb-1 text-base font-bold text-slate-100">Phân tích nhanh</h5>
-                    <p className="text-[11px] text-slate-500">Khớp trực tiếp và vector ngữ nghĩa, chỉ giữ tín hiệu quan trọng.</p>
+                    <h5 className="mb-1 text-base font-bold text-slate-100">PhÃƒÂ¢n tÃƒÂ­ch nhanh</h5>
+                    <p className="text-[11px] text-slate-500">KhÃ¡Â»â€ºp trÃ¡Â»Â±c tiÃ¡ÂºÂ¿p vÃƒÂ  vector ngÃ¡Â»Â¯ nghÃ„Â©a, chÃ¡Â»â€° giÃ¡Â»Â¯ tÃƒÂ­n hiÃ¡Â»â€¡u quan trÃ¡Â»Âng.</p>
                   </div>
                   <span className="rounded-full border border-cyan-400/25 bg-cyan-400/10 px-2.5 py-1 text-[10px] font-bold text-cyan-200">
                     {requirementComparison.matched.length + requirementComparison.semanticMatched.length}/{requirementComparison.jdKeywords.length}
@@ -1247,27 +1155,27 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
 
                 <div className="grid gap-3 md:grid-cols-2">
                   <div>
-                    <div className="mb-1 text-[11px] font-medium text-slate-400">Đã khớp</div>
+                    <div className="mb-1 text-[11px] font-medium text-slate-400">Ã„ÂÃƒÂ£ khÃ¡Â»â€ºp</div>
                     <div className="flex flex-wrap gap-1">
                       {requirementComparison.matched.length > 0
                         ? requirementComparison.matched.slice(0, 6).map(k => <span key={k} className="pill pill--match">{k}</span>)
                         : requirementComparison.semanticMatched.length === 0
-                          ? <span className="text-[11px] text-slate-500">(Không)</span>
+                          ? <span className="text-[11px] text-slate-500">(KhÃƒÂ´ng)</span>
                           : null}
                       {requirementComparison.semanticMatched.slice(0, 4).map((item) => (
                         <span key={item.keyword} className="rounded-full border border-cyan-400/35 bg-cyan-400/10 px-2 py-0.5 text-[10px] font-semibold text-cyan-200">
-                          {item.keyword} · {Math.round(item.score * 100)}%
+                          {item.keyword} Ã‚Â· {Math.round(item.score * 100)}%
                         </span>
                       ))}
                     </div>
                   </div>
 
                   <div>
-                    <div className="mb-1 text-[11px] font-medium text-slate-400">Còn thiếu</div>
+                    <div className="mb-1 text-[11px] font-medium text-slate-400">CÃƒÂ²n thiÃ¡ÂºÂ¿u</div>
                     <div className="flex flex-wrap gap-1">
                       {requirementComparison.missing.length > 0
                         ? requirementComparison.missing.slice(0, 5).map(k => <span key={k} className="pill pill--missing">{k}</span>)
-                        : <span className="text-[11px] text-slate-500">(Không)</span>}
+                        : <span className="text-[11px] text-slate-500">(KhÃƒÂ´ng)</span>}
                     </div>
                   </div>
                 </div>
@@ -1291,24 +1199,24 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
             )}
 
             <div className="rounded-xl border border-white/[0.08] bg-white/[0.025] p-5">
-              <h5 className="mb-4 text-base font-bold text-slate-100">Giải thích & Công thức</h5>
+              <h5 className="mb-4 text-base font-bold text-slate-100">GiÃ¡ÂºÂ£i thÃƒÂ­ch & CÃƒÂ´ng thÃ¡Â»Â©c</h5>
 
               {description ? (
-                <div className={`mb-4 rounded-xl border p-4 space-y-3 ${isLoyalty ? 'border-amber-500/20 bg-amber-500/5' : 'border-cyan-500/20 bg-cyan-500/5'}`}>
+                <div className="mb-4 rounded-xl border border-cyan-500/20 bg-cyan-500/5 p-4 space-y-3">
                   <div>
-                    <p className={`text-[10px] font-bold uppercase tracking-widest mb-1 ${isLoyalty ? 'text-amber-400/70' : 'text-cyan-400/70'}`}>Đây là gì?</p>
+                    <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-cyan-400/70">Ã„ÂÃƒÂ¢y lÃƒÂ  gÃƒÂ¬?</p>
                     <p className="text-sm leading-relaxed text-slate-300">{description.what}</p>
                   </div>
                   <div className="pt-2 border-t border-slate-800/50">
-                    <p className={`text-[10px] font-bold uppercase tracking-widest mb-1 ${isLoyalty ? 'text-amber-400/70' : 'text-cyan-400/70'}`}>Tại sao quan trọng?</p>
+                    <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-cyan-400/70">TÃ¡ÂºÂ¡i sao quan trÃ¡Â»Âng?</p>
                     <p className="text-sm leading-relaxed text-slate-400">{description.why}</p>
                   </div>
                   <div className="pt-2 border-t border-slate-800/50">
-                    <p className={`text-[10px] font-bold uppercase tracking-widest mb-2 ${isLoyalty ? 'text-amber-400/70' : 'text-cyan-400/70'}`}>Dấu hiệu nhận biết</p>
+                    <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-cyan-400/70">DÃ¡ÂºÂ¥u hiÃ¡Â»â€¡u nhÃ¡ÂºÂ­n biÃ¡ÂºÂ¿t</p>
                     <ul className="space-y-1.5">
                       {description.signals.map((signal, index) => (
                         <li key={index} className="flex items-start gap-2 text-xs text-slate-400">
-                          <Check className={`mt-0.5 h-3 w-3 shrink-0 ${isLoyalty ? 'text-amber-400' : 'text-cyan-400'}`} />
+                          <Check className="mt-0.5 h-3 w-3 shrink-0 text-cyan-400" />
                           {signal}
                         </li>
                       ))}
@@ -1316,7 +1224,7 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
                   </div>
                   {detailExplanation && detailExplanation !== '...' && (
                     <div className="pt-2 border-t border-slate-800/50">
-                      <p className={`text-[10px] font-bold uppercase tracking-widest mb-1 ${isLoyalty ? 'text-amber-400/70' : 'text-cyan-400/70'}`}>Nhận xét của AI với CV này</p>
+                      <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-cyan-400/70">NhÃ¡ÂºÂ­n xÃƒÂ©t cÃ¡Â»Â§a AI vÃ¡Â»â€ºi CV nÃƒÂ y</p>
                       <p className="text-xs leading-relaxed text-slate-300 italic">"{detailExplanation}"</p>
                     </div>
                   )}
@@ -1330,19 +1238,19 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
               )}
 
               <div className="space-y-2">
-                <div className="text-xs font-medium text-slate-500">Công thức tính điểm</div>
+                <div className="text-xs font-medium text-slate-500">CÃƒÂ´ng thÃ¡Â»Â©c tÃƒÂ­nh Ã„â€˜iÃ¡Â»Æ’m</div>
 
                 {parsedData.hasScore ? (
                   <>
                     <div className="rounded-lg border border-slate-700/60 bg-slate-950/50 p-2.5">
                       <div className="flex items-center justify-between text-xs">
-                        <span className="text-slate-500">Đánh giá thực tế</span>
+                        <span className="text-slate-500">Ã„ÂÃƒÂ¡nh giÃƒÂ¡ thÃ¡Â»Â±c tÃ¡ÂºÂ¿</span>
                         <span className="font-mono font-semibold text-cyan-400">{parsedData.scoreLabel}</span>
                       </div>
                     </div>
 
                     <div className="rounded-lg border border-slate-700/60 bg-slate-950/50 p-2.5">
-                      <div className="mb-1 text-xs text-slate-500">Công thức subscore</div>
+                      <div className="mb-1 text-xs text-slate-500">CÃƒÂ´ng thÃ¡Â»Â©c subscore</div>
                       <div className="font-mono text-xs">
                         {parsedData.maxScore !== null ? (
                           <span>
@@ -1352,14 +1260,14 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
                             {' = '}
                             <span className="font-bold text-amber-400">{parsedData.contributionPct}%</span>
                             {parsedData.weight > 0 && (
-                              <span className="text-slate-500"> ({parsedData.weight}% trọng số)</span>
+                              <span className="text-slate-500"> ({parsedData.weight}% trÃ¡Â»Âng sÃ¡Â»â€˜)</span>
                             )}
                           </span>
                         ) : (
                           <span>
                             <span className="text-sky-400">{parsedData.scoreLabel}</span>
                             {parsedData.weight > 0 && (
-                              <span className="text-slate-500"> ({parsedData.weight}% trọng số)</span>
+                              <span className="text-slate-500"> ({parsedData.weight}% trÃ¡Â»Âng sÃ¡Â»â€˜)</span>
                             )}
                           </span>
                         )}
@@ -1367,7 +1275,7 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
                     </div>
 
                     <div className="rounded-lg border border-slate-700/60 bg-slate-950/50 p-2.5">
-                      <div className="mb-1 text-xs text-slate-500">Đóng góp vào điểm tổng</div>
+                      <div className="mb-1 text-xs text-slate-500">Ã„ÂÃƒÂ³ng gÃƒÂ³p vÃƒÂ o Ã„â€˜iÃ¡Â»Æ’m tÃ¡Â»â€¢ng</div>
                       <div className="space-y-1.5">
                         <div className="flex items-center gap-2">
                           <div className="flex-1 h-1.5 rounded-full bg-slate-800 overflow-hidden">
@@ -1379,22 +1287,22 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
                           <span className={`text-[11px] font-bold tabular-nums ${parsedData.achievedPct >= 80 ? 'text-emerald-400' : parsedData.achievedPct >= 60 ? 'text-amber-400' : 'text-red-400'}`}>{parsedData.achievedPct}%</span>
                         </div>
                         <div className="text-xs text-slate-300">
-                          Tiêu chí này đóng góp{' '}
+                          TiÃƒÂªu chÃƒÂ­ nÃƒÂ y Ã„â€˜ÃƒÂ³ng gÃƒÂ³p{' '}
                           <span className="font-bold text-amber-400 font-mono">{parsedData.score !== null ? formatScoreValue(parsedData.score) : '0'}</span>
                           {parsedData.maxScore !== null && (
                             <>
                               {' / '}
-                              <span className="text-slate-400 font-mono">{formatScoreValue(parsedData.maxScore)}</span> điểm
+                              <span className="text-slate-400 font-mono">{formatScoreValue(parsedData.maxScore)}</span> Ã„â€˜iÃ¡Â»Æ’m
                             </>
                           )}
-                          {parsedData.maxScore === null && ' điểm'}
+                          {parsedData.maxScore === null && ' Ã„â€˜iÃ¡Â»Æ’m'}
                         </div>
                       </div>
                     </div>
                   </>
                 ) : (
                   <div className="rounded-lg border border-slate-700/60 bg-slate-950/50 p-3 text-xs text-slate-400">
-                    Chưa có dữ liệu điểm chi tiết cho tiêu chí này trong kết quả AI hiện tại.
+                    ChÃ†Â°a cÃƒÂ³ dÃ¡Â»Â¯ liÃ¡Â»â€¡u Ã„â€˜iÃ¡Â»Æ’m chi tiÃ¡ÂºÂ¿t cho tiÃƒÂªu chÃƒÂ­ nÃƒÂ y trong kÃ¡ÂºÂ¿t quÃ¡ÂºÂ£ AI hiÃ¡Â»â€¡n tÃ¡ÂºÂ¡i.
                   </div>
                 )}
               </div>
@@ -1406,153 +1314,14 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
   );
 };
 
-// ?? JDOriginalPanel ??????????????????????????????????????????????????????????
-
-interface JDOriginalPanelProps {
-  jdText: string;
-  rawJdText?: string;
-}
-
-const JDOriginalPanel: React.FC<JDOriginalPanelProps> = ({ jdText, rawJdText }) => {
-  const hasRaw = !!rawJdText && rawJdText.trim().length > 0 && rawJdText.trim() !== jdText.trim();
-  const [view, setView] = useState<'raw' | 'optimized'>('raw');
-  const [isOpen, setIsOpen] = useState(false);
-  const [copied, setCopied] = useState(false);
-
-  const activeText = hasRaw ? (view === 'raw' ? rawJdText! : jdText) : jdText;
-  const wordCount = activeText.trim().split(/\s+/).filter(Boolean).length;
-  const charCount = activeText.length;
-
-  const handleCopy = () => {
-    navigator.clipboard.writeText(activeText);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  return (
-    <div className="rounded-xl border border-white/[0.08] bg-[#05070b] shadow-sm overflow-hidden">
-      {/* ── Header (luôn hiển thị) */}
-      <button
-        onClick={() => setIsOpen(prev => !prev)}
-        className="w-full flex items-center justify-between px-5 py-4 text-left transition-colors hover:bg-slate-800/30 group"
-      >
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-indigo-500/10 border border-indigo-500/25 flex items-center justify-center shrink-0">
-            <i className="fa-solid fa-file-lines text-indigo-400 text-sm" />
-          </div>
-          <div>
-            <h4 className="text-sm font-bold text-slate-100 flex items-center gap-2">
-              Mô tả công việc (JD)
-              {hasRaw && (
-                <span className="text-[9px] font-bold uppercase tracking-wider text-violet-400 border border-violet-500/30 bg-violet-500/10 px-1.5 py-0.5 rounded-full">
-                  Gốc + Tối ưu
-                </span>
-              )}
-            </h4>
-            <p className="text-[11px] text-slate-500 mt-0.5">
-              {charCount.toLocaleString('vi-VN')} ký tự · {wordCount.toLocaleString('vi-VN')} từ
-              {!isOpen && ' · Nhấn để xem'}
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center gap-2 shrink-0">
-          {isOpen && (
-            <button
-              type="button"
-              onClick={e => { e.stopPropagation(); handleCopy(); }}
-              className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-indigo-400 transition-colors px-2.5 py-1.5 rounded-lg border border-slate-700/60 hover:border-indigo-500/30 hover:bg-indigo-500/5"
-            >
-              <i className={`fa-solid ${copied ? 'fa-check text-emerald-400' : 'fa-copy'}`} />
-              {copied ? 'Đã chép' : 'Sao chép'}
-            </button>
-          )}
-          <div className={`w-7 h-7 rounded-lg border flex items-center justify-center transition-all duration-300 ${isOpen ? 'border-indigo-500/30 bg-indigo-500/10' : 'border-slate-700/60 bg-slate-800/40 group-hover:border-slate-600'
-            }`}>
-            <i className={`fa-solid fa-chevron-down text-xs transition-transform duration-300 ${isOpen ? 'rotate-180 text-indigo-400' : 'text-slate-500'
-              }`} />
-          </div>
-        </div>
-      </button>
-
-      {/* ── Body */}
-      {isOpen && (
-        <div className="border-t border-slate-800/60">
-          {/* Toggle tabs — chỉ hiện khi có 2 phiên bản */}
-          {hasRaw && (
-            <div className="flex border-b border-slate-800/60">
-              <button
-                onClick={() => setView('raw')}
-                className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-semibold transition-all relative ${view === 'raw'
-                    ? 'text-amber-300 bg-amber-500/5'
-                    : 'text-slate-500 hover:text-slate-300 hover:bg-slate-800/30'
-                  }`}
-              >
-                {view === 'raw' && (
-                  <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-amber-400 to-transparent" />
-                )}
-                <i className="fa-solid fa-file-pen text-[11px]" />
-                JD Gốc
-                <span className={`text-[9px] px-1.5 py-0.5 rounded border ${view === 'raw'
-                    ? 'border-amber-500/40 bg-amber-500/15 text-amber-300'
-                    : 'border-slate-700 bg-slate-800 text-slate-500'
-                  }`}>
-                  {rawJdText!.length.toLocaleString('vi-VN')} ký tự
-                </span>
-              </button>
-              <div className="w-px bg-slate-800/60 my-1.5" />
-              <button
-                onClick={() => setView('optimized')}
-                className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-semibold transition-all relative ${view === 'optimized'
-                    ? 'text-violet-300 bg-violet-500/5'
-                    : 'text-slate-500 hover:text-slate-300 hover:bg-slate-800/30'
-                  }`}
-              >
-                {view === 'optimized' && (
-                  <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-violet-400 to-transparent" />
-                )}
-                <i className="fa-solid fa-wand-magic-sparkles text-[11px]" />
-                JD Tối ưu AI
-                <span className={`text-[9px] px-1.5 py-0.5 rounded border ${view === 'optimized'
-                    ? 'border-violet-500/40 bg-violet-500/15 text-violet-300'
-                    : 'border-slate-700 bg-slate-800 text-slate-500'
-                  }`}>
-                  {jdText.length.toLocaleString('vi-VN')} ký tự
-                </span>
-              </button>
-            </div>
-          )}
-
-          {/* Label khi chỉ có 1 phiên bản */}
-          {!hasRaw && (
-            <div className="flex items-center gap-2 px-5 py-2.5 bg-slate-900/30 border-b border-slate-800/40">
-              <i className="fa-solid fa-circle-info text-indigo-400/50 text-[10px]" />
-              <span className="text-[10px] text-slate-600">Nội dung JD được dùng để phân tích</span>
-            </div>
-          )}
-
-          {/* Content */}
-          <div className="px-5 py-4 max-h-[400px] overflow-y-auto custom-scrollbar">
-            <pre className="text-sm text-slate-300 leading-relaxed whitespace-pre-wrap font-sans break-words">
-              {activeText}
-            </pre>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
-
-// ── ExpandedContent chính ───────────────────────────────────────────────────
-
 interface ExpandedContentProps {
   candidate: Candidate;
   expandedCriteria: Record<string, Record<string, boolean>>;
   onToggleCriterion: (candidateId: string, criterion: string) => void;
   jdText: string;
-  rawJdText?: string;
 }
 
-const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCriteria, onToggleCriterion, jdText, rawJdText }) => {
+const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCriteria, onToggleCriterion, jdText }) => {
   const analysisRecord = candidate.analysis as Record<string, unknown> | undefined;
   const allDetails = useMemo(() => {
     const rawDetails = analysisRecord ? getRawRecordValueByAliases(analysisRecord, ['chi tiet']) : undefined;
@@ -1560,11 +1329,9 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
     return Array.isArray(rawDetails) ? rawDetails as DetailedScore[] : [];
   }, [analysisRecord]);
 
-  const { loyaltyDetail, loyaltyDerivedFromBasic, basicDetails, supplementalDetails } = useMemo(() => {
+  const { basicDetails, supplementalDetails } = useMemo(() => {
     const basicMap = new Map<string, DetailedScore>();
     const supplementalMap = new Map<string, DetailedScore>();
-    let loyaltyItem: DetailedScore | null = null;
-    let loyaltyFallbackSource: DetailedScore | null = null;
 
     allDetails.forEach((item) => {
       const canonical = canonicalizeCriterionName(getDetailCriterion(item));
@@ -1572,21 +1339,11 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
         return;
       }
 
-      if (canonical === LOYALTY_CRITERION) {
-        if (!loyaltyItem) {
-          loyaltyItem = item;
-        }
-        return;
-      }
-
-      if (REMOVED_ADVANCED_CRITERIA.includes(canonical)) {
+      if (REMOVED_CRITERIA.includes(canonical)) {
         return;
       }
 
       if (BASIC_CRITERIA.includes(canonical)) {
-        if (canonical === BASIC_CRITERIA[7] && !loyaltyFallbackSource) {
-          loyaltyFallbackSource = item;
-        }
         if (!basicMap.has(canonical)) {
           basicMap.set(canonical, item);
         }
@@ -1598,14 +1355,7 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
       }
     });
 
-    const derivedFromBasic = !loyaltyItem && Boolean(loyaltyFallbackSource);
-    if (!loyaltyItem && loyaltyFallbackSource) {
-      loyaltyItem = buildSyntheticLoyaltyDetail(loyaltyFallbackSource);
-    }
-
     return {
-      loyaltyDetail: loyaltyItem,
-      loyaltyDerivedFromBasic: derivedFromBasic,
       basicDetails: BASIC_CRITERIA
         .map((criterionName) => basicMap.get(criterionName))
         .filter((item): item is DetailedScore => Boolean(item)),
@@ -1621,14 +1371,6 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
     [basicDetails]
   );
 
-  const loyaltyScore = useMemo(() => {
-    if (!loyaltyDetail) {
-      return 0;
-    }
-
-    return getNormalizedScoreValue(getDetailScore(loyaltyDetail), getDetailFormula(loyaltyDetail), LOYALTY_TOTAL_MAX);
-  }, [loyaltyDetail]);
-
   const totalScore = useMemo(() => {
     const rawTotal = analysisRecord ? getRawRecordValueByAliases(analysisRecord, ['tong diem']) : undefined;
 
@@ -1643,64 +1385,14 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
       }
     }
 
-    const loyaltyContribution = loyaltyDerivedFromBasic ? 0 : loyaltyScore;
-    return Math.min(100, parseFloat((basicScore + loyaltyContribution).toFixed(1)));
-  }, [analysisRecord, basicScore, loyaltyDerivedFromBasic, loyaltyScore]);
+    return Math.min(100, parseFloat(basicScore.toFixed(1)));
+  }, [analysisRecord, basicScore]);
 
-  const [employmentTimeline, setEmploymentTimeline] = useState<CareerTimelineItem[]>([]);
   const educationDetail = useMemo(
     () => basicDetails.find((item) => canonicalizeCriterionName(getDetailCriterion(item)) === BASIC_CRITERIA[4]),
     [basicDetails]
   );
   const [educationSummary, setEducationSummary] = useState<EducationSummary | null>(() => buildEducationSummary(candidate, educationDetail));
-
-  useEffect(() => {
-    let isDisposed = false;
-
-    const hydrateTimeline = async () => {
-      try {
-        const cvText = await resolveCandidateCvText(candidate);
-        let nextTimeline = dedupeCareerTimelineItems([
-          ...extractCareerTimelineFromCandidatePayload(candidate),
-          ...(cvText ? extractCareerTimeline(cvText) : []),
-        ]);
-
-        if (nextTimeline.length === 0 && loyaltyDetail) {
-          const evidenceTimeline = extractCareerTimeline(getDetailEvidence(loyaltyDetail));
-          if (evidenceTimeline.length > 0) {
-            nextTimeline = evidenceTimeline;
-          }
-        }
-
-        if (nextTimeline.length === 0) {
-          nextTimeline = dedupeCareerTimelineItems(
-            allDetails.flatMap((detail) => [
-              ...extractCareerTimeline(getDetailEvidence(detail)),
-              ...extractCareerTimeline(getDetailExplanation(detail)),
-            ])
-          );
-        }
-
-        if (!isDisposed) {
-          setEmploymentTimeline(nextTimeline);
-        }
-      } catch {
-        if (!isDisposed) {
-          const fallbackTimeline = dedupeCareerTimelineItems([
-            ...extractCareerTimelineFromCandidatePayload(candidate),
-            ...(loyaltyDetail ? extractCareerTimeline(getDetailEvidence(loyaltyDetail)) : []),
-          ]);
-          setEmploymentTimeline(fallbackTimeline);
-        }
-      }
-    };
-
-    void hydrateTimeline();
-
-    return () => {
-      isDisposed = true;
-    };
-  }, [allDetails, candidate, loyaltyDetail]);
 
   useEffect(() => {
     let isDisposed = false;
@@ -1728,14 +1420,14 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
 
   const matchPercent = Math.min(100, Math.round(totalScore));
   const recommendation = totalScore >= 75
-    ? 'Ứng viên xuất sắc, nên ưu tiên mời phỏng vấn sớm.'
+    ? 'Ã¡Â»Â¨ng viÃƒÂªn xuÃ¡ÂºÂ¥t sÃ¡ÂºÂ¯c, nÃƒÂªn Ã†Â°u tiÃƒÂªn mÃ¡Â»Âi phÃ¡Â»Âng vÃ¡ÂºÂ¥n sÃ¡Â»â€ºm.'
     : totalScore >= 60
-      ? 'Ứng viên có nền tảng tốt, nên xem xét mời phỏng vấn.'
+      ? 'Ã¡Â»Â¨ng viÃƒÂªn cÃƒÂ³ nÃ¡Â»Ân tÃ¡ÂºÂ£ng tÃ¡Â»â€˜t, nÃƒÂªn xem xÃƒÂ©t mÃ¡Â»Âi phÃ¡Â»Âng vÃ¡ÂºÂ¥n.'
       : totalScore >= 40
-        ? 'Ứng viên có tiềm năng, cân nhắc nếu thiếu nguồn.'
-        : 'Nên ưu tiên ứng viên khác có mức phù hợp cao hơn.';
+        ? 'Ã¡Â»Â¨ng viÃƒÂªn cÃƒÂ³ tiÃ¡Â»Âm nÃ„Æ’ng, cÃƒÂ¢n nhÃ¡ÂºÂ¯c nÃ¡ÂºÂ¿u thiÃ¡ÂºÂ¿u nguÃ¡Â»â€œn.'
+        : 'NÃƒÂªn Ã†Â°u tiÃƒÂªn Ã¡Â»Â©ng viÃƒÂªn khÃƒÂ¡c cÃƒÂ³ mÃ¡Â»Â©c phÃƒÂ¹ hÃ¡Â»Â£p cao hÃ†Â¡n.';
   const educationValidation = candidate.analysis?.educationValidation;
-  const educationValidationNote = educationValidation?.validationNote || 'Chưa xác định';
+  const educationValidationNote = educationValidation?.validationNote || 'ChÃ†Â°a xÃƒÂ¡c Ã„â€˜Ã¡Â»â€¹nh';
   const educationIsValid = normalizeAscii(educationValidationNote).includes('hop le') || normalizeAscii(educationValidationNote).includes('valid');
   const standardizedEducation = educationValidation?.standardizedEducation || '';
   const shouldShowStandardizedEducation = Boolean(standardizedEducation && !isGenericEducationValidation(standardizedEducation));
@@ -1743,28 +1435,24 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
   return (
     <div className="space-y-4 p-2 md:p-4">
 
-      {/* ── Tổng hợp đánh giá ─────────────────────────────── */}
+      {/* Ã¢â€â‚¬Ã¢â€â‚¬ TÃ¡Â»â€¢ng hÃ¡Â»Â£p Ã„â€˜ÃƒÂ¡nh giÃƒÂ¡ Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ */}
       <div className="rounded-xl border border-white/[0.08] bg-[#05070b] p-5 shadow-sm">
         <div className="flex flex-col items-start justify-between gap-4 md:flex-row">
           <h4 className="flex items-center gap-2 text-lg font-semibold text-slate-100">
             <i className="fa-solid fa-chart-pie text-cyan-400" />
-            Tổng hợp đánh giá
+            TÃ¡Â»â€¢ng hÃ¡Â»Â£p Ã„â€˜ÃƒÂ¡nh giÃƒÂ¡
           </h4>
-          <div className="grid w-full grid-cols-2 gap-2 md:w-auto md:grid-cols-4">
+          <div className="grid w-full grid-cols-2 gap-2 md:w-auto md:grid-cols-3">
             <div className="rounded-lg border border-white/[0.08] bg-white/[0.025] px-3 py-2 text-xs">
-              <div className="text-slate-500">Tổng điểm</div>
+              <div className="text-slate-500">TÃ¡Â»â€¢ng Ã„â€˜iÃ¡Â»Æ’m</div>
               <div className="font-semibold text-slate-100">{totalScore.toFixed(1)}<span className="text-slate-500">/100</span></div>
             </div>
             <div className="rounded-lg border border-cyan-500/20 bg-cyan-500/[0.045] px-3 py-2 text-xs">
-              <div className="text-cyan-500/70">Cốt lõi</div>
+              <div className="text-cyan-500/70">CÃ¡Â»â€˜t lÃƒÂµi</div>
               <div className="font-semibold text-cyan-300">{basicScore.toFixed(1)}<span className="text-slate-500">/{BASIC_TOTAL_MAX}</span></div>
             </div>
-            <div className="rounded-lg border border-amber-500/20 bg-amber-500/[0.045] px-3 py-2 text-xs">
-              <div className="text-amber-400/70">Mức độ trung thành</div>
-              <div className="font-semibold text-amber-300">{loyaltyScore.toFixed(1)}<span className="text-slate-500">/{LOYALTY_TOTAL_MAX}</span></div>
-            </div>
             <div className="rounded-lg border border-white/[0.08] bg-white/[0.025] px-3 py-2 text-xs">
-              <div className="text-slate-500">Phù hợp JD</div>
+              <div className="text-slate-500">PhÃƒÂ¹ hÃ¡Â»Â£p JD</div>
               <div className="font-semibold text-emerald-400">{matchPercent}%</div>
             </div>
           </div>
@@ -1772,89 +1460,49 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
 
         <div className="mt-4 space-y-1.5">
           <div className="flex items-center gap-2 text-[11px] text-slate-500">
-            <span className="w-20 text-cyan-500/80">Cốt lõi</span>
+            <span className="w-20 text-cyan-500/80">CÃ¡Â»â€˜t lÃƒÂµi</span>
             <div className="flex-1 h-2 rounded-full bg-white/[0.08] overflow-hidden">
               <div className="h-full rounded-full bg-cyan-500 transition-all duration-700"
                 style={{ width: `${Math.min(100, (basicScore / BASIC_TOTAL_MAX) * 100)}%` }} />
             </div>
             <span className="w-10 text-right font-mono text-cyan-400">{Math.round((basicScore / BASIC_TOTAL_MAX) * 100)}%</span>
           </div>
-          <div className="flex items-center gap-2 text-[11px] text-slate-500">
-            <span className="w-20 text-amber-400/80">Trung thành</span>
-            <div className="flex-1 h-2 rounded-full bg-white/[0.08] overflow-hidden">
-              <div className="h-full rounded-full bg-amber-500 transition-all duration-700"
-                style={{ width: `${Math.min(100, (loyaltyScore / LOYALTY_TOTAL_MAX) * 100)}%` }} />
-            </div>
-            <span className="w-10 text-right font-mono text-amber-400">{Math.round((loyaltyScore / LOYALTY_TOTAL_MAX) * 100)}%</span>
-          </div>
         </div>
 
         <div className="mt-3 rounded-lg border border-white/[0.08] bg-white/[0.025] px-4 py-3 text-sm">
-          <span className="font-semibold text-slate-200">Nhận định:</span>{' '}
+          <span className="font-semibold text-slate-200">NhÃ¡ÂºÂ­n Ã„â€˜Ã¡Â»â€¹nh:</span>{' '}
           <span className="text-slate-400">{recommendation}</span>
         </div>
       </div>
 
-      <div className="rounded-xl border border-amber-500/20 bg-[#030405] overflow-hidden">
-        <div className="flex items-center justify-between border-b border-amber-500/15 px-4 py-4">
-          <div className="flex items-center gap-2.5 text-sm font-semibold text-amber-300">
-            <i className="fa-solid fa-shield-halved text-base"></i>
-            <span>Mức độ trung thành</span>
-            <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[10px] font-bold text-amber-300">{LOYALTY_TOTAL_MAX} điểm</span>
-            {loyaltyDerivedFromBasic && (
-              <span className="rounded-full border border-white/[0.08] bg-white/[0.04] px-2 py-0.5 text-[10px] font-medium text-slate-300">
-                Suy ra từ Gắn bó & Lịch sử CV
-              </span>
-            )}
-          </div>
-          <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${loyaltyScore / LOYALTY_TOTAL_MAX >= 0.8 ? 'text-emerald-400' : loyaltyScore / LOYALTY_TOTAL_MAX >= 0.6 ? 'text-amber-400' : 'text-red-400'}`}>{loyaltyScore.toFixed(1)}/{LOYALTY_TOTAL_MAX}</span>
-        </div>
-        <div className="p-4">
-          {loyaltyDetail ? (
-            <CriterionAccordion
-              item={loyaltyDetail}
-              isExpanded={!!expandedCriteria[candidate.id]?.[LOYALTY_CRITERION]}
-              onToggle={() => onToggleCriterion(candidate.id, LOYALTY_CRITERION)}
-              jdText={jdText}
-              employmentTimeline={employmentTimeline}
-            />
-          ) : (
-            <div className="flex flex-col items-center justify-center py-10 text-slate-500">
-              <i className="fa-solid fa-shield-halved text-3xl mb-3 opacity-30"></i>
-              <p className="text-sm">Chưa có dữ liệu mức độ trung thành</p>
-            </div>
-          )}
-        </div>
-      </div>
-
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {candidate.analysis?.['Điểm mạnh CV'] && (
+        {candidate.analysis?.['Ã„ÂiÃ¡Â»Æ’m mÃ¡ÂºÂ¡nh CV'] && (
           <div className="p-4 bg-[#05070b] border border-emerald-500/20 rounded-xl">
             <p className="font-semibold text-green-300 mb-2 flex items-center gap-2 text-base">
-              <i className="fa-solid fa-wand-magic-sparkles"></i>Điểm mạnh CV
+              <i className="fa-solid fa-wand-magic-sparkles"></i>Ã„ÂiÃ¡Â»Æ’m mÃ¡ÂºÂ¡nh CV
             </p>
             <ul className="list-disc list-inside text-sm text-green-300/90 space-y-1.5 pl-2 leading-relaxed">
-              {candidate.analysis['Điểm mạnh CV'].map((s, idx) => <li key={idx}>{s}</li>)}
+              {candidate.analysis['Ã„ÂiÃ¡Â»Æ’m mÃ¡ÂºÂ¡nh CV'].map((s, idx) => <li key={idx}>{s}</li>)}
             </ul>
           </div>
         )}
-        {candidate.analysis?.['Điểm yếu CV'] && (
+        {candidate.analysis?.['Ã„ÂiÃ¡Â»Æ’m yÃ¡ÂºÂ¿u CV'] && (
           <div className="p-4 bg-[#05070b] border border-rose-500/20 rounded-xl">
             <p className="font-semibold text-red-300 mb-2 flex items-center gap-2 text-base">
-              <i className="fa-solid fa-flag"></i>Điểm yếu CV
+              <i className="fa-solid fa-flag"></i>Ã„ÂiÃ¡Â»Æ’m yÃ¡ÂºÂ¿u CV
             </p>
             <ul className="list-disc list-inside text-sm text-red-300/90 space-y-1.5 pl-2 leading-relaxed">
-              {candidate.analysis['Điểm yếu CV'].map((s, idx) => <li key={idx}>{s}</li>)}
+              {candidate.analysis['Ã„ÂiÃ¡Â»Æ’m yÃ¡ÂºÂ¿u CV'].map((s, idx) => <li key={idx}>{s}</li>)}
             </ul>
           </div>
         )}
       </div>
 
-      {/* ── Cảnh báo AI Debiasing ────────────────────────────── */}
+      {/* Ã¢â€â‚¬Ã¢â€â‚¬ CÃ¡ÂºÂ£nh bÃƒÂ¡o AI Debiasing Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ */}
       {candidate.debiasingWarnings && candidate.debiasingWarnings.length > 0 && (
         <div className="rounded-xl border border-amber-500/25 bg-[#05070b] p-4 shadow-sm">
           <h4 className="mb-3 flex items-center gap-2 text-base font-bold text-amber-300">
-            <i className="fa-solid fa-scale-balanced"></i> Cảnh báo Đạo đức AI
+            <i className="fa-solid fa-scale-balanced"></i> CÃ¡ÂºÂ£nh bÃƒÂ¡o Ã„ÂÃ¡ÂºÂ¡o Ã„â€˜Ã¡Â»Â©c AI
           </h4>
           <ul className="space-y-2">
             {candidate.debiasingWarnings.map((w, idx) => (
@@ -1867,19 +1515,19 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
         </div>
       )}
 
-      {/* ── Education Validation ─────────────────────────────── */}
+      {/* Ã¢â€â‚¬Ã¢â€â‚¬ Education Validation Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ */}
       {educationValidation && (
         <div className="rounded-xl border border-white/[0.08] bg-[#05070b] p-4 shadow-sm">
           <h4 className="mb-3 flex items-center gap-2 text-base font-bold text-slate-100">
-            <i className="fa-solid fa-graduation-cap text-indigo-400"></i> Xác thực học vấn
+            <i className="fa-solid fa-graduation-cap text-indigo-400"></i> XÃƒÂ¡c thÃ¡Â»Â±c hÃ¡Â»Âc vÃ¡ÂºÂ¥n
           </h4>
           <div className="rounded-lg border border-white/[0.08] bg-white/[0.025] p-3">
             <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
               <div className="min-w-0 space-y-3">
                 <div>
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-indigo-300/80">Cơ sở đào tạo</p>
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-indigo-300/80">CÃ†Â¡ sÃ¡Â»Å¸ Ã„â€˜ÃƒÂ o tÃ¡ÂºÂ¡o</p>
                   <p className="mt-1 text-sm font-semibold text-slate-100">
-                    {educationSummary?.institution || 'Chưa tìm thấy tên cơ sở đào tạo trong CV'}
+                    {educationSummary?.institution || 'ChÃ†Â°a tÃƒÂ¬m thÃ¡ÂºÂ¥y tÃƒÂªn cÃ†Â¡ sÃ¡Â»Å¸ Ã„â€˜ÃƒÂ o tÃ¡ÂºÂ¡o trong CV'}
                   </p>
                 </div>
 
@@ -1887,19 +1535,19 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
                   <div className="grid gap-2 text-xs text-slate-400 md:grid-cols-3">
                     {educationSummary?.major && (
                       <div className="rounded-md border border-white/[0.06] bg-black/20 px-2.5 py-2">
-                        <span className="block text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">Ngành học</span>
+                        <span className="block text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">NgÃƒÂ nh hÃ¡Â»Âc</span>
                         <span className="mt-1 block text-slate-200">{educationSummary.major}</span>
                       </div>
                     )}
                     {educationSummary?.degree && (
                       <div className="rounded-md border border-white/[0.06] bg-black/20 px-2.5 py-2">
-                        <span className="block text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">Bằng cấp</span>
+                        <span className="block text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">BÃ¡ÂºÂ±ng cÃ¡ÂºÂ¥p</span>
                         <span className="mt-1 block text-slate-200">{educationSummary.degree}</span>
                       </div>
                     )}
                     {shouldShowStandardizedEducation && (
                       <div className="rounded-md border border-white/[0.06] bg-black/20 px-2.5 py-2">
-                        <span className="block text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">Chuẩn hóa</span>
+                        <span className="block text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">ChuÃ¡ÂºÂ©n hÃƒÂ³a</span>
                         <span className="mt-1 block text-slate-200">{standardizedEducation}</span>
                       </div>
                     )}
@@ -1915,18 +1563,13 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
         </div>
       )}
 
-      {/* ── Mô tả công việc gốc / tối ưu ────────────────────── */}
-      {jdText && jdText.trim().length > 0 && (
-        <JDOriginalPanel jdText={jdText} rawJdText={rawJdText} />
-      )}
-
-      {/* ── Tab chuyển đổi Cơ bản / Nâng cao ───────────────── */}
+      {/* Ã¢â€â‚¬Ã¢â€â‚¬ Tab chuyÃ¡Â»Æ’n Ã„â€˜Ã¡Â»â€¢i CÃ†Â¡ bÃ¡ÂºÂ£n / NÃƒÂ¢ng cao Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ */}
       <div className="rounded-xl border border-white/[0.08] bg-[#030405] overflow-hidden">
         <div className="border-b border-white/[0.08] px-4 py-4">
           <div className="flex flex-wrap items-center gap-2.5 text-sm font-semibold text-cyan-300">
             <i className="fa-solid fa-layer-group text-base"></i>
-            <span>Tiêu chí cốt lõi</span>
-            <span className="rounded-full border border-cyan-500/30 bg-cyan-500/10 px-2 py-0.5 text-[10px] font-bold text-cyan-300">{BASIC_TOTAL_MAX} điểm</span>
+            <span>TiÃƒÂªu chÃƒÂ­ cÃ¡Â»â€˜t lÃƒÂµi</span>
+            <span className="rounded-full border border-cyan-500/30 bg-cyan-500/10 px-2 py-0.5 text-[10px] font-bold text-cyan-300">{BASIC_TOTAL_MAX} Ã„â€˜iÃ¡Â»Æ’m</span>
             <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${basicScore / BASIC_TOTAL_MAX >= 0.8 ? 'text-emerald-400' : basicScore / BASIC_TOTAL_MAX >= 0.6 ? 'text-amber-400' : 'text-red-400'}`}>{basicScore.toFixed(1)}/{BASIC_TOTAL_MAX}</span>
           </div>
         </div>
@@ -1935,7 +1578,7 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
           <div className="flex items-center gap-2 pb-2 border-b border-white/[0.06]">
             <i className="fa-solid fa-circle-info text-cyan-500/60 text-xs"></i>
             <p className="text-[11px] text-slate-500">
-              {basicDetails.length} tiêu chí hiển thị • {BASIC_CRITERIA.length} tiêu chí cốt lõi • Tổng phổ điểm <span className="text-cyan-400 font-bold">{BASIC_TOTAL_MAX}</span> điểm • Đánh giá nền tảng ứng viên
+              {basicDetails.length} tiÃƒÂªu chÃƒÂ­ hiÃ¡Â»Æ’n thÃ¡Â»â€¹ Ã¢â‚¬Â¢ {BASIC_CRITERIA.length} tiÃƒÂªu chÃƒÂ­ cÃ¡Â»â€˜t lÃƒÂµi Ã¢â‚¬Â¢ TÃ¡Â»â€¢ng phÃ¡Â»â€¢ Ã„â€˜iÃ¡Â»Æ’m <span className="text-cyan-400 font-bold">{BASIC_TOTAL_MAX}</span> Ã„â€˜iÃ¡Â»Æ’m Ã¢â‚¬Â¢ Ã„ÂÃƒÂ¡nh giÃƒÂ¡ nÃ¡Â»Ân tÃ¡ÂºÂ£ng Ã¡Â»Â©ng viÃƒÂªn
             </p>
           </div>
 
@@ -1955,7 +1598,7 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
           ) : (
             <div className="flex flex-col items-center justify-center py-10 text-slate-500">
               <i className="fa-solid fa-layer-group text-3xl mb-3 opacity-30"></i>
-              <p className="text-sm">Chưa có dữ liệu tiêu chí cốt lõi</p>
+              <p className="text-sm">ChÃ†Â°a cÃƒÂ³ dÃ¡Â»Â¯ liÃ¡Â»â€¡u tiÃƒÂªu chÃƒÂ­ cÃ¡Â»â€˜t lÃƒÂµi</p>
             </div>
           )}
 

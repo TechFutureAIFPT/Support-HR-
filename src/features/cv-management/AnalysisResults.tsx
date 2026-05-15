@@ -16,7 +16,6 @@ interface AnalysisResultsProps {
   jobPosition: string;
   locationRequirement: string;
   jdText: string;
-  rawJdText?: string;
   setActiveStep?: (step: AppStep) => void;
   markStepAsCompleted?: (step: AppStep) => void;
   weights?: WeightCriteria;
@@ -68,7 +67,7 @@ const FullScreenAnalysisLoader: React.FC<{ message: string }> = ({ message }) =>
 
 type RankedCandidate = Candidate & { rank: number; jdFitScore: number; gradeValue: number };
 
-const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMessage, results, jobPosition, locationRequirement, jdText, rawJdText, setActiveStep, markStepAsCompleted, weights, hardFilters }) => {
+const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMessage, results, jobPosition, locationRequirement, jdText, setActiveStep, markStepAsCompleted, weights, hardFilters }) => {
   const navigate = useNavigate();
   const [filter, setFilter] = useState('all');
   const [sortBy, setSortBy] = useState<'score' | 'jdFit'>('score');
@@ -467,7 +466,6 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMes
                 expandedCriteria={expandedCriteria}
                 onToggleCriterion={handleToggleCriterion}
                 jdText={jdText}
-                rawJdText={rawJdText}
               />
             </div>
           </div>
