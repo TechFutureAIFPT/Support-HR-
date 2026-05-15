@@ -16,6 +16,7 @@ import type {
   AnalysisFeedbackRecord,
   AnalysisFeedbackSeverity,
 } from '@/shared/types';
+import { useThemeColors } from '@/shared/ui/theme/useThemeColors';
 
 interface AIFeedbackFormProps {
   candidateId: string;
@@ -161,11 +162,25 @@ const AIFeedbackForm: React.FC<AIFeedbackFormProps> = ({
   onSubmit,
   onCancel,
 }) => {
+  const tc = useThemeColors();
   const [finalScore, setFinalScore] = useState<number>(Math.round(aiScore));
   const [selectedCriteria, setSelectedCriteria] = useState<string[]>([]);
   const [notes, setNotes] = useState<string>('');
   const [action, setAction] = useState<AnalysisFeedbackAction | null>(null);
   const [isReusableGuidance, setIsReusableGuidance] = useState<boolean>(false);
+  const panelStyle = {
+    background: 'linear-gradient(180deg, rgba(255,255,255,0.032) 0%, rgba(255,255,255,0.02) 100%)',
+    borderColor: tc.borderColor,
+    boxShadow: '0 18px 48px rgba(2,8,23,0.16)',
+  } as const;
+  const sectionStyle = {
+    background: tc.inputBg,
+    borderColor: tc.borderColor,
+  } as const;
+  const fieldStyle = {
+    background: 'rgba(255,255,255,0.03)',
+    borderColor: tc.borderColor,
+  } as const;
 
   useEffect(() => {
     setFinalScore(Math.round(initialFeedback?.finalScore ?? aiScore));
@@ -236,7 +251,10 @@ const AIFeedbackForm: React.FC<AIFeedbackFormProps> = ({
   };
 
   return (
-    <div className="rounded-[28px] border border-slate-800/80 bg-[#091427] p-5 shadow-[0_18px_60px_-24px_rgba(15,23,42,0.82)] md:p-6">
+    <div
+      className="rounded-[28px] border p-5 md:p-6"
+      style={panelStyle}
+    >
       <div className="mb-6 flex items-start gap-4 border-b border-slate-800/70 pb-5">
         <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-sky-400/25 bg-sky-400/10">
           <Sparkles className="h-5 w-5 text-sky-300" />
@@ -252,7 +270,7 @@ const AIFeedbackForm: React.FC<AIFeedbackFormProps> = ({
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid gap-4 xl:grid-cols-[1.05fr_0.95fr]">
-          <section className="rounded-[24px] border border-slate-800/70 bg-slate-950/30 p-4 md:p-5">
+          <section className="rounded-[24px] border p-4 md:p-5" style={sectionStyle}>
             <div className="flex items-center justify-between gap-3">
               <div>
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
@@ -266,7 +284,7 @@ const AIFeedbackForm: React.FC<AIFeedbackFormProps> = ({
               </div>
             </div>
 
-            <div className="mt-5 rounded-[22px] border border-slate-800/70 bg-[#081120] px-4 py-4">
+            <div className="mt-5 rounded-[22px] border px-4 py-4" style={fieldStyle}>
               <input
                 type="range"
                 min="0"
@@ -301,7 +319,7 @@ const AIFeedbackForm: React.FC<AIFeedbackFormProps> = ({
             </div>
           </section>
 
-          <section className="rounded-[24px] border border-slate-800/70 bg-slate-950/30 p-4 md:p-5">
+          <section className="rounded-[24px] border p-4 md:p-5" style={sectionStyle}>
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-800/80 bg-slate-900/70">
                 <ClipboardList className="h-4.5 w-4.5 text-slate-300" />
@@ -350,7 +368,7 @@ const AIFeedbackForm: React.FC<AIFeedbackFormProps> = ({
           </section>
         </div>
 
-        <section className="rounded-[24px] border border-slate-800/70 bg-slate-950/30 p-4 md:p-5">
+        <section className="rounded-[24px] border p-4 md:p-5" style={sectionStyle}>
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-800/80 bg-slate-900/70">
               <Lightbulb className="h-4.5 w-4.5 text-slate-300" />
@@ -397,7 +415,7 @@ const AIFeedbackForm: React.FC<AIFeedbackFormProps> = ({
           ) : null}
         </section>
 
-        <section className="rounded-[24px] border border-slate-800/70 bg-slate-950/30 p-4 md:p-5">
+        <section className="rounded-[24px] border p-4 md:p-5" style={sectionStyle}>
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-800/80 bg-slate-900/70">
               <CheckCircle2 className="h-4.5 w-4.5 text-slate-300" />
@@ -434,7 +452,7 @@ const AIFeedbackForm: React.FC<AIFeedbackFormProps> = ({
           </div>
         </section>
 
-        <section className="rounded-[24px] border border-slate-800/70 bg-slate-950/30 p-4 md:p-5">
+        <section className="rounded-[24px] border p-4 md:p-5" style={sectionStyle}>
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-800/80 bg-slate-900/70">
               <MessageSquareText className="h-4.5 w-4.5 text-slate-300" />
@@ -450,7 +468,7 @@ const AIFeedbackForm: React.FC<AIFeedbackFormProps> = ({
           </div>
 
           <textarea
-            className="mt-4 min-h-[140px] w-full rounded-[22px] border border-slate-800/70 bg-[#081120] p-4 text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-sky-400/40 focus:ring-1 focus:ring-sky-400/30"
+            className="mt-4 min-h-[140px] w-full rounded-[22px] border border-slate-800/70 bg-black/25 p-4 text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-sky-400/40 focus:ring-1 focus:ring-sky-400/30"
             placeholder="Ví dụ: Ứng viên có từ khóa khá tốt nhưng kinh nghiệm triển khai thực tế ở môi trường production còn mỏng, cần kiểm chứng thêm ở vòng phỏng vấn."
             value={notes}
             onChange={(event) => setNotes(event.target.value)}

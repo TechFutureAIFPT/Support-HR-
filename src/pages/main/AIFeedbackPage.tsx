@@ -11,6 +11,7 @@ import type {
   WeightCriteria,
 } from '@/shared/types';
 import AIFeedbackForm from '@/features/feedback/AIFeedbackForm';
+import { useThemeColors } from '@/shared/ui/theme/useThemeColors';
 import {
   getAnalysisFeedbackStats,
   listAnalysisFeedback,
@@ -225,6 +226,7 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
   analysisContext,
 }) => {
   const navigate = useNavigate();
+  const tc = useThemeColors();
   const storedRun = useMemo(() => getStoredAnalysisRun(), []);
   const [currentView, setCurrentView] = useState<'summary' | 'feedback'>('summary');
   const [selectedCandidateId, setSelectedCandidateId] = useState<string | null>(null);
@@ -275,6 +277,27 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
     : 0;
   const topCandidatesCount = validCandidates.filter((candidate) => getDisplayedScore(candidate) >= 75).length;
   const weightsSummary = useMemo(() => getWeightsSummary(weights), [weights]);
+  const elevatedPanelStyle = {
+    background: 'linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.022) 100%)',
+    borderColor: tc.borderColor,
+    boxShadow: '0 24px 72px rgba(2,8,23,0.24)',
+  } as const;
+  const flatPanelStyle = {
+    background: tc.cardBg,
+    borderColor: tc.borderColor,
+    boxShadow: '0 18px 48px rgba(2,8,23,0.2)',
+  } as const;
+  const mutedPanelStyle = {
+    background: tc.inputBg,
+    borderColor: tc.borderColor,
+  } as const;
+  const headerSurfaceStyle = {
+    background: tc.headerBg,
+    borderColor: tc.borderColor,
+  } as const;
+  const workspaceSurfaceStyle = {
+    background: 'linear-gradient(180deg, rgba(255,255,255,0.028) 0%, rgba(255,255,255,0.018) 100%)',
+  } as const;
 
   const reloadFeedback = useCallback(async () => {
     if (!effectiveContext?.sessionId && !effectiveContext?.historyId && !effectiveContext?.syncHistoryId) {
@@ -393,7 +416,10 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
       <div className="feature-page-shell flex h-full flex-col bg-black p-4 md:p-6 lg:p-8">
         <div className="mx-auto flex w-full max-w-6xl flex-1 items-center">
           <div className="grid w-full gap-6 xl:grid-cols-[1.15fr_0.85fr]">
-            <section className="rounded-[32px] border border-slate-800/80 bg-gradient-to-br from-[#081120] via-[#0d1a2e] to-[#050b14] p-6 shadow-[0_22px_70px_-28px_rgba(15,23,42,0.92)] md:p-8">
+            <section
+              className="rounded-[32px] border p-6 md:p-8"
+              style={elevatedPanelStyle}
+            >
               <div className="flex h-14 w-14 items-center justify-center rounded-3xl border border-sky-400/25 bg-sky-400/10">
                 <CheckCircle2 className="h-7 w-7 text-sky-300" />
               </div>
@@ -407,19 +433,19 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
               </p>
 
               <div className="mt-8 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                <div className="rounded-[22px] border border-slate-800/70 bg-slate-950/25 p-4">
+                <div className="rounded-[22px] border p-4" style={mutedPanelStyle}>
                   <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">CV đã phân tích</p>
                   <p className="mt-2 text-2xl font-bold text-white">{validCandidates.length}</p>
                 </div>
-                <div className="rounded-[22px] border border-slate-800/70 bg-slate-950/25 p-4">
+                <div className="rounded-[22px] border p-4" style={mutedPanelStyle}>
                   <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Điểm trung bình</p>
                   <p className="mt-2 text-2xl font-bold text-sky-300">{avgScore.toFixed(1)}</p>
                 </div>
-                <div className="rounded-[22px] border border-slate-800/70 bg-slate-950/25 p-4">
+                <div className="rounded-[22px] border p-4" style={mutedPanelStyle}>
                   <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Từ 75 điểm trở lên</p>
                   <p className="mt-2 text-2xl font-bold text-emerald-300">{topCandidatesCount}</p>
                 </div>
-                <div className="rounded-[22px] border border-slate-800/70 bg-slate-950/25 p-4">
+                <div className="rounded-[22px] border p-4" style={mutedPanelStyle}>
                   <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Đã có phản hồi</p>
                   <p className="mt-2 text-2xl font-bold text-violet-300">{submittedCount}</p>
                 </div>
@@ -443,7 +469,10 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
               </div>
             </section>
 
-            <aside className="rounded-[32px] border border-slate-800/80 bg-[#091427] p-6 shadow-[0_22px_70px_-28px_rgba(15,23,42,0.88)] md:p-7">
+            <aside
+              className="rounded-[32px] border p-6 md:p-7"
+              style={flatPanelStyle}
+            >
               <div className="flex items-center gap-3">
                 <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-800/80 bg-slate-900/70">
                   <Sparkles className="h-5 w-5 text-slate-300" />
@@ -455,33 +484,33 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
               </div>
 
               <div className="mt-6 space-y-4">
-                <div className="rounded-[22px] border border-slate-800/70 bg-slate-950/30 p-4">
+                <div className="rounded-[22px] border p-4" style={mutedPanelStyle}>
                   <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Vị trí ứng tuyển</p>
                   <p className="mt-2 text-sm font-semibold leading-6 text-slate-100">
                     {effectiveJobPosition || 'Chưa có dữ liệu'}
                   </p>
                 </div>
 
-                <div className="rounded-[22px] border border-slate-800/70 bg-slate-950/30 p-4">
+                <div className="rounded-[22px] border p-4" style={mutedPanelStyle}>
                   <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Ngành nghề</p>
                   <p className="mt-2 text-sm font-semibold leading-6 text-slate-100">
                     {hardFilters?.industry || 'Chưa xác định'}
                   </p>
                 </div>
 
-                <div className="rounded-[22px] border border-slate-800/70 bg-slate-950/30 p-4">
+                <div className="rounded-[22px] border p-4" style={mutedPanelStyle}>
                   <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Trọng số chính</p>
                   <p className="mt-2 text-sm leading-6 text-slate-300">{weightsSummary}</p>
                 </div>
 
-                <div className="rounded-[22px] border border-slate-800/70 bg-slate-950/30 p-4">
+                <div className="rounded-[22px] border p-4" style={mutedPanelStyle}>
                   <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Context phản hồi</p>
                   <p className="mt-2 break-all text-sm leading-6 text-slate-300">
                     {effectiveContext?.historyId || effectiveContext?.sessionId || 'Đang dùng context local'}
                   </p>
                 </div>
 
-                <div className="rounded-[22px] border border-slate-800/70 bg-slate-950/30 p-4">
+                <div className="rounded-[22px] border p-4" style={mutedPanelStyle}>
                   <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Trạng thái đồng bộ</p>
                   <p className="mt-2 text-sm leading-6 text-slate-300">
                     {isLoadingFeedback
@@ -498,9 +527,13 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
   }
 
   return (
-    <div className="feature-page-shell flex h-full flex-col gap-4 bg-black p-4 md:p-6 lg:flex-row lg:gap-6">
-      <aside className="flex w-full shrink-0 flex-col overflow-hidden rounded-[28px] border border-slate-800/80 bg-[#091427] shadow-[0_18px_60px_-24px_rgba(15,23,42,0.82)] lg:w-[360px]">
-        <div className="border-b border-slate-800/70 bg-gradient-to-br from-[#081120] via-[#0c1728] to-[#091427] px-5 py-5">
+    <div className="feature-page-shell flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden bg-black">
+      <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
+        <aside
+          className="flex w-full shrink-0 flex-col overflow-hidden border-b lg:w-[360px] lg:border-r lg:border-b-0"
+          style={headerSurfaceStyle}
+        >
+          <div className="border-b px-5 py-5" style={headerSurfaceStyle}>
           <button
             onClick={() => setCurrentView('summary')}
             className="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-400 transition-colors hover:text-white"
@@ -522,13 +555,13 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
           </div>
 
           <div className="mt-5 grid grid-cols-2 gap-3">
-            <div className="rounded-[20px] border border-slate-800/70 bg-slate-950/25 p-3">
+            <div className="rounded-[20px] border p-3" style={mutedPanelStyle}>
               <p className="text-[11px] uppercase tracking-[0.16em] text-slate-500">Vị trí</p>
               <p className="mt-2 line-clamp-2 text-sm font-semibold leading-6 text-slate-100">
                 {effectiveJobPosition || 'Chưa rõ vị trí'}
               </p>
             </div>
-            <div className="rounded-[20px] border border-slate-800/70 bg-slate-950/25 p-3">
+            <div className="rounded-[20px] border p-3" style={mutedPanelStyle}>
               <p className="text-[11px] uppercase tracking-[0.16em] text-slate-500">Phản hồi</p>
               <p className="mt-2 text-sm font-semibold leading-6 text-slate-100">
                 {feedbackStats?.totalFeedback || submittedCount} bản ghi
@@ -537,7 +570,7 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
           </div>
         </div>
 
-        <div className="border-b border-slate-800/70 bg-slate-950/20 px-5 py-3 text-[12px] text-slate-500">
+        <div className="border-b px-5 py-3 text-[12px] text-slate-500" style={mutedPanelStyle}>
           <div className="flex items-center justify-between gap-3">
             <span className="flex min-w-0 items-center gap-1.5 truncate">
               <Clock3 className="h-3.5 w-3.5 shrink-0" />
@@ -568,7 +601,7 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
                 }}
                 className={`w-full border-b border-slate-800/60 border-l-4 px-5 py-4 text-left transition-all duration-200 ${
                   isSelected
-                    ? 'border-l-sky-400 bg-sky-400/8'
+                    ? 'border-l-indigo-400 bg-indigo-500/10'
                     : 'border-l-transparent hover:bg-slate-900/55'
                 }`}
               >
@@ -618,10 +651,13 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
         </div>
       </aside>
 
-      <section className="custom-scrollbar flex-1 overflow-y-auto rounded-[28px] border border-slate-800/80 bg-[#091427] shadow-[0_18px_60px_-24px_rgba(15,23,42,0.82)]">
+        <section
+          className="min-h-0 flex-1 overflow-hidden"
+          style={workspaceSurfaceStyle}
+        >
         {selectedCandidate ? (
           <div className="flex h-full flex-col">
-            <div className="border-b border-slate-800/70 bg-gradient-to-r from-[#081120] via-[#0d1a2e] to-[#091427] px-6 py-6">
+            <div className="border-b px-6 py-6" style={headerSurfaceStyle}>
               <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
                 <div>
                   <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-sky-300/80">
@@ -664,18 +700,20 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
               </p>
             </div>
 
-            <div className="mx-auto w-full max-w-5xl flex-1 p-4 pb-20 md:p-6">
-              <AIFeedbackForm
-                candidateId={selectedCandidate.id}
-                candidateName={selectedCandidate.candidateName}
-                aiScore={getCandidateScore(selectedCandidate)}
-                initialFeedback={currentFeedbackEntry}
-                isSubmitting={isSubmitting}
-                submitError={submitError}
-                submitSuccessMessage={submitSuccessMessage}
-                onSubmit={handleSubmit}
-                onCancel={() => navigate('/analysis')}
-              />
+            <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto">
+              <div className="mx-auto w-full max-w-5xl p-4 pb-20 md:p-6 xl:px-8">
+                <AIFeedbackForm
+                  candidateId={selectedCandidate.id}
+                  candidateName={selectedCandidate.candidateName}
+                  aiScore={getCandidateScore(selectedCandidate)}
+                  initialFeedback={currentFeedbackEntry}
+                  isSubmitting={isSubmitting}
+                  submitError={submitError}
+                  submitSuccessMessage={submitSuccessMessage}
+                  onSubmit={handleSubmit}
+                  onCancel={() => navigate('/analysis')}
+                />
+              </div>
             </div>
           </div>
         ) : (
@@ -689,7 +727,8 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
             </p>
           </div>
         )}
-      </section>
+        </section>
+      </div>
     </div>
   );
 };
