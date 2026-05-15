@@ -10,19 +10,19 @@ import type {
   Candidate,
   HardFilters,
   WeightCriteria,
-} from '@/shared/types';
+} from '@/types';
 import AIFeedbackForm from '@/features/feedback/AIFeedbackForm';
-import { useThemeColors } from '@/shared/ui/theme/useThemeColors';
+import { useThemeColors } from '@/hooks/useThemeColors';
 import {
   getAnalysisFeedbackStats,
   listAnalysisFeedback,
   saveAnalysisFeedback,
   type AnalysisFeedbackStats,
-} from '@/lib/services/data-sync/analysisFeedbackService';
+} from '@/services/data-sync/analysisFeedbackService';
 import {
   buildAnalysisSessionId,
   getActiveAnalysisContext,
-} from '@/lib/services/history-cache/activeAnalysisContext';
+} from '@/services/history-cache/activeAnalysisContext';
 
 interface AIFeedbackPageProps {
   candidates: Candidate[];

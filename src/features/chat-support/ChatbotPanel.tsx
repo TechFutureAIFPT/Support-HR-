@@ -1,10 +1,10 @@
 import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
-import type { AnalysisRunData, ChatMessage, ChatMessageRecord, ChatbotSession } from '@/shared/types';
-import { getChatbotAdvice } from '@/lib/services/screening/frontendScreeningService';
-import { analyzeSalary } from '@/lib/services/salary-analysis/salaryAnalysisService';
-import { ChatbotHistoryService } from '@/lib/services/data-sync/chatbotHistoryService';
-import { useThemeColors } from '@/shared/ui/theme/useThemeColors';
-import { getSafeErrorMessage } from '@/shared/utils/errorMessages';
+import type { AnalysisRunData, ChatMessage, ChatMessageRecord, ChatbotSession } from '@/types';
+import { getChatbotAdvice } from '@/services/screening/frontendScreeningService';
+import { analyzeSalary } from '@/services/salary-analysis/salaryAnalysisService';
+import { ChatbotHistoryService } from '@/services/data-sync/chatbotHistoryService';
+import { useThemeColors } from '@/hooks/useThemeColors';
+import { getSafeErrorMessage } from '@/utils/errorMessages';
 
 interface ChatbotPanelProps {
   analysisData: AnalysisRunData;

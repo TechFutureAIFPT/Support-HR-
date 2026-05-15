@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import SalaryAnalysisPanel from '@/features/analysis/SalaryAnalysisPanel';
-import type { Candidate } from '@/shared/types';
+import type { Candidate } from '@/types';
 
 interface SalaryAnalysisPageProps {
   candidates?: Candidate[];

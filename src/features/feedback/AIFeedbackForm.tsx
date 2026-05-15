@@ -15,8 +15,8 @@ import type {
   AnalysisFeedbackDraft,
   AnalysisFeedbackRecord,
   AnalysisFeedbackSeverity,
-} from '@/shared/types';
-import { useThemeColors } from '@/shared/ui/theme/useThemeColors';
+} from '@/types';
+import { useThemeColors } from '@/hooks/useThemeColors';
 
 interface AIFeedbackFormProps {
   candidateId: string;

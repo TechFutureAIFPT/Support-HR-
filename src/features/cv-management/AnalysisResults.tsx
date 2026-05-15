@@ -3,11 +3,11 @@ import React, { useState, useMemo, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import debounce from 'lodash.debounce';
-import type { Candidate, AppStep, WeightCriteria, HardFilters } from '@/shared/types';
+import type { Candidate, AppStep, WeightCriteria, HardFilters } from '@/types';
 import { FileText, CheckCircle2, BarChart3, Target, ArrowRight, Layers, GraduationCap, Briefcase, Award, Languages, Clock, MapPin, Users, XCircle } from 'lucide-react';
 import ExpandedContent from '@/features/cv-management/ExpandedContent';
-import { useThemeColors } from '@/shared/ui/theme/useThemeColors';
-import SupportHRLoading from '@/shared/ui/common/SupportHRLoading';
+import { useThemeColors } from '@/hooks/useThemeColors';
+import SupportHRLoading from '@/components/common/SupportHRLoading';
 
 interface AnalysisResultsProps {
   isLoading: boolean;

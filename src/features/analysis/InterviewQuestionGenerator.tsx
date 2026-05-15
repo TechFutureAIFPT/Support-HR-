@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import type { AnalysisRunData, Candidate } from '@/shared/types';
-import { generateInterviewQuestions } from '@/lib/services/screening/frontendInterviewQuestions';
+import type { AnalysisRunData, Candidate } from '@/types';
+import { generateInterviewQuestions } from '@/services/screening/frontendInterviewQuestions';
 
 interface InterviewQuestionGeneratorProps {
   analysisData: AnalysisRunData;

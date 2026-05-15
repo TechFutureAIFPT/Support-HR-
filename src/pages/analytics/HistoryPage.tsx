@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { fetchRecentHistory, fetchManualHistory } from '@/lib/services/history-cache/historyService';
-import type { HistoryEntry } from '@/shared/types';
-import SupportHRLoading from '@/shared/ui/common/SupportHRLoading';
+import { fetchRecentHistory, fetchManualHistory } from '@/services/history-cache/historyService';
+import type { HistoryEntry } from '@/types';
+import SupportHRLoading from '@/components/common/SupportHRLoading';
 
 interface HistoryPageProps { userEmail?: string; onRestore?: (payload: any) => void; }
 

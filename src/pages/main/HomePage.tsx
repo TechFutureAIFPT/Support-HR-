@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import type { AppStep } from '@/shared/types';
+import type { AppStep } from '@/types';
 import type { ComparisonCell } from "@/pages/main/home/comparison";
 import LandingHero from "@/pages/main/home/LandingHero";
 import PartnerTickerSection from "@/pages/main/home/PartnerTickerSection";

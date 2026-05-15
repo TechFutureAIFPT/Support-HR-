@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Users, FileText, X, Star, Mail, Phone, Briefcase, ChevronDown, ChevronUp, CheckCheck, Flag } from 'lucide-react';
-import type { Candidate } from '@/shared/types';
+import type { Candidate } from '@/types';
 
 interface SelectedCandidatesPageProps {
   candidates: Candidate[];

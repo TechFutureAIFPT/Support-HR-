@@ -1,26 +1,26 @@
 import React, { useState, useCallback, useMemo, useEffect, useRef, Suspense, lazy } from 'react';
-import { detectIndustryFromJD } from '@/lib/services/jd/industryDetector';
+import { detectIndustryFromJD } from '@/services/jd/industryDetector';
 import { BrowserRouter, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import { onAuthStateChanged } from 'firebase/auth';
-import { auth } from '@/lib/services/firebase';
+import { auth } from '@/services/firebase';
 import { SpeedInsights } from '@vercel/speed-insights/react';
 import { Analytics } from '@vercel/analytics/react';
-import WebVitalsReporter from '@/shared/ui/charts-stats/WebVitalsReporter';
-import BundleAnalyzer from '@/shared/ui/charts-stats/BundleAnalyzer';
-import { ThemeProvider } from '@/shared/ui/theme/ThemeProvider';
+import WebVitalsReporter from '@/components/charts/WebVitalsReporter';
+import BundleAnalyzer from '@/components/charts/BundleAnalyzer';
+import { ThemeProvider } from '@/context/theme/ThemeProvider';
 
-import { UserProfileService } from '@/lib/services/data-sync/userProfileService';
-import { onAuthChange } from '@/lib/services/auth/authService';
-import type { AuthUser } from '@/lib/services/auth/authTypes';
-import type { AppStep, Candidate, HardFilters, WeightCriteria, AnalysisRunData, ActiveAnalysisContext } from '@/shared/types';
-import { initialWeights } from '@/shared/config/constants';
-import Sidebar from '@/shared/layout/Sidebar';
-import ProgressBar from '@/shared/ui/common/ProgressBar';
-import JDTemplatesModal, { JDTemplate } from '@/shared/ui/history-cache/JDTemplatesModal';
-import HistoryModal from '@/shared/ui/history-cache/HistoryModal';
-import PageTransition from '@/shared/components/PageTransition';
-import MobileBottomNav from '@/shared/components/responsive/mobile/MobileBottomNav';
-import SupportHRLoading from '@/shared/ui/common/SupportHRLoading';
+import { UserProfileService } from '@/services/data-sync/userProfileService';
+import { onAuthChange } from '@/services/auth/authService';
+import type { AuthUser } from '@/services/auth/authTypes';
+import type { AppStep, Candidate, HardFilters, WeightCriteria, AnalysisRunData, ActiveAnalysisContext } from '@/types';
+import { initialWeights } from '@/config/constants';
+import Sidebar from '@/layout/Sidebar';
+import ProgressBar from '@/components/common/ProgressBar';
+import JDTemplatesModal, { JDTemplate } from '@/components/history/JDTemplatesModal';
+import HistoryModal from '@/components/history/HistoryModal';
+import PageTransition from '@/components/PageTransition';
+import MobileBottomNav from '@/components/responsive/mobile/MobileBottomNav';
+import SupportHRLoading from '@/components/common/SupportHRLoading';
 
 // Lazy load pages for code-splitting
 const ScreenerPage = lazy(() => import('@/pages/main/ScreenerPage'));
@@ -36,15 +36,15 @@ const SelectedCandidatesPage = lazy(() => import('@/pages/analytics/SelectedCand
 const AIFeedbackPage = lazy(() => import('@/pages/main/AIFeedbackPage'));
 import CandidateSuggestions from '@/pages/analytics/CandidateSuggestions';
 // HistoryPage removed from UI (still saving to Firestore silently)
-import { saveHistorySession } from '@/lib/services/history-cache/historyService';
-import { cvFilterHistoryService } from '@/lib/services/history-cache/analysisHistory';
+import { saveHistorySession } from '@/services/history-cache/historyService';
+import { cvFilterHistoryService } from '@/services/history-cache/analysisHistory';
 import {
   buildAnalysisSessionId,
   buildJdHash,
   clearActiveAnalysisContext,
   getActiveAnalysisContext,
   saveActiveAnalysisContext,
-} from '@/lib/services/history-cache/activeAnalysisContext';
+} from '@/services/history-cache/activeAnalysisContext';
 
 function usePrevious<T>(value: T): T | undefined {
   const ref = useRef<T | undefined>(undefined);

@@ -1,12 +1,12 @@
 import React, { Suspense, lazy, useCallback, useState } from 'react';
-import type { AppStep, Candidate, HardFilters, WeightCriteria } from '@/shared/types';
+import type { AppStep, Candidate, HardFilters, WeightCriteria } from '@/types';
 import JDInput from '@/features/criteria-config/JDInput';
 import JDMetaToolbar from '@/features/criteria-config/JDMetaToolbar';
 import CVScreenerWelcome from '@/pages/main/CVScreenerWelcome';
 import CVUploadMini from '@/features/cv-management/CVUploadMini';
-import { analyzeCVs } from '@/lib/services/screening/frontendScreeningService';
-import { getSafeErrorMessage } from '@/shared/utils/errorMessages';
-import SupportHRLoading from '@/shared/ui/common/SupportHRLoading';
+import { analyzeCVs } from '@/services/screening/frontendScreeningService';
+import { getSafeErrorMessage } from '@/utils/errorMessages';
+import SupportHRLoading from '@/components/common/SupportHRLoading';
 
 const WeightsConfig = lazy(() => import('@/features/criteria-config/WeightsConfig'));
 const AnalysisResults = lazy(() => import('@/features/cv-management/AnalysisResults'));

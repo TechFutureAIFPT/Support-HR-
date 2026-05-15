@@ -1,5 +1,5 @@
 import React from 'react';
-import type { HardFilters } from '@/shared/types';
+import type { HardFilters } from '@/types';
 
 interface JDInputProps {
   jdText: string;

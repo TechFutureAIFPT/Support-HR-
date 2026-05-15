@@ -10,15 +10,15 @@ import {
   UploadCloud,
   X,
 } from 'lucide-react';
-import { extractTextFromJdFile } from '@/lib/services/file-processing/ocrService';
+import { extractTextFromJdFile } from '@/services/file-processing/ocrService';
 import {
   extractHardFiltersFromJD,
   extractJobPositionFromJD,
   filterAndStructureJD,
-} from '@/lib/services/screening/frontendScreeningService';
-import { googleDriveService } from '@/lib/services/file-processing/googleDriveService';
-import type { HardFilters } from '@/shared/types';
-import { getSafeErrorMessage, isRedirectingToGoogle } from '@/shared/utils/errorMessages';
+} from '@/services/screening/frontendScreeningService';
+import { googleDriveService } from '@/services/file-processing/googleDriveService';
+import type { HardFilters } from '@/types';
+import { getSafeErrorMessage, isRedirectingToGoogle } from '@/utils/errorMessages';
 
 interface CVScreenerWelcomeProps {
   onGetStarted: () => void;

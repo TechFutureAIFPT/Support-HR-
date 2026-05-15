@@ -11,10 +11,10 @@ import {
   Clock, Zap, BarChart3, Activity, PieChart as LucidePieChart,
   LineChart as LucideLineChart, ChevronLeft,
 } from 'lucide-react';
-import type { Candidate } from '@/shared/types';
-import { saveHistorySession } from '@/lib/services/history-cache/historyService';
-import { auth } from '@/lib/services/firebase';
-import { useThemeColors } from '@/shared/ui/theme/useThemeColors';
+import type { Candidate } from '@/types';
+import { saveHistorySession } from '@/services/history-cache/historyService';
+import { auth } from '@/services/firebase';
+import { useThemeColors } from '@/hooks/useThemeColors';
 
 interface DetailedAnalyticsPageProps {
   candidates: Candidate[];

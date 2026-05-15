@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { TrendingUp, DollarSign, AlertCircle, CheckCircle, Info, Target, Lightbulb } from 'lucide-react';
-import { analyzeSalary } from '@/lib/services/salary-analysis/salaryAnalysisService';
-import type { Candidate } from '@/shared/types';
-import { getSafeErrorMessage } from '@/shared/utils/errorMessages';
+import { analyzeSalary } from '@/services/salary-analysis/salaryAnalysisService';
+import type { Candidate } from '@/types';
+import { getSafeErrorMessage } from '@/utils/errorMessages';
 
 interface SalaryAnalysisPanelProps {
   candidate?: Candidate;

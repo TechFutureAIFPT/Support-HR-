@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import type { HardFilters } from '@/shared/types';
-import { useThemeColors } from '@/shared/ui/theme/useThemeColors';
+import type { HardFilters } from '@/types';
+import { useThemeColors } from '@/hooks/useThemeColors';
 
 export interface JDMetaToolbarProps {
   jdText: string;

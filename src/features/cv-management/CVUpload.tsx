@@ -1,11 +1,11 @@
 import React, { memo, useCallback, useMemo, useState } from 'react';
 import type { CSSProperties } from 'react';
 import { UploadCloud } from 'lucide-react';
-import type { Candidate, HardFilters, WeightCriteria, AppStep } from '@/shared/types';
-import { analyzeCVs } from '@/lib/services/screening/frontendScreeningService';
-import { googleDriveService } from '@/lib/services/file-processing/googleDriveService';
-import { useThemeColors } from '@/shared/ui/theme/useThemeColors';
-import { getSafeErrorMessage, isRedirectingToGoogle } from '@/shared/utils/errorMessages';
+import type { Candidate, HardFilters, WeightCriteria, AppStep } from '@/types';
+import { analyzeCVs } from '@/services/screening/frontendScreeningService';
+import { googleDriveService } from '@/services/file-processing/googleDriveService';
+import { useThemeColors } from '@/hooks/useThemeColors';
+import { getSafeErrorMessage, isRedirectingToGoogle } from '@/utils/errorMessages';
 import '@/features/cv-management/styles/cv-upload.css';
 
 interface CVUploadProps {

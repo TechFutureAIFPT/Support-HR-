@@ -6,8 +6,8 @@ import {
   signInWithEmail,
   signInWithGoogle,
   signUpWithEmail,
-} from '@/lib/services/auth/authService';
-import type { AuthUser } from '@/lib/services/auth/authTypes';
+} from '@/services/auth/authService';
+import type { AuthUser } from '@/services/auth/authTypes';
 
 interface LoginPageProps {
   onLogin: (user: AuthUser) => void;

@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Users, Award, Star, AlertTriangle, Search, Filter, Download, CircleHelp, TrendingUp, Calendar, ChevronDown, X, Crown, CheckSquare, Square, Briefcase } from 'lucide-react';
-import type { AnalysisRunData, Candidate } from '@/shared/types';
-import CandidateCard from '@/shared/ui/candidate/CandidateCard';
+import type { AnalysisRunData, Candidate } from '@/types';
+import CandidateCard from '@/components/candidate/CandidateCard';
 import InterviewQuestionGenerator from '@/features/analysis/InterviewQuestionGenerator';
-import { useThemeColors } from '@/shared/ui/theme/useThemeColors';
+import { useThemeColors } from '@/hooks/useThemeColors';
 
 const FILTER_TABS = [
   { key: 'all' as const, label: 'Tất cả', color: 'text-white', bg: 'bg-slate-700/60', border: 'border-slate-600/40' },

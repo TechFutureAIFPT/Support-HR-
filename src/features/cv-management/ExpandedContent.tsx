@@ -17,9 +17,9 @@ import {
   UsersRound,
   Wrench,
 } from 'lucide-react';
-import type { Candidate, DetailedScore, UploadedFileRecord } from '@/shared/types';
-import { analyzeExperience, extractJDRequirements, compareEvidence } from '@/lib/services/screening/frontendInsights';
-import { UploadedFilesService } from '@/lib/services/data-sync/uploadedFilesService';
+import type { Candidate, DetailedScore, UploadedFileRecord } from '@/types';
+import { analyzeExperience, extractJDRequirements, compareEvidence } from '@/services/screening/frontendInsights';
+import { UploadedFilesService } from '@/services/data-sync/uploadedFilesService';
 
 // ── Phân loại tiêu chí ──────────────────────────────────────────────────────
 

@@ -1,10 +1,10 @@
 import React, { memo, useCallback, useMemo, useState } from 'react';
 import type { CSSProperties } from 'react';
-import type { HardFilters, WeightCriteria, MainCriterion } from '@/shared/types';
-import HardFilterPanel from '@/shared/ui/config/HardFilterPanel';
-import WeightTile from '@/shared/ui/config/WeightTile';
-import TotalWeightDisplay from '@/shared/ui/config/TotalWeightDisplay';
-import { useThemeColors } from '@/shared/ui/theme/useThemeColors';
+import type { HardFilters, WeightCriteria, MainCriterion } from '@/types';
+import HardFilterPanel from '@/components/config/HardFilterPanel';
+import WeightTile from '@/components/config/WeightTile';
+import TotalWeightDisplay from '@/components/config/TotalWeightDisplay';
+import { useThemeColors } from '@/hooks/useThemeColors';
 import '@/features/criteria-config/styles/weights-config.css';
 
 interface WeightsConfigProps {

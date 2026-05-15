@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Send, Bot, User, Sparkles, ChevronDown, ChevronUp, Check, Plus, FileText, Users, Lightbulb, MessageSquare, ArrowUp, X, Copy, CheckCheck, Loader2, Clock } from 'lucide-react';
-import type { Candidate, AnalysisRunData, ChatbotSession, ChatMessageRecord } from '@/shared/types';
-import { getChatbotAdvice } from '@/lib/services/screening/frontendScreeningService';
+import type { Candidate, AnalysisRunData, ChatbotSession, ChatMessageRecord } from '@/types';
+import { getChatbotAdvice } from '@/services/screening/frontendScreeningService';
 import SelectedCandidatesPage from '@/pages/analytics/SelectedCandidatesPage';
-import { ChatbotHistoryService } from '@/lib/services/data-sync/chatbotHistoryService';
-import { useThemeColors } from '@/shared/ui/theme/useThemeColors';
+import { ChatbotHistoryService } from '@/services/data-sync/chatbotHistoryService';
+import { useThemeColors } from '@/hooks/useThemeColors';
 import '@/pages/analytics/styles/candidate-suggestions.css';
 
 const SELECTED_IDS_KEY = 'supporthr.selectedCandidateIds';
