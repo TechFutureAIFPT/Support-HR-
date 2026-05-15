@@ -209,6 +209,10 @@ const EXPERIENCE_TEXT_FIELD_ALIASES = new Set([
 ]);
 const MONTH_NAME_TOKEN = '(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:t|tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?|thg\\.?\\s*\\d{1,2}|tháng\\s*\\d{1,2})';
 const TIMELINE_DATE_TOKEN = `(?:(?:0?[1-9]|1[0-2])\\/\\d{4}|\\d{4}|${MONTH_NAME_TOKEN}\\s*\\/?\\s*\\d{4})`;
+const TIMELINE_RANGE_REGEX = new RegExp(
+  `(${TIMELINE_DATE_TOKEN})\\s*(?:-|â€“|â€”|to|Ä‘áº¿n|tá»›i)\\s*(${TIMELINE_DATE_TOKEN}|hiá»‡n táº¡i|hien tai|nay|present|current)`,
+  'i'
+);
 
 interface CareerTimelineItem {
   id: string;
@@ -217,6 +221,13 @@ interface CareerTimelineItem {
   companyName: string;
   isCurrent: boolean;
   durationMonths: number | null;
+}
+
+interface EducationSummary {
+  institution: string;
+  major: string;
+  degree: string;
+  rawLine: string;
 }
 
 const uploadedCvTextCache = new Map<string, string>();
@@ -506,6 +517,39 @@ function formatTimelineDuration(months: number): string {
   return `${remainingMonths} tháng`;
 }
 
+function matchTimelineRange(value: string): RegExpMatchArray | null {
+  return cleanTimelineText(value).match(TIMELINE_RANGE_REGEX);
+}
+
+function dedupeCareerTimelineItems(items: CareerTimelineItem[]): CareerTimelineItem[] {
+  const seen = new Set<string>();
+  return items.filter((item) => {
+    const signature = `${normalizeAscii(item.periodLabel)}::${normalizeAscii(item.companyName || item.summary)}`;
+    if (seen.has(signature)) return false;
+    seen.add(signature);
+    return true;
+  }).slice(0, 8);
+}
+
+function formatTimelineEvidenceLine(entry: CareerTimelineItem): string {
+  const company = entry.companyName || entry.summary || 'Không rõ công ty';
+  const duration = entry.durationMonths ? `, tổng thời gian khoảng ${formatTimelineDuration(entry.durationMonths)}` : '';
+  return `${company}: ${entry.periodLabel}${duration}`;
+}
+
+function isGenericTimelineEvidence(value: string): boolean {
+  const normalized = normalizeAscii(value);
+  return (
+    !matchTimelineRange(value) &&
+    (
+      normalized.includes('lam viec tai') ||
+      normalized.includes('moi noi') ||
+      normalized.includes('cong ty') ||
+      normalized.includes('on dinh')
+    )
+  );
+}
+
 function looksLikeAnalysisPayload(value: string): boolean {
   const trimmed = value.trim();
   return (
@@ -649,6 +693,226 @@ function extractCareerTimeline(text: string): CareerTimelineItem[] {
   }).slice(0, 8);
 }
 
+function collectStringLeaves(value: unknown, depth: number = 0, output: string[] = []): string[] {
+  if (depth > 6 || value === null || value === undefined) {
+    return output;
+  }
+
+  if (typeof value === 'string') {
+    const cleaned = cleanTimelineText(value);
+    if (cleaned.length >= 4) {
+      output.push(cleaned);
+    }
+    return output;
+  }
+
+  if (Array.isArray(value)) {
+    value.forEach((item) => collectStringLeaves(item, depth + 1, output));
+    return output;
+  }
+
+  if (typeof value === 'object') {
+    Object.values(value as Record<string, unknown>).forEach((item) => collectStringLeaves(item, depth + 1, output));
+  }
+
+  return output;
+}
+
+function buildTimelineItemFromParts(
+  companyName: string,
+  summary: string,
+  start: string,
+  end: string,
+  index: number
+): CareerTimelineItem | null {
+  const cleanedStart = cleanTimelineText(start);
+  const cleanedEnd = cleanTimelineText(end);
+  const company = cleanTimelineText(companyName);
+  const detail = cleanTimelineText(summary);
+
+  if (!company && !detail) {
+    return null;
+  }
+
+  if (!parseTimelineDateToken(cleanedStart, false) || !parseTimelineDateToken(cleanedEnd, true)) {
+    return null;
+  }
+
+  return {
+    id: `${cleanedStart}-${cleanedEnd}-structured-${index}`,
+    periodLabel: formatPeriodLabel(cleanedStart, cleanedEnd),
+    summary: detail || company,
+    companyName: company,
+    isCurrent: /^(hiá»‡n táº¡i|hien tai|nay|present|current)$/i.test(cleanedEnd),
+    durationMonths: getTimelineDurationMonths(cleanedStart, cleanedEnd),
+  };
+}
+
+function extractCareerTimelineFromStructuredValue(value: unknown, depth: number = 0): CareerTimelineItem[] {
+  if (depth > 7 || value === null || value === undefined) {
+    return [];
+  }
+
+  if (typeof value === 'string') {
+    return extractCareerTimeline(value);
+  }
+
+  if (Array.isArray(value)) {
+    return dedupeCareerTimelineItems(value.flatMap((item) => extractCareerTimelineFromStructuredValue(item, depth + 1)));
+  }
+
+  if (typeof value !== 'object') {
+    return [];
+  }
+
+  const record = value as Record<string, unknown>;
+  const company = getRecordValueByAliases(record, [
+    'company',
+    'company name',
+    'employer',
+    'organization',
+    'organisation',
+    'cong ty',
+    'ten cong ty',
+    'don vi',
+    'noi lam viec',
+  ]);
+  const role = getRecordValueByAliases(record, [
+    'title',
+    'role',
+    'position',
+    'job title',
+    'chuc danh',
+    'vi tri',
+    'vi tri cong viec',
+  ]);
+  const start = getRecordValueByAliases(record, ['start', 'start date', 'from', 'tu', 'bat dau']);
+  const end = getRecordValueByAliases(record, ['end', 'end date', 'to', 'den', 'ket thuc']) || 'Hiện tại';
+  const period = getRecordValueByAliases(record, ['period', 'duration', 'time', 'timeline', 'thoi gian', 'khoang thoi gian']);
+  const ownItems: CareerTimelineItem[] = [];
+
+  if ((company || role) && start) {
+    const item = buildTimelineItemFromParts(company, role, start, end, ownItems.length);
+    if (item) ownItems.push(item);
+  }
+
+  if ((company || role) && period) {
+    const range = matchTimelineRange(period);
+    if (range) {
+      const item = buildTimelineItemFromParts(company, role, range[1], range[2], ownItems.length);
+      if (item) ownItems.push(item);
+    }
+  }
+
+  const nestedItems = Object.values(record).flatMap((item) => extractCareerTimelineFromStructuredValue(item, depth + 1));
+  return dedupeCareerTimelineItems([...ownItems, ...nestedItems]);
+}
+
+function extractCareerTimelineFromCandidatePayload(candidate: Candidate): CareerTimelineItem[] {
+  const items: CareerTimelineItem[] = [];
+
+  if (candidate._rawBatchJson) {
+    try {
+      const rawCandidate = JSON.parse(candidate._rawBatchJson) as unknown;
+      items.push(...extractCareerTimelineFromStructuredValue(rawCandidate));
+      collectStringLeaves(rawCandidate)
+        .filter((line) => !looksLikeAnalysisPayload(line))
+        .forEach((line) => items.push(...extractCareerTimeline(line)));
+    } catch {
+      // Ignore malformed raw payloads.
+    }
+  }
+
+  return dedupeCareerTimelineItems(items);
+}
+
+function isGenericEducationValidation(value: string): boolean {
+  const normalized = normalizeAscii(value).replace(/\s+/g, ' ').trim();
+  return ['hop le', 'valid', 'khong hop le', 'invalid', 'phu hop'].includes(normalized.replace(/[.。]+$/, ''));
+}
+
+function getEducationInstitutionFromLine(line: string): string {
+  const cleaned = cleanTimelineText(line)
+    .replace(/^(education|hoc van|học vấn|truong|trường|co so dao tao|cơ sở đào tạo)\s*[:：-]\s*/i, '')
+    .trim();
+  const [beforeDash] = cleaned.split(/\s[-–—|]\s/);
+  return cleanTimelineText(beforeDash || cleaned);
+}
+
+function extractEducationSummaryFromText(text: string): EducationSummary | null {
+  const lines = text
+    .split(/\n|•|;|,/)
+    .map((line) => cleanTimelineText(line))
+    .filter((line) => line && line.length <= 180 && !isGenericEducationValidation(line));
+
+  const institutionLine = lines.find((line) => {
+    const normalized = normalizeAscii(line);
+    return (
+      normalized.includes('dai hoc') ||
+      normalized.includes('truong') ||
+      normalized.includes('hoc vien') ||
+      normalized.includes('cao dang') ||
+      normalized.includes('university') ||
+      normalized.includes('college') ||
+      normalized.includes('academy') ||
+      normalized.includes('institute') ||
+      normalized.includes('hutech') ||
+      normalized.includes('fpt') ||
+      normalized.includes('bach khoa')
+    );
+  }) || '';
+
+  const source = institutionLine || lines[0] || '';
+  if (!source) {
+    return null;
+  }
+
+  const majorMatch = text.match(/(?:chuyên ngành|chuyen nganh|ngành|nganh|major|faculty)\s*[:：-]\s*([^.;\n]+)/i);
+  const degreeMatch = text.match(/\b(cử nhân|cu nhan|kỹ sư|ky su|thạc sĩ|thac si|tiến sĩ|tien si|bachelor|master|engineer|bsc|msc)\b/i);
+  const dashParts = source.split(/\s[-–—|]\s/).map((part) => cleanTimelineText(part)).filter(Boolean);
+
+  return {
+    institution: getEducationInstitutionFromLine(source),
+    major: cleanTimelineText(majorMatch?.[1] || (dashParts.length > 1 ? dashParts.slice(1).join(' - ') : '')),
+    degree: cleanTimelineText(degreeMatch?.[1] || ''),
+    rawLine: source,
+  };
+}
+
+function buildEducationSummary(
+  candidate: Candidate,
+  educationDetail?: DetailedScore,
+  cvText?: string
+): EducationSummary | null {
+  const validation = candidate.analysis?.educationValidation;
+  const sources: string[] = [
+    validation?.standardizedEducation || '',
+    ...(validation?.warnings || []),
+    educationDetail ? getDetailEvidence(educationDetail) : '',
+    educationDetail ? getDetailExplanation(educationDetail) : '',
+    candidate._cvText || '',
+    cvText || '',
+  ].filter(Boolean);
+
+  if (candidate._rawBatchJson) {
+    try {
+      sources.push(...collectStringLeaves(JSON.parse(candidate._rawBatchJson)));
+    } catch {
+      // Ignore malformed raw payloads.
+    }
+  }
+
+  for (const source of sources) {
+    if (!source || looksLikeAnalysisPayload(source)) continue;
+    const summary = extractEducationSummaryFromText(source);
+    if (summary?.institution && !isGenericEducationValidation(summary.institution)) {
+      return summary;
+    }
+  }
+
+  return null;
+}
+
 function formatScoreValue(value: number): string {
   if (Number.isInteger(value)) {
     return String(value);
@@ -774,12 +1038,9 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
     !looksLikeAnalysisPayload(detailEvidence)
   );
   const copyEvidenceText = timelineEvidence.length > 0
-    ? timelineEvidence.map((entry) => {
-      const company = entry.companyName || entry.summary || 'Không rõ công ty';
-      const duration = entry.durationMonths ? ` (${formatTimelineDuration(entry.durationMonths)})` : '';
-      return `${company}: ${entry.periodLabel}${duration}`;
-    }).join('\n')
+    ? timelineEvidence.map(formatTimelineEvidenceLine).join('\n')
     : detailEvidence;
+  const canShowRawEvidence = shouldShowRawEvidence && !(isLoyalty && isGenericTimelineEvidence(detailEvidence));
 
   const parsedData = useMemo(
     () => parseDetailScore(detailScore, detailFormula),
@@ -795,7 +1056,7 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
   const meta = CARD_CRITERIA_META[criterionName] || { Icon: CircleHelp, color: 'text-slate-400', accent: 'border-slate-700 bg-slate-900/20' };
   const MetaIcon = meta.Icon;
   const description = CRITERION_DESCRIPTIONS[criterionName];
-  const hasRealEvidence = shouldShowRawEvidence;
+  const hasRealEvidence = canShowRawEvidence;
 
   const scorePercentage = parsedData.achievedPct;
   const scoreBadgeClass = !parsedData.hasScore
@@ -891,33 +1152,45 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
                     <div key={entry.id} className="rounded-lg border border-cyan-500/15 bg-cyan-500/[0.045] p-3">
                       <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
                         <div className="min-w-0">
-                          <div className="truncate text-sm font-semibold text-slate-100">
-                            {entry.companyName || entry.summary || 'Không rõ công ty'}
+                          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-cyan-300/80">
+                            Công ty
+                          </div>
+                          <div className="mt-1 truncate text-sm font-semibold text-slate-100">
+                            {entry.companyName || entry.summary || 'Chưa rõ tên công ty'}
                           </div>
                           {entry.companyName && entry.summary && entry.summary !== entry.companyName && (
-                            <div className="mt-0.5 text-xs leading-5 text-slate-400">{entry.summary}</div>
+                            <div className="mt-1 text-xs leading-5 text-slate-400">Vai trò/ghi chú: {entry.summary}</div>
                           )}
                         </div>
-                        <div className="supporthr-mono shrink-0 text-[11px] font-semibold uppercase tracking-[0.12em] text-cyan-200">
-                          {entry.periodLabel}
+                        <div className="shrink-0 rounded-md border border-cyan-500/20 bg-cyan-500/10 px-2.5 py-1.5 text-right">
+                          <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-cyan-300/70">
+                            Từ năm nào đến năm nào
+                          </div>
+                          <div className="supporthr-mono mt-0.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-cyan-100">
+                            {entry.periodLabel}
+                          </div>
                         </div>
                       </div>
                       {entry.durationMonths && (
-                        <div className="mt-2 text-[11px] font-medium text-slate-500">
-                          Thời gian làm việc khoảng {formatTimelineDuration(entry.durationMonths)}
+                        <div className="mt-2 rounded-md border border-white/[0.06] bg-black/20 px-2.5 py-1.5 text-[11px] font-medium text-slate-300">
+                          Tổng thời gian làm tại công ty này: khoảng <span className="font-semibold text-cyan-200">{formatTimelineDuration(entry.durationMonths)}</span>.
                         </div>
                       )}
                     </div>
                   ))}
-                  {shouldShowRawEvidence && (
+                  {canShowRawEvidence && (
                     <blockquote className="mt-3 border-l-4 border-cyan-500/60 pl-4 text-sm italic leading-relaxed text-slate-400">
                       {detailEvidence}
                     </blockquote>
                   )}
                 </div>
+              ) : isLoyalty ? (
+                <div className="rounded-lg border border-amber-500/25 bg-amber-500/10 p-3 text-sm leading-6 text-amber-100">
+                  Chưa tìm thấy đủ tên công ty và mốc thời gian trong CV để tách rõ từng giai đoạn. Cần CV có dòng dạng “Tên công ty - 2019 đến 2021” hoặc “Vị trí tại Tên công ty, 2021 - hiện tại” để hiển thị chính xác thời lượng.
+                </div>
               ) : (
                 <blockquote className="border-l-4 border-cyan-500/60 pl-4 text-base italic leading-relaxed text-slate-300" dangerouslySetInnerHTML={{
-                  __html: shouldShowRawEvidence
+                  __html: canShowRawEvidence
                     ? detailEvidence
                     : '<span class="not-italic rounded-md border border-amber-500/35 bg-amber-500/10 px-2 py-1 text-xs font-semibold text-amber-300">Chưa tìm thấy trong CV</span>'
                 }} />
@@ -1302,6 +1575,11 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
   }, [analysisRecord, basicScore, loyaltyDerivedFromBasic, loyaltyScore]);
 
   const [employmentTimeline, setEmploymentTimeline] = useState<CareerTimelineItem[]>([]);
+  const educationDetail = useMemo(
+    () => basicDetails.find((item) => canonicalizeCriterionName(getDetailCriterion(item)) === BASIC_CRITERIA[4]),
+    [basicDetails]
+  );
+  const [educationSummary, setEducationSummary] = useState<EducationSummary | null>(() => buildEducationSummary(candidate, educationDetail));
 
   useEffect(() => {
     let isDisposed = false;
@@ -1309,7 +1587,10 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
     const hydrateTimeline = async () => {
       try {
         const cvText = await resolveCandidateCvText(candidate);
-        let nextTimeline = cvText ? extractCareerTimeline(cvText) : [];
+        let nextTimeline = dedupeCareerTimelineItems([
+          ...extractCareerTimelineFromCandidatePayload(candidate),
+          ...(cvText ? extractCareerTimeline(cvText) : []),
+        ]);
 
         if (nextTimeline.length === 0 && loyaltyDetail) {
           const evidenceTimeline = extractCareerTimeline(getDetailEvidence(loyaltyDetail));
@@ -1318,12 +1599,24 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
           }
         }
 
+        if (nextTimeline.length === 0) {
+          nextTimeline = dedupeCareerTimelineItems(
+            allDetails.flatMap((detail) => [
+              ...extractCareerTimeline(getDetailEvidence(detail)),
+              ...extractCareerTimeline(getDetailExplanation(detail)),
+            ])
+          );
+        }
+
         if (!isDisposed) {
           setEmploymentTimeline(nextTimeline);
         }
       } catch {
         if (!isDisposed) {
-          const fallbackTimeline = loyaltyDetail ? extractCareerTimeline(getDetailEvidence(loyaltyDetail)) : [];
+          const fallbackTimeline = dedupeCareerTimelineItems([
+            ...extractCareerTimelineFromCandidatePayload(candidate),
+            ...(loyaltyDetail ? extractCareerTimeline(getDetailEvidence(loyaltyDetail)) : []),
+          ]);
           setEmploymentTimeline(fallbackTimeline);
         }
       }
@@ -1334,7 +1627,31 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
     return () => {
       isDisposed = true;
     };
-  }, [candidate.id, candidate.fileName, candidate.candidateName, candidate.jobTitle, candidate._rawBatchJson, loyaltyDetail]);
+  }, [allDetails, candidate, loyaltyDetail]);
+
+  useEffect(() => {
+    let isDisposed = false;
+
+    const hydrateEducation = async () => {
+      try {
+        const cvText = await resolveCandidateCvText(candidate);
+        const nextSummary = buildEducationSummary(candidate, educationDetail, cvText);
+        if (!isDisposed) {
+          setEducationSummary(nextSummary);
+        }
+      } catch {
+        if (!isDisposed) {
+          setEducationSummary(buildEducationSummary(candidate, educationDetail));
+        }
+      }
+    };
+
+    void hydrateEducation();
+
+    return () => {
+      isDisposed = true;
+    };
+  }, [candidate, educationDetail]);
 
   const matchPercent = Math.min(100, Math.round(totalScore));
   const recommendation = totalScore >= 75
@@ -1344,6 +1661,11 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
       : totalScore >= 40
         ? 'Ứng viên có tiềm năng, cân nhắc nếu thiếu nguồn.'
         : 'Nên ưu tiên ứng viên khác có mức phù hợp cao hơn.';
+  const educationValidation = candidate.analysis?.educationValidation;
+  const educationValidationNote = educationValidation?.validationNote || 'Chưa xác định';
+  const educationIsValid = normalizeAscii(educationValidationNote).includes('hop le') || normalizeAscii(educationValidationNote).includes('valid');
+  const standardizedEducation = educationValidation?.standardizedEducation || '';
+  const shouldShowStandardizedEducation = Boolean(standardizedEducation && !isGenericEducationValidation(standardizedEducation));
 
   return (
     <div className="space-y-4 p-2 md:p-4">
@@ -1473,16 +1795,49 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
       )}
 
       {/* ── Education Validation ─────────────────────────────── */}
-      {candidate.analysis?.educationValidation && (
+      {educationValidation && (
         <div className="rounded-xl border border-white/[0.08] bg-[#05070b] p-4 shadow-sm">
           <h4 className="mb-3 flex items-center gap-2 text-base font-bold text-slate-100">
             <i className="fa-solid fa-graduation-cap text-indigo-400"></i> Xác thực học vấn
           </h4>
-          <div className="flex items-center justify-between gap-2 rounded-lg border border-white/[0.08] bg-white/[0.025] p-3">
-            <p className="font-mono text-sm text-slate-300">{candidate.analysis.educationValidation.standardizedEducation || 'Không có thông tin'}</p>
-            <span className={`shrink-0 rounded border px-2 py-1 text-xs font-semibold ${candidate.analysis.educationValidation.validationNote === 'Hợp lệ' ? 'border-emerald-500/35 bg-emerald-500/10 text-emerald-300' : 'border-red-500/35 bg-red-500/10 text-red-300'}`}>
-              {candidate.analysis.educationValidation.validationNote}
-            </span>
+          <div className="rounded-lg border border-white/[0.08] bg-white/[0.025] p-3">
+            <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+              <div className="min-w-0 space-y-3">
+                <div>
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-indigo-300/80">Cơ sở đào tạo</p>
+                  <p className="mt-1 text-sm font-semibold text-slate-100">
+                    {educationSummary?.institution || 'Chưa tìm thấy tên cơ sở đào tạo trong CV'}
+                  </p>
+                </div>
+
+                {(educationSummary?.major || educationSummary?.degree || shouldShowStandardizedEducation) && (
+                  <div className="grid gap-2 text-xs text-slate-400 md:grid-cols-3">
+                    {educationSummary?.major && (
+                      <div className="rounded-md border border-white/[0.06] bg-black/20 px-2.5 py-2">
+                        <span className="block text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">Ngành học</span>
+                        <span className="mt-1 block text-slate-200">{educationSummary.major}</span>
+                      </div>
+                    )}
+                    {educationSummary?.degree && (
+                      <div className="rounded-md border border-white/[0.06] bg-black/20 px-2.5 py-2">
+                        <span className="block text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">Bằng cấp</span>
+                        <span className="mt-1 block text-slate-200">{educationSummary.degree}</span>
+                      </div>
+                    )}
+                    {shouldShowStandardizedEducation && (
+                      <div className="rounded-md border border-white/[0.06] bg-black/20 px-2.5 py-2">
+                        <span className="block text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">Chuẩn hóa</span>
+                        <span className="mt-1 block text-slate-200">{standardizedEducation}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <span className={`shrink-0 rounded border px-2 py-1 text-xs font-semibold ${educationIsValid ? 'border-emerald-500/35 bg-emerald-500/10 text-emerald-300' : 'border-red-500/35 bg-red-500/10 text-red-300'}`}>
+                {educationValidationNote}
+              </span>
+            </div>
           </div>
         </div>
       )}
