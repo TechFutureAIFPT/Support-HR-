@@ -163,18 +163,12 @@ const HERO_SYSTEM_PANELS = [
 const HERO_HEADLINE_LINES = [
   {
     text: "Support HR,",
-    gradientClass: "from-white via-cyan-100 to-sky-300",
-    delay: 0,
   },
   {
     text: "đọc CV",
-    gradientClass: "from-cyan-200 via-sky-300 to-violet-300",
-    delay: 0.4,
   },
   {
     text: "nhanh và chuẩn.",
-    gradientClass: "from-white via-emerald-200 to-cyan-300",
-    delay: 0.8,
   },
 ];
 
@@ -290,44 +284,12 @@ function SystemPanel({
 
 function HeadlineLine({
   text,
-  gradientClass,
-  delay,
-  reduceMotion,
 }: {
   text: string;
-  gradientClass: string;
-  delay: number;
-  reduceMotion: boolean;
 }) {
   return (
     <span className="relative block leading-[0.8]">
-      <span
-        aria-hidden="true"
-        className={`pointer-events-none absolute inset-0 bg-gradient-to-r ${gradientClass} bg-[length:170%_170%] bg-clip-text text-transparent blur-[18px] opacity-55`}
-      >
-        {text}
-      </span>
-      <motion.span
-        className={`relative block bg-gradient-to-r ${gradientClass} bg-[length:170%_170%] bg-clip-text text-transparent`}
-        animate={
-          reduceMotion
-            ? undefined
-            : {
-                backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
-                opacity: [0.96, 1, 0.97],
-              }
-        }
-        transition={
-          reduceMotion
-            ? undefined
-            : {
-                duration: 10,
-                ease: "easeInOut",
-                repeat: Infinity,
-                delay,
-              }
-        }
-      >
+      <motion.span className="relative block text-white">
         {text}
       </motion.span>
     </span>
@@ -380,9 +342,6 @@ export default function LandingHero({
                 <HeadlineLine
                   key={line.text}
                   text={line.text}
-                  gradientClass={line.gradientClass}
-                  delay={line.delay}
-                  reduceMotion={reduceMotion}
                 />
               ))}
             </h1>
