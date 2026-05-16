@@ -116,6 +116,50 @@ function normalizeEducationValidation(value: unknown): CandidateAnalysis['educat
   return undefined;
 }
 
+function normalizeEmbeddingInsight(value: unknown): Candidate['embeddingInsights'] | undefined {
+  if (!value || typeof value !== 'object') return undefined;
+
+  const record = value as Record<string, unknown>;
+  const topMatches = Array.isArray(record.topMatches)
+    ? record.topMatches
+      .filter((item): item is Record<string, unknown> => Boolean(item && typeof item === 'object'))
+      .map((item) => ({
+        id: String(item.id || ''),
+        name: item.name ? String(item.name) : undefined,
+        role: item.role ? String(item.role) : undefined,
+        similarity: Number(item.similarity || 0),
+        relativePath: item.relativePath ? String(item.relativePath) : undefined,
+      }))
+    : [];
+
+  return {
+    industry: String(record.industry || ''),
+    provider: record.provider ? String(record.provider) : undefined,
+    collectionKey: record.collectionKey ? String(record.collectionKey) : undefined,
+    queryModel: record.queryModel ? String(record.queryModel) : undefined,
+    recordCount: typeof record.recordCount === 'number' ? record.recordCount : Number(record.recordCount || 0),
+    averageSimilarity: Number(record.averageSimilarity || 0),
+    topMatches,
+    bonusPoints: Number(record.bonusPoints || 0),
+  };
+}
+
+function normalizeJdCvMatchInsights(value: unknown): Candidate['jdCvMatchInsights'] | undefined {
+  if (!value || typeof value !== 'object') return undefined;
+
+  const record = value as Record<string, unknown>;
+
+  return {
+    similarity: Number(record.similarity || 0),
+    weightedScore: Number(record.weightedScore || 0),
+    maxScore: Number(record.maxScore || 0),
+    queryModel: record.queryModel ? String(record.queryModel) : undefined,
+    matchedSkills: toArray(record.matchedSkills),
+    missingSkills: toArray(record.missingSkills),
+    transferMatches: toArray(record.transferMatches),
+  };
+}
+
 function normalizeAnalysis(rawAnalysis: unknown): CandidateAnalysis | undefined {
   if (!rawAnalysis || typeof rawAnalysis !== 'object') return undefined;
 
@@ -167,6 +211,8 @@ function normalizeCandidate(rawCandidate: unknown, fallbackFile?: File, cvText?:
       ? candidate.softFilterWarnings.map((warning) => String(warning))
       : [],
     detectedLocation: String(candidate.detectedLocation || ''),
+    embeddingInsights: normalizeEmbeddingInsight(candidate.embeddingInsights),
+    jdCvMatchInsights: normalizeJdCvMatchInsights(candidate.jdCvMatchInsights),
     analysis: normalizeAnalysis(candidate.analysis) as Candidate['analysis'],
     debiasingWarnings: Array.isArray(candidate.debiasingWarnings)
       ? candidate.debiasingWarnings.map((warning) => String(warning))

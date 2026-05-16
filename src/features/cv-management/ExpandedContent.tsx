@@ -1388,6 +1388,25 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
     return Math.min(100, parseFloat(basicScore.toFixed(1)));
   }, [analysisRecord, basicScore]);
 
+  const jdFitDetail = useMemo(
+    () => basicDetails.find((item) => canonicalizeCriterionName(getDetailCriterion(item)) === BASIC_CRITERIA[0]),
+    [basicDetails]
+  );
+  const jdFitMaxScore = candidate.jdCvMatchInsights?.maxScore || 20;
+  const jdFitScoreData = useMemo(() => {
+    if (!jdFitDetail) return null;
+    return normalizeParsedScoreToMax(
+      parseDetailScore(getDetailScore(jdFitDetail), getDetailFormula(jdFitDetail)),
+      jdFitMaxScore
+    );
+  }, [jdFitDetail, jdFitMaxScore]);
+  const jdFitScore = jdFitScoreData?.score ?? candidate.jdCvMatchInsights?.weightedScore ?? 0;
+  const matchPercent = jdFitScoreData?.achievedPct
+    ?? Math.round(Math.min(100, Math.max(0, (jdFitScore / jdFitMaxScore) * 100)));
+  const semanticMatchPercent = candidate.jdCvMatchInsights
+    ? Math.round(candidate.jdCvMatchInsights.similarity * 1000) / 10
+    : null;
+
   const educationDetail = useMemo(
     () => basicDetails.find((item) => canonicalizeCriterionName(getDetailCriterion(item)) === BASIC_CRITERIA[4]),
     [basicDetails]
@@ -1418,7 +1437,6 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
     };
   }, [candidate, educationDetail]);
 
-  const matchPercent = Math.min(100, Math.round(totalScore));
   const recommendation = totalScore >= 75
     ? 'Ứng viên xuất sắc, nên ưu tiên mời phỏng vấn sớm.'
     : totalScore >= 60
@@ -1467,7 +1485,44 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
             </div>
             <span className="w-10 text-right font-mono text-cyan-400">{Math.round((basicScore / BASIC_TOTAL_MAX) * 100)}%</span>
           </div>
+          <div className="flex items-center gap-2 text-[11px] text-slate-500">
+            <span className="w-20 text-emerald-400/80">JD ↔ CV</span>
+            <div className="flex-1 h-2 rounded-full bg-white/[0.08] overflow-hidden">
+              <div
+                className="h-full rounded-full bg-emerald-500 transition-all duration-700"
+                style={{ width: `${matchPercent}%` }}
+              />
+            </div>
+            <span className="w-10 text-right font-mono text-emerald-400">{matchPercent}%</span>
+          </div>
         </div>
+
+        {candidate.jdCvMatchInsights && (
+          <div className="mt-3 rounded-lg border border-emerald-500/20 bg-emerald-500/[0.045] px-4 py-3 text-sm">
+            <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+              <div>
+                <div className="font-semibold text-emerald-300">Semantic match JD/CV bằng vector embedding</div>
+                <div className="text-xs text-emerald-100/70">
+                  {semanticMatchPercent?.toFixed(1)}% tương đồng ngữ nghĩa
+                  {candidate.jdCvMatchInsights.queryModel ? ` • ${candidate.jdCvMatchInsights.queryModel}` : ''}
+                </div>
+              </div>
+              <div className="rounded-md border border-emerald-400/25 bg-black/20 px-3 py-1.5 text-xs font-semibold text-emerald-300">
+                {jdFitScore.toFixed(1)}/{jdFitMaxScore} điểm Job Fit
+              </div>
+            </div>
+            {(candidate.jdCvMatchInsights.matchedSkills.length > 0 || candidate.jdCvMatchInsights.transferMatches.length > 0) && (
+              <div className="mt-2 text-xs leading-6 text-emerald-100/70">
+                {candidate.jdCvMatchInsights.matchedSkills.length > 0 && (
+                  <span>Kỹ năng khớp: {candidate.jdCvMatchInsights.matchedSkills.slice(0, 5).join(', ')}.</span>
+                )}{' '}
+                {candidate.jdCvMatchInsights.transferMatches.length > 0 && (
+                  <span>Khớp chuyển đổi: {candidate.jdCvMatchInsights.transferMatches.slice(0, 2).join(' | ')}.</span>
+                )}
+              </div>
+            )}
+          </div>
+        )}
 
         <div className="mt-3 rounded-lg border border-white/[0.08] bg-white/[0.025] px-4 py-3 text-sm">
           <span className="font-semibold text-slate-200">Nhận định:</span>{' '}

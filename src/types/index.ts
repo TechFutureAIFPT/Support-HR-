@@ -22,6 +22,7 @@ export interface Candidate {
   softFilterWarnings?: string[];
   detectedLocation: string;
   embeddingInsights?: CandidateEmbeddingInsight;
+  jdCvMatchInsights?: CandidateJdCvMatchInsight;
 
   analysis?: {
     'Tổng điểm': number;
@@ -133,6 +134,16 @@ export interface CandidateEmbeddingInsight {
   averageSimilarity: number;
   topMatches: CandidateEmbeddingMatch[];
   bonusPoints: number;
+}
+
+export interface CandidateJdCvMatchInsight {
+  similarity: number;
+  weightedScore: number;
+  maxScore: number;
+  queryModel?: string;
+  matchedSkills: string[];
+  missingSkills: string[];
+  transferMatches: string[];
 }
 
 export type AnalysisFeedbackAction = 'like' | 'dislike' | 'shortlist' | 'reject' | 'interview' | 'hire' | 'neutral';
