@@ -48,7 +48,7 @@ const HardFilterPanel: React.FC<HardFilterPanelProps> = ({ hardFilters, setHardF
         {
             id: 'location',
             label: 'Địa điểm',
-            placeholder: 'Chọn địa điểm',
+            placeholder: 'VD: Hà Nội, Quận 1, Remote, Hybrid...',
             mandatoryKey: 'locationMandatory',
             icon: MapPin,
             color: '#6366f1',
@@ -189,21 +189,35 @@ const HardFilterPanel: React.FC<HardFilterPanelProps> = ({ hardFilters, setHardF
                 </div>
 
                 <div className="relative z-10 w-full">
-                    <select
-                        id={config.id}
-                        value={String(hardFilters[config.id] ?? '')}
-                        onChange={handleChange}
-                        className={inputClasses(Boolean(isMandatory), hasCurrentValue)}
-                    >
-                        {config.options.map((option) => (
-                            <option key={option.value ?? option.label} value={option.value} className="bg-[#05070b] text-slate-200">
-                                {option.label}
-                            </option>
-                        ))}
-                    </select>
-                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none w-5 h-5 flex items-center justify-center rounded-none bg-transparent">
-                        <i className="fa-solid fa-chevron-down text-[9px] text-slate-400" />
-                    </div>
+                    {config.id === 'location' ? (
+                        <input
+                            id={config.id}
+                            type="text"
+                            value={String(hardFilters[config.id] ?? '')}
+                            onChange={handleChange}
+                            placeholder={config.placeholder}
+                            className={inputClasses(Boolean(isMandatory), hasCurrentValue)}
+                            autoComplete="off"
+                        />
+                    ) : (
+                        <>
+                            <select
+                                id={config.id}
+                                value={String(hardFilters[config.id] ?? '')}
+                                onChange={handleChange}
+                                className={inputClasses(Boolean(isMandatory), hasCurrentValue)}
+                            >
+                                {config.options.map((option) => (
+                                    <option key={option.value ?? option.label} value={option.value} className="bg-[#05070b] text-slate-200">
+                                        {option.label}
+                                    </option>
+                                ))}
+                            </select>
+                            <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none w-5 h-5 flex items-center justify-center rounded-none bg-transparent">
+                                <i className="fa-solid fa-chevron-down text-[9px] text-slate-400" />
+                            </div>
+                        </>
+                    )}
                 </div>
             </div>
         );

@@ -1582,6 +1582,9 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
     : locationMatch === true
       ? 'border-emerald-500/25 bg-emerald-500/[0.04] text-emerald-200'
       : 'border-white/[0.08] bg-white/[0.025] text-slate-300';
+  const locationWarning = candidate.softFilterWarnings?.find((warning) =>
+    normalizeAscii(warning).includes('dia diem')
+  );
 
   return (
     <div className="space-y-4 p-2 md:p-4">
@@ -1637,6 +1640,11 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
               Địa điểm CV
             </div>
             <div className="font-semibold text-slate-100">{detectedLocation}</div>
+            {locationMatch === false && (
+              <div className="mt-2 rounded-md border border-rose-400/25 bg-black/20 px-2 py-1 text-[11px] font-medium text-rose-200">
+                {locationWarning || 'Cảnh báo: địa điểm trong CV khác địa điểm làm việc yêu cầu.'}
+              </div>
+            )}
           </div>
           {candidate.jobTitle && (
             <div className="rounded-lg border border-white/[0.08] bg-white/[0.025] px-4 py-3 text-sm">
