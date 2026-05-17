@@ -144,7 +144,8 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMes
     let r = rankedAndSortedResults;
     if (debouncedSearchTerm) r = r.filter(c =>
       c.candidateName?.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-      c.jobTitle?.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
+      c.jobTitle?.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+      c.detectedLocation?.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
     );
     if (filter !== 'all') r = r.filter(c =>
       c.status === 'FAILED' ? filter === 'C' : c.analysis?.['Hạng'] === filter
@@ -341,6 +342,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMes
                     <th className="px-5 py-3 text-left text-[9px] uppercase tracking-[0.2em] font-bold">Hạng</th>
                     <th className="px-5 py-3 text-left text-[9px] uppercase tracking-[0.2em] font-bold">Điểm</th>
                     <th className="px-5 py-3 text-left text-[9px] uppercase tracking-[0.2em] font-bold">Phù hợp JD</th>
+                    <th className="px-5 py-3 text-left text-[9px] uppercase tracking-[0.2em] font-bold">Địa điểm</th>
                     <th className="px-5 py-3 text-left text-[9px] uppercase tracking-[0.2em] font-bold">File</th>
                   </tr>
                 </thead>
@@ -372,6 +374,12 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMes
                           </td>
                           <td className="px-5 py-3 font-medium" style={{ color: tc.textSecondary }}>{overallScore}</td>
                           <td className="px-5 py-3 font-medium" style={{ color: tc.textSecondary }}>{jdFitScore}%</td>
+                          <td className="px-5 py-3 font-medium" style={{ color: candidate.locationMatch === false ? '#fca5a5' : tc.textSecondary }}>
+                            <span className="inline-flex max-w-[150px] items-center gap-1.5 truncate">
+                              <MapPin size={13} className="shrink-0 opacity-70" />
+                              {candidate.detectedLocation || 'Chưa rõ'}
+                            </span>
+                          </td>
                           <td className="flex items-center justify-between gap-3 px-5 py-3" style={{ color: tc.textDim }}>
                             <span className="truncate text-sm">{candidate.fileName || ''}</span>
                             <button style={{ color: 'rgba(99,102,241,0.5)' }} onClick={e => { e.stopPropagation(); handleExpandCandidate(candidate.id); }}
@@ -385,7 +393,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMes
                     );
                   })}
                   {filteredResults.length === 0 && (
-                    <tr><td colSpan={6} className="px-5 py-16 text-center text-sm" style={{ color: tc.textDim }}>Không có ứng viên nào khớp với bộ lọc của bạn.</td></tr>
+                    <tr><td colSpan={7} className="px-5 py-16 text-center text-sm" style={{ color: tc.textDim }}>Không có ứng viên nào khớp với bộ lọc của bạn.</td></tr>
                   )}
                 </tbody>
               </table>
@@ -406,6 +414,10 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMes
                         <div className="min-w-0">
                           <h4 className="max-w-[180px] truncate text-base font-semibold" style={{ color: tc.textSecondary }}>{candidate.candidateName || 'Chưa xác định'}</h4>
                           <p className="mt-0.5 max-w-[180px] truncate text-xs" style={{ color: tc.textDim }}>{candidate.jobTitle || 'Chưa có chức danh'}</p>
+                          <p className="mt-1 flex max-w-[180px] items-center gap-1 truncate text-xs" style={{ color: candidate.locationMatch === false ? '#fca5a5' : tc.textDim }}>
+                            <MapPin size={12} className="shrink-0 opacity-70" />
+                            {candidate.detectedLocation || 'Chưa rõ địa điểm'}
+                          </p>
                         </div>
                       </div>
                       <span className="shrink-0 rounded-full px-2.5 py-1 text-xs font-bold" style={

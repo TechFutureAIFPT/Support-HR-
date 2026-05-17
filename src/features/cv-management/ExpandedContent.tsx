@@ -12,6 +12,7 @@ import {
   GraduationCap,
   Hourglass,
   Languages,
+  MapPin,
   Target,
   UsersRound,
   Wrench,
@@ -1449,6 +1450,13 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
   const educationIsValid = normalizeAscii(educationValidationNote).includes('hop le') || normalizeAscii(educationValidationNote).includes('valid');
   const standardizedEducation = educationValidation?.standardizedEducation || '';
   const shouldShowStandardizedEducation = Boolean(standardizedEducation && !isGenericEducationValidation(standardizedEducation));
+  const detectedLocation = candidate.detectedLocation?.trim() || 'Chưa xác định từ CV';
+  const locationMatch = candidate.locationMatch;
+  const locationTone = locationMatch === false
+    ? 'border-rose-500/25 bg-rose-500/[0.04] text-rose-200'
+    : locationMatch === true
+      ? 'border-emerald-500/25 bg-emerald-500/[0.04] text-emerald-200'
+      : 'border-white/[0.08] bg-white/[0.025] text-slate-300';
 
   return (
     <div className="space-y-4 p-2 md:p-4">
@@ -1495,6 +1503,28 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
             </div>
             <span className="w-10 text-right font-mono text-emerald-400">{matchPercent}%</span>
           </div>
+        </div>
+
+        <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-3">
+          <div className={`rounded-lg border px-4 py-3 text-sm ${locationTone}`}>
+            <div className="mb-1 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] opacity-75">
+              <MapPin className="h-3.5 w-3.5" />
+              Địa điểm CV
+            </div>
+            <div className="font-semibold text-slate-100">{detectedLocation}</div>
+          </div>
+          {candidate.jobTitle && (
+            <div className="rounded-lg border border-white/[0.08] bg-white/[0.025] px-4 py-3 text-sm">
+              <div className="mb-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">Vị trí ứng viên</div>
+              <div className="font-semibold text-slate-100">{candidate.jobTitle}</div>
+            </div>
+          )}
+          {candidate.experienceLevel && (
+            <div className="rounded-lg border border-white/[0.08] bg-white/[0.025] px-4 py-3 text-sm">
+              <div className="mb-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">Cấp bậc</div>
+              <div className="font-semibold text-slate-100">{candidate.experienceLevel}</div>
+            </div>
+          )}
         </div>
 
         {candidate.jdCvMatchInsights && (

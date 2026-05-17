@@ -21,6 +21,8 @@ export interface Candidate {
   hardFilterFailureReason?: string;
   softFilterWarnings?: string[];
   detectedLocation: string;
+  detectedLocationSource?: string;
+  locationMatch?: boolean | null;
   embeddingInsights?: CandidateEmbeddingInsight;
   jdCvMatchInsights?: CandidateJdCvMatchInsight;
 

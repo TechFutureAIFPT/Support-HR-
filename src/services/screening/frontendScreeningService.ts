@@ -160,6 +160,37 @@ function normalizeJdCvMatchInsights(value: unknown): Candidate['jdCvMatchInsight
   };
 }
 
+function normalizeAscii(value: string): string {
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/đ/gi, 'd')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
+}
+
+function inferLocationFromText(text?: string): string {
+  const normalized = normalizeAscii(text || '');
+  if (!normalized) return '';
+
+  const locationPatterns: Array<[string, string[]]> = [
+    ['Remote', ['remote', 'work from home', 'wfh', 'lam viec tu xa', 'tu xa']],
+    ['Hà Nội', ['ha noi', 'hanoi']],
+    ['TP. Hồ Chí Minh', ['ho chi minh', 'hcm', 'tp hcm', 'tphcm', 'sai gon', 'saigon']],
+    ['Đà Nẵng', ['da nang', 'danang']],
+    ['Hải Phòng', ['hai phong', 'haiphong']],
+  ];
+
+  for (const [label, patterns] of locationPatterns) {
+    if (patterns.some((pattern) => normalized.includes(pattern))) {
+      return label;
+    }
+  }
+
+  return '';
+}
+
 function normalizeAnalysis(rawAnalysis: unknown): CandidateAnalysis | undefined {
   if (!rawAnalysis || typeof rawAnalysis !== 'object') return undefined;
 
@@ -195,6 +226,7 @@ function normalizeCandidate(rawCandidate: unknown, fallbackFile?: File, cvText?:
   const rawPayload = effectiveCvText
     ? { ...candidate, cvText: effectiveCvText, _cvText: effectiveCvText }
     : rawCandidate;
+  const detectedLocation = String(candidate.detectedLocation || '').trim() || inferLocationFromText(effectiveCvText);
 
   return {
     id: String(candidate.id || `${fileName}-${candidateName}`),
@@ -210,7 +242,9 @@ function normalizeCandidate(rawCandidate: unknown, fallbackFile?: File, cvText?:
     softFilterWarnings: Array.isArray(candidate.softFilterWarnings)
       ? candidate.softFilterWarnings.map((warning) => String(warning))
       : [],
-    detectedLocation: String(candidate.detectedLocation || ''),
+    detectedLocation,
+    detectedLocationSource: candidate.detectedLocationSource ? String(candidate.detectedLocationSource) : undefined,
+    locationMatch: typeof candidate.locationMatch === 'boolean' ? candidate.locationMatch : null,
     embeddingInsights: normalizeEmbeddingInsight(candidate.embeddingInsights),
     jdCvMatchInsights: normalizeJdCvMatchInsights(candidate.jdCvMatchInsights),
     analysis: normalizeAnalysis(candidate.analysis) as Candidate['analysis'],
