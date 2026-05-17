@@ -39,7 +39,7 @@ const CRITERION_KEYWORDS: Record<string, string[]> = {
   'Kỹ năng': ['skills', 'kỹ năng', 'technology', 'tool', 'framework'],
   'Thành tựu/KPI': ['kpi', '%', 'doanh thu', 'tăng trưởng', 'giảm', 'achievement'],
   'Học vấn': ['bachelor', 'master', 'degree', 'đại học', 'chứng chỉ'],
-  'Ngôn ngữ': ['english', 'ielts', 'toeic', 'japanese', 'korean', 'giao tiếp'],
+  'Ngôn ngữ': ['english', 'ielts', 'toeic', 'toefl', 'japanese', 'jlpt', 'korean', 'topik', 'giao tiếp'],
   'Chuyên nghiệp': ['cv', 'trình bày', 'format', 'liên hệ', 'portfolio'],
   'Gắn bó & Lịch sử CV': ['tenure', 'ổn định', 'gắn bó', 'career', 'promotion'],
   'Phù hợp văn hóa': ['teamwork', 'leadership', 'ownership', 'collaboration', 'agile'],
@@ -97,6 +97,47 @@ function unique<T>(items: T[]): T[] {
 
 function hasAny(text: string, terms: string[]): boolean {
   return terms.some((term) => text.includes(normalizeSemantic(term)));
+}
+
+const KEYWORD_ALIASES: Record<string, string[]> = {
+  english: ['english', 'tieng anh', 'anh van'],
+  ielts: ['ielts'],
+  toeic: ['toeic'],
+  toefl: ['toefl'],
+  japanese: ['japanese', 'tieng nhat', 'nhat ngu', 'jlpt', 'n1', 'n2', 'n3', 'n4', 'n5'],
+  jlpt: ['jlpt', 'n1', 'n2', 'n3', 'n4', 'n5'],
+  korean: ['korean', 'tieng han', 'han ngu', 'topik'],
+  topik: ['topik'],
+  'giao tiep': ['giao tiep', 'communication'],
+};
+
+const NEGATION_TERMS = ['khong co', 'khong dat', 'chua co', 'chua dat', 'khong biet', 'no', 'not', 'without'];
+
+function aliasesFor(keyword: string): string[] {
+  const normalized = normalizeSemantic(keyword);
+  return KEYWORD_ALIASES[normalized] || [normalized];
+}
+
+function containsAlias(normalizedText: string, keyword: string): boolean {
+  return aliasesFor(keyword).some((alias) => alias && normalizedText.includes(alias));
+}
+
+function isNegatedKeyword(text: string, keyword: string): boolean {
+  const normalizedText = ` ${normalizeSemantic(text)} `;
+  return aliasesFor(keyword).some((alias) => {
+    const index = normalizedText.indexOf(alias);
+    if (index < 0) return false;
+    const prefix = normalizedText.slice(Math.max(0, index - 36), index);
+    return NEGATION_TERMS.some((term) => prefix.includes(term));
+  });
+}
+
+function keywordAppearsInRequirement(text: string, keyword: string): boolean {
+  return containsAlias(` ${normalizeSemantic(text)} `, keyword);
+}
+
+function keywordAppearsInEvidence(text: string, keyword: string): boolean {
+  return containsAlias(` ${normalizeSemantic(text)} `, keyword) && !isNegatedKeyword(text, keyword);
 }
 
 function cosineSimilarity(left: number[], right: number[]): number {
@@ -192,11 +233,11 @@ const SEMANTIC_RULES: SemanticRule[] = [
     evidenceTerms: ['dai hoc', 'university', 'bachelor', 'master', 'degree', 'chung chi', 'certification'],
   },
   {
-    keywords: ['english', 'ielts', 'toeic', 'japanese', 'korean', 'giao tiep'],
+    keywords: ['english', 'ielts', 'toeic', 'toefl', 'japanese', 'jlpt', 'korean', 'topik', 'giao tiep'],
     vector: [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
     reason: 'Có tín hiệu ngoại ngữ hoặc khả năng giao tiếp liên quan.',
     minimumScore: 0.45,
-    evidenceTerms: ['english', 'ielts', 'toeic', 'toefl', 'japanese', 'korean', 'giao tiep', 'ngoai ngu'],
+    evidenceTerms: ['english', 'tieng anh', 'ielts', 'toeic', 'toefl', 'japanese', 'tieng nhat', 'jlpt', 'korean', 'tieng han', 'topik', 'giao tiep', 'ngoai ngu'],
   },
   {
     keywords: ['cv', 'trinh bay', 'format', 'lien he', 'portfolio'],
@@ -284,24 +325,23 @@ function getSemanticReason(keyword: string, evidence: string): SemanticMatch | n
 export function extractJDRequirements(jdText: string): CriterionRequirement[] {
   const jdKeywords = unique(tokenize(jdText)).slice(0, 24);
 
-  return Object.entries(CRITERION_KEYWORDS).map(([display, baseKeywords]) => ({
-    display,
-    keywords: unique([
-      ...baseKeywords,
-      ...jdKeywords.filter((token) => baseKeywords.some((base) => {
-        const normalizedBase = normalizeSemantic(base);
-        return token.includes(normalizedBase) || normalizedBase.includes(token);
-      })),
-    ]).slice(0, 12),
-  }));
+  return Object.entries(CRITERION_KEYWORDS).map(([display, baseKeywords]) => {
+    const explicitBaseKeywords = baseKeywords.filter((keyword) => keywordAppearsInRequirement(jdText, keyword));
+    const relatedTokens = jdKeywords.filter((token) =>
+      explicitBaseKeywords.some((base) =>
+        aliasesFor(base).some((alias) => token.includes(alias) || alias.includes(token))
+      )
+    );
+
+    return {
+      display,
+      keywords: unique([...explicitBaseKeywords, ...relatedTokens]).slice(0, 12),
+    };
+  });
 }
 
 export function compareEvidence(_display: string, jdKeywords: string[], evidence: string): RequirementComparison {
-  const normalizedEvidence = normalizeSemantic(evidence);
-  const matched = jdKeywords.filter((keyword) => {
-    const normalizedKeyword = normalizeSemantic(keyword);
-    return normalizedKeyword.length > 1 && normalizedEvidence.includes(normalizedKeyword);
-  });
+  const matched = jdKeywords.filter((keyword) => keywordAppearsInEvidence(evidence, keyword));
   const semanticMatched = jdKeywords
     .filter((keyword) => !matched.includes(keyword))
     .map((keyword) => getSemanticReason(keyword, evidence))

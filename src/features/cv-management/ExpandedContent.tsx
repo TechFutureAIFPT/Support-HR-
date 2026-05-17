@@ -1099,10 +1099,21 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
   const isExperience = criterionName === BASIC_CRITERIA[1];
   const jdRequirements = useMemo(() => extractJDRequirements(jdText), [jdText]);
   const thisRequirement = useMemo(() => jdRequirements.find(r => r.display === criterionName), [criterionName, jdRequirements]);
+  const backendRequirementComparison = useMemo(() => {
+    if (!keywordMetrics || keywordMetrics.total_required_keywords <= 0) return null;
+    return {
+      jdKeywords: keywordMetrics.keywords_list.map((row) => row.keyword),
+      matched: matchedKeywordRows.map((row) => row.keyword),
+      semanticMatched: [],
+      missing: missingKeywordRows.map((row) => row.keyword),
+    };
+  }, [keywordMetrics, matchedKeywordRows, missingKeywordRows]);
   const requirementComparison = useMemo(() => {
-    if (isExperience || !thisRequirement || !hasRealEvidence) return null;
+    if (isExperience || !hasRealEvidence) return null;
+    if (backendRequirementComparison) return backendRequirementComparison;
+    if (!thisRequirement || thisRequirement.keywords.length === 0) return null;
     return compareEvidence(criterionName, thisRequirement.keywords, detailEvidence);
-  }, [criterionName, detailEvidence, hasRealEvidence, isExperience, thisRequirement]);
+  }, [backendRequirementComparison, criterionName, detailEvidence, hasRealEvidence, isExperience, thisRequirement]);
 
   let experienceBlock: React.ReactNode = null;
   let matchMeta: ReturnType<typeof analyzeExperience> | null = null;
@@ -1183,7 +1194,7 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <h5 className="mb-1 text-base font-bold text-slate-100">Phân tích nhanh</h5>
-                    <p className="text-[11px] text-slate-500">Khớp trực tiếp và vector ngữ nghĩa, chỉ giữ tín hiệu quan trọng.</p>
+                    <p className="text-[11px] text-slate-500">Khớp từ khóa bắt buộc từ JD, có chặn phủ định và alias Việt/Anh.</p>
                   </div>
                   <span className="rounded-full border border-cyan-400/25 bg-cyan-400/10 px-2.5 py-1 text-[10px] font-bold text-cyan-200">
                     {requirementComparison.matched.length + requirementComparison.semanticMatched.length}/{requirementComparison.jdKeywords.length}
@@ -1221,7 +1232,7 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
                   <div className="rounded-lg border border-cyan-500/20 bg-cyan-500/[0.06] p-3">
                     <div className="mb-2 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-cyan-300">
                       <Target className="h-3 w-3" />
-                      Vector embedding
+                      Semantic fallback
                     </div>
                     <div className="space-y-1.5">
                       {requirementComparison.semanticMatched.slice(0, 2).map((item) => (
