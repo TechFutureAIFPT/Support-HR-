@@ -173,6 +173,34 @@ function getDetailExplanation(item: DetailedScore): string {
   return getRecordValueByAliases(record, ['giai thich', 'explanation']);
 }
 
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function escapeRegex(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function buildHighlightedEvidenceHtml(text: string, keywords: string[]): string {
+  let html = escapeHtml(text);
+  const sortedKeywords = [...new Set(keywords.filter(Boolean))].sort((a, b) => b.length - a.length);
+
+  sortedKeywords.forEach((keyword) => {
+    const pattern = new RegExp(`(${escapeRegex(escapeHtml(keyword))})`, 'gi');
+    html = html.replace(
+      pattern,
+      '<mark class="rounded bg-emerald-400/20 px-1 py-0.5 font-semibold text-emerald-200 underline decoration-emerald-300/70 underline-offset-4">$1</mark>'
+    );
+  });
+
+  return html;
+}
+
 const MISSING_DETAIL_EVIDENCE = 'AI chưa trả về dẫn chứng cụ thể cho tiêu chí này.';
 const CV_TEXT_FIELD_ALIASES = new Set([
   'cv text',
@@ -1033,6 +1061,15 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
   const parsedData = useMemo(() => {
     return parseDetailScore(detailScore, detailFormula);
   }, [detailFormula, detailScore]);
+  const advancedBreakdown = item.advancedBreakdown;
+  const keywordMetrics = advancedBreakdown?.keyword_metrics;
+  const matchedKeywordRows = keywordMetrics?.keywords_list?.filter((keyword) => keyword.status === 'matched') || [];
+  const missingKeywordRows = keywordMetrics?.keywords_list?.filter((keyword) => keyword.status === 'missing') || [];
+  const matchedKeywordNames = matchedKeywordRows.map((keyword) => keyword.keyword);
+  const highlightedEvidenceHtml = useMemo(
+    () => buildHighlightedEvidenceHtml(detailEvidence, matchedKeywordNames),
+    [detailEvidence, matchedKeywordNames.join('|')]
+  );
 
   const handleCopy = () => {
     navigator.clipboard.writeText(copyEvidenceText);
@@ -1042,7 +1079,6 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
 
   const meta = CARD_CRITERIA_META[criterionName] || { Icon: CircleHelp, color: 'text-slate-400', accent: 'border-slate-700 bg-slate-900/20' };
   const MetaIcon = meta.Icon;
-  const description = CRITERION_DESCRIPTIONS[criterionName];
   const hasRealEvidence = canShowRawEvidence;
 
   const scorePercentage = parsedData.achievedPct;
@@ -1132,7 +1168,7 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
               </div>
               {canShowRawEvidence ? (
                 <blockquote className="border-l-4 border-cyan-500/60 pl-4 text-base italic leading-relaxed text-slate-300" dangerouslySetInnerHTML={{
-                  __html: detailEvidence
+                  __html: highlightedEvidenceHtml
                 }} />
               ) : (
                 <blockquote className="border-l-4 border-cyan-500/60 pl-4 text-base italic leading-relaxed text-slate-300" dangerouslySetInnerHTML={{
@@ -1202,41 +1238,42 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
             <div className="rounded-xl border border-white/[0.08] bg-white/[0.025] p-5">
               <h5 className="mb-4 text-base font-bold text-slate-100">Giải thích & Công thức</h5>
 
-              {description ? (
-                <div className="mb-4 rounded-xl border border-cyan-500/20 bg-cyan-500/5 p-4 space-y-3">
-                  <div>
-                    <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-cyan-400/70">Đây là gì?</p>
-                    <p className="text-sm leading-relaxed text-slate-300">{description.what}</p>
-                  </div>
-                  <div className="pt-2 border-t border-slate-800/50">
-                    <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-cyan-400/70">Tại sao quan trọng?</p>
-                    <p className="text-sm leading-relaxed text-slate-400">{description.why}</p>
-                  </div>
-                  <div className="pt-2 border-t border-slate-800/50">
-                    <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-cyan-400/70">Dấu hiệu nhận biết</p>
-                    <ul className="space-y-1.5">
-                      {description.signals.map((signal, index) => (
-                        <li key={index} className="flex items-start gap-2 text-xs text-slate-400">
-                          <Check className="mt-0.5 h-3 w-3 shrink-0 text-cyan-400" />
-                          {signal}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                  {detailExplanation && detailExplanation !== '...' && (
-                    <div className="pt-2 border-t border-slate-800/50">
-                      <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-cyan-400/70">Nhận xét của AI với CV này</p>
-                      <p className="text-xs leading-relaxed text-slate-300 italic">"{detailExplanation}"</p>
-                    </div>
-                  )}
+              <div className="mb-4 space-y-3">
+                <div className="rounded-xl border border-cyan-500/20 bg-cyan-500/[0.055] p-4">
+                  <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-cyan-400/70">Phương trình điểm</p>
+                  <p className="font-mono text-sm leading-relaxed text-slate-200">
+                    {advancedBreakdown?.mathematical_formula || detailFormula || 'Chưa có phương trình chi tiết từ AI.'}
+                  </p>
                 </div>
-              ) : (
-                detailExplanation && (
-                  <div className="mb-4">
-                    <p className="text-sm leading-relaxed text-slate-300">{detailExplanation}</p>
+
+                <div className="grid gap-3 md:grid-cols-3">
+                  <div className="rounded-lg border border-white/[0.08] bg-slate-950/50 p-3">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">Điểm tối đa</p>
+                    <p className="mt-1 font-mono text-lg font-bold text-violet-300">
+                      {advancedBreakdown?.max_possible_score ?? parsedData.maxScore ?? 0}
+                    </p>
                   </div>
-                )
-              )}
+                  <div className="rounded-lg border border-white/[0.08] bg-slate-950/50 p-3">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">Điểm đạt</p>
+                    <p className="mt-1 font-mono text-lg font-bold text-cyan-300">
+                      {advancedBreakdown?.raw_score_earned ?? parsedData.score ?? 0}
+                    </p>
+                  </div>
+                  <div className="rounded-lg border border-white/[0.08] bg-slate-950/50 p-3">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">Keyword match</p>
+                    <p className="mt-1 font-mono text-lg font-bold text-emerald-300">
+                      {keywordMetrics ? `${keywordMetrics.match_percentage.toFixed(1)}%` : '0%'}
+                    </p>
+                  </div>
+                </div>
+
+                {detailExplanation && detailExplanation !== '...' && (
+                  <div className="rounded-lg border border-white/[0.08] bg-white/[0.025] p-3">
+                    <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-cyan-400/70">Nhận xét AI</p>
+                    <p className="text-xs leading-relaxed text-slate-300 italic">"{detailExplanation}"</p>
+                  </div>
+                )}
+              </div>
 
               <div className="space-y-2">
                 <div className="text-xs font-medium text-slate-500">Công thức tính điểm</div>
@@ -1307,6 +1344,83 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
                   </div>
                 )}
               </div>
+
+              {advancedBreakdown && (
+                <div className="mt-4 space-y-3">
+                  <div className="rounded-xl border border-rose-500/20 bg-rose-500/[0.04] p-3">
+                    <div className="mb-2 flex items-center justify-between gap-2">
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-rose-300/80">Lý do trừ điểm</p>
+                      <span className="rounded-full border border-rose-400/25 bg-black/20 px-2 py-0.5 text-[10px] font-semibold text-rose-200">
+                        {advancedBreakdown.deductions.reduce((sum, item) => sum + Number(item.points_lost || 0), 0)}đ
+                      </span>
+                    </div>
+                    {advancedBreakdown.deductions.length > 0 ? (
+                      <ul className="space-y-1.5">
+                        {advancedBreakdown.deductions.slice(0, 6).map((item, index) => (
+                          <li key={`${item.reason}-${index}`} className="flex items-start justify-between gap-3 text-xs text-rose-100/85">
+                            <span className="leading-5">{item.reason}</span>
+                            <span className="shrink-0 font-mono font-bold text-rose-300">-{item.points_lost}đ</span>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="text-xs text-slate-500">Không có điểm trừ rõ ràng ở tiêu chí này.</p>
+                    )}
+                  </div>
+
+                  {advancedBreakdown.bonuses_earned.length > 0 && (
+                    <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/[0.04] p-3">
+                      <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-emerald-300/80">Điểm cộng</p>
+                      <ul className="space-y-1.5">
+                        {advancedBreakdown.bonuses_earned.slice(0, 4).map((bonus, index) => (
+                          <li key={`${bonus}-${index}`} className="flex items-start gap-2 text-xs leading-5 text-emerald-100/85">
+                            <Check className="mt-0.5 h-3 w-3 shrink-0 text-emerald-300" />
+                            {bonus}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {keywordMetrics && keywordMetrics.total_required_keywords > 0 && (
+                    <div className="rounded-xl border border-cyan-500/20 bg-cyan-500/[0.04] p-3">
+                      <div className="mb-2 flex items-center justify-between gap-2">
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-cyan-300/80">Keywords Matching</p>
+                        <span className="font-mono text-xs font-bold text-cyan-200">
+                          {keywordMetrics.matched_keywords_count}/{keywordMetrics.total_required_keywords}
+                        </span>
+                      </div>
+                      <div className="mb-3 h-2 overflow-hidden rounded-full bg-slate-800">
+                        <div
+                          className={`h-full rounded-full ${keywordMetrics.match_percentage >= 75 ? 'bg-emerald-500' : keywordMetrics.match_percentage >= 50 ? 'bg-amber-400' : 'bg-rose-500'}`}
+                          style={{ width: `${Math.min(100, Math.max(0, keywordMetrics.match_percentage))}%` }}
+                        />
+                      </div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {matchedKeywordRows.slice(0, 8).map((item) => (
+                          <span key={`matched-${item.keyword}`} className="rounded-full border border-emerald-400/35 bg-emerald-400/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-200 underline decoration-emerald-300/60 underline-offset-4">
+                            {item.keyword}
+                          </span>
+                        ))}
+                        {missingKeywordRows.slice(0, 8).map((item) => (
+                          <span key={`missing-${item.keyword}`} className="rounded-full border border-amber-400/35 bg-amber-400/10 px-2 py-0.5 text-[10px] font-semibold text-amber-200">
+                            {item.keyword}
+                          </span>
+                        ))}
+                      </div>
+                      {matchedKeywordRows.some((item) => item.context_sentence) && (
+                        <div className="mt-3 space-y-1.5">
+                          {matchedKeywordRows.filter((item) => item.context_sentence).slice(0, 2).map((item) => (
+                            <p key={`ctx-${item.keyword}`} className="rounded-lg border border-white/[0.06] bg-black/20 p-2 text-[11px] leading-5 text-slate-300">
+                              <span className="font-semibold text-emerald-200">{item.keyword}:</span> {item.context_sentence}
+                            </p>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>

@@ -73,6 +73,43 @@ function toArray(value: unknown): string[] {
   return [];
 }
 
+function normalizeAdvancedBreakdown(value: unknown): DetailedScore['advancedBreakdown'] | undefined {
+  if (!value || typeof value !== 'object') return undefined;
+  const record = value as Record<string, unknown>;
+  const keywordMetrics = (record.keyword_metrics || record.keywordMetrics) as Record<string, unknown> | undefined;
+  const keywordRows = Array.isArray(keywordMetrics?.keywords_list || keywordMetrics?.keywordsList)
+    ? (keywordMetrics?.keywords_list || keywordMetrics?.keywordsList) as unknown[]
+    : [];
+
+  return {
+    max_possible_score: Number(record.max_possible_score || record.maxPossibleScore || 0),
+    raw_score_earned: Number(record.raw_score_earned || record.rawScoreEarned || 0),
+    mathematical_formula: String(record.mathematical_formula || record.mathematicalFormula || ''),
+    deductions: Array.isArray(record.deductions)
+      ? record.deductions
+        .filter((item): item is Record<string, unknown> => Boolean(item && typeof item === 'object'))
+        .map((item) => ({
+          reason: String(item.reason || ''),
+          points_lost: Number(item.points_lost || item.pointsLost || 0),
+        }))
+      : [],
+    bonuses_earned: toArray(record.bonuses_earned || record.bonusesEarned),
+    keyword_metrics: {
+      total_required_keywords: Number(keywordMetrics?.total_required_keywords || keywordMetrics?.totalRequiredKeywords || 0),
+      matched_keywords_count: Number(keywordMetrics?.matched_keywords_count || keywordMetrics?.matchedKeywordsCount || 0),
+      match_percentage: Number(keywordMetrics?.match_percentage || keywordMetrics?.matchPercentage || 0),
+      keywords_list: keywordRows
+        .filter((item): item is Record<string, unknown> => Boolean(item && typeof item === 'object'))
+        .map((item) => ({
+          keyword: String(item.keyword || ''),
+          status: item.status === 'matched' ? 'matched' as const : 'missing' as const,
+          context_sentence: String(item.context_sentence || item.contextSentence || ''),
+        }))
+        .filter((item) => item.keyword),
+    },
+  };
+}
+
 function normalizeDetail(detail: unknown): DetailedScore {
   const record = (detail && typeof detail === 'object') ? detail as Record<string, unknown> : {};
 
@@ -82,6 +119,7 @@ function normalizeDetail(detail: unknown): DetailedScore {
     'Công thức': String(record['Công thức'] || record['Cong thuc'] || record['CÃ´ng thá»©c'] || ''),
     'Dẫn chứng': String(record['Dẫn chứng'] || record['Dan chung'] || record['Dáº«n chá»©ng'] || ''),
     'Giải thích': String(record['Giải thích'] || record['Giai thich'] || record['Giáº£i thÃ­ch'] || ''),
+    advancedBreakdown: normalizeAdvancedBreakdown(record.advancedBreakdown || record.advanced_breakdown),
   };
 }
 

@@ -1,3 +1,30 @@
+export interface PointDeduction {
+  reason: string;
+  points_lost: number;
+}
+
+export interface KeywordAnalysis {
+  keyword: string;
+  status: 'matched' | 'missing';
+  context_sentence: string;
+}
+
+export interface SkillKeywordMetrics {
+  total_required_keywords: number;
+  matched_keywords_count: number;
+  match_percentage: number;
+  keywords_list: KeywordAnalysis[];
+}
+
+export interface AdvancedScoreBreakdown {
+  max_possible_score: number;
+  raw_score_earned: number;
+  mathematical_formula: string;
+  deductions: PointDeduction[];
+  bonuses_earned: string[];
+  keyword_metrics: SkillKeywordMetrics;
+}
+
 export type AppStep = 'home' | 'jd' | 'weights' | 'upload' | 'analysis' | 'dashboard' | 'chatbot' | 'process' | 'history' | 'feedback';
 
 export interface DetailedScore {
@@ -6,6 +33,7 @@ export interface DetailedScore {
   'Công thức': string;
   'Dẫn chứng': string;
   'Giải thích': string;
+  advancedBreakdown?: AdvancedScoreBreakdown;
 }
 
 export interface Candidate {
