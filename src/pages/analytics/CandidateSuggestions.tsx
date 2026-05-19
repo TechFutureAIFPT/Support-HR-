@@ -64,6 +64,18 @@ const QUICK_ACTIONS = [
   },
 ];
 
+const WELCOME_MESSAGE =
+  'Xin chào! Tôi là **Trợ lý tuyển dụng AI** của Support HR.\n\nTôi có thể giúp bạn:\n• Gợi ý ứng viên phù hợp nhất với JD\n• So sánh chi tiết hồ sơ ứng viên\n• Tạo câu hỏi phỏng vấn chuyên sâu\n• Phân nhóm ứng viên theo cấp độ\n\n**Bắt đầu bằng cách chọn một gợi ý bên dưới hoặc đặt câu hỏi trực tiếp!**';
+
+function mapSessionMessages(session: ChatbotSession): Message[] {
+  return session.messages.map((message) => ({
+    role: message.author === 'bot' ? 'assistant' : 'user',
+    content: message.content,
+    candidateIds: message.suggestedCandidateIds,
+    timestamp: message.timestamp,
+  }));
+}
+
 const CandidateSuggestions: React.FC<CandidateSuggestionsProps> = ({ candidates, jobPosition }) => {
   const tc = useThemeColors();
   const [messages, setMessages] = useState<Message[]>([]);
@@ -96,6 +108,54 @@ const CandidateSuggestions: React.FC<CandidateSuggestionsProps> = ({ candidates,
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
   useEffect(() => { inputRef.current?.focus(); }, []);
 
+  const loadPastSessions = useCallback(async () => {
+    try {
+      const sessions = await ChatbotHistoryService.getUserSessions(20);
+      setPastSessions(sessions);
+      return sessions;
+    } catch (e) {
+      console.warn('Failed to load past sessions:', e);
+      return [] as ChatbotSession[];
+    }
+  }, []);
+
+  const createFreshSession = useCallback(async (): Promise<string | null> => {
+    const newId = await ChatbotHistoryService.createSession({
+      jobPosition,
+      totalCandidates: candidates?.length || 0,
+    });
+
+    const welcomeTimestamp = Date.now();
+    setSessionId(newId);
+    setMessages([
+      {
+        role: 'assistant',
+        content: WELCOME_MESSAGE,
+        timestamp: welcomeTimestamp,
+      },
+    ]);
+
+    if (newId) {
+      await ChatbotHistoryService.addMessage(newId, {
+        id: `initial-${welcomeTimestamp}`,
+        author: 'bot',
+        content: WELCOME_MESSAGE,
+        timestamp: welcomeTimestamp,
+      });
+    }
+
+    await loadPastSessions();
+    return newId;
+  }, [candidates?.length, jobPosition, loadPastSessions]);
+
+  const ensureSessionId = useCallback(async (): Promise<string | null> => {
+    if (sessionId) {
+      return sessionId;
+    }
+
+    return createFreshSession();
+  }, [createFreshSession, sessionId]);
+
   // Auto-create or resume session
   useEffect(() => {
     if (sessionInitRef.current || !jobPosition) return;
@@ -106,13 +166,9 @@ const CandidateSuggestions: React.FC<CandidateSuggestionsProps> = ({ candidates,
         const existing = await ChatbotHistoryService.findRecentSession(jobPosition);
         if (existing && existing.id && existing.messages.length > 0) {
           setSessionId(existing.id);
-          const restored: Message[] = existing.messages.map(m => ({
-            role: m.author === 'bot' ? 'assistant' : 'user',
-            content: m.content,
-            candidateIds: m.suggestedCandidateIds,
-            timestamp: m.timestamp,
-          }));
-          setMessages(restored);
+          setMessages(mapSessionMessages(existing));
+        } else if (true) {
+          await createFreshSession();
         } else {
           const newId = await ChatbotHistoryService.createSession({
             jobPosition,
@@ -134,14 +190,15 @@ const CandidateSuggestions: React.FC<CandidateSuggestionsProps> = ({ candidates,
             });
           }
         }
+        await loadPastSessions();
       } catch (e) {
         console.warn('Could not init session:', e);
       }
     };
     initSession();
-  }, [jobPosition, candidates.length]);
+  }, [createFreshSession, jobPosition, loadPastSessions]);
 
-  const loadPastSessions = async () => {
+  const legacyLoadPastSessions = async () => {
     try {
       const sessions = await ChatbotHistoryService.getUserSessions(20);
       setPastSessions(sessions);
@@ -150,17 +207,14 @@ const CandidateSuggestions: React.FC<CandidateSuggestionsProps> = ({ candidates,
     }
   };
 
-  const restoreSession = (session: ChatbotSession) => {
+  const restoreSession = async (session: ChatbotSession) => {
     if (!session.id) return;
-    setSessionId(session.id);
-    const restored: Message[] = session.messages.map(m => ({
-      role: m.author === 'bot' ? 'assistant' : 'user',
-      content: m.content,
-      candidateIds: m.suggestedCandidateIds,
-      timestamp: m.timestamp,
-    }));
-    setMessages(restored);
+    const latest = await ChatbotHistoryService.getSession(session.id);
+    const sessionToRestore = latest || session;
+    setSessionId(sessionToRestore.id || session.id);
+    setMessages(mapSessionMessages(sessionToRestore));
     setShowHistory(false);
+    await loadPastSessions();
   };
 
   const handleSend = async (userMsg: string) => {
@@ -171,16 +225,18 @@ const CandidateSuggestions: React.FC<CandidateSuggestionsProps> = ({ candidates,
     setIsLoading(true);
 
     try {
+      const activeSessionId = await ensureSessionId();
       const result = await getChatbotAdvice(analysisData, userMsg);
       const assistantMessage: Message = { role: 'assistant', content: result.responseText, candidateIds: result.candidateIds, timestamp: Date.now() };
       setMessages(prev => [...prev, assistantMessage]);
 
-      if (sessionId) {
-        await ChatbotHistoryService.addMessages(sessionId, [
+      if (activeSessionId) {
+        await ChatbotHistoryService.addMessages(activeSessionId, [
           { id: Date.now().toString() + '-u', author: 'user', content: userMsg, timestamp: userMessage.timestamp! },
           { id: Date.now().toString() + '-b', author: 'bot', content: result.responseText, timestamp: assistantMessage.timestamp!, suggestedCandidateIds: result.candidateIds },
         ]);
       }
+      await loadPastSessions();
     } catch {
       setMessages(prev => [...prev, { role: 'assistant', content: 'Xin lỗi, đã xảy ra lỗi khi kết nối với AI. Vui lòng thử lại sau.', timestamp: Date.now() }]);
     } finally {
