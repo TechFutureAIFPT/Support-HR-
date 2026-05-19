@@ -992,6 +992,194 @@ function parseDetailScore(
 }
 
 type ParsedDetailScore = ReturnType<typeof parseDetailScore>;
+type BreakdownDetail = NonNullable<DetailedScore['advancedBreakdown']>;
+
+function uniqueNonEmpty(values: Array<string | null | undefined>): string[] {
+  return Array.from(
+    new Set(
+      values
+        .flatMap((value) => (typeof value === 'string' ? [value.trim()] : []))
+        .filter(Boolean)
+    )
+  );
+}
+
+function normalizeBreakdownQuality(value?: string): BreakdownDetail['verdict'] {
+  if (value === 'strong' || value === 'partial' || value === 'weak') {
+    return value;
+  }
+
+  return 'missing';
+}
+
+function getVerdictMeta(value?: string): { label: string; tone: string } {
+  switch (normalizeBreakdownQuality(value)) {
+    case 'strong':
+      return {
+        label: 'Dat tot',
+        tone: 'border-emerald-400/30 bg-emerald-500/10 text-emerald-200',
+      };
+    case 'partial':
+      return {
+        label: 'Dat mot phan',
+        tone: 'border-amber-400/30 bg-amber-500/10 text-amber-200',
+      };
+    case 'weak':
+      return {
+        label: 'Can xem lai',
+        tone: 'border-rose-400/30 bg-rose-500/10 text-rose-200',
+      };
+    default:
+      return {
+        label: 'Thieu du lieu',
+        tone: 'border-slate-600/70 bg-slate-800/60 text-slate-300',
+      };
+  }
+}
+
+function getEvidenceQualityMeta(value?: string): { label: string; shortLabel: string; tone: string } {
+  switch (normalizeBreakdownQuality(value)) {
+    case 'strong':
+      return {
+        label: 'Bang chung ro rang',
+        shortLabel: 'Manh',
+        tone: 'border-cyan-400/30 bg-cyan-500/10 text-cyan-200',
+      };
+    case 'partial':
+      return {
+        label: 'Bang chung tam duoc',
+        shortLabel: 'Tam duoc',
+        tone: 'border-sky-400/30 bg-sky-500/10 text-sky-200',
+      };
+    case 'weak':
+      return {
+        label: 'Bang chung con yeu',
+        shortLabel: 'Yeu',
+        tone: 'border-amber-400/30 bg-amber-500/10 text-amber-200',
+      };
+    default:
+      return {
+        label: 'Chua du bang chung',
+        shortLabel: 'Thieu',
+        tone: 'border-slate-600/70 bg-slate-800/60 text-slate-300',
+      };
+  }
+}
+
+function looksGenericInsight(text: string): boolean {
+  const normalized = normalizeAscii(text);
+  if (!normalized) {
+    return true;
+  }
+
+  if (normalized.length < 18) {
+    return true;
+  }
+
+  return [
+    'dat yeu cau',
+    'cv kha phu hop',
+    'cv phu hop',
+    'can xem xet them',
+    'chua co thong tin',
+    'cau truc cv ro rang',
+    'suc tich',
+    'jd chua co muc yeu cau ro rang',
+  ].some((pattern) => normalized.includes(pattern));
+}
+
+function isFormulaReadable(formula: string): boolean {
+  const trimmed = formula.trim();
+  if (!trimmed) {
+    return false;
+  }
+
+  if (/[=\/]/.test(trimmed) || /trong so/i.test(trimmed)) {
+    return true;
+  }
+
+  return !/^\s*[\d.,]+\s*[*xX]\s*[\d.,]+\s*$/.test(trimmed);
+}
+
+function buildReadableFormula(
+  formula: string,
+  parsedData: ParsedDetailScore,
+  advancedBreakdown?: DetailedScore['advancedBreakdown']
+): string {
+  const trimmed = formula.trim();
+  const score = advancedBreakdown?.raw_score_earned ?? parsedData.score;
+  const maxScore = advancedBreakdown?.max_possible_score ?? parsedData.maxScore;
+
+  if (trimmed && isFormulaReadable(trimmed)) {
+    return trimmed;
+  }
+
+  if (score !== null && maxScore !== null && maxScore > 0) {
+    const pct = Math.round((score / maxScore) * 100);
+    if (trimmed) {
+      return `${trimmed} = ${formatScoreValue(score)} diem (${pct}% muc do dat)`;
+    }
+
+    return `${formatScoreValue(score)} / ${formatScoreValue(maxScore)} = ${pct}% muc do dat`;
+  }
+
+  return trimmed || 'Diem duoc tong hop tu bang chung va muc do dap ung tieu chi.';
+}
+
+function buildQuickTake(
+  detailExplanation: string,
+  parsedData: ParsedDetailScore,
+  matchedSignals: string[],
+  missingRequirements: string[],
+  verdict?: string,
+): string {
+  if (detailExplanation && !looksGenericInsight(detailExplanation)) {
+    return detailExplanation;
+  }
+
+  const matchedText = matchedSignals.slice(0, 3).join(', ');
+  const missingText = missingRequirements.slice(0, 3).join(', ');
+  const normalizedVerdict = normalizeBreakdownQuality(verdict);
+
+  if (normalizedVerdict === 'strong') {
+    if (matchedText) {
+      return `Dat tot nho cac dau hieu: ${matchedText}.`;
+    }
+    if (parsedData.hasScore) {
+      return `Tieu chi nay dang o muc cao voi ket qua ${parsedData.scoreLabel}.`;
+    }
+  }
+
+  if (normalizedVerdict === 'partial') {
+    if (matchedText && missingText) {
+      return `Da co ${matchedText}, nhung van can bo sung ${missingText}.`;
+    }
+    if (matchedText) {
+      return `Co bang chung cho ${matchedText}, nhung muc do dap ung chua tron ven.`;
+    }
+  }
+
+  if (normalizedVerdict === 'weak') {
+    if (missingText) {
+      return `Bang chung hien tai chua du; van thieu ${missingText}.`;
+    }
+    return 'Bang chung hien tai con yeu, can xem lai ky hon.';
+  }
+
+  if (missingText) {
+    return `Chua thay bang chung ro rang cho ${missingText}.`;
+  }
+
+  if (matchedText) {
+    return `Bang chung chinh tim thay trong CV: ${matchedText}.`;
+  }
+
+  if (parsedData.hasScore) {
+    return `Tieu chi nay hien duoc ghi nhan o muc ${parsedData.scoreLabel}.`;
+  }
+
+  return 'Chua du du lieu de dien giai ro rang cho tieu chi nay.';
+}
 
 function normalizeParsedScoreToMax(parsed: ParsedDetailScore, targetMax: number): ParsedDetailScore {
   if (!parsed.hasScore || parsed.score === null) {
@@ -1046,29 +1234,48 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
   const [copied, setCopied] = React.useState(false);
   const criterionName = canonicalizeCriterionName(getDetailCriterion(item));
   const detailScore = getDetailScore(item);
-  const detailFormula = getDetailFormula(item);
-  const detailEvidence = getDetailEvidence(item);
-  const detailExplanation = getDetailExplanation(item);
+  let detailFormula = getDetailFormula(item);
+  let detailEvidence = getDetailEvidence(item);
+  let detailExplanation = getDetailExplanation(item);
+  const advancedBreakdown = item.advancedBreakdown;
+  const evidenceHighlights = uniqueNonEmpty(advancedBreakdown?.evidence_highlights || []);
+  const matchedSignals = uniqueNonEmpty(advancedBreakdown?.matched_signals || []);
+  const missingRequirements = uniqueNonEmpty(advancedBreakdown?.missing_requirements || []);
+  const qualityFlags = uniqueNonEmpty(advancedBreakdown?.quality_flags || []);
+  const improvementSuggestion = (advancedBreakdown?.improvement_suggestion || '').trim();
+  if ((!detailEvidence || normalizeAscii(detailEvidence) === 'khong tim thay thong tin trong cv') && evidenceHighlights.length > 0) {
+    detailEvidence = evidenceHighlights.join(' | ');
+  }
   const shouldShowRawEvidence = Boolean(
     detailEvidence &&
     detailEvidence !== MISSING_DETAIL_EVIDENCE &&
     normalizeAscii(detailEvidence) !== 'khong tim thay thong tin trong cv' &&
     !looksLikeAnalysisPayload(detailEvidence)
   );
-  const copyEvidenceText = detailEvidence;
+  const copyEvidenceText = uniqueNonEmpty([...evidenceHighlights, detailEvidence]).join('\n');
   const canShowRawEvidence = shouldShowRawEvidence;
 
   const parsedData = useMemo(() => {
     return parseDetailScore(detailScore, detailFormula);
   }, [detailFormula, detailScore]);
-  const advancedBreakdown = item.advancedBreakdown;
   const keywordMetrics = advancedBreakdown?.keyword_metrics;
   const matchedKeywordRows = keywordMetrics?.keywords_list?.filter((keyword) => keyword.status === 'matched') || [];
   const missingKeywordRows = keywordMetrics?.keywords_list?.filter((keyword) => keyword.status === 'missing') || [];
   const matchedKeywordNames = matchedKeywordRows.map((keyword) => keyword.keyword);
+  const highlightKeywords = uniqueNonEmpty([...matchedKeywordNames, ...matchedSignals]);
   const highlightedEvidenceHtml = useMemo(
-    () => buildHighlightedEvidenceHtml(detailEvidence, matchedKeywordNames),
-    [detailEvidence, matchedKeywordNames.join('|')]
+    () => buildHighlightedEvidenceHtml(detailEvidence, highlightKeywords),
+    [detailEvidence, highlightKeywords.join('|')]
+  );
+  const displayFormula = useMemo(
+    () => buildReadableFormula(advancedBreakdown?.mathematical_formula || detailFormula, parsedData, advancedBreakdown),
+    [advancedBreakdown, detailFormula, parsedData]
+  );
+  const verdictMeta = getVerdictMeta(advancedBreakdown?.verdict);
+  const evidenceQualityMeta = getEvidenceQualityMeta(advancedBreakdown?.evidence_quality);
+  const quickTake = useMemo(
+    () => buildQuickTake(detailExplanation, parsedData, matchedSignals, missingRequirements, advancedBreakdown?.verdict),
+    [advancedBreakdown?.verdict, detailExplanation, matchedSignals.join('|'), missingRequirements.join('|'), parsedData]
   );
 
   const handleCopy = () => {
@@ -1079,7 +1286,7 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
 
   const meta = CARD_CRITERIA_META[criterionName] || { Icon: CircleHelp, color: 'text-slate-400', accent: 'border-slate-700 bg-slate-900/20' };
   const MetaIcon = meta.Icon;
-  const hasRealEvidence = canShowRawEvidence;
+  const hasRealEvidence = canShowRawEvidence || evidenceHighlights.length > 0;
 
   const scorePercentage = parsedData.achievedPct;
   const scoreBadgeClass = !parsedData.hasScore
@@ -1148,6 +1355,31 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
     );
   }
 
+  const hasStructuredInsights = Boolean(
+    advancedBreakdown &&
+    (
+      matchedSignals.length > 0 ||
+      missingRequirements.length > 0 ||
+      evidenceHighlights.length > 0 ||
+      qualityFlags.length > 0 ||
+      improvementSuggestion
+    )
+  );
+  const shouldShowLegacyRequirementComparison = Boolean(
+    !isExperience &&
+    requirementComparison &&
+    matchedSignals.length === 0 &&
+    missingRequirements.length === 0
+  );
+  const hasInsightPanel = Boolean(isExperience || hasStructuredInsights || shouldShowLegacyRequirementComparison);
+  const narrativeExplanation = !looksGenericInsight(detailExplanation) ? detailExplanation : quickTake;
+  detailExplanation = narrativeExplanation || detailExplanation;
+  if (advancedBreakdown) {
+    advancedBreakdown.mathematical_formula = displayFormula;
+  } else {
+    detailFormula = displayFormula;
+  }
+
   return (
     <div className="rounded-xl border border-white/[0.08] bg-[#05070b] transition-all duration-200 hover:border-cyan-500/25 hover:shadow-md hover:shadow-cyan-500/5">
       <button className="flex min-h-[56px] w-full items-center justify-between p-3.5 text-left" onClick={onToggle} aria-expanded={isExpanded}>
@@ -1168,7 +1400,7 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
 
       {isExpanded && (
         <div className="border-t border-slate-800/60 px-4 pb-4 pt-3">
-          <div className={`grid grid-cols-1 ${isExperience || requirementComparison ? 'xl:grid-cols-3' : 'xl:grid-cols-2'} gap-4`}>
+          <div className={`grid grid-cols-1 ${hasInsightPanel ? 'xl:grid-cols-3' : 'xl:grid-cols-2'} gap-4`}>
             <div className="rounded-xl border border-white/[0.08] bg-white/[0.025] p-5">
               <div className="mb-2 flex items-center justify-between">
                 <h5 className="text-base font-bold text-slate-200">Dẫn chứng (trích từ CV)</h5>
@@ -1177,6 +1409,16 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
                   {copied ? 'Đã chép' : 'Chép'}
                 </button>
               </div>
+              {evidenceHighlights.length > 0 && (
+                <div className="mb-4 space-y-2">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-cyan-400/70">Bang chung noi bat</p>
+                  {evidenceHighlights.slice(0, 3).map((highlight, index) => (
+                    <div key={`${highlight}-${index}`} className="rounded-lg border border-cyan-500/20 bg-cyan-500/[0.06] px-3 py-2 text-sm leading-6 text-slate-200">
+                      {highlight}
+                    </div>
+                  ))}
+                </div>
+              )}
               {canShowRawEvidence ? (
                 <blockquote className="border-l-4 border-cyan-500/60 pl-4 text-base italic leading-relaxed text-slate-300" dangerouslySetInnerHTML={{
                   __html: highlightedEvidenceHtml
@@ -1189,7 +1431,91 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
             </div>
 
             {isExperience && experienceBlock}
-            {!isExperience && requirementComparison && (
+            {!isExperience && hasStructuredInsights && (
+              <div className="space-y-3 rounded-xl border border-slate-800/60 bg-[#080f1e] p-5">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <h5 className="mb-1 text-base font-bold text-slate-100">Phan tich nhanh</h5>
+                    <p className="text-[11px] leading-5 text-slate-400">{quickTake}</p>
+                  </div>
+                  <span className={`rounded-full border px-2.5 py-1 text-[10px] font-bold ${verdictMeta.tone}`}>
+                    {verdictMeta.label}
+                  </span>
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                  <span className={`rounded-full border px-2.5 py-1 text-[10px] font-semibold ${evidenceQualityMeta.tone}`}>
+                    {evidenceQualityMeta.label}
+                  </span>
+                  {matchedSignals.length > 0 && (
+                    <span className="rounded-full border border-emerald-400/25 bg-emerald-500/10 px-2.5 py-1 text-[10px] font-semibold text-emerald-200">
+                      {matchedSignals.length} tin hieu dat
+                    </span>
+                  )}
+                  {missingRequirements.length > 0 && (
+                    <span className="rounded-full border border-amber-400/25 bg-amber-500/10 px-2.5 py-1 text-[10px] font-semibold text-amber-200">
+                      {missingRequirements.length} diem can bo sung
+                    </span>
+                  )}
+                  {qualityFlags.length > 0 && (
+                    <span className="rounded-full border border-rose-400/25 bg-rose-500/10 px-2.5 py-1 text-[10px] font-semibold text-rose-200">
+                      {qualityFlags.length} canh bao
+                    </span>
+                  )}
+                </div>
+
+                {matchedSignals.length > 0 && (
+                  <div>
+                    <div className="mb-1 text-[11px] font-medium text-slate-400">Tin hieu dat</div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {matchedSignals.slice(0, 6).map((signal) => (
+                        <span key={signal} className="rounded-full border border-emerald-400/35 bg-emerald-400/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-200">
+                          {signal}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {missingRequirements.length > 0 && (
+                  <div>
+                    <div className="mb-1 text-[11px] font-medium text-slate-400">Can bo sung</div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {missingRequirements.slice(0, 6).map((requirement) => (
+                        <span key={requirement} className="rounded-full border border-amber-400/35 bg-amber-400/10 px-2 py-0.5 text-[10px] font-semibold text-amber-200">
+                          {requirement}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {improvementSuggestion && !looksGenericInsight(improvementSuggestion) && (
+                  <div className="rounded-lg border border-cyan-500/20 bg-cyan-500/[0.06] p-3">
+                    <div className="mb-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-cyan-300">
+                      Goi y cai thien
+                    </div>
+                    <p className="text-[11px] leading-5 text-slate-300">{improvementSuggestion}</p>
+                  </div>
+                )}
+
+                {qualityFlags.length > 0 && (
+                  <div className="rounded-lg border border-rose-500/20 bg-rose-500/[0.05] p-3">
+                    <div className="mb-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-rose-300">
+                      Canh bao chat luong
+                    </div>
+                    <ul className="space-y-1.5">
+                      {qualityFlags.slice(0, 4).map((flag) => (
+                        <li key={flag} className="text-[11px] leading-5 text-slate-300">
+                          {flag}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            )}
+            {!isExperience && shouldShowLegacyRequirementComparison && (
               <div className="space-y-3 rounded-xl border border-slate-800/60 bg-[#080f1e] p-5">
                 <div className="flex items-start justify-between gap-3">
                   <div>
@@ -1271,17 +1597,28 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
                     </p>
                   </div>
                   <div className="rounded-lg border border-white/[0.08] bg-slate-950/50 p-3">
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">Keyword match</p>
-                    <p className="mt-1 font-mono text-lg font-bold text-emerald-300">
-                      {keywordMetrics ? `${keywordMetrics.match_percentage.toFixed(1)}%` : '0%'}
-                    </p>
+                    {keywordMetrics && keywordMetrics.total_required_keywords > 0 ? (
+                      <>
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">Keyword match</p>
+                        <p className="mt-1 font-mono text-lg font-bold text-emerald-300">
+                          {`${keywordMetrics.match_percentage.toFixed(1)}%`}
+                        </p>
+                      </>
+                    ) : (
+                      <>
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">Bang chung</p>
+                        <p className="mt-1 text-lg font-bold text-emerald-300">
+                          {evidenceQualityMeta.shortLabel}
+                        </p>
+                      </>
+                    )}
                   </div>
                 </div>
 
                 {detailExplanation && detailExplanation !== '...' && (
                   <div className="rounded-lg border border-white/[0.08] bg-white/[0.025] p-3">
                     <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-cyan-400/70">Nhận xét AI</p>
-                    <p className="text-xs leading-relaxed text-slate-300 italic">"{detailExplanation}"</p>
+                    <p className="text-xs leading-relaxed text-slate-300">{detailExplanation}</p>
                   </div>
                 )}
               </div>
@@ -1362,7 +1699,7 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
                     <div className="mb-2 flex items-center justify-between gap-2">
                       <p className="text-[10px] font-bold uppercase tracking-widest text-rose-300/80">Lý do trừ điểm</p>
                       <span className="rounded-full border border-rose-400/25 bg-black/20 px-2 py-0.5 text-[10px] font-semibold text-rose-200">
-                        {advancedBreakdown.deductions.reduce((sum, item) => sum + Number(item.points_lost || 0), 0)}đ
+                        {formatScoreValue(advancedBreakdown.deductions.reduce((sum, item) => sum + Number(item.points_lost || 0), 0))}đ
                       </span>
                     </div>
                     {advancedBreakdown.deductions.length > 0 ? (
@@ -1370,7 +1707,7 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
                         {advancedBreakdown.deductions.slice(0, 6).map((item, index) => (
                           <li key={`${item.reason}-${index}`} className="flex items-start justify-between gap-3 text-xs text-rose-100/85">
                             <span className="leading-5">{item.reason}</span>
-                            <span className="shrink-0 font-mono font-bold text-rose-300">-{item.points_lost}đ</span>
+                            <span className="shrink-0 font-mono font-bold text-rose-300">-{formatScoreValue(Number(item.points_lost || 0))}đ</span>
                           </li>
                         ))}
                       </ul>
