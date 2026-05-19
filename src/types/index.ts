@@ -16,6 +16,8 @@ export interface SkillKeywordMetrics {
   keywords_list: KeywordAnalysis[];
 }
 
+export type ExplanationQuality = 'strong' | 'partial' | 'weak' | 'missing';
+
 export interface AdvancedScoreBreakdown {
   max_possible_score: number;
   raw_score_earned: number;
@@ -23,6 +25,13 @@ export interface AdvancedScoreBreakdown {
   deductions: PointDeduction[];
   bonuses_earned: string[];
   keyword_metrics: SkillKeywordMetrics;
+  verdict: ExplanationQuality;
+  evidence_quality: ExplanationQuality;
+  matched_signals: string[];
+  missing_requirements: string[];
+  evidence_highlights: string[];
+  improvement_suggestion: string;
+  quality_flags: string[];
 }
 
 export type AppStep = 'home' | 'jd' | 'weights' | 'upload' | 'analysis' | 'dashboard' | 'chatbot' | 'process' | 'history' | 'feedback';

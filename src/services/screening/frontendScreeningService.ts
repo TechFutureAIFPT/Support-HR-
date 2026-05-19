@@ -1,4 +1,4 @@
-import type { Candidate, DetailedScore, HardFilters, WeightCriteria, AnalysisRunData } from '@/types';
+import type { Candidate, DetailedScore, HardFilters, WeightCriteria, AnalysisRunData, ExplanationQuality } from '@/types';
 import { apiPost, pickArray } from '@/services/api/renderClient';
 import { analysisCacheService } from '@/services/history-cache/analysisCache';
 import { UploadedFilesService } from '@/services/data-sync/uploadedFilesService';
@@ -73,6 +73,15 @@ function toArray(value: unknown): string[] {
   return [];
 }
 
+function normalizeExplanationQuality(value: unknown): ExplanationQuality {
+  const normalized = String(value || '').trim().toLowerCase();
+  if (normalized === 'strong' || normalized === 'partial' || normalized === 'weak') {
+    return normalized;
+  }
+
+  return 'missing';
+}
+
 function normalizeAdvancedBreakdown(value: unknown): DetailedScore['advancedBreakdown'] | undefined {
   if (!value || typeof value !== 'object') return undefined;
   const record = value as Record<string, unknown>;
@@ -82,8 +91,8 @@ function normalizeAdvancedBreakdown(value: unknown): DetailedScore['advancedBrea
     : [];
 
   return {
-    max_possible_score: Number(record.max_possible_score || record.maxPossibleScore || 0),
-    raw_score_earned: Number(record.raw_score_earned || record.rawScoreEarned || 0),
+    max_possible_score: Number(record.max_possible_score ?? record.maxPossibleScore ?? 0),
+    raw_score_earned: Number(record.raw_score_earned ?? record.rawScoreEarned ?? 0),
     mathematical_formula: String(record.mathematical_formula || record.mathematicalFormula || ''),
     deductions: Array.isArray(record.deductions)
       ? record.deductions
@@ -107,6 +116,13 @@ function normalizeAdvancedBreakdown(value: unknown): DetailedScore['advancedBrea
         }))
         .filter((item) => item.keyword),
     },
+    verdict: normalizeExplanationQuality(record.verdict),
+    evidence_quality: normalizeExplanationQuality(record.evidence_quality || record.evidenceQuality),
+    matched_signals: toArray(record.matched_signals || record.matchedSignals),
+    missing_requirements: toArray(record.missing_requirements || record.missingRequirements),
+    evidence_highlights: toArray(record.evidence_highlights || record.evidenceHighlights),
+    improvement_suggestion: String(record.improvement_suggestion || record.improvementSuggestion || ''),
+    quality_flags: toArray(record.quality_flags || record.qualityFlags),
   };
 }
 
