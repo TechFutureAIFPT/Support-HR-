@@ -36,10 +36,6 @@ interface CoreAnalysisResponse {
   candidates?: unknown[];
 }
 
-interface EnrichmentResponse {
-  candidates?: unknown[];
-}
-
 interface JdStructureResponse {
   structured_text?: string;
 }
@@ -71,6 +67,13 @@ function toArray(value: unknown): string[] {
   }
 
   return [];
+}
+
+function normalizeBreakdownQuality(value: unknown): 'strong' | 'partial' | 'weak' | 'missing' {
+  const normalized = String(value || '').trim().toLowerCase();
+  return normalized === 'strong' || normalized === 'partial' || normalized === 'weak'
+    ? normalized
+    : 'missing';
 }
 
 function normalizeAdvancedBreakdown(value: unknown): DetailedScore['advancedBreakdown'] | undefined {
@@ -107,6 +110,13 @@ function normalizeAdvancedBreakdown(value: unknown): DetailedScore['advancedBrea
         }))
         .filter((item) => item.keyword),
     },
+    verdict: normalizeBreakdownQuality(record.verdict),
+    evidence_quality: normalizeBreakdownQuality(record.evidence_quality || record.evidenceQuality),
+    matched_signals: toArray(record.matched_signals || record.matchedSignals),
+    missing_requirements: toArray(record.missing_requirements || record.missingRequirements),
+    evidence_highlights: toArray(record.evidence_highlights || record.evidenceHighlights),
+    improvement_suggestion: String(record.improvement_suggestion || record.improvementSuggestion || ''),
+    quality_flags: toArray(record.quality_flags || record.qualityFlags),
   };
 }
 
@@ -451,28 +461,11 @@ export async function* analyzeCVs(
 
   let candidates = pickArray<unknown>(coreResponse, ['candidates']);
 
-  if (candidates.length > 0) {
-    if (persistUploadedFilesPromise) {
-      await persistUploadedFilesPromise;
-    }
-
-    try {
-      const enrichmentResponse = await apiPost<EnrichmentResponse>('/api/cv/enrich', {
-        jd_text: jdText,
-        hard_filters: serializeHardFilters(hardFilters),
-        candidates,
-        cv_text_map: cvTextMap,
-      }, {
-        authRequired: true,
-      });
-
-      const enrichedCandidates = pickArray<unknown>(enrichmentResponse, ['candidates']);
-      if (enrichedCandidates.length > 0) {
-        candidates = enrichedCandidates;
-      }
-    } catch (error) {
-      console.warn('Candidate enrichment failed, using core analysis only:', error);
-    }
+  // `/api/cv/analyze-core` already runs the full backend pipeline, including
+  // enrichment and advanced score breakdown attachment. Calling `/api/cv/enrich`
+  // again here can desynchronize the result payload and double-apply scoring logic.
+  if (persistUploadedFilesPromise) {
+    await persistUploadedFilesPromise;
   }
 
   for (let index = 0; index < candidates.length; index += 1) {

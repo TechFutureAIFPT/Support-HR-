@@ -478,6 +478,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMes
                 expandedCriteria={expandedCriteria}
                 onToggleCriterion={handleToggleCriterion}
                 jdText={jdText}
+                weights={weights}
               />
             </div>
           </div>

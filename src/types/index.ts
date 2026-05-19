@@ -23,6 +23,13 @@ export interface AdvancedScoreBreakdown {
   deductions: PointDeduction[];
   bonuses_earned: string[];
   keyword_metrics: SkillKeywordMetrics;
+  verdict: 'strong' | 'partial' | 'weak' | 'missing';
+  evidence_quality: 'strong' | 'partial' | 'weak' | 'missing';
+  matched_signals: string[];
+  missing_requirements: string[];
+  evidence_highlights: string[];
+  improvement_suggestion: string;
+  quality_flags: string[];
 }
 
 export type AppStep = 'home' | 'jd' | 'weights' | 'upload' | 'analysis' | 'dashboard' | 'chatbot' | 'process' | 'history' | 'feedback';

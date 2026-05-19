@@ -17,7 +17,7 @@ import {
   UsersRound,
   Wrench,
 } from 'lucide-react';
-import type { Candidate, DetailedScore, UploadedFileRecord } from '@/types';
+import type { Candidate, DetailedScore, UploadedFileRecord, WeightCriteria } from '@/types';
 import { analyzeExperience, extractJDRequirements, compareEvidence } from '@/services/screening/frontendInsights';
 import { UploadedFilesService } from '@/services/data-sync/uploadedFilesService';
 
@@ -38,7 +38,8 @@ const REMOVED_CRITERIA = [
 ];
 
 // Thang diem chu?n
-const BASIC_TOTAL_MAX = 80;    // 10 tieu chi c? b?n c?ng l?i t?i ?a 80
+const DEFAULT_CORE_CRITERIA = BASIC_CRITERIA.slice(0, 9);
+const FALLBACK_CORE_TOTAL_MAX = 100;
 const BASIC_DESCRIPTIONS: Record<string, { what: string; why: string; signals: string[] }> = {
   'Phù hợp JD (Job Fit)': {
     what: 'So sánh từ khóa JD với nội dung CV: kỹ năng, công nghệ, ngành nghề, yêu cầu vai trò.',
@@ -1035,6 +1036,46 @@ function canonicalizeCriterionName(rawName: string): string {
   return value;
 }
 
+function getConfiguredCriterionMaxScore(criterion: WeightCriteria[string]): number {
+  if (!criterion) return 0;
+
+  if (criterion.children && criterion.children.length > 0) {
+    return criterion.children.reduce((sum, child) => sum + (child.weight || 0), 0);
+  }
+
+  return criterion.weight || 0;
+}
+
+function buildConfiguredCoreCriteria(weights?: WeightCriteria): { criteria: string[]; totalMax: number } {
+  if (!weights || Object.keys(weights).length === 0) {
+    return {
+      criteria: DEFAULT_CORE_CRITERIA,
+      totalMax: FALLBACK_CORE_TOTAL_MAX,
+    };
+  }
+
+  const criteria: string[] = [];
+  let totalMax = 0;
+
+  Object.values(weights).forEach((criterion) => {
+    if (!criterion?.name) return;
+
+    const canonical = canonicalizeCriterionName(String(criterion.name).trim()) || String(criterion.name).trim();
+    if (!canonical || REMOVED_CRITERIA.includes(canonical)) return;
+
+    if (!criteria.includes(canonical)) {
+      criteria.push(canonical);
+    }
+
+    totalMax += getConfiguredCriterionMaxScore(criterion);
+  });
+
+  return {
+    criteria: criteria.length > 0 ? criteria : DEFAULT_CORE_CRITERIA,
+    totalMax: totalMax > 0 ? totalMax : FALLBACK_CORE_TOTAL_MAX,
+  };
+}
+
 interface CriterionAccordionProps {
   item: DetailedScore;
   isExpanded: boolean;
@@ -1445,10 +1486,14 @@ interface ExpandedContentProps {
   expandedCriteria: Record<string, Record<string, boolean>>;
   onToggleCriterion: (candidateId: string, criterion: string) => void;
   jdText: string;
+  weights?: WeightCriteria;
 }
 
-const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCriteria, onToggleCriterion, jdText }) => {
+const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCriteria, onToggleCriterion, jdText, weights }) => {
   const analysisRecord = candidate.analysis as Record<string, unknown> | undefined;
+  const coreCriteriaConfig = useMemo(() => buildConfiguredCoreCriteria(weights), [weights]);
+  const configuredCoreCriteria = coreCriteriaConfig.criteria;
+  const configuredCoreTotalMax = coreCriteriaConfig.totalMax;
   const allDetails = useMemo(() => {
     const rawDetails = analysisRecord ? getRawRecordValueByAliases(analysisRecord, ['chi tiet']) : undefined;
 
@@ -1469,7 +1514,7 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
         return;
       }
 
-      if (BASIC_CRITERIA.includes(canonical)) {
+      if (configuredCoreCriteria.includes(canonical)) {
         if (!basicMap.has(canonical)) {
           basicMap.set(canonical, item);
         }
@@ -1482,12 +1527,12 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
     });
 
     return {
-      basicDetails: BASIC_CRITERIA
+      basicDetails: configuredCoreCriteria
         .map((criterionName) => basicMap.get(criterionName))
         .filter((item): item is DetailedScore => Boolean(item)),
       supplementalDetails: Array.from(supplementalMap.values()),
     };
-  }, [allDetails]);
+  }, [allDetails, configuredCoreCriteria]);
 
   const basicScore = useMemo(() =>
     basicDetails.reduce((sum, item) => {
@@ -1496,6 +1541,16 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
     }, 0),
     [basicDetails]
   );
+  const missingCoreCriteria = useMemo(
+    () => configuredCoreCriteria.filter((criterionName) =>
+      !basicDetails.some((item) => canonicalizeCriterionName(getDetailCriterion(item)) === criterionName)
+    ),
+    [basicDetails, configuredCoreCriteria]
+  );
+  const basicScoreRatio = configuredCoreTotalMax > 0 ? basicScore / configuredCoreTotalMax : 0;
+  const basicCompletionPercent = configuredCoreTotalMax > 0
+    ? Math.round((basicScore / configuredCoreTotalMax) * 100)
+    : 0;
 
   const totalScore = useMemo(() => {
     const rawTotal = analysisRecord ? getRawRecordValueByAliases(analysisRecord, ['tong diem']) : undefined;
@@ -1603,7 +1658,7 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
             </div>
             <div className="rounded-lg border border-cyan-500/20 bg-cyan-500/[0.045] px-3 py-2 text-xs">
               <div className="text-cyan-500/70">Cốt lõi</div>
-              <div className="font-semibold text-cyan-300">{basicScore.toFixed(1)}<span className="text-slate-500">/{BASIC_TOTAL_MAX}</span></div>
+              <div className="font-semibold text-cyan-300">{basicScore.toFixed(1)}<span className="text-slate-500">/{configuredCoreTotalMax}</span></div>
             </div>
             <div className="rounded-lg border border-white/[0.08] bg-white/[0.025] px-3 py-2 text-xs">
               <div className="text-slate-500">Phù hợp JD</div>
@@ -1617,9 +1672,9 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
             <span className="w-20 text-cyan-500/80">Cốt lõi</span>
             <div className="flex-1 h-2 rounded-full bg-white/[0.08] overflow-hidden">
               <div className="h-full rounded-full bg-cyan-500 transition-all duration-700"
-                style={{ width: `${Math.min(100, (basicScore / BASIC_TOTAL_MAX) * 100)}%` }} />
+                style={{ width: `${Math.min(100, basicCompletionPercent)}%` }} />
             </div>
-            <span className="w-10 text-right font-mono text-cyan-400">{Math.round((basicScore / BASIC_TOTAL_MAX) * 100)}%</span>
+            <span className="w-10 text-right font-mono text-cyan-400">{basicCompletionPercent}%</span>
           </div>
           <div className="flex items-center gap-2 text-[11px] text-slate-500">
             <span className="w-20 text-emerald-400/80">JD ↔ CV</span>
@@ -1787,8 +1842,8 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
           <div className="flex flex-wrap items-center gap-2.5 text-sm font-semibold text-cyan-300">
             <i className="fa-solid fa-layer-group text-base"></i>
             <span>Tiêu chí cốt lõi</span>
-            <span className="rounded-full border border-cyan-500/30 bg-cyan-500/10 px-2 py-0.5 text-[10px] font-bold text-cyan-300">{BASIC_TOTAL_MAX} điểm</span>
-            <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${basicScore / BASIC_TOTAL_MAX >= 0.8 ? 'text-emerald-400' : basicScore / BASIC_TOTAL_MAX >= 0.6 ? 'text-amber-400' : 'text-red-400'}`}>{basicScore.toFixed(1)}/{BASIC_TOTAL_MAX}</span>
+            <span className="rounded-full border border-cyan-500/30 bg-cyan-500/10 px-2 py-0.5 text-[10px] font-bold text-cyan-300">{configuredCoreTotalMax} điểm</span>
+            <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${basicScoreRatio >= 0.8 ? 'text-emerald-400' : basicScoreRatio >= 0.6 ? 'text-amber-400' : 'text-red-400'}`}>{basicScore.toFixed(1)}/{configuredCoreTotalMax}</span>
           </div>
         </div>
 
@@ -1796,9 +1851,18 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
           <div className="flex items-center gap-2 pb-2 border-b border-white/[0.06]">
             <i className="fa-solid fa-circle-info text-cyan-500/60 text-xs"></i>
             <p className="text-[11px] text-slate-500">
-              {basicDetails.length} tiêu chí hiển thị • {BASIC_CRITERIA.length} tiêu chí cốt lõi • Tổng phổ điểm <span className="text-cyan-400 font-bold">{BASIC_TOTAL_MAX}</span> điểm • Đánh giá nền tảng ứng viên
+              {basicDetails.length} tiêu chí hiển thị • {configuredCoreCriteria.length} tiêu chí cốt lõi • Tổng phổ điểm <span className="text-cyan-400 font-bold">{configuredCoreTotalMax}</span> điểm • Đánh giá nền tảng ứng viên
             </p>
           </div>
+
+          {missingCoreCriteria.length > 0 && (
+            <div className="rounded-lg border border-amber-500/20 bg-amber-500/[0.05] px-3 py-2 text-[11px] text-amber-200">
+              Backend hiện đang trả về thiếu {missingCoreCriteria.length}/{configuredCoreCriteria.length} tiêu chí cốt lõi.
+              {' '}
+              {missingCoreCriteria.slice(0, 4).join(', ')}
+              {missingCoreCriteria.length > 4 ? '...' : ''}
+            </div>
+          )}
 
           {basicDetails.length > 0 ? (
             basicDetails.map((item) => {
