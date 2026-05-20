@@ -170,8 +170,8 @@
 
 .supporthr-neon-bar {
   box-shadow:
-    0 0 12px rgba(56, 189, 248, 0.45),
-    0 0 28px rgba(56, 189, 248, 0.2);
+    0 0 12px rgba(245, 214, 187, 0.42),
+    0 0 28px rgba(245, 214, 187, 0.18);
 }
 
 .supporthr-terminal-caret {
@@ -282,6 +282,138 @@
 
 [class~="bg-[#11213A]"] {
   background-color: rgba(8, 8, 10, 0.94) !important;
+}
+
+/* ============================================================
+   SUPPORT HR AI GOLD SYSTEM
+   Shared visual language for product, legal, home and history
+   screens. Mirrors the login page: black canvas, square frames,
+   beige/gold system accents, and white primary actions.
+   ============================================================ */
+:root {
+  --supporthr-ai-gold: #f5d6bb;
+  --supporthr-ai-gold-strong: #ffd8a8;
+  --supporthr-ai-gold-muted: rgba(245, 214, 187, 0.14);
+  --supporthr-ai-gold-border: rgba(245, 214, 187, 0.26);
+  --supporthr-ai-panel: rgba(255, 255, 255, 0.035);
+}
+
+:is(.home-page-shell, .legal-page-shell, .feature-page-shell) {
+  --ai-accent: var(--supporthr-ai-gold);
+  --ai-accent-strong: var(--supporthr-ai-gold-strong);
+  --ai-accent-muted: var(--supporthr-ai-gold-muted);
+  --ai-accent-border: var(--supporthr-ai-gold-border);
+}
+
+:is(.home-page-shell, .legal-page-shell, .feature-page-shell) :is(.rounded, .rounded-md, .rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl) {
+  border-radius: 0 !important;
+}
+
+:is(.home-page-shell, .legal-page-shell, .feature-page-shell) :is(
+  [class*="text-cyan-"],
+  [class*="text-sky-"],
+  [class*="text-blue-"],
+  [class*="text-indigo-"],
+  [class*="text-violet-"],
+  [class*="text-emerald-"]
+) {
+  color: var(--ai-accent) !important;
+}
+
+:is(.home-page-shell, .legal-page-shell, .feature-page-shell) :is(
+  [class*="border-cyan-"],
+  [class*="border-sky-"],
+  [class*="border-blue-"],
+  [class*="border-indigo-"],
+  [class*="border-violet-"],
+  [class*="border-emerald-"]
+) {
+  border-color: var(--ai-accent-border) !important;
+}
+
+:is(.home-page-shell, .legal-page-shell, .feature-page-shell) :is(
+  [class*="bg-cyan-"],
+  [class*="bg-sky-"],
+  [class*="bg-blue-"],
+  [class*="bg-indigo-"],
+  [class*="bg-violet-"],
+  [class*="bg-emerald-"]
+) {
+  background-color: var(--ai-accent-muted) !important;
+}
+
+:is(.home-page-shell, .legal-page-shell, .feature-page-shell) :is(
+  [class*="from-cyan-"],
+  [class*="from-sky-"],
+  [class*="from-blue-"],
+  [class*="from-indigo-"],
+  [class*="from-violet-"],
+  [class*="from-emerald-"]
+) {
+  --tw-gradient-from: rgba(245, 214, 187, 0.38) var(--tw-gradient-from-position) !important;
+  --tw-gradient-to: rgba(245, 214, 187, 0) var(--tw-gradient-to-position) !important;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
+}
+
+:is(.home-page-shell, .legal-page-shell, .feature-page-shell) :is(
+  [class*="via-cyan-"],
+  [class*="via-sky-"],
+  [class*="via-blue-"],
+  [class*="via-indigo-"],
+  [class*="via-violet-"],
+  [class*="via-emerald-"]
+) {
+  --tw-gradient-to: rgba(245, 214, 187, 0) var(--tw-gradient-to-position) !important;
+  --tw-gradient-stops: var(--tw-gradient-from), rgba(245, 214, 187, 0.22) var(--tw-gradient-via-position), var(--tw-gradient-to) !important;
+}
+
+:is(.home-page-shell, .legal-page-shell, .feature-page-shell) :is(
+  [class*="to-cyan-"],
+  [class*="to-sky-"],
+  [class*="to-blue-"],
+  [class*="to-indigo-"],
+  [class*="to-violet-"],
+  [class*="to-emerald-"]
+) {
+  --tw-gradient-to: rgba(245, 214, 187, 0.1) var(--tw-gradient-to-position) !important;
+}
+
+:is(.home-page-shell, .legal-page-shell, .feature-page-shell) :is(
+  [class*="shadow-cyan-"],
+  [class*="shadow-sky-"],
+  [class*="shadow-blue-"],
+  [class*="shadow-indigo-"],
+  [class*="shadow-violet-"],
+  [class*="shadow-emerald-"]
+) {
+  --tw-shadow-color: rgba(245, 214, 187, 0.22) !important;
+}
+
+:is(.home-page-shell, .legal-page-shell, .feature-page-shell) :is(
+  [class*="ring-cyan-"],
+  [class*="ring-sky-"],
+  [class*="ring-blue-"],
+  [class*="ring-indigo-"],
+  [class*="ring-violet-"],
+  [class*="ring-emerald-"]
+) {
+  --tw-ring-color: rgba(245, 214, 187, 0.36) !important;
+}
+
+:is(.home-page-shell, .legal-page-shell, .feature-page-shell) :is(
+  [class*="accent-cyan-"],
+  [class*="accent-sky-"],
+  [class*="accent-blue-"],
+  [class*="accent-indigo-"],
+  [class*="accent-violet-"],
+  [class*="accent-emerald-"]
+) {
+  accent-color: var(--ai-accent) !important;
+}
+
+:is(.home-page-shell, .legal-page-shell, .feature-page-shell) .bg-white\/3,
+:is(.home-page-shell, .legal-page-shell, .feature-page-shell) .bg-white\/\[0\.03\] {
+  background-color: var(--supporthr-ai-panel) !important;
 }
 
 [class~="bg-[#11213A]/20"] {

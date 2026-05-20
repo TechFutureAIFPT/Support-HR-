@@ -22,14 +22,14 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ activeStep, completedSteps })
 
   return (
     <div className="md:hidden w-full mb-4 px-2 mt-2">
-      <div className="backdrop-blur-md border rounded-xl p-4 shadow-xl bg-[#0f172a]/90 border-slate-800">
+      <div className="border border-white/10 bg-black/90 p-4 shadow-xl backdrop-blur-md">
         <div className="flex items-center justify-between relative">
           {/* Background line */}
           <div className="absolute top-4 left-0 right-0 h-0.5 -z-10 bg-slate-700" />
 
           {/* Active progress line */}
           <div
-            className="absolute top-4 left-0 h-0.5 transition-all duration-500 ease-out -z-10 bg-gradient-to-r from-cyan-400 to-blue-500"
+            className="absolute top-4 left-0 h-0.5 transition-all duration-500 ease-out -z-10 bg-gradient-to-r from-[#f5d6bb] to-[#ffd8a8]"
             style={{ width: `${progress}%` }}
           />
 
@@ -38,15 +38,15 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ activeStep, completedSteps })
             const isActive = activeStep === step.key;
 
             const circleClass = isActive
-              ? 'bg-slate-900 border-2 border-cyan-400 text-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.3)] scale-110'
+              ? 'bg-black border-2 border-[#f5d6bb] text-[#f5d6bb] shadow-[0_0_10px_rgba(245,214,187,0.24)] scale-110'
               : isCompleted
-                ? 'bg-slate-900 border-2 border-emerald-500 text-emerald-500'
+                ? 'bg-black border-2 border-[#f5d6bb]/50 text-[#f5d6bb]'
                 : 'bg-slate-800 border-2 border-slate-700 text-slate-500';
 
             const textClass = isActive
-              ? 'text-cyan-400 font-bold'
+              ? 'text-[#f5d6bb] font-bold'
               : isCompleted
-                ? 'text-emerald-500 font-medium'
+                ? 'text-[#f5d6bb]/80 font-medium'
                 : 'text-slate-500';
 
             return (

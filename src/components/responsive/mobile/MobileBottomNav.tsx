@@ -38,7 +38,7 @@ const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
   return (
     <div className="md:hidden fixed bottom-0 left-0 right-0 z-35 opacity-100">
       <div
-        className="mx-2 mb-2 rounded-3xl bg-slate-900/85 backdrop-blur-xl border border-slate-700/50 shadow-[0_20px_60px_rgba(0,0,0,0.5)]"
+        className="mx-2 mb-2 border border-white/10 bg-black/90 shadow-[0_20px_60px_rgba(0,0,0,0.5)] backdrop-blur-xl"
         style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       >
         <div className="flex items-stretch justify-between h-16 px-2">
@@ -51,9 +51,9 @@ const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
                 type="button"
                 onClick={() => enabled && onNavigate(item.step)}
                 disabled={!enabled}
-                className={`flex flex-col items-center justify-center flex-1 rounded-2xl transition-all duration-200 ${
+                className={`flex flex-col items-center justify-center flex-1 border transition-all duration-200 ${
                   isActive
-                    ? "bg-cyan-500/12 text-cyan-300 border border-cyan-400/25 shadow-[0_0_0_1px_rgba(34,211,238,0.25)]"
+                    ? "border-[#f5d6bb]/35 bg-[#f5d6bb]/10 text-[#f5d6bb] shadow-[0_0_0_1px_rgba(245,214,187,0.18)]"
                     : "text-slate-400 hover:text-slate-200 hover:bg-white/5 border border-transparent"
                 } ${!enabled ? "opacity-50 cursor-not-allowed" : ""}`}
                 aria-label={item.label}

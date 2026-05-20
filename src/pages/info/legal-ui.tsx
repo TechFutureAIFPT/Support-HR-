@@ -22,36 +22,36 @@ export const LEGAL_TONE_STYLES: Record<
   }
 > = {
   cyan: {
-    accent: "text-cyan-300",
-    label: "text-cyan-200/85",
-    border: "border-cyan-400/20",
-    surface: "bg-cyan-400/[0.06]",
-    dot: "bg-cyan-300",
-    rule: "via-cyan-300/32",
+    accent: "text-[#f5d6bb]",
+    label: "text-[#f5d6bb]/90",
+    border: "border-[#f5d6bb]/24",
+    surface: "bg-[#f5d6bb]/[0.07]",
+    dot: "bg-[#f5d6bb]",
+    rule: "via-[#f5d6bb]/45",
   },
   emerald: {
-    accent: "text-emerald-300",
-    label: "text-emerald-200/85",
-    border: "border-emerald-400/20",
-    surface: "bg-emerald-400/[0.06]",
-    dot: "bg-emerald-300",
-    rule: "via-emerald-300/30",
+    accent: "text-[#ffd8a8]",
+    label: "text-[#ffd8a8]/90",
+    border: "border-[#f5d6bb]/22",
+    surface: "bg-[#f5d6bb]/[0.055]",
+    dot: "bg-[#ffd8a8]",
+    rule: "via-[#ffd8a8]/36",
   },
   sky: {
-    accent: "text-sky-300",
-    label: "text-sky-200/85",
-    border: "border-sky-400/20",
-    surface: "bg-sky-400/[0.06]",
-    dot: "bg-sky-300",
-    rule: "via-sky-300/30",
+    accent: "text-[#f5d6bb]",
+    label: "text-[#f5d6bb]/85",
+    border: "border-[#f5d6bb]/20",
+    surface: "bg-[#f5d6bb]/[0.05]",
+    dot: "bg-[#f5d6bb]",
+    rule: "via-[#f5d6bb]/34",
   },
   violet: {
-    accent: "text-violet-300",
-    label: "text-violet-200/85",
-    border: "border-violet-400/20",
-    surface: "bg-violet-400/[0.06]",
-    dot: "bg-violet-300",
-    rule: "via-violet-300/30",
+    accent: "text-[#f5d6bb]",
+    label: "text-[#f5d6bb]/85",
+    border: "border-[#f5d6bb]/18",
+    surface: "bg-[#f5d6bb]/[0.045]",
+    dot: "bg-[#f5d6bb]",
+    rule: "via-[#f5d6bb]/30",
   },
   amber: {
     accent: "text-amber-300",
@@ -62,12 +62,12 @@ export const LEGAL_TONE_STYLES: Record<
     rule: "via-amber-300/30",
   },
   rose: {
-    accent: "text-rose-300",
-    label: "text-rose-200/85",
-    border: "border-rose-400/20",
-    surface: "bg-rose-400/[0.06]",
-    dot: "bg-rose-300",
-    rule: "via-rose-300/30",
+    accent: "text-[#f5d6bb]",
+    label: "text-[#f5d6bb]/85",
+    border: "border-[#f5d6bb]/18",
+    surface: "bg-[#f5d6bb]/[0.045]",
+    dot: "bg-[#f5d6bb]",
+    rule: "via-[#f5d6bb]/30",
   },
 };
 
@@ -108,8 +108,8 @@ export function LegalPageLayout({
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="supporthr-grid-mask absolute inset-0 opacity-40" />
         <div className="absolute inset-x-0 top-0 h-[26rem] bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.05),transparent_48%)]" />
-        <div className="absolute left-0 top-24 h-[22rem] w-[34rem] bg-[radial-gradient(circle_at_left_top,rgba(34,211,238,0.07),transparent_72%)]" />
-        <div className="absolute bottom-0 right-0 h-[26rem] w-[36rem] bg-[radial-gradient(circle_at_right_bottom,rgba(168,85,247,0.07),transparent_74%)]" />
+        <div className="absolute left-0 top-24 h-[22rem] w-[34rem] bg-[radial-gradient(circle_at_left_top,rgba(245,214,187,0.08),transparent_72%)]" />
+        <div className="absolute bottom-0 right-0 h-[26rem] w-[36rem] bg-[radial-gradient(circle_at_right_bottom,rgba(245,214,187,0.06),transparent_74%)]" />
       </div>
 
       <div className="relative z-10">
@@ -123,7 +123,7 @@ export function LegalPageLayout({
                 <span className="supporthr-mono text-[15px] font-semibold uppercase tracking-[0.08em] text-white">
                   Support HR
                 </span>
-                <span className="mt-0.5 supporthr-mono text-[10px] font-bold uppercase tracking-[0.24em] text-cyan-300">
+                <span className="mt-0.5 supporthr-mono text-[10px] font-bold uppercase tracking-[0.24em] text-[#f5d6bb]">
                   Tài liệu pháp lý
                 </span>
               </div>
@@ -151,9 +151,9 @@ export function LegalPageLayout({
             isVisible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
           }`}
         >
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-end">
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-end">
             <div>
-              <p className="supporthr-mono text-[11px] uppercase tracking-[0.26em] text-zinc-500">
+              <p className="supporthr-mono text-[11px] uppercase tracking-[0.26em] text-[#f5d6bb]/70">
                 {pageLabel} // {meta}
               </p>
               <h1 className="supporthr-display mt-4 max-w-4xl text-[clamp(2.7rem,5.5vw,4.9rem)] font-bold tracking-[-0.075em] text-white leading-[0.92]">
@@ -164,11 +164,11 @@ export function LegalPageLayout({
               </p>
             </div>
 
-            <div className="border border-white/8 bg-white/[0.02] p-5">
+            <div className="border border-[#f5d6bb]/18 bg-[linear-gradient(180deg,rgba(245,214,187,0.06),rgba(255,255,255,0.018))] p-5">
               <p className="supporthr-mono text-[10px] uppercase tracking-[0.24em] text-zinc-500">
                 Trạng thái tài liệu
               </p>
-              <div className="mt-5 flex items-start justify-between gap-4">
+              <div className="mt-5 flex items-start justify-between gap-4 border border-white/10 bg-black/45 px-3 py-3">
                 <div>
                   <p className="text-3xl font-semibold text-white">{sections.length}</p>
                   <p className="mt-1 text-sm text-zinc-500">mục điều khoản chính</p>
@@ -192,7 +192,7 @@ export function LegalPageLayout({
           <div className="grid gap-5 lg:grid-cols-[17rem_minmax(0,1fr)] lg:gap-10">
             <aside className="hidden lg:block">
               <div className="sticky top-28 border border-white/8 bg-black/78 p-4 backdrop-blur-xl">
-                <p className="supporthr-mono text-[10px] uppercase tracking-[0.24em] text-zinc-500">
+                <p className="supporthr-mono text-[10px] uppercase tracking-[0.24em] text-[#f5d6bb]/70">
                   Mục lục
                 </p>
                 <div className="mt-4 space-y-1">
@@ -262,7 +262,7 @@ export function LegalPageLayout({
                 </div>
               </div>
 
-              <section className="border border-white/8 bg-black/78 p-5 backdrop-blur-xl sm:p-7">
+              <section className="border border-[#f5d6bb]/18 bg-[linear-gradient(180deg,rgba(8,8,10,0.94),rgba(0,0,0,0.92))] p-5 backdrop-blur-xl sm:p-7">
                 <div className="flex flex-col gap-4 border-b border-white/6 pb-5 sm:flex-row sm:items-center sm:justify-between">
                   <div className="flex items-center gap-4">
                     <div
@@ -271,7 +271,7 @@ export function LegalPageLayout({
                       <i className={`fa-solid ${activeMeta.icon} text-sm`} />
                     </div>
                     <div>
-                      <p className="supporthr-mono text-[10px] uppercase tracking-[0.24em] text-zinc-500">
+                      <p className="supporthr-mono text-[10px] uppercase tracking-[0.24em] text-[#f5d6bb]/70">
                         Mục đang xem
                       </p>
                       <h2 className="mt-1 text-xl font-semibold text-white">{activeMeta.title}</h2>

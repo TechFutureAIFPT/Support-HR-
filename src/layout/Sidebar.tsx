@@ -41,14 +41,14 @@ function useColors() {
     text:       '#e2e8f0',
     text2:      '#94a3b8',
     text3:      '#475569',
-    accentBlue: '#60a5fa',
-    accent:     '#818cf8',
+    accentBlue: '#f5d6bb',
+    accent:     '#ffd8a8',
     headerGradient: 'linear-gradient(135deg, #0d0d12, #020202)',
     headerBorderBottom: '1px solid rgba(255,255,255,0.06)',
     logoBg:     'bg-black/30',
     logoBorder: 'border-white/20',
     aiBadgeBg:  'rgba(255,255,255,0.15)',
-    aiBadgeColor: '#bae6fd',
+    aiBadgeColor: '#f5d6bb',
     subTextColor: 'rgba(255,255,255,0.55)',
     navHover:   'hover:bg-white/5',
     iconBg:     'rgba(255,255,255,0.04)',
@@ -57,11 +57,11 @@ function useColors() {
     progressTrack: 'rgba(255,255,255,0.06)',
     accountBg: 'rgba(255,255,255,0.03)',
     accountBorder: 'rgba(255,255,255,0.08)',
-    onlineDot: 'bg-blue-400',
-    proBadgeBg: 'rgba(59,130,246,0.15)',
-    proBadgeColor: '#60a5fa',
-    loginGrad:  'linear-gradient(135deg, #3b82f6, #2563eb)',
-    loginShadow: '0 4px 12px rgba(59,130,246,0.3)',
+    onlineDot: 'bg-[#f5d6bb]',
+    proBadgeBg: 'rgba(245,214,187,0.14)',
+    proBadgeColor: '#f5d6bb',
+    loginGrad:  'linear-gradient(135deg, #ffffff, #f5d6bb)',
+    loginShadow: '0 4px 18px rgba(245,214,187,0.18)',
   } : {
     bg:         '#ffffff',
     bg2:        '#f8faff',
@@ -72,27 +72,27 @@ function useColors() {
     text:       '#1e293b',
     text2:      '#475569',
     text3:      '#94a3b8',
-    accentBlue: '#4f46e5',
-    accent:     '#6366f1',
+    accentBlue: '#f5d6bb',
+    accent:     '#e8b879',
     headerGradient: 'linear-gradient(135deg, #eef2ff, #e0e7ff)',
     headerBorderBottom: '1px solid rgba(99,102,241,0.12)',
-    logoBg:     'bg-indigo-50',
-    logoBorder: 'border-indigo-200',
+    logoBg:     'bg-amber-50',
+    logoBorder: 'border-amber-200',
     aiBadgeBg:  'rgba(99,102,241,0.12)',
-    aiBadgeColor: '#4338ca',
+    aiBadgeColor: '#8a5a1f',
     subTextColor: '#64748b',
-    navHover:   'hover:bg-indigo-50',
+    navHover:   'hover:bg-amber-50',
     iconBg:     'rgba(99,102,241,0.04)',
     iconBorder: '1px solid rgba(99,102,241,0.1)',
-    sectionDivider: 'to-indigo-200/40',
+    sectionDivider: 'to-amber-200/40',
     progressTrack: 'rgba(99,102,241,0.08)',
     accountBg: 'rgba(99,102,241,0.03)',
     accountBorder: 'rgba(99,102,241,0.12)',
-    onlineDot: 'bg-indigo-500',
-    proBadgeBg: 'rgba(79,70,229,0.1)',
-    proBadgeColor: '#4f46e5',
-    loginGrad:  'linear-gradient(135deg, #4f46e5, #6366f1)',
-    loginShadow: '0 4px 12px rgba(79,70,229,0.3)',
+    onlineDot: 'bg-amber-500',
+    proBadgeBg: 'rgba(245,158,11,0.12)',
+    proBadgeColor: '#8a5a1f',
+    loginGrad:  'linear-gradient(135deg, #ffffff, #f5d6bb)',
+    loginShadow: '0 4px 12px rgba(245,158,11,0.22)',
   };
 }
 
@@ -103,11 +103,11 @@ const PROCESS_STEPS: Array<{
   color: string; bgActive: string;
 }> = [
   { key: 'jd',       label: 'Mô tả công việc', sub: 'Nhập JD · Bước 1',
-    icon: Briefcase,         color: '#60a5fa', bgActive: 'rgba(96,165,250,0.1)' },
+    icon: Briefcase,         color: '#f5d6bb', bgActive: 'rgba(245,214,187,0.1)' },
   { key: 'weights',  label: 'Cài Đặt Tiêu Chí', sub: 'Thiết lập · Bước 2',
-    icon: SlidersHorizontal, color: '#60a5fa', bgActive: 'rgba(96,165,250,0.1)' },
+    icon: SlidersHorizontal, color: '#f5d6bb', bgActive: 'rgba(245,214,187,0.1)' },
   { key: 'analysis', label: 'Phân tích AI', sub: 'Xử lý · Bước 3',
-    icon: Sparkles,          color: '#60a5fa', bgActive: 'rgba(96,165,250,0.1)' },
+    icon: Sparkles,          color: '#f5d6bb', bgActive: 'rgba(245,214,187,0.1)' },
 ];
 
 const TOOL_ITEMS: Array<{
@@ -116,11 +116,11 @@ const TOOL_ITEMS: Array<{
   color: string; bgActive: string;
 }> = [
   { key: 'dashboard', label: 'Thống kê chi tiết', sub: 'Analytics Dashboard',
-    icon: PieChart,      color: '#60a5fa', bgActive: 'rgba(96,165,250,0.1)' },
+    icon: PieChart,      color: '#f5d6bb', bgActive: 'rgba(245,214,187,0.1)' },
   { key: 'chatbot',    label: 'Gợi ý ứng viên AI',  sub: 'AI Recruitment Assistant',
-    icon: MessageSquare, color: '#60a5fa', bgActive: 'rgba(96,165,250,0.1)' },
+    icon: MessageSquare, color: '#f5d6bb', bgActive: 'rgba(245,214,187,0.1)' },
   { key: 'feedback',   label: 'Phản hồi AI', sub: 'Hiệu chỉnh đánh giá',
-    icon: Brain,        color: '#60a5fa', bgActive: 'rgba(96,165,250,0.1)' }
+    icon: Brain,        color: '#f5d6bb', bgActive: 'rgba(245,214,187,0.1)' }
 ];
 
 // ── Helpers ────────────────────────────────────────────────────────────────
@@ -257,7 +257,7 @@ const StepProgress = ({ completedSteps, C }: { completedSteps: AppStep[]; C: Ret
             width: `${pct}%`,
             background: pct === 100
               ? 'linear-gradient(90deg, #10b981, #34d399)'
-              : 'linear-gradient(90deg, #3B82F6, #60a5fa)',
+              : 'linear-gradient(90deg, #f5d6bb, #ffd8a8)',
           }}
         />
       </div>
@@ -330,9 +330,9 @@ const AccountPanel: React.FC<{
 
   const getAvatarGradient = (email: string) => {
     const grads = [
-      'from-blue-600 to-indigo-700', 'from-blue-700 to-indigo-800',
-      'from-blue-500 to-indigo-600', 'from-blue-800 to-indigo-900',
-      'from-indigo-600 to-blue-700',
+      'from-amber-700 to-yellow-900', 'from-stone-800 to-amber-900',
+      'from-yellow-700 to-stone-900', 'from-amber-800 to-black',
+      'from-[#f5d6bb] to-amber-900',
     ];
     return grads[email.charCodeAt(0) % grads.length];
   };
@@ -347,7 +347,7 @@ const AccountPanel: React.FC<{
         <button
           type="button"
           onClick={onLoginRequest}
-          className="w-full flex items-center justify-center gap-2 py-2.5 text-[12px] font-bold text-white transition-all hover:brightness-110 active:scale-[0.99]"
+          className="w-full flex items-center justify-center gap-2 py-2.5 text-[12px] font-black text-black transition-all hover:brightness-105 active:scale-[0.99]"
           style={{
             background: C.loginGrad,
             boxShadow: C.loginShadow,

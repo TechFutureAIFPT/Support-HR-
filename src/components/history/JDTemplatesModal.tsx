@@ -86,17 +86,17 @@ const EMPTY_HARD_FILTERS = {
 const modalLabelClass = 'supporthr-mono mb-2 block text-[10px] font-medium uppercase tracking-[0.22em] text-zinc-500';
 const modalMetaClass = 'supporthr-mono text-[10px] font-medium uppercase tracking-[0.24em] text-zinc-500';
 const modalFieldClass =
-  'supporthr-mono w-full rounded-none border border-white/[0.08] bg-black/80 px-3.5 py-3 text-[12px] text-slate-200 placeholder:text-slate-600 transition-colors focus:border-cyan-400/30 focus:bg-white/[0.02] focus:outline-none';
+  'supporthr-mono w-full rounded-none border border-[#f5d6bb]/14 bg-black/80 px-3.5 py-3 text-[12px] text-slate-200 placeholder:text-slate-600 transition-colors focus:border-[#f5d6bb]/36 focus:bg-white/[0.02] focus:outline-none';
 const modalSecondaryButtonClass =
-  'supporthr-mono rounded-none border border-white/[0.08] bg-black/70 px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300 transition-colors hover:border-white/[0.16] hover:text-white';
+  'supporthr-mono rounded-none border border-[#f5d6bb]/16 bg-black/70 px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#f5d6bb] transition-colors hover:border-[#f5d6bb]/45 hover:bg-[#f5d6bb] hover:text-black';
 const modalPrimaryButtonClass =
-  'supporthr-mono rounded-none border border-cyan-400/30 bg-cyan-400/10 px-5 py-2.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-100 transition-colors hover:bg-cyan-400/15 disabled:cursor-not-allowed disabled:opacity-60';
+  'supporthr-mono rounded-none border border-[#f5d6bb]/30 bg-[#f5d6bb]/10 px-5 py-2.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#f5d6bb] transition-colors hover:bg-[#f5d6bb] hover:text-black disabled:cursor-not-allowed disabled:opacity-60';
 const modalDangerButtonClass =
   'supporthr-mono rounded-none border border-red-500/30 bg-red-500/10 px-5 py-2.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-red-100 transition-colors hover:bg-red-500/15 disabled:cursor-not-allowed disabled:opacity-60';
 const modalCardClass =
-  'group rounded-none border border-white/[0.08] bg-[linear-gradient(180deg,rgba(255,255,255,0.03)_0%,rgba(255,255,255,0.012)_100%)] p-5 shadow-[0_20px_50px_rgba(0,0,0,0.24)] transition-all hover:border-cyan-400/24 hover:bg-[linear-gradient(180deg,rgba(255,255,255,0.05)_0%,rgba(255,255,255,0.018)_100%)]';
+  'group rounded-none border border-[#f5d6bb]/12 bg-[linear-gradient(180deg,rgba(245,214,187,0.055)_0%,rgba(255,255,255,0.012)_100%)] p-5 shadow-[0_20px_50px_rgba(0,0,0,0.24)] transition-all hover:border-[#f5d6bb]/36 hover:bg-[linear-gradient(180deg,rgba(245,214,187,0.085)_0%,rgba(255,255,255,0.018)_100%)]';
 const modalChipClass =
-  'supporthr-mono inline-flex rounded-none border border-white/[0.08] bg-black/75 px-2.5 py-1 text-[9px] uppercase tracking-[0.16em] text-zinc-400';
+  'supporthr-mono inline-flex rounded-none border border-[#f5d6bb]/14 bg-black/75 px-2.5 py-1 text-[9px] uppercase tracking-[0.16em] text-[#f5d6bb]/65';
 
 function TemplateForm({ initial, isSaving, onCancel, onSave }: TemplateFormProps) {
   const [name, setName] = useState(initial?.name || '');
@@ -544,8 +544,8 @@ const JDTemplatesModal: React.FC<JDTemplatesModalProps> = ({ isOpen, onClose, on
       <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm" onClick={onClose} />
 
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div className="flex max-h-[90vh] w-full max-w-[88rem] flex-col overflow-hidden rounded-none border border-white/[0.08] bg-[radial-gradient(circle_at_top_left,rgba(34,211,238,0.08),transparent_28%),linear-gradient(180deg,rgba(8,12,23,0.98)_0%,rgba(4,7,15,0.98)_100%)] shadow-[0_38px_120px_rgba(0,0,0,0.56)]">
-          <div className="flex items-center justify-between border-b border-white/[0.08] bg-black/35 px-6 py-4">
+        <div className="flex max-h-[90vh] w-full max-w-[88rem] flex-col overflow-hidden rounded-none border border-[#f5d6bb]/18 bg-[radial-gradient(circle_at_top_left,rgba(245,214,187,0.12),transparent_30%),linear-gradient(180deg,rgba(0,0,0,0.98)_0%,rgba(8,6,4,0.98)_100%)] shadow-[0_38px_120px_rgba(0,0,0,0.56)]">
+          <div className="flex items-center justify-between border-b border-[#f5d6bb]/14 bg-black/55 px-6 py-4">
             <div className="flex items-center gap-3">
               {view !== 'list' && (
                 <button
@@ -554,13 +554,13 @@ const JDTemplatesModal: React.FC<JDTemplatesModalProps> = ({ isOpen, onClose, on
                     setEditingTemplate(null);
                     setDeletingTemplate(null);
                   }}
-                  className="flex h-9 w-9 items-center justify-center rounded-none border border-white/[0.08] bg-black/55 text-slate-400 transition-colors hover:border-cyan-400/30 hover:text-white"
+                  className="flex h-9 w-9 items-center justify-center rounded-none border border-[#f5d6bb]/14 bg-black/55 text-[#f5d6bb]/70 transition-colors hover:border-[#f5d6bb]/40 hover:bg-[#f5d6bb] hover:text-black"
                 >
                   <i className="fa-solid fa-arrow-left text-xs" />
                 </button>
               )}
-              <div className="flex h-11 w-11 items-center justify-center rounded-none border border-cyan-400/20 bg-cyan-400/10">
-                <i className={`fa-solid ${activeTab === 'jd' ? 'fa-file-invoice' : 'fa-clock-rotate-left'} text-cyan-200`} />
+              <div className="flex h-11 w-11 items-center justify-center rounded-none border border-[#f5d6bb]/24 bg-[#f5d6bb]/10">
+                <i className={`fa-solid ${activeTab === 'jd' ? 'fa-file-invoice' : 'fa-clock-rotate-left'} text-[#f5d6bb]`} />
               </div>
               <div>
                 <h2 className="supporthr-display text-[1.45rem] font-semibold tracking-[-0.05em] text-white">
@@ -580,19 +580,19 @@ const JDTemplatesModal: React.FC<JDTemplatesModalProps> = ({ isOpen, onClose, on
 
             <button
               onClick={onClose}
-              className="flex h-9 w-9 items-center justify-center rounded-none border border-white/[0.08] bg-black/55 text-slate-400 transition-colors hover:border-cyan-400/30 hover:text-white"
+              className="flex h-9 w-9 items-center justify-center rounded-none border border-[#f5d6bb]/14 bg-black/55 text-[#f5d6bb]/70 transition-colors hover:border-[#f5d6bb]/40 hover:bg-[#f5d6bb] hover:text-black"
             >
               <i className="fa-solid fa-xmark" />
             </button>
           </div>
 
           {view === 'list' && (
-            <div className="grid grid-cols-2 border-b border-white/[0.08] bg-black/20">
+            <div className="grid grid-cols-2 border-b border-[#f5d6bb]/14 bg-black/35">
               <button
                 onClick={() => setActiveTab('jd')}
                 className={`supporthr-display flex items-center justify-center gap-2 border-b px-4 py-4 text-[1.05rem] font-semibold tracking-[-0.04em] transition-colors ${
                   activeTab === 'jd'
-                    ? 'border-cyan-400/60 bg-cyan-400/8 text-cyan-100'
+                    ? 'border-[#f5d6bb]/70 bg-[#f5d6bb]/10 text-[#f5d6bb]'
                     : 'border-transparent text-slate-500 hover:bg-white/[0.02] hover:text-slate-200'
                 }`}
               >
@@ -603,7 +603,7 @@ const JDTemplatesModal: React.FC<JDTemplatesModalProps> = ({ isOpen, onClose, on
                 onClick={() => setActiveTab('history')}
                 className={`supporthr-display flex items-center justify-center gap-2 border-b px-4 py-4 text-[1.05rem] font-semibold tracking-[-0.04em] transition-colors ${
                   activeTab === 'history'
-                    ? 'border-emerald-400/60 bg-emerald-400/8 text-emerald-100'
+                    ? 'border-[#f5d6bb]/70 bg-[#f5d6bb]/10 text-[#f5d6bb]'
                     : 'border-transparent text-slate-500 hover:bg-white/[0.02] hover:text-slate-200'
                 }`}
               >
@@ -694,7 +694,7 @@ const JDTemplatesModal: React.FC<JDTemplatesModalProps> = ({ isOpen, onClose, on
                       onClick={() => setSelectedCategory(category)}
                       className={`supporthr-mono whitespace-nowrap rounded-none border px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.18em] transition-colors ${
                         selectedCategory === category
-                          ? 'border-cyan-400/40 bg-cyan-400/10 text-cyan-100'
+                          ? 'border-[#f5d6bb]/42 bg-[#f5d6bb]/10 text-[#f5d6bb]'
                           : 'border-white/[0.08] bg-black/55 text-slate-500 hover:border-white/[0.16] hover:text-slate-200'
                       }`}
                     >
@@ -706,7 +706,7 @@ const JDTemplatesModal: React.FC<JDTemplatesModalProps> = ({ isOpen, onClose, on
                 <div className="flex-1 p-5">
                   {loadingTemplates ? (
                     <div className="flex flex-col items-center justify-center gap-4 py-16">
-                      <div className="h-10 w-10 animate-spin rounded-none border-[3px] border-cyan-400/15 border-t-cyan-300" />
+                      <div className="h-10 w-10 animate-spin rounded-none border-[3px] border-[#f5d6bb]/15 border-t-[#f5d6bb]" />
                       <p className="text-sm text-slate-500">Đang tải mẫu JD và dữ liệu đã dùng gần đây...</p>
                     </div>
                   ) : !isLoggedIn ? (
@@ -731,7 +731,7 @@ const JDTemplatesModal: React.FC<JDTemplatesModalProps> = ({ isOpen, onClose, on
                           <div className="mb-2 flex items-start justify-between gap-3">
                             <div className="min-w-0">
                               <h3 className="supporthr-display truncate text-[1.3rem] font-semibold tracking-[-0.04em] text-white">{template.name}</h3>
-                              <div className="supporthr-mono mt-1 flex items-center gap-2 text-[10px] uppercase tracking-[0.18em] text-cyan-200/75">
+                              <div className="supporthr-mono mt-1 flex items-center gap-2 text-[10px] uppercase tracking-[0.18em] text-[#f5d6bb]/70">
                                 <i className="fa-solid fa-briefcase text-[9px]" />
                                 <span className="truncate">{template.jobPosition}</span>
                               </div>
@@ -743,8 +743,8 @@ const JDTemplatesModal: React.FC<JDTemplatesModalProps> = ({ isOpen, onClose, on
                               <span
                                 className={`supporthr-mono px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.16em] ${
                                   template.origin === 'saved'
-                                    ? 'border border-cyan-400/20 bg-cyan-400/10 text-cyan-100'
-                                    : 'border border-emerald-500/20 bg-emerald-500/10 text-emerald-100'
+                                    ? 'border border-[#f5d6bb]/20 bg-[#f5d6bb]/10 text-[#f5d6bb]'
+                                    : 'border border-[#f5d6bb]/20 bg-[#f5d6bb]/10 text-[#f5d6bb]'
                                 }`}
                               >
                                 {template.origin === 'saved' ? 'Đã lưu' : 'Từ lịch sử'}
@@ -762,7 +762,7 @@ const JDTemplatesModal: React.FC<JDTemplatesModalProps> = ({ isOpen, onClose, on
                                     setEditingTemplate(template);
                                     setView('edit');
                                   }}
-                                  className="supporthr-mono rounded-none border border-transparent px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500 transition-colors hover:border-cyan-400/20 hover:bg-cyan-400/8 hover:text-cyan-100"
+                                  className="supporthr-mono rounded-none border border-transparent px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500 transition-colors hover:border-[#f5d6bb]/24 hover:bg-[#f5d6bb]/8 hover:text-[#f5d6bb]"
                                 >
                                   <i className="fa-solid fa-pen mr-1 text-[9px]" />
                                   Sửa
@@ -793,7 +793,7 @@ const JDTemplatesModal: React.FC<JDTemplatesModalProps> = ({ isOpen, onClose, on
                                   hardFilters: template.hardFilters,
                                 })
                               }
-                              className="supporthr-mono rounded-none border border-cyan-400/30 bg-cyan-400/8 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-cyan-100 transition-all hover:bg-cyan-400/14"
+                              className="supporthr-mono rounded-none border border-[#f5d6bb]/30 bg-[#f5d6bb]/8 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#f5d6bb] transition-all hover:bg-[#f5d6bb] hover:text-black"
                             >
                               Sử dụng
                             </button>
@@ -824,7 +824,7 @@ const JDTemplatesModal: React.FC<JDTemplatesModalProps> = ({ isOpen, onClose, on
                   <div className="flex gap-2">
                     <button
                       onClick={handleRefreshHistory}
-                      className="flex h-10 w-10 items-center justify-center rounded-none border border-white/[0.08] bg-black/55 text-slate-400 transition-colors hover:border-emerald-400/30 hover:text-white"
+                      className="flex h-10 w-10 items-center justify-center rounded-none border border-[#f5d6bb]/14 bg-black/55 text-[#f5d6bb]/70 transition-colors hover:border-[#f5d6bb]/40 hover:bg-[#f5d6bb] hover:text-black"
                       title="Làm mới"
                     >
                       <i className={`fa-solid fa-rotate ${historyLoading ? 'animate-spin' : ''}`} />
@@ -847,14 +847,14 @@ const JDTemplatesModal: React.FC<JDTemplatesModalProps> = ({ isOpen, onClose, on
                       value={historySearchTerm}
                       onChange={(event) => setHistorySearchTerm(event.target.value)}
                       placeholder="Tìm vị trí công việc..."
-                      className={`${modalFieldClass} py-3 pl-9 pr-4 text-sm focus:border-emerald-400/30`}
+                      className={`${modalFieldClass} py-3 pl-9 pr-4 text-sm focus:border-[#f5d6bb]/36`}
                     />
                   </div>
 
                   <select
                     value={historyTimeFilter}
                     onChange={(event) => setHistoryTimeFilter(event.target.value)}
-                    className={`${modalFieldClass} w-full sm:w-[13rem] focus:border-emerald-400/30`}
+                    className={`${modalFieldClass} w-full sm:w-[13rem] focus:border-[#f5d6bb]/36`}
                   >
                     {['Tất cả', 'Hôm nay', 'Tuần này', 'Tháng này', '3 tháng qua', '6 tháng qua', 'Năm nay'].map((option) => (
                       <option key={option} value={option}>
@@ -866,7 +866,7 @@ const JDTemplatesModal: React.FC<JDTemplatesModalProps> = ({ isOpen, onClose, on
                   <select
                     value={historyIndustryFilter}
                     onChange={(event) => setHistoryIndustryFilter(event.target.value)}
-                    className={`${modalFieldClass} w-full sm:w-[13rem] focus:border-emerald-400/30`}
+                    className={`${modalFieldClass} w-full sm:w-[13rem] focus:border-[#f5d6bb]/36`}
                   >
                     {historyIndustries.map((option) => (
                       <option key={option} value={option}>
@@ -884,7 +884,7 @@ const JDTemplatesModal: React.FC<JDTemplatesModalProps> = ({ isOpen, onClose, on
                     </div>
                     <div className="rounded-none border border-white/[0.08] bg-white/[0.02] p-3">
                       <div className={modalMetaClass}>Hit Rate</div>
-                      <div className="supporthr-display mt-2 text-[1.45rem] font-semibold tracking-[-0.05em] text-cyan-100">{cacheStats.hitRate.toFixed(1)}%</div>
+                      <div className="supporthr-display mt-2 text-[1.45rem] font-semibold tracking-[-0.05em] text-[#f5d6bb]">{cacheStats.hitRate.toFixed(1)}%</div>
                     </div>
                     <div className="rounded-none border border-white/[0.08] bg-white/[0.02] p-3">
                       <div className={modalMetaClass}>Lần gần nhất</div>
@@ -906,7 +906,7 @@ const JDTemplatesModal: React.FC<JDTemplatesModalProps> = ({ isOpen, onClose, on
                 <div className="flex-1 p-5">
                   {historyLoading ? (
                     <div className="flex flex-col items-center justify-center gap-4 py-16">
-                      <div className="h-10 w-10 animate-spin rounded-none border-[3px] border-emerald-500/15 border-t-emerald-300" />
+                      <div className="h-10 w-10 animate-spin rounded-none border-[3px] border-[#f5d6bb]/15 border-t-[#f5d6bb]" />
                       <p className="text-sm text-slate-500">Đang tải lịch sử hoạt động...</p>
                     </div>
                   ) : filteredHistory.length === 0 ? (
@@ -940,12 +940,12 @@ const JDTemplatesModal: React.FC<JDTemplatesModalProps> = ({ isOpen, onClose, on
                           <div className="mb-2 flex items-start justify-between gap-3 pr-6">
                             <div className="min-w-0">
                               <h3 className="supporthr-display truncate text-[1.25rem] font-semibold tracking-[-0.04em] text-white">{entry.jobPosition || 'Không rõ vị trí'}</h3>
-                              <div className="supporthr-mono mt-1 flex items-center gap-2 text-[10px] uppercase tracking-[0.18em] text-emerald-200/75">
+                              <div className="supporthr-mono mt-1 flex items-center gap-2 text-[10px] uppercase tracking-[0.18em] text-[#f5d6bb]/70">
                                 <i className="fa-solid fa-calendar-days text-[9px]" />
                                 {new Date(entry.timestamp).toLocaleString('vi-VN')}
                               </div>
                             </div>
-                            <span className="supporthr-mono border border-emerald-500/20 bg-emerald-500/10 px-2.5 py-1 text-[9px] uppercase tracking-[0.16em] text-emerald-100">
+                            <span className="supporthr-mono border border-[#f5d6bb]/20 bg-[#f5d6bb]/10 px-2.5 py-1 text-[9px] uppercase tracking-[0.16em] text-[#f5d6bb]">
                               {entry.industry || 'Khác'}
                             </span>
                           </div>
@@ -973,7 +973,7 @@ const JDTemplatesModal: React.FC<JDTemplatesModalProps> = ({ isOpen, onClose, on
         <div
           className={`supporthr-mono fixed bottom-6 left-1/2 z-[60] -translate-x-1/2 rounded-none px-5 py-3 text-[10px] font-semibold uppercase tracking-[0.18em] shadow-2xl ${
             toast.type === 'success'
-              ? 'border border-cyan-400/40 bg-slate-950/95 text-cyan-100'
+              ? 'border border-[#f5d6bb]/40 bg-black/95 text-[#f5d6bb]'
               : 'border border-red-500/40 bg-slate-950/95 text-red-200'
           }`}
         >

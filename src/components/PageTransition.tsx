@@ -10,32 +10,32 @@ interface StepInfo {
 
 const toneMap = {
   cyan: {
-    accent: 'text-cyan-300',
-    border: 'border-cyan-400/20',
-    surface: 'bg-cyan-400/[0.06]',
-    rule: 'via-cyan-300/28',
-    progress: 'bg-cyan-300',
+    accent: 'text-[#f5d6bb]',
+    border: 'border-[#f5d6bb]/22',
+    surface: 'bg-[#f5d6bb]/[0.08]',
+    rule: 'via-[#f5d6bb]/32',
+    progress: 'bg-[#f5d6bb]',
   },
   violet: {
-    accent: 'text-violet-300',
-    border: 'border-violet-400/20',
-    surface: 'bg-violet-400/[0.06]',
-    rule: 'via-violet-300/28',
-    progress: 'bg-violet-300',
+    accent: 'text-[#f5d6bb]',
+    border: 'border-[#f5d6bb]/22',
+    surface: 'bg-[#f5d6bb]/[0.08]',
+    rule: 'via-[#f5d6bb]/32',
+    progress: 'bg-[#f5d6bb]',
   },
   emerald: {
-    accent: 'text-emerald-300',
-    border: 'border-emerald-400/20',
-    surface: 'bg-emerald-400/[0.06]',
-    rule: 'via-emerald-300/28',
-    progress: 'bg-emerald-300',
+    accent: 'text-[#f5d6bb]',
+    border: 'border-[#f5d6bb]/22',
+    surface: 'bg-[#f5d6bb]/[0.08]',
+    rule: 'via-[#f5d6bb]/32',
+    progress: 'bg-[#f5d6bb]',
   },
   sky: {
-    accent: 'text-sky-300',
-    border: 'border-sky-400/20',
-    surface: 'bg-sky-400/[0.06]',
-    rule: 'via-sky-300/28',
-    progress: 'bg-sky-300',
+    accent: 'text-[#f5d6bb]',
+    border: 'border-[#f5d6bb]/22',
+    surface: 'bg-[#f5d6bb]/[0.08]',
+    rule: 'via-[#f5d6bb]/32',
+    progress: 'bg-[#f5d6bb]',
   },
 } as const;
 
@@ -124,11 +124,11 @@ const PageTransition: React.FC = () => {
     >
       <div className="pointer-events-none absolute inset-0 supporthr-grid-mask opacity-35" />
       <div
-        className="pointer-events-none absolute inset-y-0 left-[-16%] w-[28%] bg-gradient-to-r from-transparent via-cyan-300/[0.08] to-transparent blur-3xl"
+        className="pointer-events-none absolute inset-y-0 left-[-16%] w-[28%] bg-gradient-to-r from-transparent via-[#f5d6bb]/[0.08] to-transparent blur-3xl"
         style={{ animation: 'home-hero-scan 7.8s linear infinite' }}
       />
       <div
-        className="pointer-events-none absolute inset-y-0 right-[-18%] w-[28%] bg-gradient-to-r from-transparent via-violet-300/[0.08] to-transparent blur-3xl"
+        className="pointer-events-none absolute inset-y-0 right-[-18%] w-[28%] bg-gradient-to-r from-transparent via-[#f5d6bb]/[0.07] to-transparent blur-3xl"
         style={{ animation: 'home-hero-scan 9.1s linear infinite', animationDelay: '0.8s' }}
       />
 

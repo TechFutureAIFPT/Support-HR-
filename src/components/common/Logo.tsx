@@ -57,7 +57,7 @@ const Logo: React.FC<LogoProps> = ({
 
   // Logo Icon Component
   const LogoIcon = () => (
-    <div className={`${config.icon} rounded-lg overflow-hidden border border-white/10 bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center flex-shrink-0 shadow-lg`}>
+    <div className={`${config.icon} overflow-hidden border border-[#f5d6bb]/20 bg-black flex items-center justify-center flex-shrink-0 shadow-lg`}>
       <img
         src="/images/logos/logo.jpg"
         alt="Support HR Logo"
@@ -78,7 +78,7 @@ const Logo: React.FC<LogoProps> = ({
   // Logo Text Component
   const LogoText = () => (
     <span
-      className={`${config.text} font-bold tracking-wide bg-gradient-to-r from-blue-400 via-indigo-400 to-pink-400 bg-clip-text text-transparent`}
+      className={`${config.text} font-bold tracking-wide bg-gradient-to-r from-white via-[#f5d6bb] to-[#ffd8a8] bg-clip-text text-transparent`}
     >
       Support HR
     </span>

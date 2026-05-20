@@ -26,7 +26,7 @@ export function useThemeColors() {
     border:      '1px solid rgba(226,232,240,0.08)',
     borderSoft:  '1px solid rgba(226,232,240,0.06)',
     borderCard:  '1px solid rgba(226,232,240,0.11)',
-    borderAccent:'1px solid rgba(99,102,241,0.18)',
+    borderAccent:'1px solid rgba(245,214,187,0.24)',
     borderColor: 'rgba(226,232,240,0.1)',
 
     // ── Text ──
@@ -34,11 +34,11 @@ export function useThemeColors() {
     textSecondary: '#dbe7f3',
     textMuted:   '#94a3b8',
     textDim:     '#64748b',
-    textAccent:  'rgba(99,102,241,0.6)',
+    textAccent:  'rgba(245,214,187,0.74)',
 
     // ── Accent badges (keep same for both) ──
-    gradeA:      { bg: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.25)', color: '#34d399' },
-    gradeB:      { bg: 'rgba(59,130,246,0.12)', border: '1px solid rgba(59,130,246,0.25)', color: '#60a5fa' },
+    gradeA:      { bg: 'rgba(245,214,187,0.13)', border: '1px solid rgba(245,214,187,0.28)', color: '#f5d6bb' },
+    gradeB:      { bg: 'rgba(245,214,187,0.08)', border: '1px solid rgba(245,214,187,0.2)', color: '#ffd8a8' },
     gradeC:      { bg: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.25)', color: '#f87171' },
     gradeFail:   { bg: 'rgba(255,255,255,0.05)', color: '#475569' },
 

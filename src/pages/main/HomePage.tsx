@@ -31,10 +31,10 @@ const comparisonRows = [
 ];
 
 const statusStyles: Record<ComparisonCell["status"], { icon: string; badgeClass: string; textClass: string }> = {
-  positive: { icon: "fa-solid fa-check", badgeClass: "border border-emerald-500/40 bg-emerald-500/10 text-emerald-200", textClass: "text-slate-100" },
+  positive: { icon: "fa-solid fa-check", badgeClass: "border border-[#f5d6bb]/35 bg-[#f5d6bb]/10 text-[#f5d6bb]", textClass: "text-slate-100" },
   negative: { icon: "fa-solid fa-xmark", badgeClass: "border border-rose-500/40 bg-rose-500/10 text-rose-200", textClass: "text-slate-300" },
   neutral: { icon: "fa-solid fa-minus", badgeClass: "border border-amber-500/30 bg-amber-500/10 text-amber-200", textClass: "text-slate-200" },
-  highlight: { icon: "fa-solid fa-star", badgeClass: "border border-cyan-500/40 bg-gradient-to-r from-cyan-500/30 to-emerald-500/20 text-white", textClass: "text-white font-semibold" },
+  highlight: { icon: "fa-solid fa-star", badgeClass: "border border-[#f5d6bb]/40 bg-gradient-to-r from-[#f5d6bb]/25 to-white/8 text-white", textClass: "text-white font-semibold" },
 };
 
 const comparisonRowsMobile = comparisonRows.slice(0, 5);
@@ -44,10 +44,10 @@ const ComparisonTable = ({ rows }: { rows: typeof comparisonRows }) => (
     <div className="grid grid-cols-[1.5fr_1fr_1fr] border-b border-white/6 bg-white/[0.035] px-5 py-3 text-[10px] uppercase tracking-[0.35em] text-slate-600 font-mono">
       <div>Tiêu chí</div>
       <div><p className="text-slate-300 text-xs normal-case font-semibold">ChatGPT</p><p className="text-[10px] text-slate-600 normal-case mt-0.5">AI tổng quát</p></div>
-      <div><p className="text-emerald-400 text-xs normal-case font-semibold">Support HR</p><p className="text-[10px] text-slate-600 normal-case mt-0.5">AI chuyên biệt</p></div>
+      <div><p className="text-[#f5d6bb] text-xs normal-case font-semibold">Support HR</p><p className="text-[10px] text-slate-600 normal-case mt-0.5">AI chuyên biệt</p></div>
     </div>
     {rows.map((row) => (
-      <div key={row.label} className={`grid grid-cols-[1.5fr_1fr_1fr] px-5 py-4 border-b border-white/6 last:border-b-0 hover:bg-white/[0.03] transition-colors ${row.emphasis ? "bg-emerald-500/3" : ""}`}>
+      <div key={row.label} className={`grid grid-cols-[1.5fr_1fr_1fr] px-5 py-4 border-b border-white/6 last:border-b-0 hover:bg-white/[0.03] transition-colors ${row.emphasis ? "bg-[#f5d6bb]/[0.03]" : ""}`}>
         <div className="flex items-center gap-3">
           <span className="flex h-7 w-7 items-center justify-center rounded-none bg-white/5 text-slate-400 flex-shrink-0"><i className={row.icon} /></span>
           <p className="text-sm font-medium text-slate-200">{row.label}</p>
@@ -214,7 +214,7 @@ const HomePage: React.FC<HomePageProps> = ({
                 </div>
                 <div className="flex flex-col">
                   <span className="supporthr-mono text-[15px] font-semibold uppercase tracking-[0.08em] text-white">Support HR</span>
-                  <span className="mt-0.5 supporthr-mono text-[10px] font-bold uppercase tracking-[0.24em] text-cyan-300">Tuyển dụng AI</span>
+                  <span className="mt-0.5 supporthr-mono text-[10px] font-bold uppercase tracking-[0.24em] text-[#f5d6bb]">Tuyển dụng AI</span>
                 </div>
             </button>
 
@@ -276,12 +276,12 @@ const HomePage: React.FC<HomePageProps> = ({
         <WhySupportSection />
 
         {/* ── Comparison Section ──────────────────────────────── */}
-        <section id="compare" className="bg-black border-y border-slate-800/50 py-24">
+        <section id="compare" className="border-y border-[#f5d6bb]/12 bg-[linear-gradient(180deg,rgba(245,214,187,0.025),rgba(0,0,0,0.96))] py-24">
           <div className="max-w-[90rem] mx-auto px-3 sm:px-5 lg:px-6">
             <div className="text-center mb-12">
-              <div className="mb-4 inline-flex items-center gap-2 rounded-none border border-violet-500/20 bg-violet-500/[0.08] px-4 py-1.5 font-mono shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
-                <i className="fa-solid fa-code-compare text-violet-400 text-[10px]" />
-                <span className="text-[11px] font-bold text-violet-400 uppercase tracking-widest">So sánh</span>
+              <div className="mb-4 inline-flex items-center gap-2 rounded-none border border-[#f5d6bb]/22 bg-[#f5d6bb]/[0.06] px-4 py-1.5 font-mono shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
+                <i className="fa-solid fa-code-compare text-[#f5d6bb] text-[10px]" />
+                <span className="text-[11px] font-bold text-[#f5d6bb] uppercase tracking-widest">So sánh</span>
               </div>
               <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
                 Support HR so với ChatGPT
@@ -297,7 +297,7 @@ const HomePage: React.FC<HomePageProps> = ({
             {/* Mobile Cards */}
             <div className="md:hidden space-y-3">
               {comparisonRowsMobile.map((row) => (
-                <div key={row.label} className={`rounded-none border p-4 shadow-[0_16px_36px_rgba(2,8,23,0.14)] ${row.emphasis ? "border-emerald-500/10 bg-emerald-500/3" : "border-white/5 bg-white/3"}`}>
+                <div key={row.label} className={`rounded-none border p-4 shadow-[0_16px_36px_rgba(2,8,23,0.14)] ${row.emphasis ? "border-[#f5d6bb]/14 bg-[#f5d6bb]/[0.03]" : "border-white/5 bg-white/3"}`}>
                   <div className="flex items-center gap-3 mb-3">
                     <span className="flex h-7 w-7 items-center justify-center rounded-none bg-white/5 text-slate-400"><i className={`${row.icon} text-sm`} /></span>
                     <p className="text-sm font-semibold text-slate-100">{row.label}</p>
@@ -311,10 +311,10 @@ const HomePage: React.FC<HomePageProps> = ({
                       </div>
                     </div>
                     <div>
-                      <p className="text-[9px] uppercase tracking-wider text-emerald-500/70 mb-1">Support HR</p>
+                      <p className="text-[9px] uppercase tracking-wider text-[#f5d6bb]/70 mb-1">Support HR</p>
                       <div className="flex items-start gap-2">
-                        <i className={`${statusStyles[row.support.status].icon} mt-0.5 text-xs text-emerald-400`} />
-                        <span className={`text-xs leading-tight ${row.support.status === "highlight" ? "text-white font-semibold" : "text-emerald-300/80"}`}>{row.support.text}</span>
+                        <i className={`${statusStyles[row.support.status].icon} mt-0.5 text-xs text-[#f5d6bb]`} />
+                        <span className={`text-xs leading-tight ${row.support.status === "highlight" ? "text-white font-semibold" : "text-[#f5d6bb]/85"}`}>{row.support.text}</span>
                       </div>
                     </div>
                   </div>
@@ -339,18 +339,18 @@ const HomePage: React.FC<HomePageProps> = ({
                   <img src="/images/logos/logo.jpg" alt="SupportHR" className="w-9 h-9 rounded-none object-cover" />
                   <div>
                     <p className="text-base font-bold text-white">Support HR</p>
-                    <p className="text-[10px] text-cyan-400 uppercase tracking-widest">Nền tảng tuyển dụng AI</p>
+                    <p className="text-[10px] text-[#f5d6bb] uppercase tracking-widest">Nền tảng tuyển dụng AI</p>
                   </div>
                 </div>
                 <p className="text-sm text-slate-400 leading-relaxed max-w-sm mb-4">
                   Nền tảng tuyển dụng thông minh hàng đầu Việt Nam. Sử dụng AI để tìm kiếm, sàng lọc và đánh giá ứng viên nhanh chóng, chính xác.
                 </p>
                 <div className="flex items-center gap-3 text-slate-400">
-                  <a href="tel:0899280108" className="text-sm hover:text-cyan-400 transition-colors">
+                  <a href="tel:0899280108" className="text-sm hover:text-[#f5d6bb] transition-colors">
                     <i className="fa-solid fa-phone text-xs mr-1" /> 0899 280 108
                   </a>
                   <span className="text-slate-600">·</span>
-                  <a href="mailto:support@supporthr.vn" className="text-sm hover:text-cyan-400 transition-colors">
+                  <a href="mailto:support@supporthr.vn" className="text-sm hover:text-[#f5d6bb] transition-colors">
                     <i className="fa-solid fa-envelope text-xs mr-1" /> support@supporthr.vn
                   </a>
                 </div>
@@ -413,7 +413,7 @@ const HomePage: React.FC<HomePageProps> = ({
             style={{ animation: "scaleIn .25s ease" }} onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between px-5 py-3 bg-slate-900/95 border-b border-slate-700">
               <div className="flex items-center gap-2">
-                <i className="fa-solid fa-circle-play text-blue-400" />
+                <i className="fa-solid fa-circle-play text-[#f5d6bb]" />
                 <span className="text-white font-semibold text-sm">Video giới thiệu – Support HR</span>
               </div>
               <button onClick={() => setIsVideoOpen(false)}

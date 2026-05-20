@@ -38,16 +38,16 @@ const Button: React.FC<ButtonProps> = ({
 
   const variantStyles = {
     primary: {
-      base: 'bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white shadow-[0_14px_30px_rgba(8,145,178,0.18)] hover:shadow-[0_18px_36px_rgba(59,130,246,0.2)]',
-      focus: 'focus:ring-cyan-500/40 focus:ring-offset-slate-900',
+      base: 'border border-white bg-white text-black shadow-[0_14px_30px_rgba(245,214,187,0.12)] hover:bg-slate-100 hover:shadow-[0_18px_36px_rgba(245,214,187,0.18)]',
+      focus: 'focus:ring-[#f5d6bb]/40 focus:ring-offset-black',
     },
     secondary: {
       base: 'bg-slate-800/80 hover:bg-slate-700/85 text-white border border-white/[0.08] shadow-[0_12px_28px_rgba(15,23,42,0.14)]',
       focus: 'focus:ring-slate-400/30 focus:ring-offset-slate-900',
     },
     outline: {
-      base: 'bg-transparent border border-cyan-500/35 hover:bg-cyan-500/10 hover:border-cyan-400/45 text-cyan-200 hover:text-cyan-100',
-      focus: 'focus:ring-cyan-500/35 focus:ring-offset-slate-900',
+      base: 'bg-transparent border border-[#f5d6bb]/35 hover:bg-[#f5d6bb]/10 hover:border-[#f5d6bb]/45 text-[#f5d6bb] hover:text-white',
+      focus: 'focus:ring-[#f5d6bb]/35 focus:ring-offset-black',
     },
     ghost: {
       base: 'bg-transparent hover:bg-white/[0.05] text-slate-300 hover:text-white border border-transparent',

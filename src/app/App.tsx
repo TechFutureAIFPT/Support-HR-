@@ -603,7 +603,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
           <button
             type="button"
             onClick={() => setIsSidebarDrawerOpen(true)}
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/[0.03] text-slate-200 transition hover:border-cyan-400/40 hover:text-cyan-300"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-none border border-[#f5d6bb]/16 bg-white/[0.03] text-slate-200 transition hover:border-[#f5d6bb]/45 hover:text-[#f5d6bb]"
             aria-label="Mo menu dieu huong"
           >
             <i className="fa-solid fa-bars text-sm" />

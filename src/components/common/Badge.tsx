@@ -26,12 +26,12 @@ const Badge: React.FC<BadgeProps> = ({
   };
 
   const variantStyles = {
-    success: { bg: 'bg-emerald-500/10', text: 'text-emerald-400', border: 'border-emerald-500/20', dot: 'bg-emerald-400' },
+    success: { bg: 'bg-[#f5d6bb]/10', text: 'text-[#f5d6bb]', border: 'border-[#f5d6bb]/20', dot: 'bg-[#f5d6bb]' },
     warning: { bg: 'bg-amber-500/10', text: 'text-amber-400', border: 'border-amber-500/20', dot: 'bg-amber-400' },
     error: { bg: 'bg-red-500/10', text: 'text-red-400', border: 'border-red-500/20', dot: 'bg-red-400' },
-    info: { bg: 'bg-blue-500/10', text: 'text-blue-400', border: 'border-blue-500/20', dot: 'bg-blue-400' },
+    info: { bg: 'bg-[#f5d6bb]/10', text: 'text-[#f5d6bb]', border: 'border-[#f5d6bb]/20', dot: 'bg-[#f5d6bb]' },
     neutral: { bg: 'bg-slate-700/50', text: 'text-slate-300', border: 'border-slate-600/30', dot: 'bg-slate-400' },
-    primary: { bg: 'bg-indigo-500/10', text: 'text-indigo-400', border: 'border-indigo-500/20', dot: 'bg-indigo-400' },
+    primary: { bg: 'bg-[#f5d6bb]/10', text: 'text-[#f5d6bb]', border: 'border-[#f5d6bb]/20', dot: 'bg-[#f5d6bb]' },
   };
 
   const config = sizeConfig[size];
@@ -52,7 +52,7 @@ const Badge: React.FC<BadgeProps> = ({
       className={`
         ${config.text} ${config.padding} ${styles.bg} ${styles.text} ${styles.border}
         inline-flex items-center ${config.gap}
-        font-medium rounded-full border
+        font-medium border
         ${className}
       `}
       role="status"
