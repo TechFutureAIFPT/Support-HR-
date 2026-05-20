@@ -426,7 +426,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   const C = useColors();
   const handleClick = (step: AppStep) => {
     if (isStepEnabled(step, completedSteps)) setActiveStep(step);
-    if (window.innerWidth < 768 && onClose) onClose();
+    if (window.innerWidth < 1024 && onClose) onClose();
   };
 
   return (
@@ -434,7 +434,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       {/* Mobile overlay */}
       {isOpen && onClose && (
         <div
-          className="fixed inset-0 z-40 md:hidden"
+          className="fixed inset-0 z-40 lg:hidden"
           style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(2px)' }}
           onClick={onClose}
         />
@@ -444,10 +444,10 @@ const Sidebar: React.FC<SidebarProps> = ({
       <aside
         id="cv-sidebar"
         className={`
-          fixed top-0 left-0 z-50 flex h-screen w-[220px] flex-col
+          fixed top-0 left-0 z-50 flex h-screen w-[min(82vw,280px)] flex-col lg:w-[220px]
           transition-transform duration-300 ease-in-out
           ${isOpen ? 'translate-x-0' : '-translate-x-full'}
-          md:translate-x-0
+          lg:translate-x-0
         `}
         style={{
           background: C.bg,

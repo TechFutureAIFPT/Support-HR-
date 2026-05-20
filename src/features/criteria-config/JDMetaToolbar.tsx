@@ -41,7 +41,7 @@ const JDMetaToolbar: React.FC<JDMetaToolbarProps> = ({
       aria-label="Thông tin JD nhanh"
     >
       <div
-        className="flex items-center gap-3 px-4 py-3"
+        className="flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center"
         style={{ borderBottom: tc.borderSoft }}
       >
         <div
@@ -74,12 +74,12 @@ const JDMetaToolbar: React.FC<JDMetaToolbarProps> = ({
           </span>
         </div>
 
-        <div className="ml-auto flex items-center gap-2 shrink-0">
+        <div className="flex w-full shrink-0 items-center gap-2 sm:ml-auto sm:w-auto">
           {onBackToWelcome && (
             <button
               type="button"
               onClick={onBackToWelcome}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-semibold transition-all hover:brightness-110"
+              className="flex flex-1 items-center justify-center gap-1.5 px-3 py-1.5 text-[10px] font-semibold transition-all hover:brightness-110 sm:flex-none"
               style={{
                 background: tc.cardBg2,
                 border: tc.borderCard,
@@ -94,7 +94,7 @@ const JDMetaToolbar: React.FC<JDMetaToolbarProps> = ({
             type="button"
             onClick={onComplete}
             disabled={!isCompleteEnabled}
-            className="flex items-center gap-1.5 px-4 py-1.5 text-[10px] font-bold transition-all hover:brightness-110 disabled:opacity-30"
+            className="flex flex-1 items-center justify-center gap-1.5 px-4 py-1.5 text-[10px] font-bold transition-all hover:brightness-110 disabled:opacity-30 sm:flex-none"
             style={
               isCompleteEnabled
                 ? {

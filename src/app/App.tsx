@@ -217,6 +217,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
   const [historyModalOpen, setHistoryModalOpen] = useState<boolean>(false);
   const [userAvatar, setUserAvatar] = useState<string | null>(null);
   const [userName, setUserName] = useState<string>('');
+  const [isSidebarDrawerOpen, setIsSidebarDrawerOpen] = useState(false);
 
   // Load avatar and user name for mobile navbar
   useEffect(() => {
@@ -251,6 +252,11 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
   }, [currentUser, userEmail]);
   const location = useLocation();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    setIsSidebarDrawerOpen(false);
+  }, [location.pathname]);
+
   const handleLogout = useCallback(async () => {
     try {
       await auth.signOut();
@@ -542,7 +548,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
   return (
     <div className={`h-[100dvh] bg-black text-slate-100 flex flex-col overflow-hidden ${className || ''}`}>
       {!isHomeView && (
-        <div className="hidden md:block">
+        <div className="hidden lg:block">
           <Sidebar
             activeStep={activeStep}
             setActiveStep={setActiveStep}
@@ -564,15 +570,51 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
         </div>
       )}
 
+      {!isHomeView && (
+        <div className="lg:hidden">
+          <Sidebar
+            activeStep={activeStep}
+            setActiveStep={setActiveStep}
+            completedSteps={completedSteps}
+            onReset={onResetRequest}
+            onLogout={handleLogout}
+            userEmail={userEmail}
+            userAvatar={userAvatar}
+            userName={userName}
+            onLoginRequest={onLoginRequest}
+            isOpen={isSidebarDrawerOpen}
+            onClose={() => setIsSidebarDrawerOpen(false)}
+            onShowSettings={() => {
+              setJdTemplateSelectionMode('analysis');
+              setJdTemplatesModalOpen(true);
+            }}
+            onShowHistory={() => setHistoryModalOpen(true)}
+            onNewSession={handleNewSession}
+          />
+        </div>
+      )}
+
       {/* Mobile Fixed Header — full width, NOT offset by sidebar */}
       {!isHomeView && (
         <header
-          className="md:hidden fixed top-0 left-0 right-0 h-14 z-[45] flex items-center justify-between px-4 min-w-0"
+          className="fixed top-0 left-0 right-0 z-[45] flex min-h-14 items-center justify-between gap-3 px-3 py-2 lg:hidden"
           style={{ background: '#000000', borderBottom: '1px solid rgba(255,255,255,0.08)' }}
         >
-          <div className="flex items-center gap-2 min-w-0">
+          <button
+            type="button"
+            onClick={() => setIsSidebarDrawerOpen(true)}
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/[0.03] text-slate-200 transition hover:border-cyan-400/40 hover:text-cyan-300"
+            aria-label="Mo menu dieu huong"
+          >
+            <i className="fa-solid fa-bars text-sm" />
+          </button>
+
+          <div className="flex min-w-0 flex-1 items-center gap-2">
             <img src="/images/logos/logo.jpg" alt="Logo" className="w-8 h-8 rounded-lg object-contain shrink-0" />
-            <span className="font-black text-sm truncate" style={{ color: '#e2e8f0' }}>SupportHR</span>
+            <div className="min-w-0">
+              <span className="block truncate text-sm font-black leading-tight" style={{ color: '#e2e8f0' }}>SupportHR</span>
+              <span className="hidden text-[9px] font-semibold uppercase tracking-[0.14em] text-slate-500 sm:block">Recruitment Intelligence</span>
+            </div>
           </div>
           {isLoggedIn ? (
             <div className="flex items-center gap-2 shrink-0">
@@ -595,14 +637,14 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
       )}
 
       <main
-        className={`main-content ${!isHomeView ? 'pb-20 md:pb-0' : 'pb-0'} ${!isHomeView ? 'mt-14 md:mt-0' : ''} flex-1 flex flex-col min-h-0 overflow-x-hidden transition-all duration-300 ease-in-out ${
+        className={`main-content ${!isHomeView ? 'pb-20 lg:pb-0' : 'pb-0'} ${!isHomeView ? 'mt-14 lg:mt-0' : ''} flex-1 flex flex-col min-h-0 overflow-x-hidden transition-all duration-300 ease-in-out ${
           !isHomeView
-            ? 'md:ml-[220px] md:w-[calc(100vw-220px)] min-w-0'
+            ? 'lg:ml-[220px] lg:w-[calc(100vw-220px)] min-w-0'
             : 'ml-0 w-full'
         }`}
       >
         {(activeStep === 'jd' || activeStep === 'weights' || activeStep === 'analysis') && (
-          <div className="pt-4 md:hidden">
+          <div className="pt-4 lg:hidden">
             <ProgressBar activeStep={activeStep} completedSteps={completedSteps} />
           </div>
         )}

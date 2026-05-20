@@ -226,9 +226,9 @@ const WeightsConfig: React.FC<WeightsConfigProps> = memo(({ weights, setWeights,
         </div>
       </div>
 
-      <div className="relative z-10 flex flex-1 overflow-hidden">
-        <div className="custom-scrollbar flex-1 overflow-y-auto">
-          <div className="h-full w-full p-5 lg:p-8">
+      <div className="relative z-10 flex min-h-0 flex-1 flex-col overflow-y-auto lg:flex-row lg:overflow-hidden">
+        <div className="custom-scrollbar flex-none lg:min-h-0 lg:flex-1 lg:overflow-y-auto">
+          <div className="h-auto w-full p-4 md:p-5 lg:h-full lg:p-8">
             {step === 1 ? (
               <HardFilterPanel hardFilters={hardFilters} setHardFilters={setHardFilters} />
             ) : (
@@ -261,8 +261,8 @@ const WeightsConfig: React.FC<WeightsConfigProps> = memo(({ weights, setWeights,
           </div>
         </div>
 
-        <div className="weights-config__side-panel relative z-10 flex h-full w-[340px] shrink-0 flex-col backdrop-blur-xl lg:w-[400px]">
-          <div className="custom-scrollbar flex h-full flex-1 flex-col overflow-y-auto">
+        <div className="weights-config__side-panel relative z-10 flex w-full shrink-0 flex-col backdrop-blur-xl lg:h-full lg:w-[340px] xl:w-[400px]">
+          <div className="custom-scrollbar flex max-h-none flex-1 flex-col overflow-y-visible lg:h-full lg:overflow-y-auto">
             {step === 1 ? (
               <>
                 <div className="p-4 lg:p-5">

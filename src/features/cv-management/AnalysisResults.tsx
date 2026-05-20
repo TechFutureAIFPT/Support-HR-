@@ -148,7 +148,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMes
       c.detectedLocation?.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
     );
     if (filter !== 'all') r = r.filter(c =>
-      c.status === 'FAILED' ? filter === 'C' : c.analysis?.['Hạng'] === filter
+      c.status === 'FAILED' ? filter === 'FAILED' : c.analysis?.['Hạng'] === filter
     );
     return r.filter((c, i, arr) => arr.findIndex(x => x.id === c.id) === i);
   }, [rankedAndSortedResults, filter, debouncedSearchTerm]);
@@ -185,11 +185,11 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMes
   return (
     <section id="module-analysis" className="module-pane active relative flex h-full min-h-0 w-full flex-1 flex-col" style={{ background: tc.pageBg }}>
       {/* ── Premium Global Header ─────────────────────────────────── */}
-      <div className="shrink-0 flex flex-col md:flex-row md:items-center justify-between border-b px-4 py-3 gap-3 z-10" style={{ background: tc.headerBg, borderColor: tc.borderSoft }}>
+      <div className="shrink-0 z-10 flex flex-col justify-between gap-3 border-b px-3 py-3 sm:px-4 md:flex-row md:items-center" style={{ background: tc.headerBg, borderColor: tc.borderSoft }}>
         <div className="flex items-center gap-3 flex-1 min-w-0 pr-4">
           <div className="h-8 w-[3px] rounded-full shrink-0" style={{ background: 'linear-gradient(180deg, #6366f1, #8b5cf6)' }} />
           <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
               <h1 className="text-base font-bold leading-tight tracking-tight uppercase truncate" style={{ color: tc.textPrimary }}>
                 {analysisData?.job.position || jobPosition}
               </h1>
@@ -198,7 +198,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMes
                 <span className="text-[10px] text-indigo-300 font-bold uppercase tracking-wider">Đã hoàn tất</span>
               </div>
             </div>
-            <div className="flex items-center gap-3 text-[9px] font-semibold uppercase tracking-[0.16em] leading-tight mt-0.5" style={{ color: tc.textAccent }}>
+            <div className="mt-0.5 flex flex-wrap items-center gap-2 text-[9px] font-semibold uppercase leading-tight tracking-[0.16em] sm:gap-3" style={{ color: tc.textAccent }}>
               <span>Chiến dịch hiện tại</span>
               <div className="flex items-center gap-1.5 text-[9px] font-medium tracking-normal normal-case" style={{ color: tc.textDim }}>
                 <span className="w-1 h-1 rounded-full bg-slate-600" />
@@ -214,17 +214,17 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMes
           </div>
         </div>
 
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex w-full shrink-0 flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
           <button
             onClick={() => { if (setActiveStep) setActiveStep('dashboard'); if (markStepAsCompleted) markStepAsCompleted('analysis'); navigate('/detailed-analytics'); }}
-            className="flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-xs font-bold transition-all border shadow-sm"
+            className="flex w-full items-center justify-center gap-2 rounded-lg border px-4 py-2 text-xs font-bold shadow-sm transition-all sm:w-auto"
             style={{ background: tc.cardBg, borderColor: tc.borderCard, color: tc.textSecondary }}
           >
             <BarChart3 size={14} /> Thống kê
           </button>
           <button
             onClick={() => { if (setActiveStep) setActiveStep('chatbot'); if (markStepAsCompleted) markStepAsCompleted('analysis'); navigate('/chatbot'); }}
-            className="flex items-center justify-center gap-2 rounded-lg px-5 py-2 text-xs font-bold transition-all shadow-[0_0_20px_rgba(99,102,241,0.2)] hover:shadow-[0_0_25px_rgba(99,102,241,0.3)] hover:-translate-y-0.5"
+            className="flex w-full items-center justify-center gap-2 rounded-lg px-5 py-2 text-xs font-bold transition-all shadow-[0_0_20px_rgba(99,102,241,0.2)] hover:-translate-y-0.5 hover:shadow-[0_0_25px_rgba(99,102,241,0.3)] sm:w-auto"
             style={{ background: 'linear-gradient(135deg, #4f46e5, #6366f1)', color: '#fff', border: '1px solid rgba(165,180,252,0.3)' }}
           >
             <Target size={14} /> Gợi ý AI
@@ -259,8 +259,8 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMes
           </div>
 
           {/* ── Modern Filter Bar ─────────────────────────────── */}
-          <div className="shrink-0 p-4" style={{ background: tc.pageBg, borderBottom: `1px solid ${tc.borderColor}` }}>
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div className="shrink-0 p-3 sm:p-4" style={{ background: tc.pageBg, borderBottom: `1px solid ${tc.borderColor}` }}>
+            <div className="flex min-w-0 flex-col justify-between gap-3 lg:flex-row lg:items-center lg:gap-4">
 
               {/* Search */}
               <div className="relative w-full lg:max-w-[320px]">
@@ -278,8 +278,8 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMes
               </div>
 
               {/* Segmented Controls for Filters */}
-              <div className="flex items-center gap-4">
-                <div className="flex p-1 rounded-lg" style={{ background: tc.inputBg, border: tc.borderSoft }}>
+              <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+                <div className="custom-scrollbar flex max-w-full overflow-x-auto rounded-lg p-1" style={{ background: tc.inputBg, border: tc.borderSoft }}>
                   {[
                     { label: 'Tất cả', value: 'all' },
                     { label: 'Hạng A', value: 'A' },
@@ -292,7 +292,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMes
                       <button
                         key={tab.value}
                         onClick={() => setFilter(tab.value)}
-                        className={`px-4 py-1.5 text-xs font-bold rounded-md transition-all ${isActive ? 'shadow-sm' : 'hover:opacity-80'}`}
+                        className={`whitespace-nowrap rounded-md px-3 py-1.5 text-xs font-bold transition-all sm:px-4 ${isActive ? 'shadow-sm' : 'hover:opacity-80'}`}
                         style={{
                           background: isActive ? tc.cardBg : 'transparent',
                           color: isActive ? tc.textPrimary : tc.textMuted,
@@ -305,7 +305,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMes
                   })}
                 </div>
 
-                <div className="w-px h-6" style={{ background: tc.borderSoft }} />
+                <div className="hidden h-6 w-px sm:block" style={{ background: tc.borderSoft }} />
 
                 {/* Sort */}
                 <div className="flex items-center gap-2">
@@ -333,8 +333,8 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMes
           <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-transparent">
 
             {/* Desktop */}
-            <div className="custom-scrollbar hidden min-h-0 flex-1 overflow-y-auto md:block">
-              <table className="w-full text-sm">
+            <div className="custom-scrollbar hidden min-h-0 flex-1 overflow-auto md:block">
+              <table className="min-w-[720px] w-full text-sm xl:min-w-[980px]">
                 <thead className="sticky top-0 z-10" style={{ borderBottom: tc.border, background: tc.tableBg }}>
                   <tr style={{ color: tc.textDim }}>
                     <th className="px-5 py-3 text-left text-[9px] uppercase tracking-[0.2em] font-bold">STT</th>
@@ -342,8 +342,8 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMes
                     <th className="px-5 py-3 text-left text-[9px] uppercase tracking-[0.2em] font-bold">Hạng</th>
                     <th className="px-5 py-3 text-left text-[9px] uppercase tracking-[0.2em] font-bold">Điểm</th>
                     <th className="px-5 py-3 text-left text-[9px] uppercase tracking-[0.2em] font-bold">Phù hợp JD</th>
-                    <th className="px-5 py-3 text-left text-[9px] uppercase tracking-[0.2em] font-bold">Địa điểm</th>
-                    <th className="px-5 py-3 text-left text-[9px] uppercase tracking-[0.2em] font-bold">File</th>
+                    <th className="hidden px-5 py-3 text-left text-[9px] font-bold uppercase tracking-[0.2em] lg:table-cell">Địa điểm</th>
+                    <th className="hidden px-5 py-3 text-left text-[9px] font-bold uppercase tracking-[0.2em] xl:table-cell">File</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -374,13 +374,13 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMes
                           </td>
                           <td className="px-5 py-3 font-medium" style={{ color: tc.textSecondary }}>{overallScore}</td>
                           <td className="px-5 py-3 font-medium" style={{ color: tc.textSecondary }}>{jdFitScore}%</td>
-                          <td className="px-5 py-3 font-medium" style={{ color: candidate.locationMatch === false ? '#fca5a5' : tc.textSecondary }}>
+                          <td className="hidden px-5 py-3 font-medium lg:table-cell" style={{ color: candidate.locationMatch === false ? '#fca5a5' : tc.textSecondary }}>
                             <span className="inline-flex max-w-[150px] items-center gap-1.5 truncate">
                               <MapPin size={13} className="shrink-0 opacity-70" />
                               {candidate.detectedLocation || 'Chưa rõ'}
                             </span>
                           </td>
-                          <td className="flex items-center justify-between gap-3 px-5 py-3" style={{ color: tc.textDim }}>
+                          <td className="hidden items-center justify-between gap-3 px-5 py-3 xl:flex" style={{ color: tc.textDim }}>
                             <span className="truncate text-sm">{candidate.fileName || ''}</span>
                             <button style={{ color: 'rgba(99,102,241,0.5)' }} onClick={e => { e.stopPropagation(); handleExpandCandidate(candidate.id); }}
                               onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#818cf8'; }}
@@ -457,12 +457,12 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMes
 
       {/* ── Expand modal ──────────────────────────────── */}
       {expandedCandidate && results.find(c => c.id === expandedCandidate) && typeof document !== 'undefined' && createPortal(
-        <div className="fixed inset-0 flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-200" style={{ background: tc.overlayBg, zIndex: 99999 }}>
-          <div className="flex h-full max-h-[95vh] w-full max-w-7xl flex-col overflow-hidden rounded-xl" style={{ background: tc.modalBg, border: tc.borderAccent, boxShadow: tc.modalShadow }}>
-            <div className="flex shrink-0 items-center justify-between p-5" style={{ borderBottom: tc.border }}>
+        <div className="fixed inset-0 flex items-end justify-center p-2 backdrop-blur-sm animate-in fade-in duration-200 sm:items-center sm:p-4" style={{ background: tc.overlayBg, zIndex: 99999 }}>
+          <div className="flex h-[92svh] w-full max-w-7xl flex-col overflow-hidden rounded-t-2xl sm:h-full sm:max-h-[95vh] sm:rounded-xl" style={{ background: tc.modalBg, border: tc.borderAccent, boxShadow: tc.modalShadow }}>
+            <div className="flex shrink-0 items-center justify-between gap-3 p-4 sm:p-5" style={{ borderBottom: tc.border }}>
               <div className="flex items-center gap-3">
                 <div className="h-8 w-[3px] rounded-full shrink-0" style={{ background: 'linear-gradient(180deg, #6366f1, #8b5cf6)' }} />
-                <h3 className="text-xl font-bold lg:text-2xl" style={{ color: tc.textPrimary }}>
+                <h3 className="line-clamp-2 text-base font-bold sm:text-xl lg:text-2xl" style={{ color: tc.textPrimary }}>
                   Kết quả chi tiết: {results.find(c => c.id === expandedCandidate)?.candidateName}
                 </h3>
               </div>
@@ -472,7 +472,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMes
                 ×
               </button>
             </div>
-            <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto p-5" style={{ background: tc.scrollBg }}>
+            <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto p-3 sm:p-5" style={{ background: tc.scrollBg }}>
               <ExpandedContent
                 candidate={results.find(c => c.id === expandedCandidate)!}
                 expandedCriteria={expandedCriteria}

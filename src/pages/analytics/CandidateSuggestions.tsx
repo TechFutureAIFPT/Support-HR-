@@ -277,7 +277,7 @@ const CandidateSuggestions: React.FC<CandidateSuggestionsProps> = ({ candidates,
   return (
     <div className="feature-page-shell chatbot-page-shell flex h-full flex-col overflow-hidden" style={{ background: tc.pageBg }}>
       {/* ── Unified Global Header ─────────────────────────────────── */}
-      <div className="chatbot-global-header shrink-0 flex items-center justify-between border-b px-4 py-3 md:px-6 md:py-4" style={{ background: tc.pageBg, borderColor: tc.borderColor }}>
+      <div className="chatbot-global-header flex shrink-0 flex-col gap-3 border-b px-3 py-3 sm:flex-row sm:items-center sm:justify-between md:px-6 md:py-4" style={{ background: tc.pageBg, borderColor: tc.borderColor }}>
         {/* Left: Dynamic Content */}
         <div className="flex items-center gap-3 flex-1 min-w-0 pr-4">
           <div className="chatbot-title-mark h-8 w-[3px] rounded-full shrink-0" style={{ background: 'linear-gradient(180deg, #6366f1, #8b5cf6)' }} />
@@ -313,7 +313,7 @@ const CandidateSuggestions: React.FC<CandidateSuggestionsProps> = ({ candidates,
         </div>
 
         {/* Right: View Switcher */}
-        <div className="flex-shrink-0 flex items-center gap-2">
+        <div className="flex w-full flex-shrink-0 items-center justify-between gap-2 sm:w-auto sm:justify-start">
           {activeTab === 'chatbot' && (
             <button
               onClick={() => { setShowHistory(!showHistory); if (!showHistory) loadPastSessions(); }}
@@ -323,17 +323,17 @@ const CandidateSuggestions: React.FC<CandidateSuggestionsProps> = ({ candidates,
               <Clock className="w-4 h-4" />
             </button>
           )}
-          <div className="chatbot-tabs flex items-center p-1 rounded-lg border" style={{ background: tc.cardBg, borderColor: tc.borderColor }}>
+          <div className="chatbot-tabs flex min-w-0 flex-1 items-center rounded-lg border p-1 sm:flex-none" style={{ background: tc.cardBg, borderColor: tc.borderColor }}>
             <button
               onClick={() => setActiveTab('chatbot')}
-              className={`chatbot-tab flex items-center gap-1.5 px-3 md:px-4 py-1.5 text-xs font-bold rounded-md transition-all ${activeTab === 'chatbot' ? 'chatbot-tab-active bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/80'
+              className={`chatbot-tab flex flex-1 items-center justify-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-bold transition-all sm:flex-none md:px-4 ${activeTab === 'chatbot' ? 'chatbot-tab-active bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/80'
                 }`}
             >
               <MessageSquare className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Chatbot AI</span><span className="sm:hidden">AI</span>
             </button>
             <button
               onClick={() => setActiveTab('selected')}
-              className={`chatbot-tab flex items-center gap-1.5 px-3 md:px-4 py-1.5 text-xs font-bold rounded-md transition-all ${activeTab === 'selected' ? 'chatbot-tab-active chatbot-tab-active--selected bg-emerald-600 text-white shadow-md' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/80'
+              className={`chatbot-tab flex flex-1 items-center justify-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-bold transition-all sm:flex-none md:px-4 ${activeTab === 'selected' ? 'chatbot-tab-active chatbot-tab-active--selected bg-emerald-600 text-white shadow-md' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/80'
                 }`}
             >
               <Users className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Đã chọn</span><span className="sm:hidden">Đã chọn</span>
@@ -353,7 +353,7 @@ const CandidateSuggestions: React.FC<CandidateSuggestionsProps> = ({ candidates,
           <div className="flex h-full w-full relative">
             {/* History Panel Overlay */}
             {showHistory && (
-              <div className="chatbot-history-panel absolute inset-y-0 right-0 w-80 md:w-96 border-l shadow-2xl z-20 flex flex-col animate-slide-in-right" style={{ background: tc.pageBg, borderColor: tc.borderColor }}>
+              <div className="chatbot-history-panel absolute inset-y-0 right-0 z-20 flex w-full flex-col border-l shadow-2xl animate-slide-in-right sm:w-80 md:w-96" style={{ background: tc.pageBg, borderColor: tc.borderColor }}>
                 <div className="chatbot-history-header flex items-center justify-between p-4 border-b" style={{ background: tc.headerBg, borderColor: tc.borderColor }}>
                   <h4 className="text-sm font-bold flex items-center gap-2" style={{ color: tc.textPrimary }}>
                     <Clock className="w-4 h-4 text-blue-400" />
@@ -404,7 +404,7 @@ const CandidateSuggestions: React.FC<CandidateSuggestionsProps> = ({ candidates,
                         const isActive = s.id === sessionId;
                         const lastMsg = s.messages?.length > 0 ? s.messages[s.messages.length - 1] : null;
                         return (
-                          <div key={s.id} className={`chatbot-history-card group relative rounded-xl border p-3 cursor-pointer transition-all`} style={{ background: isActive ? tc.cardBg : tc.inputBg, borderColor: isActive ? 'rgba(59,130,246,0.4)' : tc.borderSoft }} onClick={() => restoreSession(s)}>
+                          <div key={s.id} className={`chatbot-history-card group relative cursor-pointer rounded-xl border p-3 transition-all`} style={{ background: isActive ? tc.cardBg : tc.inputBg, borderColor: isActive ? 'rgba(59,130,246,0.4)' : tc.borderSoft }} onClick={() => restoreSession(s)}>
                             <div className="flex justify-between items-start mb-1.5">
                               <p className={`text-xs font-bold truncate pr-6 ${isActive ? 'text-blue-400' : ''}`} style={{ color: isActive ? '#60a5fa' : tc.textPrimary }}>
                                 {s.sessionTitle}
@@ -476,13 +476,13 @@ const CandidateSuggestions: React.FC<CandidateSuggestionsProps> = ({ candidates,
                   return (
                     <div key={i} className={`flex w-full mb-6 ${isUser ? 'justify-end' : 'justify-start'} animate-fade-in`}>
                       {isUser ? (
-                        <div className="chatbot-user-bubble max-w-[75%] rounded-[20px] px-5 py-3 shadow-sm" style={{ background: tc.cardBg, color: tc.textPrimary }}>
+                        <div className="chatbot-user-bubble max-w-[88%] rounded-[20px] px-4 py-3 shadow-sm sm:max-w-[75%] sm:px-5" style={{ background: tc.cardBg, color: tc.textPrimary }}>
                           <div className="text-[15px] leading-relaxed">
                             {formatContent(msg.content)}
                           </div>
                         </div>
                       ) : (
-                        <div className="flex gap-4 max-w-[90%] md:max-w-[85%]">
+                        <div className="flex max-w-[96%] gap-3 sm:gap-4 md:max-w-[85%]">
                           <div className="chatbot-assistant-avatar w-8 h-8 rounded-full flex shrink-0 items-center justify-center border mt-1 shadow-sm" style={{ background: tc.cardBg2, borderColor: tc.borderColor }}>
                             <Bot className="w-4 h-4 text-emerald-500" />
                           </div>
@@ -531,7 +531,7 @@ const CandidateSuggestions: React.FC<CandidateSuggestionsProps> = ({ candidates,
                                     if (!c) return null;
                                     const isSelected = selectedIds.has(id);
                                     return (
-                                      <div key={id} className={`chatbot-candidate-card flex items-center justify-between gap-3 p-3 border transition-all duration-200 ${isSelected
+                                      <div key={id} className={`chatbot-candidate-card flex flex-col gap-3 border p-3 transition-all duration-200 sm:flex-row sm:items-center sm:justify-between ${isSelected
                                         ? 'border-blue-500/40 bg-blue-500/5 shadow-[0_0_15px_rgba(59,130,246,0.05)]'
                                         : 'border-slate-700/50 bg-slate-800/30 hover:border-blue-500/30 hover:bg-slate-800/50'
                                         }`}>
@@ -542,13 +542,13 @@ const CandidateSuggestions: React.FC<CandidateSuggestionsProps> = ({ candidates,
                                             }`}>
                                             {getInitials(c.candidateName || '')}
                                           </div>
-                                          <div className="flex-1 min-w-0">
-                                            <div className="flex items-center gap-2 mb-0.5">
+                                          <div className="min-w-0 flex-1">
+                                            <div className="mb-0.5 flex min-w-0 flex-wrap items-center gap-2">
                                               <p className="text-sm font-bold text-white truncate">{c.candidateName}</p>
                                               <GradeBadge grade={c.analysis?.['Hạng']} />
                                             </div>
                                             <p className="text-[10px] text-slate-400 truncate">{c.jobTitle || 'Chưa rõ chức danh'}</p>
-                                            <div className="flex items-center gap-3 mt-0.5 text-[10px] text-slate-300">
+                                            <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] text-slate-300">
                                               <span>Điểm: <span className="font-bold text-white">{c.analysis?.['Tổng điểm']}</span></span>
                                               <span>Cấp: <span className="font-semibold">{c.experienceLevel || '—'}</span></span>
                                               {c.email && <span className="text-blue-400 truncate">{c.email}</span>}
@@ -557,7 +557,7 @@ const CandidateSuggestions: React.FC<CandidateSuggestionsProps> = ({ candidates,
                                         </div>
                                         <button
                                           onClick={() => handleToggleSelect(id!)}
-                                          className={`chatbot-select-candidate flex-shrink-0 px-3.5 py-1.5 text-xs font-bold transition-all flex items-center gap-1.5 ${isSelected
+                                          className={`chatbot-select-candidate flex w-full flex-shrink-0 items-center justify-center gap-1.5 px-3.5 py-1.5 text-xs font-bold transition-all sm:w-auto ${isSelected
                                             ? 'bg-blue-600 hover:bg-blue-500 text-white shadow shadow-blue-600/20'
                                             : 'bg-slate-700/80 hover:bg-slate-600 text-slate-200 border border-slate-600/40'
                                             }`}

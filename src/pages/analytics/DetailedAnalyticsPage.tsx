@@ -190,11 +190,11 @@ const DetailedAnalyticsPage: React.FC<DetailedAnalyticsPageProps> = ({ candidate
     <div className="feature-page-shell flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden bg-black">
 
       {/* ── Unified Global Header ─────────────────────────────────── */}
-      <div className="shrink-0 flex flex-col md:flex-row md:items-center justify-between border-b px-5 py-3 gap-3 z-10" style={{ background: tc.headerBg, borderColor: tc.borderSoft }}>
+      <div className="shrink-0 z-10 flex flex-col justify-between gap-3 border-b px-3 py-3 sm:px-5 md:flex-row md:items-center" style={{ background: tc.headerBg, borderColor: tc.borderSoft }}>
         <div className="flex items-center gap-3 flex-1 min-w-0 pr-4">
           <div className="h-8 w-[3px] rounded-full shrink-0" style={{ background: 'linear-gradient(180deg, #6366f1, #8b5cf6)' }} />
           <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
               <h1 className="text-base font-bold leading-tight tracking-tight uppercase truncate" style={{ color: tc.textPrimary }}>
                 Phân tích chi tiết
               </h1>
@@ -202,7 +202,7 @@ const DetailedAnalyticsPage: React.FC<DetailedAnalyticsPageProps> = ({ candidate
                 {analyticsData.totalCandidates} ứng viên
               </span>
             </div>
-            <div className="flex items-center gap-3 text-[9px] font-semibold uppercase tracking-[0.16em] leading-tight mt-0.5" style={{ color: tc.textAccent }}>
+            <div className="mt-0.5 flex flex-wrap items-center gap-2 text-[9px] font-semibold uppercase leading-tight tracking-[0.16em] sm:gap-3" style={{ color: tc.textAccent }}>
               <span>Báo cáo thống kê</span>
               <div className="flex items-center gap-1.5 text-[9px] font-medium tracking-normal normal-case" style={{ color: tc.textDim }}>
                 <span className="w-1 h-1 rounded-full bg-slate-600" />
@@ -218,10 +218,10 @@ const DetailedAnalyticsPage: React.FC<DetailedAnalyticsPageProps> = ({ candidate
           </div>
         </div>
 
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex w-full shrink-0 items-center gap-2 sm:w-auto">
           <button
             onClick={() => navigate('/chatbot')}
-            className="flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-xs font-bold transition-all shadow-[0_0_20px_rgba(99,102,241,0.2)] hover:shadow-[0_0_25px_rgba(99,102,241,0.3)] hover:-translate-y-0.5"
+            className="flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2 text-xs font-bold transition-all shadow-[0_0_20px_rgba(99,102,241,0.2)] hover:-translate-y-0.5 hover:shadow-[0_0_25px_rgba(99,102,241,0.3)] sm:w-auto"
             style={{ background: 'linear-gradient(135deg, #4f46e5, #6366f1)', color: '#fff', border: '1px solid rgba(165,180,252,0.3)' }}
           >
             <Zap size={14} /> Gợi ý ứng viên
@@ -350,7 +350,7 @@ const DetailedAnalyticsPage: React.FC<DetailedAnalyticsPageProps> = ({ candidate
 
           {/* ── Charts Section ──────────────────────────────────── */}
           <div className="relative overflow-hidden  bg-gradient-to-br from-[#11213A] to-[#0B192C] border border-slate-800/60 shadow-xl shadow-black/20">
-            <div className="flex items-center justify-between px-5 py-4 border-b border-slate-800/60">
+            <div className="flex flex-col gap-3 border-b border-slate-800/60 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9  bg-indigo-500/15 border border-indigo-500/30 flex items-center justify-center">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#818cf8" strokeWidth="2">
@@ -362,12 +362,12 @@ const DetailedAnalyticsPage: React.FC<DetailedAnalyticsPageProps> = ({ candidate
                   <p className="text-[10px] text-slate-500">Trực quan hóa dữ liệu ứng viên</p>
                 </div>
               </div>
-              <div className="flex items-center gap-1 bg-slate-800/50 p-1  border border-slate-700/40">
+              <div className="custom-scrollbar flex max-w-full items-center gap-1 overflow-x-auto bg-slate-800/50 p-1  border border-slate-700/40">
                 {CHART_TABS.map(tab => (
                   <button
                     key={tab.key}
                     onClick={() => setActiveChart(tab.key)}
-                    className={`flex items-center gap-1.5 px-3 py-1.5  text-[11px] font-semibold transition-all ${activeChart === tab.key
+                    className={`flex shrink-0 items-center gap-1.5 px-3 py-1.5  text-[11px] font-semibold transition-all ${activeChart === tab.key
                         ? 'bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 shadow-sm'
                         : 'text-slate-500 hover:text-slate-300 hover:bg-slate-700/50'
                       }`}
@@ -379,7 +379,7 @@ const DetailedAnalyticsPage: React.FC<DetailedAnalyticsPageProps> = ({ candidate
               </div>
             </div>
 
-            <div className="p-5">
+            <div className="p-3 sm:p-5">
               {activeChart === 'grade' && (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   <div>
@@ -499,8 +499,8 @@ const DetailedAnalyticsPage: React.FC<DetailedAnalyticsPageProps> = ({ candidate
                 <p className="text-[10px] text-slate-500">Phân tích chi tiết từng tiêu chí đánh giá</p>
               </div>
             </div>
-            <div className="overflow-x-auto">
-              <table className="w-full">
+            <div className="custom-scrollbar overflow-x-auto">
+              <table className="min-w-[860px] w-full">
                 <thead>
                   <tr className="border-b border-slate-800/60 bg-slate-900/40">
                     {['Tiêu chí', 'Điểm TB', 'Độ lệch', 'Thấp nhất', 'Cao nhất', 'Số CV', 'Đánh giá'].map((h, i) => (

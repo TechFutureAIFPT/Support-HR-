@@ -129,6 +129,13 @@ const DashboardPage: React.FC = () => {
 
   const tc = useThemeColors();
 
+  const avgScoreData = useMemo(() => {
+    const successful = analysisData?.candidates.filter(c => c.status === 'SUCCESS') || [];
+    if (successful.length === 0) return null;
+    const avg = Math.round(successful.reduce((s, c) => s + (c.analysis?.['Tổng điểm'] || 0), 0) / successful.length);
+    return { avg };
+  }, [analysisData]);
+
   if (!analysisData) {
     return (
       <div className="feature-page-shell flex flex-col items-center justify-center min-h-[60vh] text-center px-4" style={{ background: tc.pageBg }}>
@@ -145,22 +152,15 @@ const DashboardPage: React.FC = () => {
     );
   }
 
-  const avgScoreData = useMemo(() => {
-    const successful = analysisData.candidates.filter(c => c.status === 'SUCCESS');
-    if (successful.length === 0) return null;
-    const avg = Math.round(successful.reduce((s, c) => s + (c.analysis?.['Tổng điểm'] || 0), 0) / successful.length);
-    return { avg };
-  }, [analysisData]);
-
   return (
     <div className="feature-page-shell flex flex-col h-full min-h-0 relative" style={{ background: tc.pageBg }}>
 
       {/* ── Premium Global Header ─────────────────────────────────── */}
-      <div className="shrink-0 flex flex-col md:flex-row md:items-center justify-between border-b px-5 py-3 gap-3" style={{ background: tc.headerBg, borderColor: tc.borderSoft }}>
+      <div className="flex shrink-0 flex-col justify-between gap-3 border-b px-3 py-3 sm:px-5 md:flex-row md:items-center" style={{ background: tc.headerBg, borderColor: tc.borderSoft }}>
         <div className="flex items-center gap-3 flex-1 min-w-0 pr-4">
           <div className="h-8 w-[3px] rounded-full shrink-0" style={{ background: 'linear-gradient(180deg, #6366f1, #8b5cf6)' }} />
           <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
               <h1 className="text-base font-bold leading-tight tracking-tight uppercase truncate" style={{ color: tc.textPrimary }}>
                 {analysisData.job.position}
               </h1>
@@ -168,7 +168,7 @@ const DashboardPage: React.FC = () => {
                 {analysisData.candidates.length} CV
               </span>
             </div>
-            <div className="flex items-center gap-3 text-[9px] font-semibold uppercase tracking-[0.16em] leading-tight mt-0.5" style={{ color: tc.textAccent }}>
+            <div className="mt-0.5 flex flex-wrap items-center gap-2 text-[9px] font-semibold uppercase leading-tight tracking-[0.16em] sm:gap-3" style={{ color: tc.textAccent }}>
               <span>Chi tiết chiến dịch</span>
               <div className="flex items-center gap-1.5 text-[9px] font-medium tracking-normal normal-case" style={{ color: tc.textDim }}>
                 <span className="w-1 h-1 rounded-full bg-slate-600" />
@@ -184,10 +184,10 @@ const DashboardPage: React.FC = () => {
           </div>
         </div>
 
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex w-full shrink-0 flex-wrap items-center gap-2 sm:w-auto sm:flex-nowrap">
           <button
             onClick={() => setSelectMode(!selectMode)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold transition-all border"
+            className="flex flex-1 items-center justify-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-bold transition-all sm:flex-none"
             style={selectMode ? { background: 'rgba(99,102,241,0.1)', borderColor: 'rgba(99,102,241,0.3)', color: tc.textPrimary } : { background: tc.cardBg, borderColor: tc.borderCard, color: tc.textSecondary }}
           >
             {selectMode ? <CheckSquare className="w-3.5 h-3.5 text-indigo-400" /> : <Square className="w-3.5 h-3.5 opacity-70" />}
@@ -195,14 +195,14 @@ const DashboardPage: React.FC = () => {
           </button>
           <button
             onClick={() => setShowInterviewQuestions(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold transition-all hover:opacity-80"
+            className="flex flex-1 items-center justify-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-bold transition-all hover:opacity-80 sm:flex-none"
             style={{ background: 'rgba(168,85,247,0.1)', border: '1px solid rgba(168,85,247,0.2)', color: '#d8b4fe' }}
           >
             <CircleHelp className="w-3.5 h-3.5" /> Gợi ý câu hỏi
           </button>
           <button
             onClick={exportToCSV}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold transition-all hover:shadow-md"
+            className="flex flex-1 items-center justify-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-bold transition-all hover:shadow-md sm:flex-none"
             style={{ background: '#10b981', color: '#fff', border: '1px solid rgba(16,185,129,0.8)' }}
           >
             <Download className="w-3.5 h-3.5" /> Xuất CSV

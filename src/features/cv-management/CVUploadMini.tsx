@@ -16,7 +16,7 @@ const CVUploadMini: React.FC<CVUploadMiniProps> = ({ cvFiles }) => {
       className="flex h-full flex-col overflow-hidden rounded-2xl border text-slate-100 shadow-[0_24px_64px_rgba(2,8,23,0.22)]"
       style={{ background: tc.modalBg, border: tc.borderCard }}
     >
-      <div className="shrink-0 border-b px-5 py-4" style={{ borderColor: 'rgba(99,102,241,0.18)' }}>
+      <div className="shrink-0 border-b px-4 py-3 md:px-5 md:py-4" style={{ borderColor: 'rgba(99,102,241,0.18)' }}>
         <div className="flex items-start justify-between gap-4">
           <div>
             <div className="supporthr-mono mb-2 text-[9px] font-semibold uppercase tracking-[0.16em] text-slate-500">
@@ -40,7 +40,7 @@ const CVUploadMini: React.FC<CVUploadMiniProps> = ({ cvFiles }) => {
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-        <div className="px-5 py-4">
+        <div className="px-4 py-3 md:px-5 md:py-4">
           <div className="supporthr-mono text-[9px] font-semibold uppercase tracking-[0.18em] text-slate-500">Danh sách CV</div>
         </div>
 

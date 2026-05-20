@@ -63,14 +63,14 @@ const WeightTile: React.FC<WeightTileProps> = ({ criterion, setWeights, isExpand
         onClick={onToggle}
         aria-expanded={isExpanded}
       >
-        <div className="flex items-center gap-3">
+        <div className="flex min-w-0 items-center gap-3">
           <div className={`w-10 h-10 rounded-none-none flex items-center justify-center text-lg ${isExpanded ? 'bg-sky-500/10 text-sky-300 border border-sky-400/25' : 'bg-white/[0.03] text-slate-400 border border-white/8'}`}>
               <i className={`${criterion.icon}`}></i>
             </div>
-            <div>
+            <div className="min-w-0">
               <p className={`text-[13px] font-bold tracking-wide ${isExpanded ? 'text-white' : 'text-slate-300'}`}>{criterion.name}</p>
               <div className="flex items-center gap-2 mt-1">
-                 <div className={`h-1.5 w-24 rounded-none-full overflow-hidden bg-white/[0.06]`}>
+                 <div className={`h-1.5 w-16 overflow-hidden rounded-none-full bg-white/[0.06] sm:w-24`}>
                     <div
                         className={`h-full rounded-none-full bg-gradient-to-r ${getProgressColor()}`}
                         style={{ width: `${Math.min(total, 100)}%` }}
@@ -103,7 +103,7 @@ const WeightTile: React.FC<WeightTileProps> = ({ criterion, setWeights, isExpand
             const sliderMax = Math.max(60, child.weight);
             const sliderPercent = (child.weight / sliderMax) * 100;
             return (
-              <div key={child.key} className="flex items-center gap-4 p-2.5 rounded-none-none border border-transparent hover:border-white/[0.08] hover:bg-white/[0.015] transition-all">
+              <div key={child.key} className="flex flex-col gap-3 rounded-none-none border border-transparent p-2.5 transition-all hover:border-white/[0.08] hover:bg-white/[0.015] sm:flex-row sm:items-center sm:gap-4">
                   <div className="flex-1 min-w-0">
                     <div className="flex justify-between items-center mb-2">
                         <p className={`text-[11px] font-bold truncate tracking-wide text-slate-300`}>{child.name}</p>
@@ -123,14 +123,14 @@ const WeightTile: React.FC<WeightTileProps> = ({ criterion, setWeights, isExpand
                         />
                     </div>
                   </div>
-                  <div className="relative">
+                  <div className="relative w-full sm:w-auto">
                       <input
                           type="number"
                           min={0}
                           max={100}
                           value={child.weight}
                           onChange={(e) => handleSubChange(child.key, parseInt(e.target.value, 10))}
-                          className={`w-14 rounded-none-none border pl-2 pr-4 py-1.5 text-xs font-bold text-center focus:outline-none focus:ring-1 focus:ring-sky-400/30 transition-all appearance-none border-white/[0.08] bg-[#040506] text-white focus:border-sky-400/35 focus:bg-[#07090d]`}
+                          className={`w-full rounded-none-none border border-white/[0.08] bg-[#040506] py-1.5 pl-2 pr-4 text-center text-xs font-bold text-white transition-all appearance-none focus:border-sky-400/35 focus:bg-[#07090d] focus:outline-none focus:ring-1 focus:ring-sky-400/30 sm:w-14`}
                       />
                       <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-500 pointer-events-none font-bold">%</span>
                   </div>

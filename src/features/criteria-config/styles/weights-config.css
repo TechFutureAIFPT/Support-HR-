@@ -118,9 +118,9 @@
 }
 
 .weights-config__side-panel {
-  border-left: 1px solid var(--weights-border-color);
+  border-top: 1px solid var(--weights-border-color);
   background: linear-gradient(180deg, rgba(4, 4, 6, 0.98), rgba(0, 0, 0, 0.98));
-  box-shadow: -14px 0 42px -28px rgba(0, 0, 0, 0.95);
+  box-shadow: 0 -14px 42px -28px rgba(0, 0, 0, 0.95);
 }
 
 .weights-config__card {
@@ -353,4 +353,12 @@
 
 .weights-config__summary-value {
   color: var(--weights-text-muted);
+}
+
+@media (min-width: 1024px) {
+  .weights-config__side-panel {
+    border-top: 0;
+    border-left: 1px solid var(--weights-border-color);
+    box-shadow: -14px 0 42px -28px rgba(0, 0, 0, 0.95);
+  }
 }

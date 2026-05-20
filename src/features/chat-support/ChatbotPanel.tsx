@@ -23,6 +23,7 @@ const ChatbotPanel: React.FC<ChatbotPanelProps> = ({ analysisData, onClose }) =>
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [pastSessions, setPastSessions] = useState<ChatbotSession[]>([]);
   const [showHistory, setShowHistory] = useState(false);
+  const [isMobileSheetOpen, setIsMobileSheetOpen] = useState(false);
   const sessionInitRef = useRef(false);
 
   // Auto-create or resume chatbot session
@@ -365,8 +366,16 @@ const ChatbotPanel: React.FC<ChatbotPanelProps> = ({ analysisData, onClose }) =>
     );
   };
 
-  return (
-    <div className="border rounded-2xl shadow-lg flex flex-col h-96 max-h-[70vh] z-50" style={{ background: tc.pageBg, borderColor: tc.borderColor }}>
+  const handlePanelClose = () => {
+    if (isMobileSheetOpen) {
+      setIsMobileSheetOpen(false);
+      return;
+    }
+    onClose?.();
+  };
+
+  const chatPanel = (
+    <div className="z-50 flex h-full max-h-[calc(100svh-5rem)] flex-col rounded-t-3xl border shadow-lg md:h-96 md:max-h-[70vh] md:rounded-2xl" style={{ background: tc.pageBg, borderColor: tc.borderColor }}>
       <header className="p-4 border-b flex-shrink-0 flex items-center justify-between rounded-t-2xl" style={{ background: tc.headerBg, borderColor: tc.borderColor }}>
         <h3 className="font-bold text-lg flex items-center gap-2" style={{ color: tc.textPrimary }}>
           <i className="fa-solid fa-robot text-sky-500"></i>
@@ -381,9 +390,9 @@ const ChatbotPanel: React.FC<ChatbotPanelProps> = ({ analysisData, onClose }) =>
           >
             <i className="fa-solid fa-clock-rotate-left"></i>
           </button>
-          {onClose && (
+          {(onClose || isMobileSheetOpen) && (
             <button
-              onClick={onClose}
+              onClick={handlePanelClose}
               className="text-slate-400 hover:text-white transition-colors"
               aria-label="Đóng chatbot"
             >
@@ -613,6 +622,30 @@ const ChatbotPanel: React.FC<ChatbotPanelProps> = ({ analysisData, onClose }) =>
         </form>
       </div>
     </div>
+  );
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setIsMobileSheetOpen(true)}
+        className="fixed bottom-5 right-5 z-50 flex h-14 w-14 items-center justify-center rounded-full border border-sky-300/30 bg-gradient-to-br from-sky-500 to-blue-600 text-white shadow-[0_18px_44px_rgba(14,165,233,0.35)] transition hover:scale-105 md:hidden"
+        aria-label="Mo tro ly tuyen dung AI"
+      >
+        <i className="fa-solid fa-robot text-lg" />
+      </button>
+
+      {isMobileSheetOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/65 backdrop-blur-sm md:hidden"
+          onClick={() => setIsMobileSheetOpen(false)}
+        />
+      )}
+
+      <div className={`${isMobileSheetOpen ? 'fixed inset-x-0 bottom-0 top-16 z-50 px-3 pb-3' : 'hidden'} md:static md:block md:p-0`}>
+        {chatPanel}
+      </div>
+    </>
   );
 };
 

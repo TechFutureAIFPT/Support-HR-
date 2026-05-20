@@ -234,14 +234,14 @@ const CVUpload: React.FC<CVUploadProps> = memo((props) => {
   return (
     <section
       id="module-upload"
-      className="cv-upload-page module-pane active relative flex h-[calc(100vh)] min-h-[400px] w-full flex-col"
+      className="cv-upload-page module-pane active relative flex h-[calc(100svh-3.5rem)] min-h-[400px] w-full flex-col lg:h-[100dvh]"
       style={themeVars}
     >
       <div className="cv-upload-page__glow cv-upload-page__glow--top" />
       <div className="cv-upload-page__glow cv-upload-page__glow--bottom" />
 
       <div className="cv-upload-page__header shrink-0 border-b">
-        <div className="cv-upload-page__title-row flex items-center gap-3 px-4 py-3">
+        <div className="cv-upload-page__title-row flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center">
           <div className="cv-upload-page__accent shrink-0" />
 
           <div className="min-w-0">
@@ -257,7 +257,7 @@ const CVUpload: React.FC<CVUploadProps> = memo((props) => {
             <span className="text-[10px] font-medium">Tải CV · Kiểm tra · Phân tích bằng AI</span>
           </div>
 
-          <div className="ml-auto flex shrink-0 items-center gap-2">
+          <div className="flex w-full shrink-0 flex-wrap items-center gap-2 sm:ml-auto sm:w-auto sm:flex-nowrap">
             <div className="cv-upload-page__status-pill" data-state={completedSteps.includes('jd') ? 'done' : 'pending'}>
               JD {completedSteps.includes('jd') ? '✓' : '○'}
             </div>
@@ -276,8 +276,8 @@ const CVUpload: React.FC<CVUploadProps> = memo((props) => {
 
       <div className="relative z-10 flex flex-1 overflow-hidden">
         <div className="custom-scrollbar h-full w-full overflow-y-auto p-4 lg:px-8 lg:py-6">
-          <div className="grid h-full min-h-[500px] gap-6 lg:grid-cols-12">
-            <div className="flex h-full flex-col gap-4 lg:col-span-5">
+          <div className="grid min-h-full gap-4 md:gap-6 lg:grid-cols-12 lg:min-h-[500px]">
+            <div className="flex min-h-[420px] flex-col gap-4 lg:col-span-5 lg:h-full">
               <div className="group relative flex flex-1 flex-col">
                 <div className="cv-upload-page__dropzone relative flex flex-1 flex-col items-center justify-center p-6 text-center transition-all">
                   <div className="cv-upload-page__dropzone-icon mb-6 flex h-16 w-16 items-center justify-center shadow-lg shadow-indigo-500/10 transition-transform duration-300 group-hover:-translate-y-1 group-hover:scale-110">
@@ -301,7 +301,7 @@ const CVUpload: React.FC<CVUploadProps> = memo((props) => {
                         Tải CV lên
                       </button>
                     ) : (
-                      <div className="grid grid-cols-2 gap-2 animate-in fade-in zoom-in duration-200">
+                      <div className="grid grid-cols-1 gap-2 animate-in fade-in zoom-in duration-200 sm:grid-cols-2">
                         <label className="cv-upload-page__source-button cv-upload-page__source-button--machine cursor-pointer py-2.5 text-sm font-medium">
                           Từ máy
                           <input
@@ -322,7 +322,7 @@ const CVUpload: React.FC<CVUploadProps> = memo((props) => {
                         <button
                           type="button"
                           onClick={() => setShowUploadOptions(false)}
-                          className="cv-upload-page__source-button cv-upload-page__source-button--cancel col-span-2 py-1 text-xs"
+                          className="cv-upload-page__source-button cv-upload-page__source-button--cancel py-1 text-xs sm:col-span-2"
                         >
                           Hủy bỏ
                         </button>
@@ -374,10 +374,10 @@ const CVUpload: React.FC<CVUploadProps> = memo((props) => {
               </div>
             </div>
 
-            <div className="cv-upload-page__file-panel flex h-full flex-col overflow-hidden lg:col-span-7">
-              <div className="cv-upload-page__file-panel-header flex items-center justify-between p-4">
+            <div className="cv-upload-page__file-panel flex min-h-[360px] flex-col overflow-hidden lg:col-span-7 lg:h-full">
+              <div className="cv-upload-page__file-panel-header flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
                 <h4 className="cv-upload-page__file-panel-title text-sm font-medium">Danh sách hồ sơ</h4>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <label
                     className="cv-upload-page__secondary-action cv-upload-page__secondary-action--machine cursor-pointer px-2 py-1 text-xs transition-colors"
                     title="Thêm từ máy tính"

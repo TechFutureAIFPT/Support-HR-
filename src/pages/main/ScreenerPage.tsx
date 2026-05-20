@@ -203,7 +203,7 @@ const ScreenerPage: React.FC<ScreenerPageProps> = (props) => {
             />
           </div>
 
-          <div className="h-[40vh] w-full shrink-0 bg-black md:h-full md:w-[350px] lg:w-[400px]">
+          <div className="h-[38svh] min-h-[260px] w-full shrink-0 bg-black md:h-full md:min-h-0 md:w-[320px] lg:w-[400px]">
             <CVUploadMini cvFiles={props.cvFiles} />
           </div>
         </div>

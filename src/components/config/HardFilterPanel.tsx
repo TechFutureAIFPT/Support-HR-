@@ -224,7 +224,7 @@ const HardFilterPanel: React.FC<HardFilterPanelProps> = ({ hardFilters, setHardF
     };
 
     return (
-        <div className="space-y-8 pb-10 w-full animate-fade-in">
+        <div className="w-full animate-fade-in space-y-6 pb-6 md:space-y-8 md:pb-10">
 
 
 
@@ -240,7 +240,7 @@ const HardFilterPanel: React.FC<HardFilterPanelProps> = ({ hardFilters, setHardF
                     </div>
                     <div className="h-px flex-1 bg-gradient-to-r from-white/12 to-transparent ml-2" />
                 </div>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     {selectFieldConfigs.map((config) => renderCompactField(config))}
                 </div>
             </div>
@@ -257,7 +257,7 @@ const HardFilterPanel: React.FC<HardFilterPanelProps> = ({ hardFilters, setHardF
                     </div>
                     <div className="h-px flex-1 bg-gradient-to-r from-white/12 to-transparent ml-2" />
                 </div>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
 
                     {/* Industry */}
                     <div className={`relative isolate flex flex-col gap-3 p-5 rounded-none-none border transition-all duration-300 overflow-hidden group ${
@@ -309,7 +309,7 @@ const HardFilterPanel: React.FC<HardFilterPanelProps> = ({ hardFilters, setHardF
                             </label>
                             {renderToggle('languageMandatory', Boolean(hardFilters.languageMandatory))}
                         </div>
-                        <div className="grid grid-cols-[1fr_90px] gap-2.5 relative z-10">
+                        <div className="relative z-10 grid grid-cols-1 gap-2.5 sm:grid-cols-[1fr_90px]">
                             <input
                                 type="text"
                                 id="language"
