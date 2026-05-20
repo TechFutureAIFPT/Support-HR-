@@ -14,7 +14,7 @@
   right: 0;
   height: 24rem;
   width: 24rem;
-  background: rgba(6, 182, 212, 0.035);
+  background: rgba(245, 214, 187, 0.08);
 }
 
 .weights-config__glow--bottom {
@@ -22,7 +22,7 @@
   left: 0;
   height: 18rem;
   width: 18rem;
-  background: rgba(16, 185, 129, 0.03);
+  background: rgba(255, 216, 168, 0.06);
 }
 
 .weights-config__glow--center {
@@ -30,7 +30,7 @@
   left: 25%;
   height: 16rem;
   width: 16rem;
-  background: rgba(139, 92, 246, 0.025);
+  background: rgba(245, 214, 187, 0.045);
 }
 
 .weights-config__header {
@@ -41,8 +41,9 @@
 .weights-config__accent,
 .weights-config__card-accent,
 .weights-config__note-accent {
-  border-radius: 9999px;
-  background: linear-gradient(180deg, #38bdf8, #818cf8);
+  border-radius: 0;
+  background: linear-gradient(180deg, #ffffff, #f5d6bb 45%, #b9895b);
+  box-shadow: 0 0 18px rgba(245, 214, 187, 0.42);
 }
 
 .weights-config__accent {
@@ -78,16 +79,16 @@
 }
 
 .weights-config__step-button[data-state='active'] {
-  background: rgba(255, 255, 255, 0.04);
-  border-color: rgba(129, 140, 248, 0.3);
-  box-shadow: 0 10px 28px -20px rgba(96, 165, 250, 0.55);
+  background: rgba(245, 214, 187, 0.08);
+  border-color: rgba(245, 214, 187, 0.36);
+  box-shadow: 0 10px 28px -20px rgba(245, 214, 187, 0.72);
   color: var(--weights-text-primary);
 }
 
 .weights-config__step-button[data-state='done'] {
-  background: rgba(16, 185, 129, 0.08);
-  border-color: rgba(16, 185, 129, 0.24);
-  color: #34d399;
+  background: rgba(245, 214, 187, 0.1);
+  border-color: rgba(245, 214, 187, 0.34);
+  color: #f5d6bb;
 }
 
 .weights-config__step-index {
@@ -100,13 +101,13 @@
 }
 
 .weights-config__step-button[data-state='active'] .weights-config__step-index {
-  background: rgba(56, 189, 248, 0.12);
-  color: #7dd3fc;
+  background: rgba(245, 214, 187, 0.16);
+  color: #f5d6bb;
 }
 
 .weights-config__step-button[data-state='done'] .weights-config__step-index {
-  background: rgba(16, 185, 129, 0.2);
-  color: #34d399;
+  background: rgba(245, 214, 187, 0.2);
+  color: #f5d6bb;
 }
 
 .weights-config__step-connector[data-state='idle'] {
@@ -114,19 +115,24 @@
 }
 
 .weights-config__step-connector[data-state='done'] {
-  background: rgba(16, 185, 129, 0.32);
+  background: rgba(245, 214, 187, 0.46);
 }
 
 .weights-config__side-panel {
-  border-top: 1px solid var(--weights-border-color);
-  background: linear-gradient(180deg, rgba(4, 4, 6, 0.98), rgba(0, 0, 0, 0.98));
-  box-shadow: 0 -14px 42px -28px rgba(0, 0, 0, 0.95);
+  border-top: 1px solid rgba(245, 214, 187, 0.18);
+  background:
+    radial-gradient(520px circle at 16% 0%, rgba(245, 214, 187, 0.12), transparent 42%),
+    linear-gradient(180deg, rgba(9, 7, 5, 0.98), rgba(0, 0, 0, 0.99));
+  box-shadow: 0 -14px 42px -28px rgba(245, 214, 187, 0.5);
 }
 
 .weights-config__card {
-  border: 1px solid rgba(226, 232, 240, 0.08);
-  border-radius: 1rem;
-  background: linear-gradient(180deg, rgba(4, 4, 6, 0.98), rgba(1, 1, 2, 0.96));
+  border: 1px solid rgba(245, 214, 187, 0.18);
+  border-radius: 0;
+  background:
+    radial-gradient(360px circle at 100% 0%, rgba(245, 214, 187, 0.14), transparent 46%),
+    linear-gradient(180deg, rgba(245, 214, 187, 0.055), rgba(0, 0, 0, 0.92));
+  box-shadow: inset 0 1px 0 rgba(245, 214, 187, 0.12), 0 20px 58px rgba(0, 0, 0, 0.28);
 }
 
 .weights-config__card-title {
@@ -148,7 +154,7 @@
 
 .weights-config__card-glow--info,
 .weights-config__card-glow[data-status='balanced'] {
-  background: rgba(16, 185, 129, 0.1);
+  background: rgba(245, 214, 187, 0.24);
 }
 
 .weights-config__card-glow[data-status='over'] {
@@ -156,60 +162,60 @@
 }
 
 .weights-config__card-glow[data-status='under'] {
-  background: rgba(245, 158, 11, 0.1);
+  background: rgba(245, 214, 187, 0.18);
 }
 
 .weights-config__metric-card,
 .weights-config__total-card,
 .weights-config__summary-row {
-  border-radius: 0.875rem;
+  border-radius: 0;
 }
 
 .weights-config__metric-card {
-  border: var(--weights-panel-border);
-  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(245, 214, 187, 0.2);
+  background: rgba(245, 214, 187, 0.055);
 }
 
 .weights-config__metric-card--success {
-  border: 1px solid rgba(16, 185, 129, 0.18);
-  background: rgba(16, 185, 129, 0.05);
+  border: 1px solid rgba(245, 214, 187, 0.34);
+  background: rgba(245, 214, 187, 0.095);
 }
 
 .weights-config__metric-value,
 .weights-config__metric-label {
-  color: #34d399;
+  color: #f5d6bb;
 }
 
 .weights-config__metric-value {
-  text-shadow: 0 0 20px rgba(52, 211, 153, 0.4);
+  text-shadow: 0 0 22px rgba(245, 214, 187, 0.48);
 }
 
 .weights-config__progress-shell {
-  border: var(--weights-border-soft);
-  border-radius: 0.875rem;
-  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(245, 214, 187, 0.18);
+  border-radius: 0;
+  background: rgba(245, 214, 187, 0.055);
 }
 
 .weights-config__progress-label {
-  color: var(--weights-text-muted);
+  color: rgba(245, 214, 187, 0.74);
 }
 
 .weights-config__progress-value {
-  color: #7dd3fc;
-  text-shadow: 0 0 10px rgba(56, 189, 248, 0.25);
+  color: #f5d6bb;
+  text-shadow: 0 0 12px rgba(245, 214, 187, 0.42);
 }
 
 .weights-config__progress-track {
-  border: var(--weights-border-soft);
-  border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(245, 214, 187, 0.18);
+  border-radius: 0;
+  background: rgba(0, 0, 0, 0.55);
 }
 
 .weights-config__progress-fill {
   width: var(--weights-progress-width);
-  border-radius: 9999px;
-  background: linear-gradient(90deg, #38bdf8, #818cf8);
-  box-shadow: 0 0 15px rgba(56, 189, 248, 0.25);
+  border-radius: 0;
+  background: linear-gradient(90deg, #b9895b, #f5d6bb 48%, #ffffff);
+  box-shadow: 0 0 18px rgba(245, 214, 187, 0.52);
 }
 
 .weights-config__progress-shine {
@@ -218,9 +224,9 @@
 }
 
 .weights-config__note {
-  border: 1px solid rgba(226, 232, 240, 0.08);
-  border-radius: 0.875rem;
-  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(245, 214, 187, 0.18);
+  border-radius: 0;
+  background: rgba(245, 214, 187, 0.055);
 }
 
 .weights-config__footer-actions {
@@ -230,20 +236,21 @@
 .weights-config__primary-cta,
 .weights-config__finish-cta,
 .weights-config__back-button {
-  border-radius: 0.75rem;
+  border-radius: 0;
 }
 
 .weights-config__primary-cta {
-  border: 1px solid rgba(96, 165, 250, 0.28);
-  background: linear-gradient(135deg, rgba(10, 16, 26, 0.98), rgba(4, 8, 14, 0.98));
-  box-shadow: 0 10px 28px -18px rgba(96, 165, 250, 0.55);
+  border: 1px solid rgba(245, 214, 187, 0.42);
+  background: linear-gradient(135deg, rgba(245, 214, 187, 0.96), rgba(255, 255, 255, 0.92));
+  box-shadow: 0 16px 38px -18px rgba(245, 214, 187, 0.78);
+  color: #000000 !important;
 }
 
 .weights-config__finish-cta[data-ready='true'] {
-  border: 1px solid rgba(16, 185, 129, 0.3);
-  background: linear-gradient(135deg, rgba(5, 24, 18, 0.98), rgba(2, 8, 10, 0.98));
-  box-shadow: 0 10px 28px -18px rgba(16, 185, 129, 0.45);
-  color: #ecfdf5;
+  border: 1px solid rgba(245, 214, 187, 0.42);
+  background: linear-gradient(135deg, rgba(245, 214, 187, 0.96), rgba(255, 255, 255, 0.92));
+  box-shadow: 0 16px 38px -18px rgba(245, 214, 187, 0.72);
+  color: #000000;
 }
 
 .weights-config__finish-cta[data-ready='false'] {
