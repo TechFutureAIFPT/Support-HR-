@@ -4,8 +4,8 @@
  */
 import React, { useState } from 'react';
 import {
-  Briefcase, SlidersHorizontal, Upload, Sparkles,
-  PieChart, MessageSquare, LogOut, ChevronDown, UserCheck, FileText, Brain
+  Briefcase, SlidersHorizontal, Sparkles,
+  PieChart, MessageSquare, LogOut, FileText, Brain, Settings, Clock3
 } from 'lucide-react';
 import type { AppStep } from '@/types';
 import { useTheme } from '@/context/theme/ThemeProvider.tsx';
@@ -279,10 +279,10 @@ const AccountPanel: React.FC<{
 }> = ({ completedSteps, userEmail, userAvatar: avatar, userName: name, onLogout, onLoginRequest, onShowSettings, onShowHistory, C }) => {
   const [localAvatar, setLocalAvatar] = useState<string | null>(null);
   const [localName, setLocalName]     = useState<string>('');
+  const [menuOpen, setMenuOpen]       = useState(false);
 
   const effectiveAvatar = (avatar !== undefined && avatar !== null) ? avatar : localAvatar;
   const effectiveName   = (name !== undefined && name !== '') ? name : localName;
-  const analysisDone    = completedSteps.includes('analysis');
 
   React.useEffect(() => {
     // Load từ Firebase nếu: có email, và avatar chưa được cung cấp (undefined hoặc null) HOẶC name chưa có
@@ -362,55 +362,114 @@ const AccountPanel: React.FC<{
 
   return (
     <div
-      className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left transition-all"
+      className="relative w-full px-3 py-2.5 text-left transition-all"
       style={{ background: C.accountBg }}
     >
-      {/* Avatar */}
-      <div className={`flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden border rounded-md`}
-           style={{ borderColor: C.accountBorder }}>
-        {effectiveAvatar ? (
-          <img src={effectiveAvatar} alt="" className="h-full w-full object-cover" />
-        ) : (
-          <div className={`flex h-full w-full items-center justify-center bg-gradient-to-br ${getAvatarGradient(userEmail)} text-white text-xs font-black`}>
-            {getInitials(effectiveName || userEmail)}
-          </div>
-        )}
-      </div>
-
-      {/* Info */}
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-[12px] font-bold leading-tight" style={{ color: C.text }}>
-          {effectiveName || userEmail.split('@')[0]}
-        </p>
-        <div className="flex items-center gap-1.5 mt-0.5">
-          <span className="flex items-center gap-1">
-            <span className={`h-1.5 w-1.5 rounded-full ${C.onlineDot}`} />
-            <span className="text-[9px] font-medium" style={{ color: C.text3 }}>Online</span>
-          </span>
-        </div>
-      </div>
-
-      {/* Actions */}
-      <div className="flex items-center gap-1 shrink-0">
-        {onShowSettings && (
+      {menuOpen && (
+        <div
+          className="absolute bottom-[calc(100%+0.5rem)] left-3 right-3 z-30 overflow-hidden border shadow-[0_24px_70px_rgba(0,0,0,0.62)]"
+          style={{
+            background: 'linear-gradient(180deg, rgba(15,11,6,0.98), rgba(0,0,0,0.98))',
+            borderColor: 'rgba(245,214,187,0.22)',
+          }}
+          role="menu"
+        >
           <button
             type="button"
-            title="Mẫu JD & Lịch sử"
-            onClick={(e) => { e.stopPropagation(); onShowSettings(); }}
-            className="flex h-8 w-8 items-center justify-center rounded-md transition-all"
-            style={{ color: C.text2 }}
+            role="menuitem"
+            onClick={(e) => {
+              e.stopPropagation();
+              setMenuOpen(false);
+              onShowSettings?.();
+            }}
+            className="flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-[11px] font-bold transition-all hover:bg-[#f5d6bb]/10"
+            style={{ color: C.text }}
           >
-            <FileText size={15} strokeWidth={2.5} />
+            <span className="flex h-7 w-7 items-center justify-center border" style={{ borderColor: 'rgba(245,214,187,0.22)', color: C.accentBlue }}>
+              <FileText size={14} strokeWidth={2.4} />
+            </span>
+            Mẫu JD
           </button>
-        )}
+          <button
+            type="button"
+            role="menuitem"
+            onClick={(e) => {
+              e.stopPropagation();
+              setMenuOpen(false);
+              onShowHistory?.();
+            }}
+            className="flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-[11px] font-bold transition-all hover:bg-[#f5d6bb]/10"
+            style={{ color: C.text }}
+          >
+            <span className="flex h-7 w-7 items-center justify-center border" style={{ borderColor: 'rgba(245,214,187,0.22)', color: C.accentBlue }}>
+              <Clock3 size={14} strokeWidth={2.4} />
+            </span>
+            Lịch sử hoạt động
+          </button>
+          <button
+            type="button"
+            role="menuitem"
+            onClick={(e) => {
+              e.stopPropagation();
+              setMenuOpen(false);
+              onLogout?.();
+            }}
+            className="flex w-full items-center gap-2.5 border-t px-3 py-2.5 text-left text-[11px] font-bold transition-all hover:bg-red-500/10"
+            style={{ color: '#fca5a5', borderColor: 'rgba(245,214,187,0.16)' }}
+          >
+            <span className="flex h-7 w-7 items-center justify-center border border-red-400/25 text-red-300">
+              <LogOut size={14} strokeWidth={2.4} />
+            </span>
+            Đăng xuất
+          </button>
+        </div>
+      )}
+
+      <div className="flex w-full items-center gap-2.5">
+        {/* Avatar */}
+        <div
+          className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden border"
+          style={{ borderColor: C.accountBorder }}
+        >
+          {effectiveAvatar ? (
+            <img src={effectiveAvatar} alt="" className="h-full w-full object-cover" />
+          ) : (
+            <div className={`flex h-full w-full items-center justify-center bg-gradient-to-br ${getAvatarGradient(userEmail)} text-white text-xs font-black`}>
+              {getInitials(effectiveName || userEmail)}
+            </div>
+          )}
+        </div>
+
+        {/* Info */}
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-[13px] font-bold leading-tight" style={{ color: C.text }}>
+            {effectiveName || userEmail.split('@')[0]}
+          </p>
+          <div className="mt-0.5 flex items-center gap-1.5">
+            <span className="flex items-center gap-1">
+              <span className={`h-1.5 w-1.5 rounded-full ${C.onlineDot}`} />
+              <span className="text-[10px] font-medium" style={{ color: C.text3 }}>Online</span>
+            </span>
+          </div>
+        </div>
+
         <button
           type="button"
-          title="Đăng xuất"
-          onClick={(e) => { e.stopPropagation(); onLogout?.(); }}
-          className="flex h-8 w-8 items-center justify-center rounded-md transition-all hover:text-red-400"
-          style={{ color: C.text2 }}
+          title="Cài đặt tài khoản"
+          aria-label="Mở cài đặt tài khoản"
+          aria-haspopup="menu"
+          aria-expanded={menuOpen}
+          onClick={(e) => {
+            e.stopPropagation();
+            setMenuOpen((open) => !open);
+          }}
+          className="flex h-9 w-9 shrink-0 items-center justify-center border transition-all hover:bg-[#f5d6bb]/10"
+          style={{
+            color: menuOpen ? C.accentBlue : C.text2,
+            borderColor: menuOpen ? 'rgba(245,214,187,0.35)' : 'transparent',
+          }}
         >
-          <LogOut size={15} strokeWidth={2.5} />
+          <Settings size={17} strokeWidth={2.35} />
         </button>
       </div>
     </div>
