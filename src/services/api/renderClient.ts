@@ -80,6 +80,17 @@ function extractRawErrorDetail(payload: unknown): string {
   return '';
 }
 
+async function parseResponsePayload(response: Response): Promise<unknown> {
+  const text = await response.text();
+  if (!text) return null;
+
+  try {
+    return JSON.parse(text);
+  } catch {
+    return text;
+  }
+}
+
 function shouldRetryWithRemote(
   path: string,
   authRequired: boolean,
@@ -125,7 +136,7 @@ async function waitForFirebaseUser(timeoutMs: number = AUTH_READY_TIMEOUT_MS): P
   });
 }
 
-async function getAuthorizationHeader(authRequired: boolean): Promise<string | undefined> {
+async function getAuthorizationHeader(authRequired: boolean, forceRefresh: boolean = false): Promise<string | undefined> {
   if (!authRequired) return undefined;
 
   if (!auth.currentUser) {
@@ -137,7 +148,7 @@ async function getAuthorizationHeader(authRequired: boolean): Promise<string | u
     throw new Error(SAFE_ERROR_MESSAGES.auth);
   }
 
-  const token = await user.getIdToken();
+  const token = await user.getIdToken(forceRefresh);
   return `Bearer ${token}`;
 }
 
@@ -152,7 +163,8 @@ async function request<T>(
 
   try {
     const headers = new Headers(options.headers);
-    const authHeader = await getAuthorizationHeader(options.authRequired ?? false);
+    const authRequired = options.authRequired ?? false;
+    const authHeader = await getAuthorizationHeader(authRequired);
 
     if (authHeader) {
       headers.set('Authorization', authHeader);
@@ -176,40 +188,29 @@ async function request<T>(
     };
 
     let response = await send(RENDER_API_URL);
-    let usedRemoteFallback = false;
     const remoteFallbackUrl = getRemoteFallbackUrl();
 
     if (!response.ok) {
-      const previewText = await response.text();
-      const previewPayload = previewText
-        ? (() => {
-            try {
-              return JSON.parse(previewText);
-            } catch {
-              return previewText;
-            }
-          })()
-        : null;
+      let previewPayload = await parseResponsePayload(response);
 
-      if (remoteFallbackUrl && shouldRetryWithRemote(path, options.authRequired ?? false, response.status, previewPayload)) {
+      if (authRequired && response.status === 401) {
+        const refreshedAuthHeader = await getAuthorizationHeader(true, true);
+        if (refreshedAuthHeader) {
+          headers.set('Authorization', refreshedAuthHeader);
+          response = await send(RENDER_API_URL);
+          previewPayload = response.ok ? null : await parseResponsePayload(response);
+        }
+      }
+
+      if (!response.ok && remoteFallbackUrl && shouldRetryWithRemote(path, authRequired, response.status, previewPayload)) {
         response = await send(remoteFallbackUrl);
-        usedRemoteFallback = true;
-      } else {
+      } else if (!response.ok) {
         const payload = previewPayload;
         throw new Error(extractErrorMessage(payload, SAFE_ERROR_MESSAGES.generic));
       }
     }
 
-    const text = usedRemoteFallback ? await response.text() : await response.text();
-    const payload = text
-      ? (() => {
-          try {
-            return JSON.parse(text);
-          } catch {
-            return text;
-          }
-        })()
-      : null;
+    const payload = await parseResponsePayload(response);
 
     if (!response.ok) {
       throw new Error(extractErrorMessage(payload, SAFE_ERROR_MESSAGES.generic));
@@ -247,16 +248,7 @@ async function request<T>(
         }
       );
 
-      const fallbackText = await fallbackResponse.text();
-      const fallbackPayload = fallbackText
-        ? (() => {
-            try {
-              return JSON.parse(fallbackText);
-            } catch {
-              return fallbackText;
-            }
-          })()
-        : null;
+      const fallbackPayload = await parseResponsePayload(fallbackResponse);
 
       if (!fallbackResponse.ok) {
         throw new Error(extractErrorMessage(fallbackPayload, SAFE_ERROR_MESSAGES.generic));

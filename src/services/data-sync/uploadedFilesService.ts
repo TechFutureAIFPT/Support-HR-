@@ -1,4 +1,4 @@
-import { apiDelete, apiGet, apiPatch, apiPost, pickArray } from '@/services/api/renderClient';
+import { apiDelete, apiGet, apiPost, pickArray } from '@/services/api/renderClient';
 import type { UploadedFileRecord } from '@/types';
 
 function normalizeUploadedFile(raw: unknown): UploadedFileRecord {
@@ -107,7 +107,7 @@ export class UploadedFilesService {
   }
 
   static async touchFile(fileId: string): Promise<void> {
-    await apiPatch(`/api/account/uploaded-files/${encodeURIComponent(fileId)}/touch`, undefined, {
+    await apiPost(`/api/account/uploaded-files/${encodeURIComponent(fileId)}/touch`, undefined, {
       authRequired: true,
     });
   }

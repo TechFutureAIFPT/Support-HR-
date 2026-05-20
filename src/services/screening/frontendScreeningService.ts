@@ -370,12 +370,21 @@ export async function* analyzeCVs(
   cvFiles: File[]
 ): AsyncGenerator<ScreeningProgress | Candidate> {
   const hashes = analysisCacheService.generateAnalysisHashes(jdText, weights, hardFilters);
-  const { cached, uncached } = await analysisCacheService.batchCheckCache(
-    cvFiles,
-    hashes.jdHash,
-    hashes.weightsHash,
-    hashes.filtersHash
-  );
+  let cached: Array<{ file: File; result: unknown }> = [];
+  let uncached: File[] = cvFiles;
+
+  try {
+    const cacheResult = await analysisCacheService.batchCheckCache(
+      cvFiles,
+      hashes.jdHash,
+      hashes.weightsHash,
+      hashes.filtersHash
+    );
+    cached = cacheResult.cached;
+    uncached = cacheResult.uncached;
+  } catch (error) {
+    console.warn('Analysis cache lookup failed, continuing without cached results:', error);
+  }
 
   for (const [index, item] of cached.entries()) {
     yield {
@@ -452,12 +461,35 @@ export async function* analyzeCVs(
     message: `Đang phân tích ${cvEntries.length} CV qua Render API...`,
   };
 
-  const coreResponse = await apiPost<CoreAnalysisResponse>('/api/cv/analyze-core', {
-    jd_text: jdText,
-    weights,
-    hard_filters: serializeHardFilters(hardFilters),
-    cv_entries: cvEntries,
-  });
+  let coreResponse: CoreAnalysisResponse;
+  try {
+    coreResponse = await apiPost<CoreAnalysisResponse>('/api/cv/analyze-core', {
+      jd_text: jdText,
+      weights,
+      hard_filters: serializeHardFilters(hardFilters),
+      cv_entries: cvEntries,
+    });
+  } catch (error) {
+    const message = getSafeErrorMessage(error, 'ai');
+    console.error('Core CV analysis failed:', error);
+
+    for (const file of pendingFiles) {
+      yield {
+        id: `${file.name}-analysis-failed-${Date.now()}`,
+        candidateName: file.name.replace(/\.[^.]+$/, ''),
+        fileName: file.name,
+        jobTitle: '',
+        industry: '',
+        department: '',
+        experienceLevel: '',
+        detectedLocation: '',
+        status: 'FAILED',
+        error: message,
+      };
+    }
+
+    return;
+  }
 
   let candidates = pickArray<unknown>(coreResponse, ['candidates']);
 
@@ -465,7 +497,7 @@ export async function* analyzeCVs(
   // enrichment and advanced score breakdown attachment. Calling `/api/cv/enrich`
   // again here can desynchronize the result payload and double-apply scoring logic.
   if (persistUploadedFilesPromise) {
-    await persistUploadedFilesPromise;
+    void persistUploadedFilesPromise;
   }
 
   for (let index = 0; index < candidates.length; index += 1) {
@@ -480,13 +512,17 @@ export async function* analyzeCVs(
     );
 
     if (matchedFile) {
-      await analysisCacheService.cacheAnalysis(
-        matchedFile,
-        normalizedCandidate,
-        hashes.jdHash,
-        hashes.weightsHash,
-        hashes.filtersHash
-      );
+      try {
+        await analysisCacheService.cacheAnalysis(
+          matchedFile,
+          normalizedCandidate,
+          hashes.jdHash,
+          hashes.weightsHash,
+          hashes.filtersHash
+        );
+      } catch (error) {
+        console.warn('Analysis cache write failed, keeping current results:', error);
+      }
     }
 
     yield normalizedCandidate;
