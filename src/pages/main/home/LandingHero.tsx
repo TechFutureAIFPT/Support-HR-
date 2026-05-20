@@ -230,16 +230,16 @@ function SystemPanel({
 }) {
   return (
     <motion.div
-      className="relative flex h-full flex-col justify-between overflow-hidden border-white/[0.04] p-4 xl:p-5"
+      className="relative flex h-full flex-col justify-between overflow-hidden border border-[#f5d6bb]/18 bg-[linear-gradient(135deg,rgba(245,214,187,0.105)_0%,rgba(245,214,187,0.035)_42%,rgba(0,0,0,0.28)_100%)] p-4 shadow-[inset_0_1px_0_rgba(245,214,187,0.16),0_18px_70px_rgba(245,214,187,0.045)] xl:p-5"
       animate={
         reduceMotion
           ? undefined
           : {
-              opacity: [0.78, 0.98, 0.84],
+              opacity: [0.9, 1, 0.94],
               filter: [
-                "brightness(0.92) saturate(0.96)",
-                "brightness(1.08) saturate(1.1)",
-                "brightness(0.96) saturate(1)",
+                "brightness(1.12) saturate(1.14)",
+                "brightness(1.42) saturate(1.22)",
+                "brightness(1.18) saturate(1.16)",
               ],
             }
       }
@@ -254,17 +254,18 @@ function SystemPanel({
             }
       }
     >
-      <div className={`pointer-events-none absolute left-4 right-8 top-5 h-14 bg-gradient-to-r ${glowClass} opacity-55 blur-3xl`} />
-      <div className={`pointer-events-none absolute inset-x-5 bottom-5 top-16 bg-gradient-to-br ${glowClass} opacity-32 blur-[44px]`} />
+      <div className={`pointer-events-none absolute left-4 right-8 top-5 h-16 bg-gradient-to-r ${glowClass} opacity-95 blur-3xl`} />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_68%_38%,rgba(245,214,187,0.18),transparent_44%)]" />
+      <div className={`pointer-events-none absolute inset-x-5 bottom-5 top-16 bg-gradient-to-br ${glowClass} opacity-70 blur-[44px]`} />
 
       <div className="relative flex items-center justify-between">
         <GhostGradientText
           text={label}
           gradientClass={labelGradientClass}
-          className="supporthr-mono text-[10px] font-medium uppercase tracking-[0.26em] opacity-70"
-          glowClassName="opacity-45"
+          className="supporthr-mono text-[10px] font-bold uppercase tracking-[0.26em] opacity-100"
+          glowClassName="opacity-80"
         />
-        <span className={`h-2 w-2 rounded-full ${dotClass} opacity-80`} />
+        <span className={`h-2.5 w-2.5 rounded-full ${dotClass} opacity-100`} />
       </div>
 
       <div className="relative mt-8 space-y-2">
@@ -273,8 +274,8 @@ function SystemPanel({
             key={line}
             text={line}
             gradientClass={lineGradientClass}
-            className="supporthr-mono text-[12px] leading-6 opacity-[0.56] xl:text-[13px]"
-            glowClassName="opacity-28"
+            className="supporthr-mono text-[12px] font-semibold leading-6 opacity-[0.92] xl:text-[13px]"
+            glowClassName="opacity-55"
           />
         ))}
       </div>
@@ -314,11 +315,11 @@ export default function LandingHero({
 
       <div className="mx-auto max-w-[96rem] px-4 sm:px-6 lg:px-8">
         <div className="relative min-h-[500px] sm:min-h-[540px] lg:min-h-[620px]">
-          <div className="pointer-events-none absolute inset-0 hidden opacity-[0.38] lg:grid lg:grid-cols-4 lg:grid-rows-3">
+          <div className="pointer-events-none absolute inset-0 hidden opacity-[0.88] lg:grid lg:grid-cols-4 lg:grid-rows-3">
             {HERO_SYSTEM_PANELS.map((panel, index) => (
               <div
                 key={panel.label}
-                className={`border-white/[0.05] ${
+                className={`home-hero-grid-card border-[#f5d6bb]/14 ${
                   index % 4 === 3 ? "" : "border-r"
                 } ${index >= HERO_SYSTEM_PANELS.length - 4 ? "" : "border-b"}`}
               >
