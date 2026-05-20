@@ -288,16 +288,16 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
 
   return (
     <div
-      className={`login-page-shell relative min-h-screen overflow-hidden bg-black text-slate-100 transition-all duration-700 ${
+      className={`login-page-shell relative min-h-[100svh] overflow-y-auto overflow-x-hidden bg-black text-slate-100 transition-all duration-700 ${
         successStage === 'transitioning' ? 'opacity-0' : 'opacity-100'
       }`}
     >
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.035)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.035)_1px,transparent_1px)] bg-[size:56px_56px] opacity-20" />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(34,211,238,0.08),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(99,102,241,0.08),transparent_24%)]" />
 
-      <div className="relative z-10 grid min-h-screen lg:grid-cols-[1.02fr_0.98fr]">
+      <div className="relative z-10 grid min-h-[100svh] lg:grid-cols-[1.02fr_0.98fr]">
         <section
-          className={`hidden border-r border-white/8 px-8 py-8 lg:flex lg:flex-col lg:justify-between xl:px-10 xl:py-9 transition-all duration-700 ${
+          className={`hidden border-r border-white/8 px-8 py-5 lg:flex lg:flex-col lg:justify-between xl:px-10 xl:py-6 transition-all duration-700 ${
             loaded ? 'translate-x-0 opacity-100' : '-translate-x-6 opacity-0'
           }`}
         >
@@ -307,15 +307,15 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
               SYSTEM_STATUS: ONLINE
             </div>
 
-            <div className="mt-9">
+            <div className="mt-7">
               <h1 className="max-w-md text-4xl font-black uppercase leading-[0.92] tracking-[-0.04em] text-white xl:text-5xl">
                 Mở khóa
                 <br />
                 <span className="text-cyan-300">tuyển dụng AI</span>
               </h1>
 
-              <div className="mt-7 border-l border-[#f5d6bb]/70 pl-5">
-                <p className="max-w-sm text-lg leading-8 text-slate-300">
+              <div className="mt-5 border-l border-[#f5d6bb]/70 pl-5">
+                <p className="max-w-sm text-base leading-7 text-slate-300">
                   Truy cập không gian sàng lọc của Support HR để đối sánh CV, chuẩn hóa JD và
                   ra quyết định tuyển dụng nhanh hơn trong một hệ thống thống nhất.
                 </p>
@@ -327,7 +327,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
             {systemSignals.map((signal) => (
               <div
                 key={signal.title}
-                className="flex items-start gap-4 border border-white/8 bg-white/[0.035] px-4 py-4"
+                className="flex items-start gap-4 border border-white/8 bg-white/[0.035] px-4 py-3"
               >
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center border border-white/10 bg-black/80 text-slate-100">
                   <i className={`${signal.icon} text-base`} />
@@ -344,7 +344,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
         </section>
 
         <section
-          className={`flex flex-col px-5 py-5 sm:px-7 lg:px-10 transition-all duration-700 ${
+          className={`flex min-h-[100svh] flex-col px-5 py-4 sm:px-7 lg:min-h-0 lg:px-8 lg:py-4 xl:px-10 transition-all duration-700 ${
             loaded ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
           }`}
         >
@@ -371,29 +371,29 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
             </div>
           </div>
 
-          <div className="flex flex-1 items-center justify-center py-6">
+          <div className="flex flex-1 items-start justify-center py-4 sm:items-center sm:py-5 lg:py-2">
             <div className="w-full max-w-lg">
-              <div className="relative border border-white/10 bg-white/[0.04] px-5 py-6 sm:px-8 sm:py-7">
+              <div className="relative border border-white/10 bg-white/[0.04] px-5 py-5 sm:px-7 sm:py-5 xl:px-8">
                 <CornerFrame />
 
-                <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center border border-[#f5d6bb]/60 bg-[#f5d6bb]/5 text-[#f5d6bb]">
-                  <div className="flex h-10 w-10 items-center justify-center border border-[#f5d6bb]/25 bg-black/65">
+                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center border border-[#f5d6bb]/60 bg-[#f5d6bb]/5 text-[#f5d6bb]">
+                  <div className="flex h-9 w-9 items-center justify-center border border-[#f5d6bb]/25 bg-black/65">
                     <i className="fa-solid fa-user-shield text-lg" />
                   </div>
                 </div>
 
                 <div className="text-center">
-                  <h2 className="text-3xl font-black uppercase tracking-[-0.04em] text-white sm:text-[2rem]">
+                  <h2 className="text-2xl font-black uppercase tracking-[-0.04em] text-white sm:text-[1.85rem]">
                     {showReset ? 'Khôi phục truy cập' : 'Access Control'}
                   </h2>
-                  <p className="mt-3 font-mono text-[12px] uppercase tracking-[0.22em] text-[#f5d6bb]">
+                  <p className="mt-2 font-mono text-[11px] uppercase tracking-[0.22em] text-[#f5d6bb]">
                     {showReset ? '>> PASSWORD_RECOVERY_REQUIRED' : '>> AUTHENTICATION_REQUIRED'}
                   </p>
                 </div>
 
                 {showSuccess && (
                   <div
-                    className={`mt-6 border px-4 py-3 transition-all duration-500 ${
+                    className={`mt-4 border px-4 py-3 transition-all duration-500 ${
                       successStage === 'celebrating'
                         ? 'border-emerald-400/35 bg-emerald-400/10 opacity-100'
                         : 'opacity-0'
@@ -411,13 +411,13 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
                 )}
 
                 {authError && (
-                  <div className="mt-6 border border-red-500/30 bg-red-500/8 px-4 py-3 text-sm text-red-200">
+                  <div className="mt-4 border border-red-500/30 bg-red-500/8 px-4 py-3 text-sm text-red-200">
                     {authError}
                   </div>
                 )}
 
                 {!showReset && (
-                  <div className="mt-5 flex border border-white/10 bg-black/60 p-1">
+                  <div className="mt-4 flex border border-white/10 bg-black/60 p-1">
                     {(['signin', 'signup'] as AuthTab[]).map((mode) => (
                       <button
                         key={mode}
@@ -435,7 +435,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
                   </div>
                 )}
 
-                <div className="mt-6">
+                <div className="mt-4">
                   {showReset ? (
                     <form onSubmit={handleSubmit} className="space-y-3">
                       <div>
@@ -599,7 +599,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
 
                 {!showReset && (
                   <>
-                    <div className="my-5 flex items-center gap-3">
+                    <div className="my-4 flex items-center gap-3">
                       <div className="h-px flex-1 bg-white/8" />
                       <span className="font-mono text-[10px] uppercase tracking-[0.24em] text-slate-600">
                         OR
@@ -636,7 +636,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
                   </>
                 )}
 
-                <div className="mt-6 border-t border-white/8 pt-5 text-center">
+                <div className="mt-4 border-t border-white/8 pt-4 text-center">
                   <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-slate-500">
                     Khi truy cập, bạn đồng ý với
                   </p>
