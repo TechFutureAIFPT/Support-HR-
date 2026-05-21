@@ -345,13 +345,12 @@ export default function LandingHero({
       <div className="pointer-events-none absolute inset-0 supporthr-grid-mask opacity-18" />
       <div className="pointer-events-none absolute inset-y-0 left-0 w-full bg-[linear-gradient(90deg,rgba(0,0,0,1)_0%,rgba(0,0,0,0.992)_34%,rgba(0,0,0,0.972)_48%,rgba(0,0,0,0.9)_62%,rgba(0,0,0,0.56)_80%,transparent_94%)]" />
       <div className="pointer-events-none absolute left-[-4rem] top-[4rem] z-[1] h-[36rem] w-[74rem] max-w-[80%] bg-[radial-gradient(circle_at_18%_16%,rgba(255,255,255,0.06)_0%,rgba(0,0,0,0.9)_34%,rgba(0,0,0,0.98)_68%,transparent_100%)] blur-[10px]" />
-      <div className="pointer-events-none absolute inset-y-0 right-0 w-[10vw] min-w-[48px] bg-black" />
 
-      <div className="mx-auto max-w-[96rem] px-4 sm:px-6 lg:px-8">
-        <div className="relative min-h-[500px] sm:min-h-[540px] lg:min-h-[620px]">
+      <div className="w-full">
+        <div className="relative min-h-[500px] sm:min-h-[540px] lg:min-h-[680px]">
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute inset-0 hidden overflow-hidden border border-[#f5d6bb]/16 opacity-[0.9] lg:grid lg:grid-cols-5 lg:grid-rows-3"
+            className="pointer-events-none absolute inset-0 hidden overflow-hidden opacity-[0.9] lg:grid lg:grid-cols-5 lg:grid-rows-3"
           >
             <div className="relative col-span-3 row-span-3 overflow-hidden border-r border-[#f5d6bb]/14 bg-[linear-gradient(135deg,rgba(5,14,26,0.72)_0%,rgba(0,0,0,0.9)_42%,rgba(0,0,0,0.58)_100%)]">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_14%_18%,rgba(245,214,187,0.055),transparent_34%),linear-gradient(90deg,rgba(0,0,0,0.36)_0%,rgba(0,0,0,0.08)_74%,transparent_100%)]" />
@@ -374,7 +373,7 @@ export default function LandingHero({
             whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
             viewport={HERO_VIEWPORT}
             transition={HERO_TRANSITION}
-            className="relative z-10 max-w-[44rem] py-12 sm:py-14 lg:py-20 lg:max-w-[55%] xl:max-w-[58%]"
+            className="relative z-10 px-6 sm:px-10 lg:px-16 py-12 sm:py-14 lg:py-20 lg:max-w-[55%] xl:max-w-[58%]"
           >
             <div className="pointer-events-none absolute bottom-[-2.5rem] left-[-2.25rem] right-0 top-[-2.5rem] -z-10 bg-[radial-gradient(circle_at_22%_24%,rgba(5,14,26,0.98)_0%,rgba(0,0,0,0.94)_26%,rgba(0,0,0,0.74)_54%,rgba(0,0,0,0.34)_76%,transparent_100%)]" />
             <div className="pointer-events-none absolute bottom-[-1.5rem] left-[-2.5rem] right-0 top-[11.25rem] -z-10 bg-[linear-gradient(90deg,rgba(0,0,0,0.98)_0%,rgba(0,0,0,0.88)_34%,rgba(0,0,0,0.54)_62%,rgba(0,0,0,0.12)_88%,transparent_100%)] blur-[3px]" />
