@@ -1,3 +1,4 @@
+import React from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight, Sparkles } from "lucide-react";
 
@@ -161,37 +162,15 @@ const HERO_SYSTEM_PANELS = [
 ];
 
 const HERO_HEADLINE_LINES = [
-  {
-    text: "Support HR,",
-  },
-  {
-    text: "đọc CV",
-  },
-  {
-    text: "nhanh và chuẩn.",
-  },
+  { text: "Support HR," },
+  { text: "đọc CV" },
+  { text: "nhanh và chuẩn." },
 ];
 
 const HERO_VISIBLE_PANELS = [2, 3, 6, 7, 10, 11].map((index) => HERO_SYSTEM_PANELS[index]);
 
 const HERO_VIEWPORT = { once: true, amount: 0.2 };
 const HERO_TRANSITION = { duration: 0.72, ease: [0.22, 1, 0.36, 1] as const };
-
-interface LandingHeroProps {
-  onPrimaryAction: () => void;
-  onSecondaryAction: () => void;
-  primaryLabel: string;
-}
-
-function GhostGradientText({
-  text,
-  gradientClass,
-  className,
-  glowClassName,
-}: {
-  text: string;
-  gradientClass: string;
-  className: string;
 
 interface LandingHeroProps {
   onPrimaryAction: () => void;
@@ -239,19 +218,26 @@ function TypewriterLine({
   gradientClass: string;
   lineGradientClass: string;
 }) {
-  const [displayed, setDisplayed] = React.useState(reduceMotion ? text : '');
+  const [displayed, setDisplayed] = React.useState(reduceMotion ? text : "");
   const [done, setDone] = React.useState(reduceMotion);
 
   React.useEffect(() => {
-    if (reduceMotion) { setDisplayed(text); setDone(true); return; }
-    setDisplayed('');
+    if (reduceMotion) {
+      setDisplayed(text);
+      setDone(true);
+      return;
+    }
+    setDisplayed("");
     setDone(false);
     let i = 0;
     const startTimer = window.setTimeout(() => {
       const iv = window.setInterval(() => {
         i++;
         setDisplayed(text.slice(0, i));
-        if (i >= text.length) { clearInterval(iv); setDone(true); }
+        if (i >= text.length) {
+          clearInterval(iv);
+          setDone(true);
+        }
       }, 28);
       return () => clearInterval(iv);
     }, lineDelay);
@@ -265,7 +251,10 @@ function TypewriterLine({
       >
         {displayed}
         {!done && (
-          <span className="inline-block w-[1px] h-[1em] bg-current ml-[1px] align-middle animate-[supporthr-terminal-blink_0.9s_steps(1)_infinite]" aria-hidden="true" />
+          <span
+            className="inline-block w-[1px] h-[1em] bg-current ml-[1px] align-middle animate-[supporthr-terminal-blink_0.9s_steps(1)_infinite]"
+            aria-hidden="true"
+          />
         )}
       </span>
     </span>
@@ -298,6 +287,7 @@ function SystemPanel({
       viewport={{ once: true, amount: 0.3 }}
       transition={{ duration: 0.5, delay }}
     >
+      {/* Subtle top border highlight — no gold glow */}
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/8 to-transparent" />
 
       <div className="relative flex items-center justify-between">
@@ -307,7 +297,18 @@ function SystemPanel({
           className="supporthr-mono text-[10px] font-bold uppercase tracking-[0.26em] opacity-100"
           glowClassName="opacity-60"
         />
-            glowClassName="opacity-55"
+        <span className={`h-2 w-2 rounded-full ${dotClass} opacity-90`} />
+      </div>
+
+      <div className="relative mt-6 space-y-1.5">
+        {lines.map((line, i) => (
+          <TypewriterLine
+            key={line}
+            text={line}
+            lineDelay={reduceMotion ? 0 : delay * 1000 + i * 600}
+            reduceMotion={reduceMotion}
+            gradientClass={labelGradientClass}
+            lineGradientClass={lineGradientClass}
           />
         ))}
       </div>
@@ -315,11 +316,7 @@ function SystemPanel({
   );
 }
 
-function HeadlineLine({
-  text,
-}: {
-  text: string;
-}) {
+function HeadlineLine({ text }: { text: string }) {
   return (
     <span className="relative block leading-[0.88]">
       <motion.span
@@ -341,7 +338,6 @@ export default function LandingHero({
   primaryLabel,
 }: LandingHeroProps) {
   const reduceMotion = useReducedMotion();
-  const buttonHover = reduceMotion ? undefined : { scale: 1.02, y: -2 };
 
   return (
     <section id="hero" className="relative overflow-hidden bg-black pt-3 sm:pt-6 lg:pt-8">
@@ -368,7 +364,7 @@ export default function LandingHero({
                   index % 2 === 0 ? "border-r" : ""
                 } ${index < HERO_VISIBLE_PANELS.length - 2 ? "border-b" : ""}`}
               >
-                <SystemPanel {...panel} reduceMotion={reduceMotion} />
+                <SystemPanel {...panel} reduceMotion={reduceMotion ?? false} />
               </div>
             ))}
           </div>
@@ -383,6 +379,7 @@ export default function LandingHero({
             <div className="pointer-events-none absolute bottom-[-2.5rem] left-[-2.25rem] right-0 top-[-2.5rem] -z-10 bg-[radial-gradient(circle_at_22%_24%,rgba(5,14,26,0.98)_0%,rgba(0,0,0,0.94)_26%,rgba(0,0,0,0.74)_54%,rgba(0,0,0,0.34)_76%,transparent_100%)]" />
             <div className="pointer-events-none absolute bottom-[-1.5rem] left-[-2.5rem] right-0 top-[11.25rem] -z-10 bg-[linear-gradient(90deg,rgba(0,0,0,0.98)_0%,rgba(0,0,0,0.88)_34%,rgba(0,0,0,0.54)_62%,rgba(0,0,0,0.12)_88%,transparent_100%)] blur-[3px]" />
 
+            {/* Blackbox-style eyebrow label */}
             <motion.div
               initial={reduceMotion ? false : { opacity: 0, x: -12 }}
               whileInView={reduceMotion ? undefined : { opacity: 1, x: 0 }}
@@ -396,22 +393,20 @@ export default function LandingHero({
               </span>
             </motion.div>
 
+            {/* Ultra-heavy headline */}
             <h1 className="supporthr-display max-w-[10ch] text-[clamp(3.6rem,7.2vw,6.8rem)] font-black leading-[0.88] tracking-[-0.04em]">
               {HERO_HEADLINE_LINES.map((line) => (
-                <HeadlineLine
-                  key={line.text}
-                  text={line.text}
-                />
+                <HeadlineLine key={line.text} text={line.text} />
               ))}
             </h1>
 
-            {/* Body text — lighter weight, Blackbox style */}
+            {/* Body text — lighter weight */}
             <p className="mt-8 max-w-[38rem] text-[clamp(0.95rem,1.3vw,1.08rem)] font-light leading-[1.9] tracking-[0.005em] text-zinc-400">
               Tự động quét CV, hiểu kỹ năng kỹ thuật, đối sánh với JD và tạo danh sách đề cử rõ ràng
               cho nhà tuyển dụng hiện đại.
             </p>
 
-            {/* Blackbox-style square buttons: uppercase, bold tracking */}
+            {/* Blackbox-style square buttons */}
             <div className="mt-10 flex flex-wrap items-center gap-4">
               <motion.button
                 type="button"
