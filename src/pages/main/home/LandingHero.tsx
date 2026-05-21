@@ -368,28 +368,17 @@ export default function LandingHero({
               cho nhà tuyển dụng hiện đại.
             </p>
 
-            {/* Blackbox-style square buttons */}
-            <div className="mt-10 flex flex-wrap items-center gap-4">
+            {/* Blackbox-style square buttons — only GET STARTED, made larger */}
+            <div className="mt-10 flex flex-wrap items-center">
               <motion.button
                 type="button"
                 whileHover={reduceMotion ? undefined : { scale: 1.02 }}
                 whileTap={reduceMotion ? undefined : { scale: 0.97 }}
                 onClick={onPrimaryAction}
-                className="group relative inline-flex h-13 items-center gap-3 overflow-hidden rounded-none bg-white px-7 text-[13px] font-bold uppercase tracking-[0.12em] text-black shadow-[0_20px_50px_rgba(255,255,255,0.12)] transition-all duration-200 hover:bg-zinc-100 hover:shadow-[0_24px_60px_rgba(255,255,255,0.2)]"
+                className="group relative inline-flex h-15 sm:h-16 items-center gap-4 overflow-hidden rounded-none bg-white px-9 sm:px-11 text-[14px] sm:text-[15px] font-bold uppercase tracking-[0.14em] text-black shadow-[0_20px_50px_rgba(255,255,255,0.12)] transition-all duration-200 hover:bg-zinc-100 hover:shadow-[0_24px_60px_rgba(255,255,255,0.2)]"
               >
                 <span className="relative z-10">{primaryLabel}</span>
-                <ArrowUpRight className="relative z-10 h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-              </motion.button>
-
-              <motion.button
-                type="button"
-                whileHover={reduceMotion ? undefined : { scale: 1.02 }}
-                whileTap={reduceMotion ? undefined : { scale: 0.97 }}
-                onClick={onSecondaryAction}
-                className="group inline-flex h-13 items-center gap-3 rounded-none border border-white/16 bg-transparent px-7 text-[13px] font-bold uppercase tracking-[0.12em] text-zinc-300 transition-all duration-200 hover:border-white/28 hover:bg-white/[0.05] hover:text-white"
-              >
-                XEM QUY TRÌNH
-                <Sparkles className="h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
+                <ArrowUpRight className="relative z-10 h-4.5 w-4.5 sm:h-5 sm:w-5 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </motion.button>
             </div>
           </motion.div>
