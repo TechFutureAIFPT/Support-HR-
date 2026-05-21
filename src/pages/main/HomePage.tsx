@@ -59,41 +59,86 @@ const statusStyles: Record<ComparisonCell["status"], { icon: LucideIcon; badgeCl
 
 const comparisonRowsMobile = comparisonRows.slice(0, 5);
 
-const ComparisonTable = ({ rows }: { rows: typeof comparisonRows }) => (
-  <div className="w-full min-w-[880px] overflow-hidden rounded-none border border-white/8 bg-black/90 shadow-[0_28px_65px_rgba(0,0,0,0.28)]">
-    <div className="grid grid-cols-[1.5fr_1fr_1fr] border-b border-white/6 bg-white/[0.035] px-5 py-3 text-[10px] uppercase tracking-[0.35em] text-slate-600 font-mono">
-      <div>Tiêu chí</div>
-      <div><p className="text-slate-300 text-xs normal-case font-semibold">ChatGPT</p><p className="text-[10px] text-slate-600 normal-case mt-0.5">AI tổng quát</p></div>
-      <div><p className="text-[#f5d6bb] text-xs normal-case font-semibold">Support HR</p><p className="text-[10px] text-slate-600 normal-case mt-0.5">AI chuyên biệt</p></div>
-    </div>
-    {rows.map((row) => (
-      <div key={row.label} className={`grid grid-cols-[1.5fr_1fr_1fr] px-5 py-4 border-b border-white/6 last:border-b-0 hover:bg-white/[0.03] transition-colors ${row.emphasis ? "bg-[#f5d6bb]/[0.03]" : ""}`}>
-        <div className="flex items-center gap-3">
-          <span className="flex h-7 w-7 items-center justify-center rounded-none bg-white/5 text-slate-400 flex-shrink-0">
-            {React.createElement(row.icon, { className: "h-3.5 w-3.5", "aria-hidden": true })}
-          </span>
-          <p className="text-sm font-medium text-slate-200">{row.label}</p>
+const ComparisonTable = ({ rows }: { rows: typeof comparisonRows }) => {
+  const [activeRow, setActiveRow] = useState(rows[0]?.label ?? "");
+  const cellClass = "min-h-[5.35rem] border-r border-white/14 px-5 py-4 last:border-r-0";
+
+  return (
+    <div
+      role="table"
+      aria-label="Bảng so sánh Support HR và ChatGPT"
+      className="relative w-full min-w-[880px] overflow-hidden rounded-none border border-[#f5d6bb]/45 bg-black/92 shadow-[0_30px_90px_rgba(0,0,0,0.34),0_0_0_1px_rgba(255,255,255,0.04),0_0_46px_rgba(245,214,187,0.06)]"
+    >
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(120deg,transparent,rgba(245,214,187,0.055),transparent)] opacity-70" />
+      <div className="relative grid grid-cols-[1.5fr_1fr_1fr] border-b border-[#f5d6bb]/35 bg-[linear-gradient(180deg,rgba(245,214,187,0.07),rgba(255,255,255,0.018))] text-[10px] uppercase tracking-[0.35em] text-slate-600 font-mono">
+        <div className="border-r border-white/14 px-5 py-4">Tiêu chí</div>
+        <div className="border-r border-white/14 px-5 py-4">
+          <p className="text-slate-300 text-xs normal-case font-semibold">ChatGPT</p>
+          <p className="text-[10px] text-slate-600 normal-case mt-0.5">AI tổng quát</p>
         </div>
-        <div className="flex items-center">
-          <div className="flex flex-wrap items-center gap-3 text-sm">
-            <span className={`flex h-9 w-9 items-center justify-center rounded-none ${statusStyles[row.chatgpt.status].badgeClass}`}>
-              {React.createElement(statusStyles[row.chatgpt.status].icon, { className: "h-4 w-4", "aria-hidden": true })}
-            </span>
-            <span className={`leading-tight ${statusStyles[row.chatgpt.status].textClass}`}>{row.chatgpt.text}</span>
-          </div>
-        </div>
-        <div className="flex items-center">
-          <div className="flex flex-wrap items-center gap-3 text-sm">
-            <span className={`flex h-9 w-9 items-center justify-center rounded-none ${statusStyles[row.support.status].badgeClass}`}>
-              {React.createElement(statusStyles[row.support.status].icon, { className: "h-4 w-4", "aria-hidden": true })}
-            </span>
-            <span className={`leading-tight ${statusStyles[row.support.status].textClass}`}>{row.support.text}</span>
-          </div>
+        <div className="px-5 py-4">
+          <p className="text-[#f5d6bb] text-xs normal-case font-semibold">Support HR</p>
+          <p className="text-[10px] text-slate-600 normal-case mt-0.5">AI chuyên biệt</p>
         </div>
       </div>
-    ))}
-  </div>
-);
+      {rows.map((row) => {
+        const isActive = activeRow === row.label;
+        const rowTone = isActive
+          ? "border-[#f5d6bb]/65 bg-[linear-gradient(90deg,rgba(245,214,187,0.13),rgba(245,214,187,0.045)_28%,rgba(0,0,0,0.18))] shadow-[inset_0_0_0_1px_rgba(245,214,187,0.35),0_0_34px_rgba(245,214,187,0.10)]"
+          : row.emphasis
+            ? "border-white/16 bg-[#f5d6bb]/[0.035] hover:border-[#f5d6bb]/36 hover:bg-[#f5d6bb]/[0.065]"
+            : "border-white/12 bg-black/25 hover:border-[#f5d6bb]/28 hover:bg-white/[0.035]";
+
+        return (
+          <button
+            key={row.label}
+            type="button"
+            aria-pressed={isActive}
+            onClick={() => setActiveRow(row.label)}
+            className={`group/row relative grid w-full grid-cols-[1.5fr_1fr_1fr] border-t text-left outline-none transition-all duration-300 ease-out focus-visible:border-[#f5d6bb]/70 focus-visible:ring-2 focus-visible:ring-[#f5d6bb]/30 active:scale-[0.998] ${rowTone}`}
+          >
+            <span
+              className={`pointer-events-none absolute inset-y-3 left-0 w-[3px] bg-[#f5d6bb] transition-all duration-300 ${
+                isActive ? "opacity-100 shadow-[0_0_24px_rgba(245,214,187,0.7)]" : "opacity-0 group-hover/row:opacity-60"
+              }`}
+            />
+            <div className={`${cellClass} flex items-center gap-3`}>
+              <span
+                className={`flex h-8 w-8 items-center justify-center rounded-none border bg-white/[0.035] text-slate-400 transition-all duration-300 flex-shrink-0 ${
+                  isActive
+                    ? "border-[#f5d6bb]/50 text-[#f5d6bb] shadow-[0_0_22px_rgba(245,214,187,0.12)]"
+                    : "border-white/8 group-hover/row:border-white/18 group-hover/row:text-slate-200"
+                }`}
+              >
+                {React.createElement(row.icon, {
+                  className: `h-3.5 w-3.5 transition-transform duration-300 ${isActive ? "scale-110" : "group-hover/row:scale-105"}`,
+                  "aria-hidden": true,
+                })}
+              </span>
+              <p className={`text-sm font-semibold transition-colors ${isActive ? "text-white" : "text-slate-200"}`}>{row.label}</p>
+            </div>
+            <div className={`${cellClass} flex items-center`}>
+              <div className="flex flex-wrap items-center gap-3 text-sm">
+                <span className={`flex h-9 w-9 items-center justify-center rounded-none transition-transform duration-300 ${statusStyles[row.chatgpt.status].badgeClass} ${isActive ? "scale-105" : "group-hover/row:scale-[1.03]"}`}>
+                  {React.createElement(statusStyles[row.chatgpt.status].icon, { className: "h-4 w-4", "aria-hidden": true })}
+                </span>
+                <span className={`leading-tight ${statusStyles[row.chatgpt.status].textClass}`}>{row.chatgpt.text}</span>
+              </div>
+            </div>
+            <div className={`${cellClass} flex items-center`}>
+              <div className="flex flex-wrap items-center gap-3 text-sm">
+                <span className={`flex h-9 w-9 items-center justify-center rounded-none transition-transform duration-300 ${statusStyles[row.support.status].badgeClass} ${isActive ? "scale-105 shadow-[0_0_22px_rgba(245,214,187,0.12)]" : "group-hover/row:scale-[1.03]"}`}>
+                  {React.createElement(statusStyles[row.support.status].icon, { className: "h-4 w-4", "aria-hidden": true })}
+                </span>
+                <span className={`leading-tight ${statusStyles[row.support.status].textClass}`}>{row.support.text}</span>
+              </div>
+            </div>
+          </button>
+        );
+      })}
+    </div>
+  );
+};
 
 interface HomePageProps {
   setActiveStep: (step: AppStep) => void;
