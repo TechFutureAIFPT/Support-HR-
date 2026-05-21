@@ -1,4 +1,24 @@
 import React, { useEffect, useRef, useState } from "react";
+import {
+  BadgeDollarSign,
+  BarChart3,
+  BriefcaseBusiness,
+  Check,
+  CircleDollarSign,
+  Code2,
+  Factory,
+  FileImage,
+  Layers3,
+  Mic,
+  Minus,
+  RotateCcw,
+  SlidersHorizontal,
+  Sparkles,
+  Target,
+  Users,
+  X,
+  type LucideIcon,
+} from "lucide-react";
 import type { AppStep } from '@/types';
 import type { ComparisonCell } from "@/pages/main/home/comparison";
 import LandingHero from "@/pages/main/home/LandingHero";
@@ -16,25 +36,25 @@ const partners = [
 ];
 
 const comparisonRows = [
-  { icon: "fa-solid fa-layer-group", label: "Xử lý hàng loạt CV", chatgpt: { status: "negative" as const, text: "Chỉ 1 CV/lần" }, support: { status: "positive" as const, text: "Hàng trăm CV cùng lúc" } },
-  { icon: "fa-solid fa-bullseye", label: "Độ chính xác AI", chatgpt: { status: "neutral" as const, text: "~70% · AI tổng quát" }, support: { status: "positive" as const, text: "95%+ · AI chuyên HR" } },
-  { icon: "fa-solid fa-briefcase", label: "Phân tích kinh nghiệm", chatgpt: { status: "negative" as const, text: "Đọc văn bản cơ bản" }, support: { status: "positive" as const, text: "Phân tích sâu theo ngành" } },
-  { icon: "fa-solid fa-image", label: "Đọc CV ảnh/scan", chatgpt: { status: "negative" as const, text: "Không hỗ trợ" }, support: { status: "positive" as const, text: "OCR đa định dạng" } },
-  { icon: "fa-solid fa-industry", label: "Nhận diện ngành nghề", chatgpt: { status: "negative" as const, text: "Thủ công" }, support: { status: "positive" as const, text: "Tự động từ JD" } },
-  { icon: "fa-solid fa-sliders", label: "Tùy chỉnh trọng số", chatgpt: { status: "negative" as const, text: "Không có" }, support: { status: "positive" as const, text: "Giao diện trực quan" } },
-  { icon: "fa-solid fa-chart-line", label: "Bảng phân tích", chatgpt: { status: "negative" as const, text: "Chỉ trò chuyện văn bản" }, support: { status: "positive" as const, text: "Biểu đồ chi tiết" } },
-  { icon: "fa-solid fa-microphone-lines", label: "Câu hỏi phỏng vấn", chatgpt: { status: "neutral" as const, text: "Nhập thủ công" }, support: { status: "positive" as const, text: "Tự động từ CV + JD" } },
-  { icon: "fa-solid fa-dollar-sign", label: "Phân tích mức lương", chatgpt: { status: "negative" as const, text: "Không có" }, support: { status: "positive" as const, text: "Đối chiếu theo vị trí" } },
-  { icon: "fa-solid fa-rotate", label: "Lưu lịch sử", chatgpt: { status: "negative" as const, text: "Giới hạn" }, support: { status: "positive" as const, text: "Vĩnh viễn" } },
-  { icon: "fa-solid fa-users", label: "Làm việc nhóm", chatgpt: { status: "negative" as const, text: "Không có không gian nhóm" }, support: { status: "positive" as const, text: "Nhiều người dùng" } },
-  { icon: "fa-solid fa-money-bill-trend-up", label: "Chi phí & hiệu quả", chatgpt: { status: "neutral" as const, text: "$20/tháng · Vẫn thủ công nhiều" }, support: { status: "highlight" as const, text: "Liên hệ · Tiết kiệm 70%" }, emphasis: true },
+  { icon: Layers3, label: "Xử lý hàng loạt CV", chatgpt: { status: "negative" as const, text: "Chỉ 1 CV/lần" }, support: { status: "positive" as const, text: "Hàng trăm CV cùng lúc" } },
+  { icon: Target, label: "Độ chính xác AI", chatgpt: { status: "neutral" as const, text: "~70% · AI tổng quát" }, support: { status: "positive" as const, text: "95%+ · AI chuyên HR" } },
+  { icon: BriefcaseBusiness, label: "Phân tích kinh nghiệm", chatgpt: { status: "negative" as const, text: "Đọc văn bản cơ bản" }, support: { status: "positive" as const, text: "Phân tích sâu theo ngành" } },
+  { icon: FileImage, label: "Đọc CV ảnh/scan", chatgpt: { status: "negative" as const, text: "Không hỗ trợ" }, support: { status: "positive" as const, text: "OCR đa định dạng" } },
+  { icon: Factory, label: "Nhận diện ngành nghề", chatgpt: { status: "negative" as const, text: "Thủ công" }, support: { status: "positive" as const, text: "Tự động từ JD" } },
+  { icon: SlidersHorizontal, label: "Tùy chỉnh trọng số", chatgpt: { status: "negative" as const, text: "Không có" }, support: { status: "positive" as const, text: "Giao diện trực quan" } },
+  { icon: BarChart3, label: "Bảng phân tích", chatgpt: { status: "negative" as const, text: "Chỉ trò chuyện văn bản" }, support: { status: "positive" as const, text: "Biểu đồ chi tiết" } },
+  { icon: Mic, label: "Câu hỏi phỏng vấn", chatgpt: { status: "neutral" as const, text: "Nhập thủ công" }, support: { status: "positive" as const, text: "Tự động từ CV + JD" } },
+  { icon: CircleDollarSign, label: "Phân tích mức lương", chatgpt: { status: "negative" as const, text: "Không có" }, support: { status: "positive" as const, text: "Đối chiếu theo vị trí" } },
+  { icon: RotateCcw, label: "Lưu lịch sử", chatgpt: { status: "negative" as const, text: "Giới hạn" }, support: { status: "positive" as const, text: "Vĩnh viễn" } },
+  { icon: Users, label: "Làm việc nhóm", chatgpt: { status: "negative" as const, text: "Không có không gian nhóm" }, support: { status: "positive" as const, text: "Nhiều người dùng" } },
+  { icon: BadgeDollarSign, label: "Chi phí & hiệu quả", chatgpt: { status: "neutral" as const, text: "$20/tháng · Vẫn thủ công nhiều" }, support: { status: "highlight" as const, text: "Liên hệ · Tiết kiệm 70%" }, emphasis: true },
 ];
 
-const statusStyles: Record<ComparisonCell["status"], { icon: string; badgeClass: string; textClass: string }> = {
-  positive: { icon: "fa-solid fa-check", badgeClass: "border border-[#f5d6bb]/35 bg-[#f5d6bb]/10 text-[#f5d6bb]", textClass: "text-slate-100" },
-  negative: { icon: "fa-solid fa-xmark", badgeClass: "border border-rose-500/40 bg-rose-500/10 text-rose-200", textClass: "text-slate-300" },
-  neutral: { icon: "fa-solid fa-minus", badgeClass: "border border-amber-500/30 bg-amber-500/10 text-amber-200", textClass: "text-slate-200" },
-  highlight: { icon: "fa-solid fa-star", badgeClass: "border border-[#f5d6bb]/40 bg-gradient-to-r from-[#f5d6bb]/25 to-white/8 text-white", textClass: "text-white font-semibold" },
+const statusStyles: Record<ComparisonCell["status"], { icon: LucideIcon; badgeClass: string; textClass: string }> = {
+  positive: { icon: Check, badgeClass: "border border-[#f5d6bb]/35 bg-[#f5d6bb]/10 text-[#f5d6bb]", textClass: "text-slate-100" },
+  negative: { icon: X, badgeClass: "border border-rose-500/40 bg-rose-500/10 text-rose-200", textClass: "text-slate-300" },
+  neutral: { icon: Minus, badgeClass: "border border-amber-500/30 bg-amber-500/10 text-amber-200", textClass: "text-slate-200" },
+  highlight: { icon: Sparkles, badgeClass: "border border-[#f5d6bb]/40 bg-gradient-to-r from-[#f5d6bb]/25 to-white/8 text-white", textClass: "text-white font-semibold" },
 };
 
 const comparisonRowsMobile = comparisonRows.slice(0, 5);
@@ -49,18 +69,24 @@ const ComparisonTable = ({ rows }: { rows: typeof comparisonRows }) => (
     {rows.map((row) => (
       <div key={row.label} className={`grid grid-cols-[1.5fr_1fr_1fr] px-5 py-4 border-b border-white/6 last:border-b-0 hover:bg-white/[0.03] transition-colors ${row.emphasis ? "bg-[#f5d6bb]/[0.03]" : ""}`}>
         <div className="flex items-center gap-3">
-          <span className="flex h-7 w-7 items-center justify-center rounded-none bg-white/5 text-slate-400 flex-shrink-0"><i className={row.icon} /></span>
+          <span className="flex h-7 w-7 items-center justify-center rounded-none bg-white/5 text-slate-400 flex-shrink-0">
+            {React.createElement(row.icon, { className: "h-3.5 w-3.5", "aria-hidden": true })}
+          </span>
           <p className="text-sm font-medium text-slate-200">{row.label}</p>
         </div>
         <div className="flex items-center">
           <div className="flex flex-wrap items-center gap-3 text-sm">
-            <span className={`flex h-9 w-9 items-center justify-center rounded-none ${statusStyles[row.chatgpt.status].badgeClass}`}><i className={`${statusStyles[row.chatgpt.status].icon} text-base`} /></span>
+            <span className={`flex h-9 w-9 items-center justify-center rounded-none ${statusStyles[row.chatgpt.status].badgeClass}`}>
+              {React.createElement(statusStyles[row.chatgpt.status].icon, { className: "h-4 w-4", "aria-hidden": true })}
+            </span>
             <span className={`leading-tight ${statusStyles[row.chatgpt.status].textClass}`}>{row.chatgpt.text}</span>
           </div>
         </div>
         <div className="flex items-center">
           <div className="flex flex-wrap items-center gap-3 text-sm">
-            <span className={`flex h-9 w-9 items-center justify-center rounded-none ${statusStyles[row.support.status].badgeClass}`}><i className={`${statusStyles[row.support.status].icon} text-base`} /></span>
+            <span className={`flex h-9 w-9 items-center justify-center rounded-none ${statusStyles[row.support.status].badgeClass}`}>
+              {React.createElement(statusStyles[row.support.status].icon, { className: "h-4 w-4", "aria-hidden": true })}
+            </span>
             <span className={`leading-tight ${statusStyles[row.support.status].textClass}`}>{row.support.text}</span>
           </div>
         </div>
@@ -280,7 +306,7 @@ const HomePage: React.FC<HomePageProps> = ({
           <div className="max-w-[90rem] mx-auto px-3 sm:px-5 lg:px-6">
             <div className="text-center mb-12">
               <div className="mb-4 inline-flex items-center gap-2 rounded-none border border-[#f5d6bb]/22 bg-[#f5d6bb]/[0.06] px-4 py-1.5 font-mono shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
-                <i className="fa-solid fa-code-compare text-[#f5d6bb] text-[10px]" />
+                <Code2 className="h-3 w-3 text-[#f5d6bb]" aria-hidden="true" />
                 <span className="text-[11px] font-bold text-[#f5d6bb] uppercase tracking-widest">So sánh</span>
               </div>
               <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
@@ -299,21 +325,29 @@ const HomePage: React.FC<HomePageProps> = ({
               {comparisonRowsMobile.map((row) => (
                 <div key={row.label} className={`rounded-none border p-4 shadow-[0_16px_36px_rgba(2,8,23,0.14)] ${row.emphasis ? "border-[#f5d6bb]/14 bg-[#f5d6bb]/[0.03]" : "border-white/5 bg-white/3"}`}>
                   <div className="flex items-center gap-3 mb-3">
-                    <span className="flex h-7 w-7 items-center justify-center rounded-none bg-white/5 text-slate-400"><i className={`${row.icon} text-sm`} /></span>
+                    <span className="flex h-7 w-7 items-center justify-center rounded-none bg-white/5 text-slate-400">
+                      {React.createElement(row.icon, { className: "h-3.5 w-3.5", "aria-hidden": true })}
+                    </span>
                     <p className="text-sm font-semibold text-slate-100">{row.label}</p>
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <p className="text-[9px] uppercase tracking-wider text-slate-600 mb-1">ChatGPT</p>
                       <div className="flex items-start gap-2">
-                        <i className={`${statusStyles[row.chatgpt.status].icon} mt-0.5 text-xs ${row.chatgpt.status === "negative" ? "text-rose-400" : "text-slate-500"}`} />
+                        {React.createElement(statusStyles[row.chatgpt.status].icon, {
+                          className: `mt-0.5 h-3 w-3 ${row.chatgpt.status === "negative" ? "text-rose-400" : "text-slate-500"}`,
+                          "aria-hidden": true,
+                        })}
                         <span className="text-xs text-slate-400 leading-tight">{row.chatgpt.text}</span>
                       </div>
                     </div>
                     <div>
                       <p className="text-[9px] uppercase tracking-wider text-[#f5d6bb]/70 mb-1">Support HR</p>
                       <div className="flex items-start gap-2">
-                        <i className={`${statusStyles[row.support.status].icon} mt-0.5 text-xs text-[#f5d6bb]`} />
+                        {React.createElement(statusStyles[row.support.status].icon, {
+                          className: "mt-0.5 h-3 w-3 text-[#f5d6bb]",
+                          "aria-hidden": true,
+                        })}
                         <span className={`text-xs leading-tight ${row.support.status === "highlight" ? "text-white font-semibold" : "text-[#f5d6bb]/85"}`}>{row.support.text}</span>
                       </div>
                     </div>

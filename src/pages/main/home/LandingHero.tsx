@@ -172,6 +172,8 @@ const HERO_HEADLINE_LINES = [
   },
 ];
 
+const HERO_VISIBLE_PANELS = [2, 3, 6, 7, 10, 11].map((index) => HERO_SYSTEM_PANELS[index]);
+
 const HERO_VIEWPORT = { once: true, amount: 0.2 };
 const HERO_TRANSITION = { duration: 0.72, ease: [0.22, 1, 0.36, 1] as const };
 
@@ -230,7 +232,7 @@ function SystemPanel({
 }) {
   return (
     <motion.div
-      className="relative flex h-full flex-col justify-between overflow-hidden border border-[#f5d6bb]/18 bg-[linear-gradient(135deg,rgba(245,214,187,0.105)_0%,rgba(245,214,187,0.035)_42%,rgba(0,0,0,0.28)_100%)] p-4 shadow-[inset_0_1px_0_rgba(245,214,187,0.16),0_18px_70px_rgba(245,214,187,0.045)] xl:p-5"
+      className="relative flex h-full flex-col justify-between overflow-hidden bg-[linear-gradient(135deg,rgba(245,214,187,0.105)_0%,rgba(245,214,187,0.035)_42%,rgba(0,0,0,0.28)_100%)] p-4 shadow-[inset_0_1px_0_rgba(245,214,187,0.16),0_18px_70px_rgba(245,214,187,0.045)] xl:p-5"
       animate={
         reduceMotion
           ? undefined
@@ -289,7 +291,7 @@ function HeadlineLine({
   text: string;
 }) {
   return (
-    <span className="relative block leading-[0.8]">
+    <span className="relative block leading-[0.95]">
       <motion.span className="relative block text-white">
         {text}
       </motion.span>
@@ -315,13 +317,20 @@ export default function LandingHero({
 
       <div className="mx-auto max-w-[96rem] px-4 sm:px-6 lg:px-8">
         <div className="relative min-h-[500px] sm:min-h-[540px] lg:min-h-[620px]">
-          <div className="pointer-events-none absolute inset-0 hidden opacity-[0.88] lg:grid lg:grid-cols-4 lg:grid-rows-3">
-            {HERO_SYSTEM_PANELS.map((panel, index) => (
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 hidden overflow-hidden border border-[#f5d6bb]/16 opacity-[0.9] lg:grid lg:grid-cols-5 lg:grid-rows-3"
+          >
+            <div className="relative col-span-3 row-span-3 overflow-hidden border-r border-[#f5d6bb]/14 bg-[linear-gradient(135deg,rgba(5,14,26,0.72)_0%,rgba(0,0,0,0.9)_42%,rgba(0,0,0,0.58)_100%)]">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_14%_18%,rgba(245,214,187,0.055),transparent_34%),linear-gradient(90deg,rgba(0,0,0,0.36)_0%,rgba(0,0,0,0.08)_74%,transparent_100%)]" />
+              <div className="absolute bottom-0 left-0 right-0 h-px bg-[#f5d6bb]/10" />
+            </div>
+            {HERO_VISIBLE_PANELS.map((panel, index) => (
               <div
                 key={panel.label}
                 className={`home-hero-grid-card border-[#f5d6bb]/14 ${
-                  index % 4 === 3 ? "" : "border-r"
-                } ${index >= HERO_SYSTEM_PANELS.length - 4 ? "" : "border-b"}`}
+                  index % 2 === 0 ? "border-r" : ""
+                } ${index < HERO_VISIBLE_PANELS.length - 2 ? "border-b" : ""}`}
               >
                 <SystemPanel {...panel} reduceMotion={reduceMotion} />
               </div>
@@ -333,12 +342,12 @@ export default function LandingHero({
             whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
             viewport={HERO_VIEWPORT}
             transition={HERO_TRANSITION}
-            className="relative z-10 max-w-[60rem] py-10 sm:py-12 lg:py-16"
+            className="relative z-10 max-w-[44rem] py-10 sm:py-12 lg:py-16 lg:max-w-[55%] xl:max-w-[58%]"
           >
-            <div className="pointer-events-none absolute inset-x-[-2.25rem] inset-y-[-2.5rem] -z-10 bg-[radial-gradient(circle_at_22%_24%,rgba(5,14,26,0.98)_0%,rgba(0,0,0,0.94)_26%,rgba(0,0,0,0.74)_54%,rgba(0,0,0,0.34)_76%,transparent_100%)]" />
-            <div className="pointer-events-none absolute bottom-[-1.5rem] left-[-2.5rem] top-[11.25rem] -z-10 w-[58rem] max-w-[90vw] bg-[linear-gradient(90deg,rgba(0,0,0,0.98)_0%,rgba(0,0,0,0.88)_34%,rgba(0,0,0,0.54)_62%,rgba(0,0,0,0.12)_88%,transparent_100%)] blur-[3px]" />
+            <div className="pointer-events-none absolute bottom-[-2.5rem] left-[-2.25rem] right-0 top-[-2.5rem] -z-10 bg-[radial-gradient(circle_at_22%_24%,rgba(5,14,26,0.98)_0%,rgba(0,0,0,0.94)_26%,rgba(0,0,0,0.74)_54%,rgba(0,0,0,0.34)_76%,transparent_100%)]" />
+            <div className="pointer-events-none absolute bottom-[-1.5rem] left-[-2.5rem] right-0 top-[11.25rem] -z-10 bg-[linear-gradient(90deg,rgba(0,0,0,0.98)_0%,rgba(0,0,0,0.88)_34%,rgba(0,0,0,0.54)_62%,rgba(0,0,0,0.12)_88%,transparent_100%)] blur-[3px]" />
 
-            <h1 className="supporthr-display max-w-[8.4ch] text-[clamp(4.35rem,10vw,10.2rem)] font-black tracking-[-0.1em]">
+            <h1 className="supporthr-display max-w-[8.4ch] text-[clamp(3.2rem,5.8vw,5.1rem)] font-black tracking-[-0.06em] leading-[0.95]">
               {HERO_HEADLINE_LINES.map((line) => (
                 <HeadlineLine
                   key={line.text}
