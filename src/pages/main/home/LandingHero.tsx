@@ -340,7 +340,7 @@ export default function LandingHero({
   const reduceMotion = useReducedMotion();
 
   return (
-    <section id="hero" className="relative overflow-hidden bg-black pt-3 sm:pt-6 lg:pt-8">
+    <section id="hero" className="relative overflow-hidden bg-black pt-0">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_12%,rgba(255,255,255,0.05),transparent_20%),linear-gradient(180deg,#000000_0%,#010101_56%,#000000_100%)]" />
       <div className="pointer-events-none absolute inset-0 supporthr-grid-mask opacity-18" />
       <div className="pointer-events-none absolute inset-y-0 left-0 w-full bg-[linear-gradient(90deg,rgba(0,0,0,1)_0%,rgba(0,0,0,0.992)_34%,rgba(0,0,0,0.972)_48%,rgba(0,0,0,0.9)_62%,rgba(0,0,0,0.56)_80%,transparent_94%)]" />
@@ -378,7 +378,7 @@ export default function LandingHero({
             <div className="pointer-events-none absolute bottom-[-2.5rem] left-[-2.25rem] right-0 top-[-2.5rem] -z-10 bg-[radial-gradient(circle_at_22%_24%,rgba(5,14,26,0.98)_0%,rgba(0,0,0,0.94)_26%,rgba(0,0,0,0.74)_54%,rgba(0,0,0,0.34)_76%,transparent_100%)]" />
             <div className="pointer-events-none absolute bottom-[-1.5rem] left-[-2.5rem] right-0 top-[11.25rem] -z-10 bg-[linear-gradient(90deg,rgba(0,0,0,0.98)_0%,rgba(0,0,0,0.88)_34%,rgba(0,0,0,0.54)_62%,rgba(0,0,0,0.12)_88%,transparent_100%)] blur-[3px]" />
 
-            {/* Blackbox-style eyebrow label */}
+            {/* Blackbox-style eyebrow label with pulsing indicators */}
             <motion.div
               initial={reduceMotion ? false : { opacity: 0, x: -12 }}
               whileInView={reduceMotion ? undefined : { opacity: 1, x: 0 }}
@@ -386,8 +386,25 @@ export default function LandingHero({
               transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
               className="mb-7 flex items-center gap-3"
             >
-              <span className="h-3.5 w-3.5 bg-[#f5d6bb] flex-shrink-0" aria-hidden="true" />
-              <span className="supporthr-mono text-[11px] font-bold uppercase tracking-[0.32em] text-[#f5d6bb]/80">
+              <motion.span
+                animate={reduceMotion ? undefined : {
+                  scale: [1, 1.15, 1],
+                  opacity: [0.7, 1, 0.7],
+                  boxShadow: [
+                    "0 0 0px rgba(245,214,187,0)",
+                    "0 0 10px rgba(245,214,187,0.5)",
+                    "0 0 0px rgba(245,214,187,0)"
+                  ]
+                }}
+                transition={{
+                  duration: 2.2,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+                className="h-3 w-3 bg-[#f5d6bb] flex-shrink-0"
+                aria-hidden="true"
+              />
+              <span className="supporthr-mono text-[11px] font-bold uppercase tracking-[0.32em] text-[#f5d6bb]/90 drop-shadow-[0_0_12px_rgba(245,214,187,0.15)]">
                 AI TUYỂN DỤNG
               </span>
             </motion.div>

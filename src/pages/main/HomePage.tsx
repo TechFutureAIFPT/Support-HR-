@@ -229,7 +229,7 @@ const HomePage: React.FC<HomePageProps> = ({
               : "border-b border-white/[0.08] bg-black/92"
           }`}
         >
-          <div className="mx-auto flex h-[4.45rem] w-full max-w-[96rem] items-center justify-between px-4 sm:px-6 lg:px-8">
+          <div className="flex h-[4.45rem] w-full items-center justify-between px-6 sm:px-10 lg:px-16">
             <button
               type="button"
               onClick={() => scrollTo("hero")}
