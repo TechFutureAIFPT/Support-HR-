@@ -177,18 +177,29 @@ function TypewriterLine({
     setDisplayed("");
     setDone(false);
     let i = 0;
-    const startTimer = window.setTimeout(() => {
-      const iv = window.setInterval(() => {
+    let intervalId: number | undefined;
+    let timerId: number | undefined;
+    const runTypewriter = () => {
+      intervalId = window.setInterval(() => {
         i++;
         setDisplayed(text.slice(0, i));
         if (i >= text.length) {
-          clearInterval(iv);
+          window.clearInterval(intervalId);
           setDone(true);
         }
-      }, 24);
-      return () => clearInterval(iv);
-    }, lineDelay);
-    return () => clearTimeout(startTimer);
+      }, 18);
+    };
+
+    if (lineDelay > 0) {
+      timerId = window.setTimeout(runTypewriter, lineDelay);
+    } else {
+      runTypewriter();
+    }
+
+    return () => {
+      if (timerId) window.clearTimeout(timerId);
+      if (intervalId) window.clearInterval(intervalId);
+    };
   }, [text, lineDelay, reduceMotion]);
 
   // Regex to extract prefix like [SCAN]
@@ -218,14 +229,12 @@ function SystemPanel({
   label,
   dotClass,
   accentClass,
-  delay,
   lines,
   reduceMotion,
 }: {
   label: string;
   dotClass: string;
   accentClass: string;
-  delay: number;
   lines: string[];
   reduceMotion: boolean;
 }) {
@@ -235,7 +244,7 @@ function SystemPanel({
       initial={{ opacity: 0 }}
       whileInView={{ opacity: 1 }}
       viewport={{ once: true, amount: 0.3 }}
-      transition={{ duration: 0.5, delay }}
+      transition={{ duration: 0.25 }}
     >
       {/* Top clean dark line border */}
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-zinc-900" />
@@ -252,7 +261,7 @@ function SystemPanel({
           <TypewriterLine
             key={line}
             text={line}
-            lineDelay={reduceMotion ? 0 : delay * 1000 + i * 500}
+            lineDelay={reduceMotion ? 0 : i * 120}
             reduceMotion={reduceMotion}
             accentClass={accentClass}
           />
@@ -293,13 +302,13 @@ export default function LandingHero({
       <div className="pointer-events-none absolute left-[-4rem] top-[4rem] z-[1] h-[36rem] w-[74rem] max-w-[80%] bg-[radial-gradient(circle_at_18%_16%,rgba(255,255,255,0.06)_0%,rgba(0,0,0,0.9)_34%,rgba(0,0,0,0.98)_68%,transparent_100%)] blur-[10px]" />
 
       <div className="w-full">
-        <div className="relative min-h-[500px] sm:min-h-[540px] lg:min-h-[680px]">
+        <div className="relative min-h-[475px] sm:min-h-[515px] lg:min-h-[532px] xl:min-h-[550px]">
           <div
             aria-hidden="true"
             className="pointer-events-none absolute inset-0 hidden overflow-hidden opacity-[0.9] lg:grid lg:grid-cols-5 lg:grid-rows-3"
           >
             <div className="relative col-span-3 row-span-3 overflow-hidden border-r border-zinc-900 bg-[linear-gradient(135deg,rgba(5,14,26,0.72)_0%,rgba(0,0,0,0.9)_42%,rgba(0,0,0,0.58)_100%)]">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_14%_18%,rgba(245,214,187,0.055),transparent_34%),linear-gradient(90deg,rgba(0,0,0,0.36)_0%,rgba(0,0,0,0.08)_74%,transparent_100%)]" />
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_14%_18%,rgba(255,255,255,0.025),transparent_34%),linear-gradient(90deg,rgba(0,0,0,0.36)_0%,rgba(0,0,0,0.08)_74%,transparent_100%)]" />
               <div className="absolute bottom-0 left-0 right-0 h-px bg-zinc-900" />
             </div>
             {HERO_VISIBLE_PANELS.map((panel, index) => (
@@ -319,7 +328,7 @@ export default function LandingHero({
             whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
             viewport={HERO_VIEWPORT}
             transition={HERO_TRANSITION}
-            className="relative z-10 px-6 sm:px-10 lg:px-16 py-12 sm:py-14 lg:py-20 lg:max-w-[55%] xl:max-w-[58%]"
+            className="relative z-10 px-6 py-9 sm:px-10 sm:py-11 lg:max-w-[55%] lg:px-16 lg:py-9 xl:max-w-[58%] xl:py-11"
           >
             <div className="pointer-events-none absolute bottom-[-2.5rem] left-[-2.25rem] right-0 top-[-2.5rem] -z-10 bg-[radial-gradient(circle_at_22%_24%,rgba(5,14,26,0.98)_0%,rgba(0,0,0,0.94)_26%,rgba(0,0,0,0.74)_54%,rgba(0,0,0,0.34)_76%,transparent_100%)]" />
             <div className="pointer-events-none absolute bottom-[-1.5rem] left-[-2.5rem] right-0 top-[11.25rem] -z-10 bg-[linear-gradient(90deg,rgba(0,0,0,0.98)_0%,rgba(0,0,0,0.88)_34%,rgba(0,0,0,0.54)_62%,rgba(0,0,0,0.12)_88%,transparent_100%)] blur-[3px]" />
@@ -330,52 +339,34 @@ export default function LandingHero({
               whileInView={reduceMotion ? undefined : { opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-              className="mb-7 flex items-center gap-3"
+              className="mb-4 flex items-center xl:mb-5"
             >
-              <motion.span
-                animate={reduceMotion ? undefined : {
-                  scale: [1, 1.15, 1],
-                  opacity: [0.7, 1, 0.7],
-                  boxShadow: [
-                    "0 0 0px rgba(245,214,187,0)",
-                    "0 0 10px rgba(245,214,187,0.5)",
-                    "0 0 0px rgba(245,214,187,0)"
-                  ]
-                }}
-                transition={{
-                  duration: 2.2,
-                  repeat: Infinity,
-                  ease: "easeInOut"
-                }}
-                className="h-3 w-3 bg-[#f5d6bb] flex-shrink-0"
-                aria-hidden="true"
-              />
-              <span className="supporthr-mono text-[11px] font-bold uppercase tracking-[0.32em] text-[#f5d6bb]/90 drop-shadow-[0_0_12px_rgba(245,214,187,0.15)]">
+              <span className="supporthr-mono text-[11px] font-bold uppercase tracking-[0.32em] text-[#f5d6bb]/90">
                 AI TUYỂN DỤNG
               </span>
             </motion.div>
 
             {/* Ultra-heavy headline */}
-            <h1 className="supporthr-display max-w-[10ch] text-[clamp(3.6rem,7.2vw,6.8rem)] font-black leading-[0.88] tracking-[-0.04em]">
+            <h1 className="supporthr-display max-w-[10ch] text-[clamp(3.18rem,5.8vw,5.5rem)] font-black leading-[0.88] tracking-[-0.04em]">
               {HERO_HEADLINE_LINES.map((line) => (
                 <HeadlineLine key={line.text} text={line.text} />
               ))}
             </h1>
 
             {/* Body text — lighter weight */}
-            <p className="mt-8 max-w-[38rem] text-[clamp(0.95rem,1.3vw,1.08rem)] font-light leading-[1.9] tracking-[0.005em] text-zinc-400">
+            <p className="mt-5 max-w-[34rem] text-[clamp(0.88rem,1.05vw,0.97rem)] font-light leading-[1.7] tracking-[0.005em] text-zinc-400 xl:mt-6">
               Tự động quét CV, hiểu kỹ năng kỹ thuật, đối sánh với JD và tạo danh sách đề cử rõ ràng
               cho nhà tuyển dụng hiện đại.
             </p>
 
             {/* Blackbox-style square buttons — only GET STARTED, made larger */}
-            <div className="mt-10 flex flex-wrap items-center">
+            <div className="mt-6 flex flex-wrap items-center xl:mt-7">
               <motion.button
                 type="button"
                 whileHover={reduceMotion ? undefined : { scale: 1.02 }}
                 whileTap={reduceMotion ? undefined : { scale: 0.97 }}
                 onClick={onPrimaryAction}
-                className="group relative inline-flex h-15 sm:h-16 items-center gap-4 overflow-hidden rounded-none bg-white px-9 sm:px-11 text-[14px] sm:text-[15px] font-bold uppercase tracking-[0.14em] text-black shadow-[0_20px_50px_rgba(255,255,255,0.12)] transition-all duration-200 hover:bg-zinc-100 hover:shadow-[0_24px_60px_rgba(255,255,255,0.2)]"
+                className="group relative inline-flex h-[3.1rem] items-center gap-3.5 overflow-hidden rounded-none bg-white px-7 text-[12px] font-bold uppercase tracking-[0.14em] text-black shadow-[0_20px_50px_rgba(255,255,255,0.12)] transition-all duration-200 hover:bg-zinc-100 hover:shadow-[0_24px_60px_rgba(255,255,255,0.2)] sm:h-[3.35rem] sm:px-9 sm:text-[13px]"
               >
                 <span className="relative z-10">{primaryLabel}</span>
                 <ArrowUpRight className="relative z-10 h-4.5 w-4.5 sm:h-5 sm:w-5 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
