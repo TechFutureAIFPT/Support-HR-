@@ -20,6 +20,7 @@ import {
 import type { Candidate, DetailedScore, UploadedFileRecord, WeightCriteria } from '@/types';
 import { analyzeExperience, extractJDRequirements, compareEvidence } from '@/services/screening/frontendInsights';
 import { UploadedFilesService } from '@/services/data-sync/uploadedFilesService';
+import { useThemeColors } from '@/hooks/useThemeColors';
 
 // ── Phân loại tiêu chí ──────────────────────────────────────────────────────
 
@@ -1084,6 +1085,7 @@ interface CriterionAccordionProps {
 }
 
 const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpanded, onToggle, jdText }) => {
+  const tc = useThemeColors();
   const [copied, setCopied] = React.useState(false);
   const criterionName = canonicalizeCriterionName(getDetailCriterion(item));
   const detailScore = getDetailScore(item);
@@ -1190,69 +1192,95 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
   }
 
   return (
-    <div className="rounded-xl border border-white/[0.08] bg-[#05070b] transition-all duration-200 hover:border-cyan-500/25 hover:shadow-md hover:shadow-cyan-500/5">
-      <button className="flex min-h-[56px] w-full items-center justify-between p-3.5 text-left" onClick={onToggle} aria-expanded={isExpanded}>
+    <div className="rounded-none border border-zinc-800 bg-zinc-950/40 transition-all duration-200 hover:border-cyan-500/30 hover:bg-zinc-950/60">
+      <button className="flex min-h-[50px] w-full items-center justify-between p-3.5 text-left" onClick={onToggle} aria-expanded={isExpanded}>
         <div className="flex min-w-0 items-center gap-3">
-          <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.035] ${meta.color}`}>
-            <MetaIcon className="h-5 w-5" strokeWidth={2.2} />
+          <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-none border border-zinc-800 bg-zinc-900 ${meta.color}`}>
+            <MetaIcon className="h-4 w-4" strokeWidth={2.2} />
           </span>
-          <span className="truncate font-semibold text-slate-100">{criterionName}</span>
-          <span className="ml-1 rounded border border-slate-700/80 bg-slate-800/80 px-2 py-0.5 text-[10px] font-semibold tracking-wide text-slate-400">{proficiency}</span>
+          <span className="truncate text-xs font-bold uppercase tracking-[0.12em] text-zinc-200">{criterionName}</span>
+          <span className="ml-1 rounded-none border border-zinc-800 bg-zinc-900 px-2 py-0.5 text-[9px] font-bold tracking-wider text-zinc-500 uppercase">{proficiency}</span>
         </div>
         <div className="flex shrink-0 items-center gap-3">
-          <span className={`rounded-lg border px-3 py-1.5 text-sm font-bold ${scoreBadgeClass}`}>
+          <span className={`rounded-none border px-2.5 py-1 text-xs font-mono font-bold hover:bg-opacity-25 transition-colors ${scoreBadgeClass}`}>
             {parsedData.scoreLabel}
           </span>
-          <ChevronDown className={`h-4 w-4 text-slate-500 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`} />
+          <ChevronDown className={`h-4 w-4 text-zinc-500 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`} />
         </div>
       </button>
 
       {isExpanded && (
-        <div className="border-t border-slate-800/60 px-4 pb-4 pt-3">
+        <div className="border-t border-zinc-800 bg-zinc-950/60 px-4 pb-4 pt-3.5">
           <div className={`grid grid-cols-1 ${isExperience || requirementComparison ? 'xl:grid-cols-3' : 'xl:grid-cols-2'} gap-4`}>
-            <div className="rounded-xl border border-white/[0.08] bg-white/[0.025] p-5">
-              <div className="mb-2 flex items-center justify-between">
-                <h5 className="text-base font-bold text-slate-200">Dẫn chứng (trích từ CV)</h5>
-                <button type="button" onClick={(e) => { e.stopPropagation(); handleCopy(); }} className="flex items-center gap-1.5 text-xs text-slate-500 transition-colors hover:text-cyan-400">
+            <div className="rounded-none border border-zinc-800 bg-zinc-950 p-4 relative">
+              <div className="mb-3 flex items-center justify-between">
+                <h5 className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-400">Dẫn chứng (trích từ CV)</h5>
+                <button type="button" onClick={(e) => { e.stopPropagation(); handleCopy(); }} className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-zinc-500 transition-colors hover:text-cyan-400">
                   {copied ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
                   {copied ? 'Đã chép' : 'Chép'}
                 </button>
               </div>
               {canShowRawEvidence ? (
-                <blockquote className="border-l-4 border-cyan-500/60 pl-4 text-base italic leading-relaxed text-slate-300" dangerouslySetInnerHTML={{
+                <blockquote className="border-l-2 border-cyan-500/60 pl-3 text-xs leading-relaxed text-zinc-300 italic" dangerouslySetInnerHTML={{
                   __html: highlightedEvidenceHtml
                 }} />
               ) : (
-                <blockquote className="border-l-4 border-cyan-500/60 pl-4 text-base italic leading-relaxed text-slate-300" dangerouslySetInnerHTML={{
-                  __html: '<span class="not-italic rounded-md border border-amber-500/35 bg-amber-500/10 px-2 py-1 text-xs font-semibold text-amber-300">Chưa tìm thấy trong CV</span>'
+                <blockquote className="border-l-2 border-cyan-500/60 pl-3 text-xs leading-relaxed text-zinc-300 italic" dangerouslySetInnerHTML={{
+                  __html: '<span class="not-italic rounded-none border border-amber-500/35 bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold text-amber-300 uppercase tracking-wider">Chưa tìm thấy trong CV</span>'
                 }} />
               )}
             </div>
 
-            {isExperience && experienceBlock}
+            {isExperience && experienceBlock && (
+              <div className="space-y-3 rounded-none border border-zinc-800 bg-zinc-950 p-4">
+                <h5 className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-200">Phân tích nhanh</h5>
+                {matchMeta?.matchPercent === 'N/A' ? (
+                  <p className="text-[11px] text-zinc-500 italic">JD chưa có mức yêu cầu kinh nghiệm rõ ràng</p>
+                ) : (
+                  <>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between text-[11px] text-zinc-400">
+                        <span>Mức độ phù hợp JD</span>
+                        <span className="font-semibold text-cyan-400 font-mono">{matchMeta?.matchPercent}%</span>
+                      </div>
+                      <div className="h-1.5 w-full overflow-hidden rounded-none bg-zinc-900">
+                        <div
+                          className={`h-full ${typeof matchMeta?.matchPercent === 'number' && matchMeta.matchPercent >= 80 ? 'bg-emerald-500' : typeof matchMeta?.matchPercent === 'number' && matchMeta.matchPercent >= 65 ? 'bg-yellow-500' : typeof matchMeta?.matchPercent === 'number' && matchMeta.matchPercent >= 50 ? 'bg-orange-500' : 'bg-red-500'}`}
+                          style={{ width: `${typeof matchMeta?.matchPercent === 'number' ? Math.min(100, Math.max(0, matchMeta.matchPercent)) : 0}%` }}
+                        />
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap gap-1.5 pt-1">
+                      {matchMeta?.matched.slice(0, 5).map(k => <span key={k} className="px-2 py-0.5 rounded-none bg-emerald-950/30 text-emerald-300 text-[10px] border border-emerald-500/20">{k}</span>)}
+                      {matchMeta?.missing.slice(0, 5).map(k => <span key={k} className="px-2 py-0.5 rounded-none bg-yellow-950/30 text-yellow-300 text-[10px] border border-yellow-500/20">{k}</span>)}
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
             {!isExperience && requirementComparison && (
-              <div className="space-y-3 rounded-xl border border-slate-800/60 bg-[#080f1e] p-5">
+              <div className="space-y-3 rounded-none border border-zinc-800 bg-zinc-950 p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <h5 className="mb-1 text-base font-bold text-slate-100">Phân tích nhanh</h5>
-                    <p className="text-[11px] text-slate-500">Khớp từ khóa bắt buộc từ JD, có chặn phủ định và alias Việt/Anh.</p>
+                    <h5 className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-200">Phân tích nhanh</h5>
+                    <p className="text-[10px] text-zinc-500 mt-0.5 leading-normal">Khớp từ khóa bắt buộc từ JD, có chặn phủ định và alias Việt/Anh.</p>
                   </div>
-                  <span className="rounded-full border border-cyan-400/25 bg-cyan-400/10 px-2.5 py-1 text-[10px] font-bold text-cyan-200">
+                  <span className="rounded-none border border-cyan-400/25 bg-cyan-400/10 px-2 py-0.5 text-[9px] font-bold text-cyan-200 font-mono">
                     {requirementComparison.matched.length + requirementComparison.semanticMatched.length}/{requirementComparison.jdKeywords.length}
                   </span>
                 </div>
 
-                <div className="grid gap-3 md:grid-cols-2">
+                <div className="grid gap-4 md:grid-cols-2">
                   <div>
-                    <div className="mb-1 text-[11px] font-medium text-slate-400">Đã khớp</div>
-                    <div className="flex flex-wrap gap-1">
+                    <div className="mb-1.5 text-[9px] font-bold uppercase tracking-[0.12em] text-zinc-500">Đã khớp</div>
+                    <div className="flex flex-wrap gap-1.5">
                       {requirementComparison.matched.length > 0
-                        ? requirementComparison.matched.slice(0, 6).map(k => <span key={k} className="pill pill--match">{k}</span>)
+                        ? requirementComparison.matched.slice(0, 6).map(k => <span key={k} className="px-2 py-0.5 rounded-none bg-emerald-950/40 text-emerald-300 text-[10px] border border-emerald-500/20 font-medium">{k}</span>)
                         : requirementComparison.semanticMatched.length === 0
-                          ? <span className="text-[11px] text-slate-500">(Không)</span>
+                          ? <span className="text-[11px] text-zinc-500 italic">(Không)</span>
                           : null}
                       {requirementComparison.semanticMatched.slice(0, 4).map((item) => (
-                        <span key={item.keyword} className="rounded-full border border-cyan-400/35 bg-cyan-400/10 px-2 py-0.5 text-[10px] font-semibold text-cyan-200">
+                        <span key={item.keyword} className="rounded-none border border-cyan-400/20 bg-cyan-950/40 px-2 py-0.5 text-[10px] font-semibold text-cyan-300">
                           {item.keyword} · {Math.round(item.score * 100)}%
                         </span>
                       ))}
@@ -1260,24 +1288,24 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
                   </div>
 
                   <div>
-                    <div className="mb-1 text-[11px] font-medium text-slate-400">Còn thiếu</div>
-                    <div className="flex flex-wrap gap-1">
+                    <div className="mb-1.5 text-[9px] font-bold uppercase tracking-[0.12em] text-zinc-500">Còn thiếu</div>
+                    <div className="flex flex-wrap gap-1.5">
                       {requirementComparison.missing.length > 0
-                        ? requirementComparison.missing.slice(0, 5).map(k => <span key={k} className="pill pill--missing">{k}</span>)
-                        : <span className="text-[11px] text-slate-500">(Không)</span>}
+                        ? requirementComparison.missing.slice(0, 5).map(k => <span key={k} className="px-2 py-0.5 rounded-none bg-rose-950/40 text-rose-300 text-[10px] border border-rose-500/20 font-medium">{k}</span>)
+                        : <span className="text-[11px] text-zinc-500 italic">(Không)</span>}
                     </div>
                   </div>
                 </div>
 
                 {requirementComparison.semanticMatched.length > 0 && (
-                  <div className="rounded-lg border border-cyan-500/20 bg-cyan-500/[0.06] p-3">
-                    <div className="mb-2 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-cyan-300">
+                  <div className="rounded-none border border-cyan-500/20 bg-cyan-950/20 p-3">
+                    <div className="mb-2 flex items-center gap-2 text-[9px] font-bold uppercase tracking-[0.14em] text-cyan-400">
                       <Target className="h-3 w-3" />
                       Semantic fallback
                     </div>
                     <div className="space-y-1.5">
                       {requirementComparison.semanticMatched.slice(0, 2).map((item) => (
-                        <p key={`${item.keyword}-reason`} className="text-[11px] leading-5 text-slate-300">
+                        <p key={`${item.keyword}-reason`} className="text-[11px] leading-5 text-zinc-300">
                           <span className="font-semibold text-cyan-200">{item.keyword}:</span> {item.reason}
                         </p>
                       ))}
@@ -1287,61 +1315,61 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
               </div>
             )}
 
-            <div className="rounded-xl border border-white/[0.08] bg-white/[0.025] p-5">
-              <h5 className="mb-4 text-base font-bold text-slate-100">Giải thích & Công thức</h5>
+            <div className="rounded-none border border-zinc-800 bg-zinc-950 p-4">
+              <h5 className="mb-3 text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-200">Giải thích & Công thức</h5>
 
-              <div className="mb-4 space-y-3">
-                <div className="rounded-xl border border-cyan-500/20 bg-cyan-500/[0.055] p-4">
-                  <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-cyan-400/70">Phương trình điểm</p>
-                  <p className="font-mono text-sm leading-relaxed text-slate-200">
+              <div className="mb-3 space-y-3">
+                <div className="rounded-none border border-cyan-500/20 bg-cyan-950/20 p-3">
+                  <p className="mb-1 text-[9px] font-bold uppercase tracking-[0.15em] text-cyan-400/80">Phương trình điểm</p>
+                  <p className="font-mono text-xs leading-relaxed text-zinc-200">
                     {advancedBreakdown?.mathematical_formula || detailFormula || 'Chưa có phương trình chi tiết từ AI.'}
                   </p>
                 </div>
 
-                <div className="grid gap-3 md:grid-cols-3">
-                  <div className="rounded-lg border border-white/[0.08] bg-slate-950/50 p-3">
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">Điểm tối đa</p>
-                    <p className="mt-1 font-mono text-lg font-bold text-violet-300">
+                <div className="grid gap-2.5 md:grid-cols-3">
+                  <div className="rounded-none border border-zinc-800 bg-zinc-950 p-2.5">
+                    <p className="text-[9px] font-semibold uppercase tracking-[0.12em] text-zinc-500">Điểm tối đa</p>
+                    <p className="mt-1 font-mono text-sm font-bold text-violet-300">
                       {advancedBreakdown?.max_possible_score ?? parsedData.maxScore ?? 0}
                     </p>
                   </div>
-                  <div className="rounded-lg border border-white/[0.08] bg-slate-950/50 p-3">
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">Điểm đạt</p>
-                    <p className="mt-1 font-mono text-lg font-bold text-cyan-300">
+                  <div className="rounded-none border border-zinc-800 bg-zinc-950 p-2.5">
+                    <p className="text-[9px] font-semibold uppercase tracking-[0.12em] text-zinc-500">Điểm đạt</p>
+                    <p className="mt-1 font-mono text-sm font-bold text-cyan-300">
                       {advancedBreakdown?.raw_score_earned ?? parsedData.score ?? 0}
                     </p>
                   </div>
-                  <div className="rounded-lg border border-white/[0.08] bg-slate-950/50 p-3">
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">Keyword match</p>
-                    <p className="mt-1 font-mono text-lg font-bold text-emerald-300">
+                  <div className="rounded-none border border-zinc-800 bg-zinc-950 p-2.5">
+                    <p className="text-[9px] font-semibold uppercase tracking-[0.12em] text-zinc-500">Keyword match</p>
+                    <p className="mt-1 font-mono text-sm font-bold text-emerald-300">
                       {keywordMetrics ? `${keywordMetrics.match_percentage.toFixed(1)}%` : '0%'}
                     </p>
                   </div>
                 </div>
 
                 {detailExplanation && detailExplanation !== '...' && (
-                  <div className="rounded-lg border border-white/[0.08] bg-white/[0.025] p-3">
-                    <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-cyan-400/70">Nhận xét AI</p>
-                    <p className="text-xs leading-relaxed text-slate-300 italic">"{detailExplanation}"</p>
+                  <div className="rounded-none border border-zinc-800 bg-zinc-950/50 p-2.5">
+                    <p className="mb-1 text-[9px] font-bold uppercase tracking-[0.15em] text-cyan-400/80">Nhận xét AI</p>
+                    <p className="text-xs leading-relaxed text-zinc-300 italic">"{detailExplanation}"</p>
                   </div>
                 )}
               </div>
 
-              <div className="space-y-2">
-                <div className="text-xs font-medium text-slate-500">Công thức tính điểm</div>
+              <div className="space-y-3">
+                <div className="text-[9px] font-bold uppercase tracking-[0.15em] text-zinc-500">Công thức tính điểm</div>
 
                 {parsedData.hasScore ? (
                   <>
-                    <div className="rounded-lg border border-slate-700/60 bg-slate-950/50 p-2.5">
+                    <div className="rounded-none border border-zinc-800 bg-zinc-950/50 p-2.5">
                       <div className="flex items-center justify-between text-xs">
-                        <span className="text-slate-500">Đánh giá thực tế</span>
+                        <span className="text-[9px] font-bold uppercase tracking-[0.15em] text-zinc-500">Đánh giá thực tế</span>
                         <span className="font-mono font-semibold text-cyan-400">{parsedData.scoreLabel}</span>
                       </div>
                     </div>
 
-                    <div className="rounded-lg border border-slate-700/60 bg-slate-950/50 p-2.5">
-                      <div className="mb-1 text-xs text-slate-500">Công thức subscore</div>
-                      <div className="font-mono text-xs">
+                    <div className="rounded-none border border-zinc-800 bg-zinc-950/50 p-2.5">
+                      <div className="mb-1 text-[9px] font-bold uppercase tracking-[0.15em] text-zinc-500">Công thức subscore</div>
+                      <div className="font-mono text-[11px]">
                         {parsedData.maxScore !== null ? (
                           <span>
                             <span className="text-sky-400">{formatScoreValue(parsedData.score || 0)}</span>
@@ -1364,25 +1392,25 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
                       </div>
                     </div>
 
-                    <div className="rounded-lg border border-slate-700/60 bg-slate-950/50 p-2.5">
-                      <div className="mb-1 text-xs text-slate-500">Đóng góp vào điểm tổng</div>
+                    <div className="rounded-none border border-zinc-800 bg-zinc-950/50 p-2.5">
+                      <div className="mb-1 text-[9px] font-bold uppercase tracking-[0.15em] text-zinc-500">Đóng góp vào điểm tổng</div>
                       <div className="space-y-1.5">
                         <div className="flex items-center gap-2">
-                          <div className="flex-1 h-1.5 rounded-full bg-slate-800 overflow-hidden">
+                          <div className="flex-1 h-1.5 rounded-none bg-zinc-900 overflow-hidden">
                             <div
-                              className={`h-full rounded-full transition-all duration-500 ${parsedData.achievedPct >= 80 ? 'bg-emerald-500' : parsedData.achievedPct >= 60 ? 'bg-amber-400' : 'bg-red-500'}`}
+                              className={`h-full rounded-none transition-all duration-500 ${parsedData.achievedPct >= 80 ? 'bg-emerald-500' : parsedData.achievedPct >= 60 ? 'bg-amber-400' : 'bg-red-500'}`}
                               style={{ width: `${Math.min(100, parsedData.achievedPct)}%` }}
                             />
                           </div>
-                          <span className={`text-[11px] font-bold tabular-nums ${parsedData.achievedPct >= 80 ? 'text-emerald-400' : parsedData.achievedPct >= 60 ? 'text-amber-400' : 'text-red-400'}`}>{parsedData.achievedPct}%</span>
+                          <span className={`text-[10px] font-bold font-mono ${parsedData.achievedPct >= 80 ? 'text-emerald-400' : parsedData.achievedPct >= 60 ? 'text-amber-400' : 'text-red-400'}`}>{parsedData.achievedPct}%</span>
                         </div>
-                        <div className="text-xs text-slate-300">
+                        <div className="text-[11px] text-zinc-400 leading-normal">
                           Tiêu chí này đóng góp{' '}
                           <span className="font-bold text-amber-400 font-mono">{parsedData.score !== null ? formatScoreValue(parsedData.score) : '0'}</span>
                           {parsedData.maxScore !== null && (
                             <>
                               {' / '}
-                              <span className="text-slate-400 font-mono">{formatScoreValue(parsedData.maxScore)}</span> điểm
+                              <span className="text-zinc-500 font-mono">{formatScoreValue(parsedData.maxScore)}</span> điểm
                             </>
                           )}
                           {parsedData.maxScore === null && ' điểm'}
@@ -1391,7 +1419,7 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
                     </div>
                   </>
                 ) : (
-                  <div className="rounded-lg border border-slate-700/60 bg-slate-950/50 p-3 text-xs text-slate-400">
+                  <div className="rounded-none border border-zinc-800 bg-zinc-950/50 p-3 text-xs text-zinc-500">
                     Chưa có dữ liệu điểm chi tiết cho tiêu chí này trong kết quả AI hiện tại.
                   </div>
                 )}
@@ -1399,10 +1427,10 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
 
               {advancedBreakdown && (
                 <div className="mt-4 space-y-3">
-                  <div className="rounded-xl border border-rose-500/20 bg-rose-500/[0.04] p-3">
+                  <div className="rounded-none border border-rose-500/20 bg-rose-500/[0.04] p-3">
                     <div className="mb-2 flex items-center justify-between gap-2">
                       <p className="text-[10px] font-bold uppercase tracking-widest text-rose-300/80">Lý do trừ điểm</p>
-                      <span className="rounded-full border border-rose-400/25 bg-black/20 px-2 py-0.5 text-[10px] font-semibold text-rose-200">
+                      <span className="rounded-none border border-rose-400/25 bg-black/20 px-2 py-0.5 text-[10px] font-semibold text-rose-200 font-mono">
                         {advancedBreakdown.deductions.reduce((sum, item) => sum + Number(item.points_lost || 0), 0)}đ
                       </span>
                     </div>
@@ -1416,12 +1444,12 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
                         ))}
                       </ul>
                     ) : (
-                      <p className="text-xs text-slate-500">Không có điểm trừ rõ ràng ở tiêu chí này.</p>
+                      <p className="text-xs text-zinc-500 italic">Không có điểm trừ rõ ràng ở tiêu chí này.</p>
                     )}
                   </div>
 
                   {advancedBreakdown.bonuses_earned.length > 0 && (
-                    <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/[0.04] p-3">
+                    <div className="rounded-none border border-emerald-500/20 bg-emerald-500/[0.04] p-3">
                       <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-emerald-300/80">Điểm cộng</p>
                       <ul className="space-y-1.5">
                         {advancedBreakdown.bonuses_earned.slice(0, 4).map((bonus, index) => (
@@ -1435,27 +1463,27 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
                   )}
 
                   {keywordMetrics && keywordMetrics.total_required_keywords > 0 && (
-                    <div className="rounded-xl border border-cyan-500/20 bg-cyan-500/[0.04] p-3">
+                    <div className="rounded-none border border-cyan-500/20 bg-cyan-500/[0.04] p-3">
                       <div className="mb-2 flex items-center justify-between gap-2">
                         <p className="text-[10px] font-bold uppercase tracking-widest text-cyan-300/80">Keywords Matching</p>
                         <span className="font-mono text-xs font-bold text-cyan-200">
                           {keywordMetrics.matched_keywords_count}/{keywordMetrics.total_required_keywords}
                         </span>
                       </div>
-                      <div className="mb-3 h-2 overflow-hidden rounded-full bg-slate-800">
+                      <div className="mb-3 h-1.5 overflow-hidden rounded-none bg-zinc-900 border border-zinc-800/40">
                         <div
-                          className={`h-full rounded-full ${keywordMetrics.match_percentage >= 75 ? 'bg-emerald-500' : keywordMetrics.match_percentage >= 50 ? 'bg-amber-400' : 'bg-rose-500'}`}
+                          className={`h-full rounded-none ${keywordMetrics.match_percentage >= 75 ? 'bg-emerald-500' : keywordMetrics.match_percentage >= 50 ? 'bg-amber-400' : 'bg-rose-500'}`}
                           style={{ width: `${Math.min(100, Math.max(0, keywordMetrics.match_percentage))}%` }}
                         />
                       </div>
                       <div className="flex flex-wrap gap-1.5">
                         {matchedKeywordRows.slice(0, 8).map((item) => (
-                          <span key={`matched-${item.keyword}`} className="rounded-full border border-emerald-400/35 bg-emerald-400/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-200 underline decoration-emerald-300/60 underline-offset-4">
+                          <span key={`matched-${item.keyword}`} className="rounded-none border border-emerald-400/35 bg-emerald-400/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-200 underline decoration-emerald-300/60 underline-offset-4">
                             {item.keyword}
                           </span>
                         ))}
                         {missingKeywordRows.slice(0, 8).map((item) => (
-                          <span key={`missing-${item.keyword}`} className="rounded-full border border-amber-400/35 bg-amber-400/10 px-2 py-0.5 text-[10px] font-semibold text-amber-200">
+                          <span key={`missing-${item.keyword}`} className="rounded-none border border-amber-400/35 bg-amber-400/10 px-2 py-0.5 text-[10px] font-semibold text-amber-200">
                             {item.keyword}
                           </span>
                         ))}
@@ -1463,7 +1491,7 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
                       {matchedKeywordRows.some((item) => item.context_sentence) && (
                         <div className="mt-3 space-y-1.5">
                           {matchedKeywordRows.filter((item) => item.context_sentence).slice(0, 2).map((item) => (
-                            <p key={`ctx-${item.keyword}`} className="rounded-lg border border-white/[0.06] bg-black/20 p-2 text-[11px] leading-5 text-slate-300">
+                            <p key={`ctx-${item.keyword}`} className="rounded-none border border-zinc-800 bg-zinc-950 p-2.5 text-[11px] leading-5 text-zinc-300">
                               <span className="font-semibold text-emerald-200">{item.keyword}:</span> {item.context_sentence}
                             </p>
                           ))}
@@ -1490,6 +1518,7 @@ interface ExpandedContentProps {
 }
 
 const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCriteria, onToggleCriterion, jdText, weights }) => {
+  const tc = useThemeColors();
   const analysisRecord = candidate.analysis as Record<string, unknown> | undefined;
   const coreCriteriaConfig = useMemo(() => buildConfiguredCoreCriteria(weights), [weights]);
   const configuredCoreCriteria = coreCriteriaConfig.criteria;
@@ -1645,95 +1674,104 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
     <div className="space-y-4 p-2 md:p-4">
 
       {/* ── Tổng hợp đánh giá ─────────────────────────────── */}
-      <div className="rounded-xl border border-white/[0.08] bg-[#05070b] p-5 shadow-sm">
-        <div className="flex flex-col items-start justify-between gap-4 md:flex-row">
-          <h4 className="flex items-center gap-2 text-lg font-semibold text-slate-100">
-            <i className="fa-solid fa-chart-pie text-cyan-400" />
+      <div className="rounded-none border border-zinc-800/80 bg-zinc-950/60 p-6 backdrop-blur-md relative overflow-hidden shadow-2xl">
+        <div className="w-1 absolute left-0 top-0 bottom-0 bg-cyan-500" />
+        <div className="flex flex-col items-start justify-between gap-4 md:flex-row pl-2">
+          <h4 className="flex items-center gap-2 text-sm font-bold uppercase tracking-[0.14em] text-zinc-200">
+            <i className="fa-solid fa-chart-pie text-cyan-400 text-base" />
             Tổng hợp đánh giá
           </h4>
-          <div className="grid w-full grid-cols-2 gap-2 md:w-auto md:grid-cols-3">
-            <div className="rounded-lg border border-white/[0.08] bg-white/[0.025] px-3 py-2 text-xs">
-              <div className="text-slate-500">Tổng điểm</div>
-              <div className="font-semibold text-slate-100">{totalScore.toFixed(1)}<span className="text-slate-500">/100</span></div>
+          <div className="grid w-full grid-cols-2 gap-3 md:w-auto md:grid-cols-3">
+            <div className="rounded-none border border-zinc-800 bg-zinc-950 p-4 hover:border-zinc-700 transition-colors flex flex-col justify-between">
+              <div className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">Tổng điểm</div>
+              <div className="mt-2 text-xl font-bold font-mono text-white">{totalScore.toFixed(1)}<span className="text-xs text-zinc-500">/100</span></div>
             </div>
-            <div className="rounded-lg border border-cyan-500/20 bg-cyan-500/[0.045] px-3 py-2 text-xs">
-              <div className="text-cyan-500/70">Cốt lõi</div>
-              <div className="font-semibold text-cyan-300">{basicScore.toFixed(1)}<span className="text-slate-500">/{configuredCoreTotalMax}</span></div>
+            <div className="rounded-none border border-cyan-500/30 bg-cyan-950/20 p-4 hover:border-cyan-400/40 transition-colors flex flex-col justify-between">
+              <div className="text-[10px] font-bold uppercase tracking-[0.15em] text-cyan-400/80">Cốt lõi</div>
+              <div className="mt-2 text-xl font-bold font-mono text-cyan-300">{basicScore.toFixed(1)}<span className="text-xs text-zinc-500/60">/{configuredCoreTotalMax}</span></div>
             </div>
-            <div className="rounded-lg border border-white/[0.08] bg-white/[0.025] px-3 py-2 text-xs">
-              <div className="text-slate-500">Phù hợp JD</div>
-              <div className="font-semibold text-emerald-400">{matchPercent}%</div>
+            <div className="rounded-none border border-emerald-500/30 bg-emerald-950/20 p-4 hover:border-emerald-400/40 transition-colors flex flex-col justify-between">
+              <div className="text-[10px] font-bold uppercase tracking-[0.15em] text-emerald-400/80">Phù hợp JD</div>
+              <div className="mt-2 text-xl font-bold font-mono text-emerald-300">{matchPercent}%</div>
             </div>
           </div>
         </div>
 
-        <div className="mt-4 space-y-1.5">
-          <div className="flex items-center gap-2 text-[11px] text-slate-500">
-            <span className="w-20 text-cyan-500/80">Cốt lõi</span>
-            <div className="flex-1 h-2 rounded-full bg-white/[0.08] overflow-hidden">
-              <div className="h-full rounded-full bg-cyan-500 transition-all duration-700"
+        <div className="mt-5 space-y-2 pl-2">
+          <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.12em] text-zinc-400">
+            <span className="w-20 text-cyan-400">Cốt lõi</span>
+            <div className="flex-1 h-1.5 rounded-none bg-zinc-900 overflow-hidden border border-zinc-800/40">
+              <div className="h-full rounded-none bg-gradient-to-r from-cyan-500 to-blue-500 transition-all duration-700"
                 style={{ width: `${Math.min(100, basicCompletionPercent)}%` }} />
             </div>
-            <span className="w-10 text-right font-mono text-cyan-400">{basicCompletionPercent}%</span>
+            <span className="w-12 text-right font-mono text-xs font-bold text-cyan-300">{basicCompletionPercent}%</span>
           </div>
-          <div className="flex items-center gap-2 text-[11px] text-slate-500">
-            <span className="w-20 text-emerald-400/80">JD ↔ CV</span>
-            <div className="flex-1 h-2 rounded-full bg-white/[0.08] overflow-hidden">
+          <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.12em] text-zinc-400">
+            <span className="w-20 text-emerald-400">JD ↔ CV</span>
+            <div className="flex-1 h-1.5 rounded-none bg-zinc-900 overflow-hidden border border-zinc-800/40">
               <div
-                className="h-full rounded-full bg-emerald-500 transition-all duration-700"
+                className="h-full rounded-none bg-gradient-to-r from-emerald-500 to-teal-500 transition-all duration-700"
                 style={{ width: `${matchPercent}%` }}
               />
             </div>
-            <span className="w-10 text-right font-mono text-emerald-400">{matchPercent}%</span>
+            <span className="w-12 text-right font-mono text-xs font-bold text-emerald-300">{matchPercent}%</span>
           </div>
         </div>
 
-        <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-3">
-          <div className={`rounded-lg border px-4 py-3 text-sm ${locationTone}`}>
-            <div className="mb-1 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] opacity-75">
-              <MapPin className="h-3.5 w-3.5" />
-              Địa điểm CV
-            </div>
-            <div className="font-semibold text-slate-100">{detectedLocation}</div>
-            {locationMatch === false && (
-              <div className="mt-2 rounded-md border border-rose-400/25 bg-black/20 px-2 py-1 text-[11px] font-medium text-rose-200">
+        <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-3 pl-2">
+          {locationMatch === false ? (
+            <div className="rounded-none border border-red-500/20 bg-red-950/10 px-4 py-3.5 text-xs relative hover:border-red-500/30 transition-colors">
+              <div className="mb-1 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.15em] text-red-400">
+                <MapPin className="h-3.5 w-3.5" />
+                Địa điểm CV
+              </div>
+              <div className="font-bold text-red-200">{detectedLocation}</div>
+              <div className="mt-2 rounded-none border border-red-500/20 bg-red-950/30 px-2.5 py-1.5 text-[10px] font-medium leading-relaxed text-red-300">
                 {locationWarning || 'Cảnh báo: địa điểm trong CV khác địa điểm làm việc yêu cầu.'}
               </div>
-            )}
-          </div>
+            </div>
+          ) : (
+            <div className="rounded-none border border-zinc-800 bg-zinc-950 px-4 py-3.5 text-xs hover:border-zinc-700 transition-colors">
+              <div className="mb-1 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
+                <MapPin className="h-3.5 w-3.5" />
+                Địa điểm CV
+              </div>
+              <div className="font-bold text-slate-100">{detectedLocation}</div>
+            </div>
+          )}
           {candidate.jobTitle && (
-            <div className="rounded-lg border border-white/[0.08] bg-white/[0.025] px-4 py-3 text-sm">
-              <div className="mb-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">Vị trí ứng viên</div>
-              <div className="font-semibold text-slate-100">{candidate.jobTitle}</div>
+            <div className="rounded-none border border-zinc-800 bg-zinc-950 px-4 py-3.5 text-xs hover:border-zinc-700 transition-colors">
+              <div className="mb-1 text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">Vị trí ứng viên</div>
+              <div className="font-bold text-slate-100">{candidate.jobTitle}</div>
             </div>
           )}
           {candidate.experienceLevel && (
-            <div className="rounded-lg border border-white/[0.08] bg-white/[0.025] px-4 py-3 text-sm">
-              <div className="mb-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">Cấp bậc</div>
-              <div className="font-semibold text-slate-100">{candidate.experienceLevel}</div>
+            <div className="rounded-none border border-zinc-800 bg-zinc-950 px-4 py-3.5 text-xs hover:border-zinc-700 transition-colors">
+              <div className="mb-1 text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">Cấp bậc</div>
+              <div className="font-bold text-slate-100">{candidate.experienceLevel}</div>
             </div>
           )}
         </div>
 
         {candidate.jdCvMatchInsights && (
-          <div className="mt-3 rounded-lg border border-emerald-500/20 bg-emerald-500/[0.045] px-4 py-3 text-sm">
-            <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+          <div className="mt-4 rounded-none border border-emerald-500/25 bg-emerald-950/10 px-5 py-4 text-xs pl-2">
+            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
               <div>
-                <div className="font-semibold text-emerald-300">Semantic match JD/CV bằng vector embedding</div>
-                <div className="text-xs text-emerald-100/70">
+                <div className="font-bold uppercase tracking-[0.1em] text-emerald-400">Semantic match JD/CV bằng vector embedding</div>
+                <div className="text-[11px] text-emerald-300/80 mt-1">
                   {semanticMatchPercent?.toFixed(1)}% tương đồng ngữ nghĩa
                   {candidate.jdCvMatchInsights.queryModel ? ` • ${candidate.jdCvMatchInsights.queryModel}` : ''}
                 </div>
               </div>
-              <div className="rounded-md border border-emerald-400/25 bg-black/20 px-3 py-1.5 text-xs font-semibold text-emerald-300">
+              <div className="rounded-none border border-emerald-500/30 bg-emerald-950/30 px-3.5 py-2 font-mono font-bold text-emerald-300 text-xs">
                 {jdFitScore.toFixed(1)}/{jdFitMaxScore} điểm Job Fit
               </div>
             </div>
             {(candidate.jdCvMatchInsights.matchedSkills.length > 0 || candidate.jdCvMatchInsights.transferMatches.length > 0) && (
-              <div className="mt-2 text-xs leading-6 text-emerald-100/70">
+              <div className="mt-3 text-[11px] leading-5 text-emerald-300/70 border-t border-emerald-500/10 pt-2 flex flex-wrap gap-x-4 gap-y-1">
                 {candidate.jdCvMatchInsights.matchedSkills.length > 0 && (
                   <span>Kỹ năng khớp: {candidate.jdCvMatchInsights.matchedSkills.slice(0, 5).join(', ')}.</span>
-                )}{' '}
+                )}
                 {candidate.jdCvMatchInsights.transferMatches.length > 0 && (
                   <span>Khớp chuyển đổi: {candidate.jdCvMatchInsights.transferMatches.slice(0, 2).join(' | ')}.</span>
                 )}
@@ -1742,30 +1780,45 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
           </div>
         )}
 
-        <div className="mt-3 rounded-lg border border-white/[0.08] bg-white/[0.025] px-4 py-3 text-sm">
-          <span className="font-semibold text-slate-200">Nhận định:</span>{' '}
-          <span className="text-slate-400">{recommendation}</span>
+        <div className="mt-4 rounded-none border border-zinc-800 bg-zinc-950/80 px-5 py-4 text-xs relative overflow-hidden pl-2">
+          <div className="w-1 absolute left-0 top-0 bottom-0 bg-gradient-to-b from-indigo-500 to-cyan-500" />
+          <div className="pl-2">
+            <span className="font-bold text-zinc-400 uppercase tracking-[0.14em] text-[10px] mr-2">Nhận định AI:</span>
+            <span className="text-zinc-200 italic leading-relaxed">"{recommendation}"</span>
+          </div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {candidate.analysis?.['Điểm mạnh CV'] && (
-          <div className="p-4 bg-[#05070b] border border-emerald-500/20 rounded-xl">
-            <p className="font-semibold text-green-300 mb-2 flex items-center gap-2 text-base">
+          <div className="p-5 bg-zinc-950/50 border border-emerald-500/20 rounded-none relative overflow-hidden">
+            <div className="w-1 absolute left-0 top-0 bottom-0 bg-emerald-500" />
+            <p className="font-bold text-emerald-400 mb-3 flex items-center gap-2 text-xs uppercase tracking-[0.14em]">
               <i className="fa-solid fa-wand-magic-sparkles"></i>Điểm mạnh CV
             </p>
-            <ul className="list-disc list-inside text-sm text-green-300/90 space-y-1.5 pl-2 leading-relaxed">
-              {candidate.analysis['Điểm mạnh CV'].map((s, idx) => <li key={idx}>{s}</li>)}
+            <ul className="text-xs text-emerald-300/90 space-y-2 pl-2 leading-relaxed">
+              {candidate.analysis['Điểm mạnh CV'].map((s, idx) => (
+                <li key={idx} className="flex items-start gap-2">
+                  <span className="text-emerald-500 mt-0.5 select-none">✓</span>
+                  <span>{s}</span>
+                </li>
+              ))}
             </ul>
           </div>
         )}
         {candidate.analysis?.['Điểm yếu CV'] && (
-          <div className="p-4 bg-[#05070b] border border-rose-500/20 rounded-xl">
-            <p className="font-semibold text-red-300 mb-2 flex items-center gap-2 text-base">
+          <div className="p-5 bg-zinc-950/50 border border-rose-500/20 rounded-none relative overflow-hidden">
+            <div className="w-1 absolute left-0 top-0 bottom-0 bg-rose-500" />
+            <p className="font-bold text-rose-400 mb-3 flex items-center gap-2 text-xs uppercase tracking-[0.14em]">
               <i className="fa-solid fa-flag"></i>Điểm yếu CV
             </p>
-            <ul className="list-disc list-inside text-sm text-red-300/90 space-y-1.5 pl-2 leading-relaxed">
-              {candidate.analysis['Điểm yếu CV'].map((s, idx) => <li key={idx}>{s}</li>)}
+            <ul className="text-xs text-rose-300/90 space-y-2 pl-2 leading-relaxed">
+              {candidate.analysis['Điểm yếu CV'].map((s, idx) => (
+                <li key={idx} className="flex items-start gap-2">
+                  <span className="text-rose-500 mt-0.5 select-none">⚠</span>
+                  <span>{s}</span>
+                </li>
+              ))}
             </ul>
           </div>
         )}
@@ -1773,15 +1826,16 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
 
       {/* ── Cảnh báo AI Debiasing ────────────────────────────── */}
       {candidate.debiasingWarnings && candidate.debiasingWarnings.length > 0 && (
-        <div className="rounded-xl border border-amber-500/25 bg-[#05070b] p-4 shadow-sm">
-          <h4 className="mb-3 flex items-center gap-2 text-base font-bold text-amber-300">
+        <div className="rounded-none border border-amber-500/20 bg-zinc-950/50 p-5 relative overflow-hidden">
+          <div className="w-1 absolute left-0 top-0 bottom-0 bg-amber-500" />
+          <h4 className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.14em] text-amber-400">
             <i className="fa-solid fa-scale-balanced"></i> Cảnh báo Đạo đức AI
           </h4>
-          <ul className="space-y-2">
+          <ul className="space-y-2.5">
             {candidate.debiasingWarnings.map((w, idx) => (
-              <li key={idx} className="flex items-start gap-2 rounded-lg border border-amber-500/20 bg-white/[0.025] p-2.5">
+              <li key={idx} className="flex items-start gap-2.5 rounded-none border border-amber-500/10 bg-amber-950/10 p-3">
                 <i className="fa-solid fa-triangle-exclamation text-amber-400 mt-0.5 shrink-0"></i>
-                <span className="text-sm text-amber-200/80 leading-relaxed">{w}</span>
+                <span className="text-xs text-amber-200/80 leading-relaxed">{w}</span>
               </li>
             ))}
           </ul>
@@ -1790,45 +1844,42 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
 
       {/* ── Education Validation ─────────────────────────────── */}
       {educationValidation && (
-        <div className="rounded-xl border border-white/[0.08] bg-[#05070b] p-4 shadow-sm">
-          <h4 className="mb-3 flex items-center gap-2 text-base font-bold text-slate-100">
+        <div className="rounded-none border border-zinc-800 bg-zinc-950/50 p-5 relative overflow-hidden">
+          <div className="w-1 absolute left-0 top-0 bottom-0 bg-indigo-500" />
+          <h4 className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.14em] text-indigo-400">
             <i className="fa-solid fa-graduation-cap text-indigo-400"></i> Xác thực học vấn
           </h4>
-          <div className="rounded-lg border border-white/[0.08] bg-white/[0.025] p-3">
-            <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+          <div className="rounded-none border border-zinc-800 bg-zinc-950 p-4">
+            <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
               <div className="min-w-0 space-y-3">
                 <div>
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-indigo-300/80">Cơ sở đào tạo</p>
-                  <p className="mt-1 text-sm font-semibold text-slate-100">
-                    {educationSummary?.institution || 'Chưa tìm thấy tên cơ sở đào tạo trong CV'}
-                  </p>
+                  <span className="block text-[9px] font-bold uppercase tracking-[0.15em] text-zinc-500">Học vấn phát hiện từ CV</span>
+                  <span className="mt-1 block text-xs font-bold text-slate-200">
+                    {educationSummary
+                      ? [
+                          educationSummary.degree,
+                          educationSummary.major,
+                          educationSummary.institution,
+                        ]
+                          .filter(Boolean)
+                          .join(' — ')
+                      : 'Chưa có thông tin'}
+                  </span>
+                  {educationSummary?.rawLine && (
+                    <span className="mt-1 block text-[11px] italic text-zinc-500 leading-normal">
+                      Trích dẫn CV: "{educationSummary.rawLine}"
+                    </span>
+                  )}
                 </div>
-
-                {(educationSummary?.major || educationSummary?.degree || shouldShowStandardizedEducation) && (
-                  <div className="grid gap-2 text-xs text-slate-400 md:grid-cols-3">
-                    {educationSummary?.major && (
-                      <div className="rounded-md border border-white/[0.06] bg-black/20 px-2.5 py-2">
-                        <span className="block text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">Ngành học</span>
-                        <span className="mt-1 block text-slate-200">{educationSummary.major}</span>
-                      </div>
-                    )}
-                    {educationSummary?.degree && (
-                      <div className="rounded-md border border-white/[0.06] bg-black/20 px-2.5 py-2">
-                        <span className="block text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">Bằng cấp</span>
-                        <span className="mt-1 block text-slate-200">{educationSummary.degree}</span>
-                      </div>
-                    )}
-                    {shouldShowStandardizedEducation && (
-                      <div className="rounded-md border border-white/[0.06] bg-black/20 px-2.5 py-2">
-                        <span className="block text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">Chuẩn hóa</span>
-                        <span className="mt-1 block text-slate-200">{standardizedEducation}</span>
-                      </div>
-                    )}
+                {shouldShowStandardizedEducation && (
+                  <div className="rounded-none border border-zinc-800/80 bg-zinc-950/80 px-3 py-2">
+                    <span className="block text-[9px] font-bold uppercase tracking-[0.15em] text-zinc-500">Thông tin Chuẩn hóa</span>
+                    <span className="mt-1 block text-xs text-slate-200">{standardizedEducation}</span>
                   </div>
                 )}
               </div>
 
-              <span className={`shrink-0 rounded border px-2 py-1 text-xs font-semibold ${educationIsValid ? 'border-emerald-500/35 bg-emerald-500/10 text-emerald-300' : 'border-red-500/35 bg-red-500/10 text-red-300'}`}>
+              <span className={`shrink-0 rounded-none border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] ${educationIsValid ? 'border-emerald-500/35 bg-emerald-500/10 text-emerald-300' : 'border-red-500/35 bg-red-500/10 text-red-300'}`}>
                 {educationValidationNote}
               </span>
             </div>
@@ -1837,26 +1888,26 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
       )}
 
       {/* ── Tab chuyển đổi Cơ bản / Nâng cao ───────────────── */}
-      <div className="rounded-xl border border-white/[0.08] bg-[#030405] overflow-hidden">
-        <div className="border-b border-white/[0.08] px-4 py-4">
-          <div className="flex flex-wrap items-center gap-2.5 text-sm font-semibold text-cyan-300">
+      <div className="rounded-none border border-zinc-800 bg-[#09090b] overflow-hidden">
+        <div className="border-b border-zinc-800 bg-zinc-950 px-5 py-4">
+          <div className="flex flex-wrap items-center gap-3 text-xs font-bold uppercase tracking-[0.15em] text-cyan-400">
             <i className="fa-solid fa-layer-group text-base"></i>
             <span>Tiêu chí cốt lõi</span>
-            <span className="rounded-full border border-cyan-500/30 bg-cyan-500/10 px-2 py-0.5 text-[10px] font-bold text-cyan-300">{configuredCoreTotalMax} điểm</span>
-            <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${basicScoreRatio >= 0.8 ? 'text-emerald-400' : basicScoreRatio >= 0.6 ? 'text-amber-400' : 'text-red-400'}`}>{basicScore.toFixed(1)}/{configuredCoreTotalMax}</span>
+            <span className="rounded-none border border-cyan-500/20 bg-cyan-950/40 px-2.5 py-0.5 text-[9px] font-bold text-cyan-300 uppercase tracking-wider">{configuredCoreTotalMax} điểm</span>
+            <span className={`rounded-none border px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wider ${basicScoreRatio >= 0.8 ? 'border-emerald-500/25 bg-emerald-500/10 text-emerald-400' : basicScoreRatio >= 0.6 ? 'border-amber-500/25 bg-amber-500/10 text-amber-400' : 'border-red-500/25 bg-red-500/10 text-red-400'}`}>{basicScore.toFixed(1)}/{configuredCoreTotalMax}</span>
           </div>
         </div>
 
-        <div className="p-4 space-y-4">
-          <div className="flex items-center gap-2 pb-2 border-b border-white/[0.06]">
+        <div className="p-5 space-y-4">
+          <div className="flex items-center gap-2 pb-2.5 border-b border-zinc-900">
             <i className="fa-solid fa-circle-info text-cyan-500/60 text-xs"></i>
-            <p className="text-[11px] text-slate-500">
+            <p className="text-[10px] uppercase tracking-[0.12em] text-zinc-500 leading-normal">
               {basicDetails.length} tiêu chí hiển thị • {configuredCoreCriteria.length} tiêu chí cốt lõi • Tổng phổ điểm <span className="text-cyan-400 font-bold">{configuredCoreTotalMax}</span> điểm • Đánh giá nền tảng ứng viên
             </p>
           </div>
 
           {missingCoreCriteria.length > 0 && (
-            <div className="rounded-lg border border-amber-500/20 bg-amber-500/[0.05] px-3 py-2 text-[11px] text-amber-200">
+            <div className="rounded-none border border-amber-500/20 bg-amber-950/20 px-3.5 py-2.5 text-[11px] text-amber-300 leading-relaxed">
               Backend hiện đang trả về thiếu {missingCoreCriteria.length}/{configuredCoreCriteria.length} tiêu chí cốt lõi.
               {' '}
               {missingCoreCriteria.slice(0, 4).join(', ')}
@@ -1878,17 +1929,17 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
               );
             })
           ) : (
-            <div className="flex flex-col items-center justify-center py-10 text-slate-500">
+            <div className="flex flex-col items-center justify-center py-10 text-zinc-600">
               <i className="fa-solid fa-layer-group text-3xl mb-3 opacity-30"></i>
-              <p className="text-sm">Chưa có dữ liệu tiêu chí cốt lõi</p>
+              <p className="text-xs uppercase tracking-[0.12em] font-semibold">Chưa có dữ liệu tiêu chí cốt lõi</p>
             </div>
           )}
 
           {supplementalDetails.length > 0 && (
-            <div className="pt-4 border-t border-white/[0.06] space-y-3">
+            <div className="pt-5 border-t border-zinc-900 space-y-3">
               <div className="flex items-center gap-2">
                 <i className="fa-solid fa-sparkles text-emerald-400/70 text-xs"></i>
-                <p className="text-[11px] text-slate-500">Cac phan tich bo sung do backend tra ve</p>
+                <p className="text-[10px] uppercase tracking-[0.12em] text-zinc-500">Các phân tích bổ sung do AI trả về</p>
               </div>
               {supplementalDetails.map((item, index) => {
                 const criterionName = canonicalizeCriterionName(getDetailCriterion(item)) || `supplemental-${index}`;

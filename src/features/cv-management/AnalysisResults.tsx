@@ -472,7 +472,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMes
                 ×
               </button>
             </div>
-            <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto p-3 sm:p-5" style={{ background: tc.scrollBg }}>
+            <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto p-3 sm:p-5" style={{ background: 'rgba(0, 0, 0, 0.15)' }}>
               <ExpandedContent
                 candidate={results.find(c => c.id === expandedCandidate)!}
                 expandedCriteria={expandedCriteria}
