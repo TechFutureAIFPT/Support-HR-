@@ -75,20 +75,20 @@ const StepButton = ({
     type="button"
     onClick={onClick}
     disabled={disabled}
-    className={`flex min-w-0 flex-1 items-center gap-2 rounded-none border px-2.5 py-2 text-left transition-all sm:gap-3 sm:px-3 sm:py-3 ${
+    className={`flex min-w-0 flex-1 items-center gap-2 rounded-none border px-2.5 py-2 text-left transition-all sm:gap-2.5 sm:px-3 ${
       active
         ? 'border-[#f5d6bb]/35 bg-[#f5d6bb]/10 text-white'
         : 'border-white/10 bg-white/[0.025] text-zinc-400 hover:border-white/20 hover:bg-white/[0.045] hover:text-zinc-100'
     } disabled:cursor-not-allowed disabled:opacity-45`}
   >
     <span
-      className={`supporthr-mono flex h-9 w-9 shrink-0 items-center justify-center border text-[10px] font-black ${
+      className={`supporthr-mono flex h-8 w-8 shrink-0 items-center justify-center border text-[10px] font-black sm:h-9 sm:w-9 ${
         active ? 'border-[#f5d6bb]/45 text-[#f5d6bb]' : 'border-white/10 text-zinc-500'
       }`}
     >
       {index}
     </span>
-    <span className="hidden h-9 w-9 shrink-0 items-center justify-center border border-white/10 bg-black/60 sm:flex">
+    <span className="hidden h-8 w-8 shrink-0 items-center justify-center border border-white/10 bg-black/60 sm:flex">
       {icon}
     </span>
     <span className="min-w-0">
@@ -449,8 +449,8 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
 
       {isProcessing && <ProcessingModal step={processingStep} />}
 
-      <div className="relative z-10 mx-auto flex h-full w-full max-w-[1120px] flex-col overflow-y-auto px-3 py-3 sm:px-6 sm:py-4 lg:px-8 lg:py-6">
-        <header className="shrink-0 border-b border-white/10 pb-3 sm:pb-4">
+      <div className="relative z-10 mx-auto flex h-full w-full max-w-[1120px] flex-col overflow-y-auto px-3 py-3 sm:px-6 sm:py-4 lg:overflow-hidden lg:px-8 lg:py-4">
+        <header className="shrink-0 border-b border-white/10 pb-3">
           <div className="flex flex-col gap-2.5 lg:flex-row lg:items-end lg:justify-between">
             <div className="min-w-0">
               <div className="supporthr-mono mb-1.5 flex items-center gap-2 text-[9px] font-black uppercase tracking-[0.22em] text-[#f5d6bb] sm:mb-2 sm:gap-3 sm:text-[10px] sm:tracking-[0.28em]">
@@ -458,7 +458,7 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
                 JD & CV Intake
               </div>
               <h1 className="text-[1.55rem] font-black leading-tight tracking-tight text-white sm:text-4xl">Nạp JD & CV</h1>
-              <p className="mt-1.5 hidden max-w-2xl text-sm leading-6 text-zinc-400 sm:block sm:text-[15px]">
+              <p className="mt-1.5 hidden max-w-2xl text-sm leading-6 text-zinc-400 sm:block lg:hidden sm:text-[15px]">
                 Hoàn tất JD trước để hệ thống chuẩn hóa tiêu chí, sau đó chuyển sang trang CV để nạp danh sách ứng viên.
               </p>
             </div>
@@ -486,8 +486,8 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
         </header>
 
         {stage === 'jd' ? (
-          <main className="flex min-h-0 flex-1 py-3 lg:py-5">
-            <section className={`${panelClass} flex min-h-0 w-full flex-col p-3 sm:p-6`}>
+          <main className="flex min-h-0 flex-1 py-3 lg:py-3">
+            <section className={`${panelClass} flex min-h-0 w-full flex-col p-3 sm:p-4 lg:p-5`}>
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <p className="supporthr-mono text-[9px] font-black uppercase tracking-[0.2em] text-[#f5d6bb]/80 sm:text-[10px] sm:tracking-[0.22em]">
@@ -520,22 +520,22 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
               <input ref={fileInputRef} type="file" className="hidden" accept={FILE_ACCEPT} onChange={handleFileChange} />
 
               <div
-                className="mt-3 flex min-h-[250px] flex-1 flex-col border border-dashed border-white/12 bg-white/[0.018] p-3 text-center transition-colors hover:border-[#f5d6bb]/40 hover:bg-[#f5d6bb]/[0.035] sm:mt-4 sm:min-h-[360px] sm:p-5"
+                className="mt-3 flex min-h-[250px] flex-1 flex-col border border-dashed border-white/12 bg-white/[0.018] p-3 text-center transition-colors hover:border-[#f5d6bb]/40 hover:bg-[#f5d6bb]/[0.035] sm:mt-4 sm:min-h-[300px] sm:p-5 lg:mt-3 lg:min-h-0 lg:p-4"
                 onDragOver={handleDragOver}
                 onDrop={handleDropJdFile}
               >
                 <div className="flex flex-1 flex-col items-center justify-center">
-                  <div className="flex h-14 w-14 items-center justify-center border border-[#f5d6bb]/28 bg-[#f5d6bb]/10 text-[#f5d6bb] sm:h-20 sm:w-20">
+                  <div className="flex h-14 w-14 items-center justify-center border border-[#f5d6bb]/28 bg-[#f5d6bb]/10 text-[#f5d6bb] sm:h-16 sm:w-16">
                     {isProcessing ? (
                       <div className="h-7 w-7 animate-spin rounded-full border-2 border-[#f5d6bb] border-t-transparent sm:h-8 sm:w-8" />
                     ) : jdReady ? (
-                      <CheckCircle2 className="h-7 w-7 sm:h-10 sm:w-10" />
+                      <CheckCircle2 className="h-7 w-7 sm:h-8 sm:w-8" />
                     ) : (
-                      <UploadCloud className="h-7 w-7 sm:h-10 sm:w-10" />
+                      <UploadCloud className="h-7 w-7 sm:h-8 sm:w-8" />
                     )}
                   </div>
 
-                  <h3 className="mt-3 text-lg font-black tracking-tight text-white sm:mt-4 sm:text-xl">
+                  <h3 className="mt-3 text-lg font-black tracking-tight text-white sm:text-xl">
                     {isProcessing ? 'Đang xử lý JD' : jdReady ? 'JD sẵn sàng' : 'Kéo thả JD'}
                   </h3>
                   <p className="mt-1.5 max-w-md text-xs leading-5 text-zinc-400 sm:mt-2 sm:text-sm sm:leading-6">
@@ -550,14 +550,14 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
                     disabled={isProcessing}
-                    className={`${primaryButtonClass} mt-4 sm:mt-5`}
+                    className={`${primaryButtonClass} mt-3 sm:mt-4`}
                   >
                     <HardDriveUpload className="h-4 w-4" />
                     {jdReady ? 'Đổi JD' : 'Nạp file'}
                   </button>
                 </div>
 
-                <div className="mt-3 grid grid-cols-2 gap-2 sm:mt-4 sm:flex sm:justify-center">
+                <div className="mt-3 grid grid-cols-2 gap-2 sm:flex sm:justify-center">
                   <button
                     type="button"
                     onClick={() => void handleGoogleDrive()}
@@ -579,37 +579,33 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
                 </div>
               </div>
 
-              <div
-                className={`mt-2 flex items-center gap-2 border px-3 py-2 sm:mt-3 sm:items-start sm:gap-3 sm:py-3 ${
-                  errorMsg
-                    ? 'border-red-400/25 bg-red-500/10'
-                    : jdReady
-                      ? 'border-[#f5d6bb]/24 bg-[#f5d6bb]/10'
-                      : 'border-white/10 bg-white/[0.02]'
-                }`}
-              >
-                <div className="hidden h-9 w-9 shrink-0 items-center justify-center border border-white/10 bg-black/60 text-[#f5d6bb] sm:flex">
-                  {jdReady ? <CheckCircle2 className="h-4 w-4" /> : <FileText className="h-4 w-4" />}
+              <div className="mt-2 flex flex-col gap-2 sm:mt-3 lg:flex-row lg:items-center lg:justify-between">
+                <div
+                  className={`flex min-w-0 flex-1 items-center gap-2 border px-3 py-2 ${
+                    errorMsg
+                      ? 'border-red-400/25 bg-red-500/10'
+                      : jdReady
+                        ? 'border-[#f5d6bb]/24 bg-[#f5d6bb]/10'
+                        : 'border-white/10 bg-white/[0.02]'
+                  }`}
+                >
+                  <div className="hidden h-8 w-8 shrink-0 items-center justify-center border border-white/10 bg-black/60 text-[#f5d6bb] sm:flex">
+                    {jdReady ? <CheckCircle2 className="h-4 w-4" /> : <FileText className="h-4 w-4" />}
+                  </div>
+                  <div className="min-w-0">
+                    <p className={`truncate text-sm font-semibold ${errorMsg ? 'text-red-100' : 'text-white'}`}>
+                      {errorMsg ? 'Kiểm tra lại tệp JD' : jdReady ? 'JD đã nạp' : 'Chưa có JD'}
+                    </p>
+                    <p className={`mt-0.5 truncate text-xs leading-5 sm:text-sm ${errorMsg ? 'text-red-100/80' : 'text-zinc-400'}`}>
+                      {errorMsg || successMsg || 'Nạp JD để mở bước CV.'}
+                    </p>
+                  </div>
                 </div>
-                <div className="min-w-0">
-                  <p className={`truncate text-sm font-semibold ${errorMsg ? 'text-red-100' : 'text-white'}`}>
-                    {errorMsg ? 'Kiểm tra lại tệp JD' : jdReady ? 'JD đã nạp' : 'Chưa có JD'}
-                  </p>
-                  <p className={`mt-0.5 truncate text-xs leading-5 sm:mt-1 sm:text-sm ${errorMsg ? 'text-red-100/80' : 'text-zinc-400'}`}>
-                    {errorMsg || successMsg || 'Nạp JD để mở bước CV.'}
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-2 flex flex-col gap-2 sm:mt-3 sm:flex-row sm:items-center sm:justify-between">
-                <p className="hidden text-xs leading-5 text-zinc-500 sm:block">
-                  CV chỉ được mở sau khi JD đã được đọc và chuẩn hóa thành công.
-                </p>
                 <button
                   type="button"
                   onClick={goToCv}
                   disabled={!jdReady}
-                  className={`${primaryButtonClass} w-full sm:w-auto`}
+                  className={`${primaryButtonClass} w-full lg:w-[150px]`}
                 >
                   Tiếp tục
                   <ArrowRight className="h-4 w-4" />
