@@ -192,6 +192,22 @@ function GhostGradientText({
   text: string;
   gradientClass: string;
   className: string;
+
+interface LandingHeroProps {
+  onPrimaryAction: () => void;
+  onSecondaryAction: () => void;
+  primaryLabel: string;
+}
+
+function GhostGradientText({
+  text,
+  gradientClass,
+  className,
+  glowClassName,
+}: {
+  text: string;
+  gradientClass: string;
+  className: string;
   glowClassName: string;
 }) {
   return (
@@ -211,12 +227,56 @@ function GhostGradientText({
   );
 }
 
+function TypewriterLine({
+  text,
+  lineDelay,
+  reduceMotion,
+  lineGradientClass,
+}: {
+  text: string;
+  lineDelay: number;
+  reduceMotion: boolean;
+  gradientClass: string;
+  lineGradientClass: string;
+}) {
+  const [displayed, setDisplayed] = React.useState(reduceMotion ? text : '');
+  const [done, setDone] = React.useState(reduceMotion);
+
+  React.useEffect(() => {
+    if (reduceMotion) { setDisplayed(text); setDone(true); return; }
+    setDisplayed('');
+    setDone(false);
+    let i = 0;
+    const startTimer = window.setTimeout(() => {
+      const iv = window.setInterval(() => {
+        i++;
+        setDisplayed(text.slice(0, i));
+        if (i >= text.length) { clearInterval(iv); setDone(true); }
+      }, 28);
+      return () => clearInterval(iv);
+    }, lineDelay);
+    return () => clearTimeout(startTimer);
+  }, [text, lineDelay, reduceMotion]);
+
+  return (
+    <span className="relative block">
+      <span
+        className={`supporthr-mono text-[11px] font-medium leading-6 bg-gradient-to-r ${lineGradientClass} bg-clip-text text-transparent xl:text-[12px]`}
+      >
+        {displayed}
+        {!done && (
+          <span className="inline-block w-[1px] h-[1em] bg-current ml-[1px] align-middle animate-[supporthr-terminal-blink_0.9s_steps(1)_infinite]" aria-hidden="true" />
+        )}
+      </span>
+    </span>
+  );
+}
+
 function SystemPanel({
   label,
   dotClass,
   labelGradientClass,
   lineGradientClass,
-  glowClass,
   delay,
   lines,
   reduceMotion,
@@ -232,51 +292,21 @@ function SystemPanel({
 }) {
   return (
     <motion.div
-      className="relative flex h-full flex-col justify-between overflow-hidden bg-[linear-gradient(135deg,rgba(245,214,187,0.105)_0%,rgba(245,214,187,0.035)_42%,rgba(0,0,0,0.28)_100%)] p-4 shadow-[inset_0_1px_0_rgba(245,214,187,0.16),0_18px_70px_rgba(245,214,187,0.045)] xl:p-5"
-      animate={
-        reduceMotion
-          ? undefined
-          : {
-              opacity: [0.9, 1, 0.94],
-              filter: [
-                "brightness(1.12) saturate(1.14)",
-                "brightness(1.42) saturate(1.22)",
-                "brightness(1.18) saturate(1.16)",
-              ],
-            }
-      }
-      transition={
-        reduceMotion
-          ? undefined
-          : {
-              duration: 8.5,
-              ease: "easeInOut",
-              repeat: Infinity,
-              delay,
-            }
-      }
+      className="relative flex h-full flex-col justify-between overflow-hidden bg-black/80 p-4 xl:p-5"
+      initial={{ opacity: 0 }}
+      whileInView={{ opacity: 1 }}
+      viewport={{ once: true, amount: 0.3 }}
+      transition={{ duration: 0.5, delay }}
     >
-      <div className={`pointer-events-none absolute left-4 right-8 top-5 h-16 bg-gradient-to-r ${glowClass} opacity-95 blur-3xl`} />
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_68%_38%,rgba(245,214,187,0.18),transparent_44%)]" />
-      <div className={`pointer-events-none absolute inset-x-5 bottom-5 top-16 bg-gradient-to-br ${glowClass} opacity-70 blur-[44px]`} />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/8 to-transparent" />
 
       <div className="relative flex items-center justify-between">
         <GhostGradientText
           text={label}
           gradientClass={labelGradientClass}
           className="supporthr-mono text-[10px] font-bold uppercase tracking-[0.26em] opacity-100"
-          glowClassName="opacity-80"
+          glowClassName="opacity-60"
         />
-        <span className={`h-2.5 w-2.5 rounded-full ${dotClass} opacity-100`} />
-      </div>
-
-      <div className="relative mt-8 space-y-2">
-        {lines.map((line) => (
-          <GhostGradientText
-            key={line}
-            text={line}
-            gradientClass={lineGradientClass}
-            className="supporthr-mono text-[12px] font-semibold leading-6 opacity-[0.92] xl:text-[13px]"
             glowClassName="opacity-55"
           />
         ))}
