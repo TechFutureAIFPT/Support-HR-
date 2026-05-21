@@ -1,14 +1,12 @@
 import React from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowUpRight, Sparkles } from "lucide-react";
 
 const HERO_SYSTEM_PANELS = [
   {
     label: "CV // HÀNG ĐỢI",
-    dotClass: "bg-cyan-300 shadow-[0_0_22px_rgba(34,211,238,0.75)]",
-    labelGradientClass: "from-cyan-100 via-cyan-200 to-sky-300",
-    lineGradientClass: "from-cyan-100 via-slate-100 to-cyan-300",
-    glowClass: "from-cyan-400/26 via-cyan-300/12 to-transparent",
+    dotClass: "bg-cyan-400",
+    accentClass: "text-cyan-400",
     delay: 0,
     lines: [
       "[SCAN] 42 hồ sơ mới vừa tải lên",
@@ -18,10 +16,8 @@ const HERO_SYSTEM_PANELS = [
   },
   {
     label: "JD // TÁCH NGHĨA",
-    dotClass: "bg-emerald-300 shadow-[0_0_22px_rgba(52,211,153,0.72)]",
-    labelGradientClass: "from-emerald-100 via-lime-100 to-emerald-300",
-    lineGradientClass: "from-emerald-100 via-slate-100 to-lime-200",
-    glowClass: "from-emerald-400/26 via-emerald-300/12 to-transparent",
+    dotClass: "bg-emerald-400",
+    accentClass: "text-emerald-400",
     delay: 0.5,
     lines: [
       "[ROLE] Senior Front-end Engineer",
@@ -31,10 +27,8 @@ const HERO_SYSTEM_PANELS = [
   },
   {
     label: "ĐỐI SÁNH // LIVE",
-    dotClass: "bg-sky-300 shadow-[0_0_22px_rgba(56,189,248,0.72)]",
-    labelGradientClass: "from-sky-100 via-cyan-100 to-blue-300",
-    lineGradientClass: "from-sky-100 via-slate-100 to-cyan-300",
-    glowClass: "from-sky-400/24 via-cyan-300/12 to-transparent",
+    dotClass: "bg-sky-400",
+    accentClass: "text-sky-400",
     delay: 1,
     lines: [
       "[SCORE] 98.2% hồ sơ phù hợp nhất",
@@ -44,10 +38,8 @@ const HERO_SYSTEM_PANELS = [
   },
   {
     label: "TUYỂN DỤNG // NHẬT KÝ",
-    dotClass: "bg-violet-300 shadow-[0_0_22px_rgba(196,181,253,0.75)]",
-    labelGradientClass: "from-violet-100 via-fuchsia-100 to-violet-300",
-    lineGradientClass: "from-violet-100 via-slate-100 to-fuchsia-200",
-    glowClass: "from-violet-400/24 via-fuchsia-300/10 to-transparent",
+    dotClass: "bg-violet-400",
+    accentClass: "text-violet-400",
     delay: 1.5,
     lines: [
       "[SYNC] Dữ liệu JD đã đồng bộ",
@@ -57,10 +49,8 @@ const HERO_SYSTEM_PANELS = [
   },
   {
     label: "KỸ NĂNG // MA TRẬN",
-    dotClass: "bg-cyan-300 shadow-[0_0_22px_rgba(34,211,238,0.75)]",
-    labelGradientClass: "from-cyan-100 via-sky-100 to-cyan-300",
-    lineGradientClass: "from-cyan-100 via-slate-100 to-sky-300",
-    glowClass: "from-cyan-400/24 via-sky-300/10 to-transparent",
+    dotClass: "bg-cyan-400",
+    accentClass: "text-cyan-400",
     delay: 2,
     lines: [
       "[STACK] React / Next.js / TypeScript",
@@ -70,10 +60,8 @@ const HERO_SYSTEM_PANELS = [
   },
   {
     label: "PHỎNG VẤN // GỢI Ý",
-    dotClass: "bg-emerald-300 shadow-[0_0_22px_rgba(52,211,153,0.72)]",
-    labelGradientClass: "from-emerald-100 via-lime-100 to-cyan-200",
-    lineGradientClass: "from-emerald-100 via-slate-100 to-cyan-200",
-    glowClass: "from-emerald-400/26 via-cyan-300/10 to-transparent",
+    dotClass: "bg-emerald-400",
+    accentClass: "text-emerald-400",
     delay: 2.5,
     lines: [
       "[PROMPT] Cân bằng tốc độ và chất lượng",
@@ -83,10 +71,8 @@ const HERO_SYSTEM_PANELS = [
   },
   {
     label: "ĐỘI NGŨ // DUYỆT",
-    dotClass: "bg-sky-300 shadow-[0_0_22px_rgba(56,189,248,0.72)]",
-    labelGradientClass: "from-sky-100 via-blue-100 to-cyan-300",
-    lineGradientClass: "from-sky-100 via-slate-100 to-blue-300",
-    glowClass: "from-sky-400/24 via-blue-300/10 to-transparent",
+    dotClass: "bg-sky-400",
+    accentClass: "text-sky-400",
     delay: 3,
     lines: [
       "[REVIEW] Hiring manager đã xem shortlist",
@@ -96,10 +82,8 @@ const HERO_SYSTEM_PANELS = [
   },
   {
     label: "KIỂM TOÁN // BÁO CÁO",
-    dotClass: "bg-violet-300 shadow-[0_0_22px_rgba(196,181,253,0.75)]",
-    labelGradientClass: "from-violet-100 via-fuchsia-100 to-pink-300",
-    lineGradientClass: "from-violet-100 via-slate-100 to-pink-300",
-    glowClass: "from-violet-400/24 via-pink-300/10 to-transparent",
+    dotClass: "bg-violet-400",
+    accentClass: "text-violet-400",
     delay: 3.5,
     lines: [
       "[TRACE] Lý do chấm điểm đầy đủ",
@@ -109,10 +93,8 @@ const HERO_SYSTEM_PANELS = [
   },
   {
     label: "HÀNH VI // TÍN HIỆU",
-    dotClass: "bg-cyan-300 shadow-[0_0_22px_rgba(34,211,238,0.75)]",
-    labelGradientClass: "from-cyan-100 via-teal-100 to-sky-300",
-    lineGradientClass: "from-cyan-100 via-slate-100 to-teal-300",
-    glowClass: "from-cyan-400/24 via-teal-300/10 to-transparent",
+    dotClass: "bg-cyan-400",
+    accentClass: "text-cyan-400",
     delay: 4,
     lines: [
       "[SIGNAL] Khả năng sở hữu sản phẩm cao",
@@ -122,10 +104,8 @@ const HERO_SYSTEM_PANELS = [
   },
   {
     label: "LƯƠNG // ĐỐI CHIẾU",
-    dotClass: "bg-emerald-300 shadow-[0_0_22px_rgba(52,211,153,0.72)]",
-    labelGradientClass: "from-emerald-100 via-cyan-100 to-lime-200",
-    lineGradientClass: "from-emerald-100 via-slate-100 to-lime-200",
-    glowClass: "from-emerald-400/24 via-lime-300/10 to-transparent",
+    dotClass: "bg-emerald-400",
+    accentClass: "text-emerald-400",
     delay: 4.5,
     lines: [
       "[RANGE] Đối chiếu theo vị trí",
@@ -135,10 +115,8 @@ const HERO_SYSTEM_PANELS = [
   },
   {
     label: "SHORTLIST // GỬI",
-    dotClass: "bg-sky-300 shadow-[0_0_22px_rgba(56,189,248,0.72)]",
-    labelGradientClass: "from-sky-100 via-cyan-100 to-violet-200",
-    lineGradientClass: "from-sky-100 via-slate-100 to-violet-200",
-    glowClass: "from-sky-400/24 via-violet-300/10 to-transparent",
+    dotClass: "bg-sky-400",
+    accentClass: "text-sky-400",
     delay: 5,
     lines: [
       "[MAIL] Danh sách đề cử đã chuẩn bị",
@@ -148,10 +126,8 @@ const HERO_SYSTEM_PANELS = [
   },
   {
     label: "HỆ THỐNG // NHỊP TIM",
-    dotClass: "bg-violet-300 shadow-[0_0_22px_rgba(196,181,253,0.75)]",
-    labelGradientClass: "from-violet-100 via-fuchsia-100 to-cyan-200",
-    lineGradientClass: "from-violet-100 via-slate-100 to-cyan-200",
-    glowClass: "from-violet-400/24 via-cyan-300/10 to-transparent",
+    dotClass: "bg-violet-400",
+    accentClass: "text-violet-400",
     delay: 5.5,
     lines: [
       "[PING] Bộ máy đối sánh đang ổn định",
@@ -178,45 +154,16 @@ interface LandingHeroProps {
   primaryLabel: string;
 }
 
-function GhostGradientText({
-  text,
-  gradientClass,
-  className,
-  glowClassName,
-}: {
-  text: string;
-  gradientClass: string;
-  className: string;
-  glowClassName: string;
-}) {
-  return (
-    <span className={`relative block ${className}`}>
-      <span
-        aria-hidden="true"
-        className={`pointer-events-none absolute inset-0 bg-gradient-to-r ${gradientClass} bg-[length:185%_185%] bg-clip-text text-transparent blur-[10px] ${glowClassName}`}
-      >
-        {text}
-      </span>
-      <span
-        className={`relative block bg-gradient-to-r ${gradientClass} bg-[length:185%_185%] bg-clip-text text-transparent`}
-      >
-        {text}
-      </span>
-    </span>
-  );
-}
-
 function TypewriterLine({
   text,
   lineDelay,
   reduceMotion,
-  lineGradientClass,
+  accentClass,
 }: {
   text: string;
   lineDelay: number;
   reduceMotion: boolean;
-  gradientClass: string;
-  lineGradientClass: string;
+  accentClass: string;
 }) {
   const [displayed, setDisplayed] = React.useState(reduceMotion ? text : "");
   const [done, setDone] = React.useState(reduceMotion);
@@ -238,25 +185,31 @@ function TypewriterLine({
           clearInterval(iv);
           setDone(true);
         }
-      }, 28);
+      }, 24);
       return () => clearInterval(iv);
     }, lineDelay);
     return () => clearTimeout(startTimer);
   }, [text, lineDelay, reduceMotion]);
 
+  // Regex to extract prefix like [SCAN]
+  const match = displayed.match(/^(\[[A-Z0-9_-]+\])(.*)$/);
+
   return (
-    <span className="relative block">
-      <span
-        className={`supporthr-mono text-[11px] font-medium leading-6 bg-gradient-to-r ${lineGradientClass} bg-clip-text text-transparent xl:text-[12px]`}
-      >
-        {displayed}
-        {!done && (
-          <span
-            className="inline-block w-[1px] h-[1em] bg-current ml-[1px] align-middle animate-[supporthr-terminal-blink_0.9s_steps(1)_infinite]"
-            aria-hidden="true"
-          />
-        )}
-      </span>
+    <span className="relative block supporthr-mono text-[12px] font-medium leading-6 xl:text-[13px]">
+      {match ? (
+        <>
+          <span className={`${accentClass} font-semibold`}>{match[1]}</span>
+          <span className="text-zinc-300 ml-1.5">{match[2]}</span>
+        </>
+      ) : (
+        <span className="text-zinc-300">{displayed}</span>
+      )}
+      {!done && (
+        <span
+          className="inline-block w-[1.5px] h-[1.1em] bg-zinc-300 ml-[1.5px] align-middle animate-[supporthr-terminal-blink_0.9s_steps(1)_infinite]"
+          aria-hidden="true"
+        />
+      )}
     </span>
   );
 }
@@ -264,51 +217,44 @@ function TypewriterLine({
 function SystemPanel({
   label,
   dotClass,
-  labelGradientClass,
-  lineGradientClass,
+  accentClass,
   delay,
   lines,
   reduceMotion,
 }: {
   label: string;
   dotClass: string;
-  labelGradientClass: string;
-  lineGradientClass: string;
-  glowClass: string;
+  accentClass: string;
   delay: number;
   lines: string[];
   reduceMotion: boolean;
 }) {
   return (
     <motion.div
-      className="relative flex h-full flex-col justify-between overflow-hidden bg-black/80 p-4 xl:p-5"
+      className="relative flex h-full flex-col justify-between overflow-hidden bg-black/90 p-4 xl:p-5"
       initial={{ opacity: 0 }}
       whileInView={{ opacity: 1 }}
       viewport={{ once: true, amount: 0.3 }}
       transition={{ duration: 0.5, delay }}
     >
-      {/* Subtle top border highlight — no gold glow */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/8 to-transparent" />
+      {/* Top clean dark line border */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-zinc-900" />
 
       <div className="relative flex items-center justify-between">
-        <GhostGradientText
-          text={label}
-          gradientClass={labelGradientClass}
-          className="supporthr-mono text-[10px] font-bold uppercase tracking-[0.26em] opacity-100"
-          glowClassName="opacity-60"
-        />
-        <span className={`h-2 w-2 rounded-full ${dotClass} opacity-90`} />
+        <span className="supporthr-mono text-[10px] font-bold uppercase tracking-[0.24em] text-zinc-500">
+          {label}
+        </span>
+        <span className={`h-1.5 w-1.5 rounded-full ${dotClass}`} />
       </div>
 
-      <div className="relative mt-6 space-y-1.5">
+      <div className="relative mt-5 space-y-1">
         {lines.map((line, i) => (
           <TypewriterLine
             key={line}
             text={line}
-            lineDelay={reduceMotion ? 0 : delay * 1000 + i * 600}
+            lineDelay={reduceMotion ? 0 : delay * 1000 + i * 500}
             reduceMotion={reduceMotion}
-            gradientClass={labelGradientClass}
-            lineGradientClass={lineGradientClass}
+            accentClass={accentClass}
           />
         ))}
       </div>
@@ -352,14 +298,14 @@ export default function LandingHero({
             aria-hidden="true"
             className="pointer-events-none absolute inset-0 hidden overflow-hidden opacity-[0.9] lg:grid lg:grid-cols-5 lg:grid-rows-3"
           >
-            <div className="relative col-span-3 row-span-3 overflow-hidden border-r border-[#f5d6bb]/14 bg-[linear-gradient(135deg,rgba(5,14,26,0.72)_0%,rgba(0,0,0,0.9)_42%,rgba(0,0,0,0.58)_100%)]">
+            <div className="relative col-span-3 row-span-3 overflow-hidden border-r border-zinc-900 bg-[linear-gradient(135deg,rgba(5,14,26,0.72)_0%,rgba(0,0,0,0.9)_42%,rgba(0,0,0,0.58)_100%)]">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_14%_18%,rgba(245,214,187,0.055),transparent_34%),linear-gradient(90deg,rgba(0,0,0,0.36)_0%,rgba(0,0,0,0.08)_74%,transparent_100%)]" />
-              <div className="absolute bottom-0 left-0 right-0 h-px bg-[#f5d6bb]/10" />
+              <div className="absolute bottom-0 left-0 right-0 h-px bg-zinc-900" />
             </div>
             {HERO_VISIBLE_PANELS.map((panel, index) => (
               <div
                 key={panel.label}
-                className={`home-hero-grid-card border-[#f5d6bb]/14 ${
+                className={`home-hero-grid-card border-zinc-900 ${
                   index % 2 === 0 ? "border-r" : ""
                 } ${index < HERO_VISIBLE_PANELS.length - 2 ? "border-b" : ""}`}
               >
@@ -432,7 +378,7 @@ export default function LandingHero({
                 className="group relative inline-flex h-13 items-center gap-3 overflow-hidden rounded-none bg-white px-7 text-[13px] font-bold uppercase tracking-[0.12em] text-black shadow-[0_20px_50px_rgba(255,255,255,0.12)] transition-all duration-200 hover:bg-zinc-100 hover:shadow-[0_24px_60px_rgba(255,255,255,0.2)]"
               >
                 <span className="relative z-10">{primaryLabel}</span>
-                <ArrowRight className="relative z-10 h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />
+                <ArrowUpRight className="relative z-10 h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </motion.button>
 
               <motion.button
@@ -440,9 +386,9 @@ export default function LandingHero({
                 whileHover={reduceMotion ? undefined : { scale: 1.02 }}
                 whileTap={reduceMotion ? undefined : { scale: 0.97 }}
                 onClick={onSecondaryAction}
-                className="group inline-flex h-13 items-center gap-3 rounded-none border border-white/16 bg-transparent px-7 text-[13px] font-semibold uppercase tracking-[0.1em] text-zinc-300 transition-all duration-200 hover:border-white/28 hover:bg-white/[0.05] hover:text-white"
+                className="group inline-flex h-13 items-center gap-3 rounded-none border border-white/16 bg-transparent px-7 text-[13px] font-bold uppercase tracking-[0.12em] text-zinc-300 transition-all duration-200 hover:border-white/28 hover:bg-white/[0.05] hover:text-white"
               >
-                Xem quy trình
+                XEM QUY TRÌNH
                 <Sparkles className="h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
               </motion.button>
             </div>

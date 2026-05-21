@@ -245,7 +245,6 @@ const HomePage: React.FC<HomePageProps> = ({
             </button>
 
             <div className="flex items-center gap-3 sm:gap-4 lg:gap-8">
-
               <div className="hidden lg:flex items-center gap-8">
                 {[
                   { label: "QUY TRÌNH", href: "#steps" },
@@ -291,7 +290,7 @@ const HomePage: React.FC<HomePageProps> = ({
         <LandingHero
           onPrimaryAction={handleStart}
           onSecondaryAction={() => scrollTo("steps")}
-          primaryLabel={canContinue ? "Tiếp tục quy trình AI" : "Bắt đầu với Support HR"}
+          primaryLabel={canContinue ? "TIẾP TỤC QUY TRÌNH" : "GET STARTED"}
         />
 
         <PartnerTickerSection partners={partners} />
