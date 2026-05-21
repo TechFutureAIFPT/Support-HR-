@@ -342,9 +342,9 @@ const HomePage: React.FC<HomePageProps> = ({
         <WhySupportSection />
 
         {/* ── Comparison Section ──────────────────────────────── */}
-        <section id="compare" className="border-y border-[#f5d6bb]/12 bg-[linear-gradient(180deg,rgba(245,214,187,0.025),rgba(0,0,0,0.96))] py-24">
-          <div className="max-w-[90rem] mx-auto px-3 sm:px-5 lg:px-6">
-            <div className="text-center mb-12">
+        <section id="compare" className="border-y border-[#f5d6bb]/12 bg-[linear-gradient(180deg,rgba(245,214,187,0.025),rgba(0,0,0,0.96))] py-20">
+          <div className="w-full max-w-none px-2 sm:px-3 lg:px-4">
+            <div className="mx-auto mb-12 max-w-[90rem] px-3 text-center">
               <div className="mb-4 inline-flex items-center gap-2 rounded-none border border-[#f5d6bb]/22 bg-[#f5d6bb]/[0.06] px-4 py-1.5 font-mono shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
                 <Code2 className="h-3 w-3 text-[#f5d6bb]" aria-hidden="true" />
                 <span className="text-[11px] font-bold text-[#f5d6bb] uppercase tracking-widest">So sánh</span>
