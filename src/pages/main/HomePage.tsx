@@ -223,11 +223,7 @@ const HomePage: React.FC<HomePageProps> = ({
         {/* ── Navbar ───────────────────────────────────────── */}
         <nav
           ref={navRef}
-          className={`sticky top-0 z-50 w-full transition-all duration-300 ${
-            isScrolled
-              ? "border-b border-white/10 bg-black/95 backdrop-blur-xl"
-              : "border-b border-white/[0.08] bg-black/92"
-          }`}
+          className="sticky top-0 z-50 w-full border-b border-zinc-900 bg-black"
         >
           <div className="flex h-[4.45rem] w-full items-center justify-between px-6 sm:px-10 lg:px-16">
             <button
