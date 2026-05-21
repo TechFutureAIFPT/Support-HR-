@@ -8,6 +8,7 @@ import {
 } from "./legal-ui";
 
 const sections = [
+  { id: "google-data", title: "Google user data", icon: "fa-cloud-arrow-down", tone: "cyan" },
   { id: "roles", title: "Vai trò xử lý", icon: "fa-sitemap", tone: "cyan" },
   { id: "scope", title: "Phạm vi dữ liệu", icon: "fa-database", tone: "emerald" },
   { id: "improvement", title: "Cải thiện dữ liệu", icon: "fa-chart-line", tone: "sky" },
@@ -17,7 +18,7 @@ const sections = [
 
 const PrivacyPolicyPage: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
-  const [activeSection, setActiveSection] = useState("roles");
+  const [activeSection, setActiveSection] = useState("google-data");
 
   useEffect(() => {
     const timer = setTimeout(() => setIsVisible(true), 80);
@@ -26,6 +27,68 @@ const PrivacyPolicyPage: React.FC = () => {
 
   const renderSectionContent = () => {
     switch (activeSection) {
+      case "google-data":
+        return (
+          <div className="space-y-4">
+            <LegalCallout tone="cyan" icon="fa-circle-info" title="Google user data disclosure">
+              Support HR uses Google sign-in and read-only Google Drive access only to authenticate users and let them
+              select recruiting documents to import into the screening workflow.
+            </LegalCallout>
+
+            <div className="grid gap-4 xl:grid-cols-3">
+              <LegalCard tone="cyan" icon="fa-id-card" title="Account data">
+                <LegalBulletGrid
+                  tone="cyan"
+                  columns={1}
+                  items={[
+                    "Google account name",
+                    "Email address",
+                    "Profile photo",
+                    "Google account identifier",
+                  ]}
+                />
+              </LegalCard>
+
+              <LegalCard tone="emerald" icon="fa-folder-open" title="Drive data">
+                <LegalBulletGrid
+                  tone="emerald"
+                  columns={1}
+                  items={[
+                    "File name and file ID",
+                    "MIME type and file size",
+                    "Modified time",
+                    "Content of files selected by the user",
+                  ]}
+                />
+              </LegalCard>
+
+              <LegalCard tone="sky" icon="fa-wand-magic-sparkles" title="Use limitation">
+                <p>
+                  Google user data is used to provide sign-in, selected file import, CV/JD extraction, candidate
+                  analysis, saved workflow history, support, security, and product maintenance.
+                </p>
+              </LegalCard>
+            </div>
+
+            <div className="grid gap-4 xl:grid-cols-2">
+              <LegalCard tone="violet" icon="fa-share-nodes" title="Sharing">
+                <p>
+                  Support HR does not sell Google user data. Data may be processed by infrastructure, storage,
+                  authentication, and AI service providers only to provide and secure Support HR functionality.
+                </p>
+              </LegalCard>
+
+              <LegalCard tone="rose" icon="fa-trash-can" title="Retention and deletion">
+                <p>
+                  Users may request deletion of account data, uploaded files, imported Google Drive content, and related
+                  analysis results. Verified deletion requests are targeted for completion within 30 days unless a longer
+                  period is required by law.
+                </p>
+              </LegalCard>
+            </div>
+          </div>
+        );
+
       case "roles":
         return (
           <div className="space-y-4">
