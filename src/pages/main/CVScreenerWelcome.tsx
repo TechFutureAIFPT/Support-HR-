@@ -1,5 +1,6 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
+  ArrowLeft,
   ArrowRight,
   BriefcaseBusiness,
   Check,
@@ -7,6 +8,7 @@ import {
   FileText,
   FolderOpen,
   HardDriveUpload,
+  ListChecks,
   UploadCloud,
   X,
 } from 'lucide-react';
@@ -33,7 +35,7 @@ interface CVScreenerWelcomeProps {
   hasPreparedJd?: boolean;
 }
 
-type IntakeStep = 'jd' | 'cv';
+type IntakeStage = 'jd' | 'cv';
 
 const PROCESSING_STEPS = [
   'Đọc tệp JD',
@@ -45,19 +47,105 @@ const PROCESSING_STEPS = [
 const MAX_CV_PER_BATCH = 20;
 const FILE_ACCEPT = '.pdf,.docx,.png,.jpg,.jpeg';
 
-const cardClass =
-  'group flex min-h-[104px] flex-col justify-between border border-white/[0.06] bg-white/[0.025] p-4 text-left transition-colors duration-150 hover:border-white/[0.14] hover:bg-white/[0.04]';
+const accent = '#f5d6bb';
+const panelClass = 'border border-white/10 bg-black/80 shadow-[0_24px_80px_rgba(0,0,0,0.34)]';
+const secondaryButtonClass =
+  'inline-flex h-10 items-center justify-center gap-2 rounded-none border border-white/10 bg-white/[0.025] px-3.5 text-xs font-semibold text-zinc-300 transition-all hover:border-[#f5d6bb]/40 hover:bg-[#f5d6bb]/10 hover:text-[#f5d6bb] disabled:cursor-not-allowed disabled:opacity-45';
+const primaryButtonClass =
+  'inline-flex h-11 items-center justify-center gap-2 rounded-none bg-white px-5 text-sm font-black text-black shadow-[0_18px_60px_rgba(255,255,255,0.10)] transition-colors hover:bg-zinc-100 disabled:cursor-not-allowed disabled:bg-white/10 disabled:text-zinc-600 disabled:shadow-none';
 
-const panelClass =
-  'bg-black/45';
+const StepButton = ({
+  active,
+  disabled,
+  index,
+  label,
+  description,
+  icon,
+  onClick,
+}: {
+  active: boolean;
+  disabled?: boolean;
+  index: string;
+  label: string;
+  description: string;
+  icon: React.ReactNode;
+  onClick: () => void;
+}) => (
+  <button
+    type="button"
+    onClick={onClick}
+    disabled={disabled}
+    className={`flex min-w-0 flex-1 items-center gap-3 rounded-none border px-3 py-3 text-left transition-all ${
+      active
+        ? 'border-[#f5d6bb]/35 bg-[#f5d6bb]/10 text-white'
+        : 'border-white/10 bg-white/[0.025] text-zinc-400 hover:border-white/20 hover:bg-white/[0.045] hover:text-zinc-100'
+    } disabled:cursor-not-allowed disabled:opacity-45`}
+  >
+    <span
+      className={`supporthr-mono flex h-9 w-9 shrink-0 items-center justify-center border text-[10px] font-black ${
+        active ? 'border-[#f5d6bb]/45 text-[#f5d6bb]' : 'border-white/10 text-zinc-500'
+      }`}
+    >
+      {index}
+    </span>
+    <span className="flex h-9 w-9 shrink-0 items-center justify-center border border-white/10 bg-black/60">
+      {icon}
+    </span>
+    <span className="min-w-0">
+      <span className="block text-sm font-semibold leading-5">{label}</span>
+      <span className="mt-0.5 block truncate text-[11px] text-zinc-500">{description}</span>
+    </span>
+  </button>
+);
 
-const subPanelClass =
-  'bg-white/[0.018]';
+const ProcessingModal = ({
+  step,
+}: {
+  step: number;
+}) => (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 backdrop-blur-sm">
+    <div className={`${panelClass} w-full max-w-sm p-5 sm:p-6`}>
+      <div className="flex items-center gap-4">
+        <div className="relative flex h-14 w-14 shrink-0 items-center justify-center border border-[#f5d6bb]/35 bg-[#f5d6bb]/10 text-[#f5d6bb]">
+          <div className="absolute inset-2 animate-ping border border-[#f5d6bb]/20" />
+          <div className="h-7 w-7 animate-spin rounded-full border-2 border-[#f5d6bb] border-t-transparent" />
+        </div>
+        <div className="min-w-0">
+          <p className="supporthr-mono text-[10px] font-black uppercase tracking-[0.22em] text-[#f5d6bb]/80">
+            Quy trình JD
+          </p>
+          <h3 className="mt-1 text-lg font-black text-white">Đang chuẩn bị tiêu chí</h3>
+          <p className="mt-1 truncate text-sm text-zinc-400">{PROCESSING_STEPS[step]}</p>
+        </div>
+      </div>
 
-const helperPillClass =
-  'supporthr-mono mt-2 inline-flex w-fit text-[9px] font-semibold uppercase tracking-[0.16em] text-[#f5d6bb]/70';
+      <div className="mt-5 grid gap-2">
+        {PROCESSING_STEPS.map((item, index) => {
+          const isCurrent = step === index;
+          const isDone = step > index;
 
-const sectionEyebrowClass = 'supporthr-mono text-[9px] font-semibold uppercase tracking-[0.18em] text-[#f5d6bb]/60';
+          return (
+            <div
+              key={item}
+              className={`flex items-center gap-3 border px-3 py-2.5 text-sm transition-all ${
+                isCurrent
+                  ? 'border-[#f5d6bb]/40 bg-[#f5d6bb]/10 text-[#f5d6bb]'
+                  : isDone
+                    ? 'border-white/10 bg-white/[0.035] text-zinc-100'
+                    : 'border-white/8 bg-white/[0.015] text-zinc-500'
+              }`}
+            >
+              <span className="supporthr-mono flex h-6 w-6 shrink-0 items-center justify-center border border-current/35 text-[10px]">
+                {isDone ? <Check className="h-3.5 w-3.5" /> : String(index + 1).padStart(2, '0')}
+              </span>
+              <span className="min-w-0 truncate">{item}</span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  </div>
+);
 
 const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
   onGetStarted,
@@ -68,7 +156,7 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
   hasPreparedJd = false,
 }) => {
   const [mounted, setMounted] = useState(false);
-  const [step, setStep] = useState<IntakeStep>(hasPreparedJd ? 'cv' : 'jd');
+  const [stage, setStage] = useState<IntakeStage>(hasPreparedJd ? 'cv' : 'jd');
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingStep, setProcessingStep] = useState(0);
   const [errorMsg, setErrorMsg] = useState('');
@@ -81,18 +169,24 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
   const cvFileInputRef = useRef<HTMLInputElement>(null);
   const hasHandledPendingDriveRef = useRef(false);
 
+  const cvProgressPercent = useMemo(
+    () => Math.min(100, Math.round((cvFiles.length / MAX_CV_PER_BATCH) * 100)),
+    [cvFiles.length],
+  );
+  const canContinue = jdReady && cvFiles.length > 0;
+
   useEffect(() => {
     const timer = setTimeout(() => setMounted(true), 60);
     return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
-    if (hasPreparedJd) {
-      setJdReady(true);
-      setStep('cv');
-      if (!successMsg) setSuccessMsg('JD đã sẵn sàng.');
-    }
-  }, [hasPreparedJd, successMsg]);
+    if (!hasPreparedJd) return;
+
+    setJdReady(true);
+    setStage('cv');
+    setSuccessMsg((current) => current || 'JD đã sẵn sàng.');
+  }, [hasPreparedJd]);
 
   useEffect(() => {
     if (!isProcessing) {
@@ -129,7 +223,7 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
         return [...prev, ...uniqueNewFiles];
       });
     },
-    [setCvFiles]
+    [setCvFiles],
   );
 
   const processFile = useCallback(
@@ -178,14 +272,14 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
         setJdReady(true);
         setJdFileName(file.name);
         setSuccessMsg(`Đã nạp JD: ${file.name}`);
-        setStep('cv');
+        setStage('cv');
       } catch (err: any) {
         setErrorMsg(getSafeErrorMessage(err, 'ai'));
       } finally {
         setIsProcessing(false);
       }
     },
-    [onFileProcessed]
+    [onFileProcessed],
   );
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -259,12 +353,13 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
       try {
         if (pendingType === 'jd') {
           setErrorMsg('');
-          setSuccessMsg('Dang tiep tuc ket noi Google Drive cho tep JD...');
+          setSuccessMsg('Đang tiếp tục kết nối Google Drive cho tệp JD...');
           setIsProcessing(true);
+          setStage('jd');
         } else if (pendingType === 'cv') {
           setCvError('');
           setIsLoadingCvDrive(true);
-          setStep('cv');
+          setStage('cv');
         }
 
         const driveFiles = await googleDriveService.resumePendingPickAndImportIfNeeded();
@@ -276,7 +371,7 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
         }
 
         appendCvFiles(driveFiles);
-        setSuccessMsg(`Da nhap ${driveFiles.length} CV tu Google Drive.`);
+        setSuccessMsg(`Đã nhập ${driveFiles.length} CV từ Google Drive.`);
       } catch (err: any) {
         if (isRedirectingToGoogle(err)) return;
 
@@ -307,6 +402,26 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
     setCvFiles((prev) => prev.filter((_, fileIndex) => fileIndex !== index));
   };
 
+  const handleClearCvFiles = () => {
+    setCvFiles([]);
+    setCvError('');
+  };
+
+  const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+  };
+
+  const handleDropJdFile = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const [file] = Array.from(event.dataTransfer.files || []);
+    if (file) {
+      void processFile(file);
+    }
+  };
+
   const handleDropCvFiles = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     event.stopPropagation();
@@ -317,436 +432,352 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
     }
   };
 
-  const jdStatusLabel = isProcessing
-    ? 'Đang xử lý'
-    : errorMsg
-      ? 'Cần kiểm tra'
-      : jdReady
-        ? 'Sẵn sàng'
-        : 'Chờ nạp';
-
-  const jdStatusToneClass = isProcessing
-    ? 'border-cyan-400/30 bg-cyan-400/10 text-cyan-100'
-    : errorMsg
-      ? 'border-red-400/30 bg-red-400/10 text-red-100'
-      : jdReady
-        ? 'border-emerald-400/30 bg-emerald-400/10 text-emerald-100'
-        : 'border-white/[0.06] bg-transparent text-zinc-400';
+  const goToCv = () => {
+    if (!jdReady) return;
+    setStage('cv');
+  };
 
   return (
     <div
-      className={`relative flex h-[100svh] w-full overflow-hidden bg-[#050505] text-slate-100 transition-opacity duration-300 ${
+      className={`relative flex h-[100svh] w-full overflow-hidden bg-black text-zinc-100 transition-opacity duration-300 ${
         mounted ? 'opacity-100' : 'opacity-0'
       }`}
     >
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-white/[0.06]" />
+      <div className="pointer-events-none absolute inset-0 supporthr-grid-mask opacity-45" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-white/10" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-72 bg-[radial-gradient(circle_at_50%_0%,rgba(245,214,187,0.075),transparent_62%)]" />
 
-      <div className="relative z-10 flex h-full w-full items-stretch justify-center overflow-hidden p-3 sm:p-4">
-        <div className="h-full w-full">
-          <div className="flex h-full w-full flex-col overflow-hidden">
-        <header className="mb-3 flex shrink-0 items-center justify-between gap-4 border-b border-white/[0.06] px-5 py-3">
-          <div className="min-w-0">
-            <div className={sectionEyebrowClass}>CV Screening</div>
-            <h1 className="mt-1.5 text-[1.35rem] font-black tracking-tight text-white sm:text-[1.55rem]">
-              Nạp JD và CV
-            </h1>
-          </div>
+      {isProcessing && <ProcessingModal step={processingStep} />}
 
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => setStep('jd')}
-              className={`supporthr-mono inline-flex h-9 items-center gap-2 border px-4 text-[10px] font-semibold uppercase tracking-[0.16em] transition-all ${
-                step === 'jd'
-                  ? 'border-white bg-white text-black'
-                  : 'border-transparent bg-white/[0.025] text-[#f5d6bb]/70 hover:bg-white/[0.05] hover:text-white'
-              }`}
-            >
-              <BriefcaseBusiness className="h-4 w-4" />
-              JD
-            </button>
-            <button
-              type="button"
-              onClick={() => jdReady && setStep('cv')}
-              disabled={!jdReady}
-              className={`supporthr-mono inline-flex h-9 items-center gap-2 border px-4 text-[10px] font-semibold uppercase tracking-[0.16em] transition-all ${
-                step === 'cv'
-                  ? 'border-white bg-white text-black'
-                  : 'border-transparent bg-white/[0.025] text-[#f5d6bb]/70 hover:bg-white/[0.05] hover:text-white'
-              } disabled:cursor-not-allowed disabled:opacity-40`}
-            >
-              <UploadCloud className="h-4 w-4" />
-              CV
-            </button>
+      <div className="relative z-10 mx-auto flex h-full w-full max-w-[1120px] flex-col overflow-y-auto px-4 py-4 sm:px-6 lg:px-8 lg:py-6">
+        <header className="shrink-0 border-b border-white/10 pb-4">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+            <div className="min-w-0">
+              <div className="supporthr-mono mb-2 flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.28em] text-[#f5d6bb]">
+                <span className="h-2 w-2 bg-[#f5d6bb]" />
+                JD & CV Intake
+              </div>
+              <h1 className="text-2xl font-black tracking-tight text-white sm:text-4xl">Nạp dữ liệu tuyển dụng</h1>
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-zinc-400 sm:text-[15px]">
+                Hoàn tất JD trước để hệ thống chuẩn hóa tiêu chí, sau đó chuyển sang trang CV để nạp danh sách ứng viên.
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-2 sm:flex-row lg:min-w-[30rem]">
+              <StepButton
+                active={stage === 'jd'}
+                index="01"
+                label="Nạp JD"
+                description={jdReady ? 'Đã sẵn sàng' : 'Bước bắt buộc'}
+                icon={<BriefcaseBusiness className="h-4 w-4 text-[#f5d6bb]" />}
+                onClick={() => setStage('jd')}
+              />
+              <StepButton
+                active={stage === 'cv'}
+                disabled={!jdReady}
+                index="02"
+                label="Nạp CV"
+                description={`${cvFiles.length}/${MAX_CV_PER_BATCH} hồ sơ`}
+                icon={<UploadCloud className="h-4 w-4 text-[#f5d6bb]" />}
+                onClick={goToCv}
+              />
+            </div>
           </div>
         </header>
 
-        <div className="grid min-h-0 flex-1 gap-3 xl:grid-cols-[minmax(0,1.34fr)_minmax(390px,0.96fr)]">
-          <section className={`grid min-h-0 grid-rows-[auto_1fr_auto] gap-3 p-4 xl:p-5 ${panelClass}`}>
-            <div className="flex items-start justify-between gap-3 pb-1">
-              <div>
-                <div className={sectionEyebrowClass}>
-                  {step === 'jd' ? 'Bước 01' : 'Bước 02'}
+        {stage === 'jd' ? (
+          <main className="flex min-h-0 flex-1 py-4 lg:py-5">
+            <section className={`${panelClass} flex min-h-0 w-full flex-col p-4 sm:p-6`}>
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="supporthr-mono text-[10px] font-black uppercase tracking-[0.22em] text-[#f5d6bb]/80">
+                    Bước 01
+                  </p>
+                  <h2 className="mt-1 text-xl font-black tracking-tight text-white sm:text-2xl">Nạp JD</h2>
+                  <p className="mt-1.5 max-w-xl text-sm leading-6 text-zinc-400">
+                    Hệ thống sẽ đọc, chuẩn hóa và trích xuất tiêu chí JD trước khi mở bước CV.
+                  </p>
                 </div>
-                <h2 className="mt-1 text-[1.25rem] font-black tracking-tight text-white sm:text-[1.4rem]">
-                  {step === 'jd' ? 'Nạp JD' : 'Nạp CV'}
-                </h2>
+                <div
+                  className={`shrink-0 border px-2.5 py-2 text-right ${
+                    errorMsg
+                      ? 'border-red-400/35 bg-red-500/10 text-red-100'
+                      : jdReady
+                        ? 'border-[#f5d6bb]/30 bg-[#f5d6bb]/10 text-[#f5d6bb]'
+                        : 'border-white/10 bg-white/[0.025] text-zinc-500'
+                  }`}
+                >
+                  <div className="supporthr-mono flex items-center justify-end gap-1.5 text-[9px] font-black uppercase tracking-[0.16em]">
+                    <ListChecks className="h-3.5 w-3.5" />
+                    {isProcessing ? `${String(processingStep + 1).padStart(2, '0')}/04` : jdReady ? '04/04' : '00/04'}
+                  </div>
+                  <div className="mt-1 whitespace-nowrap text-xs font-semibold">
+                    {isProcessing ? 'Đang xử lý' : errorMsg ? 'Cần kiểm tra' : jdReady ? 'Sẵn sàng' : 'Chưa có JD'}
+                  </div>
+                </div>
               </div>
 
-              {step === 'cv' && (
-                <button
-                  type="button"
-                  onClick={onGetStarted}
-                  disabled={cvFiles.length === 0}
-                  className="supporthr-mono inline-flex h-10 items-center gap-2 border border-white bg-white px-4 text-[10px] font-black uppercase tracking-[0.16em] text-black transition-all hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40"
-                >
-                  Tiếp tục
-                  <ArrowRight className="h-4 w-4" />
-                </button>
-              )}
-            </div>
+              <input ref={fileInputRef} type="file" className="hidden" accept={FILE_ACCEPT} onChange={handleFileChange} />
 
-            {step === 'jd' ? (
-              <div className="grid min-h-0 gap-4">
-                <div className="grid gap-3 md:grid-cols-3">
-                  <button type="button" onClick={() => fileInputRef.current?.click()} className={cardClass}>
-                  <div className="inline-flex h-10 w-10 items-center justify-center bg-white/[0.035] text-[#f5d6bb]/80">
-                      <HardDriveUpload className="h-4.5 w-4.5" />
-                    </div>
-                    <div>
-                      <div className="text-sm font-semibold tracking-tight text-white">Máy tính</div>
-                      <div className="supporthr-mono mt-1.5 text-[9px] uppercase tracking-[0.16em] text-[#f5d6bb]/65">PDF, DOCX</div>
-                    </div>
-                    <div className={helperPillClass}>Tác vụ nhanh</div>
+              <div
+                className="mt-4 flex min-h-[320px] flex-1 flex-col border border-dashed border-white/12 bg-white/[0.018] p-4 text-center transition-colors hover:border-[#f5d6bb]/40 hover:bg-[#f5d6bb]/[0.035] sm:min-h-[360px] sm:p-5"
+                onDragOver={handleDragOver}
+                onDrop={handleDropJdFile}
+              >
+                <div className="flex flex-1 flex-col items-center justify-center">
+                  <div className="flex h-16 w-16 items-center justify-center border border-[#f5d6bb]/28 bg-[#f5d6bb]/10 text-[#f5d6bb] sm:h-20 sm:w-20">
+                    {isProcessing ? (
+                      <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#f5d6bb] border-t-transparent" />
+                    ) : jdReady ? (
+                      <CheckCircle2 className="h-8 w-8 sm:h-10 sm:w-10" />
+                    ) : (
+                      <UploadCloud className="h-8 w-8 sm:h-10 sm:w-10" />
+                    )}
+                  </div>
+
+                  <h3 className="mt-4 text-lg font-black tracking-tight text-white sm:text-xl">
+                    {isProcessing ? 'AI đang xử lý JD' : jdReady ? 'JD đã sẵn sàng' : 'Kéo thả JD vào đây'}
+                  </h3>
+                  <p className="mt-2 max-w-md text-sm leading-6 text-zinc-400">
+                    {isProcessing
+                      ? PROCESSING_STEPS[processingStep]
+                      : jdReady
+                        ? jdFileName || successMsg || 'JD đã được chuẩn hóa và sẵn sàng dùng cho bước CV.'
+                        : 'Hỗ trợ PDF, DOCX, PNG và JPG. Có thể nạp từ máy, Google Drive hoặc chọn JD từ kho mẫu.'}
+                  </p>
+
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isProcessing}
+                    className={`${primaryButtonClass} mt-5`}
+                  >
+                    <HardDriveUpload className="h-4 w-4" />
+                    {jdReady ? 'Đổi file JD' : 'Nạp file từ máy'}
                   </button>
+                </div>
 
-                  <button type="button" onClick={onUseTemplate ?? onGetStarted} className={cardClass}>
-                  <div className="inline-flex h-10 w-10 items-center justify-center bg-white/[0.035] text-[#f5d6bb]/80">
-                      <FileText className="h-4.5 w-4.5" />
-                    </div>
-                    <div>
-                      <div className="text-sm font-semibold tracking-tight text-white">Dùng mẫu</div>
-                      <div className="supporthr-mono mt-1.5 text-[9px] uppercase tracking-[0.16em] text-[#f5d6bb]/65">Chọn JD mẫu</div>
-                    </div>
-                    <div className={helperPillClass}>Kho mẫu</div>
-                  </button>
-
+                <div className="mt-4 flex flex-col justify-center gap-2 sm:flex-row">
                   <button
                     type="button"
                     onClick={() => void handleGoogleDrive()}
                     disabled={isProcessing}
-                    className={`${cardClass} disabled:cursor-not-allowed disabled:opacity-60`}
+                    className={secondaryButtonClass}
                   >
-                    <div className="inline-flex h-10 w-10 items-center justify-center bg-white/[0.035] text-[#f5d6bb]/80">
-                      <FolderOpen className="h-4.5 w-4.5" />
-                    </div>
-                    <div>
-                      <div className="text-sm font-semibold tracking-tight text-white">Google Drive</div>
-                      <div className="supporthr-mono mt-1.5 text-[9px] uppercase tracking-[0.16em] text-[#f5d6bb]/65">Lấy tệp</div>
-                    </div>
-                    <div className={helperPillClass}>Đồng bộ cloud</div>
+                    <FolderOpen className="h-4 w-4" />
+                    Google Drive
                   </button>
-                </div>
-
-                <input ref={fileInputRef} type="file" className="hidden" accept={FILE_ACCEPT} onChange={handleFileChange} />
-
-                <div className="grid min-h-0 gap-4">
-                  <div className={`flex min-h-0 flex-col overflow-hidden ${subPanelClass}`}>
-                    <div className="flex flex-col gap-3 px-4 py-3 md:flex-row md:items-start md:justify-between">
-                      <div className="flex items-start gap-4">
-                        <div className="inline-flex h-9 w-9 shrink-0 items-center justify-center bg-white/[0.035] text-[#f5d6bb]/80">
-                          {jdReady ? <CheckCircle2 className="h-4.5 w-4.5" /> : <FileText className="h-4.5 w-4.5" />}
-                        </div>
-                        <div className="min-w-0">
-                          <div className={sectionEyebrowClass}>Bộ nạp JD</div>
-                          <div className="mt-2 text-[1.1rem] font-black tracking-tight text-white sm:text-[1.2rem]">
-                            {isProcessing ? 'AI đang xử lý JD' : jdReady ? 'JD đã sẵn sàng' : 'Chưa có JD'}
-                          </div>
-                          <div className="supporthr-mono mt-1.5 text-[9px] uppercase tracking-[0.16em] text-[#f5d6bb]/65">
-                            {isProcessing ? PROCESSING_STEPS[processingStep] : successMsg || errorMsg || 'Chọn nguồn để nạp JD'}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        <div className={`hidden shrink-0 items-center border px-3 py-1.5 supporthr-mono text-[9px] uppercase tracking-[0.16em] sm:inline-flex ${jdStatusToneClass}`}>
-                          {jdStatusLabel}
-                        </div>
-                        <div className="hidden shrink-0 items-center px-3 py-1.5 supporthr-mono text-[9px] uppercase tracking-[0.16em] text-[#f5d6bb]/65 sm:inline-flex">
-                          {jdFileName ? '1 tệp đã chọn' : 'Chưa có tệp'}
-                        </div>
-                      </div>
-                    </div>
-
-                    {isProcessing ? (
-                      <div className="grid flex-1 gap-2 p-4 sm:grid-cols-2 xl:grid-cols-4">
-                        {PROCESSING_STEPS.map((item, index) => {
-                          const isCurrent = processingStep === index;
-                          const isDone = processingStep > index;
-
-                          return (
-                            <div
-                              key={item}
-                              className={`supporthr-mono flex items-center gap-3 border px-3 py-3 text-[10px] uppercase tracking-[0.14em] ${
-                                isCurrent
-                                  ? 'border-cyan-400/30 bg-cyan-400/10 text-cyan-100'
-                                  : isDone
-                                    ? 'border-emerald-400/30 bg-emerald-400/10 text-emerald-100'
-                                    : 'border-white/[0.06] bg-transparent text-slate-500'
-                              }`}
-                            >
-                              <div className="flex h-6 w-6 items-center justify-center border border-current/40">
-                                {isDone ? <Check className="h-3.5 w-3.5" /> : <span>{index + 1}</span>}
-                              </div>
-                              <span>{item}</span>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    ) : (
-                      <div className="flex flex-1 flex-col gap-4 p-4">
-                        <div className={`p-4 sm:p-5 ${
-                          errorMsg ? 'bg-red-500/[0.06]' : 'bg-white/[0.02]'
-                        }`}>
-                          <div className={sectionEyebrowClass}>{errorMsg ? 'Cần kiểm tra' : jdReady ? 'Đã đồng bộ' : 'Sẵn sàng nạp'}</div>
-                          <div className="mt-3 text-[1rem] font-semibold tracking-tight text-white sm:text-[1.08rem]">
-                            {errorMsg ? 'Kiểm tra lại tệp JD' : jdReady ? 'JD đã được chuẩn hóa' : 'Chọn nguồn để bắt đầu'}
-                          </div>
-                          <p className={`mt-3 text-sm leading-6 ${errorMsg ? 'text-red-100' : 'text-slate-300'}`}>
-                            {errorMsg
-                              ? errorMsg
-                              : successMsg || 'Hệ thống sẽ đọc, chuẩn hóa và trích xuất tiêu chí JD trước khi chuyển sang bước CV.'}
-                          </p>
-                        </div>
-
-                        <div className="grid gap-3 sm:grid-cols-2">
-                          <div className="bg-white/[0.02] p-4">
-                            <div className={sectionEyebrowClass}>Luồng xử lý</div>
-                            <div className="mt-3 text-sm font-medium leading-6 text-white">JD luôn được xử lý trước khi sang bước CV.</div>
-                          </div>
-                          <div className="bg-white/[0.02] p-4">
-                            <div className={sectionEyebrowClass}>Tệp hiện tại</div>
-                            <div className="mt-3 truncate text-sm font-medium leading-6 text-white">
-                              {jdFileName || 'Chưa có tệp nào được chọn'}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="hidden">
-                    <div className={`flex min-h-[120px] flex-col justify-between p-4 ${subPanelClass}`}>
-                      <div className={sectionEyebrowClass}>Trạng thái</div>
-                      <div className="text-sm font-semibold tracking-tight text-white">
-                        {jdReady ? 'Đã nạp JD' : 'Chưa nạp JD'}
-                      </div>
-                    </div>
-                    <div className={`flex min-h-[120px] flex-col justify-between p-4 ${subPanelClass}`}>
-                      <div className={sectionEyebrowClass}>Tệp JD</div>
-                      <div className="truncate text-sm font-semibold tracking-tight text-white">
-                        {jdFileName || 'Chưa chọn tệp'}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="grid min-h-0 gap-4">
-                <div className="grid gap-3 sm:grid-cols-2">
                   <button
                     type="button"
-                    onClick={() => cvFileInputRef.current?.click()}
-                    className={cardClass}
+                    onClick={onUseTemplate ?? onGetStarted}
+                    disabled={isProcessing}
+                    className={secondaryButtonClass}
                   >
-                    <div className="inline-flex h-10 w-10 items-center justify-center bg-white/[0.035] text-[#f5d6bb]/80">
-                      <HardDriveUpload className="h-4.5 w-4.5" />
-                    </div>
-                    <div>
-                      <div className="text-sm font-semibold tracking-tight text-white">Từ máy tính</div>
-                      <div className="supporthr-mono mt-1.5 text-[9px] uppercase tracking-[0.16em] text-[#f5d6bb]/65">Chọn nhiều CV</div>
-                    </div>
-                    <div className={helperPillClass}>Tái sử dụng danh sách</div>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => void handleCvDriveSelect()}
-                    disabled={isLoadingCvDrive}
-                    className={`${cardClass} disabled:cursor-not-allowed disabled:opacity-60`}
-                  >
-                    <div className="inline-flex h-10 w-10 items-center justify-center bg-white/[0.035] text-[#f5d6bb]/80">
-                      {isLoadingCvDrive ? (
-                        <div className="h-4.5 w-4.5 animate-spin border-2 border-emerald-300 border-t-transparent" />
-                      ) : (
-                        <FolderOpen className="h-4.5 w-4.5" />
-                      )}
-                    </div>
-                    <div>
-                      <div className="text-sm font-semibold tracking-tight text-white">Google Drive</div>
-                      <div className="supporthr-mono mt-1.5 text-[9px] uppercase tracking-[0.16em] text-[#f5d6bb]/65">Lấy nhiều CV</div>
-                    </div>
-                    <div className={helperPillClass}>Đồng bộ cloud</div>
+                    <FileText className="h-4 w-4" />
+                    Chọn từ kho mẫu
                   </button>
                 </div>
+              </div>
 
-                <input
-                  ref={cvFileInputRef}
-                  type="file"
-                  multiple
-                  accept={FILE_ACCEPT}
-                  className="hidden"
-                  onChange={handleCvFileChange}
-                />
-
-                <div
-                  className={`flex min-h-0 flex-col ${subPanelClass}`}
-                  onDragOver={handleDropCvFiles}
-                  onDrop={handleDropCvFiles}
-                >
-                  <div className="flex items-center justify-between gap-3 px-4 py-2.5">
-                    <div>
-                      <div className={sectionEyebrowClass}>Danh sách CV</div>
-                      <div className="mt-1 text-xs text-[#f5d6bb]/55">Thêm, kiểm tra và loại bỏ tệp ngay tại đây</div>
-                    </div>
-                    <div className="supporthr-mono px-3 py-1.5 text-[9px] uppercase tracking-[0.16em] text-[#f5d6bb]/65">
-                      {cvFiles.length}/{MAX_CV_PER_BATCH}
-                    </div>
-                  </div>
-
-                  {cvError && (
-                    <div className="border-b border-red-400/20 bg-red-400/10 px-4 py-3 text-xs text-red-100">
-                      {cvError}
-                    </div>
-                  )}
-
-                  <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto p-3">
-                    {cvFiles.length === 0 ? (
-                      <div className="flex h-full min-h-[180px] flex-col items-center justify-center bg-white/[0.015] px-4 text-center">
-                        <div className="inline-flex h-12 w-12 items-center justify-center bg-white/[0.03]">
-                          <UploadCloud className="h-7 w-7 text-slate-600" />
-                        </div>
-                        <p className="mt-4 text-[1rem] font-semibold tracking-tight text-slate-200">Chưa có CV nào</p>
-                        <p className="mt-2 max-w-xs text-xs leading-6 text-[#f5d6bb]/55">
-                          Kéo thả file vào khung này hoặc dùng hai nguồn nạp ở phía trên.
-                        </p>
-                      </div>
-                    ) : (
-                      <div className="space-y-2">
-                        {cvFiles.map((file, index) => (
-                          <div
-                            key={`${file.name}-${index}`}
-                            className="group flex items-center gap-3 bg-white/[0.02] px-4 py-3 transition-colors hover:bg-white/[0.04]"
-                          >
-                            <div className="inline-flex h-9 w-9 shrink-0 items-center justify-center bg-white/[0.04] text-slate-300">
-                              <FileText className="h-4 w-4" />
-                            </div>
-                            <div className="min-w-0 flex-1">
-                              <p className="truncate text-sm font-medium text-slate-100">{file.name}</p>
-                            </div>
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveCv(index)}
-                              className="inline-flex h-8 w-8 items-center justify-center border border-transparent text-slate-500 transition-all hover:border-red-400/20 hover:bg-red-400/10 hover:text-red-200"
-                              aria-label={`Xóa ${file.name}`}
-                            >
-                              <X className="h-4 w-4" />
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+              <div
+                className={`mt-3 flex items-start gap-3 border px-3 py-3 ${
+                  errorMsg
+                    ? 'border-red-400/25 bg-red-500/10'
+                    : jdReady
+                      ? 'border-[#f5d6bb]/24 bg-[#f5d6bb]/10'
+                      : 'border-white/10 bg-white/[0.02]'
+                }`}
+              >
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center border border-white/10 bg-black/60 text-[#f5d6bb]">
+                  {jdReady ? <CheckCircle2 className="h-4 w-4" /> : <FileText className="h-4 w-4" />}
+                </div>
+                <div className="min-w-0">
+                  <p className={`text-sm font-semibold ${errorMsg ? 'text-red-100' : 'text-white'}`}>
+                    {errorMsg ? 'Kiểm tra lại tệp JD' : jdReady ? 'JD đã nạp' : 'Chưa có JD'}
+                  </p>
+                  <p className={`mt-1 text-sm leading-5 ${errorMsg ? 'text-red-100/80' : 'text-zinc-400'}`}>
+                    {errorMsg || successMsg || 'Nạp JD để mở trang CV và bắt đầu chuẩn bị danh sách ứng viên.'}
+                  </p>
                 </div>
               </div>
-            )}
 
-            <div className={`flex items-center justify-between gap-3 px-4 py-3 ${subPanelClass}`}>
-              <div className="supporthr-mono text-[10px] uppercase tracking-[0.16em] text-[#f5d6bb]/70">
-                {step === 'jd' ? 'Hoàn tất JD để chuyển sang bước CV.' : 'Nạp xong CV rồi tiếp tục.'}
-              </div>
-              {step === 'jd' && jdReady && (
+              <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <p className="text-xs leading-5 text-zinc-500">
+                  CV chỉ được mở sau khi JD đã được đọc và chuẩn hóa thành công.
+                </p>
                 <button
                   type="button"
-                  onClick={() => setStep('cv')}
-                  className="supporthr-mono inline-flex h-10 items-center gap-2 border border-white bg-white px-4 text-[10px] font-black uppercase tracking-[0.16em] text-black transition-all hover:bg-slate-100"
+                  onClick={goToCv}
+                  disabled={!jdReady}
+                  className={`${primaryButtonClass} sm:w-auto`}
                 >
-                  Sang bước CV
+                  Sang trang CV
                   <ArrowRight className="h-4 w-4" />
                 </button>
+              </div>
+            </section>
+          </main>
+        ) : (
+          <main className="grid flex-1 gap-5 py-5 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] lg:py-7">
+            <section className={`${panelClass} flex flex-col p-5 sm:p-6`}>
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                <div>
+                  <p className="supporthr-mono text-[10px] font-black uppercase tracking-[0.22em] text-[#f5d6bb]/80">
+                    Bước 02
+                  </p>
+                  <h2 className="mt-2 text-2xl font-black tracking-tight text-white">Nạp CV</h2>
+                  <p className="mt-2 max-w-xl text-sm leading-6 text-zinc-400">
+                    JD đã sẵn sàng. Nạp tối đa {MAX_CV_PER_BATCH} CV để hệ thống phân tích và xếp hạng.
+                  </p>
+                </div>
+                <div className="supporthr-mono w-fit border border-white/10 bg-white/[0.025] px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.16em] text-zinc-300">
+                  {cvFiles.length}/{MAX_CV_PER_BATCH} CV
+                </div>
+              </div>
+
+              <input
+                ref={cvFileInputRef}
+                type="file"
+                multiple
+                accept={FILE_ACCEPT}
+                className="hidden"
+                onChange={handleCvFileChange}
+              />
+
+              <div
+                className="mt-6 border border-dashed border-white/12 bg-white/[0.018] p-5 transition-colors hover:border-[#f5d6bb]/40 hover:bg-[#f5d6bb]/[0.035]"
+                onDragOver={handleDragOver}
+                onDrop={handleDropCvFiles}
+              >
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="flex h-14 w-14 shrink-0 items-center justify-center border border-[#f5d6bb]/24 bg-[#f5d6bb]/10 text-[#f5d6bb]">
+                      <UploadCloud className="h-7 w-7" />
+                    </div>
+                    <div>
+                      <p className="text-base font-black text-white">Kéo thả CV vào đây</p>
+                      <p className="mt-1 text-sm text-zinc-500">PDF, DOCX, PNG, JPG</p>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-2 sm:flex-row">
+                    <button
+                      type="button"
+                      onClick={() => cvFileInputRef.current?.click()}
+                      className={secondaryButtonClass}
+                    >
+                      <HardDriveUpload className="h-4 w-4" />
+                      Chọn file
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => void handleCvDriveSelect()}
+                      disabled={isLoadingCvDrive}
+                      className={secondaryButtonClass}
+                    >
+                      {isLoadingCvDrive ? (
+                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-[#f5d6bb] border-t-transparent" />
+                      ) : (
+                        <FolderOpen className="h-4 w-4" />
+                      )}
+                      Google Drive
+                    </button>
+                  </div>
+                </div>
+
+                <div className="mt-5 h-1.5 overflow-hidden bg-white/10">
+                  <div
+                    className="h-full bg-[#f5d6bb] transition-[width] duration-500"
+                    style={{ width: `${cvProgressPercent}%` }}
+                  />
+                </div>
+              </div>
+
+              {cvError && (
+                <div className="mt-4 border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-100">
+                  {cvError}
+                </div>
               )}
-            </div>
-          </section>
 
-            <aside className={`grid min-h-0 grid-rows-[auto_1fr] gap-3 p-4 xl:p-5 ${panelClass}`}>
-            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-2">
-              <div className={`p-4 ${subPanelClass}`}>
-                <div className="flex items-center gap-3">
-                  <div className="inline-flex h-9 w-9 items-center justify-center bg-white/[0.035] text-[#f5d6bb]/80">
-                    <BriefcaseBusiness className="h-4.5 w-4.5" />
-                  </div>
-                  <div className="min-w-0">
-                    <div className={sectionEyebrowClass}>JD</div>
-                    <div className="mt-2 truncate text-sm font-semibold tracking-tight text-white">
-                      {jdFileName || 'Chưa nạp JD'}
-                    </div>
-                  </div>
+              <div className="mt-auto flex flex-col gap-3 pt-6 sm:flex-row">
+                <button type="button" onClick={() => setStage('jd')} className={`${secondaryButtonClass} sm:w-auto`}>
+                  <ArrowLeft className="h-4 w-4" />
+                  Quay lại JD
+                </button>
+                <button
+                  type="button"
+                  onClick={onGetStarted}
+                  disabled={!canContinue}
+                  className={`${primaryButtonClass} flex-1`}
+                >
+                  Tiếp tục phân tích
+                  <ArrowRight className="h-4 w-4" />
+                </button>
+              </div>
+            </section>
+
+            <section className={`${panelClass} flex min-h-[520px] flex-col overflow-hidden`}>
+              <div className="flex shrink-0 items-center justify-between gap-3 border-b border-white/10 px-5 py-4 sm:px-6">
+                <div>
+                  <h3 className="text-base font-black text-white">Danh sách CV</h3>
+                  <p className="mt-1 text-xs text-zinc-500">Kiểm tra và loại bỏ tệp trước khi phân tích.</p>
                 </div>
+
+                {cvFiles.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={handleClearCvFiles}
+                    className="px-2.5 py-1.5 text-xs font-semibold text-zinc-500 transition hover:bg-red-500/10 hover:text-red-200"
+                  >
+                    Xóa tất cả
+                  </button>
+                )}
               </div>
 
-              <div className={`p-4 ${subPanelClass}`}>
-                <div className="flex items-center gap-3">
-                  <div className="inline-flex h-9 w-9 items-center justify-center bg-white/[0.035] text-[#f5d6bb]/80">
-                    <UploadCloud className="h-4.5 w-4.5" />
-                  </div>
-                  <div>
-                    <div className={sectionEyebrowClass}>CV</div>
-                    <div className="mt-2 text-sm font-semibold tracking-tight text-white">
-                      {cvFiles.length}/{MAX_CV_PER_BATCH}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className={`flex min-h-0 flex-col ${subPanelClass}`}>
-                  <div className="px-4 py-2.5">
-                <div className={sectionEyebrowClass}>Danh sách CV</div>
-                <div className="mt-1 text-xs text-[#f5d6bb]/55">Tóm tắt nhanh các CV đã nạp</div>
-              </div>
-
-              <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto p-3">
+              <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto p-4 sm:p-5">
                 {cvFiles.length === 0 ? (
-                  <div className="flex h-full min-h-[160px] flex-col items-center justify-center bg-white/[0.015] px-4 text-center">
-                    <div className="inline-flex h-12 w-12 items-center justify-center bg-white/[0.03]">
-                      <UploadCloud className="h-7 w-7 text-slate-600" />
+                  <div className="flex h-full min-h-[320px] flex-col items-center justify-center border border-dashed border-white/10 bg-white/[0.015] px-5 text-center">
+                    <div className="flex h-14 w-14 items-center justify-center border border-white/10 bg-black/70 text-zinc-500">
+                      <FileText className="h-7 w-7" />
                     </div>
-                    <p className="mt-4 text-[1rem] font-semibold tracking-tight text-slate-200">Chưa có CV nào</p>
-                    <p className="mt-2 text-xs leading-6 text-[#f5d6bb]/55">Số lượng CV sẽ hiển thị tại đây ngay khi bạn nạp file.</p>
+                    <p className="mt-4 text-base font-black text-white">Chưa có CV nào</p>
+                    <p className="mt-2 max-w-xs text-sm leading-6 text-zinc-400">
+                      Danh sách CV sẽ hiển thị tại đây ngay sau khi bạn nạp file từ máy hoặc Google Drive.
+                    </p>
                   </div>
                 ) : (
                   <div className="space-y-2">
                     {cvFiles.map((file, index) => (
                       <div
                         key={`${file.name}-${index}`}
-                        className="flex items-center gap-3 bg-white/[0.02] px-4 py-3"
+                        className="group flex items-center gap-3 border border-white/10 bg-white/[0.025] px-3.5 py-3 transition-colors hover:border-[#f5d6bb]/24 hover:bg-[#f5d6bb]/[0.05]"
                       >
-                        <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center bg-white/[0.04] text-slate-300">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center border border-white/10 bg-black/70 text-[#f5d6bb]">
                           <FileText className="h-4 w-4" />
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="truncate text-sm font-medium text-slate-100">{file.name}</p>
+                          <p className="truncate text-sm font-semibold text-zinc-100">{file.name}</p>
+                          <p className="mt-1 text-xs text-zinc-500">{(file.size / 1024).toFixed(1)} KB</p>
                         </div>
-                        <span className="text-xs text-[#f5d6bb]/55">{String(index + 1).padStart(2, '0')}</span>
+                        <span className="supporthr-mono hidden border border-white/10 bg-black/70 px-2 py-1 text-[10px] text-zinc-500 sm:inline-flex">
+                          {String(index + 1).padStart(2, '0')}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveCv(index)}
+                          className="flex h-9 w-9 items-center justify-center text-zinc-500 transition-all hover:bg-red-500/10 hover:text-red-200"
+                          aria-label={`Xóa ${file.name}`}
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
                       </div>
                     ))}
                   </div>
                 )}
               </div>
-            </div>
-          </aside>
-        </div>
-          </div>
-        </div>
+            </section>
+          </main>
+        )}
       </div>
     </div>
   );

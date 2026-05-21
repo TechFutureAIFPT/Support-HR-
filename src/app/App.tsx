@@ -15,11 +15,9 @@ import type { AuthUser } from '@/services/auth/authTypes';
 import type { AppStep, Candidate, HardFilters, WeightCriteria, AnalysisRunData, ActiveAnalysisContext } from '@/types';
 import { initialWeights } from '@/config/constants';
 import Sidebar from '@/layout/Sidebar';
-import ProgressBar from '@/components/common/ProgressBar';
 import JDTemplatesModal, { JDTemplate } from '@/components/history/JDTemplatesModal';
 import HistoryModal from '@/components/history/HistoryModal';
 import PageTransition from '@/components/PageTransition';
-import MobileBottomNav from '@/components/responsive/mobile/MobileBottomNav';
 import SupportHRLoading from '@/components/common/SupportHRLoading';
 
 // Lazy load pages for code-splitting
@@ -512,6 +510,18 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
   }, []);
 
   const isHomeView = activeStep === 'home';
+  const isLandingFallbackView =
+    !isLoggedIn &&
+    ['/jd', '/weights', '/analysis', '/detailed-analytics', '/chatbot', '/feedback'].includes(location.pathname);
+  const isLandingView = isHomeView || isLandingFallbackView;
+  const isWorkflowView =
+    !isLandingView &&
+    (activeStep === 'jd' ||
+      activeStep === 'weights' ||
+      activeStep === 'analysis' ||
+      activeStep === 'dashboard' ||
+      activeStep === 'chatbot' ||
+      activeStep === 'feedback');
 
   useEffect(() => {
     const path = location.pathname;
@@ -547,7 +557,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
 
   return (
     <div className={`h-[100dvh] bg-black text-slate-100 flex flex-col overflow-hidden ${className || ''}`}>
-      {!isHomeView && (
+      {!isLandingView && (
         <div className="hidden lg:block">
           <Sidebar
             activeStep={activeStep}
@@ -570,7 +580,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
         </div>
       )}
 
-      {!isHomeView && (
+      {!isLandingView && (
         <div className="lg:hidden">
           <Sidebar
             activeStep={activeStep}
@@ -595,7 +605,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
       )}
 
       {/* Mobile Fixed Header — full width, NOT offset by sidebar */}
-      {!isHomeView && (
+      {!isLandingView && (
         <header
           className="fixed top-0 left-0 right-0 z-[45] flex min-h-14 items-center justify-between gap-3 px-3 py-2 lg:hidden"
           style={{ background: '#000000', borderBottom: '1px solid rgba(255,255,255,0.08)' }}
@@ -637,18 +647,13 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
       )}
 
       <main
-        className={`main-content ${!isHomeView ? 'pb-20 lg:pb-0' : 'pb-0'} ${!isHomeView ? 'mt-14 lg:mt-0' : ''} flex-1 flex flex-col min-h-0 overflow-x-hidden transition-all duration-300 ease-in-out ${
-          !isHomeView
+        className={`main-content pb-0 ${!isLandingView ? 'mt-14 lg:mt-0' : ''} flex-1 flex flex-col min-h-0 overflow-x-hidden transition-all duration-300 ease-in-out ${
+          !isLandingView
             ? 'lg:ml-[220px] lg:w-[calc(100vw-220px)] min-w-0'
             : 'ml-0 w-full'
         }`}
       >
-        {(activeStep === 'jd' || activeStep === 'weights' || activeStep === 'analysis') && (
-          <div className="pt-4 lg:hidden">
-            <ProgressBar activeStep={activeStep} completedSteps={completedSteps} />
-          </div>
-        )}
-        <div className={`flex h-full min-h-0 w-full flex-1 flex-col ${(activeStep === 'home' || activeStep === 'jd' || activeStep === 'weights' || activeStep === 'analysis' || activeStep === 'dashboard' || activeStep === 'chatbot' || activeStep === 'feedback') ? 'overflow-hidden' : 'max-w-7xl px-4 sm:px-6 lg:px-8 mx-auto py-4 overflow-y-auto custom-scrollbar'}`}>
+        <div className={`flex h-full min-h-0 w-full flex-1 flex-col ${isWorkflowView ? 'overflow-hidden' : isLandingView ? '' : 'max-w-7xl px-4 sm:px-6 lg:px-8 mx-auto py-4 overflow-y-auto custom-scrollbar'}`}>
           <Suspense fallback={
             <SupportHRLoading
               mode="panel"
@@ -680,17 +685,6 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
           </Suspense>
         </div>
       </main>
-
-      {/* Mobile Bottom Navigation (phone-like) */}
-      {activeStep === 'jd' ||
-        activeStep === 'weights' ||
-        activeStep === 'analysis' ? (
-        <MobileBottomNav
-          activeStep={activeStep}
-          completedSteps={completedSteps}
-          onNavigate={setActiveStep}
-        />
-      ) : null}
 
       {/* JD Templates Modal */}
       <JDTemplatesModal
