@@ -291,8 +291,14 @@ function HeadlineLine({
   text: string;
 }) {
   return (
-    <span className="relative block leading-[0.95]">
-      <motion.span className="relative block text-white">
+    <span className="relative block leading-[0.88]">
+      <motion.span
+        className="relative block text-white"
+        initial={{ opacity: 0, y: 28 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+      >
         {text}
       </motion.span>
     </span>
@@ -342,12 +348,25 @@ export default function LandingHero({
             whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
             viewport={HERO_VIEWPORT}
             transition={HERO_TRANSITION}
-            className="relative z-10 max-w-[44rem] py-10 sm:py-12 lg:py-16 lg:max-w-[55%] xl:max-w-[58%]"
+            className="relative z-10 max-w-[44rem] py-12 sm:py-14 lg:py-20 lg:max-w-[55%] xl:max-w-[58%]"
           >
             <div className="pointer-events-none absolute bottom-[-2.5rem] left-[-2.25rem] right-0 top-[-2.5rem] -z-10 bg-[radial-gradient(circle_at_22%_24%,rgba(5,14,26,0.98)_0%,rgba(0,0,0,0.94)_26%,rgba(0,0,0,0.74)_54%,rgba(0,0,0,0.34)_76%,transparent_100%)]" />
             <div className="pointer-events-none absolute bottom-[-1.5rem] left-[-2.5rem] right-0 top-[11.25rem] -z-10 bg-[linear-gradient(90deg,rgba(0,0,0,0.98)_0%,rgba(0,0,0,0.88)_34%,rgba(0,0,0,0.54)_62%,rgba(0,0,0,0.12)_88%,transparent_100%)] blur-[3px]" />
 
-            <h1 className="supporthr-display max-w-[8.4ch] text-[clamp(3.2rem,5.8vw,5.1rem)] font-black tracking-[-0.06em] leading-[0.95]">
+            <motion.div
+              initial={reduceMotion ? false : { opacity: 0, x: -12 }}
+              whileInView={reduceMotion ? undefined : { opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+              className="mb-7 flex items-center gap-3"
+            >
+              <span className="h-3.5 w-3.5 bg-[#f5d6bb] flex-shrink-0" aria-hidden="true" />
+              <span className="supporthr-mono text-[11px] font-bold uppercase tracking-[0.32em] text-[#f5d6bb]/80">
+                AI TUYỂN DỤNG
+              </span>
+            </motion.div>
+
+            <h1 className="supporthr-display max-w-[10ch] text-[clamp(3.6rem,7.2vw,6.8rem)] font-black leading-[0.88] tracking-[-0.04em]">
               {HERO_HEADLINE_LINES.map((line) => (
                 <HeadlineLine
                   key={line.text}
@@ -356,32 +375,34 @@ export default function LandingHero({
               ))}
             </h1>
 
-            <p className="mt-7 max-w-[42rem] text-[clamp(1rem,1.45vw,1.22rem)] leading-[1.85] text-zinc-300 drop-shadow-[0_10px_30px_rgba(0,0,0,0.72)]">
+            {/* Body text — lighter weight, Blackbox style */}
+            <p className="mt-8 max-w-[38rem] text-[clamp(0.95rem,1.3vw,1.08rem)] font-light leading-[1.9] tracking-[0.005em] text-zinc-400">
               Tự động quét CV, hiểu kỹ năng kỹ thuật, đối sánh với JD và tạo danh sách đề cử rõ ràng
               cho nhà tuyển dụng hiện đại.
             </p>
 
-            <div className="mt-9 flex flex-wrap items-center gap-3">
+            {/* Blackbox-style square buttons: uppercase, bold tracking */}
+            <div className="mt-10 flex flex-wrap items-center gap-4">
               <motion.button
                 type="button"
-                whileHover={buttonHover}
-                whileTap={reduceMotion ? undefined : { scale: 0.98 }}
+                whileHover={reduceMotion ? undefined : { scale: 1.02 }}
+                whileTap={reduceMotion ? undefined : { scale: 0.97 }}
                 onClick={onPrimaryAction}
-                className="inline-flex h-12 items-center gap-2 rounded-none bg-white px-6 text-sm font-semibold text-black shadow-[0_24px_60px_rgba(255,255,255,0.14)] transition-colors hover:bg-zinc-100"
+                className="group relative inline-flex h-13 items-center gap-3 overflow-hidden rounded-none bg-white px-7 text-[13px] font-bold uppercase tracking-[0.12em] text-black shadow-[0_20px_50px_rgba(255,255,255,0.12)] transition-all duration-200 hover:bg-zinc-100 hover:shadow-[0_24px_60px_rgba(255,255,255,0.2)]"
               >
-                {primaryLabel}
-                <ArrowRight className="h-4 w-4" />
+                <span className="relative z-10">{primaryLabel}</span>
+                <ArrowRight className="relative z-10 h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />
               </motion.button>
 
               <motion.button
                 type="button"
-                whileHover={buttonHover}
-                whileTap={reduceMotion ? undefined : { scale: 0.98 }}
+                whileHover={reduceMotion ? undefined : { scale: 1.02 }}
+                whileTap={reduceMotion ? undefined : { scale: 0.97 }}
                 onClick={onSecondaryAction}
-                className="inline-flex h-12 items-center gap-2 rounded-none border border-white/12 bg-white/[0.02] px-6 text-sm font-medium text-zinc-200 transition-colors hover:bg-white/[0.05]"
+                className="group inline-flex h-13 items-center gap-3 rounded-none border border-white/16 bg-transparent px-7 text-[13px] font-semibold uppercase tracking-[0.1em] text-zinc-300 transition-all duration-200 hover:border-white/28 hover:bg-white/[0.05] hover:text-white"
               >
                 Xem quy trình
-                <Sparkles className="h-4 w-4 text-cyan-300" />
+                <Sparkles className="h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
               </motion.button>
             </div>
           </motion.div>
