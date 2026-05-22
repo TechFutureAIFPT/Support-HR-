@@ -604,6 +604,26 @@
   letter-spacing: 0;
 }
 
+.home-page-shell #hero .home-hero-heading {
+  font-size: clamp(4.1rem, 7vw, 7.4rem) !important;
+  line-height: 0.9 !important;
+}
+
+.home-page-shell #hero .home-hero-copy {
+  font-size: clamp(1.04rem, 1.24vw, 1.24rem) !important;
+}
+
+@media (max-width: 767px) {
+  .home-page-shell #hero .home-hero-heading {
+    font-size: clamp(3.2rem, 14vw, 4.4rem) !important;
+    line-height: 0.92 !important;
+  }
+
+  .home-page-shell #hero .home-hero-copy {
+    font-size: 1rem !important;
+  }
+}
+
 .home-hero-grid {
   opacity: 0.8;
 }

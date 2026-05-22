@@ -138,8 +138,7 @@ const HERO_SYSTEM_PANELS = [
 ];
 
 const HERO_HEADLINE_LINES = [
-  { text: "Support HR," },
-  { text: "đọc CV" },
+  { text: "Support HR, đọc CV" },
   { text: "nhanh và chuẩn." },
 ];
 
@@ -273,7 +272,7 @@ function SystemPanel({
 
 function HeadlineLine({ text }: { text: string }) {
   return (
-    <span className="relative block leading-[0.88]">
+    <span className="relative block leading-[0.88] sm:whitespace-nowrap">
       <motion.span
         className="relative block text-white"
         initial={{ opacity: 0, y: 28 }}
@@ -302,7 +301,7 @@ export default function LandingHero({
       <div className="pointer-events-none absolute left-[-4rem] top-[4rem] z-[1] h-[36rem] w-[74rem] max-w-[80%] bg-[radial-gradient(circle_at_18%_16%,rgba(255,255,255,0.06)_0%,rgba(0,0,0,0.9)_34%,rgba(0,0,0,0.98)_68%,transparent_100%)] blur-[10px]" />
 
       <div className="w-full">
-        <div className="relative min-h-[475px] sm:min-h-[515px] lg:min-h-[532px] xl:min-h-[550px]">
+        <div className="relative min-h-[540px] sm:min-h-[580px] lg:min-h-[610px] xl:min-h-[640px]">
           <div
             aria-hidden="true"
             className="pointer-events-none absolute inset-0 hidden overflow-hidden opacity-[0.9] lg:grid lg:grid-cols-5 lg:grid-rows-3"
@@ -328,7 +327,7 @@ export default function LandingHero({
             whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
             viewport={HERO_VIEWPORT}
             transition={HERO_TRANSITION}
-            className="relative z-10 px-6 py-9 sm:px-10 sm:py-11 lg:max-w-[55%] lg:px-16 lg:py-9 xl:max-w-[58%] xl:py-11"
+            className="relative z-10 max-w-[46rem] px-6 py-12 sm:px-10 sm:py-14 lg:max-w-[64%] lg:px-16 lg:py-14 xl:max-w-[68%] xl:py-16"
           >
             <div className="pointer-events-none absolute bottom-[-2.5rem] left-[-2.25rem] right-0 top-[-2.5rem] -z-10 bg-[radial-gradient(circle_at_22%_24%,rgba(5,14,26,0.98)_0%,rgba(0,0,0,0.94)_26%,rgba(0,0,0,0.74)_54%,rgba(0,0,0,0.34)_76%,transparent_100%)]" />
             <div className="pointer-events-none absolute bottom-[-1.5rem] left-[-2.5rem] right-0 top-[11.25rem] -z-10 bg-[linear-gradient(90deg,rgba(0,0,0,0.98)_0%,rgba(0,0,0,0.88)_34%,rgba(0,0,0,0.54)_62%,rgba(0,0,0,0.12)_88%,transparent_100%)] blur-[3px]" />
@@ -347,20 +346,20 @@ export default function LandingHero({
             </motion.div>
 
             {/* Ultra-heavy headline */}
-            <h1 className="supporthr-display max-w-[10ch] text-[clamp(3.18rem,5.8vw,5.5rem)] font-black leading-[0.88] tracking-[-0.04em]">
+            <h1 className="home-hero-heading supporthr-display max-w-[18ch] text-[clamp(3.6rem,6.4vw,6.7rem)] font-black leading-[0.9] tracking-normal">
               {HERO_HEADLINE_LINES.map((line) => (
                 <HeadlineLine key={line.text} text={line.text} />
               ))}
             </h1>
 
             {/* Body text — lighter weight */}
-            <p className="mt-5 max-w-[34rem] text-[clamp(0.88rem,1.05vw,0.97rem)] font-light leading-[1.7] tracking-[0.005em] text-zinc-400 xl:mt-6">
+            <p className="home-hero-copy mt-6 max-w-[43rem] text-[clamp(1rem,1.18vw,1.18rem)] font-light leading-[1.75] tracking-normal text-zinc-400 xl:mt-7">
               Tự động quét CV, hiểu kỹ năng kỹ thuật, đối sánh với JD và tạo danh sách đề cử rõ ràng
               cho nhà tuyển dụng hiện đại.
             </p>
 
             {/* Blackbox-style square buttons — only GET STARTED, made larger */}
-            <div className="mt-6 flex flex-wrap items-center xl:mt-7">
+            <div className="mt-8 flex flex-wrap items-center xl:mt-9">
               <motion.button
                 type="button"
                 whileHover={reduceMotion ? undefined : { scale: 1.02 }}
