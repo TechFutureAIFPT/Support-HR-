@@ -218,21 +218,8 @@ const HomePage: React.FC<HomePageProps> = ({
         <WhySupportSection />
 
         {/* ── Comparison Section ──────────────────────────────── */}
-        <section id="compare" className="border-y border-zinc-800 bg-zinc-950 py-20">
+        <section id="compare" className="border-y border-zinc-800 bg-zinc-950 py-12 sm:py-14">
           <div className="w-full max-w-none px-4 sm:px-7 lg:px-10">
-            <div className="mx-auto mb-12 max-w-[90rem] px-1 text-center">
-              <p className="supporthr-mono text-[12px] font-black uppercase tracking-[0.28em] text-blue-300">
-                // Bảng so sánh
-              </p>
-              <h2 className="supporthr-display mt-6 text-5xl font-black uppercase leading-[0.9] tracking-normal text-white sm:text-6xl lg:text-7xl xl:text-8xl">
-                <span className="block">AI Tổng quát</span>
-                <span className="block bg-gradient-to-r from-blue-300 to-cyan-200 bg-clip-text text-transparent">so với Support HR</span>
-              </h2>
-              <p className="mx-auto mt-8 max-w-3xl text-base leading-8 text-zinc-400 sm:text-lg">
-                So sánh những năng lực tuyển dụng quan trọng nhất khi xử lý JD, CV và dữ liệu ứng viên ở quy mô doanh nghiệp.
-              </p>
-            </div>
-
             <ComparisonTable />
           </div>
         </section>
