@@ -2,18 +2,24 @@
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
+
+    <!-- Preconnect to speed up external resource loading -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
+
+    <!-- Combined Google Fonts (single request) -->
     <link
-      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
+
     <link rel="icon" type="image/jpeg" href="/images/logos/logo.jpg" />
     <link rel="manifest" href="/pwa/manifest.json" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    
+
     <!-- Primary Meta Tags -->
-    <title>Support HR - AI Sàng Lọc CV Thông Minh | TuyểN Dụng Tự Động</title>
+    <title>Support HR - AI Sàng Lọc CV Thông Minh | Tuyển Dụng Tự Động</title>
     <meta name="title" content="Support HR - AI Sàng Lọc CV Thông Minh | Tuyển Dụng Tự Động" />
     <meta name="description" content="Support HR - Giải pháp AI hỗ trợ HR tuyển dụng: sàng lọc CV tự động, phân tích ứng viên thông minh, gợi ý câu hỏi phỏng vấn. Tiết kiệm 80% thời gian tuyển dụng." />
     <meta name="keywords" content="support hr, hỗ trợ hr, tuyển dụng AI, sàng lọc CV, phân tích ứng viên, AI recruitment, HR tech, tuyển dụng thông minh, công cụ HR, phỏng vấn AI" />
@@ -21,23 +27,23 @@
     <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
     <meta name="googlebot" content="index, follow" />
     <meta name="bingbot" content="index, follow" />
-    
+
     <!-- Bing & Microsoft Meta Tags -->
     <meta name="msapplication-TileColor" content="#0B1220" />
     <meta name="msapplication-TileImage" content="/images/logos/logo.jpg" />
     <meta name="msapplication-config" content="/pwa/browserconfig.xml" />
     <meta name="msvalidate.01" content="YOUR_BING_VERIFICATION_CODE" />
-    
+
     <!-- Language & Geographic -->
     <meta name="language" content="Vietnamese" />
     <meta name="geo.region" content="VN" />
     <meta name="geo.placename" content="Vietnam" />
-    
+
     <!-- Theme Color for Edge/Mobile -->
     <meta name="theme-color" content="#0B1220" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    
+
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://www.supporthr-tf.com.vn/" />
@@ -51,15 +57,15 @@
     <meta property="twitter:title" content="Support HR - AI Sàng Lọc CV Thông Minh" />
     <meta property="twitter:description" content="Giải pháp AI hỗ trợ HR: Sàng lọc CV tự động, phân tích ứng viên, gợi ý phỏng vấn." />
     <meta property="twitter:image" content="https://www.supporthr-tf.com.vn/images/logos/logo.jpg" />
-    
+
     <!-- Canonical URL -->
     <link rel="canonical" href="https://www.supporthr-tf.com.vn/" />
-    
+
     <!-- Alternate for Bing International -->
     <link rel="alternate" hreflang="vi-VN" href="https://www.supporthr-tf.com.vn/" />
     <link rel="alternate" hreflang="vi" href="https://www.supporthr-tf.com.vn/" />
     <link rel="alternate" hreflang="x-default" href="https://www.supporthr-tf.com.vn/" />
-    
+
     <!-- JSON-LD Structured Data for Bing & Google -->
     <script type="application/ld+json">
     {
@@ -86,7 +92,7 @@
       }
     }
     </script>
-    
+
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -98,31 +104,30 @@
       "sameAs": []
     }
     </script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script type="importmap">
-{
-  "imports": {
-    "@google/genai": "https://esm.sh/@google/genai@^1.11.0",
-    "mammoth": "https://esm.sh/mammoth@1.7.1",
-    "pdfjs-dist": "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.3.136/build/pdf.min.mjs",
-    "recharts": "https://esm.sh/recharts@3.0.0-alpha.10",
-    "react-router-dom": "https://aistudiocdn.com/react-router-dom@^7.9.1",
-    "react/": "https://aistudiocdn.com/react@^19.1.1/",
-    "react": "https://aistudiocdn.com/react@^19.1.1",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/",
-    "tesseract.js": "https://esm.sh/tesseract.js@5.1.0"
-  }
-}
-</script>
-</head>
+
+    <!-- Font Awesome: non-blocking load via media trick -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+      media="print"
+      onload="this.media='all'"
+    />
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+        crossorigin="anonymous"
+      />
+    </noscript>
+  </head>
   <body>
     <div class="ai-aurora"></div>
     <div class="grid-overlay"></div>
     <div id="root">
+      <!-- Inline SSR-friendly no-JS fallback shown before React hydrates -->
       <main style="min-height:100vh;background:#000;color:#f8fafc;font-family:Inter,Arial,sans-serif;padding:48px 24px;">
         <div style="max-width:760px;margin:0 auto;">
           <img src="/images/logos/logo.jpg" alt="Support HR" width="56" height="56" style="border-radius:12px;object-fit:cover;" />
@@ -138,10 +143,15 @@
         </div>
       </main>
     </div>
+
+    <!-- Main Vite App Bundle -->
     <script type="module" src="/src/app/main.tsx"></script>
-    <!-- Google API Scripts -->
-    <script src="https://apis.google.com/js/api.js"></script>
-    <script src="https://accounts.google.com/gsi/client"></script>
+
+    <!-- Google API Scripts: async + defer to avoid render-blocking -->
+    <script src="https://apis.google.com/js/api.js" async defer></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+    <!-- Service Worker Registration -->
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
@@ -178,4 +188,4 @@
       }
     </script>
   </body>
-</html> 
+</html>

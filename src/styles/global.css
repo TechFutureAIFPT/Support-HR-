@@ -127,6 +127,20 @@
   opacity: 0.28;
 }
 
+.supporthr-intake-shell {
+  max-width: min(1480px, 100%);
+}
+
+.supporthr-intake-cv-grid {
+  display: grid;
+}
+
+@media (min-width: 1024px) {
+  .supporthr-intake-cv-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+}
+
 .supporthr-surface {
   position: relative;
   border: 1px solid rgba(255, 255, 255, 0.1);

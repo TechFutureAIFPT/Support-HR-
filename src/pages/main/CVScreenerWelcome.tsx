@@ -449,7 +449,7 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
 
       {isProcessing && <ProcessingModal step={processingStep} />}
 
-      <div className="relative z-10 mx-auto flex h-full w-full max-w-[1120px] flex-col overflow-y-auto px-3 py-3 sm:px-6 sm:py-4 lg:overflow-hidden lg:px-8 lg:py-4">
+      <div className="supporthr-intake-shell relative z-10 mx-auto flex h-full w-full max-w-[1480px] flex-col overflow-y-auto px-3 py-3 sm:px-6 sm:py-4 lg:overflow-hidden lg:px-8 lg:py-4 xl:px-10">
         <header className="shrink-0 border-b border-white/10 pb-3">
           <div className="flex flex-col gap-2.5 lg:flex-row lg:items-end lg:justify-between">
             <div className="min-w-0">
@@ -614,7 +614,7 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
             </section>
           </main>
         ) : (
-          <main className="grid flex-1 gap-3 py-3 sm:gap-5 sm:py-5 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] lg:py-7">
+          <main className="supporthr-intake-cv-grid grid flex-1 gap-3 py-3 sm:gap-5 sm:py-5 lg:grid-cols-2 lg:py-7">
             <section className={`${panelClass} flex flex-col p-3 sm:p-6`}>
               <div className="flex flex-row items-start justify-between gap-3">
                 <div>

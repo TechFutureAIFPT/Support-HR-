@@ -6,11 +6,9 @@ import { auth } from '@/services/firebase';
 import { SpeedInsights } from '@vercel/speed-insights/react';
 import { Analytics } from '@vercel/analytics/react';
 import WebVitalsReporter from '@/components/charts/WebVitalsReporter';
-import BundleAnalyzer from '@/components/charts/BundleAnalyzer';
 import { ThemeProvider } from '@/context/theme/ThemeProvider';
 
 import { UserProfileService } from '@/services/data-sync/userProfileService';
-import { onAuthChange } from '@/services/auth/authService';
 import type { AuthUser } from '@/services/auth/authTypes';
 import type { AppStep, Candidate, HardFilters, WeightCriteria, AnalysisRunData, ActiveAnalysisContext } from '@/types';
 import { initialWeights } from '@/config/constants';
@@ -132,7 +130,7 @@ const MainApp = () => {
     return () => unsubscribe();
   }, []);
 
-  // Fallback to localStorage for compatibility with existing code
+  // Fallback to localStorage for compatibility — event-driven only, no polling
   useEffect(() => {
     if (!isInitializing && !currentUser) {
       const syncLoginState = () => {
@@ -147,11 +145,9 @@ const MainApp = () => {
 
       syncLoginState();
       window.addEventListener('storage', syncLoginState);
-      const interval = setInterval(syncLoginState, 5000);
 
       return () => {
         window.removeEventListener('storage', syncLoginState);
-        clearInterval(interval);
       };
     }
   }, [isInitializing, currentUser, isLoggedIn]);
@@ -248,6 +244,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
     };
     loadUserData();
   }, [currentUser, userEmail]);
+
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -259,16 +256,14 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
     try {
       await auth.signOut();
       localStorage.removeItem('authEmail');
-      // Navigate to home before potentially reloading or just let auth state handle it
       navigate('/');
-      // Instead of reload, we can let onAuthStateChanged handle the UI update
     } catch (error) {
       console.error('Logout error:', error);
-      // Fallback
       localStorage.removeItem('authEmail');
       window.location.href = '/';
     }
   }, [navigate]);
+
   const [jdText, setJdText] = useState<string>('');
   const [rawJdText, setRawJdText] = useState<string>('');
   const [jobPosition, setJobPosition] = useState<string>('');
@@ -304,8 +299,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [loadingMessage, setLoadingMessage] = useState<string>('');
 
-
-  // Đồng bộ lại email nếu ban đầu rỗng hoặc thay đổi ở tab khác
+  // Đồng bộ lại email nếu ban đầu rỗng hoặc thay đổi ở tab khác — event-driven only, no polling
   useEffect(() => {
     const syncEmail = () => {
       try {
@@ -315,15 +309,10 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
     };
     syncEmail();
     window.addEventListener('storage', syncEmail);
-    const interval = setInterval(syncEmail, 5000); // phòng trường hợp storage event không bắn
     return () => {
       window.removeEventListener('storage', syncEmail);
-      clearInterval(interval);
     };
   }, []);
-
-
-
 
   const handleRestore = useCallback((payload: any) => {
     if (!payload) return;
@@ -339,7 +328,6 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
       console.warn('Restore failed', e);
     }
   }, [navigate]);
-
 
   const prevIsLoading = usePrevious(isLoading);
 
@@ -535,8 +523,6 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
     }
   }, [location.pathname, completedSteps, navigate]);
 
-
-
   const screenerPageProps = {
     jdText, setJdText,
     rawJdText, setRawJdText,
@@ -719,7 +705,6 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
       <Analytics />
       <SpeedInsights />
       <WebVitalsReporter />
-      {/* <BundleAnalyzer /> */}
     </div>
   );
 };
