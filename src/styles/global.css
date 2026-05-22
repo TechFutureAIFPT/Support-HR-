@@ -965,7 +965,7 @@
     width: var(--supporthr-sidebar-width);
   }
 
-  .supporthr-main--with-sidebar {
+  .main-content.supporthr-main--with-sidebar {
     width: calc(100vw - var(--supporthr-sidebar-width));
     max-width: calc(100vw - var(--supporthr-sidebar-width));
     margin-left: var(--supporthr-sidebar-width);
