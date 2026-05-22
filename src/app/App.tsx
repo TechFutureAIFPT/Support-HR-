@@ -642,9 +642,9 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
       )}
 
       <main
-        className={`main-content pb-0 ${!isLandingView ? 'mt-14 lg:mt-0' : ''} flex-1 flex flex-col min-h-0 overflow-x-hidden transition-all duration-300 ease-in-out ${
+        className={`main-content supporthr-main pb-0 ${!isLandingView ? 'supporthr-main--with-sidebar mt-14 lg:mt-0' : ''} flex-1 flex flex-col min-h-0 overflow-x-hidden transition-all duration-300 ease-in-out ${
           !isLandingView
-            ? 'lg:ml-[220px] lg:w-[calc(100vw-220px)] min-w-0'
+            ? 'min-w-0'
             : 'ml-0 w-full'
         }`}
       >

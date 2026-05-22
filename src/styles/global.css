@@ -600,27 +600,66 @@
 }
 
 .home-hero-heading {
-  font-family: "Arial Black", "Helvetica Neue", Arial, sans-serif;
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-synthesis-weight: none;
+  font-weight: 700;
   letter-spacing: 0;
+  text-wrap: balance;
 }
 
 .home-page-shell #hero .home-hero-heading {
-  font-size: clamp(4.1rem, 7vw, 7.4rem) !important;
-  line-height: 0.9 !important;
+  font-size: clamp(3.85rem, 6vw, 6.55rem) !important;
+  line-height: 1.02 !important;
 }
 
 .home-page-shell #hero .home-hero-copy {
   font-size: clamp(1.04rem, 1.24vw, 1.24rem) !important;
 }
 
+.home-section-frame {
+  box-sizing: border-box;
+  width: min(96rem, 100%);
+  margin-inline: auto;
+  padding-inline: 1.5rem;
+}
+
+.home-section-heading {
+  font-size: clamp(2.55rem, 4.2vw, 4.6rem) !important;
+  line-height: 1.03 !important;
+  letter-spacing: 0 !important;
+}
+
+@media (min-width: 640px) {
+  .home-section-frame {
+    padding-inline: 2.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .home-section-frame {
+    padding-inline: 4rem;
+  }
+}
+
+@media (min-width: 1536px) {
+  .home-section-frame {
+    padding-inline: 5rem;
+  }
+}
+
 @media (max-width: 767px) {
   .home-page-shell #hero .home-hero-heading {
-    font-size: clamp(3.2rem, 14vw, 4.4rem) !important;
-    line-height: 0.92 !important;
+    font-size: clamp(3rem, 13vw, 4rem) !important;
+    line-height: 1.04 !important;
   }
 
   .home-page-shell #hero .home-hero-copy {
     font-size: 1rem !important;
+  }
+
+  .home-section-heading {
+    font-size: clamp(2.25rem, 10vw, 3.4rem) !important;
+    line-height: 1 !important;
   }
 }
 
@@ -891,6 +930,47 @@
 /* --- Body & Root background --- */
 
 /* --- Sidebar --- */
+
+:root {
+  --supporthr-sidebar-width: 240px;
+}
+
+.supporthr-sidebar {
+  width: min(82vw, 280px);
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+.supporthr-sidebar,
+.supporthr-sidebar * {
+  box-sizing: border-box;
+}
+
+.supporthr-sidebar-brand {
+  display: block;
+  max-width: 8.5rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.875rem;
+  line-height: 1;
+}
+
+.supporthr-main {
+  min-width: 0;
+}
+
+@media (min-width: 1024px) {
+  .supporthr-sidebar {
+    width: var(--supporthr-sidebar-width);
+  }
+
+  .supporthr-main--with-sidebar {
+    width: calc(100vw - var(--supporthr-sidebar-width));
+    max-width: calc(100vw - var(--supporthr-sidebar-width));
+    margin-left: var(--supporthr-sidebar-width);
+  }
+}
 
 /* Sidebar brand area */
 
@@ -1809,64 +1889,6 @@ svg {
     max-width: 100vw;
   }
 
-  /* Mobile typography scale */
-  h1 {
-    font-size: 1.75rem;
-    line-height: 1.2;
-  }
-
-  h2 {
-    font-size: 1.5rem;
-    line-height: 1.3;
-  }
-
-  h3 {
-    font-size: 1.25rem;
-    line-height: 1.4;
-  }
-
-  h4 {
-    font-size: 1.125rem;
-    line-height: 1.4;
-  }
-
-  /* Mobile form elements */
-  input,
-  textarea,
-  select {
-    font-size: 16px;
-    /* Prevents zoom on iOS */
-    padding: 16px;
-    border-radius: 12px;
-    min-height: 56px;
-  }
-
-  /* Mobile button sizes */
-  .btn-sm {
-    min-height: 44px;
-    padding: 10px 16px;
-    font-size: 14px;
-  }
-
-  .btn-md {
-    min-height: 48px;
-    padding: 12px 20px;
-    font-size: 16px;
-  }
-
-  .btn-lg {
-    min-height: 52px;
-    padding: 14px 24px;
-    font-size: 18px;
-  }
-
-  /* Mobile card spacing */
-  .card {
-    margin-bottom: 12px;
-    border-radius: 16px;
-    padding: 16px;
-  }
-
   /* Mobile navigation */
   .mobile-nav {
     position: sticky;
@@ -1917,51 +1939,6 @@ svg {
 /* Tablet specific styles (768px-1023px) */
 @media screen and (min-width: 768px) and (max-width: 1023px) {
 
-  /* Tablet typography */
-  h1 {
-    font-size: 2rem;
-  }
-
-  h2 {
-    font-size: 1.75rem;
-  }
-
-  h3 {
-    font-size: 1.5rem;
-  }
-
-  /* Tablet form elements */
-  input,
-  textarea,
-  select {
-    font-size: 16px;
-    padding: 14px 16px;
-    min-height: 48px;
-  }
-
-  /* Tablet button sizes */
-  .btn-sm {
-    min-height: 40px;
-    padding: 8px 16px;
-  }
-
-  .btn-md {
-    min-height: 44px;
-    padding: 10px 20px;
-  }
-
-  .btn-lg {
-    min-height: 48px;
-    padding: 12px 24px;
-  }
-
-  /* Tablet card spacing */
-  .card {
-    margin-bottom: 16px;
-    border-radius: 12px;
-    padding: 20px;
-  }
-
   /* Tablet grid adjustments */
   .tablet-grid-2 {
     display: grid;
@@ -1978,19 +1955,6 @@ svg {
 
 /* Desktop specific styles (1024px+) */
 @media screen and (min-width: 1024px) {
-
-  /* Desktop typography */
-  h1 {
-    font-size: 2.5rem;
-  }
-
-  h2 {
-    font-size: 2rem;
-  }
-
-  h3 {
-    font-size: 1.75rem;
-  }
 
   /* Desktop hover effects */
   .desktop-hover {

@@ -164,11 +164,11 @@ const FooterAsciiBackdrop = () => (
     <div className="absolute left-0 top-0 h-80 w-96 bg-gradient-to-br from-emerald-500/10 via-blue-500/8 to-transparent blur-3xl" />
     <div className="absolute bottom-0 right-0 h-80 w-[32rem] bg-gradient-to-tl from-purple-500/12 via-blue-500/8 to-transparent blur-3xl" />
 
-    <pre className="supporthr-footer-ascii absolute left-1/2 top-[45%] hidden -translate-x-1/2 -translate-y-1/2 select-none whitespace-pre text-left font-mono text-[12px] font-black leading-[0.86] tracking-[0.18em] text-zinc-400/[0.18] sm:block sm:text-[15px] lg:text-[23px] xl:text-[27px]">
+    <pre className="supporthr-footer-ascii absolute left-1/2 top-[46%] hidden -translate-x-1/2 -translate-y-1/2 select-none whitespace-pre text-left font-mono text-[12px] font-black leading-[0.86] tracking-[0.18em] text-zinc-500/[0.06] xl:block xl:text-[22px] 2xl:text-[24px]">
       {asciiLogo.join("\n")}
     </pre>
 
-    <pre className="supporthr-footer-noise absolute inset-x-4 bottom-32 hidden select-none overflow-hidden whitespace-pre text-center font-mono text-[10px] font-bold leading-5 tracking-[0.42em] text-zinc-500/[0.15] md:block">
+    <pre className="supporthr-footer-noise absolute inset-x-4 bottom-32 hidden select-none overflow-hidden whitespace-pre text-center font-mono text-[10px] font-bold leading-5 tracking-[0.42em] text-zinc-500/[0.08] lg:block">
       {terminalNoise.join("\n")}
     </pre>
 
@@ -199,8 +199,8 @@ const Footer = ({ onNavigate }: FooterProps) => {
     <footer id="contact" className="relative overflow-hidden border-t border-white/10 bg-black">
       <FooterAsciiBackdrop />
 
-      <div className="relative mx-auto flex min-h-[34rem] max-w-[96rem] flex-col px-6 py-20 sm:px-10 lg:px-16 lg:py-24">
-        <div className="grid gap-12 lg:grid-cols-[1fr_1.45fr] lg:items-start">
+      <div className="relative home-section-frame flex min-h-[30rem] flex-col py-16 sm:py-20 lg:py-24">
+        <div className="grid gap-14 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1.35fr)] lg:items-start lg:gap-24">
           <div>
             <button
               type="button"
@@ -208,15 +208,20 @@ const Footer = ({ onNavigate }: FooterProps) => {
               className="group flex w-fit items-center gap-3 text-left"
               aria-label="Về trang đầu Support HR"
             >
-              <span className="flex h-8 w-8 items-center justify-center overflow-hidden border border-white/15 bg-white/[0.035]">
+              <span className="flex h-10 w-10 items-center justify-center overflow-hidden border border-white/15 bg-white/[0.035]">
                 <img src="/images/logos/logo.jpg" alt="Support HR" className="h-full w-full object-cover" />
               </span>
-              <span className="bg-gradient-to-r from-blue-300 via-white to-purple-300 bg-clip-text text-xl font-black text-transparent drop-shadow-[0_0_18px_rgba(59,130,246,0.25)] transition-all duration-300 group-hover:brightness-125">
-                Support HR
+              <span>
+                <span className="supporthr-mono block text-[18px] font-black uppercase tracking-[0.12em] text-white transition-colors duration-300 group-hover:text-[#f5d6bb]">
+                  Support HR
+                </span>
+                <span className="supporthr-mono mt-1 block text-[10px] font-bold uppercase tracking-[0.26em] text-[#f5d6bb]">
+                  AI tuyển dụng
+                </span>
               </span>
             </button>
 
-            <p className="mt-8 max-w-md text-sm leading-7 text-gray-400">
+            <p className="mt-8 max-w-[31rem] text-sm leading-7 text-gray-400">
               Nền tảng tuyển dụng AI cho doanh nghiệp Việt Nam. Đọc CV, đối sánh JD và tạo shortlist có kiểm chứng trong một luồng làm việc.
             </p>
 

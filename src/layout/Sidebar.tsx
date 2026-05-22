@@ -503,7 +503,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       <aside
         id="cv-sidebar"
         className={`
-          fixed top-0 left-0 z-50 flex h-screen w-[min(82vw,280px)] flex-col lg:w-[220px]
+          supporthr-sidebar fixed top-0 left-0 z-50 flex h-screen flex-col
           transition-transform duration-300 ease-in-out
           ${isOpen ? 'translate-x-0' : '-translate-x-full'}
           lg:translate-x-0
@@ -529,7 +529,9 @@ const Sidebar: React.FC<SidebarProps> = ({
           </button>
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-1.5">
-              <h1 className="text-sm font-black tracking-tight leading-none" style={{ color: C.text }}>SupportHR</h1>
+              <span className="supporthr-sidebar-brand font-black tracking-tight leading-none" style={{ color: C.text }}>
+                SupportHR
+              </span>
               <span
                 className="px-1.5 py-px text-[8px] font-black uppercase tracking-wide"
                 style={{ background: C.aiBadgeBg, color: C.aiBadgeColor }}

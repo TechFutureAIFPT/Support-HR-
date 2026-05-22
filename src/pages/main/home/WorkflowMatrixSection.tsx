@@ -121,25 +121,25 @@ export default function WorkflowMatrixSection({
   const reduceMotion = useReducedMotion();
 
   return (
-    <section id="steps" className="relative overflow-hidden border-y border-white/[0.08] bg-black py-24 sm:py-28">
+    <section id="steps" className="relative overflow-hidden border-y border-white/[0.08] bg-black py-24 sm:py-28 lg:py-32">
       <div className="pointer-events-none absolute inset-0 supporthr-grid-mask opacity-30" />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.03),transparent_28%),linear-gradient(180deg,rgba(255,255,255,0.01),transparent_60%)]" />
 
-      <div className="relative mx-auto max-w-[96rem] px-4 sm:px-6 lg:px-8">
-        <div className="max-w-[74rem]">
+      <div className="relative home-section-frame">
+        <div className="max-w-[76rem]">
           <p className="supporthr-mono text-[11px] uppercase tracking-[0.24em] text-zinc-500">
             Support HR // Quy trình vận hành
           </p>
-          <h2 className="mt-6 max-w-[64rem] text-[clamp(3rem,7vw,6.2rem)] font-semibold leading-[0.9] tracking-[-0.08em] text-white">
+          <h2 className="home-section-heading mt-6 max-w-[72rem] font-semibold text-white">
             Điều phối tuyển dụng AI từ một giao diện duy nhất.
           </h2>
-          <p className="mt-6 max-w-3xl text-base leading-8 text-zinc-400 sm:text-lg">
+          <p className="mt-6 max-w-[56rem] text-base leading-8 text-zinc-400 sm:text-lg">
             Thay cho các bước rời rạc, Support HR gom khâu đọc CV, chấm điểm, chuẩn bị phỏng vấn và phối hợp nội bộ
             thành một hệ thống làm việc mạch lạc và có thể mở rộng.
           </p>
         </div>
 
-        <div className="mt-12 grid gap-px border border-white/[0.07] bg-white/[0.07] xl:grid-cols-3">
+        <div className="mt-14 grid gap-px border border-white/[0.07] bg-white/[0.07] lg:grid-cols-2 xl:grid-cols-3">
           {workflowPanels.map(({ label, title, description, bullets, cta, accent, Icon }) => {
             const tone = panelAccent[accent];
 
@@ -154,12 +154,12 @@ export default function WorkflowMatrixSection({
                       }
                 }
                 transition={{ duration: 0.22, ease: "easeOut" }}
-                className="group relative min-h-[17.25rem] overflow-hidden bg-[rgba(7,7,8,0.96)]"
+                className="group relative min-h-[18rem] overflow-hidden bg-[rgba(7,7,8,0.96)]"
               >
                 <div className="absolute inset-0 opacity-25 [background-image:linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] [background-size:20px_20px]" />
                 <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.02),transparent_38%)] opacity-70" />
 
-                <div className="relative z-10 flex h-full flex-col px-6 py-6 sm:px-7">
+                <div className="relative z-10 flex h-full flex-col px-7 py-7 lg:px-8 lg:py-8">
                   <div className="flex items-center justify-between gap-4">
                     <span className={`supporthr-mono text-[10px] uppercase tracking-[0.24em] ${tone.label}`}>
                       {label}
@@ -169,7 +169,7 @@ export default function WorkflowMatrixSection({
                     </div>
                   </div>
 
-                  <h3 className="mt-8 max-w-[17rem] text-[1.38rem] font-semibold leading-tight tracking-[-0.04em] text-white">
+                  <h3 className="mt-8 max-w-[20rem] text-[1.45rem] font-semibold leading-tight tracking-normal text-white">
                     {title}
                   </h3>
                   <p className="mt-4 max-w-[30rem] text-sm leading-7 text-zinc-400">

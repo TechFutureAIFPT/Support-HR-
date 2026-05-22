@@ -272,7 +272,7 @@ function SystemPanel({
 
 function HeadlineLine({ text }: { text: string }) {
   return (
-    <span className="relative block leading-[0.88] sm:whitespace-nowrap">
+    <span className="relative block leading-[1.02] sm:whitespace-nowrap">
       <motion.span
         className="relative block text-white"
         initial={{ opacity: 0, y: 28 }}
@@ -345,8 +345,8 @@ export default function LandingHero({
               </span>
             </motion.div>
 
-            {/* Ultra-heavy headline */}
-            <h1 className="home-hero-heading supporthr-display max-w-[18ch] text-[clamp(3.6rem,6.4vw,6.7rem)] font-black leading-[0.9] tracking-normal">
+            {/* Hero headline */}
+            <h1 className="home-hero-heading supporthr-display max-w-[20ch] text-[clamp(3.5rem,6vw,6.5rem)] font-bold leading-[1.02] tracking-normal">
               {HERO_HEADLINE_LINES.map((line) => (
                 <HeadlineLine key={line.text} text={line.text} />
               ))}

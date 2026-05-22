@@ -46,37 +46,37 @@ export default function WhySupportSection() {
   const hoverLift = reduceMotion ? undefined : { y: -4 };
 
   return (
-    <section className="relative overflow-hidden border-b border-white/[0.08] bg-black py-24 sm:py-28">
+    <section className="relative overflow-hidden border-b border-white/[0.08] bg-black py-24 sm:py-28 lg:py-32">
       <div className="pointer-events-none absolute inset-0 supporthr-grid-mask opacity-25" />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_left_center,rgba(255,255,255,0.03),transparent_34%),linear-gradient(180deg,rgba(255,255,255,0.015),transparent_62%)]" />
 
-      <div className="relative mx-auto max-w-[96rem] px-4 sm:px-6 lg:px-8">
-        <div className="grid gap-10 xl:grid-cols-[0.9fr_1.1fr] xl:items-center">
-          <div className="max-w-2xl">
+      <div className="relative home-section-frame">
+        <div className="grid gap-12 xl:grid-cols-[minmax(0,0.95fr)_minmax(34rem,1.05fr)] xl:items-center">
+          <div className="max-w-[46rem]">
             <p className="supporthr-mono text-[11px] uppercase tracking-[0.24em] text-emerald-300/75">
               Support HR // Vì sao hiệu quả hơn
             </p>
-            <h2 className="mt-6 text-[clamp(2.8rem,6vw,5.4rem)] font-semibold leading-[0.92] tracking-[-0.07em] text-white">
+            <h2 className="home-section-heading mt-6 max-w-[46rem] font-semibold text-white">
               Chuyển từ đọc hồ sơ thủ công sang vận hành tuyển dụng bằng AI.
             </h2>
-            <p className="mt-6 max-w-2xl text-base leading-8 text-zinc-400 sm:text-lg">
+            <p className="mt-6 max-w-[41rem] text-base leading-8 text-zinc-400 sm:text-lg">
               Support HR được thiết kế như một lớp điều phối cho recruiter: đọc CV nhanh, chấm điểm có lý do và giữ
               toàn bộ phiên tuyển dụng trong một giao diện đủ sâu để làm việc thật.
             </p>
           </div>
 
-          <div className="grid gap-px border border-white/[0.08] bg-white/[0.08] sm:grid-cols-2">
+          <div className="grid self-stretch gap-px border border-white/[0.08] bg-white/[0.08] sm:grid-cols-2">
             {impactStats.map(({ value, label, accent, surface, border, Icon }) => (
               <motion.div
                 key={label}
                 whileHover={hoverLift}
                 transition={{ duration: 0.18, ease: "easeOut" }}
-                className={`relative min-h-[13rem] overflow-hidden border ${border} ${surface} px-7 py-7`}
+                className={`relative min-h-[12rem] overflow-hidden border ${border} ${surface} p-7 lg:p-8`}
               >
                 <div className="absolute inset-0 opacity-35 [background-image:linear-gradient(rgba(255,255,255,0.025)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.025)_1px,transparent_1px)] [background-size:22px_22px]" />
                 <div className="relative z-10">
                   <Icon className={`h-5 w-5 ${accent}`} />
-                  <p className={`mt-8 text-[clamp(2.4rem,4vw,3.4rem)] font-semibold leading-none tracking-[-0.06em] ${accent}`}>
+                  <p className={`mt-8 text-[clamp(2.6rem,4vw,4rem)] font-semibold leading-none tracking-normal ${accent}`}>
                     {value}
                   </p>
                   <p className="mt-3 max-w-[13rem] text-sm leading-7 text-zinc-400">
