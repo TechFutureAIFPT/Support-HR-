@@ -304,6 +304,8 @@
    screens. Mirrors the login page: black canvas, square frames,
    beige/gold system accents, and white primary actions.
    ============================================================ */
+@import "tailwindcss";
+
 :root {
   --supporthr-ai-gold: #f5d6bb;
   --supporthr-ai-gold-strong: #ffd8a8;
