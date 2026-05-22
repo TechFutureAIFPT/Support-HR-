@@ -21,7 +21,26 @@ class AnalysisCacheService {
   private cache = new Map<string, AnalysisCacheEntry>();
   private readonly CACHE_EXPIRY = 24 * 60 * 60 * 1000; // 24 hours
   private readonly MAX_CACHE_SIZE = 100; // Maximum cached entries
-  private readonly CACHE_SCHEMA_VERSION = 'criteria-v4-sync';
+  private readonly CACHE_STORAGE_KEY = 'cvAnalysisCache';
+  private readonly CACHE_SCHEMA_VERSION = 'criteria-v5-success-only';
+
+  private isUsableCandidateData(candidateData: any): boolean {
+    if (!candidateData || typeof candidateData !== 'object') return false;
+    if (candidateData.status === 'FAILED') return false;
+
+    const analysis = candidateData.analysis;
+    if (!analysis || typeof analysis !== 'object') return true;
+
+    const totalScore = Number(
+      analysis['Tổng điểm'] ??
+      analysis['Tong diem'] ??
+      analysis['Tá»•ng Ä‘iá»ƒm'] ??
+      0
+    );
+    const details = analysis['Chi tiết'] ?? analysis['Chi tiet'] ?? analysis['Chi tiáº¿t'];
+
+    return totalScore > 0 || (Array.isArray(details) && details.length > 0);
+  }
 
   /**
    * Generate a unique cache key for a file and analysis parameters
@@ -75,7 +94,11 @@ class AnalysisCacheService {
       } else {
         // Verify file hasn't changed
         if (entry.fileSize === file.size && entry.fileLastModified === file.lastModified) {
-          return entry.candidateData;
+          if (this.isUsableCandidateData(entry.candidateData)) {
+            return entry.candidateData;
+          }
+
+          this.cache.delete(key);
         } else {
           this.cache.delete(key);
         }
@@ -86,7 +109,7 @@ class AnalysisCacheService {
     if (auth.currentUser) {
       try {
         const firebaseResult = await DataSyncService.getCacheFromFirebase(key);
-        if (firebaseResult) {
+        if (firebaseResult && this.isUsableCandidateData(firebaseResult)) {
           // Add to local cache for faster access
           const cacheEntry: AnalysisCacheEntry = {
             candidateData: firebaseResult,
@@ -119,6 +142,10 @@ class AnalysisCacheService {
     weightsHash: string, 
     filtersHash: string
   ): Promise<void> {
+    if (!this.isUsableCandidateData(candidateData)) {
+      return;
+    }
+
     // Clean old entries if cache is full
     if (this.cache.size >= this.MAX_CACHE_SIZE) {
       this.cleanOldEntries();
@@ -145,10 +172,17 @@ class AnalysisCacheService {
       // Keep only recent entries for localStorage
       const cutoff = Date.now() - this.CACHE_EXPIRY;
       const filtered = Object.fromEntries(
-        Object.entries(persistentCache).filter(([_, entry]) => (entry as AnalysisCacheEntry).timestamp > cutoff)
+        Object.entries(persistentCache).filter(([cacheKey, entry]) => {
+          const cacheEntry = entry as AnalysisCacheEntry;
+          return (
+            cacheKey.startsWith(`${this.CACHE_SCHEMA_VERSION}_`) &&
+            cacheEntry.timestamp > cutoff &&
+            this.isUsableCandidateData(cacheEntry.candidateData)
+          );
+        })
       );
       
-      localStorage.setItem('cvAnalysisCache', JSON.stringify(filtered));
+      localStorage.setItem(this.CACHE_STORAGE_KEY, JSON.stringify(filtered));
     } catch (error) {
       console.warn('Failed to persist analysis cache:', error);
     }
@@ -179,7 +213,7 @@ class AnalysisCacheService {
    */
   private loadPersistentCache(): Record<string, AnalysisCacheEntry> {
     try {
-      const stored = localStorage.getItem('cvAnalysisCache');
+      const stored = localStorage.getItem(this.CACHE_STORAGE_KEY);
       return stored ? JSON.parse(stored) : {};
     } catch (error) {
       console.warn('Failed to load persistent cache:', error);
@@ -196,7 +230,11 @@ class AnalysisCacheService {
     const cutoff = Date.now() - this.CACHE_EXPIRY;
 
     for (const [key, entry] of Object.entries(persistentCache)) {
-      if (entry.timestamp > cutoff) {
+      if (
+        key.startsWith(`${this.CACHE_SCHEMA_VERSION}_`) &&
+        entry.timestamp > cutoff &&
+        this.isUsableCandidateData(entry.candidateData)
+      ) {
         this.cache.set(key, entry);
       }
     }
@@ -277,7 +315,7 @@ class AnalysisCacheService {
    */
   clearCache(): void {
     this.cache.clear();
-    localStorage.removeItem('cvAnalysisCache');
+    localStorage.removeItem(this.CACHE_STORAGE_KEY);
   }
 
   /**
