@@ -61,6 +61,7 @@ const App = () => {
 };
 
 const MainApp = () => {
+  const location = useLocation();
   const publicInitialPaths = new Set(['/', '/process', '/contact-ready', '/privacy-policy', '/terms']);
   const initialPath = typeof window !== 'undefined' ? window.location.pathname : '/';
   const shouldBlockInitialRender = !publicInitialPaths.has(initialPath);
@@ -85,6 +86,14 @@ const MainApp = () => {
   const handleLoginRequest = () => {
     setShowLoginModal(true);
   };
+
+  useEffect(() => {
+    const protectedPaths = ['/jd', '/weights', '/analysis', '/detailed-analytics', '/chatbot', '/feedback'];
+
+    if (!isInitializing && !isLoggedIn && protectedPaths.includes(location.pathname)) {
+      setShowLoginModal(true);
+    }
+  }, [isInitializing, isLoggedIn, location.pathname]);
 
   // Listen for Firebase auth state changes
   useEffect(() => {
@@ -119,9 +128,9 @@ const MainApp = () => {
         })();
         return;
       } else {
+        const storedAuthEmail = localStorage.getItem('authEmail') || '';
         setCurrentUser(null);
-        setIsLoggedIn(false);
-        localStorage.removeItem('authEmail');
+        setIsLoggedIn(Boolean(storedAuthEmail));
       }
 
       setIsInitializing(false);
