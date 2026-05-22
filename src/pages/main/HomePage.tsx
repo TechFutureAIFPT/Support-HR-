@@ -25,6 +25,7 @@ import LandingHero from "@/pages/main/home/LandingHero";
 import PartnerTickerSection from "@/pages/main/home/PartnerTickerSection";
 import WhySupportSection from "@/pages/main/home/WhySupportSection";
 import WorkflowMatrixSection from "@/pages/main/home/WorkflowMatrixSection";
+import Footer from "@/pages/main/home/Footer";
 
 const partners = [
   { name: "FPT", logo: "/images/logos/fpt.png" },
@@ -436,79 +437,7 @@ const HomePage: React.FC<HomePageProps> = ({
         <div id="pricing" className="h-0 overflow-hidden" aria-hidden="true" />
 
         {/* ── Contact Section ────────────────────────────────── */}
-        <section id="contact" className="border-t border-slate-800/50 bg-black">
-          <div className="max-w-[90rem] mx-auto px-3 sm:px-5 lg:px-6 py-12">
-            <div className="grid md:grid-cols-4 gap-10 rounded-none border border-white/10 bg-white/[0.025] p-8 shadow-[0_22px_55px_rgba(2,8,23,0.18)]">
-              {/* Brand */}
-              <div className="md:col-span-2">
-                <div className="flex items-center gap-3 mb-4">
-                  <img src="/images/logos/logo.jpg" alt="SupportHR" className="w-9 h-9 rounded-none object-cover" />
-                  <div>
-                    <p className="text-base font-bold text-white">Support HR</p>
-                    <p className="text-[10px] text-[#f5d6bb] uppercase tracking-widest">Nền tảng tuyển dụng AI</p>
-                  </div>
-                </div>
-                <p className="text-sm text-slate-400 leading-relaxed max-w-sm mb-4">
-                  Nền tảng tuyển dụng thông minh hàng đầu Việt Nam. Sử dụng AI để tìm kiếm, sàng lọc và đánh giá ứng viên nhanh chóng, chính xác.
-                </p>
-                <div className="flex items-center gap-3 text-slate-400">
-                  <a href="tel:0899280108" className="text-sm hover:text-[#f5d6bb] transition-colors">
-                    <i className="fa-solid fa-phone text-xs mr-1" /> 0899 280 108
-                  </a>
-                  <span className="text-slate-600">·</span>
-                  <a href="mailto:support@supporthr.vn" className="text-sm hover:text-[#f5d6bb] transition-colors">
-                    <i className="fa-solid fa-envelope text-xs mr-1" /> support@supporthr.vn
-                  </a>
-                </div>
-              </div>
-
-              {/* Links */}
-              <div>
-                <h4 className="text-sm font-bold text-white mb-4 uppercase tracking-wider">Sản phẩm</h4>
-                <div className="space-y-2.5">
-                  {["Trang đầu", "Bảng giá", "Quy trình", "So sánh", "Liên hệ"].map((l) => (
-                    <button key={l} onClick={() => scrollTo(l === "Trang đầu" ? "hero" : l === "Bảng giá" ? "pricing" : l === "Quy trình" ? "steps" : l === "So sánh" ? "compare" : "contact")}
-                      className="block text-sm text-slate-400 hover:text-white transition-colors text-left">{l}</button>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <h4 className="text-sm font-bold text-white mb-4 uppercase tracking-wider">Công ty</h4>
-                <div className="space-y-2.5">
-                  {[
-                    { label: "Giới thiệu", href: "#hero" },
-                    { label: "Bảo mật", href: "/privacy-policy" },
-                    { label: "Điều khoản", href: "/terms" },
-                    { label: "Liên hệ", href: "mailto:support@supporthr.vn" },
-                  ].map((l) => (
-                    <a key={l.label} href={l.href}
-                      className="block text-sm text-slate-400 hover:text-white transition-colors">
-                      {l.label}
-                    </a>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div className="border-t border-slate-800/50 mt-10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-              <p className="text-xs text-slate-500">
-                © 2026 SupportHR. Mọi quyền được bảo lưu.
-              </p>
-              <div className="flex items-center gap-4 text-slate-500">
-                <a href="https://github.com/phucdevweb" target="_blank" rel="noopener noreferrer" className="text-xs hover:text-white transition-colors">
-                  <i className="fa-brands fa-github text-base" />
-                </a>
-                <a href="#" className="text-xs hover:text-white transition-colors">
-                  <i className="fa-brands fa-facebook text-base" />
-                </a>
-                <a href="#" className="text-xs hover:text-white transition-colors">
-                  <i className="fa-brands fa-linkedin text-base" />
-                </a>
-              </div>
-            </div>
-          </div>
-        </section>
+        <Footer onNavigate={scrollTo} />
       </div>
 
       {/* ── Video Modal ──────────────────────────────────────── */}

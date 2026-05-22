@@ -735,6 +735,70 @@
   }
 }
 
+.supporthr-footer-ascii {
+  animation: supporthr-footer-ascii 8s ease-in-out infinite;
+  text-shadow:
+    0 0 18px rgba(255, 255, 255, 0.08),
+    0 0 34px rgba(59, 130, 246, 0.1);
+}
+
+.supporthr-footer-noise {
+  animation: supporthr-footer-noise 5.5s steps(5) infinite;
+}
+
+.supporthr-footer-scan {
+  animation: supporthr-footer-scan 6s linear infinite;
+}
+
+@keyframes supporthr-footer-ascii {
+  0%, 100% {
+    opacity: 0.72;
+    transform: translate(-50%, -50%);
+  }
+  42% {
+    opacity: 1;
+    transform: translate(calc(-50% - 10px), calc(-50% + 4px));
+  }
+  58% {
+    opacity: 0.58;
+    transform: translate(calc(-50% + 8px), calc(-50% - 3px));
+  }
+}
+
+@keyframes supporthr-footer-noise {
+  0%, 100% {
+    opacity: 0.35;
+  }
+  45% {
+    opacity: 0.9;
+  }
+  52% {
+    opacity: 0.18;
+  }
+}
+
+@keyframes supporthr-footer-scan {
+  0% {
+    transform: translateX(-60%);
+    opacity: 0;
+  }
+  18%, 72% {
+    opacity: 0.65;
+  }
+  100% {
+    transform: translateX(220%);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .supporthr-footer-ascii,
+  .supporthr-footer-noise,
+  .supporthr-footer-scan {
+    animation: none;
+  }
+}
+
 /* ============================================
    LIGHT MODE â€” class-based (.light on <html>)
    ============================================ */
