@@ -239,6 +239,15 @@ function inferLocationFromText(text?: string): string {
   return '';
 }
 
+function parseDetailScore(scoreText: string): number {
+  const match = String(scoreText || '').match(/([+-]?\d+(?:\.\d+)?)\s*(?:\/|$)/);
+  return match ? Number(match[1]) || 0 : 0;
+}
+
+function scoreFromDetails(details: DetailedScore[]): number {
+  return details.reduce((sum, detail) => sum + parseDetailScore(detail['Điểm']), 0);
+}
+
 function normalizeAnalysis(rawAnalysis: unknown): CandidateAnalysis | undefined {
   if (!rawAnalysis || typeof rawAnalysis !== 'object') return undefined;
 
@@ -246,11 +255,16 @@ function normalizeAnalysis(rawAnalysis: unknown): CandidateAnalysis | undefined 
   const totalScoreRaw = analysis['Tổng điểm'] ?? analysis['Tong diem'] ?? analysis['Tá»•ng Ä‘iá»ƒm'] ?? 0;
   const gradeRaw = analysis['Hạng'] ?? analysis['Hang'] ?? analysis['Háº¡ng'] ?? 'C';
   const detailsRaw = analysis['Chi tiết'] ?? analysis['Chi tiet'] ?? analysis['Chi tiáº¿t'] ?? [];
+  const details = Array.isArray(detailsRaw) ? detailsRaw.map(normalizeDetail) : [];
+  const detailFallbackScore = scoreFromDetails(details);
+  const totalScore = Number(totalScoreRaw) || (detailFallbackScore > 0 ? Math.min(100, Math.round(detailFallbackScore * 10) / 10) : 0);
+  const computedGrade = totalScore >= 75 ? 'A' : totalScore >= 50 ? 'B' : 'C';
+  const normalizedGrade = String(gradeRaw).toUpperCase();
 
   return {
-    'Tổng điểm': Number(totalScoreRaw) || 0,
-    'Hạng': String(gradeRaw).toUpperCase() as 'A' | 'B' | 'C',
-    'Chi tiết': Array.isArray(detailsRaw) ? detailsRaw.map(normalizeDetail) : [],
+    'Tổng điểm': totalScore,
+    'Hạng': (normalizedGrade === 'A' || normalizedGrade === 'B' || normalizedGrade === 'C' ? normalizedGrade : computedGrade) as 'A' | 'B' | 'C',
+    'Chi tiết': details,
     'Điểm mạnh CV': toArray(analysis['Điểm mạnh CV'] ?? analysis['Diem manh CV'] ?? analysis['Äiá»ƒm máº¡nh CV']),
     'Điểm yếu CV': toArray(analysis['Điểm yếu CV'] ?? analysis['Diem yeu CV'] ?? analysis['Äiá»ƒm yáº¿u CV']),
     educationValidation: normalizeEducationValidation(
@@ -275,6 +289,13 @@ function normalizeCandidate(rawCandidate: unknown, fallbackFile?: File, cvText?:
     ? { ...candidate, cvText: effectiveCvText, _cvText: effectiveCvText }
     : rawCandidate;
   const detectedLocation = String(candidate.detectedLocation || '').trim() || inferLocationFromText(effectiveCvText);
+  const normalizedAnalysis = normalizeAnalysis(candidate.analysis) as Candidate['analysis'];
+  const hasRecoverableAnalysis = Boolean(
+    normalizedAnalysis &&
+    normalizedAnalysis['Tổng điểm'] > 0 &&
+    (normalizedAnalysis['Chi tiết']?.length || 0) > 0
+  );
+  const normalizedStatus = candidate.status === 'FAILED' && !hasRecoverableAnalysis ? 'FAILED' : 'SUCCESS';
 
   return {
     id: String(candidate.id || `${fileName}-${candidateName}`),
@@ -295,12 +316,12 @@ function normalizeCandidate(rawCandidate: unknown, fallbackFile?: File, cvText?:
     locationMatch: typeof candidate.locationMatch === 'boolean' ? candidate.locationMatch : null,
     embeddingInsights: normalizeEmbeddingInsight(candidate.embeddingInsights),
     jdCvMatchInsights: normalizeJdCvMatchInsights(candidate.jdCvMatchInsights),
-    analysis: normalizeAnalysis(candidate.analysis) as Candidate['analysis'],
+    analysis: normalizedAnalysis,
     debiasingWarnings: Array.isArray(candidate.debiasingWarnings)
       ? candidate.debiasingWarnings.map((warning) => String(warning))
       : undefined,
-    status: candidate.status === 'FAILED' ? 'FAILED' : 'SUCCESS',
-    error: candidate.error ? sanitizeApiErrorMessage(String(candidate.error), SAFE_ERROR_MESSAGES.ai) : undefined,
+    status: normalizedStatus,
+    error: normalizedStatus === 'FAILED' && candidate.error ? sanitizeApiErrorMessage(String(candidate.error), SAFE_ERROR_MESSAGES.ai) : undefined,
     _rawBatchJson: JSON.stringify(rawPayload),
     _cvText: effectiveCvText,
   };
