@@ -177,7 +177,7 @@ export interface CandidateJdCvEvidenceMatch {
   requirement: string;
   jdEvidence: string;
   cvEvidence: string;
-  matchType?: 'exact' | 'semantic' | 'transfer' | 'missing' | string;
+  matchType?: 'exact' | 'semantic' | 'transfer' | 'incorrect' | string;
   score?: number;
   reason?: string;
 }

@@ -304,7 +304,7 @@ interface EducationSummary {
   rawLine: string;
 }
 
-type JdCvMatchKind = 'exact' | 'semantic' | 'transfer' | 'missing';
+type JdCvMatchKind = 'exact' | 'semantic' | 'transfer' | 'incorrect';
 
 interface JdCvEvidenceRow {
   id: string;
@@ -337,12 +337,33 @@ function compactEvidenceText(value: string, maxLength: number = 280): string {
   return `${cleaned.slice(0, maxLength - 1).trim()}...`;
 }
 
+function looksLikeSkillEvidenceLine(value: string): boolean {
+  const normalized = normalizeAscii(value);
+  if (!normalized) return false;
+
+  const skillTokens = [
+    'aws', 'azure', 'gcp', 'sql', 'mysql', 'postgresql', 'mongodb', 'node',
+    'nodejs', 'express', 'graphql', 'rest', 'api', 'react', 'vue', 'angular',
+    'typescript', 'javascript', 'python', 'java', 'spring', 'docker', 'kubernetes',
+    'redis', 'kafka', 'git', 'ci', 'cd', 'devops', 'linux',
+  ];
+  const hasKnownSkill = skillTokens.some((token) =>
+    normalized === token ||
+    normalized.includes(` ${token} `) ||
+    normalized.startsWith(`${token} `) ||
+    normalized.endsWith(` ${token}`)
+  );
+  const hasSkillSeparator = /[,/|+]/.test(value) && normalized.split(/\s+/).some((token) => token.length >= 2);
+
+  return hasKnownSkill || hasSkillSeparator;
+}
+
 function splitEvidenceSentences(text: string): string[] {
   return uniqueTextItems(
     String(text || '')
       .split(/(?<=[.!?。])\s+|\n|;|•|\u2022/g)
       .map((line) => compactEvidenceText(line, 320))
-      .filter((line) => line.length >= 16 && !looksLikeAnalysisPayload(line))
+      .filter((line) => (line.length >= 16 || looksLikeSkillEvidenceLine(line)) && !looksLikeAnalysisPayload(line))
   ).slice(0, 80);
 }
 
@@ -398,7 +419,7 @@ function findBestEvidenceSentence(sourceText: string, requirement: string, extra
 
 function normalizeMatchKind(value: string | undefined, fallback: JdCvMatchKind = 'semantic'): JdCvMatchKind {
   const normalized = normalizeAscii(value || '');
-  if (normalized.includes('missing') || normalized.includes('thieu')) return 'missing';
+  if (normalized.includes('missing') || normalized.includes('thieu') || normalized.includes('incorrect') || normalized.includes('sai')) return 'incorrect';
   if (normalized.includes('transfer') || normalized.includes('chuyen')) return 'transfer';
   if (normalized.includes('exact') || normalized.includes('direct') || normalized.includes('keyword')) return 'exact';
   if (normalized.includes('semantic') || normalized.includes('vector') || normalized.includes('embedding')) return 'semantic';
@@ -406,17 +427,68 @@ function normalizeMatchKind(value: string | undefined, fallback: JdCvMatchKind =
 }
 
 function getMatchKindLabel(kind: JdCvMatchKind): string {
-  if (kind === 'exact') return 'Khớp trực tiếp';
-  if (kind === 'transfer') return 'Khớp chuyển đổi';
-  if (kind === 'missing') return 'Cần xác minh';
-  return 'Khớp ngữ nghĩa';
+  return kind === 'incorrect' ? 'Sai' : 'Đúng';
 }
 
 function getMatchKindClasses(kind: JdCvMatchKind): string {
   if (kind === 'exact') return 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300';
   if (kind === 'transfer') return 'border-cyan-500/30 bg-cyan-500/10 text-cyan-300';
-  if (kind === 'missing') return 'border-amber-500/30 bg-amber-500/10 text-amber-300';
+  if (kind === 'incorrect') return 'border-rose-500/35 bg-rose-500/10 text-rose-300';
   return 'border-teal-500/30 bg-teal-500/10 text-teal-300';
+}
+
+function getMatchKindDetail(kind: JdCvMatchKind): string {
+  if (kind === 'exact') return 'Khớp trực tiếp';
+  if (kind === 'transfer') return 'Khớp chuyển đổi';
+  if (kind === 'incorrect') return 'Không khớp với CV';
+  return 'Khớp ngữ nghĩa';
+}
+
+function buildCandidateEvidenceCorpus(
+  candidate: Candidate,
+  jdFitDetail: DetailedScore | undefined,
+  resolvedCvText: string
+): string {
+  const details = candidate.analysis?.['Chi tiết'] || [];
+  const detailSignals = details.flatMap((detail) => [
+    getDetailEvidence(detail),
+    getDetailExplanation(detail),
+    ...(detail.advancedBreakdown?.matched_signals || []),
+    ...(detail.advancedBreakdown?.evidence_highlights || []),
+    ...(detail.advancedBreakdown?.bonuses_earned || []),
+  ]);
+
+  return uniqueTextItems([
+    resolvedCvText,
+    candidate._cvText || '',
+    ...(candidate.analysis?.['Điểm mạnh CV'] || []),
+    ...detailSignals,
+    jdFitDetail ? getDetailEvidence(jdFitDetail) : '',
+    jdFitDetail ? getDetailExplanation(jdFitDetail) : '',
+  ]).join('\n');
+}
+
+function buildSkillSignalEvidence(skill: string, insight: NonNullable<Candidate['jdCvMatchInsights']>): string {
+  const normalizedSkill = normalizeAscii(skill);
+  const directSkill = insight.matchedSkills.find((item) => {
+    const normalizedItem = normalizeAscii(item);
+    return normalizedItem === normalizedSkill || normalizedItem.includes(normalizedSkill) || normalizedSkill.includes(normalizedItem);
+  });
+
+  if (directSkill) {
+    return `Dữ liệu CV đã trích xuất ghi nhận kỹ năng liên quan: ${directSkill}.`;
+  }
+
+  const transferSkill = insight.transferMatches.find((item) => normalizeAscii(item).includes(normalizedSkill));
+  if (transferSkill) {
+    return `Dữ liệu CV đã trích xuất có tín hiệu kỹ năng tương đương: ${transferSkill}.`;
+  }
+
+  return '';
+}
+
+function buildIncorrectCvStatement(requirement: string): string {
+  return `CV hiện không thể hiện kỹ năng hoặc kinh nghiệm "${requirement}" trong phần nội dung đã trích xuất.`;
 }
 
 function buildJdCvEvidenceRows(
@@ -428,16 +500,7 @@ function buildJdCvEvidenceRows(
   const insight = candidate.jdCvMatchInsights;
   if (!insight) return [];
 
-  const jdFitEvidence = jdFitDetail ? getDetailEvidence(jdFitDetail) : '';
-  const jdFitExplanation = jdFitDetail ? getDetailExplanation(jdFitDetail) : '';
-  const combinedCvEvidence = [
-    resolvedCvText,
-    candidate._cvText,
-    jdFitEvidence,
-    jdFitExplanation,
-    insight.matchedSkills.join(', '),
-    insight.transferMatches.join(' | '),
-  ].filter(Boolean).join('\n');
+  const combinedCvEvidence = buildCandidateEvidenceCorpus(candidate, jdFitDetail, resolvedCvText);
   const rows: JdCvEvidenceRow[] = [];
   const seen = new Set<string>();
 
@@ -453,18 +516,24 @@ function buildJdCvEvidenceRows(
       id: key || `${rows.length}`,
       requirement,
       jdEvidence: compactEvidenceText(input.jdEvidence || `JD có yêu cầu liên quan đến "${requirement}".`),
-      cvEvidence: compactEvidenceText(input.cvEvidence || 'Chưa tìm thấy câu CV chứng minh trực tiếp cho yêu cầu này.'),
+      cvEvidence: compactEvidenceText(
+        input.cvEvidence ||
+        (input.matchKind === 'incorrect'
+          ? buildIncorrectCvStatement(requirement)
+          : buildSkillSignalEvidence(requirement, insight) || `CV có tín hiệu phù hợp với yêu cầu "${requirement}" theo kết quả so khớp ngữ nghĩa.`)
+      ),
       confidence: Math.max(0, Math.min(100, Math.round(input.confidence))),
     });
   };
 
   insight.evidenceMatches?.forEach((item) => {
     const requirement = item.requirement || item.jdEvidence || item.cvEvidence;
+    const matchKind = normalizeMatchKind(item.matchType, 'semantic');
     pushRow({
       requirement,
       jdEvidence: item.jdEvidence || findBestEvidenceSentence(jdText, requirement),
-      cvEvidence: item.cvEvidence || findBestEvidenceSentence(combinedCvEvidence, requirement),
-      matchKind: normalizeMatchKind(item.matchType, 'semantic'),
+      cvEvidence: item.cvEvidence || findBestEvidenceSentence(combinedCvEvidence, requirement) || buildSkillSignalEvidence(requirement, insight),
+      matchKind,
       confidence: item.score !== undefined ? Number(item.score) * (Number(item.score) <= 1 ? 100 : 1) : semanticMatchPercentFromInsight(insight),
       reason: item.reason || 'Backend đã trả về cặp dẫn chứng JD/CV cho yêu cầu này.',
     });
@@ -477,7 +546,7 @@ function buildJdCvEvidenceRows(
       pushRow({
         requirement: keyword.keyword,
         jdEvidence: findBestEvidenceSentence(jdText, keyword.keyword),
-        cvEvidence: keyword.context_sentence || findBestEvidenceSentence(combinedCvEvidence, keyword.keyword),
+        cvEvidence: keyword.context_sentence || findBestEvidenceSentence(combinedCvEvidence, keyword.keyword) || buildSkillSignalEvidence(keyword.keyword, insight),
         matchKind: 'exact',
         confidence: 92,
         reason: 'Từ khóa yêu cầu xuất hiện trong JD và có câu dẫn chứng tương ứng trong CV.',
@@ -491,12 +560,12 @@ function buildJdCvEvidenceRows(
     pushRow({
       requirement: skill,
       jdEvidence,
-      cvEvidence,
+      cvEvidence: cvEvidence || buildSkillSignalEvidence(skill, insight),
       matchKind: jdEvidence && cvEvidence ? 'exact' : 'semantic',
       confidence: jdEvidence && cvEvidence ? 88 : semanticMatchPercentFromInsight(insight),
       reason: jdEvidence && cvEvidence
         ? 'Kỹ năng/công nghệ này được nhận diện là khớp trực tiếp giữa yêu cầu tuyển dụng và hồ sơ.'
-        : 'Hệ thống nhận diện tín hiệu phù hợp qua embedding, nhưng chưa lấy được đủ câu trích nguyên văn ở cả hai phía.',
+        : 'Embedding và danh sách kỹ năng CV cho thấy nội dung hồ sơ cùng ngữ cảnh với yêu cầu này.',
     });
   });
 
@@ -522,38 +591,49 @@ function buildJdCvEvidenceRows(
     pushRow({
       requirement: match,
       jdEvidence: findBestEvidenceSentence(jdText, match, terms),
-      cvEvidence: findBestEvidenceSentence(combinedCvEvidence, match, terms),
+      cvEvidence: findBestEvidenceSentence(combinedCvEvidence, match, terms) || buildSkillSignalEvidence(match, insight),
       matchKind: 'transfer',
       confidence: 78,
       reason: 'Hai cách diễn đạt không trùng chữ hoàn toàn nhưng có quan hệ kỹ năng/ngữ cảnh tương đương.',
     });
   });
 
-  if (rows.length < 6) {
+  if (rows.length > 0 && rows.length < 6) {
     insight.missingSkills.slice(0, 6 - rows.length).forEach((skill) => {
       pushRow({
         requirement: skill,
         jdEvidence: findBestEvidenceSentence(jdText, skill),
-        cvEvidence: '',
-        matchKind: 'missing',
+        cvEvidence: buildIncorrectCvStatement(skill),
+        matchKind: 'incorrect',
         confidence: 0,
-        reason: 'JD có yêu cầu này nhưng CV chưa có dẫn chứng rõ ràng, nên HR cần hỏi thêm khi phỏng vấn.',
+        reason: 'Sai vì yêu cầu này có trong JD nhưng nội dung CV đã trích xuất không thể hiện kỹ năng tương ứng.',
       });
     });
   }
 
   if (!rows.length) {
+    const overallConfidence = semanticMatchPercentFromInsight(insight);
+    const isOverallMatch = overallConfidence >= 60;
     pushRow({
       requirement: 'Mức phù hợp tổng thể JD/CV',
       jdEvidence: findBestEvidenceSentence(jdText, 'job requirement jd'),
-      cvEvidence: findBestEvidenceSentence(combinedCvEvidence, 'candidate cv experience skills'),
-      matchKind: 'semantic',
-      confidence: semanticMatchPercentFromInsight(insight),
-      reason: 'Embedding đo tương đồng ngữ nghĩa tổng thể giữa mô tả công việc và nội dung hồ sơ.',
+      cvEvidence: findBestEvidenceSentence(combinedCvEvidence, 'candidate cv experience skills') || (isOverallMatch ? buildSkillSignalEvidence('job fit', insight) : buildIncorrectCvStatement('mức phù hợp tổng thể JD/CV')),
+      matchKind: isOverallMatch ? 'semantic' : 'incorrect',
+      confidence: overallConfidence,
+      reason: isOverallMatch
+        ? 'Đúng ở mức tổng thể vì embedding đo được độ tương đồng ngữ nghĩa cao giữa mô tả công việc và nội dung hồ sơ.'
+        : 'Sai ở mức tổng thể vì độ tương đồng ngữ nghĩa giữa JD và CV còn thấp.',
     });
   }
 
-  return rows.slice(0, 6);
+  return rows
+    .sort((left, right) => {
+      const leftIncorrect = left.matchKind === 'incorrect' ? 1 : 0;
+      const rightIncorrect = right.matchKind === 'incorrect' ? 1 : 0;
+      if (leftIncorrect !== rightIncorrect) return leftIncorrect - rightIncorrect;
+      return right.confidence - left.confidence;
+    })
+    .slice(0, 6);
 }
 
 function semanticMatchPercentFromInsight(insight: NonNullable<Candidate['jdCvMatchInsights']>): number {
@@ -2121,13 +2201,13 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
               <div className="mt-4 border-t border-emerald-500/10 pt-4">
                 <div className="mb-3 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
                   <div>
-                    <div className="text-[10px] font-bold uppercase tracking-[0.16em] text-emerald-300">Đối chiếu JD ↔ CV có dẫn chứng</div>
+                    <div className="text-[10px] font-bold uppercase tracking-[0.16em] text-emerald-300">So khớp kỹ năng JD ↔ CV</div>
                     <p className="mt-1 text-[11px] leading-5 text-emerald-100/65">
-                      Mỗi dòng cho thấy yêu cầu trong JD, câu CV chứng minh và mức khớp để HR kiểm tra nhanh.
+                      Mỗi dòng kết luận Đúng/Sai, kèm yêu cầu JD, dẫn chứng hoặc suy luận từ CV để HR kiểm tra nhanh.
                     </p>
                   </div>
                   <div className="text-[10px] font-bold uppercase tracking-[0.12em] text-emerald-300/80">
-                    {jdCvEvidenceRows.length} cặp dẫn chứng
+                    {jdCvEvidenceRows.length} cặp so khớp
                   </div>
                 </div>
 
@@ -2138,6 +2218,9 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
                         <div className="mb-2 flex flex-wrap items-center gap-2">
                           <span className={`rounded-none border px-2 py-1 text-[9px] font-bold uppercase tracking-[0.12em] ${getMatchKindClasses(row.matchKind)}`}>
                             {getMatchKindLabel(row.matchKind)}
+                          </span>
+                          <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-zinc-500">
+                            {getMatchKindDetail(row.matchKind)}
                           </span>
                           {row.confidence > 0 && (
                             <span className="font-mono text-[10px] font-bold text-emerald-300">{row.confidence}%</span>
@@ -2151,8 +2234,8 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
                       </div>
 
                       <div className="min-w-0 border-t border-emerald-500/10 pt-3 md:border-l md:border-t-0 md:pl-3 md:pt-0">
-                        <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-zinc-500">CV chứng minh</div>
-                        <blockquote className={`mt-2 border-l pl-3 text-[11px] leading-5 ${row.matchKind === 'missing' ? 'border-amber-500/40 text-amber-200' : 'border-cyan-500/30 text-zinc-200'}`}>
+                        <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-zinc-500">CV chứng minh / suy luận</div>
+                        <blockquote className={`mt-2 border-l pl-3 text-[11px] leading-5 ${row.matchKind === 'incorrect' ? 'border-rose-500/40 text-rose-200' : 'border-cyan-500/30 text-zinc-200'}`}>
                           “{row.cvEvidence}”
                         </blockquote>
                         {row.reason && (
