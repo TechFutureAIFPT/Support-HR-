@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Send, Bot, User, Sparkles, ChevronDown, ChevronUp, Check, Plus, FileText, Users, Lightbulb, MessageSquare, ArrowUp, X, Copy, CheckCheck, Loader2, Clock } from 'lucide-react';
 import type { Candidate, AnalysisRunData, ChatbotSession, ChatMessageRecord } from '@/types';
-import { getChatbotAdvice } from '@/services/screening/frontendScreeningService';
+import { getChatbotAdvice, normalizeChatbotResponseText } from '@/services/screening/frontendScreeningService';
 import SelectedCandidatesPage from '@/pages/analytics/SelectedCandidatesPage';
 import { ChatbotHistoryService } from '@/services/data-sync/chatbotHistoryService';
 import { useThemeColors } from '@/hooks/useThemeColors';
@@ -118,7 +118,7 @@ const CandidateSuggestions: React.FC<CandidateSuggestionsProps> = ({ candidates,
           setSessionId(existing.id);
           const restored: Message[] = existing.messages.map(m => ({
             role: m.author === 'bot' ? 'assistant' : 'user',
-            content: m.content,
+            content: m.author === 'bot' ? normalizeChatbotResponseText(m.content) || m.content : m.content,
             candidateIds: m.suggestedCandidateIds,
             timestamp: m.timestamp,
           }));
@@ -165,7 +165,7 @@ const CandidateSuggestions: React.FC<CandidateSuggestionsProps> = ({ candidates,
     setSessionId(session.id);
     const restored: Message[] = session.messages.map(m => ({
       role: m.author === 'bot' ? 'assistant' : 'user',
-      content: m.content,
+      content: m.author === 'bot' ? normalizeChatbotResponseText(m.content) || m.content : m.content,
       candidateIds: m.suggestedCandidateIds,
       timestamp: m.timestamp,
     }));
@@ -483,12 +483,13 @@ const CandidateSuggestions: React.FC<CandidateSuggestionsProps> = ({ candidates,
                 {messages.map((msg, i) => {
                   const isUser = msg.role === 'user';
                   const isExpanded = expandedMsg === i;
+                  const displayContent = isUser ? msg.content : normalizeChatbotResponseText(msg.content) || msg.content;
                   return (
                     <div key={i} className={`flex w-full mb-6 ${isUser ? 'justify-end' : 'justify-start'} animate-fade-in`}>
                       {isUser ? (
                         <div className="chatbot-user-bubble max-w-[88%] rounded-[20px] px-4 py-3 shadow-sm sm:max-w-[75%] sm:px-5" style={{ background: tc.cardBg, color: tc.textPrimary }}>
                           <div className="text-[15px] leading-relaxed">
-                            {formatContent(msg.content)}
+                            {formatContent(displayContent)}
                           </div>
                         </div>
                       ) : (
@@ -498,9 +499,9 @@ const CandidateSuggestions: React.FC<CandidateSuggestionsProps> = ({ candidates,
                           </div>
                           <div className="chatbot-assistant-message flex-1 min-w-0">
                             <div className="text-[15px] leading-relaxed" style={{ color: tc.textPrimary }}>
-                              {(msg.content.length > 800 && !isExpanded) ? (
+                              {(displayContent.length > 800 && !isExpanded) ? (
                                 <>
-                                  {formatContent(msg.content.substring(0, 800) + '...')}
+                                  {formatContent(displayContent.substring(0, 800) + '...')}
                                   <button
                                     onClick={() => setExpandedMsg(i)}
                                     className="mt-2 flex items-center gap-1 text-[13px] font-semibold text-blue-400 hover:text-blue-300 transition-colors"
@@ -511,8 +512,8 @@ const CandidateSuggestions: React.FC<CandidateSuggestionsProps> = ({ candidates,
                                 </>
                               ) : (
                                 <>
-                                  {formatContent(msg.content)}
-                                  {msg.content.length > 800 && isExpanded && (
+                                  {formatContent(displayContent)}
+                                  {displayContent.length > 800 && isExpanded && (
                                     <button
                                       onClick={() => setExpandedMsg(null)}
                                       className="mt-2 flex items-center gap-1 text-[13px] font-semibold text-blue-400 hover:text-blue-300 transition-colors"
@@ -586,7 +587,7 @@ const CandidateSuggestions: React.FC<CandidateSuggestionsProps> = ({ candidates,
                             {!isUser && (
                               <div className="flex items-center gap-1 mt-3 pt-2.5 border-t border-slate-700/30">
                                 <button
-                                  onClick={() => handleCopy(msg.content, `msg-${i}`)}
+                                  onClick={() => handleCopy(displayContent, `msg-${i}`)}
                                   className="flex items-center gap-1 text-[10px] text-slate-600 hover:text-slate-400 transition-colors px-2 py-1 hover:bg-slate-800/50"
                                 >
                                   {copiedId === `msg-${i}` ? <CheckCheck className="w-3 h-3 text-blue-400" /> : <Copy className="w-3 h-3" />}

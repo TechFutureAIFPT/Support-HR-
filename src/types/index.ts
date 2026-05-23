@@ -173,6 +173,15 @@ export interface CandidateEmbeddingInsight {
   bonusPoints: number;
 }
 
+export interface CandidateJdCvEvidenceMatch {
+  requirement: string;
+  jdEvidence: string;
+  cvEvidence: string;
+  matchType?: 'exact' | 'semantic' | 'transfer' | 'missing' | string;
+  score?: number;
+  reason?: string;
+}
+
 export interface CandidateJdCvMatchInsight {
   similarity: number;
   weightedScore: number;
@@ -181,6 +190,7 @@ export interface CandidateJdCvMatchInsight {
   matchedSkills: string[];
   missingSkills: string[];
   transferMatches: string[];
+  evidenceMatches?: CandidateJdCvEvidenceMatch[];
 }
 
 export type AnalysisFeedbackAction = 'like' | 'dislike' | 'shortlist' | 'reject' | 'interview' | 'hire' | 'neutral';

@@ -175,6 +175,61 @@ function getDetailExplanation(item: DetailedScore): string {
   return getRecordValueByAliases(record, ['giai thich', 'explanation']);
 }
 
+function includesTechnicalModelSignals(value: string): boolean {
+  const normalized = normalizeAscii(value);
+  return (
+    normalized.includes('classifier') ||
+    normalized.includes('vector') ||
+    normalized.includes('embedding') ||
+    normalized.includes('similarity') ||
+    normalized.includes('match')
+  );
+}
+
+function buildHrFriendlyDetailComment(
+  criterionName: string,
+  explanation: string,
+  parsedData: ReturnType<typeof parseDetailScore>,
+  keywordMetrics?: NonNullable<DetailedScore['advancedBreakdown']>['keyword_metrics'],
+): string {
+  const scoreText = parsedData.hasScore
+    ? `Tiêu chí này đạt ${parsedData.scoreLabel}, tương đương khoảng ${parsedData.achievedPct}%.`
+    : 'Tiêu chí này chưa có điểm chi tiết rõ ràng từ hệ thống.';
+
+  const normalizedCriterion = normalizeAscii(criterionName);
+  const guidance: string[] = [scoreText];
+
+  if (includesTechnicalModelSignals(explanation)) {
+    guidance.push(
+      'Các tín hiệu tự động đang cho thấy hồ sơ có liên quan đến nhóm ngành/vai trò phù hợp, nên hệ thống cộng điểm hỗ trợ. HR nên xem đây là tín hiệu tham khảo và đối chiếu lại với dự án, kinh nghiệm và chứng chỉ trong CV.'
+    );
+  } else if (explanation.trim()) {
+    guidance.push(explanation.trim().replace(/^["']|["']$/g, ''));
+  }
+
+  if (keywordMetrics && keywordMetrics.total_required_keywords > 0) {
+    if (keywordMetrics.matched_keywords_count === 0) {
+      guidance.push(
+        'Chưa thấy từ khóa bắt buộc nào khớp trực tiếp trong dẫn chứng, vì vậy HR nên phỏng vấn thêm để xác minh năng lực liên quan.'
+      );
+    } else if (keywordMetrics.match_percentage >= 70) {
+      guidance.push('CV có nhiều từ khóa trùng với JD, đây là dấu hiệu phù hợp khá tốt với yêu cầu tuyển dụng.');
+    } else {
+      guidance.push('CV có một phần tín hiệu phù hợp, nhưng vẫn cần kiểm tra thêm các yêu cầu còn thiếu trước khi shortlist.');
+    }
+  }
+
+  if (normalizedCriterion.includes('hoc van')) {
+    guidance.push('Khi đánh giá học vấn, HR nên kiểm tra tên trường, chuyên ngành, thời gian học và chứng chỉ có đúng với yêu cầu JD hay không.');
+  } else if (normalizedCriterion.includes('ky nang')) {
+    guidance.push('Nên ưu tiên bằng chứng ứng viên đã dùng kỹ năng trong dự án thực tế, không chỉ liệt kê tên công nghệ.');
+  } else if (normalizedCriterion.includes('phu hop jd')) {
+    guidance.push('Nếu điểm chưa cao, HR nên xem ứng viên có thiếu kỹ năng bắt buộc nào của JD hay chỉ khác cách diễn đạt trong CV.');
+  }
+
+  return guidance.join(' ');
+}
+
 function escapeHtml(value: string): string {
   return value
     .replace(/&/g, '&amp;')
@@ -249,7 +304,261 @@ interface EducationSummary {
   rawLine: string;
 }
 
+type JdCvMatchKind = 'exact' | 'semantic' | 'transfer' | 'missing';
+
+interface JdCvEvidenceRow {
+  id: string;
+  requirement: string;
+  jdEvidence: string;
+  cvEvidence: string;
+  matchKind: JdCvMatchKind;
+  confidence: number;
+  reason: string;
+}
+
 const uploadedCvTextCache = new Map<string, string>();
+
+function uniqueTextItems(items: string[]): string[] {
+  return Array.from(new Set(items.map((item) => item.trim()).filter(Boolean)));
+}
+
+function compactEvidenceText(value: string, maxLength: number = 280): string {
+  const cleaned = String(value || '')
+    .replace(/\r\n/g, '\n')
+    .replace(/\r/g, '\n')
+    .replace(/[`*_#>]+/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  if (cleaned.length <= maxLength) {
+    return cleaned;
+  }
+
+  return `${cleaned.slice(0, maxLength - 1).trim()}...`;
+}
+
+function splitEvidenceSentences(text: string): string[] {
+  return uniqueTextItems(
+    String(text || '')
+      .split(/(?<=[.!?。])\s+|\n|;|•|\u2022/g)
+      .map((line) => compactEvidenceText(line, 320))
+      .filter((line) => line.length >= 16 && !looksLikeAnalysisPayload(line))
+  ).slice(0, 80);
+}
+
+function buildEvidenceSearchTerms(requirement: string, extraTerms: string[] = []): string[] {
+  const rawTerms = [requirement, ...extraTerms]
+    .flatMap((term) => String(term || '').split(/[,/|;(){}\[\]<>→=>~]+/g))
+    .map((term) => term.trim())
+    .filter((term) => term.length >= 2);
+
+  const tokenTerms = rawTerms.flatMap((term) =>
+    normalizeAscii(term)
+      .split(/\s+/)
+      .filter((token) => token.length >= 3)
+  );
+
+  return uniqueTextItems([...rawTerms, ...tokenTerms]);
+}
+
+function scoreEvidenceSentence(sentence: string, terms: string[]): number {
+  const normalizedSentence = ` ${normalizeAscii(sentence)} `;
+  return terms.reduce((score, term) => {
+    const normalizedTerm = normalizeAscii(term);
+    if (!normalizedTerm) return score;
+    if (normalizedSentence.includes(` ${normalizedTerm} `) || normalizedSentence.includes(normalizedTerm)) {
+      return score + Math.max(1, normalizedTerm.length / 10);
+    }
+    return score;
+  }, 0);
+}
+
+function findBestEvidenceSentence(sourceText: string, requirement: string, extraTerms: string[] = []): string {
+  const sentences = splitEvidenceSentences(sourceText);
+  if (!sentences.length) return '';
+
+  const terms = buildEvidenceSearchTerms(requirement, extraTerms);
+  const ranked = sentences
+    .map((sentence, index) => ({
+      sentence,
+      index,
+      score: scoreEvidenceSentence(sentence, terms),
+    }))
+    .sort((left, right) => {
+      if (right.score !== left.score) return right.score - left.score;
+      return left.index - right.index;
+    });
+
+  if (terms.length && (ranked[0]?.score || 0) <= 0) {
+    return '';
+  }
+
+  return compactEvidenceText(ranked[0]?.sentence || sentences[0] || '');
+}
+
+function normalizeMatchKind(value: string | undefined, fallback: JdCvMatchKind = 'semantic'): JdCvMatchKind {
+  const normalized = normalizeAscii(value || '');
+  if (normalized.includes('missing') || normalized.includes('thieu')) return 'missing';
+  if (normalized.includes('transfer') || normalized.includes('chuyen')) return 'transfer';
+  if (normalized.includes('exact') || normalized.includes('direct') || normalized.includes('keyword')) return 'exact';
+  if (normalized.includes('semantic') || normalized.includes('vector') || normalized.includes('embedding')) return 'semantic';
+  return fallback;
+}
+
+function getMatchKindLabel(kind: JdCvMatchKind): string {
+  if (kind === 'exact') return 'Khớp trực tiếp';
+  if (kind === 'transfer') return 'Khớp chuyển đổi';
+  if (kind === 'missing') return 'Cần xác minh';
+  return 'Khớp ngữ nghĩa';
+}
+
+function getMatchKindClasses(kind: JdCvMatchKind): string {
+  if (kind === 'exact') return 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300';
+  if (kind === 'transfer') return 'border-cyan-500/30 bg-cyan-500/10 text-cyan-300';
+  if (kind === 'missing') return 'border-amber-500/30 bg-amber-500/10 text-amber-300';
+  return 'border-teal-500/30 bg-teal-500/10 text-teal-300';
+}
+
+function buildJdCvEvidenceRows(
+  candidate: Candidate,
+  jdText: string,
+  jdFitDetail: DetailedScore | undefined,
+  resolvedCvText: string
+): JdCvEvidenceRow[] {
+  const insight = candidate.jdCvMatchInsights;
+  if (!insight) return [];
+
+  const jdFitEvidence = jdFitDetail ? getDetailEvidence(jdFitDetail) : '';
+  const jdFitExplanation = jdFitDetail ? getDetailExplanation(jdFitDetail) : '';
+  const combinedCvEvidence = [
+    resolvedCvText,
+    candidate._cvText,
+    jdFitEvidence,
+    jdFitExplanation,
+    insight.matchedSkills.join(', '),
+    insight.transferMatches.join(' | '),
+  ].filter(Boolean).join('\n');
+  const rows: JdCvEvidenceRow[] = [];
+  const seen = new Set<string>();
+
+  const pushRow = (input: Omit<JdCvEvidenceRow, 'id'>) => {
+    const requirement = compactEvidenceText(input.requirement, 120);
+    if (!requirement) return;
+    const key = `${normalizeAscii(requirement)}::${input.matchKind}`;
+    if (seen.has(key)) return;
+    seen.add(key);
+
+    rows.push({
+      ...input,
+      id: key || `${rows.length}`,
+      requirement,
+      jdEvidence: compactEvidenceText(input.jdEvidence || `JD có yêu cầu liên quan đến "${requirement}".`),
+      cvEvidence: compactEvidenceText(input.cvEvidence || 'Chưa tìm thấy câu CV chứng minh trực tiếp cho yêu cầu này.'),
+      confidence: Math.max(0, Math.min(100, Math.round(input.confidence))),
+    });
+  };
+
+  insight.evidenceMatches?.forEach((item) => {
+    const requirement = item.requirement || item.jdEvidence || item.cvEvidence;
+    pushRow({
+      requirement,
+      jdEvidence: item.jdEvidence || findBestEvidenceSentence(jdText, requirement),
+      cvEvidence: item.cvEvidence || findBestEvidenceSentence(combinedCvEvidence, requirement),
+      matchKind: normalizeMatchKind(item.matchType, 'semantic'),
+      confidence: item.score !== undefined ? Number(item.score) * (Number(item.score) <= 1 ? 100 : 1) : semanticMatchPercentFromInsight(insight),
+      reason: item.reason || 'Backend đã trả về cặp dẫn chứng JD/CV cho yêu cầu này.',
+    });
+  });
+
+  const keywordRows = jdFitDetail?.advancedBreakdown?.keyword_metrics?.keywords_list || [];
+  keywordRows
+    .filter((keyword) => keyword.status === 'matched')
+    .forEach((keyword) => {
+      pushRow({
+        requirement: keyword.keyword,
+        jdEvidence: findBestEvidenceSentence(jdText, keyword.keyword),
+        cvEvidence: keyword.context_sentence || findBestEvidenceSentence(combinedCvEvidence, keyword.keyword),
+        matchKind: 'exact',
+        confidence: 92,
+        reason: 'Từ khóa yêu cầu xuất hiện trong JD và có câu dẫn chứng tương ứng trong CV.',
+      });
+    });
+
+  insight.matchedSkills.forEach((skill) => {
+    const jdEvidence = findBestEvidenceSentence(jdText, skill);
+    const cvEvidence = findBestEvidenceSentence(combinedCvEvidence, skill);
+
+    pushRow({
+      requirement: skill,
+      jdEvidence,
+      cvEvidence,
+      matchKind: jdEvidence && cvEvidence ? 'exact' : 'semantic',
+      confidence: jdEvidence && cvEvidence ? 88 : semanticMatchPercentFromInsight(insight),
+      reason: jdEvidence && cvEvidence
+        ? 'Kỹ năng/công nghệ này được nhận diện là khớp trực tiếp giữa yêu cầu tuyển dụng và hồ sơ.'
+        : 'Hệ thống nhận diện tín hiệu phù hợp qua embedding, nhưng chưa lấy được đủ câu trích nguyên văn ở cả hai phía.',
+    });
+  });
+
+  const jobFitRequirement = extractJDRequirements(jdText).find((item) => item.display === BASIC_CRITERIA[0]);
+  const semanticComparison = compareEvidence(
+    BASIC_CRITERIA[0],
+    uniqueTextItems([...(jobFitRequirement?.keywords || []), ...insight.matchedSkills]).slice(0, 14),
+    combinedCvEvidence
+  );
+  semanticComparison.semanticMatched.forEach((item) => {
+    pushRow({
+      requirement: item.keyword,
+      jdEvidence: findBestEvidenceSentence(jdText, item.keyword),
+      cvEvidence: item.evidence,
+      matchKind: 'semantic',
+      confidence: item.score * 100,
+      reason: item.reason,
+    });
+  });
+
+  insight.transferMatches.forEach((match) => {
+    const terms = buildEvidenceSearchTerms(match);
+    pushRow({
+      requirement: match,
+      jdEvidence: findBestEvidenceSentence(jdText, match, terms),
+      cvEvidence: findBestEvidenceSentence(combinedCvEvidence, match, terms),
+      matchKind: 'transfer',
+      confidence: 78,
+      reason: 'Hai cách diễn đạt không trùng chữ hoàn toàn nhưng có quan hệ kỹ năng/ngữ cảnh tương đương.',
+    });
+  });
+
+  if (rows.length < 6) {
+    insight.missingSkills.slice(0, 6 - rows.length).forEach((skill) => {
+      pushRow({
+        requirement: skill,
+        jdEvidence: findBestEvidenceSentence(jdText, skill),
+        cvEvidence: '',
+        matchKind: 'missing',
+        confidence: 0,
+        reason: 'JD có yêu cầu này nhưng CV chưa có dẫn chứng rõ ràng, nên HR cần hỏi thêm khi phỏng vấn.',
+      });
+    });
+  }
+
+  if (!rows.length) {
+    pushRow({
+      requirement: 'Mức phù hợp tổng thể JD/CV',
+      jdEvidence: findBestEvidenceSentence(jdText, 'job requirement jd'),
+      cvEvidence: findBestEvidenceSentence(combinedCvEvidence, 'candidate cv experience skills'),
+      matchKind: 'semantic',
+      confidence: semanticMatchPercentFromInsight(insight),
+      reason: 'Embedding đo tương đồng ngữ nghĩa tổng thể giữa mô tả công việc và nội dung hồ sơ.',
+    });
+  }
+
+  return rows.slice(0, 6);
+}
+
+function semanticMatchPercentFromInsight(insight: NonNullable<Candidate['jdCvMatchInsights']>): number {
+  return Math.round(Math.min(100, Math.max(0, Number(insight.similarity || 0) * 100)));
+}
 
 function extractNestedCvText(value: unknown, depth: number = 0): string {
   if (depth > 5 || value === null || value === undefined) {
@@ -1106,6 +1415,10 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
   }, [detailFormula, detailScore]);
   const advancedBreakdown = item.advancedBreakdown;
   const keywordMetrics = advancedBreakdown?.keyword_metrics;
+  const hrFriendlyExplanation = useMemo(
+    () => buildHrFriendlyDetailComment(criterionName, detailExplanation, parsedData, keywordMetrics),
+    [criterionName, detailExplanation, keywordMetrics, parsedData]
+  );
   const matchedKeywordRows = keywordMetrics?.keywords_list?.filter((keyword) => keyword.status === 'matched') || [];
   const missingKeywordRows = keywordMetrics?.keywords_list?.filter((keyword) => keyword.status === 'missing') || [];
   const matchedKeywordNames = matchedKeywordRows.map((keyword) => keyword.keyword);
@@ -1348,9 +1661,14 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
                 </div>
 
                 {detailExplanation && detailExplanation !== '...' && (
-                  <div className="rounded-none border border-zinc-800 bg-zinc-950/50 p-2.5">
-                    <p className="mb-1 text-[9px] font-bold uppercase tracking-[0.15em] text-cyan-400/80">Nhận xét AI</p>
-                    <p className="text-xs leading-relaxed text-zinc-300 italic">"{detailExplanation}"</p>
+                  <div className="rounded-none border border-cyan-500/25 bg-cyan-500/[0.06] p-3">
+                    <p className="mb-1.5 text-[9px] font-bold uppercase tracking-[0.15em] text-cyan-300">Nhận xét dành cho HR</p>
+                    <p className="text-xs leading-6 text-zinc-200">{hrFriendlyExplanation}</p>
+                    {includesTechnicalModelSignals(detailExplanation) && (
+                      <p className="mt-2 border-t border-cyan-500/15 pt-2 text-[10px] leading-5 text-zinc-500">
+                        Dữ liệu kỹ thuật đã được diễn giải lại để HR dễ ra quyết định, thay vì hiện trực tiếp classifier/vector.
+                      </p>
+                    )}
                   </div>
                 )}
               </div>
@@ -1616,6 +1934,28 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
   const semanticMatchPercent = candidate.jdCvMatchInsights
     ? Math.round(candidate.jdCvMatchInsights.similarity * 1000) / 10
     : null;
+  const [resolvedCvText, setResolvedCvText] = useState(candidate._cvText || '');
+  const jdCvEvidenceRows = useMemo(
+    () => buildJdCvEvidenceRows(candidate, jdText, jdFitDetail, resolvedCvText),
+    [candidate, jdText, jdFitDetail, resolvedCvText]
+  );
+
+  useEffect(() => {
+    let isDisposed = false;
+
+    const hydrateCvText = async () => {
+      const cvText = await resolveCandidateCvText(candidate).catch(() => '');
+      if (!isDisposed) {
+        setResolvedCvText(cvText || candidate._cvText || '');
+      }
+    };
+
+    void hydrateCvText();
+
+    return () => {
+      isDisposed = true;
+    };
+  }, [candidate]);
 
   const educationDetail = useMemo(
     () => basicDetails.find((item) => canonicalizeCriterionName(getDetailCriterion(item)) === BASIC_CRITERIA[4]),
@@ -1777,6 +2117,53 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
                 )}
               </div>
             )}
+            {jdCvEvidenceRows.length > 0 && (
+              <div className="mt-4 border-t border-emerald-500/10 pt-4">
+                <div className="mb-3 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+                  <div>
+                    <div className="text-[10px] font-bold uppercase tracking-[0.16em] text-emerald-300">Đối chiếu JD ↔ CV có dẫn chứng</div>
+                    <p className="mt-1 text-[11px] leading-5 text-emerald-100/65">
+                      Mỗi dòng cho thấy yêu cầu trong JD, câu CV chứng minh và mức khớp để HR kiểm tra nhanh.
+                    </p>
+                  </div>
+                  <div className="text-[10px] font-bold uppercase tracking-[0.12em] text-emerald-300/80">
+                    {jdCvEvidenceRows.length} cặp dẫn chứng
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  {jdCvEvidenceRows.map((row, index) => (
+                    <div key={row.id || index} className="grid min-w-0 grid-cols-1 gap-3 border border-emerald-500/15 bg-black/20 p-3 md:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
+                      <div className="min-w-0">
+                        <div className="mb-2 flex flex-wrap items-center gap-2">
+                          <span className={`rounded-none border px-2 py-1 text-[9px] font-bold uppercase tracking-[0.12em] ${getMatchKindClasses(row.matchKind)}`}>
+                            {getMatchKindLabel(row.matchKind)}
+                          </span>
+                          {row.confidence > 0 && (
+                            <span className="font-mono text-[10px] font-bold text-emerald-300">{row.confidence}%</span>
+                          )}
+                        </div>
+                        <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-zinc-500">Yêu cầu JD</div>
+                        <div className="mt-1 break-words text-xs font-bold leading-5 text-emerald-100">{row.requirement}</div>
+                        <blockquote className="mt-2 border-l border-emerald-500/30 pl-3 text-[11px] leading-5 text-zinc-300">
+                          “{row.jdEvidence}”
+                        </blockquote>
+                      </div>
+
+                      <div className="min-w-0 border-t border-emerald-500/10 pt-3 md:border-l md:border-t-0 md:pl-3 md:pt-0">
+                        <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-zinc-500">CV chứng minh</div>
+                        <blockquote className={`mt-2 border-l pl-3 text-[11px] leading-5 ${row.matchKind === 'missing' ? 'border-amber-500/40 text-amber-200' : 'border-cyan-500/30 text-zinc-200'}`}>
+                          “{row.cvEvidence}”
+                        </blockquote>
+                        {row.reason && (
+                          <p className="mt-2 text-[10px] leading-5 text-zinc-500">{row.reason}</p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -1849,12 +2236,12 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
           <h4 className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.14em] text-indigo-400">
             <i className="fa-solid fa-graduation-cap text-indigo-400"></i> Xác thực học vấn
           </h4>
-          <div className="rounded-none border border-zinc-800 bg-zinc-950 p-4">
-            <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+          <div className="overflow-hidden rounded-none border border-zinc-800 bg-zinc-950 p-4">
+            <div className="grid min-w-0 grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_max-content] xl:items-start">
               <div className="min-w-0 space-y-3">
                 <div>
-                  <span className="block text-[9px] font-bold uppercase tracking-[0.15em] text-zinc-500">Học vấn phát hiện từ CV</span>
-                  <span className="mt-1 block text-xs font-bold text-slate-200">
+                  <span className="block whitespace-normal break-words text-[9px] font-bold uppercase tracking-[0.15em] text-zinc-500">Học vấn phát hiện từ CV</span>
+                  <span className="mt-1 block min-w-0 whitespace-normal break-words text-xs font-bold leading-5 text-slate-200">
                     {educationSummary
                       ? [
                           educationSummary.degree,
@@ -1866,20 +2253,20 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
                       : 'Chưa có thông tin'}
                   </span>
                   {educationSummary?.rawLine && (
-                    <span className="mt-1 block text-[11px] italic text-zinc-500 leading-normal">
+                    <span className="mt-1 block min-w-0 whitespace-normal break-words text-[11px] italic leading-normal text-zinc-500">
                       Trích dẫn CV: "{educationSummary.rawLine}"
                     </span>
                   )}
                 </div>
                 {shouldShowStandardizedEducation && (
-                  <div className="rounded-none border border-zinc-800/80 bg-zinc-950/80 px-3 py-2">
+                  <div className="max-w-full overflow-hidden rounded-none border border-zinc-800/80 bg-zinc-950/80 px-3 py-2">
                     <span className="block text-[9px] font-bold uppercase tracking-[0.15em] text-zinc-500">Thông tin Chuẩn hóa</span>
-                    <span className="mt-1 block text-xs text-slate-200">{standardizedEducation}</span>
+                    <span className="mt-1 block min-w-0 whitespace-normal break-words text-xs leading-5 text-slate-200">{standardizedEducation}</span>
                   </div>
                 )}
               </div>
 
-              <span className={`shrink-0 rounded-none border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] ${educationIsValid ? 'border-emerald-500/35 bg-emerald-500/10 text-emerald-300' : 'border-red-500/35 bg-red-500/10 text-red-300'}`}>
+              <span className={`inline-flex max-w-full items-center justify-center whitespace-normal break-words rounded-none border px-2.5 py-1 text-left text-[10px] font-bold uppercase leading-4 tracking-[0.12em] xl:max-w-[18rem] xl:text-right ${educationIsValid ? 'border-emerald-500/35 bg-emerald-500/10 text-emerald-300' : 'border-red-500/35 bg-red-500/10 text-red-300'}`}>
                 {educationValidationNote}
               </span>
             </div>

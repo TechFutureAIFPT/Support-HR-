@@ -66,7 +66,9 @@ interface JdHardFiltersResponse {
 }
 
 interface BackendChatResponse {
-  text?: string;
+  text?: unknown;
+  responseText?: unknown;
+  candidateIds?: unknown;
 }
 
 const ANALYSIS_JOB_POLL_INTERVAL_MS = 2500;
@@ -274,10 +276,31 @@ function normalizeEmbeddingInsight(value: unknown): Candidate['embeddingInsights
   };
 }
 
+function normalizeJdCvEvidenceMatches(value: unknown): NonNullable<Candidate['jdCvMatchInsights']>['evidenceMatches'] {
+  if (!Array.isArray(value)) return [];
+
+  return value
+    .filter((item): item is Record<string, unknown> => Boolean(item && typeof item === 'object'))
+    .map((item) => ({
+      requirement: String(item.requirement || item.jdRequirement || item.keyword || item.skill || ''),
+      jdEvidence: String(item.jdEvidence || item.jd_evidence || item.jdText || item.jdSnippet || item.requirementEvidence || ''),
+      cvEvidence: String(item.cvEvidence || item.cv_evidence || item.cvText || item.cvSnippet || item.candidateEvidence || ''),
+      matchType: item.matchType || item.match_type ? String(item.matchType || item.match_type) : undefined,
+      score: item.score !== undefined || item.similarity !== undefined || item.confidence !== undefined
+        ? Number(item.score ?? item.similarity ?? item.confidence)
+        : undefined,
+      reason: item.reason || item.explanation ? String(item.reason || item.explanation) : undefined,
+    }))
+    .filter((item) => item.requirement || item.jdEvidence || item.cvEvidence);
+}
+
 function normalizeJdCvMatchInsights(value: unknown): Candidate['jdCvMatchInsights'] | undefined {
   if (!value || typeof value !== 'object') return undefined;
 
   const record = value as Record<string, unknown>;
+  const evidenceMatches = normalizeJdCvEvidenceMatches(
+    record.evidenceMatches || record.evidence_matches || record.matchEvidence || record.match_evidence || record.evidencePairs || record.evidence_pairs
+  );
 
   return {
     similarity: Number(record.similarity || 0),
@@ -287,6 +310,7 @@ function normalizeJdCvMatchInsights(value: unknown): Candidate['jdCvMatchInsight
     matchedSkills: toArray(record.matchedSkills),
     missingSkills: toArray(record.missingSkills),
     transferMatches: toArray(record.transferMatches),
+    evidenceMatches,
   };
 }
 
@@ -419,6 +443,75 @@ function extractJsonBlock(text: string): string | null {
 
   const objectMatch = text.match(/\{[\s\S]*\}/);
   return objectMatch?.[0]?.trim() || null;
+}
+
+function stripMarkdownCodeFence(text: string): string {
+  return text
+    .trim()
+    .replace(/^```(?:json|md|markdown|text)?\s*/i, '')
+    .replace(/\s*```$/i, '')
+    .trim();
+}
+
+function parseChatbotPayload(text: string): Record<string, unknown> | null {
+  const jsonBlock = extractJsonBlock(text);
+  if (!jsonBlock) return null;
+
+  try {
+    const parsed = JSON.parse(jsonBlock);
+    return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
+      ? (parsed as Record<string, unknown>)
+      : null;
+  } catch {
+    return null;
+  }
+}
+
+export function normalizeChatbotResponseText(value: unknown): string {
+  if (Array.isArray(value)) {
+    return value
+      .map((part) => normalizeChatbotResponseText(part))
+      .filter(Boolean)
+      .join('\n');
+  }
+
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    if (!trimmed) return '';
+
+    const parsedPayload = parseChatbotPayload(trimmed);
+    if (parsedPayload) {
+      const nestedText = parsedPayload.responseText
+        ?? parsedPayload.text
+        ?? parsedPayload.message
+        ?? parsedPayload.content;
+      const normalizedNestedText = normalizeChatbotResponseText(nestedText);
+      if (normalizedNestedText) return normalizedNestedText;
+    }
+
+    return stripMarkdownCodeFence(trimmed);
+  }
+
+  if (value && typeof value === 'object') {
+    const record = value as Record<string, unknown>;
+    return normalizeChatbotResponseText(
+      record.responseText ?? record.text ?? record.message ?? record.content
+    );
+  }
+
+  return '';
+}
+
+function normalizeCandidateIds(value: unknown, allowedIds: Set<string>): string[] {
+  if (!Array.isArray(value)) return [];
+
+  return Array.from(
+    new Set(
+      value
+        .map((id) => String(id || '').trim())
+        .filter((id) => id && allowedIds.has(id))
+    )
+  );
 }
 
 function buildFallbackChatbotAdvice(analysisData: AnalysisRunData): ChatbotAdviceResult {
@@ -654,6 +747,11 @@ export async function getChatbotAdvice(
       })),
     }))
     .slice(0, 12);
+  const allowedCandidateIds = new Set(
+    candidateContext
+      .map((candidate) => String(candidate.id || '').trim())
+      .filter(Boolean)
+  );
 
   const backendPrompt = [
     'Bạn là trợ lý tuyển dụng cho SupportHR.',
@@ -681,26 +779,22 @@ export async function getChatbotAdvice(
       },
     });
 
-    const text = response.text || '';
-    const jsonBlock = extractJsonBlock(text);
-
-    if (jsonBlock) {
-      const parsed = JSON.parse(jsonBlock) as Partial<ChatbotAdviceResult>;
-
-      return {
-        responseText: typeof parsed.responseText === 'string' && parsed.responseText.trim()
-          ? parsed.responseText.trim()
-          : text,
-        candidateIds: Array.isArray(parsed.candidateIds)
-          ? parsed.candidateIds.map((id) => String(id))
-          : [],
-      };
-    }
-
     const fallback = buildFallbackChatbotAdvice(analysisData);
+    const rawText = typeof response.text === 'string' ? response.text : '';
+    const parsedPayload = rawText ? parseChatbotPayload(rawText) : null;
+    const responsePayload = response as Record<string, unknown>;
+    const rawResponseText = parsedPayload?.responseText
+      ?? responsePayload.responseText
+      ?? responsePayload.text;
+    const rawCandidateIds = parsedPayload?.candidateIds ?? responsePayload.candidateIds;
+    const responseText = normalizeChatbotResponseText(rawResponseText);
+    const candidateIds = rawCandidateIds !== undefined
+      ? normalizeCandidateIds(rawCandidateIds, allowedCandidateIds)
+      : fallback.candidateIds;
+
     return {
-      responseText: text || fallback.responseText,
-      candidateIds: fallback.candidateIds,
+      responseText: responseText || fallback.responseText,
+      candidateIds,
     };
   } catch (error) {
     console.warn('Backend chatbot request failed, using fallback advice:', error);

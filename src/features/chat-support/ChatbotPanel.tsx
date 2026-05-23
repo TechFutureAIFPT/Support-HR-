@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import type { AnalysisRunData, ChatMessage, ChatMessageRecord, ChatbotSession } from '@/types';
-import { getChatbotAdvice } from '@/services/screening/frontendScreeningService';
+import { getChatbotAdvice, normalizeChatbotResponseText } from '@/services/screening/frontendScreeningService';
 import { analyzeSalary } from '@/services/salary-analysis/salaryAnalysisService';
 import { ChatbotHistoryService } from '@/services/data-sync/chatbotHistoryService';
 import { useThemeColors } from '@/hooks/useThemeColors';
@@ -41,7 +41,7 @@ const ChatbotPanel: React.FC<ChatbotPanelProps> = ({ analysisData, onClose }) =>
           const restored: ChatMessage[] = existing.messages.map(m => ({
             id: m.id,
             author: m.author,
-            content: m.content,
+            content: m.author === 'bot' ? normalizeChatbotResponseText(m.content) || m.content : m.content,
             timestamp: m.timestamp,
           }));
           setMessages(restored);
@@ -96,7 +96,7 @@ const ChatbotPanel: React.FC<ChatbotPanelProps> = ({ analysisData, onClose }) =>
     const restored: ChatMessage[] = session.messages.map(m => ({
       id: m.id,
       author: m.author,
-      content: m.content,
+      content: m.author === 'bot' ? normalizeChatbotResponseText(m.content) || m.content : m.content,
       timestamp: m.timestamp,
     }));
     setMessages(restored);
@@ -341,6 +341,7 @@ const ChatbotPanel: React.FC<ChatbotPanelProps> = ({ analysisData, onClose }) =>
 
   const MessageBubble: React.FC<{ message: ChatMessage }> = ({ message }) => {
     const isBot = message.author === 'bot';
+    const displayContent = isBot ? normalizeChatbotResponseText(message.content) || message.content : message.content;
     return (
       <div className={`flex gap-3 ${isBot ? 'justify-start' : 'justify-end'}`}>
         {isBot && (
@@ -349,7 +350,7 @@ const ChatbotPanel: React.FC<ChatbotPanelProps> = ({ analysisData, onClose }) =>
           </div>
         )}
         <div className={`max-w-xs md:max-w-sm lg:max-w-xs px-4 py-2.5 border rounded-lg`} style={{ backgroundColor: isBot ? tc.cardBg : tc.isDark ? 'rgba(14,165,233,0.2)' : 'rgba(14,165,233,0.1)', borderColor: isBot ? tc.borderColor : 'rgba(14,165,233,0.3)', color: tc.textPrimary }}>
-          <p className="text-sm leading-relaxed">{message.content}</p>
+          <p className="whitespace-pre-line text-sm leading-relaxed">{displayContent}</p>
           {message.suggestedCandidates && (
             <div className="mt-3 pt-3 border-t border-slate-800 space-y-2">
               <p className="text-xs font-semibold text-slate-400">Ứng viên liên quan:</p>

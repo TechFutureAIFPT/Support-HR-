@@ -201,17 +201,17 @@ const Footer = ({ onNavigate }: FooterProps) => {
 
       <div className="relative home-section-frame flex min-h-[30rem] flex-col py-16 sm:py-20 lg:py-24">
         <div className="grid gap-14 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1.35fr)] lg:items-start lg:gap-24">
-          <div>
+          <div className="flex flex-col items-center text-center">
             <button
               type="button"
               onClick={() => onNavigate("hero")}
-              className="group flex w-fit items-center gap-3 text-left"
+              className="group flex w-fit flex-col items-center gap-3 text-center sm:flex-row sm:justify-center"
               aria-label="Về trang đầu Support HR"
             >
               <span className="flex h-10 w-10 items-center justify-center overflow-hidden border border-white/15 bg-white/[0.035]">
                 <img src="/images/logos/logo.jpg" alt="Support HR" className="h-full w-full object-cover" />
               </span>
-              <span>
+              <span className="text-center">
                 <span className="supporthr-mono block text-[18px] font-black uppercase tracking-[0.12em] text-white transition-colors duration-300 group-hover:text-[#f5d6bb]">
                   Support HR
                 </span>
@@ -225,7 +225,7 @@ const Footer = ({ onNavigate }: FooterProps) => {
               Nền tảng tuyển dụng AI cho doanh nghiệp Việt Nam. Đọc CV, đối sánh JD và tạo shortlist có kiểm chứng trong một luồng làm việc.
             </p>
 
-            <div className="mt-7 flex flex-col gap-3 text-gray-400 sm:flex-row sm:flex-wrap sm:items-center">
+            <div className="mt-7 flex flex-col items-center justify-center gap-3 text-gray-400 sm:flex-row sm:flex-wrap">
               {contactLinks.map((link) => (
                 <a
                   key={link.href}
@@ -240,7 +240,7 @@ const Footer = ({ onNavigate }: FooterProps) => {
               ))}
             </div>
 
-            <div className="mt-8">
+            <div className="mt-8 flex justify-center">
               <SocialLinks />
             </div>
           </div>
@@ -268,9 +268,9 @@ const Footer = ({ onNavigate }: FooterProps) => {
         </div>
 
         <div className="mt-auto border-t border-white/10 pt-7">
-          <div className="flex flex-col gap-4 text-xs text-zinc-600 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col items-center justify-center gap-4 text-center text-xs text-zinc-600 sm:flex-row">
             <p>© 2026 Support HR. Mọi quyền được bảo lưu.</p>
-            <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+            <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
               <a href="/privacy-policy" className="transition-all duration-300 ease-in-out hover:translate-x-1 hover:text-white">
                 Privacy Policy
               </a>
