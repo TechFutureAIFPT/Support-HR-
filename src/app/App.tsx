@@ -41,6 +41,11 @@ import {
   getActiveAnalysisContext,
   saveActiveAnalysisContext,
 } from '@/services/history-cache/activeAnalysisContext';
+import {
+  clearLatestAnalysisRun,
+  readLatestAnalysisRun,
+  writeLatestAnalysisRun,
+} from '@/services/history-cache/latestAnalysisRun';
 
 function usePrevious<T>(value: T): T | undefined {
   const ref = useRef<T | undefined>(undefined);
@@ -88,7 +93,7 @@ const MainApp = () => {
   };
 
   useEffect(() => {
-    const protectedPaths = ['/jd', '/weights', '/analysis', '/detailed-analytics', '/chatbot', '/feedback'];
+    const protectedPaths = ['/jd', '/weights', '/analysis', '/dashboard', '/detailed-analytics', '/chatbot', '/feedback'];
 
     if (!isInitializing && !isLoggedIn && protectedPaths.includes(location.pathname)) {
       setShowLoginModal(true);
@@ -210,11 +215,14 @@ interface MainLayoutProps {
 }
 
 const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, currentUser }: MainLayoutProps) => {
+  const initialStoredRun = useMemo(() => readLatestAnalysisRun(), []);
   const [userEmail, setUserEmail] = useState<string>(() => {
     // attempt to get from auth current user if available
     return (typeof window !== 'undefined' && (window as any).localStorage?.getItem('authEmail')) || '';
   });
-  const [completedSteps, setCompletedSteps] = useState<AppStep[]>([]);
+  const [completedSteps, setCompletedSteps] = useState<AppStep[]>(
+    () => initialStoredRun ? ['jd', 'weights', 'analysis'] : []
+  );
   const [jdTemplatesModalOpen, setJdTemplatesModalOpen] = useState<boolean>(false);
   const [jdTemplateSelectionMode, setJdTemplateSelectionMode] = useState<'analysis' | 'welcome'>('analysis');
   const [historyModalOpen, setHistoryModalOpen] = useState<boolean>(false);
@@ -275,7 +283,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
 
   const [jdText, setJdText] = useState<string>('');
   const [rawJdText, setRawJdText] = useState<string>('');
-  const [jobPosition, setJobPosition] = useState<string>('');
+  const [jobPosition, setJobPosition] = useState<string>(() => initialStoredRun?.job.position || '');
   const [weights, setWeights] = useState<WeightCriteria>(initialWeights);
   const [hardFilters, setHardFilters] = useState<HardFilters>({
     location: '',
@@ -303,7 +311,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
     contractTypeMandatory: false,
   });
   const [cvFiles, setCvFiles] = useState<File[]>([]);
-  const [analysisResults, setAnalysisResults] = useState<Candidate[]>([]);
+  const [analysisResults, setAnalysisResults] = useState<Candidate[]>(() => initialStoredRun?.candidates || []);
   const [activeAnalysisContext, setActiveAnalysisContext] = useState<ActiveAnalysisContext | null>(() => getActiveAnalysisContext());
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [loadingMessage, setLoadingMessage] = useState<string>('');
@@ -332,6 +340,16 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
       if (payload.hardFilters) setHardFilters(payload.hardFilters);
       if (payload.candidates) setAnalysisResults(payload.candidates);
       setCompletedSteps(['jd', 'weights', 'analysis']);
+      if (payload.candidates) {
+        writeLatestAnalysisRun({
+          timestamp: Number(payload.timestamp || Date.now()),
+          job: {
+            position: payload.jobPosition || '',
+            locationRequirement: payload.hardFilters?.location || '',
+          },
+          candidates: payload.candidates,
+        });
+      }
       navigate('/analysis');
     } catch (e) {
       console.warn('Restore failed', e);
@@ -390,7 +408,11 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
           },
           candidates: candidatesWithIds,
         };
-        localStorage.setItem('cvAnalysis.latest', JSON.stringify(analysisRun));
+        writeLatestAnalysisRun(analysisRun);
+        localStorage.setItem('currentJD', jdText);
+        localStorage.setItem('currentLocation', hardFilters.location || '');
+        localStorage.setItem('analysisWeights', JSON.stringify(weights));
+        localStorage.setItem('hardFilters', JSON.stringify(hardFilters));
 
         const baseContext: ActiveAnalysisContext = {
           sessionId: buildAnalysisSessionId(analysisRun.timestamp),
@@ -484,6 +506,11 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
     setAnalysisResults([]);
     setActiveAnalysisContext(null);
     clearActiveAnalysisContext();
+    clearLatestAnalysisRun();
+    localStorage.removeItem('currentJD');
+    localStorage.removeItem('currentLocation');
+    localStorage.removeItem('analysisWeights');
+    localStorage.removeItem('hardFilters');
     setCompletedSteps([]);
     navigate('/jd');
   }, [navigate]);
@@ -506,10 +533,17 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
     setCompletedSteps(prev => [...new Set([...prev, step])]);
   }, []);
 
+  useEffect(() => {
+    const hasUsableAnalysis = analysisResults.some((candidate) => candidate.status === 'SUCCESS' && candidate.analysis);
+    if (!isLoading && hasUsableAnalysis) {
+      setCompletedSteps(prev => [...new Set<AppStep>([...prev, 'jd', 'weights', 'analysis'])]);
+    }
+  }, [analysisResults, isLoading]);
+
   const isHomeView = activeStep === 'home';
   const isLandingFallbackView =
     !isLoggedIn &&
-    ['/jd', '/weights', '/analysis', '/detailed-analytics', '/chatbot', '/feedback'].includes(location.pathname);
+    ['/jd', '/weights', '/analysis', '/dashboard', '/detailed-analytics', '/chatbot', '/feedback'].includes(location.pathname);
   const isLandingView = isHomeView || isLandingFallbackView;
   const isWorkflowView =
     !isLandingView &&
@@ -669,6 +703,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
               <Route path="/weights" element={isLoggedIn ? <ScreenerPage {...screenerPageProps} /> : <HomePage setActiveStep={setActiveStep} isLoggedIn={isLoggedIn} onLoginRequest={onLoginRequest} completedSteps={completedSteps} userName={userName} userEmail={userEmail} />} />
               <Route path="/analysis" element={isLoggedIn ? <ScreenerPage {...screenerPageProps} /> : <HomePage setActiveStep={setActiveStep} isLoggedIn={isLoggedIn} onLoginRequest={onLoginRequest} completedSteps={completedSteps} userName={userName} userEmail={userEmail} />} />
 
+              <Route path="/dashboard" element={isLoggedIn ? <DetailedAnalyticsPage candidates={analysisResults} jobPosition={jobPosition} onReset={onResetRequest} /> : <HomePage setActiveStep={setActiveStep} isLoggedIn={isLoggedIn} onLoginRequest={onLoginRequest} completedSteps={completedSteps} userName={userName} userEmail={userEmail} />} />
               <Route path="/detailed-analytics" element={isLoggedIn ? <DetailedAnalyticsPage candidates={analysisResults} jobPosition={jobPosition} onReset={onResetRequest} /> : <HomePage setActiveStep={setActiveStep} isLoggedIn={isLoggedIn} onLoginRequest={onLoginRequest} completedSteps={completedSteps} userName={userName} userEmail={userEmail} />} />
               <Route path="/chatbot" element={isLoggedIn ? <CandidateSuggestions candidates={analysisResults} jobPosition={jobPosition} /> : <HomePage setActiveStep={setActiveStep} isLoggedIn={isLoggedIn} onLoginRequest={onLoginRequest} completedSteps={completedSteps} userName={userName} userEmail={userEmail} />} />
               <Route path="/feedback" element={isLoggedIn ? <AIFeedbackPage candidates={analysisResults} jobPosition={jobPosition} weights={weights} hardFilters={hardFilters} analysisContext={activeAnalysisContext} /> : <HomePage setActiveStep={setActiveStep} isLoggedIn={isLoggedIn} onLoginRequest={onLoginRequest} completedSteps={completedSteps} userName={userName} userEmail={userEmail} />} />

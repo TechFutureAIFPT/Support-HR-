@@ -23,6 +23,7 @@ import {
   buildAnalysisSessionId,
   getActiveAnalysisContext,
 } from '@/services/history-cache/activeAnalysisContext';
+import { readLatestAnalysisRun } from '@/services/history-cache/latestAnalysisRun';
 
 interface AIFeedbackPageProps {
   candidates: Candidate[];
@@ -64,28 +65,7 @@ const ACTION_META: Record<AnalysisFeedbackAction, { label: string; className: st
 };
 
 function getStoredAnalysisRun(): AnalysisRunData | null {
-  if (typeof window === 'undefined') return null;
-
-  try {
-    const raw = window.localStorage.getItem('cvAnalysis.latest');
-    if (!raw) return null;
-    const parsed = JSON.parse(raw) as Partial<AnalysisRunData>;
-
-    if (!parsed || typeof parsed !== 'object' || !Array.isArray(parsed.candidates)) {
-      return null;
-    }
-
-    return {
-      timestamp: typeof parsed.timestamp === 'number' ? parsed.timestamp : Date.now(),
-      job: {
-        position: String(parsed.job?.position || ''),
-        locationRequirement: String(parsed.job?.locationRequirement || ''),
-      },
-      candidates: parsed.candidates as Candidate[],
-    };
-  } catch {
-    return null;
-  }
+  return readLatestAnalysisRun();
 }
 
 function buildEffectiveContext(

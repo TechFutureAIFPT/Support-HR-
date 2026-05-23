@@ -15,6 +15,7 @@ import type { Candidate } from '@/types';
 import { saveHistorySession } from '@/services/history-cache/historyService';
 import { auth } from '@/services/firebase';
 import { useThemeColors } from '@/hooks/useThemeColors';
+import { readLatestAnalysisRun } from '@/services/history-cache/latestAnalysisRun';
 
 interface DetailedAnalyticsPageProps {
   candidates: Candidate[];
@@ -28,6 +29,12 @@ const DetailedAnalyticsPage: React.FC<DetailedAnalyticsPageProps> = ({ candidate
   const [showExportMenu, setShowExportMenu] = useState(false);
   const navigate = useNavigate();
   const tc = useThemeColors();
+  const storedRun = useMemo(() => readLatestAnalysisRun(), []);
+  const effectiveCandidates = useMemo(
+    () => candidates.length > 0 ? candidates : storedRun?.candidates || [],
+    [candidates, storedRun]
+  );
+  const effectiveJobPosition = jobPosition || storedRun?.job.position || '';
 
   const handleCompleteProcess = async () => {
     try {
@@ -42,7 +49,7 @@ const DetailedAnalyticsPage: React.FC<DetailedAnalyticsPageProps> = ({ candidate
       const weights = JSON.parse(localStorage.getItem('analysisWeights') || '{}');
       const hardFilters = JSON.parse(localStorage.getItem('hardFilters') || '{}');
       await saveHistorySession({
-        jdText, jobPosition, locationRequirement, candidates,
+        jdText, jobPosition: effectiveJobPosition, locationRequirement, candidates: effectiveCandidates,
         userEmail: currentUser.email, weights, hardFilters
       });
       alert('Đã lưu lịch sử phân tích thành công!');
@@ -57,7 +64,7 @@ const DetailedAnalyticsPage: React.FC<DetailedAnalyticsPageProps> = ({ candidate
   };
 
   const analyticsData = useMemo(() => {
-    const successfulCandidates = candidates.filter(c => c.status === 'SUCCESS' && c.analysis);
+    const successfulCandidates = effectiveCandidates.filter(c => c.status === 'SUCCESS' && c.analysis);
     if (successfulCandidates.length === 0) return null;
 
     const gradeStats = {
@@ -131,9 +138,9 @@ const DetailedAnalyticsPage: React.FC<DetailedAnalyticsPageProps> = ({ candidate
       totalCandidates: successfulCandidates.length,
       topPerformers,
       avgScore: Math.round(avgScore),
-      successRate: Math.round((successfulCandidates.length / candidates.length) * 100),
+      successRate: Math.round((successfulCandidates.length / effectiveCandidates.length) * 100),
     };
-  }, [candidates]);
+  }, [effectiveCandidates]);
 
   if (!analyticsData) {
     return (
@@ -207,10 +214,10 @@ const DetailedAnalyticsPage: React.FC<DetailedAnalyticsPageProps> = ({ candidate
               <div className="flex items-center gap-1.5 text-[9px] font-medium tracking-normal normal-case" style={{ color: tc.textDim }}>
                 <span className="w-1 h-1 rounded-full bg-slate-600" />
                 <Clock className="w-3 h-3 opacity-70" /> {new Date().toLocaleDateString('vi-VN')}
-                {jobPosition && (
+                {effectiveJobPosition && (
                   <>
                     <span className="w-1 h-1 rounded-full bg-slate-600" />
-                    <span className="truncate">{jobPosition}</span>
+                    <span className="truncate">{effectiveJobPosition}</span>
                   </>
                 )}
               </div>

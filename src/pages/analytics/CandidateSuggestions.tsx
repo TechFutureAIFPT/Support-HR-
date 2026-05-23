@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Send, Bot, User, Sparkles, ChevronDown, ChevronUp, Check, Plus, FileText, Users, Lightbulb, MessageSquare, ArrowUp, X, Copy, CheckCheck, Loader2, Clock } from 'lucide-react';
 import type { Candidate, AnalysisRunData, ChatbotSession, ChatMessageRecord } from '@/types';
 import { getChatbotAdvice } from '@/services/screening/frontendScreeningService';
 import SelectedCandidatesPage from '@/pages/analytics/SelectedCandidatesPage';
 import { ChatbotHistoryService } from '@/services/data-sync/chatbotHistoryService';
 import { useThemeColors } from '@/hooks/useThemeColors';
+import { readLatestAnalysisRun } from '@/services/history-cache/latestAnalysisRun';
 import '@/pages/analytics/styles/candidate-suggestions.css';
 
 const SELECTED_IDS_KEY = 'supporthr.selectedCandidateIds';
@@ -66,6 +67,12 @@ const QUICK_ACTIONS = [
 
 const CandidateSuggestions: React.FC<CandidateSuggestionsProps> = ({ candidates, jobPosition }) => {
   const tc = useThemeColors();
+  const storedRun = useMemo(() => readLatestAnalysisRun(), []);
+  const effectiveCandidates = useMemo(
+    () => candidates.length > 0 ? candidates : storedRun?.candidates || [],
+    [candidates, storedRun]
+  );
+  const effectiveJobPosition = jobPosition || storedRun?.job.position || '';
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -89,8 +96,11 @@ const CandidateSuggestions: React.FC<CandidateSuggestionsProps> = ({ candidates,
 
   const analysisData: AnalysisRunData = {
     timestamp: Date.now(),
-    job: { position: jobPosition, locationRequirement: localStorage.getItem('currentLocation') || '' },
-    candidates,
+    job: {
+      position: effectiveJobPosition,
+      locationRequirement: storedRun?.job.locationRequirement || localStorage.getItem('currentLocation') || '',
+    },
+    candidates: effectiveCandidates,
   };
 
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
@@ -98,12 +108,12 @@ const CandidateSuggestions: React.FC<CandidateSuggestionsProps> = ({ candidates,
 
   // Auto-create or resume session
   useEffect(() => {
-    if (sessionInitRef.current || !jobPosition) return;
+    if (sessionInitRef.current || !effectiveJobPosition) return;
     sessionInitRef.current = true;
 
     const initSession = async () => {
       try {
-        const existing = await ChatbotHistoryService.findRecentSession(jobPosition);
+        const existing = await ChatbotHistoryService.findRecentSession(effectiveJobPosition);
         if (existing && existing.id && existing.messages.length > 0) {
           setSessionId(existing.id);
           const restored: Message[] = existing.messages.map(m => ({
@@ -115,8 +125,8 @@ const CandidateSuggestions: React.FC<CandidateSuggestionsProps> = ({ candidates,
           setMessages(restored);
         } else {
           const newId = await ChatbotHistoryService.createSession({
-            jobPosition,
-            totalCandidates: candidates?.length || 0,
+            jobPosition: effectiveJobPosition,
+            totalCandidates: effectiveCandidates.length,
           });
           setSessionId(newId);
           const initialMsg: Message = {
@@ -139,7 +149,7 @@ const CandidateSuggestions: React.FC<CandidateSuggestionsProps> = ({ candidates,
       }
     };
     initSession();
-  }, [jobPosition, candidates.length]);
+  }, [effectiveJobPosition, effectiveCandidates.length]);
 
   const loadPastSessions = async () => {
     try {
@@ -201,7 +211,7 @@ const CandidateSuggestions: React.FC<CandidateSuggestionsProps> = ({ candidates,
 
   const exportSelectedToCSV = () => {
     if (selectedIds.size === 0) return;
-    const selectedData = candidates.filter(c => selectedIds.has(c.id!));
+    const selectedData = effectiveCandidates.filter(c => selectedIds.has(c.id!));
     const headers = ['STT', 'Họ tên', 'Hạng', 'Điểm tổng', 'Phù hợp JD', 'Chức danh', 'Email', 'SĐT'];
     const csvData = [
       headers.join(','),
@@ -262,7 +272,7 @@ const CandidateSuggestions: React.FC<CandidateSuggestionsProps> = ({ candidates,
     return parts.length >= 2 ? (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase() : name.charAt(0).toUpperCase();
   };
 
-  if (!candidates || candidates.length === 0) {
+  if (!effectiveCandidates || effectiveCandidates.length === 0) {
     return (
       <div className="feature-page-shell flex h-full min-h-0 w-full flex-1 flex-col items-center justify-center px-4 text-center" style={{ background: tc.pageBg }}>
         <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-full shadow-sm" style={{ background: tc.cardBg }}>
@@ -292,7 +302,7 @@ const CandidateSuggestions: React.FC<CandidateSuggestionsProps> = ({ candidates,
               </div>
               <p className="text-[9px] font-semibold uppercase tracking-[0.16em] leading-tight mt-0.5" style={{ color: tc.textAccent }}>
                 AI Recruiting Assistant
-                {jobPosition && <span className="normal-case tracking-normal ml-2 text-[9px] text-slate-500 font-medium">· {jobPosition}</span>}
+                {effectiveJobPosition && <span className="normal-case tracking-normal ml-2 text-[9px] text-slate-500 font-medium">· {effectiveJobPosition}</span>}
               </p>
             </div>
           ) : (
@@ -306,7 +316,7 @@ const CandidateSuggestions: React.FC<CandidateSuggestionsProps> = ({ candidates,
               </div>
               <p className="text-[9px] font-semibold uppercase tracking-[0.16em] leading-tight mt-0.5" style={{ color: tc.textAccent }}>
                 Selected Candidates
-                {jobPosition && <span className="normal-case tracking-normal ml-2 text-[9px] text-slate-500 font-medium">· {jobPosition}</span>}
+                {effectiveJobPosition && <span className="normal-case tracking-normal ml-2 text-[9px] text-slate-500 font-medium">· {effectiveJobPosition}</span>}
               </p>
             </div>
           )}
@@ -527,7 +537,7 @@ const CandidateSuggestions: React.FC<CandidateSuggestionsProps> = ({ candidates,
                                 </div>
                                 <div className="flex flex-col gap-2">
                                   {msg.candidateIds.map(id => {
-                                    const c = candidates.find(cand => cand.id === id);
+                                    const c = effectiveCandidates.find(cand => cand.id === id);
                                     if (!c) return null;
                                     const isSelected = selectedIds.has(id);
                                     return (
@@ -661,7 +671,7 @@ const CandidateSuggestions: React.FC<CandidateSuggestionsProps> = ({ candidates,
           </div>
         ) : (
           <div className="flex h-full w-full">
-            <SelectedCandidatesPage candidates={candidates} jobPosition={jobPosition} />
+            <SelectedCandidatesPage candidates={effectiveCandidates} jobPosition={effectiveJobPosition} />
           </div>
         )}
       </div>{/* end wrapper relative */}

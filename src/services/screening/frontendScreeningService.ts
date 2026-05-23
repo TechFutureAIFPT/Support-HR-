@@ -1,8 +1,9 @@
 import type { Candidate, DetailedScore, HardFilters, WeightCriteria, AnalysisRunData } from '@/types';
-import { apiPost, pickArray } from '@/services/api/renderClient';
+import { apiGet, apiPost, pickArray } from '@/services/api/renderClient';
 import { analysisCacheService } from '@/services/history-cache/analysisCache';
 import { UploadedFilesService } from '@/services/data-sync/uploadedFilesService';
 import { extractTextFromFile } from '@/services/file-processing/ocrService';
+import { auth } from '@/services/firebase';
 import { getSafeErrorMessage, sanitizeApiErrorMessage, SAFE_ERROR_MESSAGES } from '@/utils/errorMessages';
 
 const RENDER_CHAT_MODEL = 'gemini-2.0-flash';
@@ -34,6 +35,22 @@ interface CandidateAnalysis {
 
 interface CoreAnalysisResponse {
   candidates?: unknown[];
+  pipeline?: Record<string, unknown>;
+}
+
+interface AnalysisJobAcceptedResponse {
+  job_id?: string;
+  status?: 'processing';
+  status_url?: string;
+}
+
+interface AnalysisJobStatusResponse {
+  job_id?: string;
+  status?: 'processing' | 'completed' | 'failed';
+  progress?: number;
+  message?: string;
+  result?: CoreAnalysisResponse;
+  error?: string | null;
 }
 
 interface JdStructureResponse {
@@ -50,6 +67,71 @@ interface JdHardFiltersResponse {
 
 interface BackendChatResponse {
   text?: string;
+}
+
+const ANALYSIS_JOB_POLL_INTERVAL_MS = 2500;
+const ANALYSIS_JOB_TIMEOUT_MS = 20 * 60 * 1000;
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => window.setTimeout(resolve, ms));
+}
+
+async function pollAnalysisJob(jobId: string): Promise<CoreAnalysisResponse> {
+  const startedAt = Date.now();
+
+  while (Date.now() - startedAt < ANALYSIS_JOB_TIMEOUT_MS) {
+    const statusResponse = await apiGet<AnalysisJobStatusResponse>(
+      `/api/analysis/status/${encodeURIComponent(jobId)}`,
+      {
+        timeoutMs: 30000,
+        authRequired: Boolean(auth.currentUser),
+      }
+    );
+
+    if (statusResponse.status === 'completed') {
+      return statusResponse.result || { candidates: [] };
+    }
+
+    if (statusResponse.status === 'failed') {
+      throw new Error(statusResponse.error || 'Phân tích CV thất bại.');
+    }
+
+    await sleep(ANALYSIS_JOB_POLL_INTERVAL_MS);
+  }
+
+  throw new Error('Quá thời gian chờ phân tích CV. Vui lòng thử lại.');
+}
+
+async function runCoreAnalysis(payload: {
+  jd_text: string;
+  weights: WeightCriteria;
+  hard_filters: Record<string, unknown>;
+  cv_entries: Array<{ file_name: string; text: string }>;
+}): Promise<CoreAnalysisResponse> {
+  const requestOptions = {
+    timeoutMs: 30000,
+    authRequired: Boolean(auth.currentUser),
+  };
+  let accepted: AnalysisJobAcceptedResponse | null = null;
+  try {
+    accepted = await apiPost<AnalysisJobAcceptedResponse>('/api/cv/analyze-core-async', payload, requestOptions);
+  } catch (error) {
+    console.warn('Async CV analysis route unavailable, falling back to sync route:', error);
+    return apiPost<CoreAnalysisResponse>('/api/cv/analyze-core', payload, {
+      timeoutMs: 120000,
+      authRequired: Boolean(auth.currentUser),
+    });
+  }
+
+  const jobId = String(accepted?.job_id || '').trim();
+  if (jobId) {
+    return pollAnalysisJob(jobId);
+  }
+
+  return apiPost<CoreAnalysisResponse>('/api/cv/analyze-core', payload, {
+    timeoutMs: 120000,
+    authRequired: Boolean(auth.currentUser),
+  });
 }
 
 function toArray(value: unknown): string[] {
@@ -484,7 +566,7 @@ export async function* analyzeCVs(
 
   let coreResponse: CoreAnalysisResponse;
   try {
-    coreResponse = await apiPost<CoreAnalysisResponse>('/api/cv/analyze-core', {
+    coreResponse = await runCoreAnalysis({
       jd_text: jdText,
       weights,
       hard_filters: serializeHardFilters(hardFilters),
