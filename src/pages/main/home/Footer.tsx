@@ -148,7 +148,7 @@ const FooterColumn = ({
   items: FooterNavItem[];
   onNavigate: FooterProps["onNavigate"];
 }) => (
-  <div>
+  <div className="flex flex-col items-center text-center sm:items-start sm:text-left">
     <h4 className="supporthr-mono mb-6 text-[13px] font-semibold uppercase tracking-[0.2em] text-zinc-400">{title}</h4>
     <div className="space-y-4">
       {items.map((item) => (
@@ -200,12 +200,12 @@ const Footer = ({ onNavigate }: FooterProps) => {
       <FooterAsciiBackdrop />
 
       <div className="relative home-section-frame flex min-h-[30rem] flex-col py-16 sm:py-20 lg:py-24">
-        <div className="grid gap-14 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1.35fr)] lg:items-start lg:gap-24">
-          <div className="flex flex-col items-center text-center">
+        <div className="flex flex-col items-center gap-12 lg:gap-14">
+          <div className="mx-auto flex max-w-3xl flex-col items-center text-center">
             <button
               type="button"
               onClick={() => onNavigate("hero")}
-              className="group flex w-fit flex-col items-center gap-3 text-center sm:flex-row sm:justify-center"
+              className="group grid w-fit grid-cols-[2.5rem_auto_2.5rem] items-center gap-3 text-center"
               aria-label="Về trang đầu Support HR"
             >
               <span className="flex h-10 w-10 items-center justify-center overflow-hidden border border-white/15 bg-white/[0.035]">
@@ -245,10 +245,10 @@ const Footer = ({ onNavigate }: FooterProps) => {
             </div>
           </div>
 
-          <div className="grid gap-10 sm:grid-cols-3">
+          <div className="grid w-full max-w-4xl justify-items-center gap-10 border-t border-white/[0.08] pt-10 sm:grid-cols-3 sm:gap-12 lg:max-w-5xl lg:pt-12">
             <FooterColumn title="Sản phẩm" items={productLinks} onNavigate={onNavigate} />
             <FooterColumn title="Công ty" items={companyLinks} onNavigate={onNavigate} />
-            <div>
+            <div className="flex flex-col items-center text-center sm:items-start sm:text-left">
               <h4 className="supporthr-mono mb-6 text-[13px] font-semibold uppercase tracking-[0.2em] text-zinc-400">Kết nối</h4>
               <div className="space-y-4">
                 {socialLinks.map((item) => (
@@ -267,7 +267,7 @@ const Footer = ({ onNavigate }: FooterProps) => {
           </div>
         </div>
 
-        <div className="mt-auto border-t border-white/10 pt-7">
+        <div className="mt-14 w-full border-t border-white/10 pt-7">
           <div className="flex flex-col items-center justify-center gap-4 text-center text-xs text-zinc-600 sm:flex-row">
             <p>© 2026 Support HR. Mọi quyền được bảo lưu.</p>
             <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">

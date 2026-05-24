@@ -1,7 +1,7 @@
 
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import debounce from 'lodash.debounce';
 import type { Candidate, AppStep, WeightCriteria, HardFilters } from '@/types';
 import { FileText, CheckCircle2, BarChart3, Target, ArrowRight, Layers, GraduationCap, Briefcase, Award, Languages, Clock, MapPin, Users, XCircle } from 'lucide-react';
@@ -69,10 +69,16 @@ type RankedCandidate = Candidate & { rank: number; jdFitScore: number; gradeValu
 
 const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMessage, results, jobPosition, locationRequirement, jdText, setActiveStep, markStepAsCompleted, weights, hardFilters }) => {
   const navigate = useNavigate();
-  const [filter, setFilter] = useState('all');
-  const [sortBy, setSortBy] = useState<'score' | 'jdFit'>('score');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [filter, setFilter] = useState(() => {
+    const value = searchParams.get('filter');
+    return ['all', 'A', 'B', 'C', 'FAILED'].includes(value || '') ? (value as string) : 'all';
+  });
+  const [sortBy, setSortBy] = useState<'score' | 'jdFit'>(() => {
+    return searchParams.get('sort') === 'jdFit' ? 'jdFit' : 'score';
+  });
+  const [searchTerm, setSearchTerm] = useState(() => searchParams.get('q') || '');
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(() => searchParams.get('q') || '');
   const [selectedCandidates, setSelectedCandidates] = useState<Set<string>>(new Set());
   const [expandedCandidate, setExpandedCandidate] = useState<string | null>(null);
   const [expandedCriteria, setExpandedCriteria] = useState<Record<string, Record<string, boolean>>>({});
@@ -86,6 +92,26 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMes
     setSearchTerm(value);
     debouncedSetSearchTerm(value);
   };
+
+  useEffect(() => {
+    const nextParams = new URLSearchParams(searchParams);
+
+    if (filter === 'all') nextParams.delete('filter');
+    else nextParams.set('filter', filter);
+
+    if (sortBy === 'score') nextParams.delete('sort');
+    else nextParams.set('sort', sortBy);
+
+    if (searchTerm.trim()) nextParams.set('q', searchTerm);
+    else nextParams.delete('q');
+
+    const current = searchParams.toString();
+    const next = nextParams.toString();
+
+    if (current !== next) {
+      setSearchParams(nextParams, { replace: true });
+    }
+  }, [filter, searchParams, searchTerm, setSearchParams, sortBy]);
 
   const handleExpandCandidate = (candidateId: string) => {
     setExpandedCandidate(expandedCandidate === candidateId ? null : candidateId);

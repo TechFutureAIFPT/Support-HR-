@@ -174,6 +174,7 @@ export interface CandidateEmbeddingInsight {
 }
 
 export interface CandidateJdCvEvidenceMatch {
+  section?: string;
   requirement: string;
   jdEvidence: string;
   cvEvidence: string;
@@ -185,11 +186,17 @@ export interface CandidateJdCvEvidenceMatch {
 export interface CandidateJdCvMatchInsight {
   similarity: number;
   weightedScore: number;
+  semanticWeightedScore?: number;
   maxScore: number;
   queryModel?: string;
+  roleKey?: string;
+  roleLabel?: string;
   matchedSkills: string[];
   missingSkills: string[];
   transferMatches: string[];
+  matchedRequirements?: string[];
+  missingRequirements?: string[];
+  uiSections?: string[];
   evidenceMatches?: CandidateJdCvEvidenceMatch[];
 }
 

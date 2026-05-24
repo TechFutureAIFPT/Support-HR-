@@ -9,6 +9,7 @@ import { readLatestAnalysisRun } from '@/services/history-cache/latestAnalysisRu
 import '@/pages/analytics/styles/candidate-suggestions.css';
 
 const SELECTED_IDS_KEY = 'supporthr.selectedCandidateIds';
+const CHATBOT_VIEW_KEY = 'supporthr.view.chatbot';
 
 interface CandidateSuggestionsProps {
   candidates: Candidate[];
@@ -82,7 +83,12 @@ const CandidateSuggestions: React.FC<CandidateSuggestionsProps> = ({ candidates,
       return raw ? new Set(JSON.parse(raw)) : new Set();
     } catch { return new Set(); }
   });
-  const [activeTab, setActiveTab] = useState<'chatbot' | 'selected'>('chatbot');
+  const [activeTab, setActiveTab] = useState<'chatbot' | 'selected'>(() => {
+    if (typeof window === 'undefined') return 'chatbot';
+
+    const saved = window.localStorage.getItem(CHATBOT_VIEW_KEY);
+    return saved === 'selected' ? 'selected' : 'chatbot';
+  });
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [expandedMsg, setExpandedMsg] = useState<number | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -105,6 +111,9 @@ const CandidateSuggestions: React.FC<CandidateSuggestionsProps> = ({ candidates,
 
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
   useEffect(() => { inputRef.current?.focus(); }, []);
+  useEffect(() => {
+    window.localStorage.setItem(CHATBOT_VIEW_KEY, activeTab);
+  }, [activeTab]);
 
   // Auto-create or resume session
   useEffect(() => {

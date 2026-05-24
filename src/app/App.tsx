@@ -46,6 +46,11 @@ import {
   readLatestAnalysisRun,
   writeLatestAnalysisRun,
 } from '@/services/history-cache/latestAnalysisRun';
+import {
+  clearWorkflowDraft,
+  readWorkflowDraft,
+  writeWorkflowDraft,
+} from '@/services/history-cache/workflowDraft';
 
 function usePrevious<T>(value: T): T | undefined {
   const ref = useRef<T | undefined>(undefined);
@@ -53,6 +58,45 @@ function usePrevious<T>(value: T): T | undefined {
     ref.current = value;
   });
   return ref.current;
+}
+
+function createDefaultHardFilters(): HardFilters {
+  return {
+    location: '',
+    minExp: '',
+    seniority: '',
+    education: '',
+    industry: '',
+    language: '',
+    languageLevel: '',
+    certificates: '',
+    salaryMin: '',
+    salaryMax: '',
+    workFormat: '',
+    contractType: '',
+    locationMandatory: true,
+    minExpMandatory: true,
+    seniorityMandatory: true,
+    educationMandatory: false,
+    contactMandatory: false,
+    industryMandatory: true,
+    languageMandatory: false,
+    certificatesMandatory: false,
+    salaryMandatory: false,
+    workFormatMandatory: false,
+    contractTypeMandatory: false,
+  };
+}
+
+function readStoredJson<T>(key: string): T | null {
+  if (typeof window === 'undefined') return null;
+
+  try {
+    const raw = window.localStorage.getItem(key);
+    return raw ? (JSON.parse(raw) as T) : null;
+  } catch {
+    return null;
+  }
 }
 
 const App = () => {
@@ -216,12 +260,26 @@ interface MainLayoutProps {
 
 const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, currentUser }: MainLayoutProps) => {
   const initialStoredRun = useMemo(() => readLatestAnalysisRun(), []);
+  const initialWorkflowDraft = useMemo(() => readWorkflowDraft(), []);
+  const initialStoredWeights = useMemo(() => readStoredJson<WeightCriteria>('analysisWeights'), []);
+  const initialStoredHardFilters = useMemo(() => readStoredJson<HardFilters>('hardFilters'), []);
+  const initialStoredJdText = useMemo(() => {
+    if (typeof window === 'undefined') return '';
+    return window.localStorage.getItem('currentJD') || '';
+  }, []);
+  const initialStoredRawJdText = useMemo(() => {
+    if (typeof window === 'undefined') return '';
+    return window.localStorage.getItem('currentRawJD') || '';
+  }, []);
   const [userEmail, setUserEmail] = useState<string>(() => {
     // attempt to get from auth current user if available
     return (typeof window !== 'undefined' && (window as any).localStorage?.getItem('authEmail')) || '';
   });
   const [completedSteps, setCompletedSteps] = useState<AppStep[]>(
-    () => initialStoredRun ? ['jd', 'weights', 'analysis'] : []
+    () => {
+      if (initialWorkflowDraft?.completedSteps?.length) return initialWorkflowDraft.completedSteps;
+      return initialStoredRun ? ['jd', 'weights', 'analysis'] : [];
+    }
   );
   const [jdTemplatesModalOpen, setJdTemplatesModalOpen] = useState<boolean>(false);
   const [jdTemplateSelectionMode, setJdTemplateSelectionMode] = useState<'analysis' | 'welcome'>('analysis');
@@ -281,38 +339,24 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
     }
   }, [navigate]);
 
-  const [jdText, setJdText] = useState<string>('');
-  const [rawJdText, setRawJdText] = useState<string>('');
-  const [jobPosition, setJobPosition] = useState<string>(() => initialStoredRun?.job.position || '');
-  const [weights, setWeights] = useState<WeightCriteria>(initialWeights);
-  const [hardFilters, setHardFilters] = useState<HardFilters>({
-    location: '',
-    minExp: '',
-    seniority: '',
-    education: '',
-    industry: '',
-    language: '',
-    languageLevel: '',
-    certificates: '',
-    salaryMin: '',
-    salaryMax: '',
-    workFormat: '',
-    contractType: '',
-    locationMandatory: true,
-    minExpMandatory: true,
-    seniorityMandatory: true,
-    educationMandatory: false,
-    contactMandatory: false,
-    industryMandatory: true,
-    languageMandatory: false,
-    certificatesMandatory: false,
-    salaryMandatory: false,
-    workFormatMandatory: false,
-    contractTypeMandatory: false,
-  });
+  const [jdText, setJdText] = useState<string>(() => initialWorkflowDraft?.jdText || initialStoredJdText);
+  const [rawJdText, setRawJdText] = useState<string>(() => initialWorkflowDraft?.rawJdText || initialStoredRawJdText);
+  const [jobPosition, setJobPosition] = useState<string>(() =>
+    initialWorkflowDraft?.jobPosition || initialStoredRun?.job.position || ''
+  );
+  const [weights, setWeights] = useState<WeightCriteria>(() =>
+    initialWorkflowDraft?.weights || initialStoredWeights || initialWeights
+  );
+  const [hardFilters, setHardFilters] = useState<HardFilters>(() =>
+    initialWorkflowDraft?.hardFilters || initialStoredHardFilters || createDefaultHardFilters()
+  );
   const [cvFiles, setCvFiles] = useState<File[]>([]);
-  const [analysisResults, setAnalysisResults] = useState<Candidate[]>(() => initialStoredRun?.candidates || []);
-  const [activeAnalysisContext, setActiveAnalysisContext] = useState<ActiveAnalysisContext | null>(() => getActiveAnalysisContext());
+  const [analysisResults, setAnalysisResults] = useState<Candidate[]>(
+    () => initialWorkflowDraft?.analysisResults || initialStoredRun?.candidates || []
+  );
+  const [activeAnalysisContext, setActiveAnalysisContext] = useState<ActiveAnalysisContext | null>(
+    () => initialWorkflowDraft?.activeAnalysisContext || getActiveAnalysisContext()
+  );
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [loadingMessage, setLoadingMessage] = useState<string>('');
 
@@ -457,6 +501,35 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
     }
   }, [isLoading, prevIsLoading, analysisResults, jobPosition, hardFilters.location, jdText, userEmail, weights, hardFilters]);
 
+  useEffect(() => {
+    writeWorkflowDraft({
+      completedSteps,
+      jdText,
+      rawJdText,
+      jobPosition,
+      weights,
+      hardFilters,
+      analysisResults,
+      activeAnalysisContext,
+    });
+  }, [
+    completedSteps,
+    jdText,
+    rawJdText,
+    jobPosition,
+    weights,
+    hardFilters,
+    analysisResults,
+    activeAnalysisContext,
+  ]);
+
+  useEffect(() => {
+    localStorage.setItem('currentJD', jdText);
+    localStorage.setItem('currentRawJD', rawJdText);
+    localStorage.setItem('analysisWeights', JSON.stringify(weights));
+    localStorage.setItem('hardFilters', JSON.stringify(hardFilters));
+  }, [jdText, rawJdText, weights, hardFilters]);
+
   const activeStep = useMemo((): AppStep => {
     switch (location.pathname) {
       case '/process': return 'process';
@@ -475,39 +548,18 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
 
   const handleNewSession = useCallback(() => {
     setJdText('');
+    setRawJdText('');
     setJobPosition('');
     setWeights(initialWeights);
-    setHardFilters({
-      location: '',
-      minExp: '',
-      seniority: '',
-      education: '',
-      industry: '',
-      language: '',
-      languageLevel: '',
-      certificates: '',
-      salaryMin: '',
-      salaryMax: '',
-      workFormat: '',
-      contractType: '',
-      locationMandatory: true,
-      minExpMandatory: true,
-      seniorityMandatory: true,
-      educationMandatory: false,
-      contactMandatory: false,
-      industryMandatory: true,
-      languageMandatory: false,
-      certificatesMandatory: false,
-      salaryMandatory: false,
-      workFormatMandatory: false,
-      contractTypeMandatory: false,
-    });
+    setHardFilters(createDefaultHardFilters());
     setCvFiles([]);
     setAnalysisResults([]);
     setActiveAnalysisContext(null);
     clearActiveAnalysisContext();
     clearLatestAnalysisRun();
+    clearWorkflowDraft();
     localStorage.removeItem('currentJD');
+    localStorage.removeItem('currentRawJD');
     localStorage.removeItem('currentLocation');
     localStorage.removeItem('analysisWeights');
     localStorage.removeItem('hardFilters');

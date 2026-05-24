@@ -282,6 +282,7 @@ function normalizeJdCvEvidenceMatches(value: unknown): NonNullable<Candidate['jd
   return value
     .filter((item): item is Record<string, unknown> => Boolean(item && typeof item === 'object'))
     .map((item) => ({
+      section: item.section ? String(item.section) : undefined,
       requirement: String(item.requirement || item.jdRequirement || item.keyword || item.skill || ''),
       jdEvidence: String(item.jdEvidence || item.jd_evidence || item.jdText || item.jdSnippet || item.requirementEvidence || ''),
       cvEvidence: String(item.cvEvidence || item.cv_evidence || item.cvText || item.cvSnippet || item.candidateEvidence || ''),
@@ -305,11 +306,17 @@ function normalizeJdCvMatchInsights(value: unknown): Candidate['jdCvMatchInsight
   return {
     similarity: Number(record.similarity || 0),
     weightedScore: Number(record.weightedScore || 0),
+    semanticWeightedScore: record.semanticWeightedScore !== undefined ? Number(record.semanticWeightedScore) : undefined,
     maxScore: Number(record.maxScore || 0),
     queryModel: record.queryModel ? String(record.queryModel) : undefined,
+    roleKey: record.roleKey ? String(record.roleKey) : undefined,
+    roleLabel: record.roleLabel ? String(record.roleLabel) : undefined,
     matchedSkills: toArray(record.matchedSkills),
     missingSkills: toArray(record.missingSkills),
     transferMatches: toArray(record.transferMatches),
+    matchedRequirements: toArray(record.matchedRequirements),
+    missingRequirements: toArray(record.missingRequirements),
+    uiSections: toArray(record.uiSections),
     evidenceMatches,
   };
 }

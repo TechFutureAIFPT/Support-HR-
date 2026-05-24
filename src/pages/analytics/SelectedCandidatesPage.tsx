@@ -9,6 +9,7 @@ interface SelectedCandidatesPageProps {
 }
 
 const SELECTED_IDS_KEY = 'supporthr.selectedCandidateIds';
+const SELECTED_VIEW_KEY = 'supporthr.view.selectedCandidates';
 
 const GradeBadge = ({ grade }: { grade?: string }) => {
   if (!grade) return null;
@@ -46,8 +47,32 @@ const getInitialsBg = (grade?: string) => {
 const SelectedCandidatesPage: React.FC<SelectedCandidatesPageProps> = ({ candidates, jobPosition }) => {
   const navigate = useNavigate();
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  const [sortBy, setSortBy] = useState<'score' | 'name' | 'grade'>('score');
-  const [sortDir, setSortDir] = useState<'desc' | 'asc'>('desc');
+  const [sortBy, setSortBy] = useState<'score' | 'name' | 'grade'>(() => {
+    if (typeof window === 'undefined') return 'score';
+
+    const saved = window.localStorage.getItem(SELECTED_VIEW_KEY);
+    if (!saved) return 'score';
+
+    try {
+      const parsed = JSON.parse(saved) as { sortBy?: 'score' | 'name' | 'grade' };
+      return parsed.sortBy && ['score', 'name', 'grade'].includes(parsed.sortBy) ? parsed.sortBy : 'score';
+    } catch {
+      return 'score';
+    }
+  });
+  const [sortDir, setSortDir] = useState<'desc' | 'asc'>(() => {
+    if (typeof window === 'undefined') return 'desc';
+
+    const saved = window.localStorage.getItem(SELECTED_VIEW_KEY);
+    if (!saved) return 'desc';
+
+    try {
+      const parsed = JSON.parse(saved) as { sortDir?: 'desc' | 'asc' };
+      return parsed.sortDir === 'asc' ? 'asc' : 'desc';
+    } catch {
+      return 'desc';
+    }
+  });
   const [exportMsg, setExportMsg] = useState(false);
 
   // Load selectedIds from localStorage (shared with chatbot)
@@ -70,6 +95,10 @@ const SelectedCandidatesPage: React.FC<SelectedCandidatesPageProps> = ({ candida
     window.addEventListener('storage', handler);
     return () => window.removeEventListener('storage', handler);
   }, []);
+
+  useEffect(() => {
+    window.localStorage.setItem(SELECTED_VIEW_KEY, JSON.stringify({ sortBy, sortDir }));
+  }, [sortBy, sortDir]);
 
   const removeCandidate = (id: string) => {
     setSelectedIds(prev => {

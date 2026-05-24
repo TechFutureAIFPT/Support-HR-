@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
@@ -23,9 +23,16 @@ interface DetailedAnalyticsPageProps {
   onReset: () => void;
 }
 
+const DETAILED_ANALYTICS_VIEW_KEY = 'supporthr.view.detailedAnalytics';
+
 const DetailedAnalyticsPage: React.FC<DetailedAnalyticsPageProps> = ({ candidates, jobPosition, onReset }) => {
   const [isSaving, setIsSaving] = useState(false);
-  const [activeChart, setActiveChart] = useState<'grade' | 'score' | 'radar' | 'trend'>('grade');
+  const [activeChart, setActiveChart] = useState<'grade' | 'score' | 'radar' | 'trend'>(() => {
+    if (typeof window === 'undefined') return 'grade';
+
+    const saved = window.localStorage.getItem(DETAILED_ANALYTICS_VIEW_KEY);
+    return ['grade', 'score', 'radar', 'trend'].includes(saved || '') ? (saved as 'grade' | 'score' | 'radar' | 'trend') : 'grade';
+  });
   const [showExportMenu, setShowExportMenu] = useState(false);
   const navigate = useNavigate();
   const tc = useThemeColors();
@@ -35,6 +42,10 @@ const DetailedAnalyticsPage: React.FC<DetailedAnalyticsPageProps> = ({ candidate
     [candidates, storedRun]
   );
   const effectiveJobPosition = jobPosition || storedRun?.job.position || '';
+
+  useEffect(() => {
+    window.localStorage.setItem(DETAILED_ANALYTICS_VIEW_KEY, activeChart);
+  }, [activeChart]);
 
   const handleCompleteProcess = async () => {
     try {

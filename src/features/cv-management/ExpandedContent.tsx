@@ -308,6 +308,7 @@ type JdCvMatchKind = 'exact' | 'semantic' | 'transfer' | 'incorrect';
 
 interface JdCvEvidenceRow {
   id: string;
+  section?: string;
   requirement: string;
   jdEvidence: string;
   cvEvidence: string;
@@ -501,6 +502,7 @@ function buildJdCvEvidenceRows(
   if (!insight) return [];
 
   const combinedCvEvidence = buildCandidateEvidenceCorpus(candidate, jdFitDetail, resolvedCvText);
+  const hasRoleProfile = Boolean(insight.roleKey && insight.roleKey !== 'generic');
   const rows: JdCvEvidenceRow[] = [];
   const seen = new Set<string>();
 
@@ -530,6 +532,7 @@ function buildJdCvEvidenceRows(
     const requirement = item.requirement || item.jdEvidence || item.cvEvidence;
     const matchKind = normalizeMatchKind(item.matchType, 'semantic');
     pushRow({
+      section: item.section,
       requirement,
       jdEvidence: item.jdEvidence || findBestEvidenceSentence(jdText, requirement),
       cvEvidence: item.cvEvidence || findBestEvidenceSentence(combinedCvEvidence, requirement) || buildSkillSignalEvidence(requirement, insight),
@@ -569,22 +572,24 @@ function buildJdCvEvidenceRows(
     });
   });
 
-  const jobFitRequirement = extractJDRequirements(jdText).find((item) => item.display === BASIC_CRITERIA[0]);
-  const semanticComparison = compareEvidence(
-    BASIC_CRITERIA[0],
-    uniqueTextItems([...(jobFitRequirement?.keywords || []), ...insight.matchedSkills]).slice(0, 14),
-    combinedCvEvidence
-  );
-  semanticComparison.semanticMatched.forEach((item) => {
-    pushRow({
-      requirement: item.keyword,
-      jdEvidence: findBestEvidenceSentence(jdText, item.keyword),
-      cvEvidence: item.evidence,
-      matchKind: 'semantic',
-      confidence: item.score * 100,
-      reason: item.reason,
+  if (!hasRoleProfile) {
+    const jobFitRequirement = extractJDRequirements(jdText).find((item) => item.display === BASIC_CRITERIA[0]);
+    const semanticComparison = compareEvidence(
+      BASIC_CRITERIA[0],
+      uniqueTextItems([...(jobFitRequirement?.keywords || []), ...insight.matchedSkills]).slice(0, 14),
+      combinedCvEvidence
+    );
+    semanticComparison.semanticMatched.forEach((item) => {
+      pushRow({
+        requirement: item.keyword,
+        jdEvidence: findBestEvidenceSentence(jdText, item.keyword),
+        cvEvidence: item.evidence,
+        matchKind: 'semantic',
+        confidence: item.score * 100,
+        reason: item.reason,
+      });
     });
-  });
+  }
 
   insight.transferMatches.forEach((match) => {
     const terms = buildEvidenceSearchTerms(match);
@@ -599,7 +604,10 @@ function buildJdCvEvidenceRows(
   });
 
   if (rows.length > 0 && rows.length < 6) {
-    insight.missingSkills.slice(0, 6 - rows.length).forEach((skill) => {
+    const missingItems = hasRoleProfile
+      ? (insight.missingRequirements || insight.missingSkills)
+      : insight.missingSkills;
+    missingItems.slice(0, 6 - rows.length).forEach((skill) => {
       pushRow({
         requirement: skill,
         jdEvidence: findBestEvidenceSentence(jdText, skill),
@@ -611,7 +619,7 @@ function buildJdCvEvidenceRows(
     });
   }
 
-  if (!rows.length) {
+  if (!rows.length && !hasRoleProfile) {
     const overallConfidence = semanticMatchPercentFromInsight(insight);
     const isOverallMatch = overallConfidence >= 60;
     pushRow({
@@ -2019,6 +2027,27 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
     () => buildJdCvEvidenceRows(candidate, jdText, jdFitDetail, resolvedCvText),
     [candidate, jdText, jdFitDetail, resolvedCvText]
   );
+  const jdCvRoleSections = useMemo(() => {
+    const preferredOrder = candidate.jdCvMatchInsights?.uiSections || [];
+    const grouped = new Map<string, JdCvEvidenceRow[]>();
+
+    jdCvEvidenceRows.forEach((row) => {
+      const section = row.section || 'Tổng quan';
+      const current = grouped.get(section) || [];
+      current.push(row);
+      grouped.set(section, current);
+    });
+
+    return Array.from(grouped.entries())
+      .sort((left, right) => {
+        const leftIndex = preferredOrder.indexOf(left[0]);
+        const rightIndex = preferredOrder.indexOf(right[0]);
+        if (leftIndex !== -1 || rightIndex !== -1) {
+          return (leftIndex === -1 ? Number.MAX_SAFE_INTEGER : leftIndex) - (rightIndex === -1 ? Number.MAX_SAFE_INTEGER : rightIndex);
+        }
+        return left[0].localeCompare(right[0]);
+      });
+  }, [candidate.jdCvMatchInsights?.uiSections, jdCvEvidenceRows]);
 
   useEffect(() => {
     let isDisposed = false;
@@ -2175,6 +2204,95 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
 
         {candidate.jdCvMatchInsights && (
           <div className="mt-4 rounded-none border border-emerald-500/25 bg-emerald-950/10 px-5 py-4 text-xs pl-2">
+            {candidate.jdCvMatchInsights.roleKey && candidate.jdCvMatchInsights.roleKey !== 'generic' ? (
+              <>
+                <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                  <div>
+                    <div className="font-bold uppercase tracking-[0.1em] text-emerald-400">
+                      {`So khop chuyen mon cho ${candidate.jdCvMatchInsights.roleLabel}`}
+                    </div>
+                    <div className="text-[11px] text-emerald-300/80 mt-1">
+                      {semanticMatchPercent?.toFixed(1)}% tuong dong ngu nghia
+                      {candidate.jdCvMatchInsights.queryModel ? ` • ${candidate.jdCvMatchInsights.queryModel}` : ''}
+                    </div>
+                  </div>
+                  <div className="rounded-none border border-emerald-500/30 bg-emerald-950/30 px-3.5 py-2 font-mono font-bold text-emerald-300 text-xs">
+                    {jdFitScore.toFixed(1)}/{jdFitMaxScore} diem Job Fit
+                  </div>
+                </div>
+                {(candidate.jdCvMatchInsights.matchedSkills.length > 0 || candidate.jdCvMatchInsights.transferMatches.length > 0 || (candidate.jdCvMatchInsights.missingRequirements?.length || 0) > 0) && (
+                  <div className="mt-3 text-[11px] leading-5 text-emerald-300/70 border-t border-emerald-500/10 pt-2 flex flex-wrap gap-x-4 gap-y-1">
+                    {candidate.jdCvMatchInsights.matchedSkills.length > 0 && (
+                      <span>Yeu cau da dap ung: {candidate.jdCvMatchInsights.matchedSkills.slice(0, 5).join(', ')}.</span>
+                    )}
+                    {candidate.jdCvMatchInsights.transferMatches.length > 0 && (
+                      <span>Nang luc tuong duong: {candidate.jdCvMatchInsights.transferMatches.slice(0, 2).join(' | ')}.</span>
+                    )}
+                    {(candidate.jdCvMatchInsights.missingRequirements?.length || 0) > 0 && (
+                      <span>Khoang trong chinh: {candidate.jdCvMatchInsights.missingRequirements!.slice(0, 3).join(', ')}.</span>
+                    )}
+                  </div>
+                )}
+                {jdCvEvidenceRows.length > 0 && (
+                  <div className="mt-4 border-t border-emerald-500/10 pt-4">
+                    <div className="mb-3 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+                      <div>
+                        <div className="text-[10px] font-bold uppercase tracking-[0.16em] text-emerald-300">So khop nang luc theo vi tri</div>
+                        <p className="mt-1 text-[11px] leading-5 text-emerald-100/65">
+                          Moi dong ket luan Dung/Sai, kem yeu cau JD va bang chung CV de HR kiem tra nhanh theo tung cum nang luc.
+                        </p>
+                      </div>
+                      <div className="text-[10px] font-bold uppercase tracking-[0.12em] text-emerald-300/80">
+                        {jdCvEvidenceRows.length} cap so khop
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      {jdCvRoleSections.map(([section, sectionRows]) => (
+                        <div key={section} className="space-y-2">
+                          <div className="inline-flex rounded-none border border-emerald-500/20 bg-emerald-500/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-emerald-300">
+                            {section}
+                          </div>
+                          {sectionRows.map((row, index) => (
+                            <div key={row.id || index} className="grid min-w-0 grid-cols-1 gap-3 border border-emerald-500/15 bg-black/20 p-3 md:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
+                              <div className="min-w-0">
+                                <div className="mb-2 flex flex-wrap items-center gap-2">
+                                  <span className={`rounded-none border px-2 py-1 text-[9px] font-bold uppercase tracking-[0.12em] ${getMatchKindClasses(row.matchKind)}`}>
+                                    {getMatchKindLabel(row.matchKind)}
+                                  </span>
+                                  <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-zinc-500">
+                                    {getMatchKindDetail(row.matchKind)}
+                                  </span>
+                                  {row.confidence > 0 && (
+                                    <span className="font-mono text-[10px] font-bold text-emerald-300">{row.confidence}%</span>
+                                  )}
+                                </div>
+                                <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-zinc-500">Yeu cau JD</div>
+                                <div className="mt-1 break-words text-xs font-bold leading-5 text-emerald-100">{row.requirement}</div>
+                                <blockquote className="mt-2 border-l border-emerald-500/30 pl-3 text-[11px] leading-5 text-zinc-300">
+                                  "{row.jdEvidence}"
+                                </blockquote>
+                              </div>
+
+                              <div className="min-w-0 border-t border-emerald-500/10 pt-3 md:border-l md:border-t-0 md:pl-3 md:pt-0">
+                                <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-zinc-500">CV chung minh / suy luan</div>
+                                <blockquote className={`mt-2 border-l pl-3 text-[11px] leading-5 ${row.matchKind === 'incorrect' ? 'border-rose-500/40 text-rose-200' : 'border-cyan-500/30 text-zinc-200'}`}>
+                                  "{row.cvEvidence}"
+                                </blockquote>
+                                {row.reason && (
+                                  <p className="mt-2 text-[10px] leading-5 text-zinc-500">{row.reason}</p>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
+            ) : (
+            <>
             <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
               <div>
                 <div className="font-bold uppercase tracking-[0.1em] text-emerald-400">Semantic match JD/CV bằng vector embedding</div>
@@ -2246,6 +2364,8 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
                   ))}
                 </div>
               </div>
+            )}
+            </>
             )}
           </div>
         )}
