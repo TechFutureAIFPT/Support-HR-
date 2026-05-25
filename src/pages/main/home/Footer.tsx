@@ -139,16 +139,17 @@ export default function Footer({ onNavigate }: FooterProps) {
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.03),transparent_34%)]" />
 
       <div className="relative w-full px-4 pb-10 pt-4 sm:px-6 sm:pt-5 lg:px-8 lg:pb-12 lg:pt-6">
-        <div className="home-grid-sheet grid gap-px border border-white/[0.08] bg-white/[0.08] xl:grid-cols-3">
+        <div className="home-grid-sheet border border-white/[0.08] bg-[rgba(10,10,11,0.96)]">
+          <div className="grid divide-y divide-white/[0.08] xl:grid-cols-3 xl:divide-x xl:divide-y-0">
           {footerPanels.map(({ eyebrow, title, description, ctaLabel, Icon, items }) => (
-            <section key={title} className="relative bg-[rgba(10,10,11,0.96)] px-6 py-6 lg:px-7 lg:py-7">
+            <section key={title} className="relative px-6 py-6 lg:px-7 lg:py-7">
               <div className="home-noise-overlay" />
               <div className="relative z-10 flex h-full flex-col">
                 <div className="flex items-center justify-between gap-4">
                   <p className="supporthr-mono text-[10px] uppercase tracking-[0.22em] text-[#f5d6bb]/75">
                     {eyebrow}
                   </p>
-                  <span className="flex h-9 w-9 items-center justify-center border border-white/10 bg-white/[0.02] text-[#f5d6bb]">
+                  <span className="flex h-9 w-9 items-center justify-center text-[#f5d6bb]">
                     <Icon className="h-4 w-4" />
                   </span>
                 </div>
@@ -195,6 +196,7 @@ export default function Footer({ onNavigate }: FooterProps) {
               </div>
             </section>
           ))}
+          </div>
         </div>
 
         <div className="mt-6 flex flex-col items-center gap-4 border-t border-white/[0.08] pt-5 text-center">
