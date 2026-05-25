@@ -134,12 +134,11 @@ function FooterLink({
 
 export default function Footer({ onNavigate }: FooterProps) {
   return (
-    <footer id="contact" className="relative overflow-hidden border-t border-white/[0.08] bg-black">
+    <footer id="contact" className="relative overflow-hidden bg-black">
       <div className="pointer-events-none absolute inset-0 supporthr-grid-mask opacity-20" />
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.03),transparent_34%)]" />
 
-      <div className="relative w-full px-4 py-10 sm:px-6 lg:px-8 lg:py-12">
+      <div className="relative w-full px-4 pb-10 pt-4 sm:px-6 sm:pt-5 lg:px-8 lg:pb-12 lg:pt-6">
         <div className="home-grid-sheet grid gap-px border border-white/[0.08] bg-white/[0.08] xl:grid-cols-3">
           {footerPanels.map(({ eyebrow, title, description, ctaLabel, Icon, items }) => (
             <section key={title} className="relative bg-[rgba(10,10,11,0.96)] px-6 py-6 lg:px-7 lg:py-7">

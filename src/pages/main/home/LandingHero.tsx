@@ -66,8 +66,8 @@ const HERO_SYSTEM_PANELS = [
 ];
 
 const HERO_HEADLINE_LINES = [
-  { text: "AI sàng lọc cho" },
-  { text: "đội ngũ HR nghiêm túc." },
+  { text: "Giải phóng thời gian lọc," },
+  { text: "tối ưu thời gian tuyển." },
 ];
 
 const HERO_VIEWPORT = { once: true, amount: 0.2 };

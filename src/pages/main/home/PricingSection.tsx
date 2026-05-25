@@ -7,7 +7,7 @@ export default function PricingSection() {
   const reduceMotion = useReducedMotion();
 
   return (
-    <section id="pricing" className="relative border-b border-white/[0.08] bg-black py-24 sm:py-28">
+    <section id="pricing" className="relative border-b border-white/[0.08] bg-black pb-10 pt-24 sm:pb-12 sm:pt-28">
       <div className="home-noise-overlay" />
       <div className="home-section-frame">
         <div className="max-w-[58rem]">
