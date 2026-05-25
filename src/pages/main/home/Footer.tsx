@@ -5,6 +5,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import DmcaBadge from "@/components/common/DmcaBadge";
 
 type FooterNavItem =
   | {
@@ -212,6 +213,12 @@ export default function Footer({ onNavigate }: FooterProps) {
             </p>
             <p className="mt-2 text-xs text-zinc-600">© 2026 Support HR. Mọi quyền được bảo lưu.</p>
           </div>
+
+          <DmcaBadge
+            centered
+            className="w-full max-w-[220px]"
+            note="DMCA bảo vệ nội dung và tài sản số của Support HR."
+          />
         </div>
       </div>
     </footer>

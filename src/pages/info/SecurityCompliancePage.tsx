@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import DmcaBadge from "@/components/common/DmcaBadge";
 import {
   LegalBulletGrid,
   LegalCallout,
@@ -33,6 +34,10 @@ const SecurityCompliancePage: React.FC = () => {
               Support HR giúp đội ngũ tuyển dụng đi nhanh hơn mà vẫn giữ được khả năng theo dõi file, tiêu chí và quyết
               định đề cử.
             </LegalCallout>
+
+            <div className="max-w-[320px]">
+              <DmcaBadge note="Trang này được gắn bảo vệ bản quyền DMCA." />
+            </div>
 
             <div className="grid gap-4 xl:grid-cols-3">
               <LegalCard tone="cyan" icon="fa-lock" title="Truyền tải và lưu trữ">
