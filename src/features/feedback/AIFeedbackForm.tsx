@@ -16,7 +16,6 @@ import type {
   AnalysisFeedbackRecord,
   AnalysisFeedbackSeverity,
 } from '@/types';
-import { useThemeColors } from '@/hooks/useThemeColors';
 
 interface AIFeedbackFormProps {
   candidateId: string;
@@ -52,28 +51,28 @@ const ACTION_OPTIONS: Array<{
     value: 'shortlist',
     label: 'Đưa vào shortlist',
     description: 'Ứng viên phù hợp để tiếp tục theo dõi hoặc so sánh với nhóm top đầu.',
-    tone: 'border-emerald-400/35 bg-emerald-400/10 text-emerald-100 shadow-[0_0_0_1px_rgba(52,211,153,0.12)]',
+    tone: 'border-[#f5d6bb]/30 bg-[#f5d6bb]/10 text-[#f8e5d3]',
     icon: ClipboardList,
   },
   {
     value: 'interview',
     label: 'Mời phỏng vấn',
     description: 'Nên bước sang vòng trao đổi để kiểm chứng thêm năng lực và độ phù hợp.',
-    tone: 'border-sky-400/35 bg-sky-400/10 text-sky-100 shadow-[0_0_0_1px_rgba(56,189,248,0.12)]',
+    tone: 'border-sky-400/25 bg-sky-400/10 text-sky-100',
     icon: MessageSquareText,
   },
   {
     value: 'hire',
     label: 'Đề xuất tuyển',
     description: 'Ứng viên rất mạnh, có thể ưu tiên sang bước chốt offer hoặc đàm phán.',
-    tone: 'border-violet-400/35 bg-violet-400/10 text-violet-100 shadow-[0_0_0_1px_rgba(167,139,250,0.14)]',
+    tone: 'border-violet-400/25 bg-violet-400/10 text-violet-100',
     icon: Trophy,
   },
   {
     value: 'reject',
     label: 'Từ chối',
     description: 'Chưa phù hợp ở thời điểm hiện tại hoặc chưa đạt ngưỡng tối thiểu của vị trí.',
-    tone: 'border-rose-400/35 bg-rose-400/10 text-rose-100 shadow-[0_0_0_1px_rgba(251,113,133,0.14)]',
+    tone: 'border-rose-400/25 bg-rose-400/10 text-rose-100',
     icon: CircleOff,
   },
 ];
@@ -90,6 +89,11 @@ const REUSE_OPTIONS = [
     description: 'Dùng khi đây là kiểu lỗi AI nên lưu ý lại cho các CV tương tự về sau.',
   },
 ];
+
+const outerPanelClass = 'border border-white/[0.08] bg-[rgba(10,10,11,0.96)]';
+const sectionPanelClass = 'border border-white/[0.08] bg-[rgba(16,16,18,0.9)]';
+const insetPanelClass = 'border border-white/[0.08] bg-black/30';
+const iconBoxClass = 'flex h-10 w-10 items-center justify-center border border-white/[0.08] bg-white/[0.03]';
 
 function readSelectedCriteria(initialFeedback?: AnalysisFeedbackRecord | null): string[] {
   const raw = initialFeedback?.metadata?.selectedCriteria;
@@ -132,7 +136,7 @@ function getSeverityMeta(severity: AnalysisFeedbackSeverity): {
     return {
       label: 'Mức độ cao',
       description: 'Độ lệch từ 15 điểm trở lên. Đây là nhóm phản hồi nên ưu tiên xem lại và cân nhắc tái sử dụng.',
-      className: 'border-rose-400/30 bg-rose-400/10 text-rose-100',
+      className: 'border-rose-400/25 bg-rose-400/10 text-rose-100',
     };
   }
 
@@ -140,14 +144,14 @@ function getSeverityMeta(severity: AnalysisFeedbackSeverity): {
     return {
       label: 'Mức độ trung bình',
       description: 'Độ lệch đủ đáng chú ý. Nên ghi chú rõ nguyên nhân để hỗ trợ review về sau.',
-      className: 'border-amber-400/30 bg-amber-400/10 text-amber-100',
+      className: 'border-amber-400/25 bg-amber-400/10 text-amber-100',
     };
   }
 
   return {
     label: 'Mức độ nhẹ',
     description: 'Độ lệch nhỏ. Thường phù hợp với các tinh chỉnh cục bộ cho ứng viên hiện tại.',
-    className: 'border-emerald-400/30 bg-emerald-400/10 text-emerald-100',
+    className: 'border-[#f5d6bb]/25 bg-[#f5d6bb]/10 text-[#f8e5d3]',
   };
 }
 
@@ -162,25 +166,11 @@ const AIFeedbackForm: React.FC<AIFeedbackFormProps> = ({
   onSubmit,
   onCancel,
 }) => {
-  const tc = useThemeColors();
   const [finalScore, setFinalScore] = useState<number>(Math.round(aiScore));
   const [selectedCriteria, setSelectedCriteria] = useState<string[]>([]);
   const [notes, setNotes] = useState<string>('');
   const [action, setAction] = useState<AnalysisFeedbackAction | null>(null);
   const [isReusableGuidance, setIsReusableGuidance] = useState<boolean>(false);
-  const panelStyle = {
-    background: 'linear-gradient(180deg, rgba(255,255,255,0.032) 0%, rgba(255,255,255,0.02) 100%)',
-    borderColor: tc.borderColor,
-    boxShadow: '0 18px 48px rgba(2,8,23,0.16)',
-  } as const;
-  const sectionStyle = {
-    background: tc.inputBg,
-    borderColor: tc.borderColor,
-  } as const;
-  const fieldStyle = {
-    background: 'rgba(255,255,255,0.03)',
-    borderColor: tc.borderColor,
-  } as const;
 
   useEffect(() => {
     setFinalScore(Math.round(initialFeedback?.finalScore ?? aiScore));
@@ -218,7 +208,7 @@ const AIFeedbackForm: React.FC<AIFeedbackFormProps> = ({
     ? 'text-emerald-300'
     : scoreDifference < 0
       ? 'text-rose-300'
-      : 'text-slate-200';
+      : 'text-zinc-200';
 
   const handleCriteriaChange = (criterion: string) => {
     setSelectedCriteria((previous) => (
@@ -251,40 +241,37 @@ const AIFeedbackForm: React.FC<AIFeedbackFormProps> = ({
   };
 
   return (
-    <div
-      className="rounded-[10px] border p-4 md:p-4"
-      style={panelStyle}
-    >
-      <div className="mb-4 flex items-start gap-3 border-b border-slate-800/70 pb-4">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] border border-sky-400/25 bg-sky-400/10">
-          <Sparkles className="h-5 w-5 text-sky-300" />
+    <div className={`${outerPanelClass} p-4 md:p-5`}>
+      <div className="mb-4 flex items-start gap-3 border-b border-white/[0.08] pb-4">
+        <div className={`${iconBoxClass} text-[#f5d6bb]`}>
+          <Sparkles className="h-5 w-5" />
         </div>
         <div className="min-w-0">
           <h2 className="text-lg font-bold text-white">Phản hồi đánh giá AI</h2>
-          <p className="mt-1 text-sm leading-6 text-slate-400">
-            Bạn đang hiệu chỉnh kết quả cho <span className="font-semibold text-slate-200">{candidateName}</span>.
+          <p className="mt-1 text-sm leading-6 text-zinc-400">
+            Bạn đang hiệu chỉnh kết quả cho <span className="font-semibold text-zinc-200">{candidateName}</span>.
             Các thay đổi dưới đây sẽ được lưu cùng phiên phân tích hiện tại.
           </p>
         </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="grid items-start gap-3 xl:grid-cols-[0.95fr_1.05fr]">
-          <section className="h-fit rounded-[10px] border p-4" style={sectionStyle}>
+        <div className="grid items-start gap-4 xl:grid-cols-[0.92fr_1.08fr]">
+          <section className={`${sectionPanelClass} p-4`}>
             <div className="flex items-center justify-between gap-3">
               <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                <p className="supporthr-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-[#f5d6bb]/80">
                   Điểm hiệu chỉnh cuối cùng
                 </p>
-                <h3 className="mt-2 text-xl font-bold text-white">{finalScore} điểm</h3>
+                <h3 className="mt-2 text-[2rem] font-bold leading-none text-white">{finalScore} điểm</h3>
               </div>
-              <div className="rounded-[10px] border border-slate-800/70 bg-slate-900/70 px-3 py-2 text-right">
-                <p className="text-[11px] uppercase tracking-[0.16em] text-slate-500">Điểm AI gốc</p>
-                <p className="text-lg font-bold text-slate-100">{aiScore.toFixed(1)}</p>
+              <div className={`${insetPanelClass} px-4 py-3 text-right`}>
+                <p className="supporthr-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500">Điểm AI gốc</p>
+                <p className="mt-1 text-2xl font-bold text-white">{aiScore.toFixed(1)}</p>
               </div>
             </div>
 
-            <div className="mt-4 rounded-[10px] border px-4 py-3" style={fieldStyle}>
+            <div className={`${insetPanelClass} mt-4 px-4 py-4`}>
               <input
                 type="range"
                 min="0"
@@ -292,23 +279,23 @@ const AIFeedbackForm: React.FC<AIFeedbackFormProps> = ({
                 step="1"
                 value={finalScore}
                 onChange={(event) => setFinalScore(Number(event.target.value))}
-                className="w-full accent-sky-400"
+                className="w-full accent-[#f5d6bb]"
               />
 
               <div className="mt-4 flex flex-wrap items-center gap-2 text-sm">
-                <span className="rounded-full border border-slate-700/80 bg-slate-900/70 px-3 py-1.5 text-slate-300">
+                <span className={`${insetPanelClass} px-3 py-1.5 text-zinc-300`}>
                   AI gốc: <strong className="font-semibold text-white">{aiScore.toFixed(1)}</strong>
                 </span>
-                <span className="rounded-full border border-slate-700/80 bg-slate-900/70 px-3 py-1.5 text-slate-300">
+                <span className={`${insetPanelClass} px-3 py-1.5 text-zinc-300`}>
                   Recruiter chốt: <strong className="font-semibold text-white">{finalScore}</strong>
                 </span>
-                <span className={`rounded-full border border-transparent bg-slate-900/70 px-3 py-1.5 font-semibold ${scoreDeltaClassName}`}>
-                  Độ lệch: {scoreDifference > 0 ? '+' : ''}{scoreDifference}
+                <span className={`${insetPanelClass} px-3 py-1.5 font-semibold ${scoreDeltaClassName}`}>
+                  Độ lệch: {scoreDifference > 0 ? '+' : ''}{scoreDifference.toFixed(1)}
                 </span>
               </div>
             </div>
 
-            <div className={`mt-4 rounded-[10px] border px-4 py-3 ${severityMeta.className}`}>
+            <div className={`mt-4 border px-4 py-3 ${severityMeta.className}`}>
               <div className="flex items-start gap-3">
                 <ShieldAlert className="mt-0.5 h-4.5 w-4.5 shrink-0" />
                 <div>
@@ -319,16 +306,16 @@ const AIFeedbackForm: React.FC<AIFeedbackFormProps> = ({
             </div>
           </section>
 
-          <section className="h-fit rounded-[10px] border p-4" style={sectionStyle}>
+          <section className={`${sectionPanelClass} p-4`}>
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-[10px] border border-slate-800/80 bg-slate-900/70">
-                <ClipboardList className="h-4.5 w-4.5 text-slate-300" />
+              <div className={`${iconBoxClass} text-zinc-300`}>
+                <ClipboardList className="h-4.5 w-4.5" />
               </div>
               <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                <p className="supporthr-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-[#f5d6bb]/80">
                   Quyết định của recruiter
                 </p>
-                <p className="mt-1 text-sm text-slate-500">Chọn một trạng thái chính cho ứng viên này.</p>
+                <p className="mt-1 text-sm text-zinc-500">Chọn một trạng thái chính cho ứng viên này.</p>
               </div>
             </div>
 
@@ -342,17 +329,17 @@ const AIFeedbackForm: React.FC<AIFeedbackFormProps> = ({
                     key={option.value}
                     type="button"
                     onClick={() => setAction(option.value)}
-                    className={`rounded-[10px] border px-4 py-3 text-left transition-all duration-200 ${
+                    className={`border px-4 py-3 text-left transition-all duration-200 ${
                       isActive
                         ? option.tone
-                        : 'border-slate-800/70 bg-slate-900/30 text-slate-300 hover:border-slate-700 hover:bg-slate-900/60'
+                        : 'border-white/[0.08] bg-black/25 text-zinc-300 hover:bg-white/[0.04] hover:text-white'
                     }`}
                   >
                     <div className="flex items-start gap-3">
-                      <div className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] border ${
+                      <div className={`mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center border ${
                         isActive
-                          ? 'border-current/20 bg-black/10'
-                          : 'border-slate-800/70 bg-slate-950/60 text-slate-400'
+                          ? 'border-current/25 bg-black/12'
+                          : 'border-white/[0.08] bg-white/[0.03] text-zinc-400'
                       }`}>
                         <Icon className="h-4.5 w-4.5" />
                       </div>
@@ -368,16 +355,16 @@ const AIFeedbackForm: React.FC<AIFeedbackFormProps> = ({
           </section>
         </div>
 
-        <section className="rounded-[10px] border p-4" style={sectionStyle}>
+        <section className={`${sectionPanelClass} p-4`}>
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-[10px] border border-slate-800/80 bg-slate-900/70">
-              <Lightbulb className="h-4.5 w-4.5 text-slate-300" />
+            <div className={`${iconBoxClass} text-zinc-300`}>
+              <Lightbulb className="h-4.5 w-4.5" />
             </div>
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+              <p className="supporthr-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-[#f5d6bb]/80">
                 Phạm vi áp dụng phản hồi
               </p>
-              <p className="mt-1 text-sm text-slate-500">
+              <p className="mt-1 text-sm text-zinc-500">
                 Giúp hệ thống phân biệt giữa lỗi riêng của CV này và lưu ý nên dùng lại cho các CV sau.
               </p>
             </div>
@@ -391,10 +378,10 @@ const AIFeedbackForm: React.FC<AIFeedbackFormProps> = ({
                   key={option.title}
                   type="button"
                   onClick={() => setIsReusableGuidance(option.value)}
-                  className={`rounded-[10px] border px-4 py-3.5 text-left transition-all duration-200 ${
+                  className={`border px-4 py-3.5 text-left transition-all duration-200 ${
                     isActive
-                      ? 'border-sky-400/35 bg-sky-400/10 text-sky-100'
-                      : 'border-slate-800/70 bg-slate-900/25 text-slate-300 hover:border-slate-700 hover:bg-slate-900/55'
+                      ? 'border-[#f5d6bb]/30 bg-[#f5d6bb]/10 text-[#f8e5d3]'
+                      : 'border-white/[0.08] bg-black/25 text-zinc-300 hover:bg-white/[0.04] hover:text-white'
                   }`}
                 >
                   <div className="text-sm font-semibold">{option.title}</div>
@@ -405,7 +392,7 @@ const AIFeedbackForm: React.FC<AIFeedbackFormProps> = ({
           </div>
 
           {severity === 'high' && !isReusableGuidance ? (
-            <div className="mt-4 flex items-start gap-3 rounded-[10px] border border-amber-400/25 bg-amber-400/10 px-4 py-3 text-sm text-amber-100">
+            <div className="mt-4 flex items-start gap-3 border border-amber-400/25 bg-amber-400/10 px-4 py-3 text-sm text-amber-100">
               <AlertCircle className="mt-0.5 h-4.5 w-4.5 shrink-0" />
               <span>
                 Độ lệch hiện đang ở mức cao. Nếu đây là lỗi AI có thể lặp lại với các CV tương tự,
@@ -415,16 +402,16 @@ const AIFeedbackForm: React.FC<AIFeedbackFormProps> = ({
           ) : null}
         </section>
 
-        <section className="rounded-[10px] border p-4" style={sectionStyle}>
+        <section className={`${sectionPanelClass} p-4`}>
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-[10px] border border-slate-800/80 bg-slate-900/70">
-              <CheckCircle2 className="h-4.5 w-4.5 text-slate-300" />
+            <div className={`${iconBoxClass} text-zinc-300`}>
+              <CheckCircle2 className="h-4.5 w-4.5" />
             </div>
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+              <p className="supporthr-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-[#f5d6bb]/80">
                 Tiêu chí cần AI học lại
               </p>
-              <p className="mt-1 text-sm text-slate-500">
+              <p className="mt-1 text-sm text-zinc-500">
                 Chọn các điểm mà bạn muốn lưu lại để phục vụ việc review hoặc evaluation sau này.
               </p>
             </div>
@@ -434,68 +421,68 @@ const AIFeedbackForm: React.FC<AIFeedbackFormProps> = ({
             {FEEDBACK_CRITERIA.map((criterion) => (
               <label
                 key={criterion}
-                className={`flex cursor-pointer items-start gap-3 rounded-[10px] border p-3 transition-all ${
+                className={`flex cursor-pointer items-start gap-3 border p-3 transition-all ${
                   selectedCriteria.includes(criterion)
-                    ? 'border-sky-400/30 bg-sky-400/10'
-                    : 'border-slate-800/70 bg-slate-900/25 hover:border-slate-700 hover:bg-slate-900/50'
+                    ? 'border-[#f5d6bb]/30 bg-[#f5d6bb]/10'
+                    : 'border-white/[0.08] bg-black/25 hover:bg-white/[0.04]'
                 }`}
               >
                 <input
                   type="checkbox"
-                  className="mt-0.5 rounded border-slate-700 bg-transparent accent-sky-400"
+                  className="mt-0.5 rounded-none border-white/[0.12] bg-transparent accent-[#f5d6bb]"
                   checked={selectedCriteria.includes(criterion)}
                   onChange={() => handleCriteriaChange(criterion)}
                 />
-                <span className="text-sm leading-6 text-slate-200">{criterion}</span>
+                <span className="text-sm leading-6 text-zinc-200">{criterion}</span>
               </label>
             ))}
           </div>
         </section>
 
-        <section className="rounded-[10px] border p-4" style={sectionStyle}>
+        <section className={`${sectionPanelClass} p-4`}>
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-[10px] border border-slate-800/80 bg-slate-900/70">
-              <MessageSquareText className="h-4.5 w-4.5 text-slate-300" />
+            <div className={`${iconBoxClass} text-zinc-300`}>
+              <MessageSquareText className="h-4.5 w-4.5" />
             </div>
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+              <p className="supporthr-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-[#f5d6bb]/80">
                 Ghi chú chi tiết
               </p>
-              <p className="mt-1 text-sm text-slate-500">
+              <p className="mt-1 text-sm text-zinc-500">
                 Mô tả ngắn gọn vì sao bạn thay đổi điểm hoặc quyết định hiện tại của recruiter.
               </p>
             </div>
           </div>
 
           <textarea
-            className="mt-4 min-h-[120px] w-full rounded-[10px] border border-slate-800/70 bg-black/25 p-4 text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-sky-400/40 focus:ring-1 focus:ring-sky-400/30"
+            className="mt-4 min-h-[120px] w-full border border-white/[0.08] bg-black/30 p-4 text-sm leading-6 text-zinc-100 outline-none transition placeholder:text-zinc-600 focus:border-[#f5d6bb]/35 focus:ring-1 focus:ring-[#f5d6bb]/20"
             placeholder="Ví dụ: Ứng viên có từ khóa khá tốt nhưng kinh nghiệm triển khai thực tế ở môi trường production còn mỏng, cần kiểm chứng thêm ở vòng phỏng vấn."
             value={notes}
             onChange={(event) => setNotes(event.target.value)}
           />
 
-          <p className="mt-3 text-sm leading-6 text-slate-500">
+          <p className="mt-3 text-sm leading-6 text-zinc-500">
             Hệ thống sẽ lưu lại quyết định, điểm số cuối cùng, lý do tổng hợp, ghi chú này
             và phạm vi áp dụng của phản hồi để phục vụ bước học sau.
           </p>
         </section>
 
         {submitError ? (
-          <div className="flex items-start gap-3 rounded-[10px] border border-rose-400/25 bg-rose-400/10 px-4 py-3 text-sm text-rose-100">
+          <div className="flex items-start gap-3 border border-rose-400/25 bg-rose-400/10 px-4 py-3 text-sm text-rose-100">
             <AlertCircle className="mt-0.5 h-4.5 w-4.5 shrink-0" />
             <span>{submitError}</span>
           </div>
         ) : null}
 
         {submitSuccessMessage ? (
-          <div className="flex items-start gap-3 rounded-[10px] border border-emerald-400/25 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-100">
+          <div className="flex items-start gap-3 border border-emerald-400/25 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-100">
             <CheckCircle2 className="mt-0.5 h-4.5 w-4.5 shrink-0" />
             <span>{submitSuccessMessage}</span>
           </div>
         ) : null}
 
-        <div className="flex flex-col justify-between gap-4 border-t border-slate-800/70 pt-5 md:flex-row md:items-center">
-          <div className="text-sm leading-6 text-slate-500">
+        <div className="flex flex-col justify-between gap-4 border-t border-white/[0.08] pt-5 md:flex-row md:items-center">
+          <div className="text-sm leading-6 text-zinc-500">
             {initialFeedback?.updatedAt
               ? 'Phản hồi này đã được lưu trước đó. Bạn có thể chỉnh sửa và gửi lại để cập nhật bản ghi hiện tại.'
               : 'Phản hồi mới sẽ được gắn trực tiếp với ứng viên và phiên phân tích mà bạn đang mở.'}
@@ -505,13 +492,13 @@ const AIFeedbackForm: React.FC<AIFeedbackFormProps> = ({
             <button
               type="button"
               onClick={onCancel}
-              className="rounded-[10px] border border-slate-800/80 px-5 py-2.5 text-sm font-semibold text-slate-300 transition-colors hover:bg-slate-900/60 hover:text-white"
+              className="border border-white/[0.08] bg-white/[0.02] px-5 py-2.5 text-sm font-semibold text-zinc-300 transition-colors hover:bg-white/[0.06] hover:text-white"
             >
               Quay lại
             </button>
             <button
               type="submit"
-              className="rounded-[10px] border border-sky-400/40 bg-sky-500 px-6 py-2.5 text-sm font-semibold text-white shadow-[0_14px_30px_-16px_rgba(14,165,233,0.75)] transition-all hover:bg-sky-400 disabled:cursor-not-allowed disabled:opacity-60"
+              className="border border-[#f5d6bb]/35 bg-[#f5d6bb] px-6 py-2.5 text-sm font-semibold text-black transition-all hover:bg-[#f1cfb1] disabled:cursor-not-allowed disabled:opacity-60"
               disabled={isSubmitting || !action}
             >
               {isSubmitting ? 'Đang lưu phản hồi...' : initialFeedback ? 'Cập nhật phản hồi' : 'Lưu phản hồi'}
