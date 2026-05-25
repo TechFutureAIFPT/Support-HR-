@@ -1,9 +1,9 @@
 import { useEffect } from "react";
 
-const DMCA_STATUS_URL =
-  "//www.dmca.com/Protection/Status.aspx?ID=9854c96e-f6a0-42dc-871a-d17d7f180c4f";
+const DMCA_BADGE_ID = "9854c96e-f6a0-42dc-871a-d17d7f180c4f";
+const DMCA_PUBLIC_LINK_URL = "https://www.dmca.com/r/p7z69p8";
 const DMCA_BADGE_IMAGE_URL =
-  "https://images.dmca.com/Badges/dmca_protected_sml_120m.png?ID=9854c96e-f6a0-42dc-871a-d17d7f180c4f";
+  `https://images.dmca.com/Badges/dmca_protected_sml_120m.png?ID=${DMCA_BADGE_ID}`;
 const DMCA_HELPER_SCRIPT_URL =
   "https://images.dmca.com/Badges/DMCABadgeHelper.min.js";
 const DMCA_HELPER_SCRIPT_ID = "dmca-badge-helper-script";
@@ -41,7 +41,7 @@ export default function DmcaBadge({
         .join(" ")}
     >
       <a
-        href={DMCA_STATUS_URL}
+        href={DMCA_PUBLIC_LINK_URL}
         title="DMCA.com Protection Status"
         className="dmca-badge inline-flex"
         target="_blank"
