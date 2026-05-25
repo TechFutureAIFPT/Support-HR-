@@ -1,148 +1,74 @@
 import React from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { ArrowUpRight, Sparkles } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 
 const HERO_SYSTEM_PANELS = [
   {
-    label: "CV // HÀNG ĐỢI",
+    label: "WORKFLOW // JD",
     dotClass: "bg-cyan-400",
     accentClass: "text-cyan-400",
-    delay: 0,
     lines: [
-      "[SCAN] 42 hồ sơ mới vừa tải lên",
-      "[OCR] 12 CV ảnh đã chuẩn hóa",
-      "[QUEUE] Ưu tiên vị trí Front-end",
+      "[ROLE] Chot mot vi tri can tuyen",
+      "[MUST] Giu cac tieu chi can co",
+      "[FLOW] Bat dau tu mot context ro rang",
     ],
   },
   {
-    label: "JD // TÁCH NGHĨA",
+    label: "IMPORT // CV",
     dotClass: "bg-emerald-400",
     accentClass: "text-emerald-400",
-    delay: 0.5,
     lines: [
-      "[ROLE] Senior Front-end Engineer",
-      "[MUST] React, TypeScript, kiến trúc UI",
-      "[WEIGHT] Kỹ năng 45 / kinh nghiệm 35",
+      "[SOURCE] Upload file hoac Google Drive",
+      "[OCR] Co the doc tai lieu scan",
+      "[QUEUE] Dua ve cung mot workflow screening",
     ],
   },
   {
-    label: "ĐỐI SÁNH // LIVE",
+    label: "REVIEW // SCORE",
     dotClass: "bg-sky-400",
     accentClass: "text-sky-400",
-    delay: 1,
     lines: [
-      "[SCORE] 98.2% hồ sơ phù hợp nhất",
-      "[RANK] 03 ứng viên nổi bật",
-      "[GAP] 01 kỹ năng cần kiểm tra thêm",
+      "[VIEW] So sanh CV voi cung mot JD",
+      "[NOTE] Giu lai ly do de xep shortlist",
+      "[GAP] De recruiter kiem tra them khi can",
     ],
   },
   {
-    label: "TUYỂN DỤNG // NHẬT KÝ",
+    label: "TEAM // HANDOFF",
     dotClass: "bg-violet-400",
     accentClass: "text-violet-400",
-    delay: 1.5,
     lines: [
-      "[SYNC] Dữ liệu JD đã đồng bộ",
-      "[NOTE] HR ưu tiên tốc độ phản hồi",
-      "[LOG] Phiên đánh giá đang hoạt động",
+      "[SHARE] Hiring manager nhin duoc context",
+      "[SHORTLIST] Giam viec tong hop lai thu cong",
+      "[NEXT] Chuyen sang vong phong van de dang hon",
     ],
   },
   {
-    label: "KỸ NĂNG // MA TRẬN",
+    label: "MEMORY // SESSION",
     dotClass: "bg-cyan-400",
     accentClass: "text-cyan-400",
-    delay: 2,
     lines: [
-      "[STACK] React / Next.js / TypeScript",
-      "[DEPTH] Thiết kế hệ thống giao diện",
-      "[MATCH] Kỹ năng cốt lõi đạt chuẩn",
+      "[STATE] Luu trang thai gan nhat cua workflow",
+      "[RESET] Session cu tu het han sau khi khong dung",
+      "[RETURN] F5 thong thuong van giu duoc tien trinh",
     ],
   },
   {
-    label: "PHỎNG VẤN // GỢI Ý",
+    label: "TRUST // DOCS",
     dotClass: "bg-emerald-400",
     accentClass: "text-emerald-400",
-    delay: 2.5,
     lines: [
-      "[PROMPT] Cân bằng tốc độ và chất lượng",
-      "[PROMPT] Đọc hiểu kiến trúc Front-end",
-      "[PACK] Bộ câu hỏi đã sẵn sàng",
-    ],
-  },
-  {
-    label: "ĐỘI NGŨ // DUYỆT",
-    dotClass: "bg-sky-400",
-    accentClass: "text-sky-400",
-    delay: 3,
-    lines: [
-      "[REVIEW] Hiring manager đã xem shortlist",
-      "[STATUS] Chờ phản hồi cuối cùng",
-      "[FLOW] Không cần xử lý thủ công dài dòng",
-    ],
-  },
-  {
-    label: "KIỂM TOÁN // BÁO CÁO",
-    dotClass: "bg-violet-400",
-    accentClass: "text-violet-400",
-    delay: 3.5,
-    lines: [
-      "[TRACE] Lý do chấm điểm đầy đủ",
-      "[EXPORT] Báo cáo cho hội đồng tuyển dụng",
-      "[SAFE] Có thể rà soát từng quyết định",
-    ],
-  },
-  {
-    label: "HÀNH VI // TÍN HIỆU",
-    dotClass: "bg-cyan-400",
-    accentClass: "text-cyan-400",
-    delay: 4,
-    lines: [
-      "[SIGNAL] Khả năng sở hữu sản phẩm cao",
-      "[SIGNAL] Chủ động điều phối công việc",
-      "[FLAG] Cần hỏi sâu về mentoring",
-    ],
-  },
-  {
-    label: "LƯƠNG // ĐỐI CHIẾU",
-    dotClass: "bg-emerald-400",
-    accentClass: "text-emerald-400",
-    delay: 4.5,
-    lines: [
-      "[RANGE] Đối chiếu theo vị trí",
-      "[MARKET] Mức kỳ vọng nằm trong ngưỡng",
-      "[ALERT] Không có sai lệch lớn",
-    ],
-  },
-  {
-    label: "SHORTLIST // GỬI",
-    dotClass: "bg-sky-400",
-    accentClass: "text-sky-400",
-    delay: 5,
-    lines: [
-      "[MAIL] Danh sách đề cử đã chuẩn bị",
-      "[DOC] Kèm lý do và câu hỏi phỏng vấn",
-      "[READY] Có thể gửi ngay cho recruiter",
-    ],
-  },
-  {
-    label: "HỆ THỐNG // NHỊP TIM",
-    dotClass: "bg-violet-400",
-    accentClass: "text-violet-400",
-    delay: 5.5,
-    lines: [
-      "[PING] Bộ máy đối sánh đang ổn định",
-      "[CPU] 12% / MEM 3.1GB",
-      "[UPTIME] Tác vụ đang chạy mượt",
+      "[PAGE] Pricing, Security, FAQ, Demo",
+      "[BUYER] De tim trong 1-2 lan click",
+      "[B2B] Noi dung uu tien cho doi ngu doanh nghiep",
     ],
   },
 ];
 
 const HERO_HEADLINE_LINES = [
-  { text: "Support HR, đọc CV" },
-  { text: "nhanh và chuẩn." },
+  { text: "Screening AI cho" },
+  { text: "doi ngu HR nghiem tuc." },
 ];
-
-const HERO_VISIBLE_PANELS = [2, 3, 6, 7, 10, 11].map((index) => HERO_SYSTEM_PANELS[index]);
 
 const HERO_VIEWPORT = { once: true, amount: 0.2 };
 const HERO_TRANSITION = { duration: 0.72, ease: [0.22, 1, 0.36, 1] as const };
@@ -153,7 +79,7 @@ interface LandingHeroProps {
   primaryLabel: string;
 }
 
-function TypewriterLine({
+function TypeLine({
   text,
   lineDelay,
   reduceMotion,
@@ -173,27 +99,25 @@ function TypewriterLine({
       setDone(true);
       return;
     }
+
     setDisplayed("");
     setDone(false);
-    let i = 0;
     let intervalId: number | undefined;
     let timerId: number | undefined;
+    let index = 0;
+
     const runTypewriter = () => {
       intervalId = window.setInterval(() => {
-        i++;
-        setDisplayed(text.slice(0, i));
-        if (i >= text.length) {
+        index += 1;
+        setDisplayed(text.slice(0, index));
+        if (index >= text.length) {
           window.clearInterval(intervalId);
           setDone(true);
         }
       }, 18);
     };
 
-    if (lineDelay > 0) {
-      timerId = window.setTimeout(runTypewriter, lineDelay);
-    } else {
-      runTypewriter();
-    }
+    timerId = window.setTimeout(runTypewriter, lineDelay);
 
     return () => {
       if (timerId) window.clearTimeout(timerId);
@@ -201,7 +125,6 @@ function TypewriterLine({
     };
   }, [text, lineDelay, reduceMotion]);
 
-  // Regex to extract prefix like [SCAN]
   const match = displayed.match(/^(\[[A-Z0-9_-]+\])(.*)$/);
 
   return (
@@ -209,17 +132,17 @@ function TypewriterLine({
       {match ? (
         <>
           <span className={`${accentClass} font-semibold`}>{match[1]}</span>
-          <span className="text-zinc-300 ml-1.5">{match[2]}</span>
+          <span className="ml-1.5 text-zinc-300">{match[2]}</span>
         </>
       ) : (
         <span className="text-zinc-300">{displayed}</span>
       )}
-      {!done && (
+      {!done ? (
         <span
-          className="inline-block w-[1.5px] h-[1.1em] bg-zinc-300 ml-[1.5px] align-middle animate-[supporthr-terminal-blink_0.9s_steps(1)_infinite]"
+          className="ml-[1.5px] inline-block h-[1.1em] w-[1.5px] animate-[supporthr-terminal-blink_0.9s_steps(1)_infinite] bg-zinc-300 align-middle"
           aria-hidden="true"
         />
-      )}
+      ) : null}
     </span>
   );
 }
@@ -245,7 +168,6 @@ function SystemPanel({
       viewport={{ once: true, amount: 0.3 }}
       transition={{ duration: 0.25 }}
     >
-      {/* Top clean dark line border */}
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-zinc-900" />
 
       <div className="relative flex items-center justify-between">
@@ -256,11 +178,11 @@ function SystemPanel({
       </div>
 
       <div className="relative mt-5 space-y-1">
-        {lines.map((line, i) => (
-          <TypewriterLine
+        {lines.map((line, index) => (
+          <TypeLine
             key={line}
             text={line}
-            lineDelay={reduceMotion ? 0 : i * 120}
+            lineDelay={reduceMotion ? 0 : index * 120}
             reduceMotion={reduceMotion}
             accentClass={accentClass}
           />
@@ -304,18 +226,14 @@ export default function LandingHero({
         <div className="relative min-h-[540px] sm:min-h-[580px] lg:min-h-[610px] xl:min-h-[640px]">
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute inset-0 hidden overflow-hidden opacity-[0.9] lg:grid lg:grid-cols-5 lg:grid-rows-3"
+            className="pointer-events-none absolute inset-0 hidden overflow-hidden opacity-[0.9] lg:grid lg:grid-cols-3 lg:grid-rows-2"
           >
-            <div className="relative col-span-3 row-span-3 overflow-hidden border-r border-zinc-900 bg-[linear-gradient(135deg,rgba(5,14,26,0.72)_0%,rgba(0,0,0,0.9)_42%,rgba(0,0,0,0.58)_100%)]">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_14%_18%,rgba(255,255,255,0.025),transparent_34%),linear-gradient(90deg,rgba(0,0,0,0.36)_0%,rgba(0,0,0,0.08)_74%,transparent_100%)]" />
-              <div className="absolute bottom-0 left-0 right-0 h-px bg-zinc-900" />
-            </div>
-            {HERO_VISIBLE_PANELS.map((panel, index) => (
+            {HERO_SYSTEM_PANELS.map((panel, index) => (
               <div
                 key={panel.label}
-                className={`home-hero-grid-card border-zinc-900 ${
-                  index % 2 === 0 ? "border-r" : ""
-                } ${index < HERO_VISIBLE_PANELS.length - 2 ? "border-b" : ""}`}
+                className={`border-zinc-900 ${
+                  index % 3 !== 2 ? "border-r" : ""
+                } ${index < HERO_SYSTEM_PANELS.length - 3 ? "border-b" : ""}`}
               >
                 <SystemPanel {...panel} reduceMotion={reduceMotion ?? false} />
               </div>
@@ -327,12 +245,11 @@ export default function LandingHero({
             whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
             viewport={HERO_VIEWPORT}
             transition={HERO_TRANSITION}
-            className="relative z-10 max-w-[46rem] px-6 py-12 sm:px-10 sm:py-14 lg:max-w-[64%] lg:px-16 lg:py-14 xl:max-w-[68%] xl:py-16"
+            className="relative z-10 max-w-[46rem] px-6 py-12 sm:px-10 sm:py-14 lg:max-w-[60%] lg:px-16 lg:py-14 xl:max-w-[62%] xl:py-16"
           >
             <div className="pointer-events-none absolute bottom-[-2.5rem] left-[-2.25rem] right-0 top-[-2.5rem] -z-10 bg-[radial-gradient(circle_at_22%_24%,rgba(5,14,26,0.98)_0%,rgba(0,0,0,0.94)_26%,rgba(0,0,0,0.74)_54%,rgba(0,0,0,0.34)_76%,transparent_100%)]" />
             <div className="pointer-events-none absolute bottom-[-1.5rem] left-[-2.5rem] right-0 top-[11.25rem] -z-10 bg-[linear-gradient(90deg,rgba(0,0,0,0.98)_0%,rgba(0,0,0,0.88)_34%,rgba(0,0,0,0.54)_62%,rgba(0,0,0,0.12)_88%,transparent_100%)] blur-[3px]" />
 
-            {/* Blackbox-style eyebrow label with pulsing indicators */}
             <motion.div
               initial={reduceMotion ? false : { opacity: 0, x: -12 }}
               whileInView={reduceMotion ? undefined : { opacity: 1, x: 0 }}
@@ -341,35 +258,40 @@ export default function LandingHero({
               className="mb-4 flex items-center xl:mb-5"
             >
               <span className="supporthr-mono text-[11px] font-bold uppercase tracking-[0.32em] text-[#f5d6bb]/90">
-                AI TUYỂN DỤNG
+                RECRUITMENT WORKSPACE
               </span>
             </motion.div>
 
-            {/* Hero headline */}
             <h1 className="home-hero-heading supporthr-display max-w-[20ch] text-[clamp(3.5rem,6vw,6.5rem)] font-bold leading-[1.02] tracking-normal">
               {HERO_HEADLINE_LINES.map((line) => (
                 <HeadlineLine key={line.text} text={line.text} />
               ))}
             </h1>
 
-            {/* Body text — lighter weight */}
             <p className="home-hero-copy mt-6 max-w-[43rem] text-[clamp(1rem,1.18vw,1.18rem)] font-light leading-[1.75] tracking-normal text-zinc-400 xl:mt-7">
-              Tự động quét CV, hiểu kỹ năng kỹ thuật, đối sánh với JD và tạo danh sách đề cử rõ ràng
-              cho nhà tuyển dụng hiện đại.
+              Support HR tap trung vao mot bai toan rat cu the: lay JD, nap CV, doi chieu, va tao shortlist co the review
+              duoc de recruiter va hiring manager ra quyet dinh nhanh hon.
             </p>
 
-            {/* Blackbox-style square buttons — only GET STARTED, made larger */}
-            <div className="mt-8 flex flex-wrap items-center xl:mt-9">
+            <div className="mt-8 flex flex-wrap items-center gap-3 xl:mt-9">
               <motion.button
                 type="button"
                 whileHover={reduceMotion ? undefined : { scale: 1.02 }}
                 whileTap={reduceMotion ? undefined : { scale: 0.97 }}
                 onClick={onPrimaryAction}
-                className="group relative inline-flex h-[3.1rem] items-center gap-3.5 overflow-hidden rounded-none bg-white px-7 text-[12px] font-bold uppercase tracking-[0.14em] text-black shadow-[0_20px_50px_rgba(255,255,255,0.12)] transition-all duration-200 hover:bg-zinc-100 hover:shadow-[0_24px_60px_rgba(255,255,255,0.2)] sm:h-[3.35rem] sm:px-9 sm:text-[13px]"
+                className="group relative inline-flex h-[3.1rem] items-center gap-3.5 overflow-hidden bg-white px-7 text-[12px] font-bold uppercase tracking-[0.14em] text-black shadow-[0_20px_50px_rgba(255,255,255,0.12)] transition-all duration-200 hover:bg-zinc-100 hover:shadow-[0_24px_60px_rgba(255,255,255,0.2)] sm:h-[3.35rem] sm:px-9 sm:text-[13px]"
               >
                 <span className="relative z-10">{primaryLabel}</span>
-                <ArrowUpRight className="relative z-10 h-4.5 w-4.5 sm:h-5 sm:w-5 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                <ArrowUpRight className="relative z-10 h-4.5 w-4.5 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 sm:h-5 sm:w-5" />
               </motion.button>
+
+              <button
+                type="button"
+                onClick={onSecondaryAction}
+                className="inline-flex h-[3.1rem] items-center justify-center border border-white/12 px-7 supporthr-mono text-[12px] font-semibold uppercase tracking-[0.14em] text-zinc-100 transition-colors hover:border-white/24 hover:bg-white/[0.03] sm:h-[3.35rem] sm:px-9 sm:text-[13px]"
+              >
+                Xem workflow
+              </button>
             </div>
           </motion.div>
         </div>

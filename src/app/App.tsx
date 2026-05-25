@@ -28,6 +28,14 @@ const LoginPage = lazy(() => import('@/pages/auth/LoginPage'));
 const DetailedAnalyticsPage = lazy(() => import('@/pages/analytics/DetailedAnalyticsPage'));
 const PrivacyPolicyPage = lazy(() => import('@/pages/info/PrivacyPolicyPage'));
 const TermsPage = lazy(() => import('@/pages/info/TermsPage'));
+const SecurityCompliancePage = lazy(() => import('@/pages/info/SecurityCompliancePage'));
+const FAQPage = lazy(() => import('@/pages/info/FAQPage'));
+const PricingPage = lazy(() => import('@/pages/info/PricingPage'));
+const DemoPage = lazy(() => import('@/pages/info/DemoPage'));
+const AIMethodologyPage = lazy(() => import('@/pages/info/AIMethodologyPage'));
+const UseCasesPage = lazy(() => import('@/pages/info/UseCasesPage'));
+const IntegrationsPage = lazy(() => import('@/pages/info/IntegrationsPage'));
+const BookDemoPage = lazy(() => import('@/pages/info/BookDemoPage'));
 const SelectedCandidatesPage = lazy(() => import('@/pages/analytics/SelectedCandidatesPage'));
 const AIFeedbackPage = lazy(() => import('@/pages/main/AIFeedbackPage'));
 import CandidateSuggestions from '@/pages/analytics/CandidateSuggestions';
@@ -47,8 +55,11 @@ import {
   writeLatestAnalysisRun,
 } from '@/services/history-cache/latestAnalysisRun';
 import {
+  clearWorkflowActivity,
   clearWorkflowDraft,
+  isWorkflowSessionExpired,
   readWorkflowDraft,
+  touchWorkflowActivity,
   writeWorkflowDraft,
 } from '@/services/history-cache/workflowDraft';
 
@@ -109,11 +120,41 @@ const App = () => {
   );
 };
 
+const publicMarketingPaths = new Set([
+  '/',
+  '/process',
+  '/contact-ready',
+  '/privacy-policy',
+  '/terms',
+  '/security',
+  '/faq',
+  '/pricing',
+  '/demo',
+  '/ai-methodology',
+  '/use-cases',
+  '/integrations',
+  '/book-demo',
+]);
+
+function clearExpiredWorkflowSession(): void {
+  if (typeof window === 'undefined' || !isWorkflowSessionExpired()) return;
+
+  clearActiveAnalysisContext();
+  clearLatestAnalysisRun();
+  clearWorkflowDraft();
+  clearWorkflowActivity();
+  window.localStorage.removeItem('currentJD');
+  window.localStorage.removeItem('currentRawJD');
+  window.localStorage.removeItem('currentLocation');
+  window.localStorage.removeItem('analysisWeights');
+  window.localStorage.removeItem('hardFilters');
+}
+
 const MainApp = () => {
+  clearExpiredWorkflowSession();
   const location = useLocation();
-  const publicInitialPaths = new Set(['/', '/process', '/contact-ready', '/privacy-policy', '/terms']);
   const initialPath = typeof window !== 'undefined' ? window.location.pathname : '/';
-  const shouldBlockInitialRender = !publicInitialPaths.has(initialPath);
+  const shouldBlockInitialRender = !publicMarketingPaths.has(initialPath);
 
   // Initialize state
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -530,6 +571,39 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
     localStorage.setItem('hardFilters', JSON.stringify(hardFilters));
   }, [jdText, rawJdText, weights, hardFilters]);
 
+  useEffect(() => {
+    touchWorkflowActivity(Date.now(), 0);
+
+    let lastTouchedAt = Date.now();
+    const markActive = () => {
+      const now = Date.now();
+      if (now - lastTouchedAt < 30_000) return;
+      lastTouchedAt = now;
+      touchWorkflowActivity(now);
+    };
+
+    const activityEvents: Array<keyof WindowEventMap> = ['pointerdown', 'keydown', 'scroll', 'touchstart'];
+    activityEvents.forEach((eventName) => {
+      window.addEventListener(eventName, markActive, { passive: true });
+    });
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        touchWorkflowActivity(Date.now(), 0);
+        lastTouchedAt = Date.now();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      activityEvents.forEach((eventName) => {
+        window.removeEventListener(eventName, markActive);
+      });
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
+
   const activeStep = useMemo((): AppStep => {
     switch (location.pathname) {
       case '/process': return 'process';
@@ -558,6 +632,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
     clearActiveAnalysisContext();
     clearLatestAnalysisRun();
     clearWorkflowDraft();
+    clearWorkflowActivity();
     localStorage.removeItem('currentJD');
     localStorage.removeItem('currentRawJD');
     localStorage.removeItem('currentLocation');
@@ -596,7 +671,8 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
   const isLandingFallbackView =
     !isLoggedIn &&
     ['/jd', '/weights', '/analysis', '/dashboard', '/detailed-analytics', '/chatbot', '/feedback'].includes(location.pathname);
-  const isLandingView = isHomeView || isLandingFallbackView;
+  const isMarketingRoute = publicMarketingPaths.has(location.pathname);
+  const isLandingView = isHomeView || isLandingFallbackView || isMarketingRoute;
   const isWorkflowView =
     !isLandingView &&
     (activeStep === 'jd' ||
@@ -763,6 +839,14 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
               <Route path="/contact-ready" element={<DeploymentReadyPage />} />
               <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
               <Route path="/terms" element={<TermsPage />} />
+              <Route path="/security" element={<SecurityCompliancePage />} />
+              <Route path="/faq" element={<FAQPage />} />
+              <Route path="/pricing" element={<PricingPage />} />
+              <Route path="/demo" element={<DemoPage />} />
+              <Route path="/ai-methodology" element={<AIMethodologyPage />} />
+              <Route path="/use-cases" element={<UseCasesPage />} />
+              <Route path="/integrations" element={<IntegrationsPage />} />
+              <Route path="/book-demo" element={<BookDemoPage />} />
             </Routes>
           </Suspense>
         </div>

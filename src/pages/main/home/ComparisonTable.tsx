@@ -2,34 +2,34 @@ import { Check, Minus } from "lucide-react";
 
 const comparisonRows = [
   {
-    criteria: "Xử lý CV hàng loạt",
-    generalAi: "Chỉ 1 CV/lần",
-    supportHr: "Hàng trăm CV/lần",
+    criteria: "Xu ly nhieu CV trong cung mot workflow",
+    generalAi: "Thuong tach tung tac vu",
+    supportHr: "Tap trung trong mot luong screening",
   },
   {
-    criteria: "Nhận diện CV ảnh (OCR)",
-    generalAi: "Hạn chế",
-    supportHr: "OCR 99% chính xác",
+    criteria: "Nhap tai lieu scan va file tong hop",
+    generalAi: "Can xu ly thu cong nhieu hon",
+    supportHr: "Ho tro OCR va luong import ro rang",
   },
   {
-    criteria: "Phân tích ngữ nghĩa",
-    generalAi: "Bề mặt",
-    supportHr: "Phân tích sâu",
+    criteria: "Doi chieu theo mot JD cu the",
+    generalAi: "Tra loi chung cho tung file",
+    supportHr: "Giu cung mot role context xuyen suot",
   },
   {
-    criteria: "Chống thiên kiến tuyển dụng",
-    generalAi: "Không có",
-    supportHr: "Mù hóa dữ liệu",
+    criteria: "Shortlist de chia se noi bo",
+    generalAi: "Can tu tong hop lai",
+    supportHr: "Co ket qua de review va handoff",
   },
   {
-    criteria: "Tự học & Tiến hóa",
-    generalAi: "Không có",
-    supportHr: "Tự tiến hóa theo JD",
+    criteria: "Luu context cua session",
+    generalAi: "De bi dut mach khi doi buoc",
+    supportHr: "Giu lich su va trang thai gan nhat",
   },
   {
-    criteria: "Tối ưu chi phí",
-    generalAi: "Cao",
-    supportHr: "Tối ưu hóa",
+    criteria: "Muc tieu san pham",
+    generalAi: "Cong cu chung",
+    supportHr: "Workspace rieng cho screening",
   },
 ];
 
@@ -59,10 +59,10 @@ const ComparisonTable = () => {
           <thead>
             <tr className="border-b border-zinc-800 bg-zinc-900/35">
               <th className="supporthr-mono w-[38%] px-6 py-5 text-[11px] font-semibold uppercase tracking-[0.24em] text-zinc-500">
-                Tiêu chí
+                Tieu chi
               </th>
               <th className="supporthr-mono w-[29%] border-l border-zinc-800 px-6 py-5 text-[11px] font-semibold uppercase tracking-[0.24em] text-zinc-500">
-                AI Tổng quát
+                AI tong quat
               </th>
               <th className="supporthr-mono relative w-[33%] border-l border-blue-400/20 bg-blue-900/10 px-6 py-5 text-[11px] font-semibold uppercase tracking-[0.24em] text-blue-100">
                 <span className="pointer-events-none absolute inset-0 bg-gradient-to-r from-blue-500/10 via-cyan-400/5 to-transparent" />
@@ -102,7 +102,7 @@ const ComparisonTable = () => {
             <div className="mt-4 grid gap-3">
               <div className="border border-zinc-800 bg-zinc-900/35 p-3">
                 <p className="supporthr-mono mb-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-zinc-500">
-                  AI Tổng quát
+                  AI tong quat
                 </p>
                 <GeneralStatus>{row.generalAi}</GeneralStatus>
               </div>

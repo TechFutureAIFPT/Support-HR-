@@ -1,12 +1,22 @@
+import { Link } from "react-router-dom";
+
 type FooterNavItem =
   | {
       label: string;
       target: string;
       href?: never;
+      to?: never;
     }
   | {
       label: string;
       href: string;
+      target?: never;
+      to?: never;
+    }
+  | {
+      label: string;
+      to: string;
+      href?: never;
       target?: never;
     };
 
@@ -15,18 +25,27 @@ type FooterProps = {
 };
 
 const productLinks: FooterNavItem[] = [
-  { label: "Trang đầu", target: "hero" },
-  { label: "Bảng giá", target: "pricing" },
-  { label: "Quy trình", target: "steps" },
-  { label: "So sánh", target: "compare" },
-  { label: "Liên hệ", target: "contact" },
+  { label: "Quy trinh", target: "steps" },
+  { label: "So sanh", target: "compare" },
+  { label: "Bang gia", target: "pricing" },
+  { label: "Demo", to: "/demo" },
+  { label: "Integrations", to: "/integrations" },
+  { label: "AI methodology", to: "/ai-methodology" },
 ];
 
-const companyLinks: FooterNavItem[] = [
-  { label: "Giới thiệu", target: "hero" },
-  { label: "Bảo mật", href: "/privacy-policy" },
-  { label: "Điều khoản", href: "/terms" },
-  { label: "Liên hệ", href: "mailto:support@supporthr.vn" },
+const salesLinks: FooterNavItem[] = [
+  { label: "Pricing page", to: "/pricing" },
+  { label: "Use cases", to: "/use-cases" },
+  { label: "FAQ", to: "/faq" },
+  { label: "Book a demo", to: "/book-demo" },
+  { label: "Hotline", href: "tel:0899280108" },
+  { label: "Email sales", href: "mailto:support@supporthr.vn" },
+];
+
+const legalLinks: FooterNavItem[] = [
+  { label: "Security", to: "/security" },
+  { label: "Privacy policy", to: "/privacy-policy" },
+  { label: "Terms", to: "/terms" },
 ];
 
 const socialLinks = [
@@ -40,30 +59,11 @@ const socialLinks = [
     href: "https://github.com/TechFutureAIFPT",
     icon: "github",
   },
-  {
-    label: "LinkedIn",
-    href: "https://www.linkedin.com/in/tmhpprofile2801/",
-    icon: "linkedin",
-  },
 ];
 
 const contactLinks = [
   { label: "0899 280 108", href: "tel:0899280108", icon: "phone" },
   { label: "support@supporthr.vn", href: "mailto:support@supporthr.vn", icon: "mail" },
-];
-
-const asciiLogo = [
-  " ####  #   # #####  #####  #####  ####  #####     #   # #### ",
-  "#      #   # #   #  #   # #   #  #   #   #       #   # #   #",
-  " ###   #   # #####  ##### #   #  ####    #       ##### #### ",
-  "    #  #   # #      #     #   #  #  #    #       #   # #  # ",
-  "####    ###  #      #      ##### #   #   #       #   # #   #",
-];
-
-const terminalNoise = [
-  "[SCAN] supporthr.ai candidate map ----- score vectors stable",
-  "+++++ ###### %%%%%% @@@@@@ 000000 ------ :::::: ++++++",
-  "JD_PARSE // CV_MATCH // OCR_PIPE // SHORTLIST // AUDIT",
 ];
 
 const linkClass =
@@ -92,14 +92,6 @@ const IconGlyph = ({ name, className = "h-4 w-4" }: { name: string; className?: 
     );
   }
 
-  if (name === "linkedin") {
-    return (
-      <svg {...common} fill="currentColor">
-        <path d="M5.1 8.8H1.8V22h3.3V8.8zM3.5 2.4a1.9 1.9 0 1 0 0 3.8 1.9 1.9 0 0 0 0-3.8zM22.2 14.8c0-4-2.1-5.8-5-5.8-2.3 0-3.3 1.2-3.9 2.1V8.8H10V22h3.4v-6.5c0-1.7.3-3.4 2.5-3.4 2.1 0 2.1 2 2.1 3.5V22h3.4l.8-7.2z" />
-      </svg>
-    );
-  }
-
   if (name === "phone") {
     return (
       <svg {...common} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2">
@@ -122,6 +114,14 @@ const FooterLink = ({ item, onNavigate }: { item: FooterNavItem; onNavigate: Foo
       <button type="button" onClick={() => onNavigate(item.target)} className={`${linkClass} text-left`}>
         {item.label}
       </button>
+    );
+  }
+
+  if ("to" in item) {
+    return (
+      <Link to={item.to} className={linkClass}>
+        {item.label}
+      </Link>
     );
   }
 
@@ -158,25 +158,6 @@ const FooterColumn = ({
   </div>
 );
 
-const FooterAsciiBackdrop = () => (
-  <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
-    <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/35 to-transparent" />
-    <div className="absolute left-0 top-0 h-80 w-96 bg-gradient-to-br from-emerald-500/10 via-blue-500/8 to-transparent blur-3xl" />
-    <div className="absolute bottom-0 right-0 h-80 w-[32rem] bg-gradient-to-tl from-purple-500/12 via-blue-500/8 to-transparent blur-3xl" />
-
-    <pre className="supporthr-footer-ascii absolute left-1/2 top-[46%] hidden -translate-x-1/2 -translate-y-1/2 select-none whitespace-pre text-left font-mono text-[12px] font-black leading-[0.86] tracking-[0.18em] text-zinc-500/[0.06] xl:block xl:text-[22px] 2xl:text-[24px]">
-      {asciiLogo.join("\n")}
-    </pre>
-
-    <pre className="supporthr-footer-noise absolute inset-x-4 bottom-32 hidden select-none overflow-hidden whitespace-pre text-center font-mono text-[10px] font-bold leading-5 tracking-[0.42em] text-zinc-500/[0.08] lg:block">
-      {terminalNoise.join("\n")}
-    </pre>
-
-    <div className="supporthr-footer-scan absolute left-0 top-20 h-px w-1/2 bg-gradient-to-r from-transparent via-white/40 to-transparent" />
-    <div className="absolute inset-x-0 bottom-28 h-px bg-white/[0.055]" />
-  </div>
-);
-
 const SocialLinks = () => (
   <div className="flex items-center gap-3">
     {socialLinks.map((link) => (
@@ -186,7 +167,7 @@ const SocialLinks = () => (
         target="_blank"
         rel="noopener noreferrer"
         aria-label={link.label}
-        className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-gray-400 transition-all duration-300 ease-in-out hover:scale-110 hover:border-blue-400/30 hover:bg-white/10 hover:text-white hover:shadow-[0_0_15px_rgba(59,130,246,0.5)]"
+        className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-gray-400 transition-all duration-300 ease-in-out hover:scale-110 hover:border-white/20 hover:bg-white/10 hover:text-white"
       >
         <IconGlyph name={link.icon} className="h-4 w-4" />
       </a>
@@ -197,7 +178,11 @@ const SocialLinks = () => (
 const Footer = ({ onNavigate }: FooterProps) => {
   return (
     <footer id="contact" className="relative overflow-hidden border-t border-white/10 bg-black">
-      <FooterAsciiBackdrop />
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+        <div className="absolute left-0 top-0 h-80 w-96 bg-[radial-gradient(circle_at_top_left,rgba(245,214,187,0.1),transparent_65%)]" />
+        <div className="absolute bottom-0 right-0 h-80 w-[32rem] bg-[radial-gradient(circle_at_bottom_right,rgba(245,214,187,0.08),transparent_68%)]" />
+      </div>
 
       <div className="relative home-section-frame flex min-h-[30rem] flex-col py-16 sm:py-20 lg:py-24">
         <div className="flex flex-col items-center gap-12 lg:gap-14">
@@ -206,7 +191,7 @@ const Footer = ({ onNavigate }: FooterProps) => {
               type="button"
               onClick={() => onNavigate("hero")}
               className="group grid w-fit grid-cols-[2.5rem_auto_2.5rem] items-center gap-3 text-center"
-              aria-label="Về trang đầu Support HR"
+              aria-label="Ve trang dau Support HR"
             >
               <span className="flex h-10 w-10 items-center justify-center overflow-hidden border border-white/15 bg-white/[0.035]">
                 <img src="/images/logos/logo.jpg" alt="Support HR" className="h-full w-full object-cover" />
@@ -216,13 +201,14 @@ const Footer = ({ onNavigate }: FooterProps) => {
                   Support HR
                 </span>
                 <span className="supporthr-mono mt-1 block text-[10px] font-bold uppercase tracking-[0.26em] text-[#f5d6bb]">
-                  AI tuyển dụng
+                  Recruitment workflow for modern HR teams
                 </span>
               </span>
             </button>
 
-            <p className="mt-8 max-w-[31rem] text-sm leading-7 text-gray-400">
-              Nền tảng tuyển dụng AI cho doanh nghiệp Việt Nam. Đọc CV, đối sánh JD và tạo shortlist có kiểm chứng trong một luồng làm việc.
+            <p className="mt-8 max-w-[34rem] text-sm leading-7 text-gray-400">
+              Support HR giup doi ngu recruitment doc CV nhanh hon, doi chieu theo JD ro rang hon, va chia se shortlist
+              de review trong mot quy trinh de kiem soat.
             </p>
 
             <div className="mt-7 flex flex-col items-center justify-center gap-3 text-gray-400 sm:flex-row sm:flex-wrap">
@@ -232,7 +218,7 @@ const Footer = ({ onNavigate }: FooterProps) => {
                   href={link.href}
                   className="group inline-flex w-fit items-center gap-2 text-sm transition-all duration-300 ease-in-out hover:translate-x-1 hover:text-white"
                 >
-                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/5 text-blue-300 transition-all duration-300 group-hover:bg-white/10 group-hover:shadow-[0_0_15px_rgba(59,130,246,0.35)]">
+                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/5 text-[#f5d6bb] transition-all duration-300 group-hover:bg-white/10">
                     <IconGlyph name={link.icon} className="h-3.5 w-3.5" />
                   </span>
                   {link.label}
@@ -245,38 +231,26 @@ const Footer = ({ onNavigate }: FooterProps) => {
             </div>
           </div>
 
-          <div className="grid w-full max-w-4xl justify-items-center gap-10 border-t border-white/[0.08] pt-10 sm:grid-cols-3 sm:gap-12 lg:max-w-5xl lg:pt-12">
-            <FooterColumn title="Sản phẩm" items={productLinks} onNavigate={onNavigate} />
-            <FooterColumn title="Công ty" items={companyLinks} onNavigate={onNavigate} />
-            <div className="flex flex-col items-center text-center sm:items-start sm:text-left">
-              <h4 className="supporthr-mono mb-6 text-[13px] font-semibold uppercase tracking-[0.2em] text-zinc-400">Kết nối</h4>
-              <div className="space-y-4">
-                {socialLinks.map((item) => (
-                  <a
-                    key={item.label}
-                    href={item.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={linkClass}
-                  >
-                    {item.label}
-                  </a>
-                ))}
-              </div>
-            </div>
+          <div className="grid w-full max-w-5xl justify-items-center gap-10 border-t border-white/[0.08] pt-10 sm:grid-cols-3 sm:gap-12 lg:pt-12">
+            <FooterColumn title="Product" items={productLinks} onNavigate={onNavigate} />
+            <FooterColumn title="Sales" items={salesLinks} onNavigate={onNavigate} />
+            <FooterColumn title="Legal" items={legalLinks} onNavigate={onNavigate} />
           </div>
         </div>
 
         <div className="mt-14 w-full border-t border-white/10 pt-7">
           <div className="flex flex-col items-center justify-center gap-4 text-center text-xs text-zinc-600 sm:flex-row">
-            <p>© 2026 Support HR. Mọi quyền được bảo lưu.</p>
+            <p>© 2026 Support HR. All rights reserved.</p>
             <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
-              <a href="/privacy-policy" className="transition-all duration-300 ease-in-out hover:translate-x-1 hover:text-white">
+              <Link to="/privacy-policy" className="transition-all duration-300 ease-in-out hover:translate-x-1 hover:text-white">
                 Privacy Policy
-              </a>
-              <a href="/terms" className="transition-all duration-300 ease-in-out hover:translate-x-1 hover:text-white">
+              </Link>
+              <Link to="/terms" className="transition-all duration-300 ease-in-out hover:translate-x-1 hover:text-white">
                 Terms of Service
-              </a>
+              </Link>
+              <Link to="/security" className="transition-all duration-300 ease-in-out hover:translate-x-1 hover:text-white">
+                Security
+              </Link>
             </div>
           </div>
         </div>

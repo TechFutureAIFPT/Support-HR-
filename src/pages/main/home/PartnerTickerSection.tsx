@@ -19,9 +19,9 @@ export default function PartnerTickerSection({
     <section className="border-y border-zinc-900 bg-black">
       <div className="mx-auto max-w-full">
         <div className="grid lg:grid-cols-[280px_1fr]">
-          <div className="flex min-h-[57px] items-center border-b border-zinc-900 py-2 pl-6 pr-6 sm:pl-10 lg:border-b-0 lg:border-r lg:pl-16">
-            <p className="supporthr-mono max-w-[13rem] text-[10px] uppercase leading-relaxed tracking-[0.2em] text-zinc-500">
-              Được tin dùng bởi các doanh nghiệp hiện đại.
+          <div className="flex min-h-[57px] items-center border-b border-zinc-900 px-6 py-2 sm:pl-10 lg:border-b-0 lg:border-r lg:pl-16">
+            <p className="supporthr-mono max-w-[14rem] text-[10px] uppercase leading-relaxed tracking-[0.2em] text-zinc-500">
+              Gan voi nhung thuong hieu ma recruiter da quen trong he sinh thai cong viec.
             </p>
           </div>
 

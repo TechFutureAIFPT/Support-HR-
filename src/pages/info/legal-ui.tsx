@@ -84,6 +84,10 @@ interface LegalPageLayoutProps {
     label: string;
     to: string;
   };
+  brandContext?: string;
+  statusTitle?: string;
+  statusCountLabel?: string;
+  statusNotes?: string[];
   children: ReactNode;
 }
 
@@ -97,6 +101,14 @@ export function LegalPageLayout({
   onSectionChange,
   isVisible,
   auxiliaryLink,
+  brandContext = "Business documentation",
+  statusTitle = "Document status",
+  statusCountLabel = "core sections",
+  statusNotes = [
+    "[LIVE] Track the section being reviewed",
+    "[SYNC] Shares the same design system as the homepage",
+    "[DOC] Readable on desktop and mobile",
+  ],
   children,
 }: LegalPageLayoutProps) {
   const activeMeta = sections.find((section) => section.id === activeSection) ?? sections[0];
@@ -124,7 +136,7 @@ export function LegalPageLayout({
                   Support HR
                 </span>
                 <span className="mt-0.5 supporthr-mono text-[10px] font-bold uppercase tracking-[0.24em] text-[#f5d6bb]">
-                  Tài liệu pháp lý
+                  {brandContext}
                 </span>
               </div>
             </Link>
@@ -140,7 +152,7 @@ export function LegalPageLayout({
                 to="/"
                 className="inline-flex h-8 items-center justify-center bg-white px-5 supporthr-mono text-[11px] font-bold uppercase tracking-[0.2em] text-black transition-colors duration-200 hover:bg-zinc-100"
               >
-                Trang chủ
+                Trang chu
               </Link>
             </div>
           </div>
@@ -156,7 +168,7 @@ export function LegalPageLayout({
               <p className="supporthr-mono text-[11px] uppercase tracking-[0.26em] text-[#f5d6bb]/70">
                 {pageLabel} // {meta}
               </p>
-              <h1 className="supporthr-display mt-4 max-w-4xl text-[clamp(2.7rem,5.5vw,4.9rem)] font-bold tracking-[-0.075em] text-white leading-[0.92]">
+              <h1 className="supporthr-display mt-4 max-w-4xl text-[clamp(2.7rem,5.5vw,4.9rem)] font-bold leading-[0.92] tracking-[-0.075em] text-white">
                 {title}
               </h1>
               <p className="mt-5 max-w-2xl text-base leading-8 text-zinc-400 sm:text-lg">
@@ -166,19 +178,19 @@ export function LegalPageLayout({
 
             <div className="border border-[#f5d6bb]/18 bg-[linear-gradient(180deg,rgba(245,214,187,0.06),rgba(255,255,255,0.018))] p-5">
               <p className="supporthr-mono text-[10px] uppercase tracking-[0.24em] text-zinc-500">
-                Trạng thái tài liệu
+                {statusTitle}
               </p>
               <div className="mt-5 flex items-start justify-between gap-4 border border-white/10 bg-black/45 px-3 py-3">
                 <div>
                   <p className="text-3xl font-semibold text-white">{sections.length}</p>
-                  <p className="mt-1 text-sm text-zinc-500">mục điều khoản chính</p>
+                  <p className="mt-1 text-sm text-zinc-500">{statusCountLabel}</p>
                 </div>
                 <span className={`mt-2 h-2.5 w-2.5 ${activeTone.dot} shadow-[0_0_16px_rgba(255,255,255,0.14)]`} />
               </div>
               <div className="mt-6 space-y-2 supporthr-mono text-[12px] leading-6 text-zinc-500">
-                <p>[LIVE] Theo dõi nội dung đang xem</p>
-                <p>[SYNC] Đồng bộ với hệ giao diện trang chủ</p>
-                <p>[DOC] Dễ rà soát trên desktop và mobile</p>
+                {statusNotes.map((note) => (
+                  <p key={note}>{note}</p>
+                ))}
               </div>
             </div>
           </div>
@@ -193,7 +205,7 @@ export function LegalPageLayout({
             <aside className="hidden lg:block">
               <div className="sticky top-28 border border-white/8 bg-black/78 p-4 backdrop-blur-xl">
                 <p className="supporthr-mono text-[10px] uppercase tracking-[0.24em] text-[#f5d6bb]/70">
-                  Mục lục
+                  Muc luc
                 </p>
                 <div className="mt-4 space-y-1">
                   {sections.map((section, index) => {
@@ -234,7 +246,7 @@ export function LegalPageLayout({
             </aside>
 
             <div className="space-y-4">
-              <div className="lg:hidden border border-white/8 bg-black/78 p-3 backdrop-blur-xl">
+              <div className="border border-white/8 bg-black/78 p-3 backdrop-blur-xl lg:hidden">
                 <div className="flex items-center gap-2 overflow-x-auto pb-1">
                   {sections.map((section, index) => {
                     const isActive = section.id === activeSection;
@@ -272,7 +284,7 @@ export function LegalPageLayout({
                     </div>
                     <div>
                       <p className="supporthr-mono text-[10px] uppercase tracking-[0.24em] text-[#f5d6bb]/70">
-                        Mục đang xem
+                        Dang xem
                       </p>
                       <h2 className="mt-1 text-xl font-semibold text-white">{activeMeta.title}</h2>
                     </div>
