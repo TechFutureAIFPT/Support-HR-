@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import type { AppStep } from "@/types";
 import LandingHero from "@/pages/main/home/LandingHero";
@@ -50,16 +50,30 @@ const HomePage: React.FC<HomePageProps> = ({
 }) => {
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [desktopMenuOpen, setDesktopMenuOpen] = useState(false);
+  const desktopMenuRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         setMobileMenuOpen(false);
+        setDesktopMenuOpen(false);
       }
     };
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  useEffect(() => {
+    const handlePointerDown = (event: MouseEvent) => {
+      if (!desktopMenuRef.current?.contains(event.target as Node)) {
+        setDesktopMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handlePointerDown);
+    return () => document.removeEventListener("mousedown", handlePointerDown);
   }, []);
 
   useEffect(() => {
@@ -81,6 +95,7 @@ const HomePage: React.FC<HomePageProps> = ({
 
   const scrollTo = (id: string) => {
     setMobileMenuOpen(false);
+    setDesktopMenuOpen(false);
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
@@ -229,24 +244,54 @@ const HomePage: React.FC<HomePageProps> = ({
                 >
                   BẢNG GIÁ
                 </button>
-                <Link
-                  to="/security"
-                  className="supporthr-mono text-[11px] font-medium uppercase tracking-[0.2em] text-zinc-400 transition-colors duration-200 hover:text-white"
-                >
-                  BẢO MẬT
-                </Link>
-                <Link
-                  to="/faq"
-                  className="supporthr-mono text-[11px] font-medium uppercase tracking-[0.2em] text-zinc-400 transition-colors duration-200 hover:text-white"
-                >
-                  HỎI ĐÁP
-                </Link>
-                <Link
-                  to="/demo"
-                  className="supporthr-mono text-[11px] font-medium uppercase tracking-[0.2em] text-zinc-400 transition-colors duration-200 hover:text-white"
-                >
-                  TRẢI NGHIỆM
-                </Link>
+                <div ref={desktopMenuRef} className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setDesktopMenuOpen((open) => !open)}
+                    aria-expanded={desktopMenuOpen}
+                    className="inline-flex items-center gap-2 supporthr-mono text-[11px] font-medium uppercase tracking-[0.2em] text-zinc-400 transition-colors duration-200 hover:text-white"
+                  >
+                    TÀI LIỆU
+                    <i
+                      className={`fa-solid fa-chevron-down text-[9px] transition-transform duration-200 ${
+                        desktopMenuOpen ? "translate-y-[1px] rotate-180" : ""
+                      }`}
+                    />
+                  </button>
+
+                  <div
+                    className={`absolute right-0 top-full mt-3 w-52 border border-white/10 bg-black/95 p-2 shadow-[0_18px_60px_rgba(0,0,0,0.45)] backdrop-blur-xl transition-all duration-200 ${
+                      desktopMenuOpen
+                        ? "pointer-events-auto translate-y-0 opacity-100"
+                        : "pointer-events-none -translate-y-1 opacity-0"
+                    }`}
+                  >
+                    <Link
+                      to="/security"
+                      onClick={() => setDesktopMenuOpen(false)}
+                      className="flex items-center justify-between px-3 py-2.5 text-sm text-zinc-300 transition-colors duration-200 hover:bg-white/[0.05] hover:text-white"
+                    >
+                      <span>Bảo mật</span>
+                      <i className="fa-solid fa-shield-halved text-[11px] text-[#f5d6bb]" />
+                    </Link>
+                    <Link
+                      to="/faq"
+                      onClick={() => setDesktopMenuOpen(false)}
+                      className="flex items-center justify-between px-3 py-2.5 text-sm text-zinc-300 transition-colors duration-200 hover:bg-white/[0.05] hover:text-white"
+                    >
+                      <span>Hỏi đáp</span>
+                      <i className="fa-solid fa-circle-question text-[11px] text-[#f5d6bb]" />
+                    </Link>
+                    <Link
+                      to="/demo"
+                      onClick={() => setDesktopMenuOpen(false)}
+                      className="flex items-center justify-between px-3 py-2.5 text-sm text-zinc-300 transition-colors duration-200 hover:bg-white/[0.05] hover:text-white"
+                    >
+                      <span>Trải nghiệm</span>
+                      <i className="fa-solid fa-circle-play text-[11px] text-[#f5d6bb]" />
+                    </Link>
+                  </div>
+                </div>
               </div>
 
               <div className="flex items-center gap-3 sm:gap-4">
