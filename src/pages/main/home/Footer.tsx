@@ -32,29 +32,29 @@ type FooterColumn = {
 
 const footerColumns: FooterColumn[] = [
   {
-    title: "TÃ i nguyÃªn",
+    title: "Tài nguyên",
     items: [
-      { label: "Báº£ng giÃ¡", target: "pricing" },
-      { label: "Báº£o máº­t", to: "/security" },
-      { label: "Há»i Ä‘Ã¡p", to: "/faq" },
+      { label: "Bảng giá", target: "pricing" },
+      { label: "Bảo mật", to: "/security" },
+      { label: "Hỏi đáp", to: "/faq" },
       { label: "Demo", to: "/demo" },
     ],
   },
   {
-    title: "Sáº£n pháº©m",
+    title: "Sản phẩm",
     items: [
-      { label: "Quy trÃ¬nh", target: "steps" },
-      { label: "So sÃ¡nh", target: "compare" },
-      { label: "TÃ­ch há»£p", to: "/integrations" },
-      { label: "PhÆ°Æ¡ng phÃ¡p AI", to: "/ai-methodology" },
+      { label: "Quy trình", target: "steps" },
+      { label: "So sánh", target: "compare" },
+      { label: "Tích hợp", to: "/integrations" },
+      { label: "Phương pháp AI", to: "/ai-methodology" },
     ],
   },
   {
-    title: "PhÃ¡p lÃ½",
+    title: "Pháp lý",
     items: [
-      { label: "Äiá»u khoáº£n", to: "/terms" },
-      { label: "RiÃªng tÆ°", to: "/privacy-policy" },
-      { label: "LiÃªn há»‡", href: "mailto:support@supporthr.vn" },
+      { label: "Điều khoản", to: "/terms" },
+      { label: "Riêng tư", to: "/privacy-policy" },
+      { label: "Liên hệ", href: "mailto:support@supporthr.vn" },
     ],
   },
 ];
@@ -124,7 +124,7 @@ export default function Footer({ onNavigate }: FooterProps) {
               </div>
 
               <p className="max-w-md text-sm leading-7 text-zinc-500 sm:text-base">
-                KhÃ´ng gian sÃ ng lá»c dÃ nh cho Ä‘á»™i tuyá»ƒn dá»¥ng cáº§n tá»‘c Ä‘á»™, ngá»¯ cáº£nh vÃ  kháº£ nÄƒng bÃ n giao rÃµ rÃ ng.
+                Không gian sàng lọc dành cho đội tuyển dụng cần tốc độ, ngữ cảnh và khả năng bàn giao rõ ràng.
               </p>
             </div>
 
@@ -147,7 +147,7 @@ export default function Footer({ onNavigate }: FooterProps) {
           <div className="mt-10 border-t border-white/[0.08] pt-6 sm:mt-12 sm:pt-7">
             <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
               <div className="space-y-2">
-                <p className="text-sm text-zinc-500">Â© 2026 Support HR. Má»i quyá»n Ä‘Æ°á»£c báº£o lÆ°u.</p>
+                <p className="text-sm text-zinc-500">© 2026 Support HR. Mọi quyền được bảo lưu.</p>
                 <div className="flex flex-col gap-1 text-sm text-zinc-600 sm:flex-row sm:flex-wrap sm:gap-x-4">
                   <a href="mailto:support@supporthr.vn" className="transition-colors hover:text-zinc-400">
                     support@supporthr.vn
