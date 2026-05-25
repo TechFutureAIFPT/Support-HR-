@@ -59,6 +59,23 @@ const footerColumns: FooterColumn[] = [
   },
 ];
 
+const trustBadges = [
+  {
+    key: "ssl",
+    label: "Transport Security",
+    title: "SSL/TLS",
+    detail: "Let's Encrypt",
+    iconClass: "fa-solid fa-lock",
+  },
+  {
+    key: "oauth",
+    label: "Google Access",
+    title: "OAuth Verified",
+    detail: "Consent Screen",
+    iconClass: "fa-brands fa-google",
+  },
+];
+
 function FooterLink({
   item,
   onNavigate,
@@ -158,9 +175,31 @@ export default function Footer({ onNavigate }: FooterProps) {
                 </div>
               </div>
 
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between lg:justify-end">
+              <div className="flex flex-col gap-3 sm:items-end lg:justify-end">
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {trustBadges.map((badge) => (
+                    <div
+                      key={badge.key}
+                      className="min-w-[180px] border border-white/[0.08] bg-white/[0.02] px-4 py-3"
+                    >
+                      <div className="flex items-start gap-3">
+                        <span className="mt-0.5 inline-flex h-9 w-9 items-center justify-center border border-[#f5d6bb]/25 bg-[#f5d6bb]/8 text-[#f5d6bb]">
+                          <i className={badge.iconClass} />
+                        </span>
+                        <div className="min-w-0">
+                          <p className="supporthr-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500">
+                            {badge.label}
+                          </p>
+                          <p className="mt-1 text-sm font-semibold text-zinc-100">{badge.title}</p>
+                          <p className="mt-0.5 text-xs text-zinc-500">{badge.detail}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
                 <DmcaBadge
-                  className="border-0 bg-transparent px-0 py-0"
+                  className="self-start border-white/[0.08] bg-white/[0.02] px-3 py-3 sm:self-end"
                   centered={false}
                 />
               </div>
