@@ -179,7 +179,7 @@ export default function Footer({ onNavigate }: FooterProps) {
                 {trustBadges.map((badge) => (
                   <div
                     key={badge.key}
-                    className="flex min-h-[92px] min-w-[180px] items-center border border-white/[0.08] bg-white/[0.02] px-4 py-3"
+                    className="flex min-h-[92px] min-w-[180px] items-center px-4 py-3"
                   >
                     <div className="flex items-start gap-3">
                       <span className="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center border border-[#f5d6bb]/25 bg-[#f5d6bb]/8 text-[#f5d6bb]">
@@ -196,7 +196,7 @@ export default function Footer({ onNavigate }: FooterProps) {
                   </div>
                 ))}
 
-                <div className="flex min-h-[92px] min-w-[180px] items-center justify-center border border-white/[0.08] bg-white/[0.02] px-4 py-3">
+                <div className="flex min-h-[92px] min-w-[180px] items-center justify-center px-4 py-3">
                   <DmcaBadge
                     className="border-0 bg-transparent px-0 py-0"
                     centered={false}
