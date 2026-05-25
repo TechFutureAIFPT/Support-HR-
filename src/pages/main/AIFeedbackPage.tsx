@@ -1,6 +1,14 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AlertCircle, ArrowLeft, Brain, CheckCircle2, FileText } from 'lucide-react';
+import {
+  AlertCircle,
+  ArrowLeft,
+  Brain,
+  CheckCircle2,
+  ChevronRight,
+  FileText,
+  MessageSquareText,
+} from 'lucide-react';
 import type {
   ActiveAnalysisContext,
   AnalysisFeedbackAction,
@@ -23,6 +31,8 @@ import {
   getActiveAnalysisContext,
 } from '@/services/history-cache/activeAnalysisContext';
 import { readLatestAnalysisRun } from '@/services/history-cache/latestAnalysisRun';
+
+type FeedbackView = 'overview' | 'decision';
 
 interface AIFeedbackPageProps {
   candidates: Candidate[];
@@ -50,11 +60,11 @@ const ACTION_META: Record<AnalysisFeedbackAction, { label: string; className: st
     className: 'border-rose-400/25 bg-rose-400/10 text-rose-100',
   },
   interview: {
-    label: 'Mời phỏng vấn',
+    label: 'Phỏng vấn',
     className: 'border-sky-400/25 bg-sky-400/10 text-sky-100',
   },
   hire: {
-    label: 'Đề xuất tuyển',
+    label: 'Đề xuất',
     className: 'border-violet-400/25 bg-violet-400/10 text-violet-100',
   },
   neutral: {
@@ -119,16 +129,6 @@ function getFeedbackMap(entries: AnalysisFeedbackRecord[]): Record<string, Analy
   }, {});
 }
 
-function getUniqueFeedbackEntries(feedbackMap: Record<string, AnalysisFeedbackRecord>): AnalysisFeedbackRecord[] {
-  const unique = new Map<string, AnalysisFeedbackRecord>();
-
-  Object.values(feedbackMap).forEach((entry) => {
-    if (entry.id) unique.set(entry.id, entry);
-  });
-
-  return Array.from(unique.values());
-}
-
 function hydrateFeedbackAdjusted(
   candidates: Candidate[],
   feedbackMap: Record<string, AnalysisFeedbackRecord>
@@ -184,8 +184,7 @@ function getActionPresentation(action?: AnalysisFeedbackAction | null): { label:
   return ACTION_META[action] || ACTION_META.neutral;
 }
 
-const badgeClass =
-  'border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 text-sm text-zinc-300';
+const badgeClass = 'border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 text-sm text-zinc-300';
 
 const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
   candidates,
@@ -194,13 +193,14 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
 }) => {
   const navigate = useNavigate();
   const storedRun = useMemo(() => getStoredAnalysisRun(), []);
+  const [activeView, setActiveView] = useState<FeedbackView>('overview');
   const [selectedCandidateId, setSelectedCandidateId] = useState<string | null>(null);
   const [feedbackByCandidate, setFeedbackByCandidate] = useState<Record<string, AnalysisFeedbackRecord>>({});
   const [feedbackStats, setFeedbackStats] = useState<AnalysisFeedbackStats | null>(null);
   const [isLoadingFeedback, setIsLoadingFeedback] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const [submitSuccessMessage, setSubmitSuccessMessage] = useState<string | null>(null);
+  const [overviewNotice, setOverviewNotice] = useState<string | null>(null);
 
   const effectiveContext = useMemo(
     () => buildEffectiveContext(analysisContext, storedRun, jobPosition),
@@ -234,14 +234,16 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
     [feedbackByCandidate, selectedCandidate]
   );
 
-  const feedbackEntries = useMemo(
-    () => getUniqueFeedbackEntries(feedbackByCandidate),
-    [feedbackByCandidate]
-  );
+  const feedbackEntries = useMemo(() => {
+    const unique = new Map<string, AnalysisFeedbackRecord>();
+    Object.values(feedbackByCandidate).forEach((entry) => {
+      if (entry.id) unique.set(entry.id, entry);
+    });
+    return Array.from(unique.values());
+  }, [feedbackByCandidate]);
 
   const effectiveJobPosition = jobPosition || effectiveContext?.jobPosition || storedRun?.job.position || '';
   const submittedCount = feedbackEntries.length;
-  const selectedActionPresentation = getActionPresentation(currentFeedbackEntry?.action);
   const latestFeedbackLabel = feedbackStats?.latestFeedbackAt
     ? new Date(feedbackStats.latestFeedbackAt).toLocaleString('vi-VN')
     : 'Chưa có phản hồi';
@@ -277,24 +279,25 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
   }, [effectiveContext]);
 
   useEffect(() => {
-    if (
-      validCandidates.length > 0
-      && (!selectedCandidateId || !validCandidates.some((candidate) => candidate.id === selectedCandidateId))
-    ) {
+    if (validCandidates.length > 0 && !selectedCandidateId) {
       setSelectedCandidateId(validCandidates[0].id);
     }
   }, [validCandidates, selectedCandidateId]);
 
   useEffect(() => {
-    setSubmitError(null);
-    setSubmitSuccessMessage(null);
     void reloadFeedback();
   }, [reloadFeedback]);
 
-  const handleSelectCandidate = useCallback((candidateId: string) => {
+  const handleOpenCandidate = useCallback((candidateId: string) => {
     setSelectedCandidateId(candidateId);
     setSubmitError(null);
-    setSubmitSuccessMessage(null);
+    setOverviewNotice(null);
+    setActiveView('decision');
+  }, []);
+
+  const handleBackToOverview = useCallback(() => {
+    setSubmitError(null);
+    setActiveView('overview');
   }, []);
 
   const handleSubmit = useCallback(async (draft: AnalysisFeedbackDraft) => {
@@ -308,7 +311,6 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
 
     setIsSubmitting(true);
     setSubmitError(null);
-    setSubmitSuccessMessage(null);
 
     try {
       const saved = await saveAnalysisFeedback({
@@ -343,8 +345,9 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
         [selectedCandidate.candidateName]: saved,
       }));
       persistLatestRunFeedback(selectedCandidate.id, draft.finalScore);
-      setSubmitSuccessMessage('Phản hồi đã được lưu và gắn với ứng viên này.');
       await reloadFeedback();
+      setOverviewNotice(`Đã lưu phản hồi cho ${selectedCandidate.candidateName}.`);
+      setActiveView('overview');
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Không thể lưu phản hồi. Vui lòng thử lại.';
       setSubmitError(message);
@@ -385,7 +388,7 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
             <div className="h-9 w-px shrink-0 bg-[#f5d6bb]/80" />
             <div className="min-w-0">
               <p className="supporthr-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-[#f5d6bb]/80">
-                Phản hồi đánh giá AI
+                Feedback workflow
               </p>
               <h1 className="truncate text-xl font-bold tracking-tight text-white md:text-2xl">
                 {effectiveJobPosition || 'Phiên phân tích hiện tại'}
@@ -393,31 +396,13 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
             </div>
           </div>
 
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-            <label className="sr-only" htmlFor="feedback-candidate-select">
-              Chọn ứng viên phản hồi
-            </label>
-            <select
-              id="feedback-candidate-select"
-              value={selectedCandidateId || validCandidates[0]?.id || ''}
-              onChange={(event) => handleSelectCandidate(event.target.value)}
-              className="h-11 min-w-[280px] border border-white/[0.08] bg-[#101726] px-3 text-sm font-semibold text-white outline-none transition focus:border-[#f5d6bb]/45 focus:ring-1 focus:ring-[#f5d6bb]/20"
-            >
-              {validCandidates.map((candidate) => (
-                <option key={candidate.id} value={candidate.id}>
-                  {candidate.candidateName} - {getDisplayedScore(candidate).toFixed(1)} điểm - Hạng {getCandidateRank(candidate) || 'C'}
-                </option>
-              ))}
-            </select>
-
-            <button
-              onClick={() => navigate('/analysis')}
-              className="inline-flex h-11 items-center justify-center gap-2 border border-white/[0.08] bg-black px-4 text-sm font-semibold text-zinc-300 transition-colors hover:bg-white/[0.04] hover:text-white"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Kết quả phân tích
-            </button>
-          </div>
+          <button
+            onClick={() => navigate('/analysis')}
+            className="inline-flex h-11 items-center justify-center gap-2 border border-white/[0.08] bg-black px-4 text-sm font-semibold text-zinc-300 transition-colors hover:bg-white/[0.04] hover:text-white"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Kết quả phân tích
+          </button>
         </div>
 
         <div className="mt-3 flex flex-wrap items-center gap-2 text-[12px] text-zinc-400">
@@ -437,71 +422,133 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
         </div>
       </header>
 
-      <main className="relative z-10 min-h-0 flex-1 overflow-hidden bg-[rgba(10,10,11,0.94)]">
-        {selectedCandidate ? (
-          <div className="flex h-full flex-col">
-            <section className="border-b border-white/[0.08] bg-[rgba(8,8,9,0.9)] px-4 py-4 md:px-5">
-              <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
-                <div className="min-w-0">
-                  <p className="supporthr-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-[#f5d6bb]/80">
-                    Ứng viên đang phản hồi
+      <main className="relative z-10 min-h-0 flex-1 overflow-y-auto bg-[rgba(10,10,11,0.94)]">
+        {activeView === 'overview' ? (
+          <div className="mx-auto flex w-full max-w-7xl flex-col gap-4 px-4 py-5 md:px-5">
+            <section className="border border-white/[0.08] bg-[rgba(10,10,11,0.96)] p-4">
+              <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+                <div>
+                  <p className="supporthr-mono text-[10px] uppercase tracking-[0.2em] text-[#f5d6bb]/80">
+                    Overview
                   </p>
-                  <h2 className="mt-1 truncate text-2xl font-bold text-white md:text-[28px]">
-                    {selectedCandidate.candidateName}
-                  </h2>
-                  <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-300">
-                    Hiệu chỉnh đánh giá, lưu ghi chú tuyển dụng và đồng bộ phản hồi cho phiên phân tích hiện tại.
-                  </p>
+                  <h2 className="mt-2 text-2xl font-bold text-white">Chọn ứng viên để phản hồi</h2>
                 </div>
-
-                {selectedActionPresentation ? (
-                  <span className={`w-fit border px-3 py-1.5 text-sm font-semibold ${selectedActionPresentation.className}`}>
-                    {selectedActionPresentation.label}
-                  </span>
-                ) : (
-                  <span className="w-fit border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 text-sm font-semibold text-zinc-500">
-                    Chưa gửi phản hồi
-                  </span>
-                )}
+                <div className="flex items-center gap-2 text-sm text-zinc-500">
+                  <MessageSquareText className="h-4 w-4 text-[#f5d6bb]/80" />
+                  <span>4 bước gọn cho mỗi ứng viên</span>
+                </div>
               </div>
 
-              <div className="mt-4 flex flex-wrap gap-2.5">
-                <span className={`${badgeClass} inline-flex items-center gap-1.5`}>
-                  <FileText className="h-4 w-4 text-zinc-500" />
-                  {selectedCandidate.fileName}
-                </span>
-                <span className={badgeClass}>
-                  Điểm AI gốc: <strong className="ml-1 font-semibold text-white">{getCandidateScore(selectedCandidate).toFixed(1)}</strong>
-                </span>
-                <span className={badgeClass}>
-                  Điểm đang hiển thị: <strong className="ml-1 font-semibold text-white">{getDisplayedScore(selectedCandidate).toFixed(1)}</strong>
-                </span>
-                <span className={badgeClass}>
-                  Hạng: <strong className="ml-1 font-semibold text-white">{getCandidateRank(selectedCandidate) || 'C'}</strong>
-                </span>
+              {overviewNotice ? (
+                <div className="mt-4 flex items-start gap-3 border border-emerald-400/25 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-100">
+                  <CheckCircle2 className="mt-0.5 h-4.5 w-4.5 shrink-0" />
+                  <span>{overviewNotice}</span>
+                </div>
+              ) : null}
+            </section>
+
+            <section className="grid gap-3 xl:grid-cols-2">
+              {validCandidates.map((candidate) => {
+                const entry = feedbackByCandidate[candidate.id]
+                  || feedbackByCandidate[candidate.fileName]
+                  || feedbackByCandidate[candidate.candidateName]
+                  || null;
+                const actionPresentation = getActionPresentation(entry?.action);
+
+                return (
+                  <article
+                    key={candidate.id}
+                    className="border border-white/[0.08] bg-[rgba(10,10,11,0.96)] p-4"
+                  >
+                    <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                      <div className="min-w-0">
+                        <p className="supporthr-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500">
+                          Ứng viên
+                        </p>
+                        <h3 className="mt-2 truncate text-xl font-bold text-white">{candidate.candidateName}</h3>
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          <span className={`${badgeClass} inline-flex items-center gap-1.5`}>
+                            <FileText className="h-4 w-4 text-zinc-500" />
+                            {candidate.fileName}
+                          </span>
+                          <span className={badgeClass}>
+                            Điểm: <strong className="ml-1 text-white">{getDisplayedScore(candidate).toFixed(1)}</strong>
+                          </span>
+                          <span className={badgeClass}>
+                            Hạng: <strong className="ml-1 text-white">{getCandidateRank(candidate) || 'C'}</strong>
+                          </span>
+                        </div>
+                      </div>
+
+                      {actionPresentation ? (
+                        <span className={`w-fit border px-3 py-1.5 text-sm font-semibold ${actionPresentation.className}`}>
+                          {actionPresentation.label}
+                        </span>
+                      ) : (
+                        <span className="w-fit border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 text-sm font-semibold text-zinc-500">
+                          Chưa phản hồi
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="mt-4 flex items-center justify-between gap-3 border-t border-white/[0.08] pt-4">
+                      <div className="text-sm text-zinc-500">
+                        {entry?.updatedAt
+                          ? `Cập nhật: ${new Date(entry.updatedAt).toLocaleString('vi-VN')}`
+                          : 'Chưa có bản ghi feedback'}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleOpenCandidate(candidate.id)}
+                        className="inline-flex items-center gap-2 border border-[#f5d6bb]/35 bg-[#f5d6bb] px-4 py-2.5 text-sm font-semibold text-black transition-all hover:bg-[#f1cfb1]"
+                      >
+                        {entry ? 'Chỉnh sửa' : 'Phản hồi'}
+                        <ChevronRight className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </article>
+                );
+              })}
+            </section>
+          </div>
+        ) : selectedCandidate ? (
+          <div className="mx-auto flex w-full max-w-7xl flex-col gap-4 px-4 py-5 md:px-5">
+            <section className="border border-white/[0.08] bg-[rgba(10,10,11,0.96)] p-4">
+              <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+                <div>
+                  <p className="supporthr-mono text-[10px] uppercase tracking-[0.2em] text-[#f5d6bb]/80">
+                    Ứng viên đang phản hồi
+                  </p>
+                  <h2 className="mt-2 text-2xl font-bold text-white">{selectedCandidate.candidateName}</h2>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <span className={badgeClass}>
+                    Điểm AI: <strong className="ml-1 text-white">{getCandidateScore(selectedCandidate).toFixed(1)}</strong>
+                  </span>
+                  <span className={badgeClass}>
+                    Hạng: <strong className="ml-1 text-white">{getCandidateRank(selectedCandidate) || 'C'}</strong>
+                  </span>
+                </div>
               </div>
 
               <p className="mt-4 flex items-start gap-2 text-sm leading-6 text-zinc-400">
                 <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-[#f5d6bb]/80" />
-                Phản hồi này sẽ được lưu vào backend và gắn với session phân tích để phục vụ review và đánh giá chất lượng sau này.
+                Workflow lưu theo session phân tích hiện tại.
               </p>
             </section>
 
-            <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto">
-              <div className="w-full px-0 pb-10">
-                <AIFeedbackForm
-                  candidateId={selectedCandidate.id}
-                  candidateName={selectedCandidate.candidateName}
-                  aiScore={getCandidateScore(selectedCandidate)}
-                  initialFeedback={currentFeedbackEntry}
-                  isSubmitting={isSubmitting}
-                  submitError={submitError}
-                  submitSuccessMessage={submitSuccessMessage}
-                  onSubmit={handleSubmit}
-                  onCancel={() => navigate('/analysis')}
-                />
-              </div>
-            </div>
+            <AIFeedbackForm
+              candidateId={selectedCandidate.id}
+              candidateName={selectedCandidate.candidateName}
+              fileName={selectedCandidate.fileName}
+              candidateRank={getCandidateRank(selectedCandidate)}
+              aiScore={getCandidateScore(selectedCandidate)}
+              initialFeedback={currentFeedbackEntry}
+              isSubmitting={isSubmitting}
+              submitError={submitError}
+              onSubmit={handleSubmit}
+              onCancel={handleBackToOverview}
+            />
           </div>
         ) : (
           <div className="flex h-full flex-col items-center justify-center px-6 text-center text-zinc-500">
@@ -509,9 +556,13 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
               <Brain className="h-7 w-7 text-zinc-600" />
             </div>
             <p className="text-base font-semibold text-zinc-300">Không tìm thấy ứng viên đang chọn</p>
-            <p className="mt-2 max-w-md text-sm leading-6 text-zinc-500">
-              Hãy chọn lại một ứng viên trong dropdown ở header để tiếp tục gửi phản hồi.
-            </p>
+            <button
+              type="button"
+              onClick={() => setActiveView('overview')}
+              className="mt-4 inline-flex items-center gap-2 border border-white/[0.08] bg-white/[0.02] px-4 py-2 text-sm font-semibold text-zinc-300 transition-colors hover:bg-white/[0.06] hover:text-white"
+            >
+              Về overview
+            </button>
           </div>
         )}
       </main>
