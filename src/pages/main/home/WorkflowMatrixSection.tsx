@@ -148,12 +148,15 @@ export default function WorkflowMatrixSection({
         </div>
 
         <div className="home-grid-sheet mt-14 grid gap-px border border-white/[0.07] bg-white/[0.07] lg:grid-cols-2 xl:grid-cols-3">
-          {workflowPanels.map(({ label, title, description, bullets, cta, accent, Icon }) => {
+          {workflowPanels.map(({ label, title, description, bullets, cta, accent, Icon }, index) => {
             const tone = panelAccent[accent];
 
             return (
               <motion.article
                 key={label}
+                initial={reduceMotion ? false : { opacity: 0, y: 26 }}
+                whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.12 }}
                 whileHover={
                   reduceMotion
                     ? undefined
@@ -161,7 +164,11 @@ export default function WorkflowMatrixSection({
                         backgroundColor: tone.hoverSurface,
                       }
                 }
-                transition={{ duration: 0.22, ease: "easeOut" }}
+                transition={{
+                  opacity: { duration: 0.4, delay: reduceMotion ? 0 : index * 0.06, ease: "easeOut" },
+                  y: { duration: 0.4, delay: reduceMotion ? 0 : index * 0.06, ease: "easeOut" },
+                  backgroundColor: { duration: 0.22, ease: "easeOut" },
+                }}
                 className="group relative min-h-[17rem] overflow-hidden bg-[rgba(7,7,8,0.96)]"
               >
                 <div className="absolute inset-0 opacity-25 [background-image:linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] [background-size:20px_20px]" />

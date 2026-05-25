@@ -722,6 +722,26 @@
   opacity: 0.18;
 }
 
+.home-grid-sheet::after {
+  content: "";
+  position: absolute;
+  inset: -14% auto -14% -22%;
+  width: 32%;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.02) 18%,
+    rgba(245, 214, 187, 0.12) 48%,
+    rgba(255, 255, 255, 0.025) 78%,
+    transparent 100%
+  );
+  filter: blur(12px);
+  opacity: 0.75;
+  mix-blend-mode: screen;
+  animation: home-grid-scan 7.4s linear infinite;
+}
+
 .home-hero-vignette {
   background:
     linear-gradient(90deg, rgba(8, 20, 39, 0.94) 0%, rgba(8, 20, 39, 0.82) 22%, rgba(8, 20, 39, 0.4) 46%, rgba(10, 25, 48, 0.18) 72%, rgba(10, 25, 48, 0.1) 100%),
@@ -735,6 +755,26 @@
   mix-blend-mode: screen;
   animation: home-hero-scan 5.2s linear infinite;
   pointer-events: none;
+}
+
+@keyframes home-grid-scan {
+  0% {
+    transform: translate3d(-18%, 0, 0);
+    opacity: 0;
+  }
+
+  12% {
+    opacity: 0.66;
+  }
+
+  52% {
+    opacity: 0.82;
+  }
+
+  100% {
+    transform: translate3d(420%, 0, 0);
+    opacity: 0;
+  }
 }
 
 .home-cv-cloud {

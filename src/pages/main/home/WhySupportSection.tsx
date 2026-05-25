@@ -67,11 +67,17 @@ export default function WhySupportSection() {
           </div>
 
           <div className="home-grid-sheet grid self-stretch gap-px border border-white/[0.08] bg-white/[0.08] sm:grid-cols-2">
-            {impactStats.map(({ value, label, accent, surface, border, Icon }) => (
+            {impactStats.map(({ value, label, accent, surface, border, Icon }, index) => (
               <motion.div
                 key={label}
+                initial={reduceMotion ? false : { opacity: 0, y: 24 }}
+                whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.18 }}
                 whileHover={hoverLift}
-                transition={{ duration: 0.18, ease: "easeOut" }}
+                transition={{
+                  opacity: { duration: 0.42, delay: reduceMotion ? 0 : index * 0.08, ease: "easeOut" },
+                  y: { duration: 0.42, delay: reduceMotion ? 0 : index * 0.08, ease: "easeOut" },
+                }}
                 className={`relative min-h-[11.25rem] overflow-hidden border ${border} ${surface} p-6 lg:p-7`}
               >
                 <div className="absolute inset-0 opacity-35 [background-image:linear-gradient(rgba(255,255,255,0.025)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.025)_1px,transparent_1px)] [background-size:22px_22px]" />

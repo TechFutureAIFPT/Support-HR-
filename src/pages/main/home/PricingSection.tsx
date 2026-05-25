@@ -1,8 +1,11 @@
+import { motion, useReducedMotion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { pricingPlans } from "@/pages/info/business-docs-data";
 import { LEGAL_TONE_STYLES } from "@/pages/info/legal-ui";
 
 export default function PricingSection() {
+  const reduceMotion = useReducedMotion();
+
   return (
     <section id="pricing" className="relative border-b border-white/[0.08] bg-black py-24 sm:py-28">
       <div className="home-noise-overlay" />
@@ -21,11 +24,22 @@ export default function PricingSection() {
         </div>
 
         <div className="home-grid-sheet mt-12 grid gap-px border border-white/[0.08] bg-white/[0.08] xl:grid-cols-3">
-          {pricingPlans.map((plan) => {
+          {pricingPlans.map((plan, index) => {
             const style = LEGAL_TONE_STYLES[plan.tone];
 
             return (
-              <article key={plan.name} className={`relative border ${style.border} bg-[rgba(11,11,12,0.96)] p-6`}>
+              <motion.article
+                key={plan.name}
+                initial={reduceMotion ? false : { opacity: 0, y: 24 }}
+                whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{
+                  duration: 0.42,
+                  delay: reduceMotion ? 0 : index * 0.08,
+                  ease: "easeOut",
+                }}
+                className={`relative border ${style.border} bg-[rgba(11,11,12,0.96)] p-6`}
+              >
                 <p className={`supporthr-mono text-[10px] uppercase tracking-[0.22em] ${style.label}`}>
                   {plan.audience}
                 </p>
@@ -62,7 +76,7 @@ export default function PricingSection() {
                     Xem chi tiết
                   </Link>
                 </div>
-              </article>
+              </motion.article>
             );
           })}
         </div>
