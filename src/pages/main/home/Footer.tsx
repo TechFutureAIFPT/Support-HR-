@@ -34,9 +34,9 @@ const footerColumns: FooterColumn[] = [
   {
     title: "Tài nguyên",
     items: [
-      { label: "Bảng giá", target: "pricing" },
-      { label: "Bảo mật", to: "/security" },
-      { label: "Hỏi đáp", to: "/faq" },
+      { label: "Tài liệu & bảng giá", to: "/pricing" },
+      { label: "Bảo mật", to: "/pricing#security" },
+      { label: "Hỏi đáp", to: "/pricing#faq" },
       { label: "Demo", to: "/demo" },
     ],
   },
@@ -159,10 +159,7 @@ export default function Footer({ onNavigate }: FooterProps) {
               </div>
 
               <div className="flex min-h-[92px] items-center justify-center px-4 py-3">
-                <DmcaBadge
-                  className="border-0 bg-transparent px-0 py-0"
-                  centered={false}
-                />
+                <DmcaBadge className="border-0 bg-transparent px-0 py-0" centered={false} />
               </div>
             </div>
           </div>

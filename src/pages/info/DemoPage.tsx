@@ -52,14 +52,14 @@ const DemoPage: React.FC = () => {
           <div className="space-y-4">
             <LegalCard tone="emerald" icon="fa-folder-open" title="Bước 2: đưa file ứng viên vào hệ thống">
               <p>
-                CV có thể đến từ tải lên cục bộ hoặc Google Drive, nên đội ngũ không phải sắp xếp lại tài liệu trước
-                khi dùng sản phẩm.
+                CV có thể đến từ tải lên cục bộ hoặc Google Drive, nên đội ngũ không phải sắp xếp lại tài liệu trước khi
+                dùng sản phẩm.
               </p>
             </LegalCard>
             <LegalCard tone="emerald" icon="fa-file-lines" title="File đầu vào lẫn lộn vẫn xử lý được">
               <p>
-                Quy trình được thiết kế để xử lý nhiều kiểu tài liệu khác nhau và vẫn giữ chúng trong cùng một phiên
-                sàng lọc.
+                Quy trình được thiết kế để xử lý nhiều kiểu tài liệu khác nhau và vẫn giữ chúng trong cùng một phiên sàng
+                lọc.
               </p>
             </LegalCard>
           </div>
@@ -75,8 +75,8 @@ const DemoPage: React.FC = () => {
               </p>
             </LegalCard>
             <LegalCallout tone="sky" icon="fa-eye" title="Mục tiêu là khả năng rà soát">
-              Bên mua thường muốn biết sản phẩm có giúp ra quyết định nhanh hơn mà không biến quy trình thành hộp đen
-              hay không. Đây là chỗ quy trình thể hiện giá trị.
+              Bên mua thường muốn biết sản phẩm có giúp ra quyết định nhanh hơn mà không biến quy trình thành hộp đen hay
+              không. Đây là chỗ quy trình thể hiện giá trị.
             </LegalCallout>
           </div>
         );
@@ -130,7 +130,7 @@ const DemoPage: React.FC = () => {
       activeSection={activeSection}
       onSectionChange={setActiveSection}
       isVisible={isVisible}
-      auxiliaryLink={{ label: "Bảng giá", to: "/pricing" }}
+      auxiliaryLink={{ label: "Tài liệu & bảng giá", to: "/pricing" }}
       brandContext="Tài liệu doanh nghiệp"
       statusCountLabel="bước trong quy trình"
     >

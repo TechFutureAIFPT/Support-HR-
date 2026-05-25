@@ -34,8 +34,7 @@ const mobileNavItems = [
   { label: "Quy trình", icon: "fa-list-ol", target: "steps" },
   { label: "So sánh", icon: "fa-scale-balanced", target: "compare" },
   { label: "Bảng giá", icon: "fa-tags", target: "pricing" },
-  { label: "Bảo mật", icon: "fa-user-shield", href: "/security" },
-  { label: "Hỏi đáp", icon: "fa-circle-question", href: "/faq" },
+  { label: "Tài liệu", icon: "fa-book-open", href: "/pricing" },
   { label: "Trải nghiệm", icon: "fa-circle-play", href: "/demo" },
 ];
 
@@ -162,11 +161,7 @@ const HomePage: React.FC<HomePageProps> = ({
           {isLoggedIn ? (
             <>
               <div className="mb-1 flex items-center gap-3 bg-white/[0.04] px-3 py-2.5">
-                <img
-                  src={userAvatar || "/images/logos/logo.jpg"}
-                  alt="avatar"
-                  className="h-7 w-7 object-cover"
-                />
+                <img src={userAvatar || "/images/logos/logo.jpg"} alt="avatar" className="h-7 w-7 object-cover" />
                 <div className="min-w-0">
                   <p className="truncate text-[12px] font-semibold text-white">
                     {userName || userEmail?.split("@")[0] || "Tài khoản"}
@@ -260,27 +255,19 @@ const HomePage: React.FC<HomePageProps> = ({
                   </button>
 
                   <div
-                    className={`absolute right-0 top-full mt-3 w-52 border border-white/10 bg-black/95 p-2 shadow-[0_18px_60px_rgba(0,0,0,0.45)] backdrop-blur-xl transition-all duration-200 ${
+                    className={`absolute right-0 top-full mt-3 w-56 border border-white/10 bg-black/95 p-2 shadow-[0_18px_60px_rgba(0,0,0,0.45)] backdrop-blur-xl transition-all duration-200 ${
                       desktopMenuOpen
                         ? "pointer-events-auto translate-y-0 opacity-100"
                         : "pointer-events-none -translate-y-1 opacity-0"
                     }`}
                   >
                     <Link
-                      to="/security"
+                      to="/pricing"
                       onClick={() => setDesktopMenuOpen(false)}
                       className="flex items-center justify-between px-3 py-2.5 text-sm text-zinc-300 transition-colors duration-200 hover:bg-white/[0.05] hover:text-white"
                     >
-                      <span>Bảo mật</span>
-                      <i className="fa-solid fa-shield-halved text-[11px] text-[#f5d6bb]" />
-                    </Link>
-                    <Link
-                      to="/faq"
-                      onClick={() => setDesktopMenuOpen(false)}
-                      className="flex items-center justify-between px-3 py-2.5 text-sm text-zinc-300 transition-colors duration-200 hover:bg-white/[0.05] hover:text-white"
-                    >
-                      <span>Hỏi đáp</span>
-                      <i className="fa-solid fa-circle-question text-[11px] text-[#f5d6bb]" />
+                      <span>Tài liệu & bảng giá</span>
+                      <i className="fa-solid fa-book-open text-[11px] text-[#f5d6bb]" />
                     </Link>
                     <Link
                       to="/demo"
@@ -289,6 +276,14 @@ const HomePage: React.FC<HomePageProps> = ({
                     >
                       <span>Trải nghiệm</span>
                       <i className="fa-solid fa-circle-play text-[11px] text-[#f5d6bb]" />
+                    </Link>
+                    <Link
+                      to="/book-demo"
+                      onClick={() => setDesktopMenuOpen(false)}
+                      className="flex items-center justify-between px-3 py-2.5 text-sm text-zinc-300 transition-colors duration-200 hover:bg-white/[0.05] hover:text-white"
+                    >
+                      <span>Đặt lịch demo</span>
+                      <i className="fa-solid fa-arrow-up-right-from-square text-[11px] text-[#f5d6bb]" />
                     </Link>
                   </div>
                 </div>

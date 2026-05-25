@@ -29,8 +29,8 @@ const BookDemoPage: React.FC = () => {
       case "fit":
         return (
           <LegalCallout tone="cyan" icon="fa-handshake" title="Phù hợp nhất khi muốn đánh giá nghiêm túc">
-            Hãy đặt lịch trải nghiệm khi đội ngũ của bạn muốn so sản phẩm với một quy trình tuyển dụng thật, chứ không chỉ xem
-            danh sách tính năng.
+            Hãy đặt lịch trải nghiệm khi đội ngũ của bạn muốn so sản phẩm với một quy trình tuyển dụng thật, chứ không
+            chỉ xem danh sách tính năng.
           </LegalCallout>
         );
       case "agenda":
@@ -66,8 +66,8 @@ const BookDemoPage: React.FC = () => {
         return (
           <LegalCard tone="rose" icon="fa-envelope-open-text" title="Kỳ vọng phản hồi">
             <p>
-              Yêu cầu trải nghiệm nên nhận được phản hồi trong giờ làm việc, với cuộc trao đổi đầu tiên tập trung vào độ phù
-              hợp, quy trình và bước thương mại tiếp theo.
+              Yêu cầu trải nghiệm nên nhận được phản hồi trong giờ làm việc, với cuộc trao đổi đầu tiên tập trung vào độ
+              phù hợp, quy trình và bước thương mại tiếp theo.
             </p>
           </LegalCard>
         );
@@ -86,7 +86,7 @@ const BookDemoPage: React.FC = () => {
       activeSection={activeSection}
       onSectionChange={setActiveSection}
       isVisible={isVisible}
-      auxiliaryLink={{ label: "Bảng giá", to: "/pricing" }}
+      auxiliaryLink={{ label: "Tài liệu & bảng giá", to: "/pricing" }}
       brandContext="Tài liệu doanh nghiệp"
       statusCountLabel="chi tiết đặt lịch"
     >

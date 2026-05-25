@@ -29,8 +29,7 @@ const IntegrationsPage: React.FC = () => {
         return (
           <div className="space-y-4">
             <LegalCallout tone="cyan" icon="fa-link" title="Drive là một phần của quy trình hằng ngày">
-              Đội ngũ có thể kết nối tài khoản đã đăng nhập và duyệt file tuyển dụng mà không cần rời khỏi luồng sàng
-              lọc.
+              Đội ngũ có thể kết nối tài khoản đã đăng nhập và duyệt file tuyển dụng mà không cần rời khỏi luồng sàng lọc.
             </LegalCallout>
           </div>
         );
@@ -38,8 +37,8 @@ const IntegrationsPage: React.FC = () => {
         return (
           <LegalCard tone="emerald" icon="fa-file-arrow-up" title="Tải lên trực tiếp vẫn rất hữu ích">
             <p>
-              Nếu tài liệu chưa nằm trong Drive, người dùng vẫn có thể nhập file trực tiếp và giữ nguyên cùng một
-              quy trình trong sản phẩm.
+              Nếu tài liệu chưa nằm trong Drive, người dùng vẫn có thể nhập file trực tiếp và giữ nguyên cùng một quy trình
+              trong sản phẩm.
             </p>
           </LegalCard>
         );
@@ -60,8 +59,8 @@ const IntegrationsPage: React.FC = () => {
         return (
           <LegalCard tone="violet" icon="fa-puzzle-piece" title="Trang này muốn phát tín hiệu điều gì">
             <p>
-              Đây là bản tóm tắt thực dụng về tích hợp ở thời điểm hiện tại. Các kết nối sâu hơn như ATS hay HRIS có
-              thể được mở rộng về sau trong lộ trình sản phẩm và triển khai doanh nghiệp.
+              Đây là bản tóm tắt thực dụng về tích hợp ở thời điểm hiện tại. Các kết nối sâu hơn như ATS hay HRIS có thể được
+              mở rộng về sau trong lộ trình sản phẩm và triển khai doanh nghiệp.
             </p>
           </LegalCard>
         );
@@ -80,7 +79,7 @@ const IntegrationsPage: React.FC = () => {
       activeSection={activeSection}
       onSectionChange={setActiveSection}
       isVisible={isVisible}
-      auxiliaryLink={{ label: "Bảo mật", to: "/security" }}
+      auxiliaryLink={{ label: "Tài liệu bảo mật", to: "/pricing#security" }}
       brandContext="Tài liệu doanh nghiệp"
       statusCountLabel="chủ đề tích hợp"
     >
