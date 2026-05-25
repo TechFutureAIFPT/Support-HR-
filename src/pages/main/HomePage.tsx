@@ -30,13 +30,13 @@ interface HomePageProps {
 }
 
 const mobileNavItems = [
-  { label: "Trang dau", icon: "fa-house", target: "hero" },
-  { label: "Quy trinh", icon: "fa-list-ol", target: "steps" },
-  { label: "So sanh", icon: "fa-scale-balanced", target: "compare" },
-  { label: "Bang gia", icon: "fa-tags", target: "pricing" },
-  { label: "Security", icon: "fa-user-shield", href: "/security" },
-  { label: "FAQ", icon: "fa-circle-question", href: "/faq" },
-  { label: "Demo", icon: "fa-circle-play", href: "/demo" },
+  { label: "Trang đầu", icon: "fa-house", target: "hero" },
+  { label: "Quy trình", icon: "fa-list-ol", target: "steps" },
+  { label: "So sánh", icon: "fa-scale-balanced", target: "compare" },
+  { label: "Bảng giá", icon: "fa-tags", target: "pricing" },
+  { label: "Bảo mật", icon: "fa-user-shield", href: "/security" },
+  { label: "Hỏi đáp", icon: "fa-circle-question", href: "/faq" },
+  { label: "Trải nghiệm", icon: "fa-circle-play", href: "/demo" },
 ];
 
 const HomePage: React.FC<HomePageProps> = ({
@@ -108,7 +108,7 @@ const HomePage: React.FC<HomePageProps> = ({
             <img src="/images/logos/logo.jpg" alt="SupportHR" className="h-8 w-8 object-cover" />
             <div>
               <p className="text-sm font-bold text-white">Support HR</p>
-              <p className="text-[10px] text-zinc-500">Nen tang screening cho doi ngu HR</p>
+              <p className="text-[10px] text-zinc-500">Nền tảng sàng lọc cho đội ngũ tuyển dụng</p>
             </div>
           </div>
           <button
@@ -154,7 +154,7 @@ const HomePage: React.FC<HomePageProps> = ({
                 />
                 <div className="min-w-0">
                   <p className="truncate text-[12px] font-semibold text-white">
-                    {userName || userEmail?.split("@")[0] || "Tai khoan"}
+                    {userName || userEmail?.split("@")[0] || "Tài khoản"}
                   </p>
                   <p className="truncate text-[10px] text-zinc-500">{userEmail}</p>
                 </div>
@@ -167,7 +167,7 @@ const HomePage: React.FC<HomePageProps> = ({
                 }}
                 className="flex h-10 w-full items-center justify-center gap-2 bg-white text-[13px] font-bold text-black shadow-lg shadow-white/10"
               >
-                <i className="fa-solid fa-bolt text-xs" /> Tiep tuc screening
+                <i className="fa-solid fa-bolt text-xs" /> Tiếp tục sàng lọc
               </button>
             </>
           ) : (
@@ -179,7 +179,7 @@ const HomePage: React.FC<HomePageProps> = ({
               }}
               className="flex h-10 w-full items-center justify-center gap-2 bg-white text-[13px] font-black text-black shadow-lg shadow-white/10"
             >
-              <i className="fa-solid fa-right-to-bracket text-[11px]" /> Dang nhap
+              <i className="fa-solid fa-right-to-bracket text-[11px]" /> Đăng nhập
             </button>
           )}
         </div>
@@ -201,7 +201,7 @@ const HomePage: React.FC<HomePageProps> = ({
                   Support HR
                 </span>
                 <span className="mt-0.5 supporthr-mono text-[10px] font-bold uppercase tracking-[0.24em] text-[#f5d6bb]">
-                  AI recruitment workspace
+                  Không gian tuyển dụng AI
                 </span>
               </div>
             </button>
@@ -213,39 +213,39 @@ const HomePage: React.FC<HomePageProps> = ({
                   onClick={() => scrollTo("steps")}
                   className="supporthr-mono text-[11px] font-medium uppercase tracking-[0.2em] text-zinc-400 transition-colors duration-200 hover:text-white"
                 >
-                  QUY TRINH
+                  QUY TRÌNH
                 </button>
                 <button
                   type="button"
                   onClick={() => scrollTo("compare")}
                   className="supporthr-mono text-[11px] font-medium uppercase tracking-[0.2em] text-zinc-400 transition-colors duration-200 hover:text-white"
                 >
-                  SO SANH
+                  SO SÁNH
                 </button>
                 <button
                   type="button"
                   onClick={() => scrollTo("pricing")}
                   className="supporthr-mono text-[11px] font-medium uppercase tracking-[0.2em] text-zinc-400 transition-colors duration-200 hover:text-white"
                 >
-                  BANG GIA
+                  BẢNG GIÁ
                 </button>
                 <Link
                   to="/security"
                   className="supporthr-mono text-[11px] font-medium uppercase tracking-[0.2em] text-zinc-400 transition-colors duration-200 hover:text-white"
                 >
-                  SECURITY
+                  BẢO MẬT
                 </Link>
                 <Link
                   to="/faq"
                   className="supporthr-mono text-[11px] font-medium uppercase tracking-[0.2em] text-zinc-400 transition-colors duration-200 hover:text-white"
                 >
-                  FAQ
+                  HỎI ĐÁP
                 </Link>
                 <Link
                   to="/demo"
                   className="supporthr-mono text-[11px] font-medium uppercase tracking-[0.2em] text-zinc-400 transition-colors duration-200 hover:text-white"
                 >
-                  DEMO
+                  TRẢI NGHIỆM
                 </Link>
               </div>
 
@@ -281,7 +281,7 @@ const HomePage: React.FC<HomePageProps> = ({
         <LandingHero
           onPrimaryAction={handleStart}
           onSecondaryAction={() => scrollTo("steps")}
-          primaryLabel={canContinue ? "TIEP TUC QUY TRINH" : "BAT DAU DUNG THU"}
+          primaryLabel={canContinue ? "TIẾP TỤC QUY TRÌNH" : "BẮT ĐẦU DÙNG THỬ"}
         />
 
         <PartnerTickerSection partners={partners} />

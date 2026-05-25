@@ -8,14 +8,14 @@ export default function PricingSection() {
       <div className="home-section-frame">
         <div className="max-w-[52rem]">
           <p className="supporthr-mono text-[11px] uppercase tracking-[0.24em] text-[#f5d6bb]/75">
-            Support HR // Pricing
+            Support HR // Bảng giá
           </p>
           <h2 className="home-section-heading mt-6 text-white">
-            Goi gia theo quy mo doi ngu va cach van hanh tuyen dung.
+            Gói giá theo quy mô đội ngũ và cách vận hành tuyển dụng.
           </h2>
           <p className="mt-6 max-w-[42rem] text-base leading-8 text-zinc-400 sm:text-lg">
-            Bang gia tren homepage giup khach moi nhin nhanh package nao phu hop. Trang pricing day du se giai thich
-            them pham vi goi, onboarding, va cach chon option phu hop voi quy mo doanh nghiep.
+            Bảng giá trên homepage giúp khách mới nhìn nhanh gói nào phù hợp. Trang bảng giá đầy đủ sẽ giải thích thêm
+            phạm vi gói, onboarding, và cách chọn phương án phù hợp với quy mô doanh nghiệp.
           </p>
         </div>
 
@@ -58,7 +58,7 @@ export default function PricingSection() {
                     to="/pricing"
                     className="inline-flex h-10 items-center justify-center border border-white/12 px-5 supporthr-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-white transition-colors hover:border-white/24 hover:bg-white/[0.03]"
                   >
-                    Xem chi tiet
+                    Xem chi tiết
                   </Link>
                 </div>
               </article>

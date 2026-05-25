@@ -4,70 +4,70 @@ import { ArrowUpRight } from "lucide-react";
 
 const HERO_SYSTEM_PANELS = [
   {
-    label: "WORKFLOW // JD",
+    label: "QUY TRÌNH // JD",
     dotClass: "bg-cyan-400",
     accentClass: "text-cyan-400",
     lines: [
-      "[ROLE] Chot mot vi tri can tuyen",
-      "[MUST] Giu cac tieu chi can co",
-      "[FLOW] Bat dau tu mot context ro rang",
+      "[VAI TRÒ] Chốt một vị trí cần tuyển",
+      "[BẮT BUỘC] Giữ các tiêu chí cần có",
+      "[LUỒNG] Bắt đầu từ một ngữ cảnh rõ ràng",
     ],
   },
   {
-    label: "IMPORT // CV",
+    label: "NHẬP LIỆU // CV",
     dotClass: "bg-emerald-400",
     accentClass: "text-emerald-400",
     lines: [
-      "[SOURCE] Upload file hoac Google Drive",
-      "[OCR] Co the doc tai lieu scan",
-      "[QUEUE] Dua ve cung mot workflow screening",
+      "[NGUỒN] Tải file lên hoặc lấy từ Google Drive",
+      "[OCR] Có thể đọc tài liệu scan",
+      "[HÀNG ĐỢI] Đưa về cùng một quy trình sàng lọc",
     ],
   },
   {
-    label: "REVIEW // SCORE",
+    label: "ĐÁNH GIÁ // ĐIỂM",
     dotClass: "bg-sky-400",
     accentClass: "text-sky-400",
     lines: [
-      "[VIEW] So sanh CV voi cung mot JD",
-      "[NOTE] Giu lai ly do de xep shortlist",
-      "[GAP] De recruiter kiem tra them khi can",
+      "[XEM] So sánh CV với cùng một JD",
+      "[GHI CHÚ] Giữ lại lý do để xếp shortlist",
+      "[KHOẢNG TRỐNG] Để recruiter kiểm tra thêm khi cần",
     ],
   },
   {
-    label: "TEAM // HANDOFF",
+    label: "ĐỘI NGŨ // BÀN GIAO",
     dotClass: "bg-violet-400",
     accentClass: "text-violet-400",
     lines: [
-      "[SHARE] Hiring manager nhin duoc context",
-      "[SHORTLIST] Giam viec tong hop lai thu cong",
-      "[NEXT] Chuyen sang vong phong van de dang hon",
+      "[CHIA SẺ] Người duyệt tuyển dụng nhìn được ngữ cảnh",
+      "[DANH SÁCH] Giảm việc tổng hợp lại thủ công",
+      "[TIẾP THEO] Chuyển sang vòng phỏng vấn dễ hơn",
     ],
   },
   {
-    label: "MEMORY // SESSION",
+    label: "PHIÊN // GHI NHỚ",
     dotClass: "bg-cyan-400",
     accentClass: "text-cyan-400",
     lines: [
-      "[STATE] Luu trang thai gan nhat cua workflow",
-      "[RESET] Session cu tu het han sau khi khong dung",
-      "[RETURN] F5 thong thuong van giu duoc tien trinh",
+      "[TRẠNG THÁI] Lưu trạng thái gần nhất của phiên làm việc",
+      "[LÀM MỚI] Phiên cũ tự hết hạn sau khi không dùng",
+      "[QUAY LẠI] F5 thông thường vẫn giữ được tiến trình",
     ],
   },
   {
-    label: "TRUST // DOCS",
+    label: "NIỀM TIN // TÀI LIỆU",
     dotClass: "bg-emerald-400",
     accentClass: "text-emerald-400",
     lines: [
-      "[PAGE] Pricing, Security, FAQ, Demo",
-      "[BUYER] De tim trong 1-2 lan click",
-      "[B2B] Noi dung uu tien cho doi ngu doanh nghiep",
+      "[TRANG] Bảng giá, Bảo mật, FAQ, Demo",
+      "[KHÁCH HÀNG] Dễ tìm trong 1-2 lần bấm",
+      "[DOANH NGHIỆP] Nội dung ưu tiên cho đội ngũ mua hàng",
     ],
   },
 ];
 
 const HERO_HEADLINE_LINES = [
-  { text: "Screening AI cho" },
-  { text: "doi ngu HR nghiem tuc." },
+  { text: "AI sàng lọc cho" },
+  { text: "đội ngũ HR nghiêm túc." },
 ];
 
 const HERO_VIEWPORT = { once: true, amount: 0.2 };
@@ -258,7 +258,7 @@ export default function LandingHero({
               className="mb-4 flex items-center xl:mb-5"
             >
               <span className="supporthr-mono text-[11px] font-bold uppercase tracking-[0.32em] text-[#f5d6bb]/90">
-                RECRUITMENT WORKSPACE
+                NỀN TẢNG TUYỂN DỤNG
               </span>
             </motion.div>
 
@@ -269,8 +269,8 @@ export default function LandingHero({
             </h1>
 
             <p className="home-hero-copy mt-6 max-w-[43rem] text-[clamp(1rem,1.18vw,1.18rem)] font-light leading-[1.75] tracking-normal text-zinc-400 xl:mt-7">
-              Support HR tap trung vao mot bai toan rat cu the: lay JD, nap CV, doi chieu, va tao shortlist co the review
-              duoc de recruiter va hiring manager ra quyet dinh nhanh hon.
+              Support HR tập trung vào một bài toán rất cụ thể: lấy JD, nạp CV, đối chiếu, và tạo danh sách đề cử có
+              thể rà soát để recruiter và người quản lý tuyển dụng ra quyết định nhanh hơn.
             </p>
 
             <div className="mt-8 flex flex-wrap items-center gap-3 xl:mt-9">
@@ -290,7 +290,7 @@ export default function LandingHero({
                 onClick={onSecondaryAction}
                 className="inline-flex h-[3.1rem] items-center justify-center border border-white/12 px-7 supporthr-mono text-[12px] font-semibold uppercase tracking-[0.14em] text-zinc-100 transition-colors hover:border-white/24 hover:bg-white/[0.03] sm:h-[3.35rem] sm:px-9 sm:text-[13px]"
               >
-                Xem workflow
+                Xem quy trình
               </button>
             </div>
           </motion.div>

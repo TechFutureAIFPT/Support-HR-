@@ -7,10 +7,10 @@ import {
 } from "./legal-ui";
 
 const sections = [
-  { id: "volume", title: "High-volume screening", icon: "fa-layer-group", tone: "cyan" },
-  { id: "specialist", title: "Specialist roles", icon: "fa-user-gear", tone: "emerald" },
-  { id: "shared", title: "Shared recruiter review", icon: "fa-people-arrows", tone: "sky" },
-  { id: "audit", title: "Audit-friendly shortlists", icon: "fa-clipboard-check", tone: "violet" },
+  { id: "volume", title: "Sàng lọc khối lượng lớn", icon: "fa-layer-group", tone: "cyan" },
+  { id: "specialist", title: "Vị trí chuyên môn", icon: "fa-user-gear", tone: "emerald" },
+  { id: "shared", title: "Review nhiều bên", icon: "fa-people-arrows", tone: "sky" },
+  { id: "audit", title: "Shortlist dễ rà soát", icon: "fa-clipboard-check", tone: "violet" },
 ] satisfies LegalSectionMeta[];
 
 const UseCasesPage: React.FC = () => {
@@ -26,41 +26,41 @@ const UseCasesPage: React.FC = () => {
     switch (activeSection) {
       case "volume":
         return (
-          <LegalCard tone="cyan" icon="fa-inbox" title="When too many CVs arrive at once">
+          <LegalCard tone="cyan" icon="fa-inbox" title="Khi quá nhiều CV đổ về cùng lúc">
             <p>
-              Teams can use Support HR to bring a large candidate pool into one review flow instead of opening every CV
-              manually before the first shortlist.
+              Đội ngũ có thể dùng Support HR để đưa một lượng lớn ứng viên vào cùng một luồng review, thay vì mở từng
+              CV thủ công trước khi có shortlist đầu tiên.
             </p>
           </LegalCard>
         );
       case "specialist":
         return (
-          <LegalCard tone="emerald" icon="fa-code" title="When the role is harder to evaluate quickly">
+          <LegalCard tone="emerald" icon="fa-code" title="Khi vai trò khó đánh giá nhanh">
             <p>
-              For specialist hiring, the workflow helps recruiters organize JD signals and compare applicants more
-              consistently before handing the shortlist to a technical reviewer.
+              Với tuyển dụng chuyên môn, workflow giúp recruiter gom tín hiệu từ JD và so sánh ứng viên nhất quán hơn
+              trước khi bàn giao shortlist cho người review kỹ thuật.
             </p>
           </LegalCard>
         );
       case "shared":
         return (
-          <LegalCard tone="sky" icon="fa-users" title="When multiple people review the same role">
+          <LegalCard tone="sky" icon="fa-users" title="Khi nhiều người cùng review một vị trí">
             <LegalBulletGrid
               tone="sky"
               items={[
-                "Recruiter prepares the initial shortlist",
-                "Hiring manager reviews a tighter candidate set",
-                "The team keeps one consistent discussion surface",
+                "Recruiter chuẩn bị shortlist ban đầu",
+                "Hiring manager review trên một tập ứng viên gọn hơn",
+                "Cả đội nhìn chung một bề mặt thảo luận nhất quán",
               ]}
             />
           </LegalCard>
         );
       case "audit":
         return (
-          <LegalCard tone="violet" icon="fa-book-open-reader" title="When the team needs a cleaner record">
+          <LegalCard tone="violet" icon="fa-book-open-reader" title="Khi đội ngũ cần bản ghi rõ ràng hơn">
             <p>
-              Shortlist reasoning and workflow history make it easier to revisit how a hiring run was organized and why
-              certain candidates were surfaced.
+              Lý do shortlist và lịch sử workflow giúp việc nhìn lại một lần tuyển dụng dễ hơn: ai được đề cử, vì sao,
+              và ngữ cảnh nào đã dẫn đến quyết định đó.
             </p>
           </LegalCard>
         );
@@ -71,17 +71,17 @@ const UseCasesPage: React.FC = () => {
 
   return (
     <LegalPageLayout
-      pageLabel="Use cases"
-      title="Operational use cases"
-      subtitle="Examples of where Support HR helps most: high intake, specialist roles, shared review, and shortlist traceability."
-      meta="Business docs · Updated 2026"
+      pageLabel="Tình huống dùng"
+      title="Các tình huống vận hành phù hợp"
+      subtitle="Ví dụ về nơi Support HR phát huy tốt nhất: intake lớn, vai trò chuyên môn, review nhiều bên và shortlist có thể truy vết."
+      meta="Tài liệu doanh nghiệp · Cập nhật 2026"
       sections={sections}
       activeSection={activeSection}
       onSectionChange={setActiveSection}
       isVisible={isVisible}
-      auxiliaryLink={{ label: "AI methodology", to: "/ai-methodology" }}
-      brandContext="Business docs"
-      statusCountLabel="operating scenarios"
+      auxiliaryLink={{ label: "Phương pháp AI", to: "/ai-methodology" }}
+      brandContext="Tài liệu doanh nghiệp"
+      statusCountLabel="kịch bản vận hành"
     >
       {renderSectionContent()}
     </LegalPageLayout>

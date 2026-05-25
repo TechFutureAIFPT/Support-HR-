@@ -9,9 +9,9 @@ import {
 
 const sections = [
   { id: "drive", title: "Google Drive", icon: "fa-folder-open", tone: "cyan" },
-  { id: "uploads", title: "Direct upload", icon: "fa-upload", tone: "emerald" },
-  { id: "history", title: "Workflow memory", icon: "fa-clock-rotate-left", tone: "sky" },
-  { id: "roadmap", title: "Roadmap fit", icon: "fa-plug", tone: "violet" },
+  { id: "uploads", title: "Tải lên trực tiếp", icon: "fa-upload", tone: "emerald" },
+  { id: "history", title: "Ghi nhớ workflow", icon: "fa-clock-rotate-left", tone: "sky" },
+  { id: "roadmap", title: "Hướng mở rộng", icon: "fa-plug", tone: "violet" },
 ] satisfies LegalSectionMeta[];
 
 const IntegrationsPage: React.FC = () => {
@@ -28,39 +28,40 @@ const IntegrationsPage: React.FC = () => {
       case "drive":
         return (
           <div className="space-y-4">
-            <LegalCallout tone="cyan" icon="fa-link" title="Drive is part of the daily workflow">
-              Teams can connect the signed-in account and browse recruiting files without leaving the screening flow.
+            <LegalCallout tone="cyan" icon="fa-link" title="Drive là một phần của workflow hằng ngày">
+              Đội ngũ có thể kết nối tài khoản đã đăng nhập và duyệt file tuyển dụng mà không cần rời khỏi luồng sàng
+              lọc.
             </LegalCallout>
           </div>
         );
       case "uploads":
         return (
-          <LegalCard tone="emerald" icon="fa-file-arrow-up" title="Upload still works for ad hoc sourcing">
+          <LegalCard tone="emerald" icon="fa-file-arrow-up" title="Tải lên trực tiếp vẫn rất hữu ích">
             <p>
-              If documents are not already in Drive, users can still import files directly and keep the same workflow
-              inside the product.
+              Nếu tài liệu chưa nằm trong Drive, người dùng vẫn có thể nhập file trực tiếp và giữ nguyên cùng một
+              workflow trong sản phẩm.
             </p>
           </LegalCard>
         );
       case "history":
         return (
-          <LegalCard tone="sky" icon="fa-timeline" title="Recent workflow context stays reviewable">
+          <LegalCard tone="sky" icon="fa-timeline" title="Ngữ cảnh gần nhất vẫn có thể xem lại">
             <LegalBulletGrid
               tone="sky"
               items={[
-                "Recent screening state can be restored",
-                "The team can return to an in-progress review",
-                "Reloading the page does not break normal continuity",
+                "Khôi phục được trạng thái sàng lọc gần đây",
+                "Có thể quay lại một phiên review đang làm dở",
+                "Tải lại trang không làm đứt mạch sử dụng thông thường",
               ]}
             />
           </LegalCard>
         );
       case "roadmap":
         return (
-          <LegalCard tone="violet" icon="fa-puzzle-piece" title="What this page is meant to signal">
+          <LegalCard tone="violet" icon="fa-puzzle-piece" title="Trang này muốn phát tín hiệu điều gì">
             <p>
-              This page is a practical integration summary for buyers today. Deeper ATS or HRIS integrations can be
-              added later as part of the product roadmap and enterprise rollout discussions.
+              Đây là bản tóm tắt thực dụng về tích hợp ở thời điểm hiện tại. Các kết nối sâu hơn như ATS hay HRIS có
+              thể được mở rộng về sau trong lộ trình sản phẩm và rollout doanh nghiệp.
             </p>
           </LegalCard>
         );
@@ -71,17 +72,17 @@ const IntegrationsPage: React.FC = () => {
 
   return (
     <LegalPageLayout
-      pageLabel="Integrations"
-      title="Integrations overview"
-      subtitle="A buyer-facing summary of how Support HR connects to the current document workflow and where teams can expect the product to fit operationally."
-      meta="Business docs · Updated 2026"
+      pageLabel="Tích hợp"
+      title="Tổng quan tích hợp"
+      subtitle="Bản tóm tắt dành cho bên mua về cách Support HR kết nối với luồng tài liệu hiện tại và vị trí sản phẩm trong vận hành hằng ngày."
+      meta="Tài liệu doanh nghiệp · Cập nhật 2026"
       sections={sections}
       activeSection={activeSection}
       onSectionChange={setActiveSection}
       isVisible={isVisible}
-      auxiliaryLink={{ label: "Security", to: "/security" }}
-      brandContext="Business docs"
-      statusCountLabel="integration topics"
+      auxiliaryLink={{ label: "Bảo mật", to: "/security" }}
+      brandContext="Tài liệu doanh nghiệp"
+      statusCountLabel="chủ đề tích hợp"
     >
       {renderSectionContent()}
     </LegalPageLayout>

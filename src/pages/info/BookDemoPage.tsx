@@ -9,10 +9,10 @@ import {
 } from "./legal-ui";
 
 const sections = [
-  { id: "fit", title: "Who should book", icon: "fa-user-tie", tone: "cyan" },
-  { id: "agenda", title: "What we cover", icon: "fa-calendar-check", tone: "emerald" },
-  { id: "channels", title: "Contact channels", icon: "fa-phone", tone: "sky" },
-  { id: "sla", title: "Response promise", icon: "fa-stopwatch", tone: "rose" },
+  { id: "fit", title: "Ai nên đặt lịch", icon: "fa-user-tie", tone: "cyan" },
+  { id: "agenda", title: "Nội dung buổi làm việc", icon: "fa-calendar-check", tone: "emerald" },
+  { id: "channels", title: "Kênh liên hệ", icon: "fa-phone", tone: "sky" },
+  { id: "sla", title: "Cam kết phản hồi", icon: "fa-stopwatch", tone: "rose" },
 ] satisfies LegalSectionMeta[];
 
 const BookDemoPage: React.FC = () => {
@@ -28,21 +28,21 @@ const BookDemoPage: React.FC = () => {
     switch (activeSection) {
       case "fit":
         return (
-          <LegalCallout tone="cyan" icon="fa-handshake" title="Best for serious evaluation">
-            Book a demo when your team wants to compare the product against a real hiring workflow, not just browse a
-            feature list.
+          <LegalCallout tone="cyan" icon="fa-handshake" title="Phù hợp nhất khi muốn đánh giá nghiêm túc">
+            Hãy đặt lịch demo khi đội ngũ của bạn muốn so sản phẩm với một workflow tuyển dụng thật, chứ không chỉ xem
+            danh sách tính năng.
           </LegalCallout>
         );
       case "agenda":
         return (
-          <LegalCard tone="emerald" icon="fa-list-check" title="A useful first call usually covers">
+          <LegalCard tone="emerald" icon="fa-list-check" title="Một buổi làm việc đầu tiên thường nên có">
             <LegalBulletGrid
               tone="emerald"
               items={[
-                "Current hiring workflow and pain points",
-                "A sample role and sample CV set",
-                "How shortlist review happens today",
-                "What commercial fit would look like next",
+                "Workflow tuyển dụng hiện tại và điểm đau đang gặp",
+                "Một vai trò mẫu và một bộ CV mẫu",
+                "Cách đội ngũ đang review shortlist hôm nay",
+                "Bước thương mại tiếp theo nếu thấy phù hợp",
               ]}
             />
           </LegalCard>
@@ -64,10 +64,10 @@ const BookDemoPage: React.FC = () => {
         );
       case "sla":
         return (
-          <LegalCard tone="rose" icon="fa-envelope-open-text" title="Response expectation">
+          <LegalCard tone="rose" icon="fa-envelope-open-text" title="Kỳ vọng phản hồi">
             <p>
-              Support requests for a demo should receive a business-hours reply, with the first conversation focused on
-              fit, workflow, and the right next commercial step.
+              Yêu cầu demo nên nhận được phản hồi trong giờ làm việc, với cuộc trao đổi đầu tiên tập trung vào độ phù
+              hợp, workflow và bước thương mại tiếp theo.
             </p>
           </LegalCard>
         );
@@ -78,17 +78,17 @@ const BookDemoPage: React.FC = () => {
 
   return (
     <LegalPageLayout
-      pageLabel="Book demo"
-      title="Book a product walkthrough"
-      subtitle="Contact channels and a clear expectation for what the first sales conversation should cover."
-      meta="Business docs · Updated 2026"
+      pageLabel="Đặt lịch demo"
+      title="Đặt lịch walkthrough sản phẩm"
+      subtitle="Các kênh liên hệ và kỳ vọng rõ ràng cho cuộc trao đổi đầu tiên với đội ngũ tư vấn."
+      meta="Tài liệu doanh nghiệp · Cập nhật 2026"
       sections={sections}
       activeSection={activeSection}
       onSectionChange={setActiveSection}
       isVisible={isVisible}
-      auxiliaryLink={{ label: "Pricing", to: "/pricing" }}
-      brandContext="Business docs"
-      statusCountLabel="booking details"
+      auxiliaryLink={{ label: "Bảng giá", to: "/pricing" }}
+      brandContext="Tài liệu doanh nghiệp"
+      statusCountLabel="chi tiết đặt lịch"
     >
       {renderSectionContent()}
     </LegalPageLayout>

@@ -25,27 +25,27 @@ type FooterProps = {
 };
 
 const productLinks: FooterNavItem[] = [
-  { label: "Quy trinh", target: "steps" },
-  { label: "So sanh", target: "compare" },
-  { label: "Bang gia", target: "pricing" },
-  { label: "Demo", to: "/demo" },
-  { label: "Integrations", to: "/integrations" },
-  { label: "AI methodology", to: "/ai-methodology" },
+  { label: "Quy trình", target: "steps" },
+  { label: "So sánh", target: "compare" },
+  { label: "Bảng giá", target: "pricing" },
+  { label: "Trải nghiệm", to: "/demo" },
+  { label: "Tích hợp", to: "/integrations" },
+  { label: "Phương pháp AI", to: "/ai-methodology" },
 ];
 
 const salesLinks: FooterNavItem[] = [
-  { label: "Pricing page", to: "/pricing" },
-  { label: "Use cases", to: "/use-cases" },
-  { label: "FAQ", to: "/faq" },
-  { label: "Book a demo", to: "/book-demo" },
+  { label: "Trang bảng giá", to: "/pricing" },
+  { label: "Tình huống sử dụng", to: "/use-cases" },
+  { label: "Hỏi đáp", to: "/faq" },
+  { label: "Đặt lịch demo", to: "/book-demo" },
   { label: "Hotline", href: "tel:0899280108" },
-  { label: "Email sales", href: "mailto:support@supporthr.vn" },
+  { label: "Email tư vấn", href: "mailto:support@supporthr.vn" },
 ];
 
 const legalLinks: FooterNavItem[] = [
-  { label: "Security", to: "/security" },
-  { label: "Privacy policy", to: "/privacy-policy" },
-  { label: "Terms", to: "/terms" },
+  { label: "Bảo mật", to: "/security" },
+  { label: "Chính sách riêng tư", to: "/privacy-policy" },
+  { label: "Điều khoản", to: "/terms" },
 ];
 
 const socialLinks = [
@@ -192,6 +192,7 @@ const Footer = ({ onNavigate }: FooterProps) => {
               onClick={() => onNavigate("hero")}
               className="group grid w-fit grid-cols-[2.5rem_auto_2.5rem] items-center gap-3 text-center"
               aria-label="Ve trang dau Support HR"
+              
             >
               <span className="flex h-10 w-10 items-center justify-center overflow-hidden border border-white/15 bg-white/[0.035]">
                 <img src="/images/logos/logo.jpg" alt="Support HR" className="h-full w-full object-cover" />
@@ -201,14 +202,14 @@ const Footer = ({ onNavigate }: FooterProps) => {
                   Support HR
                 </span>
                 <span className="supporthr-mono mt-1 block text-[10px] font-bold uppercase tracking-[0.26em] text-[#f5d6bb]">
-                  Recruitment workflow for modern HR teams
+                  Quy trình tuyển dụng cho đội ngũ tuyển dụng hiện đại
                 </span>
               </span>
             </button>
 
             <p className="mt-8 max-w-[34rem] text-sm leading-7 text-gray-400">
-              Support HR giup doi ngu recruitment doc CV nhanh hon, doi chieu theo JD ro rang hon, va chia se shortlist
-              de review trong mot quy trinh de kiem soat.
+              Support HR giúp đội ngũ tuyển dụng đọc CV nhanh hơn, đối chiếu theo JD rõ ràng hơn, và chia sẻ danh sách
+              đề cử để rà soát trong một quy trình dễ kiểm soát.
             </p>
 
             <div className="mt-7 flex flex-col items-center justify-center gap-3 text-gray-400 sm:flex-row sm:flex-wrap">
@@ -232,24 +233,24 @@ const Footer = ({ onNavigate }: FooterProps) => {
           </div>
 
           <div className="grid w-full max-w-5xl justify-items-center gap-10 border-t border-white/[0.08] pt-10 sm:grid-cols-3 sm:gap-12 lg:pt-12">
-            <FooterColumn title="Product" items={productLinks} onNavigate={onNavigate} />
-            <FooterColumn title="Sales" items={salesLinks} onNavigate={onNavigate} />
-            <FooterColumn title="Legal" items={legalLinks} onNavigate={onNavigate} />
+            <FooterColumn title="Sản phẩm" items={productLinks} onNavigate={onNavigate} />
+            <FooterColumn title="Kinh doanh" items={salesLinks} onNavigate={onNavigate} />
+            <FooterColumn title="Pháp lý" items={legalLinks} onNavigate={onNavigate} />
           </div>
         </div>
 
         <div className="mt-14 w-full border-t border-white/10 pt-7">
           <div className="flex flex-col items-center justify-center gap-4 text-center text-xs text-zinc-600 sm:flex-row">
-            <p>© 2026 Support HR. All rights reserved.</p>
+            <p>© 2026 Support HR. Mọi quyền được bảo lưu.</p>
             <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
               <Link to="/privacy-policy" className="transition-all duration-300 ease-in-out hover:translate-x-1 hover:text-white">
-                Privacy Policy
+                Chính sách riêng tư
               </Link>
               <Link to="/terms" className="transition-all duration-300 ease-in-out hover:translate-x-1 hover:text-white">
-                Terms of Service
+                Điều khoản dịch vụ
               </Link>
               <Link to="/security" className="transition-all duration-300 ease-in-out hover:translate-x-1 hover:text-white">
-                Security
+                Bảo mật
               </Link>
             </div>
           </div>

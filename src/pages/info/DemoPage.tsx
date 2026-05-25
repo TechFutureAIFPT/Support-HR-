@@ -9,11 +9,11 @@ import {
 } from "./legal-ui";
 
 const sections = [
-  { id: "intake", title: "JD intake", icon: "fa-file-signature", tone: "cyan" },
-  { id: "import", title: "CV import", icon: "fa-file-import", tone: "emerald" },
-  { id: "review", title: "Scoring and review", icon: "fa-scale-balanced", tone: "sky" },
-  { id: "shortlist", title: "Shortlist output", icon: "fa-user-check", tone: "violet" },
-  { id: "handoff", title: "Team handoff", icon: "fa-share-nodes", tone: "rose" },
+  { id: "intake", title: "Nhập JD", icon: "fa-file-signature", tone: "cyan" },
+  { id: "import", title: "Nhập CV", icon: "fa-file-import", tone: "emerald" },
+  { id: "review", title: "Chấm điểm và review", icon: "fa-scale-balanced", tone: "sky" },
+  { id: "shortlist", title: "Đầu ra shortlist", icon: "fa-user-check", tone: "violet" },
+  { id: "handoff", title: "Bàn giao cho đội ngũ", icon: "fa-share-nodes", tone: "rose" },
 ] satisfies LegalSectionMeta[];
 
 const DemoPage: React.FC = () => {
@@ -30,17 +30,17 @@ const DemoPage: React.FC = () => {
       case "intake":
         return (
           <div className="space-y-4">
-            <LegalCallout tone="cyan" icon="fa-diagram-project" title="Step 1: define the role clearly">
-              A recruiter starts with one JD, then sets the workflow context so the system knows which skills, signals,
-              and hard filters matter for that hiring run.
+            <LegalCallout tone="cyan" icon="fa-diagram-project" title="Bước 1: xác định vai trò thật rõ">
+              Recruiter bắt đầu với một JD, sau đó thiết lập ngữ cảnh workflow để hệ thống hiểu kỹ năng, tín hiệu và
+              hard filter nào quan trọng cho lần tuyển dụng đó.
             </LegalCallout>
-            <LegalCard tone="cyan" icon="fa-list" title="What the team prepares first">
+            <LegalCard tone="cyan" icon="fa-list" title="Đội ngũ cần chuẩn bị gì trước">
               <LegalBulletGrid
                 tone="cyan"
                 items={[
-                  "The target job description",
-                  "Priority criteria for the role",
-                  "Any hard requirements worth enforcing",
+                  "Bản mô tả công việc mục tiêu",
+                  "Các tiêu chí ưu tiên cho vị trí",
+                  "Những yêu cầu cứng cần được áp dụng",
                 ]}
               />
             </LegalCard>
@@ -50,15 +50,16 @@ const DemoPage: React.FC = () => {
       case "import":
         return (
           <div className="space-y-4">
-            <LegalCard tone="emerald" icon="fa-folder-open" title="Step 2: bring in candidate files">
+            <LegalCard tone="emerald" icon="fa-folder-open" title="Bước 2: đưa file ứng viên vào hệ thống">
               <p>
-                CVs can come from local upload or Google Drive, so the team does not have to reorganize documents
-                before using the product.
+                CV có thể đến từ tải lên cục bộ hoặc Google Drive, nên đội ngũ không phải sắp xếp lại tài liệu trước
+                khi dùng sản phẩm.
               </p>
             </LegalCard>
-            <LegalCard tone="emerald" icon="fa-file-lines" title="Messy file inputs are still workable">
+            <LegalCard tone="emerald" icon="fa-file-lines" title="File đầu vào lẫn lộn vẫn xử lý được">
               <p>
-                The workflow is designed to handle mixed document inputs and keep them inside the same screening run.
+                Workflow được thiết kế để xử lý nhiều kiểu tài liệu khác nhau và vẫn giữ chúng trong cùng một phiên
+                sàng lọc.
               </p>
             </LegalCard>
           </div>
@@ -67,15 +68,15 @@ const DemoPage: React.FC = () => {
       case "review":
         return (
           <div className="space-y-4">
-            <LegalCard tone="sky" icon="fa-sliders" title="Step 3: compare JD and CVs">
+            <LegalCard tone="sky" icon="fa-sliders" title="Bước 3: đối chiếu JD và CV">
               <p>
-                Support HR organizes the inputs into a consistent review surface so the recruiter can inspect fit,
-                reasons, and possible gaps before finalizing a shortlist.
+                Support HR tổ chức đầu vào thành một bề mặt review nhất quán để recruiter kiểm tra độ phù hợp, lý do và
+                khoảng trống trước khi chốt shortlist.
               </p>
             </LegalCard>
-            <LegalCallout tone="sky" icon="fa-eye" title="The goal is reviewability">
-              Buyers usually want to know whether the product helps them decide faster without turning the process into
-              a black box. This is where the workflow proves itself.
+            <LegalCallout tone="sky" icon="fa-eye" title="Mục tiêu là khả năng review">
+              Bên mua thường muốn biết sản phẩm có giúp ra quyết định nhanh hơn mà không biến quy trình thành hộp đen
+              hay không. Đây là chỗ workflow thể hiện giá trị.
             </LegalCallout>
           </div>
         );
@@ -83,13 +84,13 @@ const DemoPage: React.FC = () => {
       case "shortlist":
         return (
           <div className="space-y-4">
-            <LegalCard tone="violet" icon="fa-clipboard-list" title="Step 4: produce a shortlist">
+            <LegalCard tone="violet" icon="fa-clipboard-list" title="Bước 4: tạo shortlist">
               <LegalBulletGrid
                 tone="violet"
                 items={[
-                  "Ranked candidates for the current role",
-                  "Reasons that support each recommendation",
-                  "A tighter discussion surface for the next interview step",
+                  "Danh sách ứng viên xếp hạng cho vị trí hiện tại",
+                  "Lý do đứng sau từng đề cử",
+                  "Một bề mặt thảo luận gọn hơn cho vòng phỏng vấn tiếp theo",
                 ]}
               />
             </LegalCard>
@@ -99,17 +100,17 @@ const DemoPage: React.FC = () => {
       case "handoff":
         return (
           <div className="space-y-4">
-            <LegalCard tone="rose" icon="fa-people-group" title="Step 5: share the outcome">
+            <LegalCard tone="rose" icon="fa-people-group" title="Bước 5: chia sẻ kết quả">
               <p>
-                The recruiter can bring the shortlist into a team conversation with more context already prepared for
-                the hiring manager or panel.
+                Recruiter có thể mang shortlist vào buổi trao đổi nội bộ với nhiều ngữ cảnh đã được chuẩn bị sẵn cho
+                hiring manager hoặc hội đồng phỏng vấn.
               </p>
             </LegalCard>
             <Link
               to="/book-demo"
               className="inline-flex h-10 items-center justify-center border border-white/12 px-5 supporthr-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-white transition-colors hover:border-white/24 hover:bg-white/[0.03]"
             >
-              Book a live walkthrough
+              Đặt lịch walkthrough trực tiếp
             </Link>
           </div>
         );
@@ -122,16 +123,16 @@ const DemoPage: React.FC = () => {
   return (
     <LegalPageLayout
       pageLabel="Demo"
-      title="Product walkthrough"
-      subtitle="A plain-language walkthrough of how a recruiter can move from one JD and a pile of CVs to a reviewable shortlist inside Support HR."
-      meta="Business docs · Updated 2026"
+      title="Luồng trải nghiệm sản phẩm"
+      subtitle="Mô tả dễ hiểu về cách một recruiter đi từ một JD và một chồng CV đến một shortlist có thể review ngay bên trong Support HR."
+      meta="Tài liệu doanh nghiệp · Cập nhật 2026"
       sections={sections}
       activeSection={activeSection}
       onSectionChange={setActiveSection}
       isVisible={isVisible}
-      auxiliaryLink={{ label: "Pricing", to: "/pricing" }}
-      brandContext="Business docs"
-      statusCountLabel="workflow steps"
+      auxiliaryLink={{ label: "Bảng giá", to: "/pricing" }}
+      brandContext="Tài liệu doanh nghiệp"
+      statusCountLabel="bước trong quy trình"
     >
       {renderSectionContent()}
     </LegalPageLayout>

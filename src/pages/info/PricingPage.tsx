@@ -11,10 +11,10 @@ import {
 } from "./legal-ui";
 
 const sections = [
-  { id: "plans", title: "Plan overview", icon: "fa-layer-group", tone: "cyan" },
-  { id: "included", title: "What is included", icon: "fa-box-open", tone: "emerald" },
-  { id: "rollout", title: "Rollout support", icon: "fa-handshake", tone: "sky" },
-  { id: "commercial", title: "Commercial fit", icon: "fa-file-invoice-dollar", tone: "violet" },
+  { id: "plans", title: "Tổng quan gói", icon: "fa-layer-group", tone: "cyan" },
+  { id: "included", title: "Bao gồm những gì", icon: "fa-box-open", tone: "emerald" },
+  { id: "rollout", title: "Hỗ trợ rollout", icon: "fa-handshake", tone: "sky" },
+  { id: "commercial", title: "Phù hợp thương mại", icon: "fa-file-invoice-dollar", tone: "violet" },
 ] satisfies LegalSectionMeta[];
 
 const PricingPage: React.FC = () => {
@@ -65,15 +65,15 @@ const PricingPage: React.FC = () => {
       case "included":
         return (
           <div className="space-y-4">
-            <LegalCard tone="emerald" icon="fa-list-check" title="Core product scope">
+            <LegalCard tone="emerald" icon="fa-list-check" title="Phạm vi sản phẩm cốt lõi">
               <LegalBulletGrid
                 tone="emerald"
                 columns={2}
                 items={[
-                  "CV import from uploads and Google Drive",
-                  "JD-driven screening workflow",
-                  "Shortlist with supporting reasoning",
-                  "History for recent review sessions",
+                  "Nhập CV từ tải lên và Google Drive",
+                  "Workflow sàng lọc bám theo JD",
+                  "Shortlist có lý do đi kèm",
+                  "Lịch sử cho các phiên review gần đây",
                 ]}
               />
             </LegalCard>
@@ -83,14 +83,14 @@ const PricingPage: React.FC = () => {
       case "rollout":
         return (
           <div className="space-y-4">
-            <LegalCard tone="sky" icon="fa-handshake-angle" title="What support looks like">
+            <LegalCard tone="sky" icon="fa-handshake-angle" title="Hỗ trợ sẽ diễn ra ra sao">
               <LegalBulletGrid
                 tone="sky"
                 items={[
-                  "Initial walkthrough for the recruiting flow",
-                  "Help connecting the source documents",
-                  "Review of the first sample session",
-                  "Commercial follow-up for scaling questions",
+                  "Walkthrough ban đầu cho luồng tuyển dụng",
+                  "Hỗ trợ kết nối nguồn tài liệu",
+                  "Review phiên mẫu đầu tiên",
+                  "Theo dõi tiếp cho các câu hỏi mở rộng quy mô",
                 ]}
               />
             </LegalCard>
@@ -100,13 +100,13 @@ const PricingPage: React.FC = () => {
       case "commercial":
         return (
           <div className="space-y-4">
-            <LegalCallout tone="violet" icon="fa-building" title="How to choose the right plan">
-              Choose based on team size, monthly CV volume, and how much governance or rollout support the organization
-              expects during adoption.
+            <LegalCallout tone="violet" icon="fa-building" title="Chọn gói phù hợp như thế nào">
+              Nên chọn dựa trên quy mô đội ngũ, lượng CV theo tháng và mức governance hoặc hỗ trợ rollout mà tổ chức
+              kỳ vọng trong giai đoạn áp dụng.
             </LegalCallout>
-            <LegalCard tone="rose" icon="fa-phone" title="Procurement next step">
-              If the pricing structure looks close to your needs, the fastest path is a live demo plus a quick volume
-              discussion so the team can scope the right package.
+            <LegalCard tone="rose" icon="fa-phone" title="Bước tiếp theo cho bộ phận mua sắm">
+              Nếu cấu trúc giá nhìn đã gần nhu cầu, cách nhanh nhất là xem demo trực tiếp và trao đổi nhanh về quy mô
+              để chốt đúng gói phù hợp.
             </LegalCard>
           </div>
         );
@@ -118,17 +118,17 @@ const PricingPage: React.FC = () => {
 
   return (
     <LegalPageLayout
-      pageLabel="Pricing"
-      title="Pricing and package overview"
-      subtitle="A clear view of what each package is meant for, what is included in the core workflow, and how teams can move from evaluation to rollout."
-      meta="Business docs · Updated 2026"
+      pageLabel="Bảng giá"
+      title="Tổng quan bảng giá và gói dịch vụ"
+      subtitle="Cái nhìn rõ ràng về việc mỗi gói dành cho ai, bao gồm những gì trong workflow cốt lõi và cách đội ngũ có thể đi từ đánh giá thử sang rollout."
+      meta="Tài liệu doanh nghiệp · Cập nhật 2026"
       sections={sections}
       activeSection={activeSection}
       onSectionChange={setActiveSection}
       isVisible={isVisible}
       auxiliaryLink={{ label: "FAQ", to: "/faq" }}
-      brandContext="Business docs"
-      statusCountLabel="commercial topics"
+      brandContext="Tài liệu doanh nghiệp"
+      statusCountLabel="chủ đề thương mại"
     >
       {renderSectionContent()}
     </LegalPageLayout>

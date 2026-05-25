@@ -101,13 +101,13 @@ export function LegalPageLayout({
   onSectionChange,
   isVisible,
   auxiliaryLink,
-  brandContext = "Business documentation",
-  statusTitle = "Document status",
-  statusCountLabel = "core sections",
+  brandContext = "Tài liệu doanh nghiệp",
+  statusTitle = "Trạng thái tài liệu",
+  statusCountLabel = "mục nội dung chính",
   statusNotes = [
-    "[LIVE] Track the section being reviewed",
-    "[SYNC] Shares the same design system as the homepage",
-    "[DOC] Readable on desktop and mobile",
+    "[LIVE] Theo dõi mục đang được xem",
+    "[SYNC] Đồng bộ cùng hệ thiết kế của trang chủ",
+    "[DOC] Dễ đọc trên desktop và mobile",
   ],
   children,
 }: LegalPageLayoutProps) {
@@ -152,7 +152,7 @@ export function LegalPageLayout({
                 to="/"
                 className="inline-flex h-8 items-center justify-center bg-white px-5 supporthr-mono text-[11px] font-bold uppercase tracking-[0.2em] text-black transition-colors duration-200 hover:bg-zinc-100"
               >
-                Trang chu
+                Trang chủ
               </Link>
             </div>
           </div>
@@ -205,7 +205,7 @@ export function LegalPageLayout({
             <aside className="hidden lg:block">
               <div className="sticky top-28 border border-white/8 bg-black/78 p-4 backdrop-blur-xl">
                 <p className="supporthr-mono text-[10px] uppercase tracking-[0.24em] text-[#f5d6bb]/70">
-                  Muc luc
+                  Mục lục
                 </p>
                 <div className="mt-4 space-y-1">
                   {sections.map((section, index) => {
@@ -284,7 +284,7 @@ export function LegalPageLayout({
                     </div>
                     <div>
                       <p className="supporthr-mono text-[10px] uppercase tracking-[0.24em] text-[#f5d6bb]/70">
-                        Dang xem
+                        Đang xem
                       </p>
                       <h2 className="mt-1 text-xl font-semibold text-white">{activeMeta.title}</h2>
                     </div>

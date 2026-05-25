@@ -8,11 +8,11 @@ import {
 } from "./legal-ui";
 
 const sections = [
-  { id: "controls", title: "Security controls", icon: "fa-shield-halved", tone: "cyan" },
-  { id: "access", title: "Access and roles", icon: "fa-user-lock", tone: "emerald" },
-  { id: "retention", title: "Retention and deletion", icon: "fa-clock-rotate-left", tone: "sky" },
-  { id: "drive", title: "Google Drive scope", icon: "fa-folder-open", tone: "violet" },
-  { id: "operations", title: "Operations and SLA", icon: "fa-life-ring", tone: "rose" },
+  { id: "controls", title: "Kiểm soát bảo mật", icon: "fa-shield-halved", tone: "cyan" },
+  { id: "access", title: "Truy cập và vai trò", icon: "fa-user-lock", tone: "emerald" },
+  { id: "retention", title: "Lưu trữ và xóa", icon: "fa-clock-rotate-left", tone: "sky" },
+  { id: "drive", title: "Phạm vi Google Drive", icon: "fa-folder-open", tone: "violet" },
+  { id: "operations", title: "Vận hành và SLA", icon: "fa-life-ring", tone: "rose" },
 ] satisfies LegalSectionMeta[];
 
 const SecurityCompliancePage: React.FC = () => {
@@ -29,36 +29,36 @@ const SecurityCompliancePage: React.FC = () => {
       case "controls":
         return (
           <div className="space-y-4">
-            <LegalCallout tone="cyan" icon="fa-circle-check" title="Built for reviewable hiring operations">
-              Support HR is designed so recruiting teams can move faster without losing visibility over files,
-              criteria, and shortlist decisions.
+            <LegalCallout tone="cyan" icon="fa-circle-check" title="Xây cho quy trình tuyển dụng có thể rà soát">
+              Support HR giúp đội ngũ tuyển dụng đi nhanh hơn mà vẫn giữ được khả năng theo dõi file, tiêu chí và quyết
+              định shortlist.
             </LegalCallout>
 
             <div className="grid gap-4 xl:grid-cols-3">
-              <LegalCard tone="cyan" icon="fa-lock" title="Transport and storage">
+              <LegalCard tone="cyan" icon="fa-lock" title="Truyền tải và lưu trữ">
                 <LegalBulletGrid
                   tone="cyan"
                   items={[
-                    "Encrypted traffic for browser and API communication",
-                    "Server-side credential handling for external services",
-                    "Structured session storage for workflow continuity",
+                    "Mã hóa lưu lượng giữa trình duyệt và API",
+                    "Thông tin xác thực dịch vụ ngoài được xử lý phía máy chủ",
+                    "Lưu phiên có cấu trúc để giữ tính liên tục của quy trình",
                   ]}
                 />
               </LegalCard>
-              <LegalCard tone="emerald" icon="fa-file-shield" title="Workflow protection">
+              <LegalCard tone="emerald" icon="fa-file-shield" title="Bảo vệ quy trình">
                 <LegalBulletGrid
                   tone="emerald"
                   items={[
-                    "Per-user workspace state",
-                    "Imported files only after user action",
-                    "Traceable scoring and shortlist context",
+                    "Trạng thái làm việc theo từng người dùng",
+                    "Chỉ nhập file sau khi người dùng chủ động chọn",
+                    "Có thể truy vết ngữ cảnh chấm điểm và shortlist",
                   ]}
                 />
               </LegalCard>
-              <LegalCard tone="violet" icon="fa-clipboard-check" title="Review readiness">
+              <LegalCard tone="violet" icon="fa-clipboard-check" title="Sẵn sàng cho bước review">
                 <p>
-                  The product keeps enough context around JD, CV imports, and scoring outputs for teams to review a
-                  hiring session without rebuilding the entire flow from scratch.
+                  Hệ thống giữ đủ ngữ cảnh quanh JD, file CV đã nhập và kết quả chấm điểm để đội ngũ xem lại một phiên
+                  tuyển dụng mà không phải dựng lại từ đầu.
                 </p>
               </LegalCard>
             </div>
@@ -69,23 +69,23 @@ const SecurityCompliancePage: React.FC = () => {
         return (
           <div className="space-y-4">
             <div className="grid gap-4 xl:grid-cols-2">
-              <LegalCard tone="emerald" icon="fa-users-gear" title="Who can access what" badge="Role-based use">
+              <LegalCard tone="emerald" icon="fa-users-gear" title="Ai được truy cập phần nào" badge="Theo vai trò">
                 <p>
-                  Recruiters access the workflows they run, while admins can coordinate rollout, support, and policy
-                  decisions for the team.
+                  Recruiter truy cập các quy trình mình vận hành, còn admin có thể điều phối rollout, hỗ trợ và các
+                  quyết định chính sách cho đội ngũ.
                 </p>
                 <p className="text-zinc-500">
-                  Access to external services such as Google Drive is tied to the authenticated user session rather
-                  than opened broadly across the organization.
+                  Truy cập tới dịch vụ ngoài như Google Drive được gắn với phiên người dùng đã xác thực, thay vì mở
+                  rộng chung cho cả tổ chức.
                 </p>
               </LegalCard>
-              <LegalCard tone="sky" icon="fa-key" title="Credential handling">
+              <LegalCard tone="sky" icon="fa-key" title="Xử lý thông tin xác thực">
                 <LegalBulletGrid
                   tone="sky"
                   items={[
-                    "Authentication stays linked to the signed-in account",
-                    "Drive authorization is scoped to the connected user",
-                    "Operational secrets are not exposed in the browser UI",
+                    "Xác thực luôn gắn với tài khoản đã đăng nhập",
+                    "Quyền Google Drive được giới hạn theo người dùng đã kết nối",
+                    "Bí mật vận hành không bị lộ ra giao diện trình duyệt",
                   ]}
                 />
               </LegalCard>
@@ -96,15 +96,15 @@ const SecurityCompliancePage: React.FC = () => {
       case "retention":
         return (
           <div className="space-y-4">
-            <LegalCard tone="sky" icon="fa-database" title="Retention approach">
+            <LegalCard tone="sky" icon="fa-database" title="Cách tiếp cận lưu trữ">
               <p>
-                Workflow history is kept to support recruiter review, handoff, and audit of recent hiring decisions.
-                Teams should align their retention window with internal hiring policy.
+                Lịch sử quy trình được giữ lại để hỗ trợ recruiter review, bàn giao và rà soát các quyết định tuyển
+                dụng gần đây. Đội ngũ nên đặt thời gian lưu phù hợp với chính sách nội bộ.
               </p>
             </LegalCard>
-            <LegalCallout tone="rose" icon="fa-trash-can" title="Deletion support">
-              When a team requests account or workspace cleanup, imported files and related workflow records should be
-              removed in line with the agreed operating process and legal obligations.
+            <LegalCallout tone="rose" icon="fa-trash-can" title="Hỗ trợ xóa dữ liệu">
+              Khi đội ngũ yêu cầu dọn tài khoản hoặc workspace, các file đã nhập và bản ghi liên quan cần được xóa theo
+              quy trình vận hành đã thống nhất và nghĩa vụ pháp lý.
             </LegalCallout>
           </div>
         );
@@ -112,28 +112,28 @@ const SecurityCompliancePage: React.FC = () => {
       case "drive":
         return (
           <div className="space-y-4">
-            <LegalCallout tone="violet" icon="fa-folder-open" title="Minimal Drive usage">
-              Google Drive is used to help a signed-in user browse, select, and import recruiting documents into the
-              screening workflow.
+            <LegalCallout tone="violet" icon="fa-folder-open" title="Sử dụng Drive ở mức tối thiểu cần thiết">
+              Google Drive được dùng để hỗ trợ người dùng đã đăng nhập duyệt, chọn và nhập tài liệu tuyển dụng vào quy
+              trình sàng lọc.
             </LegalCallout>
             <div className="grid gap-4 xl:grid-cols-2">
-              <LegalCard tone="violet" icon="fa-list" title="What the integration touches">
+              <LegalCard tone="violet" icon="fa-list" title="Tích hợp sẽ chạm tới những gì">
                 <LegalBulletGrid
                   tone="violet"
                   items={[
-                    "File metadata needed for browsing and selection",
-                    "The contents of files chosen by the user",
-                    "Connected account context for the current session",
+                    "Metadata file cần thiết cho việc duyệt và chọn",
+                    "Nội dung của những file do người dùng chọn",
+                    "Ngữ cảnh tài khoản đã kết nối của phiên hiện tại",
                   ]}
                 />
               </LegalCard>
-              <LegalCard tone="cyan" icon="fa-ban" title="What it does not do">
+              <LegalCard tone="cyan" icon="fa-ban" title="Những gì hệ thống không làm">
                 <LegalBulletGrid
                   tone="cyan"
                   items={[
-                    "No broad workspace ingestion without user action",
-                    "No public sharing of imported files",
-                    "No hidden background sync of unrelated Drive folders",
+                    "Không quét rộng cả workspace nếu người dùng không yêu cầu",
+                    "Không chia sẻ công khai các file đã nhập",
+                    "Không âm thầm đồng bộ các thư mục Drive không liên quan",
                   ]}
                 />
               </LegalCard>
@@ -144,19 +144,19 @@ const SecurityCompliancePage: React.FC = () => {
       case "operations":
         return (
           <div className="space-y-4">
-            <LegalCard tone="rose" icon="fa-headset" title="Operational expectations">
+            <LegalCard tone="rose" icon="fa-headset" title="Kỳ vọng vận hành">
               <LegalBulletGrid
                 tone="rose"
                 items={[
-                  "Business-hours response for rollout and usage questions",
-                  "Support for onboarding, workflow setup, and product guidance",
-                  "Issue triage when file processing or access flows need review",
+                  "Phản hồi trong giờ làm việc cho câu hỏi rollout và sử dụng",
+                  "Hỗ trợ onboarding, thiết lập workflow và hướng dẫn sản phẩm",
+                  "Tiếp nhận và phân loại lỗi khi luồng file hoặc truy cập cần xem lại",
                 ]}
               />
             </LegalCard>
-            <LegalCallout tone="emerald" icon="fa-handshake" title="Best fit">
-              This page is intended as a practical trust summary for buyers. Teams with formal procurement requirements
-              can extend it later with a DPA, security questionnaire, and dedicated SLA sheet.
+            <LegalCallout tone="emerald" icon="fa-handshake" title="Khi nào trang này phù hợp nhất">
+              Đây là bản tóm tắt niềm tin dành cho bên mua. Nếu doanh nghiệp có quy trình mua sắm nghiêm ngặt hơn, có
+              thể bổ sung DPA, bảng câu hỏi bảo mật và SLA riêng ở bước sau.
             </LegalCallout>
           </div>
         );
@@ -168,21 +168,21 @@ const SecurityCompliancePage: React.FC = () => {
 
   return (
     <LegalPageLayout
-      pageLabel="Security"
-      title="Security and compliance overview"
-      subtitle="A buyer-facing summary of how Support HR handles access, file import, retention, and day-to-day operational trust for recruiting teams."
-      meta="Business docs · Updated 2026"
+      pageLabel="Bảo mật"
+      title="Tổng quan bảo mật và tuân thủ"
+      subtitle="Bản tóm tắt dành cho bên mua về cách Support HR xử lý truy cập, nhập file, lưu trữ dữ liệu và niềm tin vận hành hằng ngày cho đội ngũ tuyển dụng."
+      meta="Tài liệu doanh nghiệp · Cập nhật 2026"
       sections={sections}
       activeSection={activeSection}
       onSectionChange={setActiveSection}
       isVisible={isVisible}
-      auxiliaryLink={{ label: "Privacy policy", to: "/privacy-policy" }}
-      brandContext="Business docs"
-      statusCountLabel="trust checkpoints"
+      auxiliaryLink={{ label: "Chính sách riêng tư", to: "/privacy-policy" }}
+      brandContext="Tài liệu doanh nghiệp"
+      statusCountLabel="điểm kiểm tra niềm tin"
       statusNotes={[
-        "[LIVE] Covers the current review topic",
-        "[SYNC] Matches the same product language as the sales pages",
-        "[NEXT] DPA and extended SLA can be added later",
+        "[LIVE] Bao phủ đúng chủ đề đang được xem",
+        "[SYNC] Đồng bộ cùng ngôn ngữ sản phẩm của các trang bán hàng",
+        "[NEXT] Có thể bổ sung DPA và SLA mở rộng sau",
       ]}
     >
       {renderSectionContent()}

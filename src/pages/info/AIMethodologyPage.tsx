@@ -8,11 +8,11 @@ import {
 } from "./legal-ui";
 
 const sections = [
-  { id: "parse", title: "JD parsing", icon: "fa-file-lines", tone: "cyan" },
-  { id: "criteria", title: "Criteria extraction", icon: "fa-filter", tone: "emerald" },
-  { id: "scoring", title: "Scoring logic", icon: "fa-scale-balanced", tone: "sky" },
-  { id: "reasoning", title: "Explainability", icon: "fa-comment-dots", tone: "violet" },
-  { id: "review", title: "Human review", icon: "fa-user-check", tone: "rose" },
+  { id: "parse", title: "Đọc JD", icon: "fa-file-lines", tone: "cyan" },
+  { id: "criteria", title: "Trích tiêu chí", icon: "fa-filter", tone: "emerald" },
+  { id: "scoring", title: "Cách hiểu điểm số", icon: "fa-scale-balanced", tone: "sky" },
+  { id: "reasoning", title: "Khả năng giải thích", icon: "fa-comment-dots", tone: "violet" },
+  { id: "review", title: "Vòng kiểm duyệt của con người", icon: "fa-user-check", tone: "rose" },
 ] satisfies LegalSectionMeta[];
 
 const AIMethodologyPage: React.FC = () => {
@@ -29,9 +29,9 @@ const AIMethodologyPage: React.FC = () => {
       case "parse":
         return (
           <div className="space-y-4">
-            <LegalCallout tone="cyan" icon="fa-diagram-project" title="The flow starts from one role definition">
-              The system first interprets the job description so the rest of the workflow is grounded in the same role,
-              skill set, and hiring intent.
+            <LegalCallout tone="cyan" icon="fa-diagram-project" title="Luồng bắt đầu từ một định nghĩa vai trò rõ ràng">
+              Hệ thống đọc mô tả công việc trước để phần còn lại của workflow luôn bám vào cùng một vai trò, cùng bộ kỹ
+              năng và cùng ý định tuyển dụng.
             </LegalCallout>
           </div>
         );
@@ -39,15 +39,15 @@ const AIMethodologyPage: React.FC = () => {
       case "criteria":
         return (
           <div className="space-y-4">
-            <LegalCard tone="emerald" icon="fa-list-ul" title="What the system tries to extract">
+            <LegalCard tone="emerald" icon="fa-list-ul" title="Hệ thống cố gắng trích ra những gì">
               <LegalBulletGrid
                 tone="emerald"
                 columns={2}
                 items={[
-                  "Role-specific skills",
-                  "Experience expectations",
-                  "Key requirements and hard filters",
-                  "Context that shapes the shortlist",
+                  "Kỹ năng gắn với vai trò",
+                  "Kỳ vọng về kinh nghiệm",
+                  "Yêu cầu quan trọng và hard filter",
+                  "Ngữ cảnh định hình shortlist",
                 ]}
               />
             </LegalCard>
@@ -57,10 +57,10 @@ const AIMethodologyPage: React.FC = () => {
       case "scoring":
         return (
           <div className="space-y-4">
-            <LegalCard tone="sky" icon="fa-scale-balanced" title="How scoring should be understood">
+            <LegalCard tone="sky" icon="fa-scale-balanced" title="Điểm số nên được hiểu như thế nào">
               <p>
-                Scoring is meant to provide a structured first-pass comparison for one JD, not a universal verdict on a
-                candidate across every possible role.
+                Điểm số được dùng để tạo một lớp so sánh có cấu trúc cho một JD cụ thể, chứ không phải phán quyết tuyệt
+                đối về ứng viên ở mọi vai trò.
               </p>
             </LegalCard>
           </div>
@@ -69,10 +69,10 @@ const AIMethodologyPage: React.FC = () => {
       case "reasoning":
         return (
           <div className="space-y-4">
-            <LegalCard tone="violet" icon="fa-message" title="Why explanations matter">
+            <LegalCard tone="violet" icon="fa-message" title="Vì sao phần giải thích quan trọng">
               <p>
-                The product is more useful when recruiters can see why a candidate is being surfaced, where the gaps
-                are, and what should be verified in the next round.
+                Sản phẩm hữu ích hơn khi recruiter nhìn thấy vì sao ứng viên được đưa lên, còn thiếu điều gì, và nên
+                xác minh thêm gì ở vòng sau.
               </p>
             </LegalCard>
           </div>
@@ -81,9 +81,9 @@ const AIMethodologyPage: React.FC = () => {
       case "review":
         return (
           <div className="space-y-4">
-            <LegalCallout tone="rose" icon="fa-user-pen" title="A recruiter stays in charge">
-              Human review remains the final step. Support HR helps teams inspect the data faster and more consistently,
-              but it does not remove the need for hiring judgment.
+            <LegalCallout tone="rose" icon="fa-user-pen" title="Recruiter vẫn là người giữ quyền quyết định">
+              Vòng review của con người vẫn là bước cuối cùng. Support HR giúp đội ngũ nhìn dữ liệu nhanh hơn và nhất
+              quán hơn, nhưng không thay thế phán đoán tuyển dụng.
             </LegalCallout>
           </div>
         );
@@ -96,16 +96,16 @@ const AIMethodologyPage: React.FC = () => {
   return (
     <LegalPageLayout
       pageLabel="AI"
-      title="AI methodology in plain language"
-      subtitle="A short explanation of how Support HR reads a JD, extracts criteria, scores candidates, and keeps the recruiter in the decision loop."
-      meta="Business docs · Updated 2026"
+      title="Phương pháp AI bằng ngôn ngữ dễ hiểu"
+      subtitle="Giải thích ngắn gọn cách Support HR đọc JD, trích tiêu chí, chấm điểm ứng viên và vẫn giữ recruiter trong vòng quyết định."
+      meta="Tài liệu doanh nghiệp · Cập nhật 2026"
       sections={sections}
       activeSection={activeSection}
       onSectionChange={setActiveSection}
       isVisible={isVisible}
       auxiliaryLink={{ label: "Demo", to: "/demo" }}
-      brandContext="Business docs"
-      statusCountLabel="method notes"
+      brandContext="Tài liệu doanh nghiệp"
+      statusCountLabel="ghi chú phương pháp"
     >
       {renderSectionContent()}
     </LegalPageLayout>

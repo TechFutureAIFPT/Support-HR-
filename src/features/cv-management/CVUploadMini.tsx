@@ -27,7 +27,7 @@ const CVUploadMini: React.FC<CVUploadMiniProps> = ({ cvFiles }) => {
           <div className="min-w-0">
             <div className="supporthr-mono mb-3 inline-flex items-center gap-2 text-[9px] font-black uppercase tracking-[0.18em] text-[#f5d6bb]/60">
               <span className="h-1.5 w-1.5 rounded-full bg-[#f5d6bb]/45" />
-              CV Upload
+              Tải CV
             </div>
 
             <div className="inline-flex h-12 w-12 items-center justify-center rounded-none border border-white/[0.12] bg-white/[0.035] text-[#f5d6bb]/65 shadow-none">
@@ -64,7 +64,7 @@ const CVUploadMini: React.FC<CVUploadMiniProps> = ({ cvFiles }) => {
             Danh sách CV
           </div>
           <div className="supporthr-mono rounded-none border border-white/[0.12] bg-white/[0.025] px-2.5 py-1 text-[9px] uppercase tracking-[0.14em] text-slate-300">
-            {cvFiles.length} files
+            {cvFiles.length} tệp
           </div>
         </div>
 
@@ -92,7 +92,7 @@ const CVUploadMini: React.FC<CVUploadMiniProps> = ({ cvFiles }) => {
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-[0.92rem] font-semibold tracking-tight text-slate-50">{file.name}</p>
-                    <p className="supporthr-mono mt-1 text-[9px] uppercase tracking-[0.14em] text-[#f5d6bb]/45">CV file</p>
+                    <p className="supporthr-mono mt-1 text-[9px] uppercase tracking-[0.14em] text-[#f5d6bb]/45">Tệp CV</p>
                   </div>
                   <span className="supporthr-mono inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-none border border-white/[0.10] bg-black/50 text-[9px] uppercase tracking-[0.08em] text-[#f5d6bb]/60">
                     {String(index + 1).padStart(2, '0')}
