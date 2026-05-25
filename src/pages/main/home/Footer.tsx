@@ -185,8 +185,8 @@ const Footer = ({ onNavigate }: FooterProps) => {
         <div className="absolute bottom-0 right-0 h-80 w-[32rem] bg-[radial-gradient(circle_at_bottom_right,rgba(245,214,187,0.08),transparent_68%)]" />
       </div>
 
-      <div className="relative home-section-frame py-12 sm:py-14 lg:py-16">
-        <div className="border border-white/10 bg-white/[0.02]">
+      <div className="relative w-full py-12 sm:py-14 lg:py-16">
+        <div className="w-full border-y border-white/10 bg-white/[0.02]">
           <div className="grid gap-8 border-b border-white/8 px-5 py-6 sm:px-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:items-start lg:px-8">
             <div className="max-w-[34rem]">
               <button
@@ -289,7 +289,8 @@ const Footer = ({ onNavigate }: FooterProps) => {
           </div>
         </div>
 
-        <div className="mt-5 flex flex-col gap-3 border-t border-white/8 pt-5 text-xs text-zinc-600 sm:flex-row sm:items-center sm:justify-between">
+        <div className="px-5 pt-5 text-xs text-zinc-600 sm:px-6 lg:px-8">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <p>© 2026 Support HR. Mọi quyền được bảo lưu.</p>
           <div className="flex flex-wrap gap-x-5 gap-y-2">
             <Link to="/privacy-policy" className="transition-colors hover:text-white">
@@ -301,6 +302,7 @@ const Footer = ({ onNavigate }: FooterProps) => {
             <Link to="/security" className="transition-colors hover:text-white">
               Bảo mật
             </Link>
+          </div>
           </div>
         </div>
       </div>

@@ -51,15 +51,15 @@ export default function WhySupportSection() {
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_left_center,rgba(255,255,255,0.03),transparent_34%),linear-gradient(180deg,rgba(255,255,255,0.015),transparent_62%)]" />
 
       <div className="relative home-section-frame">
-        <div className="grid gap-12 xl:grid-cols-[minmax(0,0.95fr)_minmax(34rem,1.05fr)] xl:items-center">
-          <div className="max-w-[46rem]">
+        <div className="grid gap-10 xl:grid-cols-[minmax(0,0.9fr)_minmax(40rem,1.1fr)] xl:items-center">
+          <div className="max-w-[42rem]">
             <p className="supporthr-mono text-[11px] uppercase tracking-[0.24em] text-emerald-300/75">
               Support HR // Vì sao đội ngũ business dễ chấp nhận hơn
             </p>
-            <h2 className="home-section-heading mt-6 max-w-[46rem] font-semibold text-white">
+            <h2 className="home-section-heading mt-6 max-w-[40rem] font-semibold text-white">
               Chuyển quy trình sàng lọc thành một bề mặt vận hành rõ ràng cho đội tuyển dụng.
             </h2>
-            <p className="mt-6 max-w-[41rem] text-base leading-8 text-zinc-400 sm:text-lg">
+            <p className="mt-6 max-w-[38rem] text-base leading-8 text-zinc-400 sm:text-lg">
               Support HR được thiết kế để đội tuyển dụng nhìn ngay file nào đang được xử lý, ứng viên nào đang được đề
               cử, và vì sao danh sách đó được đưa lên trước. Mục tiêu là giảm thao tác lặp, không phải tạo thêm một hộp đen.
             </p>
@@ -71,12 +71,12 @@ export default function WhySupportSection() {
                 key={label}
                 whileHover={hoverLift}
                 transition={{ duration: 0.18, ease: "easeOut" }}
-                className={`relative min-h-[12rem] overflow-hidden border ${border} ${surface} p-7 lg:p-8`}
+                className={`relative min-h-[11.25rem] overflow-hidden border ${border} ${surface} p-6 lg:p-7`}
               >
                 <div className="absolute inset-0 opacity-35 [background-image:linear-gradient(rgba(255,255,255,0.025)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.025)_1px,transparent_1px)] [background-size:22px_22px]" />
                 <div className="relative z-10">
                   <Icon className={`h-5 w-5 ${accent}`} />
-                  <p className={`mt-8 text-[clamp(2rem,3vw,2.8rem)] font-semibold leading-none tracking-normal ${accent}`}>
+                  <p className={`mt-7 text-[clamp(1.8rem,2.45vw,2.45rem)] font-semibold leading-none tracking-normal ${accent}`}>
                     {value}
                   </p>
                   <p className="mt-3 max-w-[15rem] text-sm leading-7 text-zinc-400">

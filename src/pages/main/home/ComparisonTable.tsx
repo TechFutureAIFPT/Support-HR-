@@ -95,9 +95,9 @@ function ColumnCell({
 
 const ComparisonTable = () => {
   return (
-    <div className="mx-auto w-full max-w-[92rem]">
-      <div className="grid gap-10 xl:grid-cols-[minmax(0,0.62fr)_minmax(0,1fr)] xl:items-start">
-        <div className="max-w-[32rem]">
+    <div className="mx-auto w-full max-w-[102rem]">
+      <div className="grid gap-8 xl:grid-cols-[minmax(0,0.48fr)_minmax(0,1.12fr)] xl:items-start">
+        <div className="max-w-[28rem]">
           <p className="supporthr-mono text-[11px] uppercase tracking-[0.24em] text-[#f5d6bb]/75">
             Support HR // Ma trận so sánh
           </p>
@@ -124,7 +124,7 @@ const ComparisonTable = () => {
         </div>
 
         <div className="border border-white/[0.08] bg-black/80">
-          <div className="hidden lg:grid lg:grid-cols-[17rem_minmax(0,1fr)_minmax(0,1fr)]">
+          <div className="hidden lg:grid lg:grid-cols-[15rem_minmax(0,1fr)_minmax(0,1fr)] 2xl:grid-cols-[16rem_minmax(0,1fr)_minmax(0,1fr)]">
             <div className="border-b border-r border-white/8 px-5 py-5">
               <p className="supporthr-mono text-[10px] uppercase tracking-[0.24em] text-zinc-500">Tiêu chí</p>
             </div>

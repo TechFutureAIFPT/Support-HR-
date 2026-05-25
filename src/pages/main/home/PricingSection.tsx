@@ -6,7 +6,7 @@ export default function PricingSection() {
   return (
     <section id="pricing" className="border-b border-white/[0.08] bg-black py-24 sm:py-28">
       <div className="home-section-frame">
-        <div className="max-w-[52rem]">
+        <div className="max-w-[58rem]">
           <p className="supporthr-mono text-[11px] uppercase tracking-[0.24em] text-[#f5d6bb]/75">
             Support HR // Bảng giá
           </p>
@@ -19,7 +19,7 @@ export default function PricingSection() {
           </p>
         </div>
 
-        <div className="mt-12 grid gap-4 xl:grid-cols-3">
+        <div className="mt-12 grid gap-4 xl:grid-cols-3 2xl:gap-5">
           {pricingPlans.map((plan) => {
             const style = LEGAL_TONE_STYLES[plan.tone];
 
