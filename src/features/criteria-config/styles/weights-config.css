@@ -291,7 +291,7 @@
 }
 
 .weights-config__total-value[data-status='balanced'] {
-  text-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+  text-shadow: 0 0 20px rgba(245, 214, 187, 0.36);
 }
 
 .weights-config__total-value[data-status='over'] {
@@ -304,7 +304,7 @@
 
 .weights-config__total-suffix[data-status='balanced'],
 .weights-config__status-pill[data-status='balanced'] {
-  color: #6ee7b7;
+  color: #f5d6bb;
 }
 
 .weights-config__total-suffix[data-status='over'],
@@ -323,8 +323,8 @@
 }
 
 .weights-config__status-pill[data-status='balanced'] {
-  background: rgba(16, 185, 129, 0.12);
-  border-color: rgba(16, 185, 129, 0.3);
+  background: rgba(245, 214, 187, 0.12);
+  border-color: rgba(245, 214, 187, 0.3);
 }
 
 .weights-config__status-pill[data-status='over'] {
@@ -342,16 +342,10 @@
   background: rgba(255, 255, 255, 0.025);
 }
 
-.weights-config__summary-accent[data-tone='high'] {
-  background: #10b981;
-}
-
-.weights-config__summary-accent[data-tone='medium'] {
-  background: #3b82f6;
-}
-
+.weights-config__summary-accent[data-tone='high'],
+.weights-config__summary-accent[data-tone='medium'],
 .weights-config__summary-accent[data-tone='low'] {
-  background: #f59e0b;
+  background: linear-gradient(180deg, #b9895b, #f5d6bb);
 }
 
 .weights-config__summary-label {

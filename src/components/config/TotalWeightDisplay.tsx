@@ -9,18 +9,18 @@ const TotalWeightDisplay: React.FC<TotalWeightDisplayProps> = ({ totalWeight }) 
 
   const status = useMemo(() => {
     if (totalWeight === 100) {
-      return { label: 'Chuẩn', color: 'text-emerald-400', stroke: '#34d399' };
+      return { label: 'Chuẩn', color: 'text-[#f5d6bb]', stroke: '#f5d6bb' };
     }
     if (totalWeight > 100) {
-      return { label: 'Dư', color: 'text-red-400', stroke: '#f87171' };
+      return { label: 'Dư', color: 'text-[#f0c892]', stroke: '#d9a56d' };
     }
-    return { label: 'Thiếu', color: 'text-amber-400', stroke: '#fbbf24' };
+    return { label: 'Thiếu', color: 'text-[#ecd0aa]', stroke: '#e4bf8f' };
   }, [totalWeight]);
 
   return (
-    <div className={`flex items-center gap-4 p-3 rounded-xl border bg-white/[0.025] border-white/[0.08]`}>
-      <div className="relative w-16 h-16 shrink-0">
-        <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
+    <div className="flex items-center gap-4 border border-white/[0.08] bg-white/[0.025] p-3">
+      <div className="relative h-16 w-16 shrink-0">
+        <svg className="h-full w-full -rotate-90" viewBox="0 0 36 36">
           <path
             className="text-white/10"
             d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
@@ -42,15 +42,15 @@ const TotalWeightDisplay: React.FC<TotalWeightDisplayProps> = ({ totalWeight }) 
       </div>
 
       <div className="flex-1">
-        <p className={`text-sm font-medium ${status.color} mb-1`}>{status.label}</p>
-        <div className={`h-1.5 w-full rounded-full overflow-hidden bg-white/[0.08]`}>
+        <p className={`mb-1 text-sm font-medium ${status.color}`}>{status.label}</p>
+        <div className="h-1.5 w-full overflow-hidden bg-white/[0.08]">
           <div
-            className="h-full rounded-full transition-all duration-500"
+            className="h-full transition-all duration-500"
             style={{
-                width: `${Math.min(totalWeight, 100)}%`,
-                backgroundColor: status.stroke
+              width: `${Math.min(totalWeight, 100)}%`,
+              backgroundColor: status.stroke,
             }}
-          ></div>
+          />
         </div>
       </div>
     </div>
