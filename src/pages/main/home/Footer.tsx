@@ -1,3 +1,4 @@
+import { ArrowUpRight, Building2, Mail, Phone, ShieldCheck } from "lucide-react";
 import { Link } from "react-router-dom";
 
 type FooterNavItem =
@@ -184,75 +185,122 @@ const Footer = ({ onNavigate }: FooterProps) => {
         <div className="absolute bottom-0 right-0 h-80 w-[32rem] bg-[radial-gradient(circle_at_bottom_right,rgba(245,214,187,0.08),transparent_68%)]" />
       </div>
 
-      <div className="relative home-section-frame flex min-h-[30rem] flex-col py-16 sm:py-20 lg:py-24">
-        <div className="flex flex-col items-center gap-12 lg:gap-14">
-          <div className="mx-auto flex max-w-3xl flex-col items-center text-center">
-            <button
-              type="button"
-              onClick={() => onNavigate("hero")}
-              className="group grid w-fit grid-cols-[2.5rem_auto_2.5rem] items-center gap-3 text-center"
-              aria-label="Ve trang dau Support HR"
-              
-            >
-              <span className="flex h-10 w-10 items-center justify-center overflow-hidden border border-white/15 bg-white/[0.035]">
-                <img src="/images/logos/logo.jpg" alt="Support HR" className="h-full w-full object-cover" />
-              </span>
-              <span className="text-center">
-                <span className="supporthr-mono block text-[18px] font-black uppercase tracking-[0.12em] text-white transition-colors duration-300 group-hover:text-[#f5d6bb]">
-                  Support HR
+      <div className="relative home-section-frame py-12 sm:py-14 lg:py-16">
+        <div className="border border-white/10 bg-white/[0.02]">
+          <div className="grid gap-8 border-b border-white/8 px-5 py-6 sm:px-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:items-start lg:px-8">
+            <div className="max-w-[34rem]">
+              <button
+                type="button"
+                onClick={() => onNavigate("hero")}
+                className="group flex items-center gap-3 text-left"
+                aria-label="Về trang đầu Support HR"
+              >
+                <span className="flex h-10 w-10 items-center justify-center overflow-hidden border border-white/15 bg-white/[0.035]">
+                  <img src="/images/logos/logo.jpg" alt="Support HR" className="h-full w-full object-cover" />
                 </span>
-                <span className="supporthr-mono mt-1 block text-[10px] font-bold uppercase tracking-[0.26em] text-[#f5d6bb]">
-                  Quy trình tuyển dụng cho đội ngũ tuyển dụng hiện đại
-                </span>
-              </span>
-            </button>
-
-            <p className="mt-8 max-w-[34rem] text-sm leading-7 text-gray-400">
-              Support HR giúp đội ngũ tuyển dụng đọc CV nhanh hơn, đối chiếu theo JD rõ ràng hơn, và chia sẻ danh sách
-              đề cử để rà soát trong một quy trình dễ kiểm soát.
-            </p>
-
-            <div className="mt-7 flex flex-col items-center justify-center gap-3 text-gray-400 sm:flex-row sm:flex-wrap">
-              {contactLinks.map((link) => (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  className="group inline-flex w-fit items-center gap-2 text-sm transition-all duration-300 ease-in-out hover:translate-x-1 hover:text-white"
-                >
-                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/5 text-[#f5d6bb] transition-all duration-300 group-hover:bg-white/10">
-                    <IconGlyph name={link.icon} className="h-3.5 w-3.5" />
+                <span>
+                  <span className="supporthr-mono block text-[16px] font-bold uppercase tracking-[0.1em] text-white transition-colors duration-300 group-hover:text-[#f5d6bb]">
+                    Support HR
                   </span>
-                  {link.label}
-                </a>
-              ))}
+                  <span className="supporthr-mono mt-1 block text-[10px] font-semibold uppercase tracking-[0.2em] text-[#f5d6bb]/75">
+                    Không gian sàng lọc cho đội ngũ tuyển dụng
+                  </span>
+                </span>
+              </button>
+
+              <p className="mt-4 max-w-[32rem] text-sm leading-7 text-zinc-400">
+                Hỗ trợ đội tuyển dụng đọc CV nhanh hơn, đối chiếu theo JD rõ hơn, và chuyển danh sách đề cử sang bước
+                rà soát nội bộ trong một quy trình dễ kiểm soát.
+              </p>
+
+              <div className="mt-5 flex flex-wrap gap-3">
+                <Link
+                  to="/book-demo"
+                  className="inline-flex h-10 items-center gap-2 border border-white/12 bg-white px-4 text-[12px] font-semibold text-black transition-colors hover:bg-zinc-100"
+                >
+                  Đặt lịch trải nghiệm
+                  <ArrowUpRight className="h-4 w-4" />
+                </Link>
+                <Link
+                  to="/security"
+                  className="inline-flex h-10 items-center gap-2 border border-white/12 px-4 text-[12px] font-semibold text-zinc-200 transition-colors hover:border-white/24 hover:bg-white/[0.03] hover:text-white"
+                >
+                  <ShieldCheck className="h-4 w-4 text-[#f5d6bb]" />
+                  Xem thông tin bảo mật
+                </Link>
+              </div>
             </div>
 
-            <div className="mt-8 flex justify-center">
-              <SocialLinks />
+            <div className="grid gap-3 sm:grid-cols-2">
+              <a
+                href="tel:0899280108"
+                className="border border-white/8 bg-black/45 px-4 py-4 transition-colors hover:border-white/16 hover:bg-white/[0.03]"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="flex h-9 w-9 items-center justify-center border border-white/10 bg-white/[0.03] text-[#f5d6bb]">
+                    <Phone className="h-4 w-4" />
+                  </span>
+                  <div>
+                    <p className="supporthr-mono text-[10px] uppercase tracking-[0.2em] text-zinc-500">Hotline</p>
+                    <p className="mt-1 text-sm font-semibold text-white">0899 280 108</p>
+                  </div>
+                </div>
+              </a>
+              <a
+                href="mailto:support@supporthr.vn"
+                className="border border-white/8 bg-black/45 px-4 py-4 transition-colors hover:border-white/16 hover:bg-white/[0.03]"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="flex h-9 w-9 items-center justify-center border border-white/10 bg-white/[0.03] text-[#f5d6bb]">
+                    <Mail className="h-4 w-4" />
+                  </span>
+                  <div className="min-w-0">
+                    <p className="supporthr-mono text-[10px] uppercase tracking-[0.2em] text-zinc-500">Email</p>
+                    <p className="mt-1 truncate text-sm font-semibold text-white">support@supporthr.vn</p>
+                  </div>
+                </div>
+              </a>
+              <div className="border border-white/8 bg-black/45 px-4 py-4 sm:col-span-2">
+                <div className="flex items-center gap-3">
+                  <span className="flex h-9 w-9 items-center justify-center border border-white/10 bg-white/[0.03] text-[#f5d6bb]">
+                    <Building2 className="h-4 w-4" />
+                  </span>
+                  <div className="min-w-0">
+                    <p className="supporthr-mono text-[10px] uppercase tracking-[0.2em] text-zinc-500">Hỗ trợ doanh nghiệp</p>
+                    <p className="mt-1 text-sm text-zinc-300">
+                      Phù hợp cho đội ngũ cần sàng lọc CV, giữ lịch sử phiên và chia sẻ kết quả cho nhiều bên.
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div className="grid w-full max-w-5xl justify-items-center gap-10 border-t border-white/[0.08] pt-10 sm:grid-cols-3 sm:gap-12 lg:pt-12">
+          <div className="grid gap-8 px-5 py-6 sm:px-6 lg:grid-cols-[1.05fr_0.95fr_0.9fr_auto] lg:px-8">
             <FooterColumn title="Sản phẩm" items={productLinks} onNavigate={onNavigate} />
             <FooterColumn title="Kinh doanh" items={salesLinks} onNavigate={onNavigate} />
             <FooterColumn title="Pháp lý" items={legalLinks} onNavigate={onNavigate} />
+            <div className="flex flex-col items-center text-center sm:items-start sm:text-left">
+              <h4 className="supporthr-mono mb-6 text-[13px] font-semibold uppercase tracking-[0.2em] text-zinc-400">
+                Kết nối
+              </h4>
+              <SocialLinks />
+            </div>
           </div>
         </div>
 
-        <div className="mt-14 w-full border-t border-white/10 pt-7">
-          <div className="flex flex-col items-center justify-center gap-4 text-center text-xs text-zinc-600 sm:flex-row">
-            <p>© 2026 Support HR. Mọi quyền được bảo lưu.</p>
-            <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
-              <Link to="/privacy-policy" className="transition-all duration-300 ease-in-out hover:translate-x-1 hover:text-white">
-                Chính sách riêng tư
-              </Link>
-              <Link to="/terms" className="transition-all duration-300 ease-in-out hover:translate-x-1 hover:text-white">
-                Điều khoản dịch vụ
-              </Link>
-              <Link to="/security" className="transition-all duration-300 ease-in-out hover:translate-x-1 hover:text-white">
-                Bảo mật
-              </Link>
-            </div>
+        <div className="mt-5 flex flex-col gap-3 border-t border-white/8 pt-5 text-xs text-zinc-600 sm:flex-row sm:items-center sm:justify-between">
+          <p>© 2026 Support HR. Mọi quyền được bảo lưu.</p>
+          <div className="flex flex-wrap gap-x-5 gap-y-2">
+            <Link to="/privacy-policy" className="transition-colors hover:text-white">
+              Chính sách riêng tư
+            </Link>
+            <Link to="/terms" className="transition-colors hover:text-white">
+              Điều khoản dịch vụ
+            </Link>
+            <Link to="/security" className="transition-colors hover:text-white">
+              Bảo mật
+            </Link>
           </div>
         </div>
       </div>
