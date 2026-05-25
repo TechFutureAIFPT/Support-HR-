@@ -206,7 +206,7 @@
 }
 
 .feature-page-shell .rounded-none {
-  border-radius: 12px !important;
+  border-radius: 0 !important;
 }
 
 .feature-page-shell .rounded-md {
@@ -228,7 +228,7 @@
 .feature-page-shell :is(button, a, img).rounded-none,
 .feature-page-shell :is(div, section, article, span).rounded-none,
 .feature-page-shell :is(div, section, article).overflow-hidden.rounded-none {
-  border-radius: 12px !important;
+  border-radius: 0 !important;
 }
 
 .feature-page-shell [class*="border-slate-800"] {
