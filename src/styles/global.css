@@ -693,6 +693,35 @@
   animation-delay: 1.7s;
 }
 
+.home-noise-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.16;
+  background-image:
+    radial-gradient(rgba(255, 255, 255, 0.08) 0.55px, transparent 0.7px),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.018) 0%, transparent 36%);
+  background-size: 10px 10px, 100% 100%;
+  mix-blend-mode: screen;
+}
+
+.home-grid-sheet {
+  position: relative;
+  overflow: hidden;
+}
+
+.home-grid-sheet::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 28px 28px;
+  opacity: 0.18;
+}
+
 .home-hero-vignette {
   background:
     linear-gradient(90deg, rgba(8, 20, 39, 0.94) 0%, rgba(8, 20, 39, 0.82) 22%, rgba(8, 20, 39, 0.4) 46%, rgba(10, 25, 48, 0.18) 72%, rgba(10, 25, 48, 0.1) 100%),

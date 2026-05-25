@@ -285,8 +285,10 @@ const HomePage: React.FC<HomePageProps> = ({
         />
 
         <PartnerTickerSection partners={partners} />
-        <WorkflowMatrixSection onPrimaryAction={handleStart} />
-        <WhySupportSection />
+        <section className="border-y border-white/[0.08] bg-black">
+          <WorkflowMatrixSection onPrimaryAction={handleStart} merged />
+          <WhySupportSection />
+        </section>
 
         <section id="compare" className="border-y border-zinc-800 bg-zinc-950 py-12 sm:py-14">
           <div className="w-full max-w-none px-4 sm:px-7 lg:px-10">

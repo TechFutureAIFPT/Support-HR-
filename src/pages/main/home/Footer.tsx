@@ -178,14 +178,14 @@ const SocialLinks = () => (
 
 const Footer = ({ onNavigate }: FooterProps) => {
   return (
-    <footer id="contact" className="relative overflow-hidden border-t border-white/10 bg-black">
+    <footer id="contact" className="relative overflow-hidden bg-black">
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent" />
         <div className="absolute left-0 top-0 h-80 w-96 bg-[radial-gradient(circle_at_top_left,rgba(245,214,187,0.1),transparent_65%)]" />
         <div className="absolute bottom-0 right-0 h-80 w-[32rem] bg-[radial-gradient(circle_at_bottom_right,rgba(245,214,187,0.08),transparent_68%)]" />
       </div>
 
-      <div className="relative w-full py-12 sm:py-14 lg:py-16">
+      <div className="relative w-full pb-8 sm:pb-10 lg:pb-12">
         <div className="w-full border-y border-white/10 bg-white/[0.02]">
           <div className="grid gap-8 border-b border-white/8 px-5 py-6 sm:px-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:items-start lg:px-8">
             <div className="max-w-[34rem]">

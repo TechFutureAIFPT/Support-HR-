@@ -113,17 +113,25 @@ const workflowPanels = [
 
 interface WorkflowMatrixSectionProps {
   onPrimaryAction: () => void;
+  merged?: boolean;
 }
 
 export default function WorkflowMatrixSection({
   onPrimaryAction,
+  merged = false,
 }: WorkflowMatrixSectionProps) {
   const reduceMotion = useReducedMotion();
 
   return (
-    <section id="steps" className="relative overflow-hidden border-y border-white/[0.08] bg-black py-24 sm:py-28 lg:py-32">
+    <section
+      id="steps"
+      className={`relative overflow-hidden bg-black ${
+        merged ? "py-20 sm:py-24 lg:pt-24 lg:pb-16" : "border-y border-white/[0.08] py-24 sm:py-28 lg:py-32"
+      }`}
+    >
       <div className="pointer-events-none absolute inset-0 supporthr-grid-mask opacity-30" />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.03),transparent_28%),linear-gradient(180deg,rgba(255,255,255,0.01),transparent_60%)]" />
+      <div className="home-noise-overlay" />
 
       <div className="relative home-section-frame">
         <div className="max-w-[82rem]">
@@ -139,7 +147,7 @@ export default function WorkflowMatrixSection({
           </p>
         </div>
 
-        <div className="mt-14 grid gap-px border border-white/[0.07] bg-white/[0.07] lg:grid-cols-2 xl:grid-cols-3">
+        <div className="home-grid-sheet mt-14 grid gap-px border border-white/[0.07] bg-white/[0.07] lg:grid-cols-2 xl:grid-cols-3">
           {workflowPanels.map(({ label, title, description, bullets, cta, accent, Icon }) => {
             const tone = panelAccent[accent];
 

@@ -4,7 +4,8 @@ import { LEGAL_TONE_STYLES } from "@/pages/info/legal-ui";
 
 export default function PricingSection() {
   return (
-    <section id="pricing" className="border-b border-white/[0.08] bg-black py-24 sm:py-28">
+    <section id="pricing" className="relative border-b border-white/[0.08] bg-black py-24 sm:py-28">
+      <div className="home-noise-overlay" />
       <div className="home-section-frame">
         <div className="max-w-[58rem]">
           <p className="supporthr-mono text-[11px] uppercase tracking-[0.24em] text-[#f5d6bb]/75">
@@ -19,12 +20,12 @@ export default function PricingSection() {
           </p>
         </div>
 
-        <div className="mt-12 grid gap-4 xl:grid-cols-3 2xl:gap-5">
+        <div className="home-grid-sheet mt-12 grid gap-px border border-white/[0.08] bg-white/[0.08] xl:grid-cols-3">
           {pricingPlans.map((plan) => {
             const style = LEGAL_TONE_STYLES[plan.tone];
 
             return (
-              <article key={plan.name} className={`border ${style.border} bg-white/[0.02] p-6`}>
+              <article key={plan.name} className={`relative border ${style.border} bg-[rgba(11,11,12,0.96)] p-6`}>
                 <p className={`supporthr-mono text-[10px] uppercase tracking-[0.22em] ${style.label}`}>
                   {plan.audience}
                 </p>

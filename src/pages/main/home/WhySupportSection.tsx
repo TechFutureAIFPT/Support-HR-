@@ -46,9 +46,10 @@ export default function WhySupportSection() {
   const hoverLift = reduceMotion ? undefined : { y: -4 };
 
   return (
-    <section className="relative overflow-hidden border-b border-white/[0.08] bg-black py-24 sm:py-28 lg:py-32">
+    <section className="relative overflow-hidden bg-black pt-0 pb-20 sm:pb-24 lg:pb-24">
       <div className="pointer-events-none absolute inset-0 supporthr-grid-mask opacity-25" />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_left_center,rgba(255,255,255,0.03),transparent_34%),linear-gradient(180deg,rgba(255,255,255,0.015),transparent_62%)]" />
+      <div className="home-noise-overlay" />
 
       <div className="relative home-section-frame">
         <div className="grid gap-10 xl:grid-cols-[minmax(0,0.9fr)_minmax(40rem,1.1fr)] xl:items-center">
@@ -65,7 +66,7 @@ export default function WhySupportSection() {
             </p>
           </div>
 
-          <div className="grid self-stretch gap-px border border-white/[0.08] bg-white/[0.08] sm:grid-cols-2">
+          <div className="home-grid-sheet grid self-stretch gap-px border border-white/[0.08] bg-white/[0.08] sm:grid-cols-2">
             {impactStats.map(({ value, label, accent, surface, border, Icon }) => (
               <motion.div
                 key={label}
