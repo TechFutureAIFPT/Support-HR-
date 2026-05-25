@@ -256,7 +256,7 @@ const HomePage: React.FC<HomePageProps> = ({
                     onClick={onLoginRequest}
                     className="hidden h-8 items-center justify-center border border-white/12 px-5 supporthr-mono text-[11px] font-semibold uppercase tracking-[0.2em] text-zinc-200 transition-colors duration-200 hover:border-white/24 hover:text-white sm:inline-flex"
                   >
-                    DANG NHAP
+                    ĐĂNG NHẬP
                   </button>
                 ) : null}
                 <button
@@ -264,7 +264,7 @@ const HomePage: React.FC<HomePageProps> = ({
                   onClick={handleStart}
                   className="hidden h-8 items-center justify-center bg-white px-5 supporthr-mono text-[11px] font-bold uppercase tracking-[0.2em] text-black transition-colors duration-200 hover:bg-zinc-100 sm:inline-flex"
                 >
-                  {canContinue ? "TIEP TUC" : "BAT DAU"}
+                  {canContinue ? "TIẾP TỤC" : "BẮT ĐẦU"}
                 </button>
                 <button
                   type="button"

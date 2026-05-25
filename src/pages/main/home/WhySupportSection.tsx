@@ -8,32 +8,32 @@ import {
 
 const impactStats = [
   {
-    value: "Nhanh hon",
-    label: "Rut ngan thao tac doc CV va gom ve mot luong review gon hon.",
+    value: "Nhanh hơn",
+    label: "Rút ngắn thao tác đọc CV và gom về một luồng rà soát gọn hơn.",
     accent: "text-cyan-300",
     surface: "bg-[rgba(4,24,28,0.92)]",
     border: "border-cyan-400/18",
     Icon: Clock3,
   },
   {
-    value: "Ro hon",
-    label: "Giu shortlist, ghi chu, va ly do danh gia trong mot man hinh lam viec.",
+    value: "Rõ hơn",
+    label: "Giữ danh sách đề cử, ghi chú và lý do đánh giá trong một màn hình làm việc.",
     accent: "text-violet-300",
     surface: "bg-[rgba(13,11,28,0.92)]",
     border: "border-violet-400/18",
     Icon: Sparkles,
   },
   {
-    value: "An toan hon",
-    label: "Bo sung context de recruiter va hiring manager cung review de dang hon.",
+    value: "Chắc hơn",
+    label: "Bổ sung đủ ngữ cảnh để chuyên viên tuyển dụng và quản lý tuyển dụng cùng rà soát.",
     accent: "text-rose-300",
     surface: "bg-[rgba(30,8,15,0.92)]",
     border: "border-rose-400/18",
     Icon: ShieldCheck,
   },
   {
-    value: "De mo rong",
-    label: "Phu hop tu doi ngu nho den quy trinh can chia se shortlist cho nhieu ben.",
+    value: "Dễ mở rộng",
+    label: "Phù hợp từ đội ngũ nhỏ đến quy trình cần chia sẻ danh sách đề cử cho nhiều bên.",
     accent: "text-emerald-300",
     surface: "bg-[rgba(4,24,16,0.92)]",
     border: "border-emerald-400/18",
@@ -54,14 +54,14 @@ export default function WhySupportSection() {
         <div className="grid gap-12 xl:grid-cols-[minmax(0,0.95fr)_minmax(34rem,1.05fr)] xl:items-center">
           <div className="max-w-[46rem]">
             <p className="supporthr-mono text-[11px] uppercase tracking-[0.24em] text-emerald-300/75">
-              Support HR // Vi sao doi ngu business de chap nhan hon
+              Support HR // Vì sao đội ngũ business dễ chấp nhận hơn
             </p>
             <h2 className="home-section-heading mt-6 max-w-[46rem] font-semibold text-white">
-              Chuyen quy trinh screening thanh mot bo mat van hanh ro rang cho recruiter.
+              Chuyển quy trình sàng lọc thành một bề mặt vận hành rõ ràng cho đội tuyển dụng.
             </h2>
             <p className="mt-6 max-w-[41rem] text-base leading-8 text-zinc-400 sm:text-lg">
-              Support HR duoc thiet ke de recruiter nhin thay ngay file nao dang duoc xu ly, ung vien nao dang duoc de
-              cu, va vi sao shortlist do duoc de xuat. Muc tieu la giam thao tac lap, khong phai tao them mot hop den.
+              Support HR được thiết kế để đội tuyển dụng nhìn ngay file nào đang được xử lý, ứng viên nào đang được đề
+              cử, và vì sao danh sách đó được đưa lên trước. Mục tiêu là giảm thao tác lặp, không phải tạo thêm một hộp đen.
             </p>
           </div>
 

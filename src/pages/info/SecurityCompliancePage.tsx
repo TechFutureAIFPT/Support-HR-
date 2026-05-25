@@ -31,7 +31,7 @@ const SecurityCompliancePage: React.FC = () => {
           <div className="space-y-4">
             <LegalCallout tone="cyan" icon="fa-circle-check" title="Xây cho quy trình tuyển dụng có thể rà soát">
               Support HR giúp đội ngũ tuyển dụng đi nhanh hơn mà vẫn giữ được khả năng theo dõi file, tiêu chí và quyết
-              định shortlist.
+              định đề cử.
             </LegalCallout>
 
             <div className="grid gap-4 xl:grid-cols-3">
@@ -51,11 +51,11 @@ const SecurityCompliancePage: React.FC = () => {
                   items={[
                     "Trạng thái làm việc theo từng người dùng",
                     "Chỉ nhập file sau khi người dùng chủ động chọn",
-                    "Có thể truy vết ngữ cảnh chấm điểm và shortlist",
+                    "Có thể truy vết ngữ cảnh chấm điểm và đề cử",
                   ]}
                 />
               </LegalCard>
-              <LegalCard tone="violet" icon="fa-clipboard-check" title="Sẵn sàng cho bước review">
+              <LegalCard tone="violet" icon="fa-clipboard-check" title="Sẵn sàng cho bước rà soát">
                 <p>
                   Hệ thống giữ đủ ngữ cảnh quanh JD, file CV đã nhập và kết quả chấm điểm để đội ngũ xem lại một phiên
                   tuyển dụng mà không phải dựng lại từ đầu.
@@ -71,7 +71,7 @@ const SecurityCompliancePage: React.FC = () => {
             <div className="grid gap-4 xl:grid-cols-2">
               <LegalCard tone="emerald" icon="fa-users-gear" title="Ai được truy cập phần nào" badge="Theo vai trò">
                 <p>
-                  Recruiter truy cập các quy trình mình vận hành, còn admin có thể điều phối rollout, hỗ trợ và các
+                  Recruiter truy cập các quy trình mình vận hành, còn admin có thể điều phối triển khai, hỗ trợ và các
                   quyết định chính sách cho đội ngũ.
                 </p>
                 <p className="text-zinc-500">
@@ -98,12 +98,12 @@ const SecurityCompliancePage: React.FC = () => {
           <div className="space-y-4">
             <LegalCard tone="sky" icon="fa-database" title="Cách tiếp cận lưu trữ">
               <p>
-                Lịch sử quy trình được giữ lại để hỗ trợ recruiter review, bàn giao và rà soát các quyết định tuyển
+                Lịch sử quy trình được giữ lại để hỗ trợ recruiter rà soát, bàn giao và xem lại các quyết định tuyển
                 dụng gần đây. Đội ngũ nên đặt thời gian lưu phù hợp với chính sách nội bộ.
               </p>
             </LegalCard>
             <LegalCallout tone="rose" icon="fa-trash-can" title="Hỗ trợ xóa dữ liệu">
-              Khi đội ngũ yêu cầu dọn tài khoản hoặc workspace, các file đã nhập và bản ghi liên quan cần được xóa theo
+              Khi đội ngũ yêu cầu dọn tài khoản hoặc không gian làm việc, các file đã nhập và bản ghi liên quan cần được xóa theo
               quy trình vận hành đã thống nhất và nghĩa vụ pháp lý.
             </LegalCallout>
           </div>
@@ -131,7 +131,7 @@ const SecurityCompliancePage: React.FC = () => {
                 <LegalBulletGrid
                   tone="cyan"
                   items={[
-                    "Không quét rộng cả workspace nếu người dùng không yêu cầu",
+                    "Không quét rộng cả không gian làm việc nếu người dùng không yêu cầu",
                     "Không chia sẻ công khai các file đã nhập",
                     "Không âm thầm đồng bộ các thư mục Drive không liên quan",
                   ]}
@@ -148,8 +148,8 @@ const SecurityCompliancePage: React.FC = () => {
               <LegalBulletGrid
                 tone="rose"
                 items={[
-                  "Phản hồi trong giờ làm việc cho câu hỏi rollout và sử dụng",
-                  "Hỗ trợ onboarding, thiết lập workflow và hướng dẫn sản phẩm",
+                  "Phản hồi trong giờ làm việc cho câu hỏi triển khai và sử dụng",
+                  "Hỗ trợ khởi động sử dụng, thiết lập quy trình và hướng dẫn sản phẩm",
                   "Tiếp nhận và phân loại lỗi khi luồng file hoặc truy cập cần xem lại",
                 ]}
               />

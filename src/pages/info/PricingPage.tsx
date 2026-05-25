@@ -13,7 +13,7 @@ import {
 const sections = [
   { id: "plans", title: "Tổng quan gói", icon: "fa-layer-group", tone: "cyan" },
   { id: "included", title: "Bao gồm những gì", icon: "fa-box-open", tone: "emerald" },
-  { id: "rollout", title: "Hỗ trợ rollout", icon: "fa-handshake", tone: "sky" },
+  { id: "rollout", title: "Hỗ trợ triển khai", icon: "fa-handshake", tone: "sky" },
   { id: "commercial", title: "Phù hợp thương mại", icon: "fa-file-invoice-dollar", tone: "violet" },
 ] satisfies LegalSectionMeta[];
 
@@ -71,9 +71,9 @@ const PricingPage: React.FC = () => {
                 columns={2}
                 items={[
                   "Nhập CV từ tải lên và Google Drive",
-                  "Workflow sàng lọc bám theo JD",
-                  "Shortlist có lý do đi kèm",
-                  "Lịch sử cho các phiên review gần đây",
+                  "Quy trình sàng lọc bám theo JD",
+                  "Danh sách đề cử có lý do đi kèm",
+                  "Lịch sử cho các phiên rà soát gần đây",
                 ]}
               />
             </LegalCard>
@@ -87,9 +87,9 @@ const PricingPage: React.FC = () => {
               <LegalBulletGrid
                 tone="sky"
                 items={[
-                  "Walkthrough ban đầu cho luồng tuyển dụng",
+                  "Buổi hướng dẫn ban đầu cho luồng tuyển dụng",
                   "Hỗ trợ kết nối nguồn tài liệu",
-                  "Review phiên mẫu đầu tiên",
+                  "Rà soát phiên mẫu đầu tiên",
                   "Theo dõi tiếp cho các câu hỏi mở rộng quy mô",
                 ]}
               />
@@ -101,11 +101,11 @@ const PricingPage: React.FC = () => {
         return (
           <div className="space-y-4">
             <LegalCallout tone="violet" icon="fa-building" title="Chọn gói phù hợp như thế nào">
-              Nên chọn dựa trên quy mô đội ngũ, lượng CV theo tháng và mức governance hoặc hỗ trợ rollout mà tổ chức
+              Nên chọn dựa trên quy mô đội ngũ, lượng CV theo tháng và mức kiểm soát hoặc hỗ trợ triển khai mà tổ chức
               kỳ vọng trong giai đoạn áp dụng.
             </LegalCallout>
             <LegalCard tone="rose" icon="fa-phone" title="Bước tiếp theo cho bộ phận mua sắm">
-              Nếu cấu trúc giá nhìn đã gần nhu cầu, cách nhanh nhất là xem demo trực tiếp và trao đổi nhanh về quy mô
+              Nếu cấu trúc giá nhìn đã gần nhu cầu, cách nhanh nhất là xem trải nghiệm trực tiếp và trao đổi nhanh về quy mô
               để chốt đúng gói phù hợp.
             </LegalCard>
           </div>
@@ -120,13 +120,13 @@ const PricingPage: React.FC = () => {
     <LegalPageLayout
       pageLabel="Bảng giá"
       title="Tổng quan bảng giá và gói dịch vụ"
-      subtitle="Cái nhìn rõ ràng về việc mỗi gói dành cho ai, bao gồm những gì trong workflow cốt lõi và cách đội ngũ có thể đi từ đánh giá thử sang rollout."
+      subtitle="Cái nhìn rõ ràng về việc mỗi gói dành cho ai, bao gồm những gì trong quy trình cốt lõi và cách đội ngũ có thể đi từ đánh giá thử sang triển khai."
       meta="Tài liệu doanh nghiệp · Cập nhật 2026"
       sections={sections}
       activeSection={activeSection}
       onSectionChange={setActiveSection}
       isVisible={isVisible}
-      auxiliaryLink={{ label: "FAQ", to: "/faq" }}
+      auxiliaryLink={{ label: "Hỏi đáp", to: "/faq" }}
       brandContext="Tài liệu doanh nghiệp"
       statusCountLabel="chủ đề thương mại"
     >

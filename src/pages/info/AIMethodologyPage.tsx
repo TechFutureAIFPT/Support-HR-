@@ -30,7 +30,7 @@ const AIMethodologyPage: React.FC = () => {
         return (
           <div className="space-y-4">
             <LegalCallout tone="cyan" icon="fa-diagram-project" title="Luồng bắt đầu từ một định nghĩa vai trò rõ ràng">
-              Hệ thống đọc mô tả công việc trước để phần còn lại của workflow luôn bám vào cùng một vai trò, cùng bộ kỹ
+              Hệ thống đọc mô tả công việc trước để phần còn lại của quy trình luôn bám vào cùng một vai trò, cùng bộ kỹ
               năng và cùng ý định tuyển dụng.
             </LegalCallout>
           </div>
@@ -47,7 +47,7 @@ const AIMethodologyPage: React.FC = () => {
                   "Kỹ năng gắn với vai trò",
                   "Kỳ vọng về kinh nghiệm",
                   "Yêu cầu quan trọng và hard filter",
-                  "Ngữ cảnh định hình shortlist",
+                  "Ngữ cảnh định hình danh sách đề cử",
                 ]}
               />
             </LegalCard>
@@ -82,7 +82,7 @@ const AIMethodologyPage: React.FC = () => {
         return (
           <div className="space-y-4">
             <LegalCallout tone="rose" icon="fa-user-pen" title="Recruiter vẫn là người giữ quyền quyết định">
-              Vòng review của con người vẫn là bước cuối cùng. Support HR giúp đội ngũ nhìn dữ liệu nhanh hơn và nhất
+              Vòng rà soát của con người vẫn là bước cuối cùng. Support HR giúp đội ngũ nhìn dữ liệu nhanh hơn và nhất
               quán hơn, nhưng không thay thế phán đoán tuyển dụng.
             </LegalCallout>
           </div>
@@ -103,7 +103,7 @@ const AIMethodologyPage: React.FC = () => {
       activeSection={activeSection}
       onSectionChange={setActiveSection}
       isVisible={isVisible}
-      auxiliaryLink={{ label: "Demo", to: "/demo" }}
+      auxiliaryLink={{ label: "Trải nghiệm", to: "/demo" }}
       brandContext="Tài liệu doanh nghiệp"
       statusCountLabel="ghi chú phương pháp"
     >

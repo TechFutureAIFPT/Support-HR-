@@ -29,7 +29,7 @@ const BookDemoPage: React.FC = () => {
       case "fit":
         return (
           <LegalCallout tone="cyan" icon="fa-handshake" title="Phù hợp nhất khi muốn đánh giá nghiêm túc">
-            Hãy đặt lịch demo khi đội ngũ của bạn muốn so sản phẩm với một workflow tuyển dụng thật, chứ không chỉ xem
+            Hãy đặt lịch trải nghiệm khi đội ngũ của bạn muốn so sản phẩm với một quy trình tuyển dụng thật, chứ không chỉ xem
             danh sách tính năng.
           </LegalCallout>
         );
@@ -39,9 +39,9 @@ const BookDemoPage: React.FC = () => {
             <LegalBulletGrid
               tone="emerald"
               items={[
-                "Workflow tuyển dụng hiện tại và điểm đau đang gặp",
+                "Quy trình tuyển dụng hiện tại và điểm đau đang gặp",
                 "Một vai trò mẫu và một bộ CV mẫu",
-                "Cách đội ngũ đang review shortlist hôm nay",
+                "Cách đội ngũ đang rà soát danh sách đề cử hôm nay",
                 "Bước thương mại tiếp theo nếu thấy phù hợp",
               ]}
             />
@@ -66,8 +66,8 @@ const BookDemoPage: React.FC = () => {
         return (
           <LegalCard tone="rose" icon="fa-envelope-open-text" title="Kỳ vọng phản hồi">
             <p>
-              Yêu cầu demo nên nhận được phản hồi trong giờ làm việc, với cuộc trao đổi đầu tiên tập trung vào độ phù
-              hợp, workflow và bước thương mại tiếp theo.
+              Yêu cầu trải nghiệm nên nhận được phản hồi trong giờ làm việc, với cuộc trao đổi đầu tiên tập trung vào độ phù
+              hợp, quy trình và bước thương mại tiếp theo.
             </p>
           </LegalCard>
         );
@@ -78,8 +78,8 @@ const BookDemoPage: React.FC = () => {
 
   return (
     <LegalPageLayout
-      pageLabel="Đặt lịch demo"
-      title="Đặt lịch walkthrough sản phẩm"
+      pageLabel="Đặt lịch trải nghiệm"
+      title="Đặt lịch trao đổi sản phẩm"
       subtitle="Các kênh liên hệ và kỳ vọng rõ ràng cho cuộc trao đổi đầu tiên với đội ngũ tư vấn."
       meta="Tài liệu doanh nghiệp · Cập nhật 2026"
       sections={sections}

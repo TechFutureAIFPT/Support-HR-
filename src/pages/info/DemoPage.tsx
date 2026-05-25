@@ -11,8 +11,8 @@ import {
 const sections = [
   { id: "intake", title: "Nhập JD", icon: "fa-file-signature", tone: "cyan" },
   { id: "import", title: "Nhập CV", icon: "fa-file-import", tone: "emerald" },
-  { id: "review", title: "Chấm điểm và review", icon: "fa-scale-balanced", tone: "sky" },
-  { id: "shortlist", title: "Đầu ra shortlist", icon: "fa-user-check", tone: "violet" },
+  { id: "review", title: "Chấm điểm và rà soát", icon: "fa-scale-balanced", tone: "sky" },
+  { id: "shortlist", title: "Đầu ra danh sách đề cử", icon: "fa-user-check", tone: "violet" },
   { id: "handoff", title: "Bàn giao cho đội ngũ", icon: "fa-share-nodes", tone: "rose" },
 ] satisfies LegalSectionMeta[];
 
@@ -31,7 +31,7 @@ const DemoPage: React.FC = () => {
         return (
           <div className="space-y-4">
             <LegalCallout tone="cyan" icon="fa-diagram-project" title="Bước 1: xác định vai trò thật rõ">
-              Recruiter bắt đầu với một JD, sau đó thiết lập ngữ cảnh workflow để hệ thống hiểu kỹ năng, tín hiệu và
+              Recruiter bắt đầu với một JD, sau đó thiết lập ngữ cảnh quy trình để hệ thống hiểu kỹ năng, tín hiệu và
               hard filter nào quan trọng cho lần tuyển dụng đó.
             </LegalCallout>
             <LegalCard tone="cyan" icon="fa-list" title="Đội ngũ cần chuẩn bị gì trước">
@@ -58,7 +58,7 @@ const DemoPage: React.FC = () => {
             </LegalCard>
             <LegalCard tone="emerald" icon="fa-file-lines" title="File đầu vào lẫn lộn vẫn xử lý được">
               <p>
-                Workflow được thiết kế để xử lý nhiều kiểu tài liệu khác nhau và vẫn giữ chúng trong cùng một phiên
+                Quy trình được thiết kế để xử lý nhiều kiểu tài liệu khác nhau và vẫn giữ chúng trong cùng một phiên
                 sàng lọc.
               </p>
             </LegalCard>
@@ -70,13 +70,13 @@ const DemoPage: React.FC = () => {
           <div className="space-y-4">
             <LegalCard tone="sky" icon="fa-sliders" title="Bước 3: đối chiếu JD và CV">
               <p>
-                Support HR tổ chức đầu vào thành một bề mặt review nhất quán để recruiter kiểm tra độ phù hợp, lý do và
+                Support HR tổ chức đầu vào thành một bề mặt rà soát nhất quán để recruiter kiểm tra độ phù hợp, lý do và
                 khoảng trống trước khi chốt shortlist.
               </p>
             </LegalCard>
-            <LegalCallout tone="sky" icon="fa-eye" title="Mục tiêu là khả năng review">
+            <LegalCallout tone="sky" icon="fa-eye" title="Mục tiêu là khả năng rà soát">
               Bên mua thường muốn biết sản phẩm có giúp ra quyết định nhanh hơn mà không biến quy trình thành hộp đen
-              hay không. Đây là chỗ workflow thể hiện giá trị.
+              hay không. Đây là chỗ quy trình thể hiện giá trị.
             </LegalCallout>
           </div>
         );
@@ -110,7 +110,7 @@ const DemoPage: React.FC = () => {
               to="/book-demo"
               className="inline-flex h-10 items-center justify-center border border-white/12 px-5 supporthr-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-white transition-colors hover:border-white/24 hover:bg-white/[0.03]"
             >
-              Đặt lịch walkthrough trực tiếp
+              Đặt lịch trải nghiệm trực tiếp
             </Link>
           </div>
         );
@@ -122,9 +122,9 @@ const DemoPage: React.FC = () => {
 
   return (
     <LegalPageLayout
-      pageLabel="Demo"
+      pageLabel="Trải nghiệm"
       title="Luồng trải nghiệm sản phẩm"
-      subtitle="Mô tả dễ hiểu về cách một recruiter đi từ một JD và một chồng CV đến một shortlist có thể review ngay bên trong Support HR."
+      subtitle="Mô tả dễ hiểu về cách một recruiter đi từ một JD và một chồng CV đến một danh sách đề cử có thể rà soát ngay bên trong Support HR."
       meta="Tài liệu doanh nghiệp · Cập nhật 2026"
       sections={sections}
       activeSection={activeSection}

@@ -15,7 +15,7 @@ export default function PricingSection() {
           </h2>
           <p className="mt-6 max-w-[42rem] text-base leading-8 text-zinc-400 sm:text-lg">
             Bảng giá trên homepage giúp khách mới nhìn nhanh gói nào phù hợp. Trang bảng giá đầy đủ sẽ giải thích thêm
-            phạm vi gói, onboarding, và cách chọn phương án phù hợp với quy mô doanh nghiệp.
+            phạm vi gói, hỗ trợ triển khai ban đầu, và cách chọn phương án phù hợp với quy mô doanh nghiệp.
           </p>
         </div>
 

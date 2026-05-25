@@ -10,7 +10,7 @@ import {
 const sections = [
   { id: "drive", title: "Google Drive", icon: "fa-folder-open", tone: "cyan" },
   { id: "uploads", title: "Tải lên trực tiếp", icon: "fa-upload", tone: "emerald" },
-  { id: "history", title: "Ghi nhớ workflow", icon: "fa-clock-rotate-left", tone: "sky" },
+  { id: "history", title: "Ghi nhớ quy trình", icon: "fa-clock-rotate-left", tone: "sky" },
   { id: "roadmap", title: "Hướng mở rộng", icon: "fa-plug", tone: "violet" },
 ] satisfies LegalSectionMeta[];
 
@@ -28,7 +28,7 @@ const IntegrationsPage: React.FC = () => {
       case "drive":
         return (
           <div className="space-y-4">
-            <LegalCallout tone="cyan" icon="fa-link" title="Drive là một phần của workflow hằng ngày">
+            <LegalCallout tone="cyan" icon="fa-link" title="Drive là một phần của quy trình hằng ngày">
               Đội ngũ có thể kết nối tài khoản đã đăng nhập và duyệt file tuyển dụng mà không cần rời khỏi luồng sàng
               lọc.
             </LegalCallout>
@@ -39,7 +39,7 @@ const IntegrationsPage: React.FC = () => {
           <LegalCard tone="emerald" icon="fa-file-arrow-up" title="Tải lên trực tiếp vẫn rất hữu ích">
             <p>
               Nếu tài liệu chưa nằm trong Drive, người dùng vẫn có thể nhập file trực tiếp và giữ nguyên cùng một
-              workflow trong sản phẩm.
+              quy trình trong sản phẩm.
             </p>
           </LegalCard>
         );
@@ -50,7 +50,7 @@ const IntegrationsPage: React.FC = () => {
               tone="sky"
               items={[
                 "Khôi phục được trạng thái sàng lọc gần đây",
-                "Có thể quay lại một phiên review đang làm dở",
+                "Có thể quay lại một phiên rà soát đang làm dở",
                 "Tải lại trang không làm đứt mạch sử dụng thông thường",
               ]}
             />
@@ -61,7 +61,7 @@ const IntegrationsPage: React.FC = () => {
           <LegalCard tone="violet" icon="fa-puzzle-piece" title="Trang này muốn phát tín hiệu điều gì">
             <p>
               Đây là bản tóm tắt thực dụng về tích hợp ở thời điểm hiện tại. Các kết nối sâu hơn như ATS hay HRIS có
-              thể được mở rộng về sau trong lộ trình sản phẩm và rollout doanh nghiệp.
+              thể được mở rộng về sau trong lộ trình sản phẩm và triển khai doanh nghiệp.
             </p>
           </LegalCard>
         );

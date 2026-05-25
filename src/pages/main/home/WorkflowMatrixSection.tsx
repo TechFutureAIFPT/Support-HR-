@@ -60,7 +60,7 @@ const workflowPanels = [
     Icon: FileSearch,
   },
   {
-    label: "CV // HẤP THỤ",
+    label: "CV // TIẾP NHẬN",
     title: "Nhập hồ sơ hàng loạt mà vẫn giữ độ sạch dữ liệu",
     description:
       "Từ PDF, DOCX đến CV scan, mỗi hồ sơ đều được chuẩn hóa để phục vụ đối sánh và truy vết về sau.",
@@ -70,7 +70,7 @@ const workflowPanels = [
     Icon: FolderKanban,
   },
   {
-    label: "MATCH // ENGINE",
+    label: "ĐỐI SÁNH // CHẤM ĐIỂM",
     title: "Chấm điểm và xếp hạng như một bộ máy tuyển dụng riêng",
     description:
       "Không chỉ đọc CV, hệ thống đối sánh sâu theo kỹ năng, kinh nghiệm, mức phù hợp và khoảng cách còn thiếu.",
@@ -80,27 +80,27 @@ const workflowPanels = [
     Icon: BrainCircuit,
   },
   {
-    label: "INTERVIEW // PACK",
+    label: "PHỎNG VẤN // GỢI Ý",
     title: "Tạo bộ câu hỏi phỏng vấn bám đúng hồ sơ và JD",
     description:
-      "Mỗi shortlist đều đi kèm gợi ý hỏi sâu để recruiter và hiring manager đi nhanh mà vẫn giữ chất lượng đánh giá.",
+      "Mỗi danh sách đề cử đều đi kèm gợi ý hỏi sâu để recruiter và quản lý tuyển dụng đi nhanh mà vẫn giữ chất lượng đánh giá.",
     bullets: ["Câu hỏi theo kỹ năng", "Tình huống theo seniority", "Điểm cần xác thực thêm"],
     cta: "Chuẩn bị vòng phỏng vấn",
     accent: "cyan" as const,
     Icon: MessageSquareCode,
   },
   {
-    label: "REVIEW // TEAM",
+    label: "PHỐI HỢP // ĐỘI NGŨ",
     title: "Cho phép nhiều người cùng duyệt trong một nhịp thống nhất",
     description:
       "Recruiter, trưởng bộ phận và hội đồng tuyển dụng đều có thể nhìn cùng một bức tranh thay vì trao đổi rời rạc.",
     bullets: ["Danh sách ưu tiên chung", "Ghi chú theo ứng viên", "Luồng phối hợp rõ ràng"],
-    cta: "Điều phối shortlist",
+    cta: "Điều phối đề cử",
     accent: "emerald" as const,
     Icon: UsersRound,
   },
   {
-    label: "AUDIT // CONTROL",
+    label: "KIỂM SOÁT // TRUY VẾT",
     title: "Lưu lại mọi quyết định để báo cáo và truy vết",
     description:
       "Mỗi lần chấm điểm, điều chỉnh trọng số hay chọn ứng viên đều có thể được rà soát lại khi cần báo cáo nội bộ.",

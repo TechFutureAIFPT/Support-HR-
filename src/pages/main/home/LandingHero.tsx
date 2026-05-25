@@ -58,7 +58,7 @@ const HERO_SYSTEM_PANELS = [
     dotClass: "bg-emerald-400",
     accentClass: "text-emerald-400",
     lines: [
-      "[TRANG] Bảng giá, Bảo mật, FAQ, Demo",
+      "[TRANG] Bảng giá, Bảo mật, Hỏi đáp, Trải nghiệm",
       "[KHÁCH HÀNG] Dễ tìm trong 1-2 lần bấm",
       "[DOANH NGHIỆP] Nội dung ưu tiên cho đội ngũ mua hàng",
     ],
