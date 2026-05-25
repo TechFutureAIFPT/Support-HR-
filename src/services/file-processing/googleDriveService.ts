@@ -87,7 +87,7 @@ const DRIVE_NAME_COLLATOR = new Intl.Collator(['vi', 'en'], {
 
 const GOOGLE_OAUTH_QUERY_KEYS = ['code', 'state', 'scope', 'prompt', 'authuser', 'error'];
 const GOOGLE_DRIVE_PENDING_IMPORT_KEY = 'supporthr.google-drive.pending-import';
-const GOOGLE_REDIRECT_IN_PROGRESS_MESSAGE = 'Dang chuyen toi Google de ket noi Google Drive.';
+const GOOGLE_REDIRECT_IN_PROGRESS_MESSAGE = 'Đang chuyển tới Google để kết nối Google Drive.';
 
 function normalizeDriveFile(raw: Record<string, unknown>): DriveFile {
   const rawSize = Number(raw.size);
@@ -149,7 +149,7 @@ function sortDriveFiles(files: DriveFile[]): DriveFile[] {
 }
 
 function formatFileSize(size: number | null): string {
-  if (!size) return 'Khong ro dung luong';
+  if (!size) return 'Không rõ dung lượng';
   if (size < 1024 * 1024) return `${(size / 1024).toFixed(1)} KB`;
   return `${(size / (1024 * 1024)).toFixed(1)} MB`;
 }
@@ -262,7 +262,7 @@ function createDriveSelectionModal(options: {
   return new Promise((resolve) => {
     const allowedMimeTypes = parseMimeTypes(options.mimeTypes);
     const selectedFiles = new Map<string, DriveFile>();
-    const breadcrumbs: DriveBrowserBreadcrumb[] = [{ id: ROOT_FOLDER_ID, name: 'My Drive' }];
+    const breadcrumbs: DriveBrowserBreadcrumb[] = [{ id: ROOT_FOLDER_ID, name: 'Drive của tôi' }];
 
     let currentFolderId = ROOT_FOLDER_ID;
     let currentSearch = '';
@@ -302,9 +302,9 @@ function createDriveSelectionModal(options: {
       <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;">
         <div style="min-width:0;">
           <div style="font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:#f5d6bb;font-weight:800;">Google Drive</div>
-          <div style="margin-top:6px;font-size:20px;line-height:1.2;color:#f8fafc;font-weight:800;">Chon tep tu Drive</div>
+          <div style="margin-top:6px;font-size:20px;line-height:1.2;color:#f8fafc;font-weight:800;">Chọn tệp từ Drive</div>
         </div>
-        <button data-role="cancel" style="height:36px;padding:0 14px;border-radius:0;border:1px solid rgba(255,255,255,.16);background:#0a0a0a;color:#e5e7eb;cursor:pointer;font:inherit;">Dong</button>
+        <button data-role="cancel" style="height:36px;padding:0 14px;border-radius:0;border:1px solid rgba(255,255,255,.16);background:#0a0a0a;color:#e5e7eb;cursor:pointer;font:inherit;">Đóng</button>
       </div>
     `;
 
@@ -315,7 +315,7 @@ function createDriveSelectionModal(options: {
       <div style="display:grid;gap:12px;">
         <div data-role="breadcrumbs" style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;"></div>
         <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
-          <input data-role="search" placeholder="Tim file hoac thu muc..." style="flex:1;min-width:240px;height:42px;padding:0 12px;border-radius:0;border:1px solid rgba(255,255,255,.14);background:#080808;color:#f8fafc;outline:none;font:inherit;" />
+          <input data-role="search" placeholder="Tìm tệp hoặc thư mục..." style="flex:1;min-width:240px;height:42px;padding:0 12px;border-radius:0;border:1px solid rgba(255,255,255,.14);background:#080808;color:#f8fafc;outline:none;font:inherit;" />
           <div data-role="stats" style="font-size:12px;color:#9ca3af;white-space:nowrap;"></div>
         </div>
       </div>
@@ -336,11 +336,11 @@ function createDriveSelectionModal(options: {
     footer.style.gap = '14px';
     footer.style.flexWrap = 'wrap';
     footer.innerHTML = `
-      <div data-role="summary" style="font-size:12px;color:#9ca3af;">Chua chon tep nao</div>
+      <div data-role="summary" style="font-size:12px;color:#9ca3af;">Chưa chọn tệp nào</div>
       <div style="display:flex;gap:10px;flex-wrap:wrap;">
-        <button data-role="load-more" style="height:40px;padding:0 16px;border-radius:0;border:1px solid rgba(255,255,255,.16);background:#0a0a0a;color:#e5e7eb;cursor:pointer;font:inherit;display:none;">Tai them</button>
-        <button data-role="cancel" style="height:40px;padding:0 16px;border-radius:0;border:1px solid rgba(255,255,255,.16);background:#0a0a0a;color:#e5e7eb;cursor:pointer;font:inherit;">Huy</button>
-        <button data-role="confirm" style="height:40px;padding:0 18px;border-radius:0;border:1px solid rgba(245,214,187,.42);background:#f5d6bb;color:#050505;cursor:pointer;font-weight:800;font-family:inherit;">Su dung tep da chon</button>
+        <button data-role="load-more" style="height:40px;padding:0 16px;border-radius:0;border:1px solid rgba(255,255,255,.16);background:#0a0a0a;color:#e5e7eb;cursor:pointer;font:inherit;display:none;">Tải thêm</button>
+        <button data-role="cancel" style="height:40px;padding:0 16px;border-radius:0;border:1px solid rgba(255,255,255,.16);background:#0a0a0a;color:#e5e7eb;cursor:pointer;font:inherit;">Hủy</button>
+        <button data-role="confirm" style="height:40px;padding:0 18px;border-radius:0;border:1px solid rgba(245,214,187,.42);background:#f5d6bb;color:#050505;cursor:pointer;font-weight:800;font-family:inherit;">Sử dụng tệp đã chọn</button>
       </div>
     `;
 
@@ -369,7 +369,7 @@ function createDriveSelectionModal(options: {
 
     const updateSummary = () => {
       summary.textContent =
-        selectedFiles.size > 0 ? `Da chon ${selectedFiles.size} tep` : 'Chua chon tep nao';
+        selectedFiles.size > 0 ? `Đã chọn ${selectedFiles.size} tệp` : 'Chưa chọn tệp nào';
       confirmButton.disabled = selectedFiles.size === 0;
       confirmButton.style.opacity = selectedFiles.size === 0 ? '0.48' : '1';
       confirmButton.style.cursor = selectedFiles.size === 0 ? 'not-allowed' : 'pointer';
@@ -418,7 +418,7 @@ function createDriveSelectionModal(options: {
 
       const visibleEntries = sortDriveFiles(entries);
       const selectableCount = visibleEntries.filter((file) => isSelectableDriveFile(file, allowedMimeTypes)).length;
-      stats.textContent = `${visibleEntries.length} muc | ${selectableCount} tep`;
+      stats.textContent = `${visibleEntries.length} mục | ${selectableCount} tệp`;
       loadMoreButton.style.display = nextPageToken ? 'inline-flex' : 'none';
       loadMoreButton.disabled = isLoading;
       loadMoreButton.style.opacity = isLoading ? '0.48' : '1';
@@ -441,7 +441,7 @@ function createDriveSelectionModal(options: {
         loadingPanel.style.border = '1px dashed rgba(255, 255, 255, 0.18)';
         loadingPanel.style.textAlign = 'center';
         loadingPanel.style.color = '#9ca3af';
-        loadingPanel.textContent = 'Dang tai du lieu Google Drive...';
+        loadingPanel.textContent = 'Đang tải dữ liệu Google Drive...';
         list.appendChild(loadingPanel);
         return;
       }
@@ -452,7 +452,7 @@ function createDriveSelectionModal(options: {
         empty.style.border = '1px dashed rgba(255, 255, 255, 0.18)';
         empty.style.textAlign = 'center';
         empty.style.color = '#9ca3af';
-        empty.textContent = currentSearch ? 'Khong tim thay tep phu hop.' : 'Thu muc nay chua co tep phu hop.';
+        empty.textContent = currentSearch ? 'Không tìm thấy tệp phù hợp.' : 'Thư mục này chưa có tệp phù hợp.';
         list.appendChild(empty);
         return;
       }
@@ -479,21 +479,21 @@ function createDriveSelectionModal(options: {
 
         const modifiedTime = formatDriveModifiedTime(file.modifiedTime);
         const meta = folder
-          ? 'Thu muc'
-          : [file.mimeType, formatFileSize(file.size), modifiedTime ? `Sua ${modifiedTime}` : '']
+          ? 'Thư mục'
+          : [file.mimeType, formatFileSize(file.size), modifiedTime ? `Sửa ${modifiedTime}` : '']
               .filter(Boolean)
               .join(' | ');
 
         row.innerHTML = `
           <div style="min-width:0;display:flex;align-items:center;gap:10px;">
-            <span style="width:42px;height:24px;display:inline-flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.14);color:${folder ? '#f5d6bb' : '#e5e7eb'};font-size:10px;font-weight:800;letter-spacing:.08em;flex:0 0 auto;">${folder ? 'DIR' : 'FILE'}</span>
+            <span style="width:42px;height:24px;display:inline-flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.14);color:${folder ? '#f5d6bb' : '#e5e7eb'};font-size:10px;font-weight:800;letter-spacing:.08em;flex:0 0 auto;">${folder ? 'MỤC' : 'TỆP'}</span>
             <div style="min-width:0;">
               <div style="font-size:14px;font-weight:750;color:#f8fafc;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(file.name)}</div>
               <div style="margin-top:4px;font-size:11px;color:#9ca3af;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(meta)}</div>
             </div>
           </div>
           <div style="flex-shrink:0;font-size:11px;font-weight:800;color:${selected ? '#f5d6bb' : '#6b7280'};">
-            ${folder ? 'Mo' : selected ? 'Da chon' : selectable ? 'Chon' : ''}
+            ${folder ? 'Mở' : selected ? 'Đã chọn' : selectable ? 'Chọn' : ''}
           </div>
         `;
 
@@ -509,9 +509,9 @@ function createDriveSelectionModal(options: {
                 const existingIndex = breadcrumbs.findIndex((item) => item.id === file.id);
                 breadcrumbs.splice(existingIndex + 1);
               } else if (navigatingFromSearch) {
-                breadcrumbs.splice(1, breadcrumbs.length - 1, { id: file.id, name: file.name || 'Folder' });
+                breadcrumbs.splice(1, breadcrumbs.length - 1, { id: file.id, name: file.name || 'Thư mục' });
               } else {
-                breadcrumbs.push({ id: file.id, name: file.name || 'Folder' });
+                breadcrumbs.push({ id: file.id, name: file.name || 'Thư mục' });
               }
             }
 
@@ -542,7 +542,7 @@ function createDriveSelectionModal(options: {
         loadingMore.style.padding = '8px 4px 0';
         loadingMore.style.fontSize = '12px';
         loadingMore.style.color = '#9ca3af';
-        loadingMore.textContent = 'Dang tai them...';
+        loadingMore.textContent = 'Đang tải thêm...';
         list.appendChild(loadingMore);
       }
     };
@@ -578,7 +578,7 @@ function createDriveSelectionModal(options: {
         errorMessage = '';
       } catch (error) {
         if (version !== requestVersion) return;
-        errorMessage = error instanceof Error ? error.message : 'Khong the mo Google Drive luc nay.';
+        errorMessage = error instanceof Error ? error.message : 'Không thể mở Google Drive lúc này.';
         if (!append) {
           entries = [];
           nextPageToken = null;
@@ -664,7 +664,7 @@ class GoogleDriveService {
       try {
         if (error) {
           cleanupOAuthParams();
-          throw new Error('Ban da huy ket noi Google Drive hoac Google tu choi quyen truy cap.');
+          throw new Error('Bạn đã hủy kết nối Google Drive hoặc Google từ chối quyền truy cập.');
         }
 
         if (code && state) {
