@@ -59,23 +59,6 @@ const footerColumns: FooterColumn[] = [
   },
 ];
 
-const trustBadges = [
-  {
-    key: "ssl",
-    label: "Transport Security",
-    title: "SSL/TLS",
-    detail: "Let's Encrypt",
-    iconClass: "fa-solid fa-lock",
-  },
-  {
-    key: "oauth",
-    label: "Google Access",
-    title: "OAuth Verified",
-    detail: "Consent Screen",
-    iconClass: "fa-brands fa-google",
-  },
-];
-
 function FooterLink({
   item,
   onNavigate,
@@ -175,33 +158,11 @@ export default function Footer({ onNavigate }: FooterProps) {
                 </div>
               </div>
 
-              <div className="grid gap-3 sm:grid-cols-3">
-                {trustBadges.map((badge) => (
-                  <div
-                    key={badge.key}
-                    className="flex min-h-[92px] min-w-[180px] items-center px-4 py-3"
-                  >
-                    <div className="flex items-start gap-3">
-                      <span className="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center border border-[#f5d6bb]/25 bg-[#f5d6bb]/8 text-[#f5d6bb]">
-                        <i className={badge.iconClass} />
-                      </span>
-                      <div className="min-w-0">
-                        <p className="supporthr-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500">
-                          {badge.label}
-                        </p>
-                        <p className="mt-1 text-sm font-semibold text-zinc-100">{badge.title}</p>
-                        <p className="mt-0.5 text-xs text-zinc-500">{badge.detail}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-
-                <div className="flex min-h-[92px] min-w-[180px] items-center justify-center px-4 py-3">
-                  <DmcaBadge
-                    className="border-0 bg-transparent px-0 py-0"
-                    centered={false}
-                  />
-                </div>
+              <div className="flex min-h-[92px] items-center justify-center px-4 py-3">
+                <DmcaBadge
+                  className="border-0 bg-transparent px-0 py-0"
+                  centered={false}
+                />
               </div>
             </div>
           </div>
