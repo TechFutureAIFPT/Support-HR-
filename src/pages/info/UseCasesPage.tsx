@@ -81,7 +81,6 @@ const UseCasesPage: React.FC = () => {
       isVisible={isVisible}
       auxiliaryLink={{ label: "Phương pháp AI", to: "/ai-methodology" }}
       brandContext="Tài liệu doanh nghiệp"
-      statusCountLabel="kịch bản vận hành"
     >
       {renderSectionContent()}
     </LegalPageLayout>
@@ -89,3 +88,4 @@ const UseCasesPage: React.FC = () => {
 };
 
 export default UseCasesPage;
+

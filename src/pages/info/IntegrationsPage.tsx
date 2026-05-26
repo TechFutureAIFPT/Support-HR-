@@ -81,7 +81,6 @@ const IntegrationsPage: React.FC = () => {
       isVisible={isVisible}
       auxiliaryLink={{ label: "Tài liệu bảo mật", to: "/security" }}
       brandContext="Tài liệu doanh nghiệp"
-      statusCountLabel="chủ đề tích hợp"
     >
       {renderSectionContent()}
     </LegalPageLayout>
@@ -89,3 +88,4 @@ const IntegrationsPage: React.FC = () => {
 };
 
 export default IntegrationsPage;
+

@@ -105,7 +105,6 @@ const AIMethodologyPage: React.FC = () => {
       isVisible={isVisible}
       auxiliaryLink={{ label: "Trải nghiệm", to: "/demo" }}
       brandContext="Tài liệu doanh nghiệp"
-      statusCountLabel="ghi chú phương pháp"
     >
       {renderSectionContent()}
     </LegalPageLayout>
@@ -113,3 +112,4 @@ const AIMethodologyPage: React.FC = () => {
 };
 
 export default AIMethodologyPage;
+

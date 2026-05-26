@@ -88,7 +88,6 @@ const BookDemoPage: React.FC = () => {
       isVisible={isVisible}
       auxiliaryLink={{ label: "Tài liệu & bảng giá", to: "/pricing" }}
       brandContext="Tài liệu doanh nghiệp"
-      statusCountLabel="chi tiết đặt lịch"
     >
       {renderSectionContent()}
     </LegalPageLayout>
@@ -96,3 +95,4 @@ const BookDemoPage: React.FC = () => {
 };
 
 export default BookDemoPage;
+

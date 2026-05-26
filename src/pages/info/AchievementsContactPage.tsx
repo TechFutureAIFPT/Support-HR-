@@ -88,7 +88,6 @@ const AchievementsContactPage: React.FC = () => {
       isVisible={isVisible}
       auxiliaryLink={{ label: "Bảng giá", to: "/pricing" }}
       brandContext="Tài liệu doanh nghiệp"
-      statusCountLabel="khối nội dung đội ngũ"
       headerTabs={productDocsTabs}
     >
       {renderSectionContent()}
@@ -97,3 +96,4 @@ const AchievementsContactPage: React.FC = () => {
 };
 
 export default AchievementsContactPage;
+

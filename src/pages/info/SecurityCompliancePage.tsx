@@ -68,7 +68,6 @@ const SecurityCompliancePage: React.FC = () => {
       isVisible={isVisible}
       auxiliaryLink={{ label: "Cách sử dụng", to: "/guide" }}
       brandContext="Tài liệu doanh nghiệp"
-      statusCountLabel="khối bảo mật"
       headerTabs={productDocsTabs}
     >
       {renderSectionContent()}
@@ -77,3 +76,4 @@ const SecurityCompliancePage: React.FC = () => {
 };
 
 export default SecurityCompliancePage;
+

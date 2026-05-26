@@ -1,6 +1,6 @@
-import React, { type ReactNode } from "react";
-import { Link, useLocation } from "react-router-dom";
-import type { DocsHeaderTab } from "./docs-header-tabs";
+import React, { useEffect, useRef, useState, type ReactNode } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { productDocsSearchEntries, type DocsHeaderTab, type DocsSearchEntry } from "./docs-header-tabs";
 
 export type LegalTone = "cyan" | "emerald" | "sky" | "violet" | "amber" | "rose";
 
@@ -86,11 +86,203 @@ interface LegalPageLayoutProps {
     to: string;
   };
   brandContext?: string;
-  statusTitle?: string;
-  statusCountLabel?: string;
-  statusNotes?: string[];
   headerTabs?: DocsHeaderTab[];
   children: ReactNode;
+}
+
+function matchDocsSearch(query: string, entries: DocsSearchEntry[]) {
+  const normalizedQuery = query.trim().toLowerCase();
+  if (!normalizedQuery) return entries;
+
+  return entries.filter((entry) => {
+    const haystacks = [entry.label, entry.description, ...entry.keywords].map((value) => value.toLowerCase());
+    return haystacks.some((value) => value.includes(normalizedQuery) || normalizedQuery.includes(value));
+  });
+}
+
+function DocsSearchBar({ compact = false }: { compact?: boolean }) {
+  const navigate = useNavigate();
+  const [query, setQuery] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  const closeTimerRef = useRef<number | null>(null);
+  const results = matchDocsSearch(query, productDocsSearchEntries).slice(0, 6);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        inputRef.current?.focus();
+        setIsOpen(true);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (closeTimerRef.current) {
+        window.clearTimeout(closeTimerRef.current);
+      }
+    };
+  }, []);
+
+  const navigateTo = (to: string) => {
+    setIsOpen(false);
+    setQuery("");
+    navigate(to);
+  };
+
+  const submitSearch = (currentValue: string) => {
+    const matchedEntries = matchDocsSearch(currentValue, productDocsSearchEntries);
+
+    if (matchedEntries.length > 0) {
+      navigateTo(matchedEntries[0].to);
+      return true;
+    }
+
+    return false;
+  };
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const currentValue = inputRef.current?.value ?? query;
+    if (submitSearch(currentValue)) {
+      return;
+    }
+    inputRef.current?.focus();
+  };
+
+  const wrapperClassName = compact
+    ? "relative w-full"
+    : "relative hidden w-full max-w-[35rem] md:block";
+
+  return (
+    <div className={wrapperClassName}>
+      <form onSubmit={handleSubmit} className="relative">
+        <i className="fa-solid fa-magnifying-glass pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-sm text-zinc-500" />
+        <input
+          ref={inputRef}
+          type="search"
+          value={query}
+          onChange={(event) => {
+            setQuery(event.target.value);
+            setIsOpen(true);
+          }}
+          onFocus={() => {
+            if (closeTimerRef.current) {
+              window.clearTimeout(closeTimerRef.current);
+            }
+            setIsOpen(true);
+          }}
+          onBlur={() => {
+            closeTimerRef.current = window.setTimeout(() => setIsOpen(false), 120);
+          }}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") {
+              event.preventDefault();
+              if (!submitSearch(event.currentTarget.value)) {
+                inputRef.current?.focus();
+              }
+            }
+          }}
+          placeholder="Search tài liệu..."
+          className="h-12 w-full rounded-[1.25rem] border border-white/10 bg-white/[0.03] pl-11 pr-20 text-sm text-white outline-none transition-colors placeholder:text-zinc-500 focus:border-white/22 focus:bg-white/[0.05]"
+        />
+        <span className="supporthr-mono pointer-events-none absolute right-4 top-1/2 hidden -translate-y-1/2 text-[10px] uppercase tracking-[0.22em] text-zinc-500 sm:block">
+          Ctrl K
+        </span>
+      </form>
+
+      {isOpen ? (
+        <div className="absolute left-0 right-0 top-[calc(100%+0.7rem)] z-50 overflow-hidden rounded-[1.15rem] border border-white/10 bg-black/96 shadow-[0_22px_60px_rgba(0,0,0,0.45)] backdrop-blur-xl">
+          {results.length > 0 ? (
+            <div className="p-2">
+              {results.map((entry) => (
+                <button
+                  key={entry.to}
+                  type="button"
+                  onMouseDown={(event) => event.preventDefault()}
+                  onClick={() => navigateTo(entry.to)}
+                  className="flex w-full items-start gap-3 rounded-2xl px-3 py-3 text-left transition-colors hover:bg-white/[0.05]"
+                >
+                  <span className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/[0.03] text-zinc-300">
+                    <i className="fa-solid fa-arrow-up-right-from-square text-[11px]" />
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block text-sm font-semibold text-white">{entry.label}</span>
+                    <span className="mt-1 block text-sm leading-6 text-zinc-500">{entry.description}</span>
+                  </span>
+                </button>
+              ))}
+            </div>
+          ) : (
+            <div className="px-4 py-4 text-sm text-zinc-500">Chưa có mục nào khớp với từ khóa này.</div>
+          )}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+export function DocsTopBar({
+  brandContext,
+  auxiliaryLink,
+}: {
+  brandContext: string;
+  auxiliaryLink: {
+    label: string;
+    to: string;
+  };
+}) {
+  return (
+    <>
+      <nav className="sticky top-0 z-50 border-b border-white/[0.08] bg-black/92 backdrop-blur-xl">
+        <div className="mx-auto flex min-h-[4.45rem] w-full max-w-[96rem] items-center justify-between gap-6 px-4 py-3 sm:px-6 lg:px-8">
+          <Link to="/" className="flex shrink-0 items-center gap-3 text-left transition-opacity duration-300 hover:opacity-90">
+            <div className="flex h-7 w-7 items-center justify-center overflow-hidden border border-white/14 bg-black">
+              <img src="/images/logos/logo.jpg" alt="Support HR" className="h-full w-full object-cover" />
+            </div>
+            <div className="flex flex-col">
+              <span className="supporthr-mono text-[15px] font-semibold uppercase tracking-[0.08em] text-white">
+                Support HR
+              </span>
+              <span className="mt-0.5 supporthr-mono text-[10px] font-bold uppercase tracking-[0.24em] text-[#f5d6bb]">
+                {brandContext}
+              </span>
+            </div>
+          </Link>
+
+          <div className="flex flex-1 justify-center">
+            <DocsSearchBar />
+          </div>
+
+          <div className="flex shrink-0 items-center gap-4 sm:gap-5">
+            <Link
+              to={auxiliaryLink.to}
+              className="hidden h-10 items-center justify-center rounded-full border border-white/12 px-5 supporthr-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-200 transition-colors duration-200 hover:border-white/24 hover:text-white sm:inline-flex"
+            >
+              {auxiliaryLink.label}
+            </Link>
+            <Link
+              to="/"
+              className="inline-flex h-10 items-center justify-center rounded-full bg-white px-5 supporthr-mono text-[11px] font-bold uppercase tracking-[0.18em] text-black transition-colors duration-200 hover:bg-zinc-100"
+            >
+              Trang chủ
+            </Link>
+          </div>
+        </div>
+      </nav>
+
+      <div className="border-b border-white/[0.08] bg-black/96 px-4 py-3 md:hidden">
+        <div className="mx-auto w-full max-w-[96rem]">
+          <DocsSearchBar compact />
+        </div>
+      </div>
+    </>
+  );
 }
 
 export function DocsHeaderTabs({ tabs }: { tabs: DocsHeaderTab[] }) {
@@ -135,13 +327,6 @@ export function LegalPageLayout({
   isVisible,
   auxiliaryLink,
   brandContext = "Tài liệu doanh nghiệp",
-  statusTitle = "Trạng thái tài liệu",
-  statusCountLabel = "mục nội dung chính",
-  statusNotes = [
-    "[LIVE] Theo dõi mục đang được xem",
-    "[SYNC] Đồng bộ cùng hệ thiết kế của trang chủ",
-    "[DOC] Dễ đọc trên desktop và mobile",
-  ],
   headerTabs = [],
   children,
 }: LegalPageLayoutProps) {
@@ -159,38 +344,7 @@ export function LegalPageLayout({
       </div>
 
       <div className="relative z-10">
-        <nav className="sticky top-0 z-50 border-b border-white/[0.08] bg-black/92 backdrop-blur-xl">
-          <div className="mx-auto flex h-[4.45rem] w-full max-w-[96rem] items-center justify-between px-4 sm:px-6 lg:px-8">
-            <Link to="/" className="flex items-center gap-3 text-left transition-opacity duration-300 hover:opacity-90">
-              <div className="flex h-7 w-7 items-center justify-center overflow-hidden border border-white/14 bg-black">
-                <img src="/images/logos/logo.jpg" alt="Support HR" className="h-full w-full object-cover" />
-              </div>
-              <div className="flex flex-col">
-                <span className="supporthr-mono text-[15px] font-semibold uppercase tracking-[0.08em] text-white">
-                  Support HR
-                </span>
-                <span className="mt-0.5 supporthr-mono text-[10px] font-bold uppercase tracking-[0.24em] text-[#f5d6bb]">
-                  {brandContext}
-                </span>
-              </div>
-            </Link>
-
-            <div className="flex items-center gap-3 sm:gap-4">
-              <Link
-                to={auxiliaryLink.to}
-                className="hidden sm:inline-flex h-8 items-center justify-center border border-white/12 px-5 supporthr-mono text-[11px] font-semibold uppercase tracking-[0.2em] text-zinc-200 transition-colors duration-200 hover:border-white/24 hover:text-white"
-              >
-                {auxiliaryLink.label}
-              </Link>
-              <Link
-                to="/"
-                className="inline-flex h-8 items-center justify-center bg-white px-5 supporthr-mono text-[11px] font-bold uppercase tracking-[0.2em] text-black transition-colors duration-200 hover:bg-zinc-100"
-              >
-                Trang chủ
-              </Link>
-            </div>
-          </div>
-        </nav>
+        <DocsTopBar brandContext={brandContext} auxiliaryLink={auxiliaryLink} />
 
         <DocsHeaderTabs tabs={headerTabs} />
 
@@ -199,36 +353,16 @@ export function LegalPageLayout({
             isVisible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
           }`}
         >
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-end">
-            <div>
-              <p className="supporthr-mono text-[11px] uppercase tracking-[0.26em] text-[#f5d6bb]/70">
-                {pageLabel} // {meta}
-              </p>
-              <h1 className="supporthr-display mt-4 max-w-4xl text-[clamp(2.7rem,5.5vw,4.9rem)] font-bold leading-[0.92] tracking-[-0.075em] text-white">
-                {title}
-              </h1>
-              <p className="mt-5 max-w-2xl text-base leading-8 text-zinc-400 sm:text-lg">
-                {subtitle}
-              </p>
-            </div>
-
-            <div className="border border-[#f5d6bb]/18 bg-[linear-gradient(180deg,rgba(245,214,187,0.06),rgba(255,255,255,0.018))] p-5">
-              <p className="supporthr-mono text-[10px] uppercase tracking-[0.24em] text-zinc-500">
-                {statusTitle}
-              </p>
-              <div className="mt-5 flex items-start justify-between gap-4 border border-white/10 bg-black/45 px-3 py-3">
-                <div>
-                  <p className="text-3xl font-semibold text-white">{sections.length}</p>
-                  <p className="mt-1 text-sm text-zinc-500">{statusCountLabel}</p>
-                </div>
-                <span className={`mt-2 h-2.5 w-2.5 ${activeTone.dot} shadow-[0_0_16px_rgba(255,255,255,0.14)]`} />
-              </div>
-              <div className="mt-6 space-y-2 supporthr-mono text-[12px] leading-6 text-zinc-500">
-                {statusNotes.map((note) => (
-                  <p key={note}>{note}</p>
-                ))}
-              </div>
-            </div>
+          <div>
+            <p className="supporthr-mono text-[11px] uppercase tracking-[0.26em] text-[#f5d6bb]/70">
+              {pageLabel} // {meta}
+            </p>
+            <h1 className="supporthr-display mt-4 max-w-4xl text-[clamp(2.7rem,5.5vw,4.9rem)] font-bold leading-[0.92] tracking-[-0.075em] text-white">
+              {title}
+            </h1>
+            <p className="mt-5 max-w-2xl text-base leading-8 text-zinc-400 sm:text-lg">
+              {subtitle}
+            </p>
           </div>
         </header>
 
@@ -421,3 +555,4 @@ export function LegalBulletGrid({ tone, items, columns = 1 }: LegalBulletGridPro
     </div>
   );
 }
+

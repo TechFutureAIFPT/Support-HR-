@@ -4,6 +4,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import DmcaBadge from "@/components/common/DmcaBadge";
 import {
   DocsHeaderTabs,
+  DocsTopBar,
   LEGAL_TONE_STYLES,
   LegalBulletGrid,
   LegalCallout,
@@ -331,38 +332,10 @@ const PricingPage: React.FC = () => {
       </div>
 
       <div className="relative z-10">
-        <nav className="sticky top-0 z-50 border-b border-white/[0.08] bg-black/92 backdrop-blur-xl">
-          <div className="mx-auto flex h-[4.45rem] w-full max-w-[96rem] items-center justify-between px-4 sm:px-6 lg:px-8">
-            <Link to="/" className="flex items-center gap-3 transition-opacity duration-300 hover:opacity-90">
-              <div className="flex h-7 w-7 items-center justify-center overflow-hidden border border-white/14 bg-black">
-                <img src="/images/logos/logo.jpg" alt="Support HR" className="h-full w-full object-cover" />
-              </div>
-              <div className="flex flex-col">
-                <span className="supporthr-mono text-[15px] font-semibold uppercase tracking-[0.08em] text-white">
-                  Support HR
-                </span>
-                <span className="mt-0.5 supporthr-mono text-[10px] font-bold uppercase tracking-[0.24em] text-[#f5d6bb]">
-                  Tài liệu doanh nghiệp
-                </span>
-              </div>
-            </Link>
-
-            <div className="flex items-center gap-3 sm:gap-4">
-              <Link
-                to="/pricing#faq"
-                className="hidden h-8 items-center justify-center border border-white/12 px-5 supporthr-mono text-[11px] font-semibold uppercase tracking-[0.2em] text-zinc-200 transition-colors duration-200 hover:border-white/24 hover:text-white sm:inline-flex"
-              >
-                Hỏi đáp
-              </Link>
-              <Link
-                to="/book-demo"
-                className="hidden h-8 shrink-0 items-center justify-center bg-white px-5 supporthr-mono text-[11px] font-bold uppercase tracking-[0.2em] text-black transition-colors duration-200 hover:bg-zinc-100 sm:inline-flex"
-              >
-                Đặt lịch demo
-              </Link>
-            </div>
-          </div>
-        </nav>
+        <DocsTopBar
+          brandContext="Tài liệu doanh nghiệp"
+          auxiliaryLink={{ label: "Hỏi đáp", to: "/pricing#faq" }}
+        />
 
         <DocsHeaderTabs tabs={productDocsTabs} />
 

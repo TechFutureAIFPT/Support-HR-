@@ -133,7 +133,6 @@ const DemoPage: React.FC = () => {
       isVisible={isVisible}
       auxiliaryLink={{ label: "Bảng giá", to: "/pricing" }}
       brandContext="Tài liệu doanh nghiệp"
-      statusCountLabel="bước trong quy trình"
       headerTabs={productDocsTabs}
     >
       {renderSectionContent()}
@@ -142,3 +141,4 @@ const DemoPage: React.FC = () => {
 };
 
 export default DemoPage;
+
