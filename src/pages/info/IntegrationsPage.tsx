@@ -79,7 +79,7 @@ const IntegrationsPage: React.FC = () => {
       activeSection={activeSection}
       onSectionChange={setActiveSection}
       isVisible={isVisible}
-      auxiliaryLink={{ label: "Tài liệu bảo mật", to: "/pricing#security" }}
+      auxiliaryLink={{ label: "Tài liệu bảo mật", to: "/security" }}
       brandContext="Tài liệu doanh nghiệp"
       statusCountLabel="chủ đề tích hợp"
     >

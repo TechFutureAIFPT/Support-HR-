@@ -1,5 +1,6 @@
 import React, { type ReactNode } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import type { DocsHeaderTab } from "./docs-header-tabs";
 
 export type LegalTone = "cyan" | "emerald" | "sky" | "violet" | "amber" | "rose";
 
@@ -88,7 +89,39 @@ interface LegalPageLayoutProps {
   statusTitle?: string;
   statusCountLabel?: string;
   statusNotes?: string[];
+  headerTabs?: DocsHeaderTab[];
   children: ReactNode;
+}
+
+export function DocsHeaderTabs({ tabs }: { tabs: DocsHeaderTab[] }) {
+  const location = useLocation();
+
+  if (!tabs.length) return null;
+
+  return (
+    <div className="border-b border-white/[0.08] bg-black/96">
+      <div className="mx-auto flex w-full max-w-[96rem] items-center gap-2 overflow-x-auto px-4 sm:px-6 lg:px-8">
+        {tabs.map((tab) => {
+          const matches = tab.matchPaths?.length ? tab.matchPaths : [tab.to];
+          const isActive = matches.includes(location.pathname);
+
+          return (
+            <Link
+              key={tab.to}
+              to={tab.to}
+              className={`supporthr-mono shrink-0 border-b px-1 py-4 text-[11px] font-semibold uppercase tracking-[0.18em] transition-colors duration-200 ${
+                isActive
+                  ? "border-white text-white"
+                  : "border-transparent text-zinc-500 hover:text-zinc-200"
+              }`}
+            >
+              {tab.label}
+            </Link>
+          );
+        })}
+      </div>
+    </div>
+  );
 }
 
 export function LegalPageLayout({
@@ -109,6 +142,7 @@ export function LegalPageLayout({
     "[SYNC] Đồng bộ cùng hệ thiết kế của trang chủ",
     "[DOC] Dễ đọc trên desktop và mobile",
   ],
+  headerTabs = [],
   children,
 }: LegalPageLayoutProps) {
   const activeMeta = sections.find((section) => section.id === activeSection) ?? sections[0];
@@ -157,6 +191,8 @@ export function LegalPageLayout({
             </div>
           </div>
         </nav>
+
+        <DocsHeaderTabs tabs={headerTabs} />
 
         <header
           className={`mx-auto max-w-[96rem] px-4 pb-8 pt-12 transition-all duration-700 sm:px-6 lg:px-8 ${

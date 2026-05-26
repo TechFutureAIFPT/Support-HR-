@@ -126,9 +126,11 @@ const publicMarketingPaths = new Set([
   '/contact-ready',
   '/privacy-policy',
   '/terms',
+  '/team',
   '/security',
   '/faq',
   '/pricing',
+  '/guide',
   '/demo',
   '/ai-methodology',
   '/use-cases',
@@ -839,9 +841,11 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
               <Route path="/contact-ready" element={<DeploymentReadyPage />} />
               <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
               <Route path="/terms" element={<TermsPage />} />
+              <Route path="/team" element={<AchievementsContactPage />} />
               <Route path="/security" element={<SecurityCompliancePage />} />
               <Route path="/faq" element={<FAQPage />} />
               <Route path="/pricing" element={<PricingPage />} />
+              <Route path="/guide" element={<DemoPage />} />
               <Route path="/demo" element={<DemoPage />} />
               <Route path="/ai-methodology" element={<AIMethodologyPage />} />
               <Route path="/use-cases" element={<UseCasesPage />} />

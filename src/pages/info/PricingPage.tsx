@@ -3,12 +3,14 @@ import { Link, useLocation } from "react-router-dom";
 import { motion, useReducedMotion } from "framer-motion";
 import DmcaBadge from "@/components/common/DmcaBadge";
 import {
+  DocsHeaderTabs,
   LEGAL_TONE_STYLES,
   LegalBulletGrid,
   LegalCallout,
   LegalCard,
   type LegalTone,
 } from "./legal-ui";
+import { productDocsTabs } from "./docs-header-tabs";
 import {
   type BillingMode,
   docsNavigation,
@@ -362,6 +364,8 @@ const PricingPage: React.FC = () => {
           </div>
         </nav>
 
+        <DocsHeaderTabs tabs={productDocsTabs} />
+
         <main className="mx-auto max-w-[96rem] px-4 pb-16 pt-10 sm:px-6 lg:px-8 lg:pt-14">
           <div className="grid gap-6 xl:grid-cols-[16rem_minmax(0,1fr)_15rem]">
             <DocsSidebar activeGroupId={activeGroup.id} activeAnchor={activeAnchor} />
@@ -375,11 +379,11 @@ const PricingPage: React.FC = () => {
                 <div className="grid gap-10 border border-white/8 bg-[linear-gradient(180deg,rgba(8,8,10,0.92),rgba(0,0,0,0.86))] px-5 py-8 sm:px-8 sm:py-10 xl:grid-cols-[minmax(0,1fr)_18rem] xl:px-10 xl:py-12">
                   <div className="min-w-0">
                     <h1 className="supporthr-display max-w-5xl break-words text-[clamp(1.65rem,8.5vw,5.4rem)] font-bold leading-[0.95] tracking-[-0.045em] sm:leading-[0.92] sm:tracking-[-0.075em] text-white">
-                      Một hub tài liệu gọn để đội tuyển dụng, bên mua và quản lý cùng đọc chung một ngôn ngữ.
+                      Bảng giá rõ ràng để đội tuyển dụng, bên mua và quản lý chốt nhanh phạm vi triển khai.
                     </h1>
                     <p className="mt-6 max-w-3xl break-words text-base leading-8 text-zinc-400 sm:text-lg">
-                      Trang này gom bảng giá, bảo mật và hỏi đáp vào cùng một luồng đọc. Mục tiêu là giúp đội ngũ hiểu
-                      phạm vi gói, tín hiệu niềm tin và cách bắt đầu sử dụng mà không phải nhảy giữa nhiều route rời.
+                      Trang này tập trung riêng cho bảng giá và phần hỏi đáp thương mại. Các nội dung về đội ngũ, bảo mật dữ liệu và cách
+                      sử dụng đã được tách sang các trang riêng để việc tra cứu gọn gàng và dễ theo dõi hơn.
                     </p>
 
                     <div className="mt-8 flex flex-wrap gap-3">
@@ -424,8 +428,8 @@ const PricingPage: React.FC = () => {
                     </p>
                     <div className="mt-5 space-y-3">
                       <div className="border border-white/10 bg-black/45 px-4 py-4">
-                        <p className="text-3xl font-semibold text-white">3</p>
-                        <p className="mt-1 text-sm text-zinc-500">khối tài liệu chính trong cùng một trang</p>
+                        <p className="text-3xl font-semibold text-white">4</p>
+                        <p className="mt-1 text-sm text-zinc-500">trang tài liệu chính trong cụm header mới</p>
                       </div>
                       <div className="border border-white/10 bg-black/45 px-4 py-4">
                         <p className="text-3xl font-semibold text-white">11</p>
@@ -433,7 +437,7 @@ const PricingPage: React.FC = () => {
                       </div>
                       <div className="border border-white/10 bg-black/45 px-4 py-4">
                         <p className="text-3xl font-semibold text-white">1</p>
-                        <p className="mt-1 text-sm text-zinc-500">điểm tham chiếu chung cho sales, HR và bên mua</p>
+                        <p className="mt-1 text-sm text-zinc-500">trang tập trung riêng cho giá và câu hỏi thương mại</p>
                       </div>
                     </div>
                   </div>

@@ -34,7 +34,7 @@ const mobileNavItems = [
   { label: "Quy trình", icon: "fa-list-ol", target: "steps" },
   { label: "So sánh", icon: "fa-scale-balanced", target: "compare" },
   { label: "Bảng giá", icon: "fa-tags", target: "pricing" },
-  { label: "Tài liệu", icon: "fa-book-open", href: "/pricing" },
+  { label: "Tài liệu", icon: "fa-book-open", href: "/team" },
 ];
 
 const HomePage: React.FC<HomePageProps> = ({
@@ -224,7 +224,7 @@ const HomePage: React.FC<HomePageProps> = ({
                   BẢNG GIÁ
                 </button>
                 <Link
-                  to="/pricing"
+                  to="/team"
                   className="supporthr-mono text-[11px] font-medium uppercase tracking-[0.2em] text-zinc-400 transition-colors duration-200 hover:text-white"
                 >
                   TÀI LIỆU

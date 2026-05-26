@@ -7,6 +7,7 @@ import {
   LegalPageLayout,
   type LegalSectionMeta,
 } from "./legal-ui";
+import { productDocsTabs } from "./docs-header-tabs";
 
 const sections = [
   { id: "intake", title: "Nhập JD", icon: "fa-file-signature", tone: "cyan" },
@@ -122,17 +123,18 @@ const DemoPage: React.FC = () => {
 
   return (
     <LegalPageLayout
-      pageLabel="Trải nghiệm"
-      title="Luồng trải nghiệm sản phẩm"
-      subtitle="Mô tả dễ hiểu về cách một recruiter đi từ một JD và một chồng CV đến một danh sách đề cử có thể rà soát ngay bên trong Support HR."
+      pageLabel="Cách sử dụng"
+      title="Cách sử dụng Support HR"
+      subtitle="Mô tả rõ từng bước để người xem hiểu cách một recruiter đi từ JD, CV đầu vào đến danh sách đề cử có thể rà soát ngay trong sản phẩm."
       meta="Tài liệu doanh nghiệp · Cập nhật 2026"
       sections={sections}
       activeSection={activeSection}
       onSectionChange={setActiveSection}
       isVisible={isVisible}
-      auxiliaryLink={{ label: "Tài liệu & bảng giá", to: "/pricing" }}
+      auxiliaryLink={{ label: "Bảng giá", to: "/pricing" }}
       brandContext="Tài liệu doanh nghiệp"
       statusCountLabel="bước trong quy trình"
+      headerTabs={productDocsTabs}
     >
       {renderSectionContent()}
     </LegalPageLayout>

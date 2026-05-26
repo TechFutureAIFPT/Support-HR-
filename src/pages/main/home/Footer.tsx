@@ -34,10 +34,10 @@ const footerColumns: FooterColumn[] = [
   {
     title: "Tài nguyên",
     items: [
-      { label: "Tài liệu & bảng giá", to: "/pricing" },
-      { label: "Bảo mật", to: "/pricing#security" },
+      { label: "Tài liệu & bảng giá", to: "/team" },
+      { label: "Bảo mật", to: "/security" },
       { label: "Hỏi đáp", to: "/pricing#faq" },
-      { label: "Demo", to: "/demo" },
+      { label: "Cách sử dụng", to: "/guide" },
     ],
   },
   {
