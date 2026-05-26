@@ -144,11 +144,11 @@ export default function Footer({ onNavigate }: FooterProps) {
             </div>
           </div>
 
-          <div className="mt-10 border-t border-white/[0.08] pt-6 sm:mt-12 sm:pt-7">
-            <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-              <div className="space-y-2">
+          <div className="mt-8 border-t border-white/[0.08] pt-4 sm:mt-9 sm:pt-5">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+              <div className="space-y-1.5">
                 <p className="text-sm text-zinc-500">© 2026 Support HR. Mọi quyền được bảo lưu.</p>
-                <div className="flex flex-col gap-1 text-sm text-zinc-600 sm:flex-row sm:flex-wrap sm:gap-x-4">
+                <div className="flex flex-col gap-0.5 text-sm text-zinc-600 sm:flex-row sm:flex-wrap sm:gap-x-4 sm:gap-y-1">
                   <a href="mailto:support@supporthr.vn" className="transition-colors hover:text-zinc-400">
                     support@supporthr.vn
                   </a>
@@ -158,7 +158,7 @@ export default function Footer({ onNavigate }: FooterProps) {
                 </div>
               </div>
 
-              <div className="flex min-h-[92px] items-center justify-center px-4 py-3">
+              <div className="flex items-center justify-center lg:justify-end">
                 <DmcaBadge className="border-0 bg-transparent px-0 py-0" centered={false} />
               </div>
             </div>
