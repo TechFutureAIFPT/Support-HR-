@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { bookDemoChannels } from "./business-docs-data";
+import { productDocsTabs } from "./docs-header-tabs";
 import {
   LegalBulletGrid,
   LegalCallout,
@@ -88,6 +89,7 @@ const BookDemoPage: React.FC = () => {
       isVisible={isVisible}
       auxiliaryLink={{ label: "Tài liệu & bảng giá", to: "/pricing" }}
       brandContext="Tài liệu doanh nghiệp"
+      headerTabs={productDocsTabs}
     >
       {renderSectionContent()}
     </LegalPageLayout>
@@ -95,4 +97,3 @@ const BookDemoPage: React.FC = () => {
 };
 
 export default BookDemoPage;
-

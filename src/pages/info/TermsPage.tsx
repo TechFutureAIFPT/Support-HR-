@@ -6,6 +6,7 @@ import {
   LegalPageLayout,
   type LegalSectionMeta,
 } from "./legal-ui";
+import { productDocsTabs } from "./docs-header-tabs";
 
 const sections = [
   { id: "definitions", title: "Định nghĩa", icon: "fa-book", tone: "cyan" },
@@ -224,6 +225,7 @@ const TermsPage: React.FC = () => {
       onSectionChange={setActiveSection}
       isVisible={isVisible}
       auxiliaryLink={{ label: "Bảo mật", to: "/privacy-policy" }}
+      headerTabs={productDocsTabs}
     >
       {renderSectionContent()}
     </LegalPageLayout>

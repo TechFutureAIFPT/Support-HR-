@@ -6,6 +6,7 @@ import {
   LegalPageLayout,
   type LegalSectionMeta,
 } from "./legal-ui";
+import { productDocsTabs } from "./docs-header-tabs";
 
 const sections = [
   { id: "parse", title: "Đọc JD", icon: "fa-file-lines", tone: "cyan" },
@@ -105,6 +106,7 @@ const AIMethodologyPage: React.FC = () => {
       isVisible={isVisible}
       auxiliaryLink={{ label: "Trải nghiệm", to: "/demo" }}
       brandContext="Tài liệu doanh nghiệp"
+      headerTabs={productDocsTabs}
     >
       {renderSectionContent()}
     </LegalPageLayout>
@@ -112,4 +114,3 @@ const AIMethodologyPage: React.FC = () => {
 };
 
 export default AIMethodologyPage;
-

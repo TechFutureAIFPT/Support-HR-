@@ -40,6 +40,7 @@ const toneMap = {
 } as const;
 
 const instantRoutes = new Set(['/', '/process', '/contact-ready', '/privacy-policy', '/terms']);
+const docsRoutes = new Set(['/team', '/security', '/faq', '/pricing', '/guide', '/demo', '/ai-methodology', '/use-cases', '/integrations', '/book-demo']);
 
 const PageTransition: React.FC = () => {
   const location = useLocation();
@@ -49,6 +50,10 @@ const PageTransition: React.FC = () => {
   const [hasMounted, setHasMounted] = useState(false);
 
   const getStepInfo = (path: string): StepInfo => {
+    if (docsRoutes.has(path)) {
+      return { message: 'Đang mở tài liệu Support HR...', icon: 'fa-book-open', label: 'Support HR // Docs', tone: 'sky' };
+    }
+
     switch (path) {
       case '/jd':
         return { message: 'Khởi tạo trình lọc CV thông minh...', icon: 'fa-wand-magic-sparkles', label: 'Support HR // JD', tone: 'violet' };

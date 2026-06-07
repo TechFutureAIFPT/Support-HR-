@@ -4,7 +4,7 @@
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://www.supporthr-tf.com.vn/</loc>
-    <lastmod>2026-05-21</lastmod>
+    <lastmod>2026-05-28</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
     <xhtml:link rel="alternate" hreflang="vi" href="https://www.supporthr-tf.com.vn/" />
@@ -14,31 +14,75 @@
     </image:image>
   </url>
   <url>
-    <loc>https://www.supporthr-tf.com.vn/privacy-policy</loc>
-    <lastmod>2026-05-21</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.supporthr-tf.com.vn/privacy-policy" />
-  </url>
-  <url>
-    <loc>https://www.supporthr-tf.com.vn/terms</loc>
-    <lastmod>2026-05-21</lastmod>
+    <loc>https://www.supporthr-tf.com.vn/process</loc>
+    <lastmod>2026-05-28</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.supporthr-tf.com.vn/terms" />
-  </url>
-  <url>
-    <loc>https://www.supporthr-tf.com.vn/process</loc>
-    <lastmod>2026-05-21</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-    <xhtml:link rel="alternate" hreflang="vi" href="https://www.supporthr-tf.com.vn/process" />
   </url>
   <url>
     <loc>https://www.supporthr-tf.com.vn/contact-ready</loc>
-    <lastmod>2026-05-21</lastmod>
+    <lastmod>2026-05-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.supporthr-tf.com.vn/team</loc>
+    <lastmod>2026-05-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.supporthr-tf.com.vn/security</loc>
+    <lastmod>2026-05-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.supporthr-tf.com.vn/pricing</loc>
+    <lastmod>2026-05-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.supporthr-tf.com.vn/guide</loc>
+    <lastmod>2026-05-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.supporthr-tf.com.vn/ai-methodology</loc>
+    <lastmod>2026-05-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.supporthr-tf.com.vn/use-cases</loc>
+    <lastmod>2026-05-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.supporthr-tf.com.vn/integrations</loc>
+    <lastmod>2026-05-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.supporthr-tf.com.vn/book-demo</loc>
+    <lastmod>2026-05-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.supporthr-tf.com.vn/privacy-policy</loc>
+    <lastmod>2026-05-28</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
-    <xhtml:link rel="alternate" hreflang="vi" href="https://www.supporthr-tf.com.vn/contact-ready" />
+  </url>
+  <url>
+    <loc>https://www.supporthr-tf.com.vn/terms</loc>
+    <lastmod>2026-05-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
   </url>
 </urlset>

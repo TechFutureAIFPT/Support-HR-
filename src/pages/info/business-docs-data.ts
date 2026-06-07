@@ -57,6 +57,19 @@ export interface TrustHighlight {
   iconClass: string;
 }
 
+export interface DocsTrustMetric {
+  value: string;
+  label: string;
+  detail: string;
+  tone: LegalTone;
+}
+
+export interface DocsReadinessItem {
+  label: string;
+  status: "ready" | "need-input";
+  detail: string;
+}
+
 export interface SecurityDocSection {
   id: string;
   title: string;
@@ -266,6 +279,50 @@ export const pricingHeroHighlights = [
   "Lấy JD làm trung tâm để chấm điểm và đề cử có lý do",
   "Đi từ demo thử nhanh sang rollout có kiểm soát mà không đổi luồng làm việc",
   "Giữ ngôn ngữ thương mại rõ ràng cho recruiter, quản lý tuyển dụng và bộ phận mua sắm",
+];
+
+export const docsTrustMetrics: DocsTrustMetric[] = [
+  {
+    value: "4",
+    label: "trang tài liệu chính",
+    detail: "Đội ngũ, bảo mật, cách sử dụng và bảng giá được tách riêng để bên mua tra cứu nhanh.",
+    tone: "cyan",
+  },
+  {
+    value: "11",
+    label: "anchor nội dung",
+    detail: "Người xem có thể đi thẳng tới bảng giá, kiểm soát truy cập, dữ liệu Drive hoặc FAQ.",
+    tone: "emerald",
+  },
+  {
+    value: "3",
+    label: "nhóm câu hỏi mua sắm",
+    detail: "Thương mại, bảo mật và vận hành được gom thành các khối dễ dùng trong buổi demo.",
+    tone: "violet",
+  },
+];
+
+export const docsReadinessItems: DocsReadinessItem[] = [
+  {
+    label: "SSL/TLS và tên miền",
+    status: "ready",
+    detail: "Có thể trình bày như tín hiệu truy cập an toàn cơ bản cho website.",
+  },
+  {
+    label: "Quy trình Google Drive",
+    status: "ready",
+    detail: "Đã có mô tả phạm vi đọc file theo hành động chọn của người dùng.",
+  },
+  {
+    label: "Chính sách lưu trữ CV",
+    status: "need-input",
+    detail: "Cần chốt thời gian lưu, nơi lưu và cách xóa dữ liệu theo yêu cầu.",
+  },
+  {
+    label: "DPA, SLA hoặc tài liệu pháp lý",
+    status: "need-input",
+    detail: "Cần thông tin chính thức nếu muốn bán cho doanh nghiệp hoặc trường hợp mua sắm nghiêm ngặt.",
+  },
 ];
 
 export const docsNavigation: DocsNavGroup[] = [

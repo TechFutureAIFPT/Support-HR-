@@ -6,6 +6,7 @@ import {
   LegalPageLayout,
   type LegalSectionMeta,
 } from "./legal-ui";
+import { productDocsTabs } from "./docs-header-tabs";
 
 const sections = [
   { id: "drive", title: "Google Drive", icon: "fa-folder-open", tone: "cyan" },
@@ -81,6 +82,7 @@ const IntegrationsPage: React.FC = () => {
       isVisible={isVisible}
       auxiliaryLink={{ label: "Tài liệu bảo mật", to: "/security" }}
       brandContext="Tài liệu doanh nghiệp"
+      headerTabs={productDocsTabs}
     >
       {renderSectionContent()}
     </LegalPageLayout>
@@ -88,4 +90,3 @@ const IntegrationsPage: React.FC = () => {
 };
 
 export default IntegrationsPage;
-

@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState, type ReactNode } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import DmcaBadge from "@/components/common/DmcaBadge";
 import { productDocsSearchEntries, type DocsHeaderTab, type DocsSearchEntry } from "./docs-header-tabs";
 
 export type LegalTone = "cyan" | "emerald" | "sky" | "violet" | "amber" | "rose";
@@ -316,6 +317,168 @@ export function DocsHeaderTabs({ tabs }: { tabs: DocsHeaderTab[] }) {
   );
 }
 
+export function DocsCopyPageButton() {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    const href = typeof window !== "undefined" ? window.location.href : "";
+    if (!href) return;
+
+    try {
+      await navigator.clipboard.writeText(href);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1600);
+    } catch {
+      setCopied(false);
+    }
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={handleCopy}
+      className="inline-flex h-9 items-center gap-2 border border-white/10 bg-white/[0.03] px-3 text-sm font-medium text-zinc-300 transition-colors hover:border-white/18 hover:bg-white/[0.055] hover:text-white"
+    >
+      <i className={`fa-regular ${copied ? "fa-circle-check" : "fa-copy"} text-xs text-[#f5d6bb]`} />
+      {copied ? "Đã copy" : "Copy page"}
+    </button>
+  );
+}
+
+export function DocsPageLoading() {
+  const sidebarRows = ["w-24", "w-36", "w-28", "w-32", "w-20"];
+  const articleRows = ["w-11/12", "w-10/12", "w-full", "w-9/12"];
+
+  return (
+    <div className="legal-page-shell min-h-[58vh] overflow-hidden bg-black px-4 py-8 text-zinc-100 sm:px-6 lg:px-8">
+      <div className="mx-auto grid max-w-[96rem] gap-8 xl:grid-cols-[17rem_minmax(0,48rem)_15rem]">
+        <aside className="hidden xl:block">
+          <div className="space-y-3 border-r border-white/8 pr-6">
+            <div className="h-4 w-24 animate-pulse bg-white/12" />
+            {sidebarRows.map((width, index) => (
+              <div key={index} className={`h-9 ${width} animate-pulse bg-white/[0.055]`} />
+            ))}
+          </div>
+        </aside>
+
+        <article className="min-w-0">
+          <div className="h-4 w-32 animate-pulse bg-[#f5d6bb]/18" />
+          <div className="mt-5 h-10 w-8/12 animate-pulse bg-white/12" />
+          <div className="mt-4 space-y-3">
+            {articleRows.map((width, index) => (
+              <div key={index} className={`h-4 ${width} animate-pulse bg-white/[0.065]`} />
+            ))}
+          </div>
+          <div className="mt-8 grid gap-3 sm:grid-cols-2">
+            {[0, 1, 2, 3].map((item) => (
+              <div key={item} className="h-20 animate-pulse border border-white/8 bg-white/[0.035]" />
+            ))}
+          </div>
+        </article>
+
+        <aside className="hidden xl:block">
+          <div className="space-y-3 border-l border-white/8 pl-6">
+            <div className="h-4 w-24 animate-pulse bg-white/12" />
+            {[0, 1, 2].map((item) => (
+              <div key={item} className="h-4 w-32 animate-pulse bg-white/[0.055]" />
+            ))}
+          </div>
+        </aside>
+      </div>
+    </div>
+  );
+}
+
+export function DocsFooter() {
+  const footerColumns = [
+    {
+      title: "Tài liệu",
+      links: [
+        { label: "Đội ngũ", to: "/team" },
+        { label: "Bảo mật dữ liệu", to: "/security" },
+        { label: "Cách sử dụng", to: "/guide" },
+        { label: "Bảng giá", to: "/pricing" },
+      ],
+    },
+    {
+      title: "Sản phẩm",
+      links: [
+        { label: "Quy trình", to: "/process" },
+        { label: "Phương pháp AI", to: "/ai-methodology" },
+        { label: "Use cases", to: "/use-cases" },
+        { label: "Tích hợp", to: "/integrations" },
+      ],
+    },
+    {
+      title: "Pháp lý",
+      links: [
+        { label: "Chính sách bảo mật", to: "/privacy-policy" },
+        { label: "Điều khoản", to: "/terms" },
+        { label: "Đặt lịch demo", to: "/book-demo" },
+        { label: "Liên hệ triển khai", to: "/contact-ready" },
+      ],
+    },
+  ];
+
+  return (
+    <footer className="relative border-t border-white/[0.08] bg-black">
+      <div className="pointer-events-none absolute inset-0 supporthr-grid-mask opacity-10" />
+      <div className="relative mx-auto max-w-[96rem] px-4 py-8 sm:px-6 lg:px-8">
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.25fr)]">
+          <div>
+            <Link to="/" className="inline-flex items-center gap-3">
+              <span className="flex h-9 w-9 items-center justify-center overflow-hidden border border-white/12 bg-black">
+                <img src="/images/logos/logo.jpg" alt="Support HR" className="h-full w-full object-cover" />
+              </span>
+              <span>
+                <span className="supporthr-mono block text-lg font-semibold uppercase tracking-[0.08em] text-white">
+                  Support HR
+                </span>
+                <span className="supporthr-mono mt-1 block text-[10px] uppercase tracking-[0.22em] text-[#f5d6bb]">
+                  Tài liệu doanh nghiệp
+                </span>
+              </span>
+            </Link>
+            <p className="mt-4 max-w-md text-sm leading-7 text-zinc-500">
+              Trung tâm tài liệu public cho đội ngũ tuyển dụng, bên mua và người đánh giá bảo mật trước khi trải nghiệm sản phẩm.
+            </p>
+          </div>
+
+          <div className="grid gap-6 sm:grid-cols-3">
+            {footerColumns.map((column) => (
+              <section key={column.title}>
+                <p className="supporthr-mono text-[10px] uppercase tracking-[0.22em] text-zinc-500">{column.title}</p>
+                <div className="mt-4 space-y-3">
+                  {column.links.map((link) => (
+                    <Link key={link.to} to={link.to} className="block text-sm text-zinc-400 transition-colors hover:text-white">
+                      {link.label}
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-8 flex flex-col gap-4 border-t border-white/[0.08] pt-5 lg:flex-row lg:items-center lg:justify-between">
+          <div className="space-y-1">
+            <p className="text-sm text-zinc-500">© 2026 Support HR. Mọi quyền được bảo lưu.</p>
+            <div className="flex flex-col gap-1 text-sm text-zinc-600 sm:flex-row sm:gap-4">
+              <a href="mailto:support@supporthr.vn" className="transition-colors hover:text-zinc-400">
+                support@supporthr.vn
+              </a>
+              <a href="tel:0899280108" className="transition-colors hover:text-zinc-400">
+                0899 280 108
+              </a>
+            </div>
+          </div>
+          <DmcaBadge className="border-0 bg-transparent px-0 py-0" centered={false} />
+        </div>
+      </div>
+    </footer>
+  );
+}
+
 export function LegalPageLayout({
   pageLabel,
   title,
@@ -337,10 +500,8 @@ export function LegalPageLayout({
   return (
     <div className="legal-page-shell min-h-screen overflow-x-hidden bg-black text-zinc-100">
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="supporthr-grid-mask absolute inset-0 opacity-40" />
-        <div className="absolute inset-x-0 top-0 h-[26rem] bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.05),transparent_48%)]" />
-        <div className="absolute left-0 top-24 h-[22rem] w-[34rem] bg-[radial-gradient(circle_at_left_top,rgba(245,214,187,0.08),transparent_72%)]" />
-        <div className="absolute bottom-0 right-0 h-[26rem] w-[36rem] bg-[radial-gradient(circle_at_right_bottom,rgba(245,214,187,0.06),transparent_74%)]" />
+        <div className="supporthr-grid-mask absolute inset-0 opacity-25" />
+        <div className="absolute inset-x-0 top-0 h-80 bg-[linear-gradient(180deg,rgba(255,255,255,0.045),transparent)]" />
       </div>
 
       <div className="relative z-10">
@@ -348,66 +509,33 @@ export function LegalPageLayout({
 
         <DocsHeaderTabs tabs={headerTabs} />
 
-        <header
-          className={`mx-auto max-w-[96rem] px-4 pb-8 pt-12 transition-all duration-700 sm:px-6 lg:px-8 ${
-            isVisible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
-          }`}
-        >
-          <div>
-            <p className="supporthr-mono text-[11px] uppercase tracking-[0.26em] text-[#f5d6bb]/70">
-              {pageLabel} // {meta}
-            </p>
-            <h1 className="supporthr-display mt-4 max-w-4xl text-[clamp(2.7rem,5.5vw,4.9rem)] font-bold leading-[0.92] tracking-[-0.075em] text-white">
-              {title}
-            </h1>
-            <p className="mt-5 max-w-2xl text-base leading-8 text-zinc-400 sm:text-lg">
-              {subtitle}
-            </p>
-          </div>
-        </header>
-
         <main
-          className={`mx-auto max-w-[96rem] px-4 pb-14 transition-all duration-700 delay-100 sm:px-6 lg:px-8 ${
+          className={`mx-auto max-w-[96rem] px-4 pb-16 pt-8 transition-all duration-700 sm:px-6 lg:px-8 ${
             isVisible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
           }`}
         >
-          <div className="grid gap-5 lg:grid-cols-[17rem_minmax(0,1fr)] lg:gap-10">
-            <aside className="hidden lg:block">
-              <div className="sticky top-28 border border-white/8 bg-black/78 p-4 backdrop-blur-xl">
-                <p className="supporthr-mono text-[10px] uppercase tracking-[0.24em] text-[#f5d6bb]/70">
-                  Mục lục
-                </p>
-                <div className="mt-4 space-y-1">
-                  {sections.map((section, index) => {
+          <div className="grid gap-8 xl:grid-cols-[17rem_minmax(0,48rem)_15rem] xl:gap-10">
+            <aside className="hidden xl:block">
+              <div className="sticky top-28 border-r border-white/8 pr-6">
+                <p className="text-sm font-semibold text-white">Features</p>
+                <p className="mt-5 text-sm text-zinc-500">{pageLabel}</p>
+                <div className="mt-3 space-y-1">
+                  {sections.map((section) => {
                     const isActive = section.id === activeSection;
-                    const tone = LEGAL_TONE_STYLES[section.tone];
 
                     return (
                       <button
                         key={section.id}
                         type="button"
                         onClick={() => onSectionChange(section.id)}
-                        className={`flex w-full items-center gap-3 border px-3 py-3 text-left transition-colors duration-200 ${
+                        className={`flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm transition-colors ${
                           isActive
-                            ? `${tone.border} ${tone.surface} text-white`
-                            : "border-transparent text-zinc-500 hover:border-white/8 hover:bg-white/[0.03] hover:text-zinc-200"
+                            ? "bg-white/[0.09] text-white"
+                            : "text-zinc-500 hover:bg-white/[0.04] hover:text-zinc-200"
                         }`}
                       >
-                        <span
-                          className={`supporthr-mono min-w-[1.5rem] text-[10px] uppercase tracking-[0.18em] ${
-                            isActive ? tone.label : "text-zinc-600"
-                          }`}
-                        >
-                          /{String(index + 1).padStart(2, "0")}
-                        </span>
-                        <span
-                          className={`flex h-8 w-8 items-center justify-center border text-[11px] ${
-                            isActive ? `${tone.border} ${tone.surface} ${tone.accent}` : "border-white/8 bg-white/[0.02] text-zinc-500"
-                          }`}
-                        >
-                          <i className={`fa-solid ${section.icon}`} />
-                        </span>
-                        <span className="text-sm font-medium leading-tight">{section.title}</span>
+                        <i className={`fa-solid ${section.icon} text-[11px] ${isActive ? "text-[#f5d6bb]" : "text-zinc-600"}`} />
+                        <span>{section.title}</span>
                       </button>
                     );
                   })}
@@ -415,10 +543,91 @@ export function LegalPageLayout({
               </div>
             </aside>
 
-            <div className="space-y-4">
-              <div className="border border-white/8 bg-black/78 p-3 backdrop-blur-xl lg:hidden">
-                <div className="flex items-center gap-2 overflow-x-auto pb-1">
-                  {sections.map((section, index) => {
+            <article className="min-w-0">
+              <header>
+                <p className="text-sm font-semibold text-[#f5d6bb]">{pageLabel}</p>
+                <h1 className="mt-3 max-w-3xl text-[clamp(2rem,3.2vw,2.85rem)] font-semibold leading-[1.08] tracking-[-0.025em] text-white">
+                  {title}
+                </h1>
+                <p className="mt-4 max-w-2xl text-base leading-8 text-zinc-400 sm:text-lg">
+                  {subtitle}
+                </p>
+                <div className="mt-5 flex flex-wrap items-center gap-3">
+                  <DocsCopyPageButton />
+                  <span className="supporthr-mono text-[10px] uppercase tracking-[0.2em] text-zinc-600">{meta}</span>
+                </div>
+              </header>
+
+              <section className="mt-8 border border-white/10 bg-white/[0.025] px-4 py-4 sm:px-5">
+                <div className="flex items-start gap-3">
+                  <span className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center border border-[#f5d6bb]/24 bg-[#f5d6bb]/[0.06] text-[#f5d6bb]">
+                    <i className="fa-solid fa-book-open text-xs" />
+                  </span>
+                  <div className="min-w-0">
+                    <h2 className="text-lg font-semibold text-white">Documentation Index</h2>
+                    <p className="mt-2 text-sm leading-7 text-zinc-500">
+                      Chọn mục bên dưới để đi nhanh tới phần tài liệu cần đọc. Cấu trúc này giúp người xem rà soát theo chủ đề thay vì phải đọc một trang marketing dài.
+                    </p>
+                    <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                      {sections.map((section, index) => {
+                        const tone = LEGAL_TONE_STYLES[section.tone];
+                        const isActive = section.id === activeSection;
+
+                        return (
+                          <button
+                            key={section.id}
+                            type="button"
+                            onClick={() => onSectionChange(section.id)}
+                            className={`flex items-center justify-between gap-3 border px-3 py-3 text-left text-sm transition-colors ${
+                              isActive
+                                ? `${tone.border} ${tone.surface} text-white`
+                                : "border-white/8 bg-black/20 text-zinc-400 hover:border-white/14 hover:bg-white/[0.035] hover:text-white"
+                            }`}
+                          >
+                            <span className="flex min-w-0 items-center gap-2">
+                              <i className={`fa-solid ${section.icon} text-[11px] ${isActive ? tone.accent : "text-zinc-600"}`} />
+                              <span className="truncate">{section.title}</span>
+                            </span>
+                            <span className="supporthr-mono shrink-0 text-[10px] text-zinc-600">
+                              {String(index + 1).padStart(2, "0")}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <section className="mt-5 border-t border-white/8 pt-8">
+                <div className="flex flex-col gap-4 pb-6 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex items-center gap-4">
+                    <div
+                      className={`flex h-10 w-10 items-center justify-center border ${activeTone.border} ${activeTone.surface} ${activeTone.accent}`}
+                    >
+                      <i className={`fa-solid ${activeMeta.icon} text-sm`} />
+                    </div>
+                    <div>
+                      <p className="supporthr-mono text-[10px] uppercase tracking-[0.22em] text-zinc-600">Section</p>
+                      <h2 className="mt-1 text-2xl font-semibold tracking-[-0.02em] text-white">{activeMeta.title}</h2>
+                    </div>
+                  </div>
+                  <div className="supporthr-mono text-[11px] uppercase tracking-[0.22em] text-zinc-500">
+                    /{String(activeIndex + 1).padStart(2, "0")} of /{String(sections.length).padStart(2, "0")}
+                  </div>
+                </div>
+                <div>{children}</div>
+              </section>
+            </article>
+
+            <aside className="hidden xl:block">
+              <div className="sticky top-28 border-l border-white/8 pl-6">
+                <p className="flex items-center gap-2 text-sm font-semibold text-white">
+                  <i className="fa-solid fa-list-ul text-[11px] text-[#f5d6bb]" />
+                  On this page
+                </p>
+                <div className="mt-4 space-y-1">
+                  {sections.map((section) => {
                     const isActive = section.id === activeSection;
                     const tone = LEGAL_TONE_STYLES[section.tone];
 
@@ -427,47 +636,21 @@ export function LegalPageLayout({
                         key={section.id}
                         type="button"
                         onClick={() => onSectionChange(section.id)}
-                        className={`flex shrink-0 items-center gap-2 border px-3 py-2 text-xs font-medium transition-colors ${
-                          isActive
-                            ? `${tone.border} ${tone.surface} ${tone.accent}`
-                            : "border-white/8 bg-white/[0.02] text-zinc-500"
+                        className={`flex w-full items-start gap-2 px-2 py-2 text-left text-sm transition-colors ${
+                          isActive ? "text-white" : "text-zinc-500 hover:text-zinc-200"
                         }`}
                       >
-                        <span className="supporthr-mono text-[10px] uppercase tracking-[0.18em] text-zinc-600">
-                          /{String(index + 1).padStart(2, "0")}
-                        </span>
-                        <i className={`fa-solid ${section.icon} text-[10px]`} />
-                        {section.title}
+                        <span className={`mt-[0.45rem] h-1.5 w-1.5 shrink-0 ${isActive ? tone.dot : "bg-zinc-700"}`} />
+                        <span>{section.title}</span>
                       </button>
                     );
                   })}
                 </div>
               </div>
-
-              <section className="border border-[#f5d6bb]/18 bg-[linear-gradient(180deg,rgba(8,8,10,0.94),rgba(0,0,0,0.92))] p-5 backdrop-blur-xl sm:p-7">
-                <div className="flex flex-col gap-4 border-b border-white/6 pb-5 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="flex items-center gap-4">
-                    <div
-                      className={`flex h-11 w-11 items-center justify-center border ${activeTone.border} ${activeTone.surface} ${activeTone.accent}`}
-                    >
-                      <i className={`fa-solid ${activeMeta.icon} text-sm`} />
-                    </div>
-                    <div>
-                      <p className="supporthr-mono text-[10px] uppercase tracking-[0.24em] text-[#f5d6bb]/70">
-                        Đang xem
-                      </p>
-                      <h2 className="mt-1 text-xl font-semibold text-white">{activeMeta.title}</h2>
-                    </div>
-                  </div>
-                  <div className="supporthr-mono text-[11px] uppercase tracking-[0.22em] text-zinc-500">
-                    /{String(activeIndex + 1).padStart(2, "0")} of /{String(sections.length).padStart(2, "0")}
-                  </div>
-                </div>
-                <div className="pt-6">{children}</div>
-              </section>
-            </div>
+            </aside>
           </div>
         </main>
+        <DocsFooter />
       </div>
     </div>
   );
@@ -555,4 +738,3 @@ export function LegalBulletGrid({ tone, items, columns = 1 }: LegalBulletGridPro
     </div>
   );
 }
-

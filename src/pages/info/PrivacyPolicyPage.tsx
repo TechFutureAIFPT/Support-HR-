@@ -6,6 +6,7 @@ import {
   LegalPageLayout,
   type LegalSectionMeta,
 } from "./legal-ui";
+import { productDocsTabs } from "./docs-header-tabs";
 
 const sections = [
   { id: "google-data", title: "Google user data", icon: "fa-cloud-arrow-down", tone: "cyan" },
@@ -271,6 +272,7 @@ const PrivacyPolicyPage: React.FC = () => {
       onSectionChange={setActiveSection}
       isVisible={isVisible}
       auxiliaryLink={{ label: "Điều khoản", to: "/terms" }}
+      headerTabs={productDocsTabs}
     >
       {renderSectionContent()}
     </LegalPageLayout>

@@ -5,6 +5,7 @@ import {
   LegalPageLayout,
   type LegalSectionMeta,
 } from "./legal-ui";
+import { productDocsTabs } from "./docs-header-tabs";
 
 const sections = [
   { id: "volume", title: "Sàng lọc khối lượng lớn", icon: "fa-layer-group", tone: "cyan" },
@@ -81,6 +82,7 @@ const UseCasesPage: React.FC = () => {
       isVisible={isVisible}
       auxiliaryLink={{ label: "Phương pháp AI", to: "/ai-methodology" }}
       brandContext="Tài liệu doanh nghiệp"
+      headerTabs={productDocsTabs}
     >
       {renderSectionContent()}
     </LegalPageLayout>
@@ -88,4 +90,3 @@ const UseCasesPage: React.FC = () => {
 };
 
 export default UseCasesPage;
-

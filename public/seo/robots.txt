@@ -15,9 +15,26 @@ Crawl-delay: 1
 Disallow: /admin/
 Disallow: /api/
 Disallow: /firebase-config
+Disallow: /jd
+Disallow: /weights
+Disallow: /analysis
+Disallow: /dashboard
+Disallow: /detailed-analytics
+Disallow: /chatbot
+Disallow: /feedback
 
 Allow: /privacy-policy
 Allow: /terms
+Allow: /process
+Allow: /contact-ready
+Allow: /team
+Allow: /security
+Allow: /pricing
+Allow: /guide
+Allow: /ai-methodology
+Allow: /use-cases
+Allow: /integrations
+Allow: /book-demo
 Allow: /images/
 Allow: /*.css$
 Allow: /*.js$

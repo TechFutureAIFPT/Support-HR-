@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, useReducedMotion } from "framer-motion";
-import DmcaBadge from "@/components/common/DmcaBadge";
 import {
   DocsHeaderTabs,
+  DocsCopyPageButton,
+  DocsFooter,
   DocsTopBar,
   LEGAL_TONE_STYLES,
   LegalBulletGrid,
@@ -14,7 +15,9 @@ import {
 import { productDocsTabs } from "./docs-header-tabs";
 import {
   type BillingMode,
+  docsReadinessItems,
   docsNavigation,
+  docsTrustMetrics,
   faqGuideSections,
   pricingComparisonRows,
   pricingFaqs,
@@ -239,6 +242,83 @@ function DocsSidebar({
   );
 }
 
+function DocsTrustPanel() {
+  return (
+    <div className="min-w-0 border border-[#f5d6bb]/18 bg-[linear-gradient(180deg,rgba(245,214,187,0.06),rgba(255,255,255,0.018))] p-5">
+      <div className="flex items-center justify-between gap-3">
+        <p className="supporthr-mono text-[10px] uppercase tracking-[0.24em] text-zinc-500">
+          Trust center
+        </p>
+        <span className="h-2 w-2 bg-[#f5d6bb] shadow-[0_0_18px_rgba(245,214,187,0.65)]" />
+      </div>
+      <div className="mt-5 space-y-3">
+        {docsTrustMetrics.map((metric) => {
+          const style = LEGAL_TONE_STYLES[metric.tone];
+
+          return (
+            <div key={metric.label} className={`border ${style.border} bg-black/45 px-4 py-4`}>
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-3xl font-semibold text-white">{metric.value}</p>
+                  <p className={`mt-1 supporthr-mono text-[10px] uppercase tracking-[0.18em] ${style.label}`}>
+                    {metric.label}
+                  </p>
+                </div>
+                <span className={`mt-2 h-2 w-2 ${style.dot}`} />
+              </div>
+              <p className="mt-3 text-sm leading-6 text-zinc-500">{metric.detail}</p>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function DocsReadinessPanel() {
+  return (
+    <section className="border border-[#f5d6bb]/18 bg-[linear-gradient(180deg,rgba(245,214,187,0.06),rgba(255,255,255,0.018))] px-5 py-8 sm:px-8 lg:px-10">
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,0.82fr)_minmax(0,1fr)]">
+        <div>
+          <p className="supporthr-mono text-[10px] uppercase tracking-[0.24em] text-[#f5d6bb]/75">
+            Procurement-ready docs
+          </p>
+          <h2 className="mt-3 text-[clamp(1.8rem,3.4vw,2.8rem)] font-semibold leading-[1.02] tracking-[-0.04em] text-white">
+            Các mục giúp website nhìn đáng tin hơn khi gửi cho khách hàng doanh nghiệp.
+          </h2>
+          <p className="mt-4 text-base leading-8 text-zinc-400">
+            Một vài nội dung có thể trình bày ngay, nhưng các cam kết pháp lý cần thông tin chính thức để tránh ghi quá tay trên website.
+          </p>
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-2">
+          {docsReadinessItems.map((item) => {
+            const ready = item.status === "ready";
+
+            return (
+              <div key={item.label} className="border border-white/10 bg-black/35 px-4 py-4">
+                <div className="flex items-start justify-between gap-3">
+                  <p className="text-sm font-semibold text-white">{item.label}</p>
+                  <span
+                    className={`supporthr-mono shrink-0 border px-2 py-1 text-[9px] uppercase tracking-[0.16em] ${
+                      ready
+                        ? "border-[#f5d6bb]/25 bg-[#f5d6bb]/[0.07] text-[#f5d6bb]"
+                        : "border-amber-300/24 bg-amber-300/[0.07] text-amber-200"
+                    }`}
+                  >
+                    {ready ? "Sẵn sàng" : "Cần dữ liệu"}
+                  </span>
+                </div>
+                <p className="mt-3 text-sm leading-6 text-zinc-500">{item.detail}</p>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function SectionIntro({
   sectionId,
   title,
@@ -349,17 +429,25 @@ const PricingPage: React.FC = () => {
                   isVisible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
                 }`}
               >
-                <div className="grid gap-10 border border-white/8 bg-[linear-gradient(180deg,rgba(8,8,10,0.92),rgba(0,0,0,0.86))] px-5 py-8 sm:px-8 sm:py-10 xl:grid-cols-[minmax(0,1fr)_18rem] xl:px-10 xl:py-12">
+                <div className="grid gap-10 border-b border-white/8 px-1 pb-10 pt-2 xl:grid-cols-[minmax(0,1fr)_18rem]">
                   <div className="min-w-0">
-                    <h1 className="supporthr-display max-w-5xl break-words text-[clamp(1.65rem,8.5vw,5.4rem)] font-bold leading-[0.95] tracking-[-0.045em] sm:leading-[0.92] sm:tracking-[-0.075em] text-white">
-                      Bảng giá rõ ràng để đội tuyển dụng, bên mua và quản lý chốt nhanh phạm vi triển khai.
+                    <p className="text-sm font-semibold text-[#f5d6bb]">Support HR Docs</p>
+                    <h1 className="mt-3 max-w-3xl break-words text-[clamp(2rem,3.2vw,2.85rem)] font-semibold leading-[1.08] tracking-[-0.025em] text-white">
+                      Pricing, security and buyer FAQ
                     </h1>
                     <p className="mt-6 max-w-3xl break-words text-base leading-8 text-zinc-400 sm:text-lg">
                       Trang này tập trung riêng cho bảng giá và phần hỏi đáp thương mại. Các nội dung về đội ngũ, bảo mật dữ liệu và cách
                       sử dụng đã được tách sang các trang riêng để việc tra cứu gọn gàng và dễ theo dõi hơn.
                     </p>
 
-                    <div className="mt-8 flex flex-wrap gap-3">
+                    <div className="mt-5 flex flex-wrap items-center gap-3">
+                      <DocsCopyPageButton />
+                      <span className="supporthr-mono text-[10px] uppercase tracking-[0.2em] text-zinc-600">
+                        Tài liệu doanh nghiệp · Cập nhật 2026
+                      </span>
+                    </div>
+
+                    <div className="mt-7 flex flex-wrap gap-3">
                       <Link
                         to="/book-demo"
                         className="inline-flex h-11 w-full items-center justify-center bg-white px-6 supporthr-mono text-[11px] font-bold uppercase tracking-[0.2em] text-black transition-colors hover:bg-zinc-100 sm:w-auto"
@@ -374,7 +462,21 @@ const PricingPage: React.FC = () => {
                       </Link>
                     </div>
 
-                    <div className="mt-8 grid gap-3 sm:grid-cols-3">
+                    <div className="mt-8 border border-white/10 bg-white/[0.025] px-4 py-4 sm:px-5">
+                      <div className="flex items-start gap-3">
+                        <span className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center border border-[#f5d6bb]/24 bg-[#f5d6bb]/[0.06] text-[#f5d6bb]">
+                          <i className="fa-solid fa-book-open text-xs" />
+                        </span>
+                        <div className="min-w-0">
+                          <h2 className="text-lg font-semibold text-white">Documentation Index</h2>
+                          <p className="mt-2 text-sm leading-7 text-zinc-500">
+                            Chọn nhóm nội dung để đi nhanh tới phần tài liệu cần xem trước demo hoặc trước khi gửi cho bộ phận mua sắm.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 grid gap-3 sm:grid-cols-3">
                       {docsNavigation.map((group) => (
                         <a
                           key={group.id}
@@ -395,25 +497,7 @@ const PricingPage: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="min-w-0 border border-[#f5d6bb]/18 bg-[linear-gradient(180deg,rgba(245,214,187,0.06),rgba(255,255,255,0.018))] p-5">
-                    <p className="supporthr-mono text-[10px] uppercase tracking-[0.24em] text-zinc-500">
-                      Tóm tắt hub
-                    </p>
-                    <div className="mt-5 space-y-3">
-                      <div className="border border-white/10 bg-black/45 px-4 py-4">
-                        <p className="text-3xl font-semibold text-white">4</p>
-                        <p className="mt-1 text-sm text-zinc-500">trang tài liệu chính trong cụm header mới</p>
-                      </div>
-                      <div className="border border-white/10 bg-black/45 px-4 py-4">
-                        <p className="text-3xl font-semibold text-white">11</p>
-                        <p className="mt-1 text-sm text-zinc-500">anchor để đi thẳng tới đúng chủ đề cần đọc</p>
-                      </div>
-                      <div className="border border-white/10 bg-black/45 px-4 py-4">
-                        <p className="text-3xl font-semibold text-white">1</p>
-                        <p className="mt-1 text-sm text-zinc-500">trang tập trung riêng cho giá và câu hỏi thương mại</p>
-                      </div>
-                    </div>
-                  </div>
+                  <DocsTrustPanel />
                 </div>
               </section>
 
@@ -634,8 +718,13 @@ const PricingPage: React.FC = () => {
                       ))}
                     </div>
 
-                    <div className="max-w-[320px] xl:justify-self-end">
-                      <DmcaBadge note="Trang này gắn liên kết xác thực bản quyền DMCA cho website." />
+                    <div className="border border-white/10 bg-white/[0.02] px-5 py-4 xl:justify-self-end">
+                      <p className="supporthr-mono text-[10px] uppercase tracking-[0.22em] text-[#f5d6bb]/75">
+                        Trust placement
+                      </p>
+                      <p className="mt-3 text-sm leading-7 text-zinc-500">
+                        DMCA và thông tin bản quyền được đặt ở footer để mọi trang public có tín hiệu pháp lý nhất quán.
+                      </p>
                     </div>
                   </div>
                 </section>
@@ -704,6 +793,8 @@ const PricingPage: React.FC = () => {
                   </div>
                 </div>
               </section>
+
+              <DocsReadinessPanel />
             </div>
 
             <aside className="hidden xl:block">
@@ -734,6 +825,7 @@ const PricingPage: React.FC = () => {
             </aside>
           </div>
         </main>
+        <DocsFooter />
       </div>
     </div>
   );

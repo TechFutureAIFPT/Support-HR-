@@ -17,6 +17,8 @@ import JDTemplatesModal, { JDTemplate } from '@/components/history/JDTemplatesMo
 import HistoryModal from '@/components/history/HistoryModal';
 import PageTransition from '@/components/PageTransition';
 import SupportHRLoading from '@/components/common/SupportHRLoading';
+import SeoManager from '@/components/common/SeoManager';
+import { DocsPageLoading } from '@/pages/info/legal-ui';
 
 // Lazy load pages for code-splitting
 const ScreenerPage = lazy(() => import('@/pages/main/ScreenerPage'));
@@ -276,6 +278,7 @@ const MainApp = () => {
 
   return (
     <>
+      <SeoManager />
       <PageTransition />
       <MainLayout
         onResetRequest={handleFullReset}
@@ -814,18 +817,22 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
       >
         <div className={`flex h-full min-h-0 w-full flex-1 flex-col ${isWorkflowView ? 'overflow-hidden' : isLandingView ? '' : 'max-w-7xl px-4 sm:px-6 lg:px-8 mx-auto py-4 overflow-y-auto custom-scrollbar'}`}>
           <Suspense fallback={
-            <SupportHRLoading
-              mode="panel"
-              minHeightClass="min-h-[52vh]"
-              label="Support HR // Route Loading"
-              title="Đang tải giao diện"
-              description="Hệ thống đang nạp module cần thiết để hiển thị trang tiếp theo."
-              stages={[
-                { label: 'Module', hint: 'Nạp thành phần giao diện', tone: 'cyan' },
-                { label: 'Dữ liệu', hint: 'Khôi phục trạng thái trang', tone: 'violet' },
-                { label: 'Hiển thị', hint: 'Sẵn sàng tương tác', tone: 'emerald' },
-              ]}
-            />
+            isMarketingRoute ? (
+              <DocsPageLoading />
+            ) : (
+              <SupportHRLoading
+                mode="panel"
+                minHeightClass="min-h-[52vh]"
+                label="Support HR // Route Loading"
+                title="Đang tải giao diện"
+                description="Hệ thống đang nạp module cần thiết để hiển thị trang tiếp theo."
+                stages={[
+                  { label: 'Module', hint: 'Nạp thành phần giao diện', tone: 'cyan' },
+                  { label: 'Dữ liệu', hint: 'Khôi phục trạng thái trang', tone: 'violet' },
+                  { label: 'Hiển thị', hint: 'Sẵn sàng tương tác', tone: 'emerald' },
+                ]}
+              />
+            )
           }>
             <Routes>
               <Route path="/" element={<HomePage setActiveStep={setActiveStep} isLoggedIn={isLoggedIn} onLoginRequest={onLoginRequest} completedSteps={completedSteps} userName={userName} userEmail={userEmail} />} />

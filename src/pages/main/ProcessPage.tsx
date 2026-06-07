@@ -1,4 +1,7 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
+import { DocsFooter, DocsHeaderTabs, DocsTopBar } from '@/pages/info/legal-ui';
+import { productDocsTabs } from '@/pages/info/docs-header-tabs';
 
 interface ProcessPageProps {
   isIntroMode?: boolean;
@@ -8,141 +11,131 @@ interface ProcessPageProps {
 const PROCESS_STEPS = [
   {
     icon: 'fa-clipboard-list',
-    title: 'Nhập JD & Tải lên CV',
-    description: 'Cung cấp mô tả công việc (JD) và tải lên hàng loạt CV cần sàng lọc để AI phân tích.',
-    color: 'text-cyan-400',
-    bgColor: 'bg-cyan-500/10',
-    borderColor: 'border-cyan-500/25',
-    glowColor: 'shadow-cyan-500/10',
+    title: 'Nhập JD và xác định vai trò',
+    description: 'Bắt đầu bằng mô tả công việc, vị trí tuyển dụng và các yêu cầu cứng cần giữ trong suốt phiên sàng lọc.',
     step: '01',
   },
   {
-    icon: 'fa-sliders',
-    title: 'Đặt Tiêu chí & Trọng số',
-    description: 'Thiết lập bộ lọc bắt buộc (địa điểm, kinh nghiệm) và phân bổ trọng số cho kỹ năng.',
-    color: 'text-violet-400',
-    bgColor: 'bg-violet-500/10',
-    borderColor: 'border-violet-500/25',
-    glowColor: 'shadow-violet-500/10',
+    icon: 'fa-folder-open',
+    title: 'Đưa CV vào cùng một phiên',
+    description: 'Tải file trực tiếp hoặc chọn tài liệu từ Google Drive để gom ứng viên vào một bề mặt rà soát thống nhất.',
     step: '02',
   },
   {
-    icon: 'fa-rocket',
-    title: 'Phân tích & Chấm điểm AI',
-    description: 'AI đọc hiểu, chấm điểm, xếp hạng từng CV dựa trên JD và trọng số đã thiết lập.',
-    color: 'text-amber-400',
-    bgColor: 'bg-amber-500/10',
-    borderColor: 'border-amber-500/25',
-    glowColor: 'shadow-amber-500/10',
+    icon: 'fa-sliders',
+    title: 'Thiết lập tiêu chí và trọng số',
+    description: 'Điều chỉnh kỹ năng, kinh nghiệm, địa điểm, học vấn và mức độ ưu tiên theo đúng nhu cầu tuyển dụng.',
     step: '03',
   },
   {
-    icon: 'fa-comments',
-    title: 'Tư vấn & Lựa chọn',
-    description: 'Sử dụng Dashboard và Chatbot AI để so sánh, nhận đề xuất và lựa chọn ứng viên tiềm năng nhất.',
-    color: 'text-pink-400',
-    bgColor: 'bg-pink-500/10',
-    borderColor: 'border-pink-500/25',
-    glowColor: 'shadow-pink-500/10',
+    icon: 'fa-wand-magic-sparkles',
+    title: 'AI chấm điểm và giải thích',
+    description: 'Hệ thống đối chiếu CV với JD, tạo điểm số, xếp hạng và lý do đề cử để recruiter kiểm tra lại.',
     step: '04',
   },
   {
-    icon: 'fa-file-csv',
-    title: 'Xuất Danh sách & Phỏng vấn',
-    description: 'Xuất danh sách ứng viên đã chọn ra file CSV để chia sẻ và bắt đầu quy trình phỏng vấn.',
-    color: 'text-blue-400',
-    bgColor: 'bg-blue-500/10',
-    borderColor: 'border-blue-500/25',
-    glowColor: 'shadow-blue-500/10',
+    icon: 'fa-user-check',
+    title: 'Chốt shortlist và bàn giao',
+    description: 'Danh sách đề cử được dùng cho vòng phỏng vấn, báo cáo nội bộ hoặc trao đổi tiếp với hiring manager.',
     step: '05',
   },
 ];
 
-const ProcessPage: React.FC<ProcessPageProps> = ({ isIntroMode = false, onStart }) => {
-
+function ProcessContent({ isIntroMode, onStart }: ProcessPageProps) {
   return (
-    <div className="feature-page-shell max-w-4xl mx-auto space-y-8">
-
-      {/* ── Page Header ─────────────────────────────────────────── */}
-      <div className="text-center">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-cyan-500/20 bg-cyan-500/5 mb-5">
-          <i className="fa-solid fa-route text-cyan-400 text-[10px]"></i>
-          <span className="text-[10px] font-bold text-cyan-400 uppercase tracking-widest">Quy trình 5 bước</span>
-        </div>
-        <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight mb-3">
+    <div className="mx-auto w-full max-w-[72rem] px-4 py-10 sm:px-6 lg:px-8">
+      <header className="max-w-3xl">
+        <p className="text-sm font-semibold text-[#f5d6bb]">Workflow</p>
+        <h1 className="mt-3 text-[clamp(2rem,3.6vw,3.2rem)] font-semibold leading-[1.08] tracking-[-0.025em] text-white">
           Quy trình sàng lọc CV thông minh
         </h1>
-        <p className="text-slate-400 text-base max-w-2xl mx-auto leading-relaxed">
-          {isIntroMode
-            ? 'Bắt đầu tối ưu hóa hiệu quả tuyển dụng của bạn với quy trình 5 bước toàn diện.'
-            : 'Luồng làm việc được đề xuất để tối ưu hóa hiệu quả tuyển dụng của bạn.'}
+        <p className="mt-4 text-base leading-8 text-zinc-400 sm:text-lg">
+          Luồng 5 bước giúp đội tuyển dụng đi từ JD, CV đầu vào đến shortlist có thể rà soát mà không biến quy trình thành hộp đen.
         </p>
-      </div>
+      </header>
 
-      {/* ── Steps ──────────────────────────────────────────────── */}
-      <div className="relative">
-        {/* Connecting line (desktop) */}
-        <div className="hidden md:block absolute left-[68px] top-10 bottom-10 w-px bg-slate-800/80" />
-
-        <div className="space-y-6">
-          {PROCESS_STEPS.map((step, index) => (
-            <div key={index} className="flex items-center gap-0">
-              {/* Left: content */}
-              <div className="flex-1 flex justify-end pr-6">
-                <div className={`bg-[#11213A] border ${step.borderColor} rounded-2xl p-5 w-full max-w-md transition-all duration-300 hover:shadow-xl ${step.glowColor} group`}>
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className={`text-base font-bold ${step.color}`}>{step.title}</h3>
-                    <span className={`text-[10px] font-black ${step.color} opacity-60`}>{step.step}</span>
-                  </div>
-                  <p className="text-sm text-slate-400 leading-relaxed">{step.description}</p>
-                </div>
-              </div>
-
-              {/* Center: icon */}
-              <div className="relative z-10 w-14 h-14 shrink-0 flex items-center justify-center">
-                <div className={`absolute inset-0 rounded-full ${step.bgColor} border ${step.borderColor} animate-pulse`} style={{ animationDuration: '3s' }} />
-                <div className={`relative w-11 h-11 rounded-full bg-[#040814] border ${step.borderColor} flex items-center justify-center shadow-lg`}>
-                  <i className={`fa-solid ${step.icon} ${step.color} text-lg`}></i>
-                </div>
-              </div>
-
-              {/* Right: spacer */}
-              <div className="flex-1 pl-6" />
+      <section className="mt-8 grid gap-3 lg:grid-cols-5">
+        {PROCESS_STEPS.map((step) => (
+          <article key={step.step} className="relative border border-white/10 bg-white/[0.025] p-5">
+            <div className="flex items-start justify-between gap-4">
+              <span className="flex h-10 w-10 items-center justify-center border border-[#f5d6bb]/22 bg-[#f5d6bb]/[0.06] text-[#f5d6bb]">
+                <i className={`fa-solid ${step.icon} text-sm`} />
+              </span>
+              <span className="supporthr-mono text-[10px] uppercase tracking-[0.2em] text-zinc-600">{step.step}</span>
             </div>
-          ))}
-        </div>
-      </div>
+            <h2 className="mt-5 text-base font-semibold leading-6 text-white">{step.title}</h2>
+            <p className="mt-3 text-sm leading-7 text-zinc-500">{step.description}</p>
+          </article>
+        ))}
+      </section>
 
-      {/* ── Summary Stats ─────────────────────────────────────── */}
-      <div className="grid grid-cols-3 gap-3 max-w-md mx-auto">
+      <section className="mt-8 grid gap-3 sm:grid-cols-3">
         {[
-          { label: 'Thời gian', value: '< 5 phút', icon: 'fa-bolt', color: 'text-amber-400' },
-          { label: 'Xử lý', value: 'Hàng loạt', icon: 'fa-infinity', color: 'text-cyan-400' },
-          { label: 'Độ chính xác', value: 'AI 95%+', icon: 'fa-brain', color: 'text-emerald-400' },
-        ].map(stat => (
-          <div key={stat.label} className="bg-[#11213A] rounded-2xl border border-slate-800/60 p-4 text-center">
-            <i className={`fa-solid ${stat.icon} ${stat.color} text-base mb-2`}></i>
-            <p className="text-xs font-bold text-white">{stat.value}</p>
-            <p className="text-[10px] text-slate-600 mt-0.5">{stat.label}</p>
+          { label: 'Nhịp thao tác', value: '5 bước', icon: 'fa-route' },
+          { label: 'Nguồn CV', value: 'Upload + Drive', icon: 'fa-file-import' },
+          { label: 'Đầu ra', value: 'Shortlist có lý do', icon: 'fa-clipboard-check' },
+        ].map((stat) => (
+          <div key={stat.label} className="border border-white/10 bg-black/35 px-5 py-4">
+            <i className={`fa-solid ${stat.icon} text-sm text-[#f5d6bb]`} />
+            <p className="mt-3 text-lg font-semibold text-white">{stat.value}</p>
+            <p className="mt-1 text-sm text-zinc-500">{stat.label}</p>
           </div>
         ))}
-      </div>
+      </section>
 
-      {/* ── Start CTA ─────────────────────────────────────────── */}
-      {!isIntroMode && (
-        <div className="text-center">
+      <div className="mt-8 flex flex-wrap gap-3">
+        {isIntroMode ? (
           <button
+            type="button"
             onClick={onStart}
-            className="inline-flex items-center gap-3 px-8 py-3.5 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold text-sm shadow-xl shadow-cyan-500/20 hover:shadow-cyan-500/30 transition-all hover:-translate-y-0.5"
+            className="inline-flex h-11 items-center justify-center bg-white px-6 supporthr-mono text-[11px] font-bold uppercase tracking-[0.18em] text-black transition-colors hover:bg-zinc-100"
           >
-            <i className="fa-solid fa-rocket text-base"></i>
-            Bắt đầu sàng lọc ngay
+            Bắt đầu sàng lọc
           </button>
-        </div>
-      )}
+        ) : (
+          <>
+            <Link
+              to="/guide"
+              className="inline-flex h-11 items-center justify-center bg-white px-6 supporthr-mono text-[11px] font-bold uppercase tracking-[0.18em] text-black transition-colors hover:bg-zinc-100"
+            >
+              Xem hướng dẫn
+            </Link>
+            <Link
+              to="/book-demo"
+              className="inline-flex h-11 items-center justify-center border border-white/12 px-6 supporthr-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-white transition-colors hover:border-white/24 hover:bg-white/[0.03]"
+            >
+              Đặt lịch demo
+            </Link>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+const ProcessPage: React.FC<ProcessPageProps> = ({ isIntroMode = false, onStart }) => {
+  if (isIntroMode) {
+    return (
+      <div className="feature-page-shell">
+        <ProcessContent isIntroMode onStart={onStart} />
+      </div>
+    );
+  }
+
+  return (
+    <div className="legal-page-shell min-h-screen overflow-x-hidden bg-black text-zinc-100">
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        <div className="supporthr-grid-mask absolute inset-0 opacity-25" />
+        <div className="absolute inset-x-0 top-0 h-80 bg-[linear-gradient(180deg,rgba(255,255,255,0.045),transparent)]" />
+      </div>
+      <div className="relative z-10">
+        <DocsTopBar brandContext="Tài liệu doanh nghiệp" auxiliaryLink={{ label: 'Bảng giá', to: '/pricing' }} />
+        <DocsHeaderTabs tabs={productDocsTabs} />
+        <ProcessContent />
+        <DocsFooter />
+      </div>
     </div>
   );
 };
 
 export default ProcessPage;
-
