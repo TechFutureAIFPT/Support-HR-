@@ -38,7 +38,7 @@ const UseCasesPage: React.FC = () => {
         return (
           <LegalCard tone="emerald" icon="fa-code" title="Khi vai trò khó đánh giá nhanh">
             <p>
-              Với tuyển dụng chuyên môn, quy trình giúp recruiter gom tín hiệu từ JD và so sánh ứng viên nhất quán hơn
+              Với tuyển dụng chuyên môn, quy trình giúp nhà tuyển dụng gom tín hiệu từ JD và so sánh ứng viên nhất quán hơn
               trước khi bàn giao danh sách đề cử cho người rà soát kỹ thuật.
             </p>
           </LegalCard>

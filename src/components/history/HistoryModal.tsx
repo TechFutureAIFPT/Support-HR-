@@ -220,7 +220,7 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ isOpen, onClose }) => {
                           </div>
                           <div className="mt-3 flex items-center justify-between gap-3 text-xs text-slate-500">
                             <span>{entry.industry || 'Khác'}</span>
-                            <span style={{ color: gold }}>SESSION_LOG</span>
+                            <span style={{ color: gold }}>NHẬT KÝ PHIÊN</span>
                           </div>
                         </div>
                       ))}

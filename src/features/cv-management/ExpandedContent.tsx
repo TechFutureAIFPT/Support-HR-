@@ -214,7 +214,7 @@ function buildHrFriendlyDetailComment(
     } else if (keywordMetrics.match_percentage >= 70) {
       guidance.push('CV có nhiều từ khóa trùng với JD, đây là dấu hiệu phù hợp khá tốt với yêu cầu tuyển dụng.');
     } else {
-      guidance.push('CV có một phần tín hiệu phù hợp, nhưng vẫn cần kiểm tra thêm các yêu cầu còn thiếu trước khi shortlist.');
+      guidance.push('CV có một phần tín hiệu phù hợp, nhưng vẫn cần kiểm tra thêm các yêu cầu còn thiếu trước khi đưa vào danh sách đề cử.');
     }
   }
 
@@ -2346,14 +2346,14 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
                         <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-zinc-500">Yêu cầu JD</div>
                         <div className="mt-1 break-words text-xs font-bold leading-5 text-emerald-100">{row.requirement}</div>
                         <blockquote className="mt-2 border-l border-emerald-500/30 pl-3 text-[11px] leading-5 text-zinc-300">
-                          “{row.jdEvidence}”
+                          "{row.jdEvidence}"
                         </blockquote>
                       </div>
 
                       <div className="min-w-0 border-t border-emerald-500/10 pt-3 md:border-l md:border-t-0 md:pl-3 md:pt-0">
                         <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-zinc-500">CV chứng minh / suy luận</div>
                         <blockquote className={`mt-2 border-l pl-3 text-[11px] leading-5 ${row.matchKind === 'incorrect' ? 'border-rose-500/40 text-rose-200' : 'border-cyan-500/30 text-zinc-200'}`}>
-                          “{row.cvEvidence}”
+                          "{row.cvEvidence}"
                         </blockquote>
                         {row.reason && (
                           <p className="mt-2 text-[10px] leading-5 text-zinc-500">{normalizeVietnameseDisplay(row.reason)}</p>

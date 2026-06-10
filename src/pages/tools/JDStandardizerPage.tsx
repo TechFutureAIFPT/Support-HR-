@@ -21,7 +21,7 @@ interface JDStandardizerPageProps {
 }
 
 const platformOptions: Array<{ value: JDStandardizeTargetPlatform; label: string; hint: string }> = [
-  { value: 'generic', label: 'Mẫu tuyển dụng chung', hint: 'Phù hợp đăng nội bộ hoặc gửi hiring manager' },
+  { value: 'generic', label: 'Mẫu tuyển dụng chung', hint: 'Phù hợp đăng nội bộ hoặc gửi quản lý tuyển dụng' },
   { value: 'topcv', label: 'TopCV', hint: 'Tối ưu cho bài đăng tuyển dụng phổ biến' },
   { value: 'vietnamworks', label: 'VietnamWorks', hint: 'Rõ mô tả, yêu cầu và quyền lợi' },
   { value: 'linkedin', label: 'LinkedIn', hint: 'Ngắn gọn, chuyên nghiệp, dễ quét' },

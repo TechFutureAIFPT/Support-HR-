@@ -31,17 +31,17 @@ const systemSignals = [
   {
     icon: 'fa-solid fa-database',
     title: 'Kho dữ liệu CV tập trung',
-    status: 'Đã kết nối workspace tuyển dụng của đội ngũ',
+    status: 'Đã kết nối không gian tuyển dụng của đội ngũ',
   },
   {
     icon: 'fa-solid fa-ranking-star',
-    title: 'Bảng xếp hạng shortlist',
+    title: 'Bảng xếp hạng danh sách đề cử',
     status: 'Điểm phù hợp được cập nhật theo thời gian thực',
   },
   {
     icon: 'fa-solid fa-shield-halved',
     title: 'Phiên truy cập bảo mật',
-    status: 'Mã hóa xác thực nhiều lớp cho recruiter hiện đại',
+    status: 'Mã hóa xác thực nhiều lớp cho nhà tuyển dụng hiện đại',
   },
 ];
 
@@ -355,7 +355,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
               className="inline-flex items-center gap-3 font-mono text-xs uppercase tracking-[0.24em] text-[#f5d6bb] transition-colors hover:text-blue-700"
             >
               <i className="fa-solid fa-arrow-left text-[11px]" />
-              TRỞ_VỀ_TRANG_CHỦ
+              TRỞ VỀ TRANG CHỦ
             </button>
 
             <div className="inline-flex items-center gap-3 lg:hidden">
@@ -384,10 +384,10 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
 
                 <div className="text-center">
                   <h2 className="text-2xl font-black uppercase tracking-[-0.04em] text-slate-900 sm:text-[1.85rem]">
-                    {showReset ? 'Khôi phục truy cập' : 'Access Control'}
+                    {showReset ? 'Khôi phục truy cập' : 'Kiểm soát truy cập'}
                   </h2>
                   <p className="mt-2 font-mono text-[11px] uppercase tracking-[0.22em] text-[#f5d6bb]">
-                    {showReset ? '>> PASSWORD_RECOVERY_REQUIRED' : '>> AUTHENTICATION_REQUIRED'}
+                    {showReset ? '>> YÊU CẦU KHÔI PHỤC MẬT KHẨU' : '>> YÊU CẦU XÁC THỰC'}
                   </p>
                 </div>
 
@@ -475,7 +475,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
                         disabled={loading}
                         className="w-full border border-white bg-white px-4 py-3 text-[13px] font-black uppercase tracking-[0.14em] text-black transition-all hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
                       >
-                        {loading ? 'ĐANG_GỬI_LIÊN_KẾT' : 'GỬI_LIÊN_KẾT'}
+                        {loading ? 'ĐANG GỬI LIÊN KẾT' : 'GỬI LIÊN KẾT'}
                       </button>
 
                       <button
@@ -489,7 +489,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
                         }}
                         className="w-full font-mono text-[10px] uppercase tracking-[0.22em] text-slate-500 transition-colors hover:text-slate-200"
                       >
-                        ← QUAY_LẠI_ĐĂNG_NHẬP
+                        ← QUAY LẠI ĐĂNG NHẬP
                       </button>
                     </form>
                   ) : (
@@ -533,7 +533,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
                       <div>
                         <div className="mb-1.5 flex items-end justify-between gap-3">
                           <label className="block font-mono text-[10px] uppercase tracking-[0.22em] text-slate-500">
-                            MẬT_KHẨU
+                            MẬT KHẨU
                           </label>
                           <div className="min-h-[14px] font-mono text-[9px] uppercase tracking-[0.16em] text-cyan-300/85">
                             {typedHint}
@@ -572,11 +572,11 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
                       >
                         {loading
                           ? tab === 'signup'
-                            ? 'ĐANG_TẠO_TÀI_KHOẢN'
-                            : 'ĐANG_XÁC_THỰC'
+                            ? 'ĐANG TẠO TÀI KHOẢN'
+                            : 'ĐANG XÁC THỰC'
                           : tab === 'signup'
-                            ? 'TẠO_TÀI_KHOẢN'
-                            : 'ĐĂNG_NHẬP'}
+                            ? 'TẠO TÀI KHOẢN'
+                            : 'ĐĂNG NHẬP'}
                       </button>
 
                       {tab === 'signin' && (
@@ -590,7 +590,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
                           }}
                           className="w-full font-mono text-[10px] uppercase tracking-[0.22em] text-slate-500 transition-colors hover:text-slate-200"
                         >
-                          QUÊN_MẬT_KHẨU?
+                          QUÊN MẬT KHẨU?
                         </button>
                       )}
                     </form>
@@ -682,7 +682,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
             <form onSubmit={handleLinkAccount} className="mt-8 space-y-4">
               <div>
                 <label className="mb-2 block font-mono text-[11px] uppercase tracking-[0.24em] text-slate-500">
-                  MẬT_KHẨU_HIỆN_TẠI
+                  MẬT KHẨU HIỆN TẠI
                 </label>
                 <div className="relative">
                   <input
@@ -717,7 +717,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
                 disabled={linkModal.loading}
                 className="w-full border border-white bg-white px-5 py-4 text-sm font-black uppercase tracking-[0.14em] text-black transition-all hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {linkModal.loading ? 'ĐANG_LIÊN_KẾT' : 'XÁC_NHẬN_VÀ_LIÊN_KẾT'}
+                {linkModal.loading ? 'ĐANG LIÊN KẾT' : 'XÁC NHẬN VÀ LIÊN KẾT'}
               </button>
 
               <button

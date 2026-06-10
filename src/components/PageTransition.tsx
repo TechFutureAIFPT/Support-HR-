@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 
 interface StepInfo {
@@ -47,11 +47,12 @@ const PageTransition: React.FC = () => {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [shouldRender, setShouldRender] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [hasMounted, setHasMounted] = useState(false);
+  const hasMountedRef = useRef(false);
+  const mountedAtRef = useRef(Date.now());
 
   const getStepInfo = (path: string): StepInfo => {
     if (docsRoutes.has(path)) {
-      return { message: 'Đang mở tài liệu Support HR...', icon: 'fa-book-open', label: 'Support HR // Docs', tone: 'sky' };
+      return { message: 'Đang mở tài liệu Support HR...', icon: 'fa-book-open', label: 'Support HR // Tài liệu', tone: 'sky' };
     }
 
     switch (path) {
@@ -78,8 +79,15 @@ const PageTransition: React.FC = () => {
   const tone = toneMap[stepInfo.tone];
 
   useEffect(() => {
-    if (!hasMounted) {
-      setHasMounted(true);
+    if (!hasMountedRef.current) {
+      hasMountedRef.current = true;
+      return;
+    }
+
+    if (Date.now() - mountedAtRef.current < 2600) {
+      setIsTransitioning(false);
+      setShouldRender(false);
+      setProgress(100);
       return;
     }
 
@@ -94,28 +102,30 @@ const PageTransition: React.FC = () => {
     setIsTransitioning(true);
     setShouldRender(true);
 
-    const progressTimer = setInterval(() => {
+    const progressTimer = window.setInterval(() => {
       setProgress((prev) => {
         if (prev >= 92) {
-          clearInterval(progressTimer);
+          window.clearInterval(progressTimer);
           return 92;
         }
 
-        return prev + Math.random() * 13;
+        return prev + Math.random() * 18;
       });
-    }, 100);
+    }, 70);
 
-    const transitionTimer = setTimeout(() => {
+    let hideTimer: number | undefined;
+    const transitionTimer = window.setTimeout(() => {
       setIsTransitioning(false);
       setProgress(100);
-      setTimeout(() => setShouldRender(false), 320);
-    }, 520);
+      hideTimer = window.setTimeout(() => setShouldRender(false), 180);
+    }, 380);
 
     return () => {
-      clearInterval(progressTimer);
-      clearTimeout(transitionTimer);
+      window.clearInterval(progressTimer);
+      window.clearTimeout(transitionTimer);
+      if (hideTimer) window.clearTimeout(hideTimer);
     };
-  }, [hasMounted, location.pathname]);
+  }, [location.pathname]);
 
   if (!shouldRender) return null;
 

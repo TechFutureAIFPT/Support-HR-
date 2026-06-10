@@ -15,7 +15,7 @@ type RouteSeo = {
 const DEFAULT_SEO: RouteSeo = {
   title: "Support HR - AI sàng lọc CV thông minh cho đội tuyển dụng",
   description:
-    "Support HR hỗ trợ đội tuyển dụng sàng lọc CV, đối chiếu JD, chấm điểm ứng viên và chuẩn bị shortlist có thể rà soát.",
+    "Support HR hỗ trợ đội tuyển dụng sàng lọc CV, đối chiếu JD, chấm điểm ứng viên và chuẩn bị danh sách đề cử có thể rà soát.",
   canonicalPath: "/",
 };
 
@@ -23,7 +23,7 @@ const ROUTE_SEO: Record<string, RouteSeo> = {
   "/": DEFAULT_SEO,
   "/process": {
     title: "Quy trình sàng lọc CV thông minh | Support HR",
-    description: "Luồng 5 bước từ JD, CV đầu vào đến shortlist có lý do để recruiter và hiring manager rà soát.",
+    description: "Luồng 5 bước từ JD, CV đầu vào đến danh sách đề cử có lý do để nhà tuyển dụng và quản lý tuyển dụng rà soát.",
   },
   "/contact-ready": {
     title: "Liên hệ triển khai Support HR",
@@ -42,25 +42,25 @@ const ROUTE_SEO: Record<string, RouteSeo> = {
     description: "Giới thiệu đội ngũ TechFuture AI, hành trình phát triển Support HR và các dấu mốc nổi bật.",
   },
   "/security": {
-    title: "Security and data handling | Support HR",
+    title: "Bảo mật và xử lý dữ liệu | Support HR",
     description: "Tài liệu bảo mật mô tả cách Support HR xử lý JD, CV, Google Drive và các điểm cần xác nhận với khách hàng doanh nghiệp.",
   },
   "/pricing": {
-    title: "Bảng giá, bảo mật và FAQ | Support HR",
+    title: "Bảng giá, bảo mật và hỏi đáp | Support HR",
     description: "Tài liệu bảng giá, phạm vi gói, bảo mật và câu hỏi thường gặp trước khi đặt lịch demo Support HR.",
   },
   "/faq": {
-    title: "FAQ Support HR",
+    title: "Hỏi đáp Support HR",
     description: "Câu hỏi thường gặp về bảng giá, dữ liệu, bảo mật, AI và triển khai Support HR.",
     canonicalPath: "/pricing",
   },
   "/guide": {
     title: "Cách sử dụng Support HR",
-    description: "Hướng dẫn đi từ JD, CV đầu vào đến điểm số, shortlist và bàn giao kết quả tuyển dụng trong Support HR.",
+    description: "Hướng dẫn đi từ JD, CV đầu vào đến điểm số, danh sách đề cử và bàn giao kết quả tuyển dụng trong Support HR.",
   },
   "/demo": {
     title: "Demo quy trình Support HR",
-    description: "Luồng trải nghiệm sản phẩm Support HR từ nhập JD, nhập CV, chấm điểm đến shortlist có thể rà soát.",
+    description: "Luồng trải nghiệm sản phẩm Support HR từ nhập JD, nhập CV, chấm điểm đến danh sách đề cử có thể rà soát.",
     canonicalPath: "/guide",
   },
   "/ai-methodology": {
@@ -68,11 +68,11 @@ const ROUTE_SEO: Record<string, RouteSeo> = {
     description: "Cách Support HR đọc JD, trích tiêu chí, chấm điểm ứng viên, giải thích kết quả và giữ con người trong vòng quyết định.",
   },
   "/use-cases": {
-    title: "Use cases tuyển dụng | Support HR",
+    title: "Tình huống sử dụng tuyển dụng | Support HR",
     description: "Các tình huống Support HR phù hợp: sàng lọc khối lượng lớn, vị trí chuyên môn và danh sách đề cử dễ rà soát.",
   },
   "/integrations": {
-    title: "Tích hợp Google Drive và workflow | Support HR",
+    title: "Tích hợp Google Drive và quy trình | Support HR",
     description: "Tổng quan tích hợp Google Drive, upload trực tiếp, lịch sử phiên và hướng mở rộng ATS/HRIS của Support HR.",
   },
   "/book-demo": {

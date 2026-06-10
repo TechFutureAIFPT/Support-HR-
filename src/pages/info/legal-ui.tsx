@@ -340,7 +340,7 @@ export function DocsCopyPageButton() {
       className="inline-flex h-9 items-center gap-2 rounded-xl border border-blue-100 bg-white px-3 text-sm font-medium text-slate-600 shadow-sm transition-colors hover:border-blue-200 hover:text-blue-700"
     >
       <i className={`fa-regular ${copied ? "fa-circle-check" : "fa-copy"} text-xs text-blue-600`} />
-      {copied ? "Đã copy" : "Copy page"}
+      {copied ? "Đã sao chép" : "Sao chép trang"}
     </button>
   );
 }
@@ -405,7 +405,7 @@ export function DocsFooter() {
       links: [
         { label: "Quy trình", to: "/process" },
         { label: "Phương pháp AI", to: "/ai-methodology" },
-        { label: "Use cases", to: "/use-cases" },
+        { label: "Tình huống sử dụng", to: "/use-cases" },
         { label: "Tích hợp", to: "/integrations" },
       ],
     },
@@ -440,7 +440,7 @@ export function DocsFooter() {
               </span>
             </Link>
             <p className="mt-4 max-w-md text-sm leading-7 text-slate-500">
-              Trung tâm tài liệu public cho đội ngũ tuyển dụng, bên mua và người đánh giá bảo mật trước khi trải nghiệm sản phẩm.
+              Trung tâm tài liệu công khai cho đội ngũ tuyển dụng, bên mua và người đánh giá bảo mật trước khi trải nghiệm sản phẩm.
             </p>
           </div>
 
@@ -563,7 +563,7 @@ export function LegalPageLayout({
                     <i className="fa-solid fa-book-open text-xs" />
                   </span>
                   <div className="min-w-0">
-                    <h2 className="text-lg font-semibold text-slate-900">Documentation Index</h2>
+                    <h2 className="text-lg font-semibold text-slate-900">Mục lục tài liệu</h2>
                     <p className="mt-2 text-sm leading-7 text-slate-500">
                       Chọn mục bên dưới để đi nhanh tới phần tài liệu cần đọc. Cấu trúc này giúp người xem rà soát theo chủ đề thay vì phải đọc một trang marketing dài.
                     </p>
@@ -607,12 +607,12 @@ export function LegalPageLayout({
                       <i className={`fa-solid ${activeMeta.icon} text-sm`} />
                     </div>
                     <div>
-                      <p className="supporthr-mono text-[10px] uppercase tracking-[0.22em] text-slate-500">Section</p>
+                  <p className="supporthr-mono text-[10px] uppercase tracking-[0.22em] text-slate-500">Mục</p>
                       <h2 className="mt-1 text-2xl font-semibold tracking-[-0.02em] text-slate-900">{activeMeta.title}</h2>
                     </div>
                   </div>
                   <div className="supporthr-mono text-[11px] uppercase tracking-[0.22em] text-slate-500">
-                    /{String(activeIndex + 1).padStart(2, "0")} of /{String(sections.length).padStart(2, "0")}
+                    /{String(activeIndex + 1).padStart(2, "0")} trên /{String(sections.length).padStart(2, "0")}
                   </div>
                 </div>
                 <div>{children}</div>
@@ -623,7 +623,7 @@ export function LegalPageLayout({
               <div className="sticky top-28 rounded-2xl border border-blue-100 bg-white p-4 shadow-sm">
                 <p className="flex items-center gap-2 text-sm font-semibold text-slate-900">
                   <i className="fa-solid fa-list-ul text-[11px] text-blue-600" />
-                  On this page
+                  Trong trang này
                 </p>
                 <div className="mt-4 space-y-1">
                   {sections.map((section) => {

@@ -7,6 +7,7 @@ import type {
   MobileInboxCandidate,
   MobileInboxHistory,
   MobileInboxResponse,
+  StageDecision,
 } from '@/types';
 
 const asString = (value: unknown, fallback = '') => String(value ?? fallback);
@@ -16,8 +17,81 @@ const asNumber = (value: unknown, fallback = 0) => {
 };
 const asArray = <T = unknown>(value: unknown): T[] => Array.isArray(value) ? value as T[] : [];
 
+function normalizeStageDecision(raw: unknown, record: Record<string, unknown>, score: number): StageDecision {
+  const fallbackBlockingReasons = [
+    record.hardFilterFailureReason ? asString(record.hardFilterFailureReason) : '',
+    record.locationMatch === false ? 'Không đạt yêu cầu địa điểm bắt buộc.' : '',
+  ].filter(Boolean);
+  const fallbackStatus = fallbackBlockingReasons.length > 0
+    ? 'hold'
+    : score >= 75
+      ? 'ready_to_advance'
+      : score >= 50
+        ? 'review'
+        : 'not_ready';
+  const fallbackByStatus: Record<string, StageDecision> = {
+    ready_to_advance: {
+      status: 'ready_to_advance',
+      label: 'Sẵn sàng chuyển vòng',
+      autoAdvance: true,
+      currentStage: 'Ứng tuyển',
+      recommendedStage: 'Vòng tiếp theo',
+      scoreThreshold: 75,
+      reason: 'Đạt ngưỡng điểm và không vi phạm tiêu chí bắt buộc.',
+      blockingReasons: [],
+    },
+    hold: {
+      status: 'hold',
+      label: 'Giữ lại vòng ứng tuyển',
+      autoAdvance: false,
+      currentStage: 'Ứng tuyển',
+      recommendedStage: 'Ứng tuyển',
+      scoreThreshold: 75,
+      reason: 'Ứng viên có điểm đánh giá nhưng chưa đạt tiêu chí bắt buộc.',
+      blockingReasons: fallbackBlockingReasons,
+    },
+    review: {
+      status: 'review',
+      label: 'Cần HR rà soát',
+      autoAdvance: false,
+      currentStage: 'Ứng tuyển',
+      recommendedStage: 'Rà soát thủ công',
+      scoreThreshold: 75,
+      reason: 'Điểm phù hợp ở mức trung bình, nên kiểm tra thêm bằng chứng trước khi chuyển vòng.',
+      blockingReasons: [],
+    },
+    not_ready: {
+      status: 'not_ready',
+      label: 'Chưa nên chuyển vòng',
+      autoAdvance: false,
+      currentStage: 'Ứng tuyển',
+      recommendedStage: 'Không đề xuất',
+      scoreThreshold: 75,
+      reason: 'Điểm phù hợp còn thấp so với ngưỡng chuyển vòng.',
+      blockingReasons: [],
+    },
+  };
+  const fallback = fallbackByStatus[fallbackStatus];
+  const decision = raw && typeof raw === 'object' ? raw as Record<string, unknown> : {};
+  const blockingReasons = Array.isArray(decision.blockingReasons)
+    ? decision.blockingReasons.map((item) => asString(item)).filter(Boolean)
+    : fallback.blockingReasons;
+
+  return {
+    status: asString(decision.status || fallback.status),
+    label: asString(decision.label || fallback.label),
+    autoAdvance: typeof decision.autoAdvance === 'boolean' ? decision.autoAdvance : fallback.autoAdvance,
+    currentStage: asString(decision.currentStage || fallback.currentStage),
+    recommendedStage: asString(decision.recommendedStage || fallback.recommendedStage),
+    scoreThreshold: asNumber(decision.scoreThreshold, fallback.scoreThreshold),
+    reason: asString(decision.reason || fallback.reason),
+    blockingReasons,
+  };
+}
+
 function normalizeInboxCandidate(raw: unknown): MobileInboxCandidate {
   const record = raw && typeof raw === 'object' ? raw as Record<string, unknown> : {};
+  const score = asNumber(record.score || record.totalScore, 0);
   return {
     id: asString(record.id || record.candidateId || `${record.sourceHistoryId || 'history'}-${record.fileName || record.candidateName || Date.now()}`),
     sourceHistoryId: asString(record.sourceHistoryId || ''),
@@ -30,7 +104,7 @@ function normalizeInboxCandidate(raw: unknown): MobileInboxCandidate {
     industry: asString(record.industry, 'Chưa rõ ngành'),
     experienceLevel: asString(record.experienceLevel, 'Chưa rõ cấp độ'),
     detectedLocation: asString(record.detectedLocation || ''),
-    score: asNumber(record.score || record.totalScore, 0),
+    score,
     rank: asString(record.rank || record.grade, 'C').toUpperCase(),
     strengths: asArray<string>(record.strengths),
     weaknesses: asArray<string>(record.weaknesses),
@@ -38,6 +112,7 @@ function normalizeInboxCandidate(raw: unknown): MobileInboxCandidate {
     details: asArray<Record<string, unknown>>(record.details),
     warnings: asArray<string>(record.warnings),
     hardFilterFailureReason: record.hardFilterFailureReason ? asString(record.hardFilterFailureReason) : null,
+    stageDecision: normalizeStageDecision(record.stageDecision, record, score),
     hardFilters: record.hardFilters && typeof record.hardFilters === 'object' ? record.hardFilters as Record<string, unknown> : {},
     jdText: asString(record.jdText || ''),
     jobPosition: asString(record.jobPosition || record.jobTitle || ''),

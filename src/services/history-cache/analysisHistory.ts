@@ -3,6 +3,8 @@
  * Simple history tracking when CV filtering was performed
  */
 
+import { normalizeVietnamesePayload } from '@/utils/textDisplay';
+
 interface CVFilterHistoryEntry {
   timestamp: number;
   date: string; // Formatted date string
@@ -48,7 +50,7 @@ class CVFilterHistoryService {
   getHistory(): CVFilterHistoryEntry[] {
     try {
       const stored = localStorage.getItem(this.STORAGE_KEY);
-      return stored ? JSON.parse(stored) : [];
+      return stored ? normalizeVietnamesePayload<CVFilterHistoryEntry[]>(JSON.parse(stored)) : [];
     } catch (error) {
       console.warn('Failed to load CV filter history:', error);
       return [];

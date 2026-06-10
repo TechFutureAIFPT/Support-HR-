@@ -4,9 +4,8 @@
  */
 import React, { useState } from 'react';
 import {
-  Briefcase, SlidersHorizontal, Sparkles, UploadCloud,
+  SlidersHorizontal, Sparkles, UploadCloud,
   PieChart, MessageSquare, LogOut, FileText, Brain, Settings, Clock3,
-  LibraryBig, WandSparkles
 } from 'lucide-react';
 import type { AppStep } from '@/types';
 import { onAuthStateChanged } from 'firebase/auth';
@@ -73,9 +72,7 @@ const PROCESS_STEPS: Array<{
   icon: React.ComponentType<{ className?: string; size?: number }>;
   color: string; bgActive: string;
 }> = [
-  { key: 'jd',       label: 'Nạp JD', sub: 'Mô tả công việc · Bước 1',
-    icon: Briefcase,         color: '#2388ff', bgActive: 'rgba(35,136,255,0.1)' },
-  { key: 'upload',   label: 'Nạp hồ sơ', sub: 'Tải CV · Bước 2',
+  { key: 'jd',       label: 'Nạp JD & CV', sub: 'Tải JD/CV · Bước 1-2',
     icon: UploadCloud,       color: '#2388ff', bgActive: 'rgba(35,136,255,0.1)' },
   { key: 'weights',  label: 'Thiết lập mặc định', sub: 'Tiêu chí & bộ lọc · Bước 3',
     icon: SlidersHorizontal, color: '#2388ff', bgActive: 'rgba(35,136,255,0.1)' },
@@ -88,13 +85,9 @@ const TOOL_ITEMS: Array<{
   icon: React.ComponentType<{ className?: string; size?: number }>;
   color: string; bgActive: string;
 }> = [
-  { key: 'records', label: 'Thư viện CV', sub: 'Hồ sơ đã lọc',
-    icon: LibraryBig,    color: '#2388ff', bgActive: 'rgba(35,136,255,0.1)' },
-  { key: 'jd-standardizer', label: 'Chuẩn hóa JD', sub: 'Tối ưu mô tả công việc',
-    icon: WandSparkles,  color: '#2388ff', bgActive: 'rgba(35,136,255,0.1)' },
-  { key: 'dashboard', label: 'Thống kê chi tiết', sub: 'Analytics Dashboard',
+  { key: 'dashboard', label: 'Thống kê chi tiết', sub: 'Bảng điều khiển phân tích',
     icon: PieChart,      color: '#2388ff', bgActive: 'rgba(35,136,255,0.1)' },
-  { key: 'chatbot',    label: 'Gợi ý ứng viên AI',  sub: 'AI Recruitment Assistant',
+  { key: 'chatbot',    label: 'Gợi ý ứng viên AI',  sub: 'Trợ lý tuyển dụng AI',
     icon: MessageSquare, color: '#2388ff', bgActive: 'rgba(35,136,255,0.1)' },
   { key: 'feedback',   label: 'Phản hồi AI', sub: 'Hiệu chỉnh đánh giá',
     icon: Brain,        color: '#2388ff', bgActive: 'rgba(35,136,255,0.1)' }
@@ -131,8 +124,11 @@ const NavItem = ({
   onClick: () => void;
   C: ReturnType<typeof useColors>;
 }) => {
-  const isActive  = activeStep === item.key;
-  const isDone    = completedSteps.includes(item.key);
+  const isCombinedUploadStep = item.key === 'jd';
+  const isActive  = activeStep === item.key || (isCombinedUploadStep && activeStep === 'upload');
+  const isDone    = isCombinedUploadStep
+    ? completedSteps.includes('jd') && completedSteps.includes('upload')
+    : completedSteps.includes(item.key);
   const isEnabled = isStepEnabled(item.key, completedSteps);
   const Icon      = item.icon;
 
@@ -220,7 +216,7 @@ const StepProgress = ({ completedSteps, C }: { completedSteps: AppStep[]; C: Ret
             width: `${pct}%`,
             background: pct === 100
               ? 'linear-gradient(90deg, #10b981, #34d399)'
-              : 'linear-gradient(90deg, #f5d6bb, #ffd8a8)',
+              : 'linear-gradient(90deg, #2388ff, #22c7c8)',
           }}
         />
       </div>
@@ -290,9 +286,9 @@ const AccountPanel: React.FC<{
 
   const getAvatarGradient = (email: string) => {
     const grads = [
-      'from-amber-700 to-yellow-900', 'from-stone-800 to-amber-900',
-      'from-yellow-700 to-stone-900', 'from-amber-800 to-black',
-      'from-[#f5d6bb] to-amber-900',
+      'from-blue-500 to-cyan-500', 'from-sky-500 to-blue-600',
+      'from-cyan-500 to-emerald-500', 'from-blue-600 to-indigo-500',
+      'from-teal-500 to-sky-500',
     ];
     return grads[email.charCodeAt(0) % grads.length];
   };
@@ -408,7 +404,7 @@ const AccountPanel: React.FC<{
           <div className="mt-0.5 flex items-center gap-1.5">
             <span className="flex items-center gap-1">
               <span className={`h-1.5 w-1.5 rounded-full ${C.onlineDot}`} />
-              <span className="text-[10px] font-medium" style={{ color: C.text3 }}>Online</span>
+              <span className="text-[10px] font-medium" style={{ color: C.text3 }}>Trực tuyến</span>
             </span>
           </div>
         </div>
@@ -423,10 +419,10 @@ const AccountPanel: React.FC<{
             e.stopPropagation();
             setMenuOpen((open) => !open);
           }}
-          className="flex h-9 w-9 shrink-0 items-center justify-center border transition-all hover:bg-[#f5d6bb]/10"
+          className="flex h-9 w-9 shrink-0 items-center justify-center border transition-all hover:bg-blue-50"
           style={{
             color: menuOpen ? C.accentBlue : C.text2,
-            borderColor: menuOpen ? 'rgba(245,214,187,0.35)' : 'transparent',
+            borderColor: menuOpen ? 'rgba(35,136,255,0.35)' : 'transparent',
           }}
         >
           <Settings size={17} strokeWidth={2.35} />

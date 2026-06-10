@@ -48,14 +48,6 @@ const toneClass = {
 } as const;
 
 const selectOptions = {
-  location: [
-    { value: '', label: 'Không yêu cầu' },
-    { value: 'Hà Nội', label: 'Hà Nội' },
-    { value: 'Hải Phòng', label: 'Hải Phòng' },
-    { value: 'Đà Nẵng', label: 'Đà Nẵng' },
-    { value: 'Thành phố Hồ Chí Minh', label: 'TP. Hồ Chí Minh' },
-    { value: 'Remote', label: 'Remote / Từ xa' },
-  ],
   minExp: [
     { value: '', label: 'Không yêu cầu' },
     { value: '1', label: '1 năm' },
@@ -105,11 +97,10 @@ const coreFields: FieldConfig[] = [
   {
     id: 'location',
     label: 'Địa điểm',
-    placeholder: 'VD: Hà Nội, Quận 1, Remote, Hybrid...',
+    placeholder: 'VD: Hà Nội, Quận 1, Remote...',
     mandatoryKey: 'locationMandatory',
     icon: MapPin,
     tone: 'blue',
-    type: 'input',
   },
   {
     id: 'minExp',
@@ -117,7 +108,7 @@ const coreFields: FieldConfig[] = [
     placeholder: 'Không yêu cầu',
     mandatoryKey: 'minExpMandatory',
     icon: Clock,
-    tone: 'orange',
+    tone: 'blue',
     type: 'select',
     options: selectOptions.minExp,
   },
@@ -161,7 +152,6 @@ const detailFields: FieldConfig[] = [
     mandatoryKey: 'industryMandatory',
     icon: Building,
     tone: 'blue',
-    type: 'input',
   },
   {
     id: 'education',
@@ -180,7 +170,6 @@ const detailFields: FieldConfig[] = [
     mandatoryKey: 'certificatesMandatory',
     icon: Award,
     tone: 'orange',
-    type: 'input',
   },
 ];
 
@@ -201,7 +190,7 @@ const HardFilterPanel: React.FC<HardFilterPanelProps> = ({ hardFilters, setHardF
   };
 
   const inputClasses = (isMandatory: boolean, valuePresent: boolean) =>
-    `w-full rounded-xl border bg-white px-4 py-3 text-xs text-slate-900 placeholder:text-slate-400 shadow-inner transition-all duration-200 focus:outline-none focus:ring-4 ${
+    `w-full rounded-lg border bg-white px-3 py-2.5 text-xs text-slate-900 placeholder:text-slate-400 shadow-inner transition-all duration-200 focus:outline-none focus:ring-4 ${
       isMandatory && !valuePresent
         ? 'border-red-200 focus:border-red-300 focus:ring-red-100'
         : isMandatory
@@ -211,12 +200,12 @@ const HardFilterPanel: React.FC<HardFilterPanelProps> = ({ hardFilters, setHardF
 
   const Toggle = ({ id, checked }: { id: MandatoryKey; checked: boolean }) => (
     <label className="inline-flex cursor-pointer items-center gap-2">
-      <span className={`supporthr-mono text-[10px] font-bold uppercase tracking-[0.14em] ${checked ? 'text-blue-600' : 'text-slate-400'}`}>
+      <span className={`supporthr-mono text-[9px] font-bold uppercase tracking-[0.14em] ${checked ? 'text-blue-600' : 'text-slate-400'}`}>
         Bắt buộc
       </span>
       <input id={id} type="checkbox" checked={checked} onChange={handleMandatoryChange} className="sr-only" />
-      <span className={`relative h-6 w-11 rounded-full border transition ${checked ? 'border-blue-300 bg-blue-500' : 'border-blue-100 bg-slate-100'}`}>
-        <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition ${checked ? 'left-5' : 'left-0.5'}`} />
+      <span className={`relative h-5 w-10 rounded-full border transition ${checked ? 'border-blue-300 bg-blue-500' : 'border-blue-100 bg-slate-100'}`}>
+        <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition ${checked ? 'left-5' : 'left-0.5'}`} />
       </span>
     </label>
   );
@@ -228,18 +217,18 @@ const HardFilterPanel: React.FC<HardFilterPanelProps> = ({ hardFilters, setHardF
     const tone = toneClass[config.tone];
 
     return (
-      <div className={`relative overflow-hidden rounded-2xl border bg-white p-5 shadow-[0_14px_36px_rgba(30,64,175,0.07)] transition ${
+      <div className={`relative overflow-hidden rounded-xl border bg-white p-3.5 shadow-[0_10px_26px_rgba(30,64,175,0.055)] transition ${
         isMandatory ? 'border-blue-200' : 'border-blue-100 hover:border-blue-200'
       }`}>
         {isMandatory && <div className={`absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r ${tone.strip}`} />}
-        <div className="mb-3 flex items-center justify-between gap-3">
-          <label htmlFor={config.id} className="flex min-w-0 items-center gap-3">
-            <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border ${tone.icon}`}>
+        <div className="mb-2.5 flex items-center justify-between gap-3">
+          <label htmlFor={config.id} className="flex min-w-0 items-center gap-2.5">
+            <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border ${tone.icon}`}>
               <Icon className="h-4 w-4" />
             </span>
             <span className="min-w-0">
               <span className="block truncate text-sm font-bold text-slate-900">{config.label}</span>
-              <span className="block text-[11px] text-slate-500">{isMandatory ? 'Đang bật điều kiện bắt buộc' : 'Điều kiện tùy chọn'}</span>
+              <span className="block truncate text-[11px] text-slate-500">{isMandatory ? 'Đang bật điều kiện bắt buộc' : 'Điều kiện tùy chọn'}</span>
             </span>
           </label>
           <Toggle id={config.mandatoryKey} checked={isMandatory} />
@@ -274,10 +263,10 @@ const HardFilterPanel: React.FC<HardFilterPanelProps> = ({ hardFilters, setHardF
   };
 
   return (
-    <div className="w-full animate-fade-in space-y-7 pb-8">
+    <div className="w-full animate-fade-in space-y-4 pb-4">
       <section>
-        <div className="mb-5 flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-blue-100 bg-blue-50 text-blue-600">
+        <div className="mb-3 flex items-center gap-3">
+          <span className="flex h-8 w-8 items-center justify-center rounded-lg border border-blue-100 bg-blue-50 text-blue-600">
             <ShieldCheck className="h-4 w-4" />
           </span>
           <div>
@@ -286,14 +275,14 @@ const HardFilterPanel: React.FC<HardFilterPanelProps> = ({ hardFilters, setHardF
           </div>
           <div className="ml-2 h-px flex-1 bg-blue-100" />
         </div>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
           {coreFields.map((config) => <FieldCard key={String(config.id)} config={config} />)}
         </div>
       </section>
 
       <section>
-        <div className="mb-5 flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-emerald-100 bg-emerald-50 text-emerald-600">
+        <div className="mb-3 flex items-center gap-3">
+          <span className="flex h-8 w-8 items-center justify-center rounded-lg border border-emerald-100 bg-emerald-50 text-emerald-600">
             <Award className="h-4 w-4" />
           </span>
           <div>
@@ -302,26 +291,26 @@ const HardFilterPanel: React.FC<HardFilterPanelProps> = ({ hardFilters, setHardF
           </div>
           <div className="ml-2 h-px flex-1 bg-blue-100" />
         </div>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
           {detailFields.map((config) => <FieldCard key={String(config.id)} config={config} />)}
 
-          <div className={`relative overflow-hidden rounded-2xl border bg-white p-5 shadow-[0_14px_36px_rgba(30,64,175,0.07)] transition ${
+          <div className={`relative overflow-hidden rounded-xl border bg-white p-3.5 shadow-[0_10px_26px_rgba(30,64,175,0.055)] transition ${
             hardFilters.languageMandatory ? 'border-blue-200' : 'border-blue-100 hover:border-blue-200'
           }`}>
             {hardFilters.languageMandatory && <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-blue-500 to-emerald-300" />}
-            <div className="mb-3 flex items-center justify-between gap-3">
-              <label htmlFor="language" className="flex min-w-0 items-center gap-3">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-blue-100 bg-blue-50 text-blue-600">
+            <div className="mb-2.5 flex items-center justify-between gap-3">
+              <label htmlFor="language" className="flex min-w-0 items-center gap-2.5">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-blue-100 bg-blue-50 text-blue-600">
                   <Languages className="h-4 w-4" />
                 </span>
                 <span className="min-w-0">
                   <span className="block truncate text-sm font-bold text-slate-900">Ngôn ngữ</span>
-                  <span className="block text-[11px] text-slate-500">Tên ngôn ngữ và cấp độ</span>
+                  <span className="block truncate text-[11px] text-slate-500">Tên ngôn ngữ và cấp độ</span>
                 </span>
               </label>
               <Toggle id="languageMandatory" checked={Boolean(hardFilters.languageMandatory)} />
             </div>
-            <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-[1fr_6rem]">
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-[1fr_5.5rem]">
               <input
                 id="language"
                 type="text"
@@ -348,8 +337,8 @@ const HardFilterPanel: React.FC<HardFilterPanelProps> = ({ hardFilters, setHardF
       </section>
 
       <section>
-        <div className="mb-5 flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-orange-100 bg-orange-50 text-orange-500">
+        <div className="mb-3 flex items-center gap-3">
+          <span className="flex h-8 w-8 items-center justify-center rounded-lg border border-blue-100 bg-blue-50 text-blue-600">
             <Coins className="h-4 w-4" />
           </span>
           <div>
@@ -359,25 +348,26 @@ const HardFilterPanel: React.FC<HardFilterPanelProps> = ({ hardFilters, setHardF
           <div className="ml-2 h-px flex-1 bg-blue-100" />
         </div>
 
-        <div className={`relative overflow-hidden rounded-2xl border bg-white p-5 shadow-[0_14px_36px_rgba(30,64,175,0.07)] transition ${
+        <div className={`relative overflow-hidden rounded-xl border bg-white p-3.5 shadow-[0_10px_26px_rgba(30,64,175,0.055)] transition ${
           hardFilters.salaryMandatory ? 'border-blue-200' : 'border-blue-100 hover:border-blue-200'
         }`}>
-          {hardFilters.salaryMandatory && <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-orange-400 to-blue-300" />}
-          <div className="mb-4 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
-            <label className="flex min-w-0 items-center gap-3">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-orange-100 bg-orange-50 text-orange-500">
-                <Coins className="h-4 w-4" />
-              </span>
-              <span>
-                <span className="block text-sm font-bold text-slate-900">Khoảng lương (VNĐ)</span>
-                <span className="block text-[11px] text-slate-500">Có thể bỏ trống một đầu khoảng</span>
-              </span>
-            </label>
-            <Toggle id="salaryMandatory" checked={Boolean(hardFilters.salaryMandatory)} />
-          </div>
-
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <div className="space-y-2">
+          {hardFilters.salaryMandatory && <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-blue-500 to-emerald-300" />}
+          <div className="grid gap-3 xl:grid-cols-[minmax(16rem,1fr)_minmax(12rem,0.9fr)_minmax(12rem,0.9fr)] xl:items-end">
+            <div className="flex items-center justify-between gap-3 xl:items-center">
+              <label className="flex min-w-0 items-center gap-2.5">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-blue-100 bg-blue-50 text-blue-600">
+                  <Coins className="h-4 w-4" />
+                </span>
+                <span>
+                  <span className="block text-sm font-bold text-slate-900">Khoảng lương (VNĐ)</span>
+                  <span className="block text-[11px] text-slate-500">Có thể bỏ trống một đầu khoảng</span>
+                </span>
+              </label>
+              <div className="xl:hidden">
+                <Toggle id="salaryMandatory" checked={Boolean(hardFilters.salaryMandatory)} />
+              </div>
+            </div>
+            <div className="space-y-1.5">
               <span className="ml-1 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">Từ</span>
               <input
                 type="number"
@@ -388,16 +378,21 @@ const HardFilterPanel: React.FC<HardFilterPanelProps> = ({ hardFilters, setHardF
                 className={inputClasses(Boolean(hardFilters.salaryMandatory), hasValue(hardFilters.salaryMin))}
               />
             </div>
-            <div className="space-y-2">
-              <span className="ml-1 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">Đến</span>
-              <input
-                type="number"
-                id="salaryMax"
-                value={hardFilters.salaryMax || ''}
-                onChange={handleChange}
-                placeholder="Không giới hạn"
-                className={inputClasses(Boolean(hardFilters.salaryMandatory), hasValue(hardFilters.salaryMax))}
-              />
+            <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
+              <div className="space-y-1.5">
+                <span className="ml-1 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">Đến</span>
+                <input
+                  type="number"
+                  id="salaryMax"
+                  value={hardFilters.salaryMax || ''}
+                  onChange={handleChange}
+                  placeholder="Không giới hạn"
+                  className={inputClasses(Boolean(hardFilters.salaryMandatory), hasValue(hardFilters.salaryMax))}
+                />
+              </div>
+              <div className="hidden pb-1 xl:block">
+                <Toggle id="salaryMandatory" checked={Boolean(hardFilters.salaryMandatory)} />
+              </div>
             </div>
           </div>
         </div>

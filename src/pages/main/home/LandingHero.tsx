@@ -36,7 +36,7 @@ const menuItems = [
 ];
 
 const candidates = [
-  { name: "Nguyễn Minh Anh", role: "Senior Recruiter", score: 94, status: "Ưu tiên" },
+  { name: "Nguyễn Minh Anh", role: "Nhà tuyển dụng cấp cao", score: 94, status: "Ưu tiên" },
   { name: "Trần Hải Nam", role: "HR Business Partner", score: 88, status: "Phù hợp" },
   { name: "Lê Thu Hà", role: "Talent Acquisition", score: 81, status: "Cần xem" },
 ];
@@ -68,7 +68,7 @@ function DashboardPreview() {
             </span>
             <div>
               <p className="text-sm font-black text-slate-900">Support HR</p>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-blue-500">Recruitment Workspace</p>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-blue-500">Không gian tuyển dụng</p>
             </div>
           </div>
           <div className="hidden h-10 min-w-[14rem] items-center gap-2 rounded-xl bg-slate-50 px-3 text-slate-400 sm:flex">
@@ -106,7 +106,7 @@ function DashboardPreview() {
                     JD đã được chuẩn hóa thành tiêu chí, CV được xếp hạng theo mức phù hợp và bằng chứng so khớp.
                   </p>
                 </div>
-                <span className="hidden rounded-xl bg-white px-3 py-2 text-xs font-black text-blue-700 shadow-sm sm:inline-flex">Live</span>
+                <span className="hidden rounded-xl bg-white px-3 py-2 text-xs font-black text-blue-700 shadow-sm sm:inline-flex">Đang hoạt động</span>
               </div>
             </div>
 

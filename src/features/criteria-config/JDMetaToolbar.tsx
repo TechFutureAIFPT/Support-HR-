@@ -63,7 +63,7 @@ const JDMetaToolbar: React.FC<JDMetaToolbarProps> = ({
               className="text-[9px] font-semibold uppercase tracking-[0.16em] leading-tight mt-0.5"
               style={{ color: tc.textAccent }}
             >
-              Recruitment Intelligence
+              Trí tuệ tuyển dụng
             </p>
           </div>
         )}

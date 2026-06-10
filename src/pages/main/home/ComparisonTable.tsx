@@ -26,8 +26,8 @@ const features = [
     Icon: Trophy,
   },
   {
-    title: "Feedback tuyển dụng có cấu trúc",
-    benefit: "Ghi nhận phản hồi sau phân tích để cải thiện chất lượng shortlist và tăng tính nhất quán trong quyết định.",
+    title: "Phản hồi tuyển dụng có cấu trúc",
+    benefit: "Ghi nhận phản hồi sau phân tích để cải thiện chất lượng danh sách đề cử và tăng tính nhất quán trong quyết định.",
     href: "/process",
     Icon: MessageSquareText,
   },

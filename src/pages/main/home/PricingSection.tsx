@@ -17,7 +17,7 @@ const integrations = [
   },
   {
     title: "Công cụ nội bộ",
-    description: "Workflow HR, ATS, CRM tuyển dụng và hệ thống quản lý ứng viên.",
+    description: "Quy trình HR, ATS, CRM tuyển dụng và hệ thống quản lý ứng viên.",
     Icon: PlugZap,
   },
   {
@@ -41,7 +41,7 @@ const testimonials = [
   },
   {
     quote:
-      "Điểm mạnh nhất là hệ thống không chỉ chấm điểm, mà còn giải thích vì sao ứng viên phù hợp hoặc chưa phù hợp. Điều này giúp trao đổi với hiring manager nhanh hơn rất nhiều.",
+      "Điểm mạnh nhất là hệ thống không chỉ chấm điểm, mà còn giải thích vì sao ứng viên phù hợp hoặc chưa phù hợp. Điều này giúp trao đổi với quản lý tuyển dụng nhanh hơn rất nhiều.",
     author: "Talent Acquisition Lead",
     company: "Doanh nghiệp dịch vụ B2B",
   },
@@ -101,7 +101,7 @@ export default function PricingSection() {
               <figure key={item.author} className="rounded-2xl border border-blue-100 bg-white p-6 shadow-sm">
                 <MessageSquareQuote className="h-6 w-6 text-blue-500" />
                 <blockquote className="mt-5 text-sm font-medium leading-7 text-slate-700">
-                  “{item.quote}”
+                  "{item.quote}"
                 </blockquote>
                 <figcaption className="mt-6 border-t border-blue-100 pt-4">
                   <p className="text-sm font-bold text-slate-900">{item.author}</p>

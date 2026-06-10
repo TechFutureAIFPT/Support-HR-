@@ -1,5 +1,6 @@
 import { DataSyncService } from '@/services/data-sync/dataSyncService';
 import { auth } from '@/services/firebase';
+import { normalizeVietnamesePayload } from '@/utils/textDisplay';
 
 /**
  * Advanced caching service for CV analysis results
@@ -31,13 +32,13 @@ class AnalysisCacheService {
     const analysis = candidateData.analysis;
     if (!analysis || typeof analysis !== 'object') return true;
 
+    const normalizedAnalysis = normalizeVietnamesePayload<Record<string, any>>(analysis);
     const totalScore = Number(
-      analysis['Tổng điểm'] ??
-      analysis['Tong diem'] ??
-      analysis['Tổng điểm'] ??
+      normalizedAnalysis['Tổng điểm'] ??
+      normalizedAnalysis['Tong diem'] ??
       0
     );
-    const details = analysis['Chi tiết'] ?? analysis['Chi tiet'] ?? analysis['Chi tiết'];
+    const details = normalizedAnalysis['Chi tiết'] ?? normalizedAnalysis['Chi tiet'];
 
     return totalScore > 0 || (Array.isArray(details) && details.length > 0);
   }
@@ -95,7 +96,7 @@ class AnalysisCacheService {
         // Verify file hasn't changed
         if (entry.fileSize === file.size && entry.fileLastModified === file.lastModified) {
           if (this.isUsableCandidateData(entry.candidateData)) {
-            return entry.candidateData;
+            return normalizeVietnamesePayload(entry.candidateData);
           }
 
           this.cache.delete(key);
@@ -109,10 +110,11 @@ class AnalysisCacheService {
     if (auth.currentUser) {
       try {
         const firebaseResult = await DataSyncService.getCacheFromFirebase(key);
-        if (firebaseResult && this.isUsableCandidateData(firebaseResult)) {
+        const normalizedFirebaseResult = normalizeVietnamesePayload(firebaseResult);
+        if (normalizedFirebaseResult && this.isUsableCandidateData(normalizedFirebaseResult)) {
           // Add to local cache for faster access
           const cacheEntry: AnalysisCacheEntry = {
-            candidateData: firebaseResult,
+            candidateData: normalizedFirebaseResult,
             timestamp: Date.now(),
             jdHash,
             weightsHash,
@@ -121,7 +123,7 @@ class AnalysisCacheService {
             fileLastModified: file.lastModified
           };
           this.cache.set(key, cacheEntry);
-          return firebaseResult;
+          return normalizedFirebaseResult;
         }
       } catch (error) {
         console.warn('Failed to get cache from Firebase:', error);
@@ -153,7 +155,7 @@ class AnalysisCacheService {
 
     const key = this.generateCacheKey(file, jdHash, weightsHash, filtersHash);
     const entry: AnalysisCacheEntry = {
-      candidateData,
+      candidateData: normalizeVietnamesePayload(candidateData),
       timestamp: Date.now(),
       jdHash,
       weightsHash,
@@ -192,7 +194,7 @@ class AnalysisCacheService {
       try {
         await DataSyncService.syncCacheToFirebase(
           key,
-          candidateData,
+          normalizeVietnamesePayload(candidateData),
           jdHash,
           weightsHash,
           filtersHash,
@@ -214,7 +216,7 @@ class AnalysisCacheService {
   private loadPersistentCache(): Record<string, AnalysisCacheEntry> {
     try {
       const stored = localStorage.getItem(this.CACHE_STORAGE_KEY);
-      return stored ? JSON.parse(stored) : {};
+      return stored ? normalizeVietnamesePayload(JSON.parse(stored)) : {};
     } catch (error) {
       console.warn('Failed to load persistent cache:', error);
       return {};
@@ -247,7 +249,7 @@ class AnalysisCacheService {
           if (!this.cache.has(key)) {
             // Add Firebase cache to local cache (with current timestamp for expiry)
             const entry: AnalysisCacheEntry = {
-              candidateData,
+              candidateData: normalizeVietnamesePayload(candidateData),
               timestamp: Date.now(),
               jdHash: '',
               weightsHash: '',

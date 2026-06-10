@@ -281,7 +281,7 @@ function DocsReadinessPanel() {
       <div className="grid gap-8 lg:grid-cols-[minmax(0,0.82fr)_minmax(0,1fr)]">
         <div>
           <p className="supporthr-mono text-[10px] uppercase tracking-[0.24em] text-blue-600">
-            Procurement-ready docs
+            Tài liệu sẵn sàng cho mua sắm
           </p>
           <h2 className="mt-3 text-[clamp(1.8rem,3.4vw,2.8rem)] font-semibold leading-[1.02] tracking-normal text-slate-900">
             Các mục giúp website nhìn đáng tin hơn khi gửi cho khách hàng doanh nghiệp.
@@ -428,9 +428,9 @@ const PricingPage: React.FC = () => {
               >
                 <div className="grid gap-10 border-b border-blue-100 px-1 pb-10 pt-2 xl:grid-cols-[minmax(0,1fr)_18rem]">
                   <div className="min-w-0">
-                    <p className="text-sm font-semibold text-blue-600">Support HR Docs</p>
+                    <p className="text-sm font-semibold text-blue-600">Tài liệu Support HR</p>
                     <h1 className="mt-3 max-w-3xl break-words text-[clamp(2rem,3.2vw,2.85rem)] font-semibold leading-[1.08] tracking-normal text-slate-900">
-                      Pricing, security and buyer FAQ
+                      Bảng giá, bảo mật và câu hỏi mua hàng
                     </h1>
                     <p className="mt-6 max-w-3xl break-words text-base leading-8 text-slate-600 sm:text-lg">
                       Trang này tập trung riêng cho bảng giá và phần hỏi đáp thương mại. Các nội dung về đội ngũ, bảo mật dữ liệu và cách
@@ -455,7 +455,7 @@ const PricingPage: React.FC = () => {
                         to="/demo"
                         className="inline-flex h-11 w-full items-center justify-center rounded-xl border border-blue-100 bg-white px-6 supporthr-mono text-[11px] font-semibold uppercase tracking-[0.2em] text-blue-700 transition-colors hover:border-blue-200 hover:bg-blue-50 sm:w-auto"
                       >
-                        Xem flow sản phẩm
+                        Xem luồng sản phẩm
                       </Link>
                     </div>
 
@@ -465,7 +465,7 @@ const PricingPage: React.FC = () => {
                           <i className="fa-solid fa-book-open text-xs" />
                         </span>
                         <div className="min-w-0">
-                          <h2 className="text-lg font-semibold text-slate-900">Documentation Index</h2>
+                          <h2 className="text-lg font-semibold text-slate-900">Mục lục tài liệu</h2>
                           <p className="mt-2 text-sm leading-7 text-slate-500">
                             Chọn nhóm nội dung để đi nhanh tới phần tài liệu cần xem trước demo hoặc trước khi gửi cho bộ phận mua sắm.
                           </p>
@@ -523,7 +523,7 @@ const PricingPage: React.FC = () => {
               </div>
 
               <div className="rounded-2xl border border-blue-100 bg-white p-3 shadow-sm xl:hidden">
-                <p className="supporthr-mono text-[10px] uppercase tracking-[0.22em] text-slate-500">On this page</p>
+                <p className="supporthr-mono text-[10px] uppercase tracking-[0.22em] text-slate-500">Trong trang này</p>
                 <div className="mt-3 flex items-center gap-2 overflow-x-auto pb-1">
                   {activeGroup.items.map((item) => {
                     const active = activeAnchor === item.id;
@@ -585,8 +585,8 @@ const PricingPage: React.FC = () => {
                         Cách đọc nhanh
                       </p>
                       <div className="mt-5 space-y-4 text-sm leading-7 text-slate-600">
-                        <p>Ưu tiên xem theo quy mô CV thực tế, số recruiter cùng vận hành và mức hỗ trợ triển khai mong muốn.</p>
-                        <p>Toggle tháng và năm không đổi giá niêm yết; nó chỉ giúp hình dung kiểu cam kết thương mại phù hợp.</p>
+                        <p>Ưu tiên xem theo quy mô CV thực tế, số nhà tuyển dụng cùng vận hành và mức hỗ trợ triển khai mong muốn.</p>
+                        <p>Công tắc tháng và năm không đổi giá niêm yết; nó chỉ giúp hình dung kiểu cam kết thương mại phù hợp.</p>
                         <p>Nếu đội ngũ đang ở giữa hai mức, demo là cách nhanh nhất để chốt gói đúng mà không phải suy đoán quá nhiều.</p>
                       </div>
                     </div>
@@ -652,10 +652,10 @@ const PricingPage: React.FC = () => {
                     <div>
                       <h3 className="text-2xl font-semibold text-slate-900">Câu hỏi thương mại thường gặp</h3>
                       <p className="mt-3 max-w-2xl text-base leading-8 text-slate-600">
-                        Phần này giúp recruiter, quản lý tuyển dụng và bộ phận mua sắm có cùng ngôn ngữ trước khi đi sang giai đoạn đánh giá thực tế.
+                        Phần này giúp nhà tuyển dụng, quản lý tuyển dụng và bộ phận mua sắm có cùng ngôn ngữ trước khi đi sang giai đoạn đánh giá thực tế.
                       </p>
                       <LegalCallout tone="rose" icon="fa-phone" title="Khi nào nên chuyển từ đọc tài liệu sang buổi demo?">
-                        Khi đội ngũ đã có một vị trí tuyển dụng thật, vài CV mẫu và muốn thấy rõ Support HR chấm điểm, đề cử và bàn giao ngữ cảnh ra sao trong flow hằng ngày.
+                        Khi đội ngũ đã có một vị trí tuyển dụng thật, vài CV mẫu và muốn thấy rõ Support HR chấm điểm, đề cử và bàn giao ngữ cảnh ra sao trong quy trình hằng ngày.
                       </LegalCallout>
                     </div>
 
@@ -717,10 +717,10 @@ const PricingPage: React.FC = () => {
 
                     <div className="rounded-2xl border border-blue-100 bg-white px-5 py-4 shadow-sm xl:justify-self-end">
                       <p className="supporthr-mono text-[10px] uppercase tracking-[0.22em] text-blue-600">
-                        Trust placement
+                        Vị trí tín hiệu tin cậy
                       </p>
                       <p className="mt-3 text-sm leading-7 text-slate-500">
-                        DMCA và thông tin bản quyền được đặt ở footer để mọi trang public có tín hiệu pháp lý nhất quán.
+                        DMCA và thông tin bản quyền được đặt ở chân trang để mọi trang công khai có tín hiệu pháp lý nhất quán.
                       </p>
                     </div>
                   </div>
@@ -797,7 +797,7 @@ const PricingPage: React.FC = () => {
             <aside className="hidden xl:block">
               <div className="sticky top-28 rounded-2xl border border-blue-100 bg-white p-4 shadow-sm">
                 <p className="supporthr-mono text-[10px] uppercase tracking-[0.24em] text-blue-600">
-                  On this page
+                  Trong trang này
                 </p>
                 <div className="mt-4 space-y-1">
                   {activeGroup.items.map((item) => {

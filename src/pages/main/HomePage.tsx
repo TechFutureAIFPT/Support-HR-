@@ -32,7 +32,7 @@ const mobileNavItems = [
   { label: "Trang chủ", icon: "fa-house", target: "hero" },
   { label: "Vấn đề", icon: "fa-list-ol", target: "steps" },
   { label: "Tư vấn", icon: "fa-calendar-check", target: "pricing" },
-  { label: "FAQ", icon: "fa-circle-question", target: "faq" },
+  { label: "Hỏi đáp", icon: "fa-circle-question", target: "faq" },
   { label: "Tài liệu", icon: "fa-book-open", href: "/team" },
 ];
 
@@ -40,6 +40,92 @@ const mobileToolItems: Array<{ label: string; icon: string; step: AppStep; descr
   { label: "Thư viện CV", icon: "fa-folder-open", step: "records", description: "Hồ sơ đã lọc" },
   { label: "Chuẩn hóa JD", icon: "fa-wand-magic-sparkles", step: "jd-standardizer", description: "Tối ưu mô tả công việc" },
 ];
+
+type HeaderMenuKey = "product" | "docs" | "tools";
+
+const headerMenus: Array<{
+  key: HeaderMenuKey;
+  label: string;
+  items: Array<{
+    label: string;
+    description: string;
+    icon: string;
+    target?: string;
+    href?: string;
+    step?: AppStep;
+  }>;
+}> = [
+  {
+    key: "product",
+    label: "Sản phẩm",
+    items: [
+      { label: "Vấn đề & giải pháp", description: "Cách Support HR xử lý luồng sàng lọc.", icon: "fa-list-check", target: "steps" },
+      { label: "Tư vấn triển khai", description: "Trao đổi quy trình và nhu cầu đội HR.", icon: "fa-calendar-check", target: "pricing" },
+      { label: "Hỏi đáp", description: "Các câu hỏi thường gặp trước khi dùng.", icon: "fa-circle-question", target: "faq" },
+    ],
+  },
+  {
+    key: "docs",
+    label: "Tài liệu",
+    items: [
+      { label: "Tài liệu doanh nghiệp", description: "Tổng quan sản phẩm và cách dùng.", icon: "fa-book-open", href: "/team" },
+      { label: "Bảo mật dữ liệu", description: "JD, CV, Google Drive và quyền truy cập.", icon: "fa-shield-halved", href: "/security" },
+      { label: "Tích hợp", description: "Drive, upload trực tiếp và hướng mở rộng.", icon: "fa-plug", href: "/integrations" },
+    ],
+  },
+  {
+    key: "tools",
+    label: "Công cụ",
+    items: [
+      { label: "Thư viện CV", description: "Xem lại hồ sơ đã lọc.", icon: "fa-folder-open", step: "records" },
+      { label: "Chuẩn hóa JD", description: "Tạo bản JD rõ ràng hơn bằng AI.", icon: "fa-wand-magic-sparkles", step: "jd-standardizer" },
+    ],
+  },
+];
+
+function HomeToolsSection({ onOpenTool }: { onOpenTool: (step: AppStep) => void }) {
+  return (
+    <section id="tools" className="border-b border-blue-100 bg-white py-12 sm:py-14">
+      <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-12">
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:items-stretch">
+          <div className="rounded-3xl border border-blue-100 bg-blue-50/55 p-6">
+            <p className="supporthr-mono text-[10px] font-bold uppercase tracking-[0.22em] text-blue-600">
+              Công cụ nhanh
+            </p>
+            <h2 className="mt-3 text-2xl font-semibold tracking-tight text-slate-950 sm:text-3xl">
+              Mở lại hồ sơ và chuẩn hóa JD ngay từ trang chủ.
+            </h2>
+            <p className="mt-3 max-w-xl text-sm leading-6 text-slate-600">
+              Hai công cụ hỗ trợ cho đội HR trước và sau phiên phân tích.
+            </p>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            {mobileToolItems.map((item) => (
+              <button
+                key={item.step}
+                type="button"
+                onClick={() => onOpenTool(item.step)}
+                className="group flex h-full items-start gap-4 rounded-3xl border border-blue-100 bg-white p-5 text-left shadow-[0_18px_44px_rgba(30,64,175,0.07)] transition hover:-translate-y-0.5 hover:border-blue-200 hover:bg-blue-50/60"
+              >
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-blue-100 bg-blue-50 text-blue-600 transition group-hover:bg-white">
+                  <i className={`fa-solid ${item.icon} text-base`} />
+                </span>
+                <span className="min-w-0">
+                  <span className="block text-base font-bold text-slate-950">{item.label}</span>
+                  <span className="mt-1 block text-sm leading-6 text-slate-600">{item.description}</span>
+                  <span className="mt-4 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-blue-600">
+                    Mở công cụ <i className="fa-solid fa-arrow-right text-[10px]" />
+                  </span>
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
 
 const HomePage: React.FC<HomePageProps> = ({
   setActiveStep,
@@ -52,13 +138,13 @@ const HomePage: React.FC<HomePageProps> = ({
 }) => {
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [toolsMenuOpen, setToolsMenuOpen] = useState(false);
+  const [activeHeaderMenu, setActiveHeaderMenu] = useState<HeaderMenuKey | null>(null);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         setMobileMenuOpen(false);
-        setToolsMenuOpen(false);
+        setActiveHeaderMenu(null);
       }
     };
 
@@ -83,7 +169,7 @@ const HomePage: React.FC<HomePageProps> = ({
 
   const openTool = (step: AppStep) => {
     setMobileMenuOpen(false);
-    setToolsMenuOpen(false);
+    setActiveHeaderMenu(null);
     if (!isLoggedIn) {
       onLoginRequest();
       return;
@@ -95,6 +181,7 @@ const HomePage: React.FC<HomePageProps> = ({
 
   const scrollTo = (id: string) => {
     setMobileMenuOpen(false);
+    setActiveHeaderMenu(null);
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
@@ -240,74 +327,79 @@ const HomePage: React.FC<HomePageProps> = ({
             </button>
 
             <div className="flex items-center gap-3 sm:gap-4 lg:gap-8">
-              <div className="hidden items-center gap-8 lg:flex">
-                <button
-                  type="button"
-                  onClick={() => scrollTo("steps")}
-                  className="supporthr-mono text-[11px] font-medium uppercase tracking-[0.2em] text-slate-500 transition-colors duration-200 hover:text-blue-700"
-                >
-                  VẤN ĐỀ
-                </button>
-                <button
-                  type="button"
-                  onClick={() => scrollTo("pricing")}
-                  className="supporthr-mono text-[11px] font-medium uppercase tracking-[0.2em] text-slate-500 transition-colors duration-200 hover:text-blue-700"
-                >
-                  TƯ VẤN
-                </button>
-                <button
-                  type="button"
-                  onClick={() => scrollTo("faq")}
-                  className="supporthr-mono text-[11px] font-medium uppercase tracking-[0.2em] text-slate-500 transition-colors duration-200 hover:text-blue-700"
-                >
-                  FAQ
-                </button>
-                <Link
-                  to="/team"
-                  className="supporthr-mono text-[11px] font-medium uppercase tracking-[0.2em] text-slate-500 transition-colors duration-200 hover:text-blue-700"
-                >
-                  TÀI LIỆU
-                </Link>
-                <div className="relative">
-                  <button
-                    type="button"
-                    onClick={() => setToolsMenuOpen((open) => !open)}
-                    className="supporthr-mono text-[11px] font-semibold uppercase tracking-[0.2em] text-blue-700 transition-colors duration-200 hover:text-blue-800"
-                    aria-expanded={toolsMenuOpen}
-                  >
-                    CÔNG CỤ
-                  </button>
-                  {toolsMenuOpen && (
-                    <div className="absolute right-0 top-[calc(100%+1rem)] z-[60] w-64 overflow-hidden rounded-2xl border border-blue-100 bg-white p-2 shadow-[0_24px_60px_rgba(30,64,175,0.16)]">
-                      <button
-                        type="button"
-                        onClick={() => openTool('records')}
-                        className="flex w-full items-start gap-3 rounded-xl px-3 py-3 text-left transition hover:bg-blue-50"
-                      >
-                        <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
-                          <i className="fa-solid fa-folder-open text-sm" />
-                        </span>
-                        <span>
-                          <span className="block text-sm font-black text-slate-950">Thư viện CV</span>
-                          <span className="mt-0.5 block text-xs leading-5 text-slate-500">Xem hồ sơ đã lọc từ các phiên trước.</span>
-                        </span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => openTool('jd-standardizer')}
-                        className="flex w-full items-start gap-3 rounded-xl px-3 py-3 text-left transition hover:bg-blue-50"
-                      >
-                        <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
-                          <i className="fa-solid fa-wand-magic-sparkles text-sm" />
-                        </span>
-                        <span>
-                          <span className="block text-sm font-black text-slate-950">Chuẩn hóa JD</span>
-                          <span className="mt-0.5 block text-xs leading-5 text-slate-500">Tạo bản JD rõ ràng hơn bằng AI.</span>
-                        </span>
-                      </button>
-                    </div>
-                  )}
-                </div>
+              <div className="hidden items-center gap-3 lg:flex">
+                {headerMenus.map((menu) => (
+                  <div key={menu.key} className="relative">
+                    <button
+                      type="button"
+                      onClick={() => setActiveHeaderMenu((current) => (current === menu.key ? null : menu.key))}
+                      className={`inline-flex h-9 items-center gap-2 rounded-xl px-3 supporthr-mono text-[11px] font-semibold uppercase tracking-[0.18em] transition-colors ${
+                        activeHeaderMenu === menu.key
+                          ? "bg-blue-50 text-blue-700"
+                          : "text-slate-500 hover:bg-blue-50 hover:text-blue-700"
+                      }`}
+                      aria-expanded={activeHeaderMenu === menu.key}
+                    >
+                      {menu.label}
+                      <i className={`fa-solid fa-chevron-down text-[9px] transition-transform ${activeHeaderMenu === menu.key ? "rotate-180" : ""}`} />
+                    </button>
+
+                    {activeHeaderMenu === menu.key && (
+                      <div className="absolute right-0 top-[calc(100%+0.85rem)] z-[60] w-[20rem] overflow-hidden rounded-2xl border border-blue-100 bg-white p-2 shadow-[0_24px_60px_rgba(30,64,175,0.16)]">
+                        {menu.items.map((item) => {
+                          const content = (
+                            <>
+                              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+                                <i className={`fa-solid ${item.icon} text-sm`} />
+                              </span>
+                              <span className="min-w-0">
+                                <span className="block text-sm font-bold text-slate-950">{item.label}</span>
+                                <span className="mt-0.5 block text-xs leading-5 text-slate-500">{item.description}</span>
+                              </span>
+                            </>
+                          );
+
+                          if (item.step) {
+                            return (
+                              <button
+                                key={item.label}
+                                type="button"
+                                onClick={() => openTool(item.step!)}
+                                className="flex w-full items-start gap-3 rounded-xl px-3 py-3 text-left transition hover:bg-blue-50"
+                              >
+                                {content}
+                              </button>
+                            );
+                          }
+
+                          if (item.href) {
+                            return (
+                              <Link
+                                key={item.label}
+                                to={item.href}
+                                onClick={() => setActiveHeaderMenu(null)}
+                                className="flex w-full items-start gap-3 rounded-xl px-3 py-3 text-left transition hover:bg-blue-50"
+                              >
+                                {content}
+                              </Link>
+                            );
+                          }
+
+                          return (
+                            <button
+                              key={item.label}
+                              type="button"
+                              onClick={() => scrollTo(item.target!)}
+                              className="flex w-full items-start gap-3 rounded-xl px-3 py-3 text-left transition hover:bg-blue-50"
+                            >
+                              {content}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
 
               <div className="flex items-center gap-3 sm:gap-4">
@@ -347,6 +439,7 @@ const HomePage: React.FC<HomePageProps> = ({
         />
 
         <PartnerTickerSection partners={partners} />
+        <HomeToolsSection onOpenTool={openTool} />
         <section className="border-y border-blue-100 bg-white">
           <WorkflowMatrixSection onPrimaryAction={handleStart} merged />
         </section>

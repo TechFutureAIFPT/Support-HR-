@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import {
   AlertCircle,
   ArrowRight,
-  Briefcase,
   CheckCheck,
   Download,
   FileText,
@@ -33,6 +32,17 @@ const rankTone: Record<string, string> = {
   B: 'border-blue-200 bg-blue-50 text-blue-700',
   C: 'border-slate-200 bg-slate-50 text-slate-600',
 };
+
+const getStageDecisionTone = (candidate: MobileInboxCandidate) => {
+  const status = candidate.stageDecision?.status;
+  if (status === 'ready_to_advance') return 'border-emerald-200 bg-emerald-50 text-emerald-700';
+  if (status === 'hold' || candidate.hardFilterFailureReason) return 'border-rose-200 bg-rose-50 text-rose-700';
+  if (status === 'review') return 'border-amber-200 bg-amber-50 text-amber-700';
+  return 'border-blue-200 bg-blue-50 text-blue-700';
+};
+
+const getStageDecisionLabel = (candidate: MobileInboxCandidate) =>
+  normalizeVietnameseDisplay(candidate.stageDecision?.label || 'Chưa có đề xuất');
 
 const formatDate = (timestamp?: number) => {
   if (!timestamp) return 'Chưa rõ thời gian';
@@ -132,6 +142,7 @@ const FilteredCvLibraryPage: React.FC<FilteredCvLibraryPageProps> = ({ userEmail
       total,
       avg,
       rankA: candidates.filter((item) => item.rank === 'A').length,
+      readyToAdvance: candidates.filter((item) => item.stageDecision?.status === 'ready_to_advance' || item.stageDecision?.autoAdvance).length,
       sessions: history.length,
     };
   }, [candidates, history]);
@@ -205,7 +216,7 @@ const FilteredCvLibraryPage: React.FC<FilteredCvLibraryPageProps> = ({ userEmail
           <StatCard label="Tổng hồ sơ" value={stats.total} icon={<Users className="h-5 w-5" />} />
           <StatCard label="Điểm trung bình" value={stats.avg} icon={<Star className="h-5 w-5" />} />
           <StatCard label="Hạng A" value={stats.rankA} icon={<CheckCheck className="h-5 w-5" />} />
-          <StatCard label="Phiên dữ liệu" value={stats.sessions} icon={<Briefcase className="h-5 w-5" />} />
+          <StatCard label="Chuyển vòng" value={stats.readyToAdvance} icon={<ArrowRight className="h-5 w-5" />} />
         </div>
       </div>
 
@@ -259,6 +270,7 @@ const FilteredCvLibraryPage: React.FC<FilteredCvLibraryPageProps> = ({ userEmail
               const displayFileName = normalizeVietnameseDisplay(candidate.fileName);
               const displayIndustry = normalizeVietnameseDisplay(candidate.industry);
               const displayExperience = normalizeVietnameseDisplay(candidate.experienceLevel);
+              const stageLabel = getStageDecisionLabel(candidate);
               return (
                 <article key={candidate.id} className="rounded-2xl border border-blue-100 bg-white p-4 shadow-[0_12px_32px_rgba(30,64,175,0.06)] transition hover:border-blue-200 hover:shadow-[0_18px_42px_rgba(30,64,175,0.1)]">
                   <div className="flex flex-col gap-4 lg:flex-row lg:items-center">
@@ -270,6 +282,10 @@ const FilteredCvLibraryPage: React.FC<FilteredCvLibraryPageProps> = ({ userEmail
                         <div className="flex flex-wrap items-center gap-2">
                           <h2 className="text-lg font-black text-slate-950">{displayName}</h2>
                           <span className={`rounded-full border px-2.5 py-0.5 text-xs font-black ${rankTone[candidate.rank] || rankTone.C}`}>Hạng {candidate.rank}</span>
+                          <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-black ${getStageDecisionTone(candidate)}`}>
+                            <ArrowRight className="h-3 w-3" />
+                            {stageLabel}
+                          </span>
                         </div>
                         <p className="mt-1 text-sm font-semibold text-slate-600">{displayTitle}</p>
                         <div className="mt-2 flex flex-wrap items-center gap-2 text-xs font-semibold text-slate-500">
@@ -326,7 +342,18 @@ const FilteredCvLibraryPage: React.FC<FilteredCvLibraryPageProps> = ({ userEmail
               <div className="grid gap-3 sm:grid-cols-3">
                 <DetailStat label="Điểm" value={selectedCandidate.score} />
                 <DetailStat label="Hạng" value={selectedCandidate.rank} />
-                <DetailStat label="File" value={normalizeVietnameseDisplay(selectedCandidate.fileName)} />
+                <DetailStat label="Đề xuất" value={getStageDecisionLabel(selectedCandidate)} />
+              </div>
+              <div className={`rounded-2xl border p-4 ${getStageDecisionTone(selectedCandidate)}`}>
+                <p className="text-sm font-black">{getStageDecisionLabel(selectedCandidate)}</p>
+                <p className="mt-1 text-sm leading-6">{normalizeVietnameseDisplay(selectedCandidate.stageDecision?.reason || '')}</p>
+                {(selectedCandidate.stageDecision?.blockingReasons || []).length > 0 && (
+                  <ul className="mt-2 list-disc space-y-1 pl-5 text-sm leading-6">
+                    {selectedCandidate.stageDecision?.blockingReasons.map((reason) => (
+                      <li key={reason}>{normalizeVietnameseDisplay(reason)}</li>
+                    ))}
+                  </ul>
+                )}
               </div>
               <InfoBlock title="Điểm mạnh" items={normalizeVietnameseList(selectedCandidate.strengths)} empty="Chưa có điểm mạnh được ghi nhận." />
               <InfoBlock title="Điểm cần rà soát" items={normalizeVietnameseList(selectedCandidate.weaknesses)} empty="Chưa có điểm yếu được ghi nhận." tone="rose" />

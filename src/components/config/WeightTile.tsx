@@ -51,21 +51,21 @@ const WeightTile: React.FC<WeightTileProps> = ({ criterion, setWeights, isExpand
 
   return (
     <div
-      className={`rounded-xl border !bg-white transition-all duration-300 ${
+      className={`rounded-lg border !bg-white transition-all duration-300 ${
         isExpanded
-          ? 'border-blue-200 shadow-[0_18px_48px_rgba(30,64,175,0.08)]'
-          : 'border-blue-100 shadow-[0_10px_30px_rgba(30,64,175,0.04)] hover:border-blue-300'
+          ? 'border-blue-300 shadow-[0_12px_30px_rgba(30,64,175,0.08)]'
+          : 'border-blue-100 shadow-[0_6px_18px_rgba(30,64,175,0.035)] hover:border-blue-300'
       }`}
     >
       <button
         type="button"
-        className="flex w-full items-center justify-between gap-2.5 p-3 text-left"
+        className="flex min-h-[58px] w-full items-center gap-3 px-3 py-2 text-left sm:px-4"
         onClick={onToggle}
         aria-expanded={isExpanded}
       >
-        <div className="flex min-w-0 items-center gap-2.5">
+        <div className="flex min-w-0 flex-1 items-center gap-3">
           <div
-            className={`flex h-9 w-9 items-center justify-center rounded-lg border text-base ${
+            className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-md border text-sm ${
               isExpanded
                 ? 'border-blue-200 !bg-white text-blue-600'
                 : 'border-blue-100 !bg-white text-slate-600'
@@ -73,33 +73,33 @@ const WeightTile: React.FC<WeightTileProps> = ({ criterion, setWeights, isExpand
           >
             <i className={criterion.icon} />
           </div>
-          <div className="min-w-0">
-            <p className="truncate text-[12px] font-bold tracking-wide text-slate-900">
+          <div className="min-w-[9rem] max-w-[16rem] flex-1">
+            <p className="truncate text-sm font-bold tracking-wide text-slate-950">
               {criterion.name}
             </p>
-            <div className="mt-1 flex items-center gap-2">
-              <div className="h-1.5 w-14 overflow-hidden rounded-full bg-blue-100 sm:w-20">
-                <div
-                  className={`h-full rounded-full bg-gradient-to-r ${progressClass}`}
-                  style={{ width: `${Math.min(total, 100)}%` }}
-                />
-              </div>
-              <span className="text-[9px] font-bold uppercase tracking-wider text-slate-500">
-                Tổng {total}%
-              </span>
+          </div>
+          <div className="hidden min-w-0 flex-[1.4] items-center gap-3 sm:flex">
+            <div className="h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-blue-100">
+              <div
+                className={`h-full rounded-full bg-gradient-to-r ${progressClass}`}
+                style={{ width: `${Math.min(total, 100)}%` }}
+              />
             </div>
+            <span className="whitespace-nowrap text-[10px] font-bold uppercase tracking-wider text-slate-500">
+              Tổng {total}%
+            </span>
           </div>
         </div>
 
-        <div className="flex items-center gap-2.5">
-          <div className="hidden text-right sm:block">
-            <span className={`text-lg font-bold tracking-tighter ${total > 0 ? 'text-blue-600' : 'text-slate-400'}`}>
+        <div className="flex shrink-0 items-center gap-3">
+          <div className="flex items-baseline gap-0.5 whitespace-nowrap text-right">
+            <span className={`text-xl font-black leading-none tracking-tighter ${total > 0 ? 'text-blue-600' : 'text-slate-400'}`}>
               {total}
             </span>
-            <span className="ml-0.5 text-[10px] text-slate-500">%</span>
+            <span className="text-[10px] font-bold text-slate-500">%</span>
           </div>
           <div
-            className={`flex h-7 w-7 items-center justify-center rounded-lg transition-colors ${
+            className={`flex h-7 w-7 items-center justify-center rounded-md transition-colors ${
               isExpanded ? '!bg-white text-blue-600' : '!bg-white text-slate-600'
             }`}
           >
@@ -108,21 +108,35 @@ const WeightTile: React.FC<WeightTileProps> = ({ criterion, setWeights, isExpand
         </div>
       </button>
 
+      <div className="px-3 pb-2 sm:hidden">
+        <div className="flex items-center gap-2">
+          <div className="h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-blue-100">
+            <div
+              className={`h-full rounded-full bg-gradient-to-r ${progressClass}`}
+              style={{ width: `${Math.min(total, 100)}%` }}
+            />
+          </div>
+          <span className="whitespace-nowrap text-[9px] font-bold uppercase tracking-wider text-slate-500">
+            Tổng {total}%
+          </span>
+        </div>
+      </div>
+
       <div
         className="overflow-hidden transition-[height,opacity] duration-300 ease-in-out"
         style={{ height: isExpanded ? measuredHeight : 0, opacity: isExpanded ? 1 : 0 }}
       >
-        <div ref={contentRef} className="space-y-2.5 border-t border-blue-100 !bg-white p-3">
+        <div ref={contentRef} className="space-y-2 border-t border-blue-100 !bg-white p-2.5">
           {criterion.children?.map((child) => {
             const sliderMax = Math.max(60, child.weight);
             const sliderPercent = (child.weight / sliderMax) * 100;
             return (
               <div
                 key={child.key}
-                className="flex flex-col gap-2.5 rounded-lg border border-transparent !bg-white p-2 transition-all hover:border-blue-100 sm:flex-row sm:items-center sm:gap-3"
+                className="flex flex-col gap-2 rounded-lg border border-transparent !bg-white p-2 transition-all hover:border-blue-100 sm:flex-row sm:items-center sm:gap-3"
               >
                 <div className="min-w-0 flex-1">
-                  <div className="mb-2 flex items-center justify-between">
+                  <div className="mb-1.5 flex items-center justify-between">
                     <p className="truncate text-[11px] font-bold tracking-wide text-slate-800">{child.name}</p>
                     <span className="text-[10px] font-semibold text-blue-600">{child.weight}%</span>
                   </div>

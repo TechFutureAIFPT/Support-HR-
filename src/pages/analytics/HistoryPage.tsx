@@ -197,7 +197,7 @@ const HistoryPage: React.FC<HistoryPageProps> = ({ userEmail, onRestore }) => {
             </div>
             <p className="font-semibold text-slate-200">Không có phiên phân tích nào</p>
             <p className="mt-2 max-w-md text-sm leading-6 text-slate-500">
-              Bộ lọc hiện tại chưa có dữ liệu. Bạn có thể chuyển về “Tất cả” để xem toàn bộ lịch sử.
+              Bộ lọc hiện tại chưa có dữ liệu. Bạn có thể chuyển về "Tất cả" để xem toàn bộ lịch sử.
             </p>
             <button
               onClick={() => setTimeFilter('all')}
@@ -269,7 +269,7 @@ const HistoryPage: React.FC<HistoryPageProps> = ({ userEmail, onRestore }) => {
                     </div>
                   ) : (
                     <div className="border border-dashed border-white/10 bg-black/35 px-3 py-4 text-xs text-slate-500">
-                      Chưa có shortlist trong phiên này.
+                      Chưa có danh sách đề cử trong phiên này.
                     </div>
                   )}
                 </div>

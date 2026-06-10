@@ -102,7 +102,7 @@ export const pricingPlans: PricingPlan[] = [
     features: [
       "Nhập CV từ tải file lên và Google Drive",
       "OCR cho tài liệu scan và file ảnh",
-      "Chấm điểm theo JD và shortlist có giải thích",
+      "Chấm điểm theo JD và danh sách đề cử có giải thích",
       "Lưu lịch sử phiên để xem lại",
     ],
     ctaLabel: "Đặt lịch demo",
@@ -131,7 +131,7 @@ export const pricingPlans: PricingPlan[] = [
     capacity: "Đến 1.500 CV / tháng",
     tone: "emerald",
     summary:
-      "Phù hợp cho doanh nghiệp cần xử lý nhiều vị trí, nhiều recruiter và cần phối hợp đánh giá rõ ràng hơn.",
+      "Phù hợp cho doanh nghiệp cần xử lý nhiều vị trí, nhiều nhà tuyển dụng và cần phối hợp đánh giá rõ ràng hơn.",
     highlightLabel: "Đề xuất",
     features: [
       "Quản lý nhiều phiên sàng lọc song song",
@@ -234,10 +234,10 @@ export const pricingComparisonRows: PricingComparisonRow[] = [
   },
   {
     label: "Báo cáo chia sẻ",
-    description: "Thông tin đầu ra dành cho recruiter và quản lý tuyển dụng.",
+    description: "Thông tin đầu ra dành cho nhà tuyển dụng và quản lý tuyển dụng.",
     values: {
-      starter: "Shortlist có giải thích",
-      growth: "Shortlist + báo cáo chia sẻ",
+      starter: "Danh sách đề cử có giải thích",
+      growth: "Danh sách đề cử + báo cáo chia sẻ",
       enterprise: "Báo cáo + tài liệu rà soát mở rộng",
     },
   },
@@ -256,7 +256,7 @@ export const pricingFaqs: PricingFaqItem[] = [
   {
     question: "Nếu chưa chốt gói ngay, đội ngũ có thể bắt đầu từ đâu?",
     answer:
-      "Cách nhanh nhất là đặt một buổi demo theo đúng flow tuyển dụng hiện tại, sau đó đối chiếu quy mô CV, số recruiter và mức độ kiểm soát để chốt gói phù hợp.",
+      "Cách nhanh nhất là đặt một buổi demo theo đúng quy trình tuyển dụng hiện tại, sau đó đối chiếu quy mô CV, số nhà tuyển dụng và mức độ kiểm soát để chốt gói phù hợp.",
   },
   {
     question: "Toggle theo tháng và theo năm có thay đổi giá niêm yết không?",
@@ -278,7 +278,7 @@ export const pricingFaqs: PricingFaqItem[] = [
 export const pricingHeroHighlights = [
   "Lấy JD làm trung tâm để chấm điểm và đề cử có lý do",
   "Đi từ demo thử nhanh sang rollout có kiểm soát mà không đổi luồng làm việc",
-  "Giữ ngôn ngữ thương mại rõ ràng cho recruiter, quản lý tuyển dụng và bộ phận mua sắm",
+  "Giữ ngôn ngữ thương mại rõ ràng cho nhà tuyển dụng, quản lý tuyển dụng và bộ phận mua sắm",
 ];
 
 export const docsTrustMetrics: DocsTrustMetric[] = [
@@ -291,7 +291,7 @@ export const docsTrustMetrics: DocsTrustMetric[] = [
   {
     value: "11",
     label: "anchor nội dung",
-    detail: "Người xem có thể đi thẳng tới bảng giá, kiểm soát truy cập, dữ liệu Drive hoặc FAQ.",
+    detail: "Người xem có thể đi thẳng tới bảng giá, kiểm soát truy cập, dữ liệu Drive hoặc hỏi đáp.",
     tone: "emerald",
   },
   {
@@ -400,7 +400,7 @@ export const securityDocSections: SecurityDocSection[] = [
       "Có thể truy vết ngữ cảnh chấm điểm và đề cử trong cùng một phiên",
     ],
     note:
-      "Nhóm recruiter truy cập theo luồng mình vận hành, còn admin là nơi điều phối triển khai và chính sách ở mức đội ngũ.",
+      "Nhóm nhà tuyển dụng truy cập theo luồng mình vận hành, còn quản trị viên là nơi điều phối triển khai và chính sách ở mức đội ngũ.",
   },
   {
     id: "security-drive",
@@ -421,7 +421,7 @@ export const securityDocSections: SecurityDocSection[] = [
     id: "security-operations",
     title: "Lưu trữ, xóa và hỗ trợ vận hành",
     description:
-      "Lịch sử phiên được giữ để recruiter có thể rà soát, bàn giao và xem lại quyết định gần đây, đồng thời vẫn có đường hỗ trợ khi cần dọn dữ liệu hoặc mở rộng tài liệu niềm tin.",
+      "Lịch sử phiên được giữ để nhà tuyển dụng có thể rà soát, bàn giao và xem lại quyết định gần đây, đồng thời vẫn có đường hỗ trợ khi cần dọn dữ liệu hoặc mở rộng tài liệu niềm tin.",
     tone: "sky",
     icon: "fa-clock-rotate-left",
     bullets: [
@@ -439,12 +439,12 @@ export const faqGuideSections: FAQGuideSection[] = [
     id: "faq-fit",
     title: "Support HR phù hợp với kiểu đội ngũ nào?",
     description:
-      "Phù hợp với đội tuyển dụng cần một nơi để nhập CV, đối chiếu với JD và chia sẻ shortlist có thể rà soát cho các bên liên quan.",
+      "Phù hợp với đội tuyển dụng cần một nơi để nhập CV, đối chiếu với JD và chia sẻ danh sách đề cử có thể rà soát cho các bên liên quan.",
     tone: "cyan",
     icon: "fa-users",
     bullets: [
       "Sàng lọc cho một vị trí đang mở",
-      "Khối lượng CV lớn cho một recruiter hoặc một nhóm nhỏ",
+      "Khối lượng CV lớn cho một nhà tuyển dụng hoặc một nhóm nhỏ",
       "Rà soát chung giữa chuyên viên tuyển dụng và quản lý tuyển dụng",
     ],
   },
@@ -465,7 +465,7 @@ export const faqGuideSections: FAQGuideSection[] = [
     id: "faq-ai",
     title: "AI hỗ trợ thế nào trong quyết định tuyển dụng?",
     description:
-      "AI không thay recruiter. Mục tiêu là tăng tốc bước trích xuất, đối chiếu và chuẩn bị shortlist, trong khi quyết định cuối cùng vẫn nằm ở đội ngũ.",
+      "AI không thay nhà tuyển dụng. Mục tiêu là tăng tốc bước trích xuất, đối chiếu và chuẩn bị danh sách đề cử, trong khi quyết định cuối cùng vẫn nằm ở đội ngũ.",
     tone: "sky",
     icon: "fa-brain",
     bullets: [

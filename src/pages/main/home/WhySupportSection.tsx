@@ -10,7 +10,7 @@ const roleCards = [
   {
     role: "Với Giám đốc nhân sự",
     benefit:
-      "Theo dõi hiệu quả tuyển dụng, chất lượng shortlist và mức độ nhất quán trong đánh giá ứng viên.",
+      "Theo dõi hiệu quả tuyển dụng, chất lượng danh sách đề cử và mức độ nhất quán trong đánh giá ứng viên.",
     accent: "text-blue-700",
     surface: "bg-blue-50",
     border: "border-blue-200",

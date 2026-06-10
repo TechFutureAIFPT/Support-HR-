@@ -55,6 +55,17 @@ export interface DetailedScore {
   advancedBreakdown?: AdvancedScoreBreakdown;
 }
 
+export interface StageDecision {
+  status: 'ready_to_advance' | 'hold' | 'review' | 'not_ready' | string;
+  label: string;
+  autoAdvance: boolean;
+  currentStage: string;
+  recommendedStage: string;
+  scoreThreshold: number;
+  reason: string;
+  blockingReasons: string[];
+}
+
 export interface Candidate {
   id: string;
   candidateName: string;
@@ -70,6 +81,7 @@ export interface Candidate {
   detectedLocation: string;
   detectedLocationSource?: string;
   locationMatch?: boolean | null;
+  stageDecision?: StageDecision;
   embeddingInsights?: CandidateEmbeddingInsight;
   jdCvMatchInsights?: CandidateJdCvMatchInsight;
 
@@ -295,6 +307,7 @@ export interface MobileInboxCandidate {
   details: Array<Record<string, unknown>>;
   warnings: string[];
   hardFilterFailureReason?: string | null;
+  stageDecision?: StageDecision;
   hardFilters?: Record<string, unknown>;
   jdText?: string;
   jobPosition?: string;

@@ -228,11 +228,11 @@ const WeightsConfig: React.FC<WeightsConfigProps> = memo(({ weights, setWeights,
 
       <div className="relative z-10 flex min-h-0 flex-1 flex-col overflow-hidden lg:flex-row">
         <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto">
-          <div className="w-full p-4 pb-24 md:p-5 md:pb-24 lg:p-5 lg:pb-28">
+          <div className="w-full p-3 pb-16 md:p-4 md:pb-16 lg:p-4 lg:pb-20">
             {step === 1 ? (
               <HardFilterPanel hardFilters={hardFilters} setHardFilters={setHardFilters} />
             ) : (
-              <div className="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-2.5">
+              <div className="grid grid-cols-1 gap-2">
                 <div className="hidden">
                   <div className="weights-config__accent shrink-0" />
                   <div>

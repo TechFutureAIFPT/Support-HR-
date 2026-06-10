@@ -321,6 +321,92 @@ function normalizeJdCvMatchInsights(value: unknown): Candidate['jdCvMatchInsight
   };
 }
 
+function normalizeStageDecision(
+  value: unknown,
+  candidate: Record<string, unknown>,
+  analysis: Candidate['analysis']
+): Candidate['stageDecision'] {
+  const totalScore = Number(analysis?.['Tổng điểm'] || 0);
+  const hardFailure = String(candidate.hardFilterFailureReason || '').trim();
+  const locationMatch = typeof candidate.locationMatch === 'boolean' ? candidate.locationMatch : null;
+  const fallbackBlockingReasons = [
+    hardFailure,
+    locationMatch === false ? 'Không đạt yêu cầu địa điểm bắt buộc.' : '',
+  ].filter(Boolean);
+
+  const fallbackStatus = fallbackBlockingReasons.length > 0
+    ? 'hold'
+    : totalScore >= 75
+      ? 'ready_to_advance'
+      : totalScore >= 50
+        ? 'review'
+        : 'not_ready';
+
+  const fallbackByStatus: Record<string, Candidate['stageDecision']> = {
+    ready_to_advance: {
+      status: 'ready_to_advance',
+      label: 'Sẵn sàng chuyển vòng',
+      autoAdvance: true,
+      currentStage: 'Ứng tuyển',
+      recommendedStage: 'Vòng tiếp theo',
+      scoreThreshold: 75,
+      reason: 'Đạt ngưỡng điểm và không vi phạm tiêu chí bắt buộc.',
+      blockingReasons: [],
+    },
+    hold: {
+      status: 'hold',
+      label: 'Giữ lại vòng ứng tuyển',
+      autoAdvance: false,
+      currentStage: 'Ứng tuyển',
+      recommendedStage: 'Ứng tuyển',
+      scoreThreshold: 75,
+      reason: 'Ứng viên có điểm đánh giá nhưng chưa đạt tiêu chí bắt buộc.',
+      blockingReasons: fallbackBlockingReasons,
+    },
+    review: {
+      status: 'review',
+      label: 'Cần HR rà soát',
+      autoAdvance: false,
+      currentStage: 'Ứng tuyển',
+      recommendedStage: 'Rà soát thủ công',
+      scoreThreshold: 75,
+      reason: 'Điểm phù hợp ở mức trung bình, nên kiểm tra thêm bằng chứng trước khi chuyển vòng.',
+      blockingReasons: [],
+    },
+    not_ready: {
+      status: 'not_ready',
+      label: 'Chưa nên chuyển vòng',
+      autoAdvance: false,
+      currentStage: 'Ứng tuyển',
+      recommendedStage: 'Không đề xuất',
+      scoreThreshold: 75,
+      reason: 'Điểm phù hợp còn thấp so với ngưỡng chuyển vòng.',
+      blockingReasons: [],
+    },
+  };
+
+  const fallback = fallbackByStatus[fallbackStatus];
+
+  if (!value || typeof value !== 'object') return fallback;
+
+  const record = value as Record<string, unknown>;
+  const status = String(record.status || fallback.status);
+  const blockingReasons = Array.isArray(record.blockingReasons)
+    ? record.blockingReasons.map((reason) => String(reason)).filter(Boolean)
+    : fallback.blockingReasons;
+
+  return {
+    status,
+    label: String(record.label || fallback.label),
+    autoAdvance: typeof record.autoAdvance === 'boolean' ? record.autoAdvance : fallback.autoAdvance,
+    currentStage: String(record.currentStage || fallback.currentStage),
+    recommendedStage: String(record.recommendedStage || fallback.recommendedStage),
+    scoreThreshold: Number(record.scoreThreshold || fallback.scoreThreshold),
+    reason: String(record.reason || fallback.reason),
+    blockingReasons,
+  };
+}
+
 function normalizeAscii(value: string): string {
   return value
     .normalize('NFD')
@@ -427,6 +513,7 @@ function normalizeCandidate(rawCandidate: unknown, fallbackFile?: File, cvText?:
     detectedLocation,
     detectedLocationSource: candidate.detectedLocationSource ? String(candidate.detectedLocationSource) : undefined,
     locationMatch: typeof candidate.locationMatch === 'boolean' ? candidate.locationMatch : null,
+    stageDecision: normalizeStageDecision(candidate.stageDecision, candidate, normalizedAnalysis),
     embeddingInsights: normalizeEmbeddingInsight(candidate.embeddingInsights),
     jdCvMatchInsights: normalizeJdCvMatchInsights(candidate.jdCvMatchInsights),
     analysis: normalizedAnalysis,

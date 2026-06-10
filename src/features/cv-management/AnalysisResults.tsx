@@ -68,6 +68,48 @@ const FullScreenAnalysisLoader: React.FC<{ message: string }> = ({ message }) =>
 
 type RankedCandidate = Candidate & { rank: number; jdFitScore: number; gradeValue: number };
 
+function getStageDecisionTone(candidate: Candidate): { background: string; border: string; color: string; icon: React.ReactNode } {
+  const status = candidate.stageDecision?.status;
+
+  if (status === 'ready_to_advance') {
+    return {
+      background: 'rgba(16,185,129,0.08)',
+      border: '1px solid rgba(16,185,129,0.28)',
+      color: '#047857',
+      icon: <CheckCircle2 size={13} />,
+    };
+  }
+
+  if (status === 'hold' || candidate.locationMatch === false || candidate.hardFilterFailureReason) {
+    return {
+      background: 'rgba(244,63,94,0.08)',
+      border: '1px solid rgba(244,63,94,0.24)',
+      color: '#be123c',
+      icon: <XCircle size={13} />,
+    };
+  }
+
+  if (status === 'review') {
+    return {
+      background: 'rgba(245,158,11,0.10)',
+      border: '1px solid rgba(245,158,11,0.24)',
+      color: '#b45309',
+      icon: <Clock size={13} />,
+    };
+  }
+
+  return {
+    background: 'rgba(59,130,246,0.08)',
+    border: '1px solid rgba(59,130,246,0.22)',
+    color: '#1d4ed8',
+    icon: <ArrowRight size={13} />,
+  };
+}
+
+function getStageDecisionLabel(candidate: Candidate): string {
+  return normalizeVietnameseDisplay(candidate.stageDecision?.label || 'Chưa có đề xuất');
+}
+
 const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMessage, results, jobPosition, locationRequirement, jdText, setActiveStep, markStepAsCompleted, weights, hardFilters }) => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -126,11 +168,13 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMes
   };
 
   const summaryData = useMemo(() => {
-    if (!results || results.length === 0) return { total: 0, countA: 0, countB: 0, countC: 0 };
+    if (!results || results.length === 0) return { total: 0, countA: 0, countB: 0, countC: 0, readyToAdvance: 0, held: 0 };
     const successful = results.filter(c => c.status === 'SUCCESS' && c.analysis);
     const countA = successful.filter(c => c.analysis?.['Hạng'] === 'A').length;
     const countB = successful.filter(c => c.analysis?.['Hạng'] === 'B').length;
-    return { total: successful.length, countA, countB, countC: results.length - countA - countB };
+    const readyToAdvance = successful.filter(c => c.stageDecision?.status === 'ready_to_advance' || c.stageDecision?.autoAdvance).length;
+    const held = successful.filter(c => c.stageDecision?.status === 'hold' || c.locationMatch === false || Boolean(c.hardFilterFailureReason)).length;
+    return { total: successful.length, countA, countB, countC: results.length - countA - countB, readyToAdvance, held };
   }, [results]);
 
   const analysisData = useMemo(() => {
@@ -265,12 +309,14 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMes
           {/* ── Campaign Header & KPIs (Combined sleek section) ────────── */}
           <div className="flex flex-col border-b" style={{ background: tc.cardBg, borderColor: tc.borderColor }}>
             {/* Bottom row: Sleek KPI stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4" style={{ background: 'rgba(0,0,0,0.1)' }}>
+            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6" style={{ background: 'rgba(255,255,255,0.72)' }}>
               {[
                 { label: 'TỔNG CV', value: summaryData.total, color: tc.textPrimary, icon: Users, bgIcon: 'rgba(255,255,255,0.03)' },
                 { label: 'HẠNG A', value: summaryData.countA, color: tc.gradeA.color, icon: Award, bgIcon: 'rgba(16,185,129,0.05)' },
                 { label: 'HẠNG B', value: summaryData.countB, color: tc.gradeB.color, icon: CheckCircle2, bgIcon: 'rgba(59,130,246,0.05)' },
-                { label: 'LOẠI / LỖI', value: summaryData.countC, color: tc.gradeC.color, icon: XCircle, bgIcon: 'rgba(239,68,68,0.05)' }
+                { label: 'HẠNG C / LỖI', value: summaryData.countC, color: tc.gradeC.color, icon: XCircle, bgIcon: 'rgba(239,68,68,0.05)' },
+                { label: 'CHUYỂN VÒNG', value: summaryData.readyToAdvance, color: '#047857', icon: ArrowRight, bgIcon: 'rgba(16,185,129,0.08)' },
+                { label: 'GIỮ LẠI', value: summaryData.held, color: '#be123c', icon: XCircle, bgIcon: 'rgba(244,63,94,0.08)' }
               ].map((stat, i) => (
                 <div key={stat.label} className={`relative flex items-center justify-between p-4 ${i !== 0 ? 'border-l' : ''}`} style={{ borderColor: tc.borderSoft }}>
                   <div>
@@ -369,6 +415,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMes
                     <th className="px-5 py-3 text-left text-[9px] uppercase tracking-[0.2em] font-bold">Hạng</th>
                     <th className="px-5 py-3 text-left text-[9px] uppercase tracking-[0.2em] font-bold">Điểm</th>
                     <th className="px-5 py-3 text-left text-[9px] uppercase tracking-[0.2em] font-bold">Phù hợp JD</th>
+                    <th className="px-5 py-3 text-left text-[9px] uppercase tracking-[0.2em] font-bold">Đề xuất vòng</th>
                     <th className="hidden px-5 py-3 text-left text-[9px] font-bold uppercase tracking-[0.2em] lg:table-cell">Địa điểm</th>
                     <th className="hidden px-5 py-3 text-left text-[9px] font-bold uppercase tracking-[0.2em] xl:table-cell">File</th>
                   </tr>
@@ -382,6 +429,8 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMes
                     const displayName = normalizeVietnameseDisplay(candidate.candidateName) || 'Chưa xác định';
                     const displayLocation = normalizeVietnameseDisplay(candidate.detectedLocation) || 'Chưa rõ';
                     const displayFileName = normalizeVietnameseDisplay(candidate.fileName);
+                    const stageTone = getStageDecisionTone(candidate);
+                    const stageLabel = getStageDecisionLabel(candidate);
                     return (
                       <React.Fragment key={candidate.id}>
                         <tr
@@ -404,6 +453,16 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMes
                           </td>
                           <td className="px-5 py-3 font-medium" style={{ color: tc.textSecondary }}>{overallScore}</td>
                           <td className="px-5 py-3 font-medium" style={{ color: tc.textSecondary }}>{jdFitScore}%</td>
+                          <td className="px-5 py-3">
+                            <span
+                              className="inline-flex max-w-[190px] items-center gap-1.5 truncate rounded-full px-2.5 py-1 text-[11px] font-bold"
+                              style={{ background: stageTone.background, border: stageTone.border, color: stageTone.color }}
+                              title={normalizeVietnameseDisplay(candidate.stageDecision?.reason || '')}
+                            >
+                              {stageTone.icon}
+                              <span className="truncate">{stageLabel}</span>
+                            </span>
+                          </td>
                           <td className="hidden px-5 py-3 font-medium lg:table-cell" style={{ color: candidate.locationMatch === false ? '#fca5a5' : tc.textSecondary }}>
                             <span className="inline-flex max-w-[150px] items-center gap-1.5 truncate">
                               <MapPin size={13} className="shrink-0 opacity-70" />
@@ -423,7 +482,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMes
                     );
                   })}
                   {filteredResults.length === 0 && (
-                    <tr><td colSpan={7} className="px-5 py-16 text-center text-sm" style={{ color: tc.textDim }}>Không có ứng viên nào khớp với bộ lọc của bạn.</td></tr>
+                    <tr><td colSpan={8} className="px-5 py-16 text-center text-sm" style={{ color: tc.textDim }}>Không có ứng viên nào khớp với bộ lọc của bạn.</td></tr>
                   )}
                 </tbody>
               </table>
@@ -440,6 +499,8 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMes
                 const displayJobTitle = normalizeVietnameseDisplay(candidate.jobTitle) || 'Chưa có chức danh';
                 const displayLocation = normalizeVietnameseDisplay(candidate.detectedLocation) || 'Chưa rõ địa điểm';
                 const displayFileName = normalizeVietnameseDisplay(candidate.fileName);
+                const stageTone = getStageDecisionTone(candidate);
+                const stageLabel = getStageDecisionLabel(candidate);
                 return (
                   <div key={candidate.id} className=" rounded p-4 transition-all" style={{ background: isSelected ? 'rgba(99,102,241,0.06)' : tc.cardBg, border: `1px solid ${isSelected ? 'rgba(99,102,241,0.25)' : tc.borderColor}` }}>
                     <div className="flex items-start justify-between gap-3">
@@ -471,6 +532,15 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMes
                       <div className="rounded p-2" style={{ background: tc.cardBg, border: tc.borderSoft }}>
                         <p className="mb-1 text-xs" style={{ color: tc.textDim }}>Phù hợp JD</p><p className="text-lg font-semibold" style={{ color: tc.textSecondary }}>{jdFitScore}%</p>
                       </div>
+                    </div>
+                    <div className="mt-3">
+                      <span
+                        className="inline-flex max-w-full items-center gap-1.5 truncate rounded-full px-2.5 py-1 text-xs font-bold"
+                        style={{ background: stageTone.background, border: stageTone.border, color: stageTone.color }}
+                      >
+                        {stageTone.icon}
+                        <span className="truncate">{stageLabel}</span>
+                      </span>
                     </div>
                     <div className="mt-3 flex items-center justify-between" style={{ borderTop: tc.borderSoft, paddingTop: '12px' }}>
                       <span className="max-w-[150px] truncate text-xs" style={{ color: tc.textDim }}>{displayFileName}</span>

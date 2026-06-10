@@ -277,8 +277,8 @@ function createDriveSelectionModal(options: {
     overlay.style.position = 'fixed';
     overlay.style.inset = '0';
     overlay.style.zIndex = '9999';
-    overlay.style.background = 'rgba(0, 0, 0, 0.82)';
-    overlay.style.backdropFilter = 'blur(10px)';
+    overlay.style.background = 'rgba(15, 23, 42, 0.28)';
+    overlay.style.backdropFilter = 'blur(8px)';
     overlay.style.display = 'flex';
     overlay.style.alignItems = 'center';
     overlay.style.justifyContent = 'center';
@@ -287,36 +287,38 @@ function createDriveSelectionModal(options: {
     const panel = document.createElement('div');
     panel.style.width = 'min(980px, 100%)';
     panel.style.maxHeight = '84vh';
-    panel.style.background = '#030303';
-    panel.style.border = '1px solid rgba(245, 214, 187, 0.22)';
-    panel.style.borderRadius = '0';
+    panel.style.background = '#ffffff';
+    panel.style.border = '1px solid rgba(191, 219, 254, 0.95)';
+    panel.style.borderRadius = '18px';
     panel.style.overflow = 'hidden';
     panel.style.display = 'flex';
     panel.style.flexDirection = 'column';
-    panel.style.boxShadow = '0 24px 80px rgba(0, 0, 0, 0.55)';
+    panel.style.boxShadow = '0 24px 80px rgba(35, 136, 255, 0.16)';
 
     const header = document.createElement('div');
     header.style.padding = '18px 20px';
-    header.style.borderBottom = '1px solid rgba(255, 255, 255, 0.08)';
+    header.style.borderBottom = '1px solid rgba(191, 219, 254, 0.9)';
+    header.style.background = 'linear-gradient(180deg, #ffffff 0%, #f7fbff 100%)';
     header.innerHTML = `
       <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;">
         <div style="min-width:0;">
-          <div style="font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:#f5d6bb;font-weight:800;">Google Drive</div>
-          <div style="margin-top:6px;font-size:20px;line-height:1.2;color:#f8fafc;font-weight:800;">Chọn tệp từ Drive</div>
+          <div style="font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:#2388ff;font-weight:800;">Google Drive</div>
+          <div style="margin-top:6px;font-size:20px;line-height:1.2;color:#0f172a;font-weight:800;">Chọn tệp từ Drive</div>
         </div>
-        <button data-role="cancel" style="height:36px;padding:0 14px;border-radius:0;border:1px solid rgba(255,255,255,.16);background:#0a0a0a;color:#e5e7eb;cursor:pointer;font:inherit;">Đóng</button>
+        <button data-role="cancel" style="height:36px;padding:0 14px;border-radius:10px;border:1px solid #bfdbfe;background:#f8fbff;color:#1e3a8a;cursor:pointer;font:inherit;font-weight:700;">Đóng</button>
       </div>
     `;
 
     const toolbar = document.createElement('div');
     toolbar.style.padding = '14px 20px';
-    toolbar.style.borderBottom = '1px solid rgba(255, 255, 255, 0.08)';
+    toolbar.style.borderBottom = '1px solid rgba(191, 219, 254, 0.85)';
+    toolbar.style.background = '#ffffff';
     toolbar.innerHTML = `
       <div style="display:grid;gap:12px;">
         <div data-role="breadcrumbs" style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;"></div>
         <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
-          <input data-role="search" placeholder="Tìm tệp hoặc thư mục..." style="flex:1;min-width:240px;height:42px;padding:0 12px;border-radius:0;border:1px solid rgba(255,255,255,.14);background:#080808;color:#f8fafc;outline:none;font:inherit;" />
-          <div data-role="stats" style="font-size:12px;color:#9ca3af;white-space:nowrap;"></div>
+          <input data-role="search" placeholder="Tìm tệp hoặc thư mục..." style="flex:1;min-width:240px;height:42px;padding:0 12px;border-radius:12px;border:1px solid #bfdbfe;background:#f8fbff;color:#0f172a;outline:none;font:inherit;" />
+          <div data-role="stats" style="font-size:12px;color:#475569;white-space:nowrap;"></div>
         </div>
       </div>
     `;
@@ -326,21 +328,23 @@ function createDriveSelectionModal(options: {
     list.style.overflow = 'auto';
     list.style.display = 'grid';
     list.style.gap = '8px';
+    list.style.background = '#f8fbff';
 
     const footer = document.createElement('div');
     footer.style.padding = '14px 20px';
-    footer.style.borderTop = '1px solid rgba(255, 255, 255, 0.08)';
+    footer.style.borderTop = '1px solid rgba(191, 219, 254, 0.85)';
     footer.style.display = 'flex';
     footer.style.justifyContent = 'space-between';
     footer.style.alignItems = 'center';
     footer.style.gap = '14px';
     footer.style.flexWrap = 'wrap';
+    footer.style.background = '#ffffff';
     footer.innerHTML = `
-      <div data-role="summary" style="font-size:12px;color:#9ca3af;">Chưa chọn tệp nào</div>
+      <div data-role="summary" style="font-size:12px;color:#475569;">Chưa chọn tệp nào</div>
       <div style="display:flex;gap:10px;flex-wrap:wrap;">
-        <button data-role="load-more" style="height:40px;padding:0 16px;border-radius:0;border:1px solid rgba(255,255,255,.16);background:#0a0a0a;color:#e5e7eb;cursor:pointer;font:inherit;display:none;">Tải thêm</button>
-        <button data-role="cancel" style="height:40px;padding:0 16px;border-radius:0;border:1px solid rgba(255,255,255,.16);background:#0a0a0a;color:#e5e7eb;cursor:pointer;font:inherit;">Hủy</button>
-        <button data-role="confirm" style="height:40px;padding:0 18px;border-radius:0;border:1px solid rgba(245,214,187,.42);background:#f5d6bb;color:#050505;cursor:pointer;font-weight:800;font-family:inherit;">Sử dụng tệp đã chọn</button>
+        <button data-role="load-more" style="height:40px;padding:0 16px;border-radius:10px;border:1px solid #bfdbfe;background:#f8fbff;color:#1e3a8a;cursor:pointer;font:inherit;display:none;">Tải thêm</button>
+        <button data-role="cancel" style="height:40px;padding:0 16px;border-radius:10px;border:1px solid #bfdbfe;background:#ffffff;color:#475569;cursor:pointer;font:inherit;">Hủy</button>
+        <button data-role="confirm" style="height:40px;padding:0 18px;border-radius:10px;border:1px solid #2388ff;background:#2388ff;color:#ffffff;cursor:pointer;font-weight:800;font-family:inherit;">Sử dụng tệp đã chọn</button>
       </div>
     `;
 
@@ -384,9 +388,10 @@ function createDriveSelectionModal(options: {
         button.textContent = item.name;
         button.style.height = '30px';
         button.style.padding = '0 10px';
-        button.style.border = '1px solid rgba(255,255,255,.14)';
-        button.style.background = index === breadcrumbs.length - 1 ? '#151515' : '#080808';
-        button.style.color = index === breadcrumbs.length - 1 ? '#f5d6bb' : '#cbd5e1';
+        button.style.border = '1px solid #bfdbfe';
+        button.style.borderRadius = '999px';
+        button.style.background = index === breadcrumbs.length - 1 ? '#e8f3ff' : '#ffffff';
+        button.style.color = index === breadcrumbs.length - 1 ? '#2388ff' : '#475569';
         button.style.cursor = index === breadcrumbs.length - 1 ? 'default' : 'pointer';
         button.style.font = 'inherit';
         button.style.whiteSpace = 'nowrap';
@@ -406,7 +411,7 @@ function createDriveSelectionModal(options: {
         if (index < breadcrumbs.length - 1) {
           const separator = document.createElement('span');
           separator.textContent = '/';
-          separator.style.color = '#6b7280';
+          separator.style.color = '#94a3b8';
           breadcrumbsContainer.appendChild(separator);
         }
       });
@@ -429,8 +434,10 @@ function createDriveSelectionModal(options: {
       if (errorMessage) {
         const errorPanel = document.createElement('div');
         errorPanel.style.padding = '22px';
-        errorPanel.style.border = '1px solid rgba(248, 113, 113, 0.28)';
-        errorPanel.style.color = '#fca5a5';
+        errorPanel.style.border = '1px solid rgba(248, 113, 113, 0.35)';
+        errorPanel.style.borderRadius = '12px';
+        errorPanel.style.background = '#fff1f2';
+        errorPanel.style.color = '#be123c';
         errorPanel.textContent = errorMessage;
         list.appendChild(errorPanel);
       }
@@ -438,9 +445,11 @@ function createDriveSelectionModal(options: {
       if (isLoading && visibleEntries.length === 0) {
         const loadingPanel = document.createElement('div');
         loadingPanel.style.padding = '28px';
-        loadingPanel.style.border = '1px dashed rgba(255, 255, 255, 0.18)';
+        loadingPanel.style.border = '1px dashed rgba(147, 197, 253, 0.9)';
+        loadingPanel.style.borderRadius = '14px';
+        loadingPanel.style.background = '#ffffff';
         loadingPanel.style.textAlign = 'center';
-        loadingPanel.style.color = '#9ca3af';
+        loadingPanel.style.color = '#475569';
         loadingPanel.textContent = 'Đang tải dữ liệu Google Drive...';
         list.appendChild(loadingPanel);
         return;
@@ -449,9 +458,11 @@ function createDriveSelectionModal(options: {
       if (!isLoading && visibleEntries.length === 0 && !errorMessage) {
         const empty = document.createElement('div');
         empty.style.padding = '28px';
-        empty.style.border = '1px dashed rgba(255, 255, 255, 0.18)';
+        empty.style.border = '1px dashed rgba(147, 197, 253, 0.9)';
+        empty.style.borderRadius = '14px';
+        empty.style.background = '#ffffff';
         empty.style.textAlign = 'center';
-        empty.style.color = '#9ca3af';
+        empty.style.color = '#475569';
         empty.textContent = currentSearch ? 'Không tìm thấy tệp phù hợp.' : 'Thư mục này chưa có tệp phù hợp.';
         list.appendChild(empty);
         return;
@@ -470,9 +481,9 @@ function createDriveSelectionModal(options: {
         row.style.justifyContent = 'space-between';
         row.style.gap = '12px';
         row.style.padding = '12px 14px';
-        row.style.borderRadius = '0';
-        row.style.border = selected ? '1px solid rgba(245,214,187,.78)' : '1px solid rgba(255,255,255,.1)';
-        row.style.background = selected ? 'rgba(245,214,187,.12)' : '#080808';
+        row.style.borderRadius = '12px';
+        row.style.border = selected ? '1px solid rgba(35,136,255,.7)' : '1px solid rgba(191,219,254,.95)';
+        row.style.background = selected ? '#e8f3ff' : '#ffffff';
         row.style.cursor = selectable || folder ? 'pointer' : 'default';
         row.style.opacity = selectable || folder ? '1' : '0.58';
         row.style.font = 'inherit';
@@ -486,13 +497,13 @@ function createDriveSelectionModal(options: {
 
         row.innerHTML = `
           <div style="min-width:0;display:flex;align-items:center;gap:10px;">
-            <span style="width:42px;height:24px;display:inline-flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.14);color:${folder ? '#f5d6bb' : '#e5e7eb'};font-size:10px;font-weight:800;letter-spacing:.08em;flex:0 0 auto;">${folder ? 'MỤC' : 'TỆP'}</span>
+            <span style="width:42px;height:24px;display:inline-flex;align-items:center;justify-content:center;border:1px solid #bfdbfe;border-radius:8px;background:${folder ? '#ecfdf5' : '#eff6ff'};color:${folder ? '#047857' : '#2388ff'};font-size:10px;font-weight:800;letter-spacing:.08em;flex:0 0 auto;">${folder ? 'MỤC' : 'TỆP'}</span>
             <div style="min-width:0;">
-              <div style="font-size:14px;font-weight:750;color:#f8fafc;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(file.name)}</div>
-              <div style="margin-top:4px;font-size:11px;color:#9ca3af;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(meta)}</div>
+              <div style="font-size:14px;font-weight:750;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(file.name)}</div>
+              <div style="margin-top:4px;font-size:11px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(meta)}</div>
             </div>
           </div>
-          <div style="flex-shrink:0;font-size:11px;font-weight:800;color:${selected ? '#f5d6bb' : '#6b7280'};">
+          <div style="flex-shrink:0;font-size:11px;font-weight:800;color:${selected ? '#2388ff' : '#64748b'};">
             ${folder ? 'Mở' : selected ? 'Đã chọn' : selectable ? 'Chọn' : ''}
           </div>
         `;
@@ -541,7 +552,7 @@ function createDriveSelectionModal(options: {
         const loadingMore = document.createElement('div');
         loadingMore.style.padding = '8px 4px 0';
         loadingMore.style.fontSize = '12px';
-        loadingMore.style.color = '#9ca3af';
+        loadingMore.style.color = '#475569';
         loadingMore.textContent = 'Đang tải thêm...';
         list.appendChild(loadingMore);
       }

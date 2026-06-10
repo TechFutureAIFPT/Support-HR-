@@ -16,7 +16,7 @@ export const productDocsTabs: DocsHeaderTab[] = [
   { label: "Bảo mật dữ liệu", to: "/security", matchPaths: ["/security"] },
   { label: "Cách sử dụng", to: "/guide", matchPaths: ["/guide", "/demo"] },
   { label: "AI", to: "/ai-methodology", matchPaths: ["/ai-methodology"] },
-  { label: "Use cases", to: "/use-cases", matchPaths: ["/use-cases"] },
+  { label: "Tình huống sử dụng", to: "/use-cases", matchPaths: ["/use-cases"] },
   { label: "Tích hợp", to: "/integrations", matchPaths: ["/integrations"] },
   { label: "Bảng giá", to: "/pricing", matchPaths: ["/pricing"] },
 ];
@@ -37,13 +37,13 @@ export const productDocsSearchEntries: DocsSearchEntry[] = [
   {
     label: "Cách sử dụng",
     to: "/guide",
-    description: "Luồng dùng sản phẩm từ JD đến shortlist",
+    description: "Luồng dùng sản phẩm từ JD đến danh sách đề cử",
     keywords: ["guide", "cách dùng", "cách sử dụng", "demo", "jd", "cv", "shortlist"],
   },
   {
     label: "Bảng giá",
     to: "/pricing",
-    description: "Gói dịch vụ, thương mại và FAQ",
+    description: "Gói dịch vụ, thương mại và hỏi đáp",
     keywords: ["pricing", "bảng giá", "gói", "chi phí", "faq", "thương mại"],
   },
   {
@@ -53,7 +53,7 @@ export const productDocsSearchEntries: DocsSearchEntry[] = [
     keywords: ["ai", "methodology", "phương pháp", "chấm điểm", "giải thích", "jd"],
   },
   {
-    label: "Use cases",
+    label: "Tình huống sử dụng",
     to: "/use-cases",
     description: "Các tình huống vận hành phù hợp với Support HR",
     keywords: ["use case", "tình huống", "khối lượng lớn", "shortlist", "rà soát"],
@@ -73,7 +73,7 @@ export const productDocsSearchEntries: DocsSearchEntry[] = [
   {
     label: "Quy trình",
     to: "/process",
-    description: "Quy trình 5 bước từ JD đến shortlist",
+    description: "Quy trình 5 bước từ JD đến danh sách đề cử",
     keywords: ["process", "quy trình", "workflow", "jd", "cv", "shortlist"],
   },
   {

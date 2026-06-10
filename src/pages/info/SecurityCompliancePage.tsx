@@ -34,7 +34,7 @@ const SecurityCompliancePage: React.FC = () => {
                 items={[
                   "JD được dùng làm chuẩn đối chiếu khi chấm điểm ứng viên.",
                   "CV được xử lý để trích xuất tín hiệu phù hợp với vị trí tuyển dụng.",
-                  "Kết quả AI là gợi ý để recruiter rà soát, không thay quyết định cuối cùng của con người.",
+                  "Kết quả AI là gợi ý để nhà tuyển dụng rà soát, không thay quyết định cuối cùng của con người.",
                 ]}
               />
             </LegalCard>
@@ -59,7 +59,7 @@ const SecurityCompliancePage: React.FC = () => {
                 tone="emerald"
                 items={[
                   "Người dùng đưa JD và CV vào một phiên sàng lọc cụ thể.",
-                  "Hệ thống xử lý file để tạo điểm số, giải thích và shortlist có thể rà soát.",
+                  "Hệ thống xử lý file để tạo điểm số, giải thích và danh sách đề cử có thể rà soát.",
                   "Lịch sử phiên được giữ để người dùng xem lại, bàn giao hoặc tiếp tục phân tích.",
                   "Yêu cầu xóa dữ liệu nên có kênh tiếp nhận rõ ràng và thời gian phản hồi cụ thể.",
                 ]}
@@ -73,7 +73,7 @@ const SecurityCompliancePage: React.FC = () => {
       case "ops":
         return (
           <div className="space-y-4">
-            <LegalCard tone="sky" icon="fa-user-shield" title="Kiểm soát vận hành" badge="Docs-ready">
+            <LegalCard tone="sky" icon="fa-user-shield" title="Kiểm soát vận hành" badge="Sẵn sàng tài liệu">
               <p>
                 Phần vận hành nên nói rõ cách đội ngũ kiểm soát truy cập và phản hồi khi khách hàng cần rà soát. Nội dung dưới đây đủ an toàn để trình bày như định hướng quy trình.
               </p>
@@ -107,7 +107,7 @@ const SecurityCompliancePage: React.FC = () => {
   return (
     <LegalPageLayout
       pageLabel="Bảo mật dữ liệu"
-      title="Security and data handling"
+      title="Bảo mật và xử lý dữ liệu"
       subtitle="Tài liệu mô tả cách Support HR xử lý JD, CV, quyền Google Drive và các điểm cần xác nhận trước khi làm việc với khách hàng doanh nghiệp."
       meta="Tài liệu doanh nghiệp · Cập nhật 2026"
       sections={sections}

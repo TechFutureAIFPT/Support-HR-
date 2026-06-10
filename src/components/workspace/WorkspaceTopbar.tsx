@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
   ArrowLeft,
   BarChart3,
@@ -131,6 +131,7 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
   onLogout,
 }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [notifications, setNotifications] = useState<AccountNotification[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [isAccountOpen, setIsAccountOpen] = useState(false);
@@ -238,6 +239,15 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
     window.dispatchEvent(new CustomEvent('supporthr:chatbot-action', { detail: { action } }));
   };
 
+  const topbarButtonClass =
+    'hidden h-9 items-center gap-2 rounded-xl border border-blue-100 bg-white px-3 text-xs font-bold text-slate-700 shadow-sm transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700';
+  const topbarPrimaryButtonClass =
+    'hidden h-9 items-center gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 px-3 text-xs font-black text-white shadow-[0_12px_24px_rgba(35,136,255,0.18)] transition hover:brightness-105';
+  const topbarIconButtonClass =
+    'flex h-9 w-9 items-center justify-center rounded-xl border border-blue-100 bg-white text-slate-600 shadow-sm transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-600';
+  const dropdownIconButtonClass =
+    'flex h-8 w-8 items-center justify-center rounded-xl border border-blue-100 bg-white text-slate-500 transition hover:bg-blue-50 hover:text-blue-600';
+
   return (
     <header className="shrink-0 border-b border-blue-100 bg-white/95 shadow-[0_10px_30px_rgba(30,64,175,0.06)] backdrop-blur-xl">
       <div className="flex min-h-[68px] items-center gap-3 px-4 lg:px-5">
@@ -273,7 +283,7 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
               <button
                 type="button"
                 onClick={onOpenDetailedAnalytics}
-                className="hidden h-9 items-center gap-2 rounded-xl border border-blue-100 bg-white px-3 text-xs font-bold text-slate-700 shadow-sm transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700 md:inline-flex"
+                className={`${topbarButtonClass} md:inline-flex`}
               >
                 <BarChart3 size={15} />
                 Thống kê
@@ -281,7 +291,7 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
               <button
                 type="button"
                 onClick={onOpenCandidateSuggestions}
-                className="hidden h-9 items-center gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 px-3 text-xs font-black text-white shadow-[0_12px_24px_rgba(35,136,255,0.18)] transition hover:brightness-105 md:inline-flex"
+                className={`${topbarPrimaryButtonClass} md:inline-flex`}
               >
                 <Target size={15} />
                 Gợi ý AI
@@ -293,7 +303,7 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
             <button
               type="button"
               onClick={onOpenCandidateSuggestions}
-              className="hidden h-9 items-center gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 px-3 text-xs font-black text-white shadow-[0_12px_24px_rgba(35,136,255,0.18)] transition hover:brightness-105 md:inline-flex"
+              className={`${topbarPrimaryButtonClass} md:inline-flex`}
             >
               <Zap size={15} />
               Gợi ý ứng viên
@@ -305,7 +315,7 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
               <button
                 type="button"
                 onClick={() => handleChatbotAction('history')}
-                className="flex h-8 w-8 items-center justify-center rounded-lg border border-blue-100 bg-white text-blue-600 shadow-sm transition hover:bg-blue-50"
+                className="flex h-8 w-8 items-center justify-center rounded-xl border border-blue-100 bg-white text-blue-600 shadow-sm transition hover:bg-blue-50"
                 aria-label="Mở lịch sử hội thoại"
               >
                 <Clock3 size={15} />
@@ -313,7 +323,7 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
               <button
                 type="button"
                 onClick={() => handleChatbotAction('chatbot')}
-                className="flex h-8 items-center gap-1.5 rounded-lg bg-blue-600 px-3 text-xs font-black text-white shadow-sm transition hover:bg-blue-700"
+                className="flex h-8 items-center gap-1.5 rounded-xl bg-blue-600 px-3 text-xs font-black text-white shadow-sm transition hover:bg-blue-700"
               >
                 <MessageSquare size={14} />
                 Chatbot AI
@@ -321,7 +331,7 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
               <button
                 type="button"
                 onClick={() => handleChatbotAction('selected')}
-                className="flex h-8 items-center gap-1.5 rounded-lg bg-white px-3 text-xs font-bold text-blue-700 shadow-sm transition hover:bg-blue-50"
+                className="flex h-8 items-center gap-1.5 rounded-xl bg-white px-3 text-xs font-bold text-blue-700 shadow-sm transition hover:bg-blue-50"
               >
                 <Users size={14} />
                 Đã chọn
@@ -333,7 +343,7 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
             <button
               type="button"
               onClick={onOpenAnalysis}
-              className="hidden h-9 items-center gap-2 rounded-xl border border-blue-100 bg-white px-3 text-xs font-bold text-blue-700 shadow-sm transition hover:border-blue-200 hover:bg-blue-50 md:inline-flex"
+              className={`${topbarButtonClass} text-blue-700 md:inline-flex`}
             >
               <ArrowLeft size={15} />
               Kết quả phân tích
@@ -343,7 +353,7 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
           <button
             type="button"
             onClick={onOpenTemplates}
-            className="hidden h-9 items-center gap-2 rounded-xl border border-blue-100 bg-white px-3 text-xs font-bold text-slate-600 shadow-sm transition hover:border-blue-200 hover:bg-blue-50 xl:inline-flex"
+            className={`${topbarButtonClass} text-slate-600 xl:inline-flex`}
           >
             <UploadCloud size={15} />
             Mẫu JD
@@ -352,7 +362,7 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
           <button
             type="button"
             onClick={onNewSession}
-            className="hidden h-9 items-center gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 px-3 text-xs font-black text-white shadow-[0_12px_24px_rgba(35,136,255,0.18)] transition hover:brightness-105 md:inline-flex"
+            className={`${topbarPrimaryButtonClass} md:inline-flex`}
           >
             <Plus size={16} strokeWidth={2.6} />
             Phiên mới
@@ -363,7 +373,7 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
           <button
             type="button"
             onClick={onOpenHistory}
-            className="hidden h-9 w-9 items-center justify-center rounded-xl border border-blue-100 bg-white text-slate-600 shadow-sm transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-600 md:inline-flex"
+            className={`${topbarIconButtonClass} hidden md:inline-flex`}
             aria-label="Mở lịch sử hoạt động"
           >
             <Clock3 size={16} />
@@ -371,7 +381,7 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
 
           <button
             type="button"
-            className="hidden h-9 w-9 items-center justify-center rounded-xl border border-blue-100 bg-white text-slate-600 shadow-sm transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-600 sm:inline-flex"
+            className={`${topbarIconButtonClass} hidden sm:inline-flex`}
             aria-label="Trợ giúp"
           >
             <HelpCircle size={16} />
@@ -383,7 +393,7 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
             <button
               type="button"
               onClick={handleOpenNotifications}
-              className="relative flex h-9 w-9 items-center justify-center rounded-xl border border-blue-100 bg-white text-slate-600 shadow-sm transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-600"
+              className={`relative ${topbarIconButtonClass}`}
               aria-label="Mở thông báo"
               aria-expanded={isOpen}
             >
@@ -406,7 +416,7 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
                     <button
                       type="button"
                       onClick={() => void loadNotifications()}
-                      className="flex h-8 w-8 items-center justify-center rounded-lg border border-blue-100 bg-white text-slate-500 transition hover:bg-blue-50 hover:text-blue-600"
+                      className={dropdownIconButtonClass}
                       aria-label="Tải lại thông báo"
                     >
                       <RefreshCw size={14} className={isLoading ? 'animate-spin' : ''} />
@@ -414,7 +424,7 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
                     <button
                       type="button"
                       onClick={() => void handleMarkAllRead()}
-                      className="flex h-8 w-8 items-center justify-center rounded-lg border border-blue-100 bg-white text-slate-500 transition hover:bg-blue-50 hover:text-blue-600"
+                      className={dropdownIconButtonClass}
                       aria-label="Đánh dấu tất cả đã đọc"
                     >
                       <CheckCheck size={14} />
@@ -422,7 +432,7 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
                     <button
                       type="button"
                       onClick={() => setIsOpen(false)}
-                      className="flex h-8 w-8 items-center justify-center rounded-lg border border-blue-100 bg-white text-slate-500 transition hover:bg-rose-50 hover:text-rose-600"
+                      className={`${dropdownIconButtonClass} hover:bg-rose-50 hover:text-rose-600`}
                       aria-label="Đóng thông báo"
                     >
                       <X size={14} />
@@ -480,7 +490,7 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
               aria-label="Tài khoản"
               aria-expanded={isAccountOpen}
             >
-              <span className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-blue-100 bg-blue-50 text-[10px] font-black text-blue-700">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-blue-100 bg-blue-50 text-[10px] font-black text-blue-700">
                 {userAvatar ? (
                   <img src={userAvatar} alt="" className="h-full w-full object-cover" />
                 ) : (
@@ -509,7 +519,7 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
                   <button
                     type="button"
                     onClick={() => setIsAccountOpen(false)}
-                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-blue-100 bg-white text-slate-500 transition hover:bg-rose-50 hover:text-rose-600"
+                    className={`${dropdownIconButtonClass} shrink-0 hover:bg-rose-50 hover:text-rose-600`}
                     aria-label="Đóng tài khoản"
                   >
                     <X size={14} />
@@ -520,7 +530,7 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
                     type="button"
                     onClick={() => {
                       setIsAccountOpen(false);
-                      onOpenTemplates?.();
+                      navigate('/jd-templates', { state: { from: location.pathname } });
                     }}
                     className="flex items-center gap-2 rounded-xl px-3 py-2 text-left text-xs font-bold text-slate-700 transition hover:bg-blue-50 hover:text-blue-700"
                   >
@@ -531,7 +541,7 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
                     type="button"
                     onClick={() => {
                       setIsAccountOpen(false);
-                      onOpenHistory?.();
+                      navigate('/history', { state: { from: location.pathname } });
                     }}
                     className="flex items-center gap-2 rounded-xl px-3 py-2 text-left text-xs font-bold text-slate-700 transition hover:bg-blue-50 hover:text-blue-700"
                   >
@@ -542,7 +552,7 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
                     type="button"
                     onClick={() => {
                       setIsAccountOpen(false);
-                      navigate('/records');
+                      navigate('/records', { state: { from: location.pathname } });
                     }}
                     className="flex items-center gap-2 rounded-xl px-3 py-2 text-left text-xs font-bold text-slate-700 transition hover:bg-blue-50 hover:text-blue-700"
                   >
@@ -553,7 +563,7 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
                     type="button"
                     onClick={() => {
                       setIsAccountOpen(false);
-                      navigate('/jd-standardizer');
+                      navigate('/jd-standardizer', { state: { from: location.pathname } });
                     }}
                     className="flex items-center gap-2 rounded-xl px-3 py-2 text-left text-xs font-bold text-slate-700 transition hover:bg-blue-50 hover:text-blue-700"
                   >
@@ -584,5 +594,3 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
 };
 
 export default WorkspaceTopbar;
-
-

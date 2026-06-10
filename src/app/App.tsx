@@ -200,7 +200,7 @@ const MainApp = () => {
   };
 
   useEffect(() => {
-    const protectedPaths = ['/jd', '/upload', '/weights', '/analysis', '/dashboard', '/detailed-analytics', '/chatbot', '/feedback', '/records', '/jd-standardizer'];
+    const protectedPaths = ['/jd', '/upload', '/weights', '/analysis', '/dashboard', '/detailed-analytics', '/chatbot', '/feedback', '/records', '/jd-standardizer', '/history', '/jd-templates'];
 
     if (!isInitializing && !isLoggedIn && protectedPaths.includes(location.pathname)) {
       setShowLoginModal(true);
@@ -689,6 +689,25 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
     setCompletedSteps(prev => [...new Set([...prev, step])]);
   }, []);
 
+  const handleSelectJDTemplate = useCallback((template: JDTemplate, mode = jdTemplateSelectionMode) => {
+    setJdText(template.jdText);
+    setJobPosition(template.jobPosition);
+    setHardFilters((prev) => ({
+      ...prev,
+      ...template.hardFilters
+    }));
+
+    if (mode === 'welcome') {
+      setActiveStep('jd');
+      return;
+    }
+
+    markStepAsCompleted('jd');
+    markStepAsCompleted('upload');
+    markStepAsCompleted('weights');
+    setActiveStep('analysis');
+  }, [jdTemplateSelectionMode, markStepAsCompleted, setActiveStep]);
+
   useEffect(() => {
     const hasUsableAnalysis = analysisResults.some((candidate) => candidate.status === 'SUCCESS' && candidate.analysis);
     if (!isLoading && hasUsableAnalysis) {
@@ -699,19 +718,19 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
   const isHomeView = activeStep === 'home';
   const isLandingFallbackView =
     !isLoggedIn &&
-    ['/jd', '/upload', '/weights', '/analysis', '/dashboard', '/detailed-analytics', '/chatbot', '/feedback', '/records', '/jd-standardizer'].includes(location.pathname);
+    ['/jd', '/upload', '/weights', '/analysis', '/dashboard', '/detailed-analytics', '/chatbot', '/feedback', '/records', '/jd-standardizer', '/history', '/jd-templates'].includes(location.pathname);
   const isMarketingRoute = publicMarketingPaths.has(location.pathname);
+  const isStandaloneToolRoute = isLoggedIn && ['/records', '/jd-standardizer', '/history', '/jd-templates'].includes(location.pathname);
   const isLandingView = isHomeView || isLandingFallbackView || isMarketingRoute;
   const isWorkflowView =
     !isLandingView &&
+    !isStandaloneToolRoute &&
     (activeStep === 'jd' ||
       activeStep === 'upload' ||
       activeStep === 'weights' ||
       activeStep === 'analysis' ||
       activeStep === 'dashboard' ||
       activeStep === 'chatbot' ||
-      activeStep === 'records' ||
-      activeStep === 'jd-standardizer' ||
       activeStep === 'feedback');
 
   useEffect(() => {
@@ -753,6 +772,12 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
     setActiveStep('jd');
   }, [markStepAsCompleted, setActiveStep]);
 
+  const handleCloseStandalonePage = useCallback(() => {
+    const routeState = location.state as { from?: string } | null;
+    const from = routeState?.from;
+    navigate(from && from !== location.pathname ? from : '/');
+  }, [location.pathname, location.state, navigate]);
+
   const screenerPageProps = {
     jdText, setJdText,
     rawJdText, setRawJdText,
@@ -773,7 +798,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
 
   return (
     <div className={`h-[100dvh] bg-white text-slate-900 flex flex-col overflow-hidden ${className || ''}`}>
-      {!isLandingView && (
+      {!isLandingView && !isStandaloneToolRoute && (
         <div className="hidden lg:block">
           <Sidebar
             activeStep={activeStep}
@@ -796,7 +821,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
         </div>
       )}
 
-      {!isLandingView && (
+      {!isLandingView && !isStandaloneToolRoute && (
         <div className="lg:hidden">
           <Sidebar
             activeStep={activeStep}
@@ -821,7 +846,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
       )}
 
       {/* Mobile Fixed Header — full width, NOT offset by sidebar */}
-      {!isLandingView && (
+      {!isLandingView && !isStandaloneToolRoute && (
         <header
           className="fixed top-0 left-0 right-0 z-[45] flex min-h-14 items-center justify-between gap-3 px-3 py-2 lg:hidden"
           style={{ background: 'rgba(255,255,255,0.94)', borderBottom: '1px solid rgba(55,125,255,0.12)', boxShadow: '0 12px 32px rgba(30,64,175,0.08)' }}
@@ -839,7 +864,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
             <img src="/images/logos/logo.jpg" alt="Logo" className="w-8 h-8 rounded-lg object-contain shrink-0" />
             <div className="min-w-0">
               <span className="block truncate text-sm font-black leading-tight" style={{ color: '#102033' }}>SupportHR</span>
-              <span className="hidden text-[9px] font-semibold uppercase tracking-[0.14em] text-slate-500 sm:block">Recruitment Intelligence</span>
+              <span className="hidden text-[9px] font-semibold uppercase tracking-[0.14em] text-slate-500 sm:block">Trí tuệ tuyển dụng</span>
             </div>
           </div>
           {isLoggedIn ? (
@@ -863,7 +888,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
       )}
 
       <main
-        className={`main-content supporthr-main pb-0 ${!isLandingView ? 'supporthr-main--with-sidebar mt-14 lg:mt-0' : ''} flex-1 flex flex-col min-h-0 overflow-x-hidden transition-all duration-300 ease-in-out ${
+        className={`main-content supporthr-main pb-0 ${!isLandingView && !isStandaloneToolRoute ? 'supporthr-main--with-sidebar mt-14 lg:mt-0' : ''} flex-1 flex flex-col min-h-0 overflow-x-hidden transition-all duration-300 ease-in-out ${
           !isLandingView
             ? 'min-w-0'
             : 'ml-0 w-full'
@@ -900,7 +925,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
             }}
           />
         )}
-        <div className={`flex h-full min-h-0 w-full flex-1 flex-col ${isWorkflowView ? 'overflow-hidden' : isLandingView ? '' : 'max-w-7xl px-4 sm:px-6 lg:px-8 mx-auto py-4 overflow-y-auto custom-scrollbar'}`}>
+        <div className={`flex h-full min-h-0 w-full flex-1 flex-col ${isWorkflowView ? 'overflow-hidden' : isLandingView || isStandaloneToolRoute ? '' : 'max-w-7xl px-4 sm:px-6 lg:px-8 mx-auto py-4 overflow-y-auto custom-scrollbar'}`}>
           <Suspense fallback={
             isMarketingRoute ? (
               <DocsPageLoading />
@@ -932,6 +957,20 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
               <Route path="/feedback" element={isLoggedIn ? <AIFeedbackPage candidates={analysisResults} jobPosition={jobPosition} weights={weights} hardFilters={hardFilters} analysisContext={activeAnalysisContext} /> : <HomePage setActiveStep={setActiveStep} isLoggedIn={isLoggedIn} onLoginRequest={onLoginRequest} completedSteps={completedSteps} userName={userName} userEmail={userEmail} />} />
               <Route path="/records" element={isLoggedIn ? <FilteredCvLibraryPage userEmail={userEmail} /> : <HomePage setActiveStep={setActiveStep} isLoggedIn={isLoggedIn} onLoginRequest={onLoginRequest} completedSteps={completedSteps} userName={userName} userEmail={userEmail} />} />
               <Route path="/jd-standardizer" element={isLoggedIn ? <JDStandardizerPage onUseJD={handleUseStandardizedJD} /> : <HomePage setActiveStep={setActiveStep} isLoggedIn={isLoggedIn} onLoginRequest={onLoginRequest} completedSteps={completedSteps} userName={userName} userEmail={userEmail} />} />
+              <Route path="/history" element={isLoggedIn ? (
+                <div className="min-h-screen bg-white">
+                  <HistoryModal isOpen onClose={handleCloseStandalonePage} />
+                </div>
+              ) : <HomePage setActiveStep={setActiveStep} isLoggedIn={isLoggedIn} onLoginRequest={onLoginRequest} completedSteps={completedSteps} userName={userName} userEmail={userEmail} />} />
+              <Route path="/jd-templates" element={isLoggedIn ? (
+                <div className="min-h-screen bg-white">
+                  <JDTemplatesModal
+                    isOpen
+                    onClose={handleCloseStandalonePage}
+                    onSelectTemplate={(template: JDTemplate) => handleSelectJDTemplate(template, 'analysis')}
+                  />
+                </div>
+              ) : <HomePage setActiveStep={setActiveStep} isLoggedIn={isLoggedIn} onLoginRequest={onLoginRequest} completedSteps={completedSteps} userName={userName} userEmail={userEmail} />} />
               <Route path="/process" element={<ProcessPage />} />
               <Route path="/contact-ready" element={<DeploymentReadyPage />} />
               <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
@@ -955,24 +994,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
       <JDTemplatesModal
         isOpen={jdTemplatesModalOpen}
         onClose={() => setJdTemplatesModalOpen(false)}
-        onSelectTemplate={(template: JDTemplate) => {
-          setJdText(template.jdText);
-          setJobPosition(template.jobPosition);
-          setHardFilters((prev) => ({
-            ...prev,
-            ...template.hardFilters
-          }));
-
-          if (jdTemplateSelectionMode === 'welcome') {
-            setActiveStep('jd');
-            return;
-          }
-
-          markStepAsCompleted('jd');
-          markStepAsCompleted('upload');
-          markStepAsCompleted('weights');
-          setActiveStep('analysis');
-        }}
+        onSelectTemplate={(template: JDTemplate) => handleSelectJDTemplate(template)}
       />
 
       {/* History Modal */}

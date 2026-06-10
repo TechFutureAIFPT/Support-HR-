@@ -21,7 +21,7 @@ const painSolutions = [
     pain: "CV nhiều, thời gian đọc ít",
     solution:
       "AI tóm tắt hồ sơ, so khớp tiêu chí và xếp hạng để HR tập trung vào ứng viên đáng xem trước.",
-    metric: "AI score 94%",
+    metric: "Điểm AI 94%",
     mockTitle: "Tóm tắt CV trong vài giây",
     mockSubtitle: "Hồ sơ được đọc, chấm điểm và gom bằng chứng theo từng tiêu chí.",
     candidate: "Java Developer",
@@ -48,11 +48,11 @@ const painSolutions = [
   {
     pain: "Khó giải thích vì sao một ứng viên được ưu tiên",
     solution:
-      "Mỗi kết quả phân tích đi kèm điểm số, bằng chứng và nhận định để trao đổi nhanh với hiring manager.",
+      "Mỗi kết quả phân tích đi kèm điểm số, bằng chứng và nhận định để trao đổi nhanh với quản lý tuyển dụng.",
     metric: "3 bằng chứng nổi bật",
     mockTitle: "Lý do đề xuất rõ ràng",
     mockSubtitle: "Điểm số đi kèm bằng chứng, nhận định AI và vùng cần rà soát.",
-    candidate: "Shortlist Review",
+    candidate: "Rà soát danh sách đề cử",
     score: "88",
     status: "Có thể phỏng vấn",
     evidence: ["Bằng chứng từ CV", "Nhận định AI ngắn gọn", "Cảnh báo cần rà soát"],
@@ -62,14 +62,14 @@ const painSolutions = [
   {
     pain: "Quy trình tuyển dụng bị rời rạc giữa file, ghi chú và phản hồi",
     solution:
-      "JD, CV, phân tích, gợi ý và feedback được gom trong một luồng làm việc thống nhất.",
-    metric: "Shortlist sẵn sàng",
+      "JD, CV, phân tích, gợi ý và phản hồi được gom trong một luồng làm việc thống nhất.",
+    metric: "Danh sách đề cử sẵn sàng",
     mockTitle: "Một luồng làm việc liền mạch",
-    mockSubtitle: "Từ nạp JD đến feedback sau phân tích, dữ liệu được giữ trong cùng một workspace.",
-    candidate: "Hiring Workspace",
+    mockSubtitle: "Từ nạp JD đến phản hồi sau phân tích, dữ liệu được giữ trong cùng một không gian làm việc.",
+    candidate: "Không gian tuyển dụng",
     score: "91",
     status: "Sẵn sàng phản hồi",
-    evidence: ["Danh sách CV", "Gợi ý câu hỏi", "Feedback có cấu trúc"],
+    evidence: ["Danh sách CV", "Gợi ý câu hỏi", "Phản hồi có cấu trúc"],
     Icon: MessageSquareText,
     tone: "emerald",
   },
@@ -156,15 +156,11 @@ export default function WorkflowMatrixSection({
                   const tone = toneStyles[item.tone as keyof typeof toneStyles];
 
                   return (
-                    <motion.button
+                    <button
                       key={item.pain}
                       type="button"
                       onClick={() => setActiveIndex(index)}
                       aria-pressed={isActive}
-                      initial={reduceMotion ? false : { opacity: 0, y: 14 }}
-                      whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
-                      viewport={{ once: true, amount: 0.2 }}
-                      transition={{ duration: 0.3, delay: reduceMotion ? 0 : index * 0.05, ease: "easeOut" }}
                       className={`group w-full rounded-2xl border p-4 text-left transition-all ${
                         isActive
                           ? "border-blue-300 bg-blue-50 shadow-[0_12px_30px_rgba(35,136,255,0.10)]"
@@ -197,7 +193,7 @@ export default function WorkflowMatrixSection({
                           </span>
                         </span>
                       </div>
-                    </motion.button>
+                    </button>
                   );
                 })}
               </div>
@@ -225,7 +221,7 @@ export default function WorkflowMatrixSection({
                   </div>
                   <span className="inline-flex items-center gap-2 rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700">
                     <span className="h-2 w-2 rounded-full bg-emerald-500" />
-                    Live
+                    Đang hoạt động
                   </span>
                 </div>
 
@@ -233,7 +229,7 @@ export default function WorkflowMatrixSection({
                   <div className="rounded-2xl border border-blue-100 bg-white p-4">
                     <div className="flex items-start justify-between gap-3">
                       <div>
-                        <p className="text-sm font-semibold text-slate-500">Ứng viên / Workspace</p>
+                        <p className="text-sm font-semibold text-slate-500">Ứng viên / Không gian xử lý</p>
                         <p className="mt-1 text-xl font-bold text-slate-950">{active.candidate}</p>
                       </div>
                       <span className={`rounded-xl px-3 py-2 text-sm font-black ${activeTone.badge}`}>
@@ -258,7 +254,7 @@ export default function WorkflowMatrixSection({
                     <div className="flex items-start justify-between gap-3">
                       <div>
                         <p className="supporthr-mono text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400">
-                          AI insight
+                          Nhận định AI
                         </p>
                         <p className="mt-1 text-sm leading-6 text-slate-600">{active.mockSubtitle}</p>
                       </div>
@@ -268,7 +264,7 @@ export default function WorkflowMatrixSection({
                     <div className="mt-5 grid gap-3 sm:grid-cols-3 xl:grid-cols-1 2xl:grid-cols-3">
                       {[
                         { label: "Điểm AI", value: active.metric, Icon: Gauge },
-                        { label: "Shortlist", value: "Sẵn sàng", Icon: BadgeCheck },
+                        { label: "Đề cử", value: "Sẵn sàng", Icon: BadgeCheck },
                         { label: "Kiểm soát", value: "Có bằng chứng", Icon: Target },
                       ].map((chip) => (
                         <div key={chip.label} className="rounded-xl border border-blue-100 bg-blue-50 p-3">

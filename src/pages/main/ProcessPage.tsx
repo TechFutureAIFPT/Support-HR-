@@ -30,13 +30,13 @@ const PROCESS_STEPS = [
   {
     icon: 'fa-wand-magic-sparkles',
     title: 'AI chấm điểm và giải thích',
-    description: 'Hệ thống đối chiếu CV với JD, tạo điểm số, xếp hạng và lý do đề cử để recruiter kiểm tra lại.',
+    description: 'Hệ thống đối chiếu CV với JD, tạo điểm số, xếp hạng và lý do đề cử để nhà tuyển dụng kiểm tra lại.',
     step: '04',
   },
   {
     icon: 'fa-user-check',
-    title: 'Chốt shortlist và bàn giao',
-    description: 'Danh sách đề cử được dùng cho vòng phỏng vấn, báo cáo nội bộ hoặc trao đổi tiếp với hiring manager.',
+    title: 'Chốt danh sách đề cử và bàn giao',
+    description: 'Danh sách đề cử được dùng cho vòng phỏng vấn, báo cáo nội bộ hoặc trao đổi tiếp với quản lý tuyển dụng.',
     step: '05',
   },
 ];
@@ -45,12 +45,12 @@ function ProcessContent({ isIntroMode, onStart }: ProcessPageProps) {
   return (
     <div className="mx-auto w-full max-w-[72rem] px-4 py-10 sm:px-6 lg:px-8">
       <header className="max-w-3xl">
-        <p className="text-sm font-semibold text-blue-600">Workflow</p>
+        <p className="text-sm font-semibold text-blue-600">Quy trình</p>
         <h1 className="mt-3 text-[clamp(2rem,3.6vw,3.2rem)] font-semibold leading-[1.08] tracking-[-0.025em] text-slate-900">
           Quy trình sàng lọc CV thông minh
         </h1>
         <p className="mt-4 text-base leading-8 text-slate-500 sm:text-lg">
-          Luồng 5 bước giúp đội tuyển dụng đi từ JD, CV đầu vào đến shortlist có thể rà soát mà không biến quy trình thành hộp đen.
+          Luồng 5 bước giúp đội tuyển dụng đi từ JD, CV đầu vào đến danh sách đề cử có thể rà soát mà không biến quy trình thành hộp đen.
         </p>
       </header>
 
@@ -73,7 +73,7 @@ function ProcessContent({ isIntroMode, onStart }: ProcessPageProps) {
         {[
           { label: 'Nhịp thao tác', value: '5 bước', icon: 'fa-route' },
           { label: 'Nguồn CV', value: 'Upload + Drive', icon: 'fa-file-import' },
-          { label: 'Đầu ra', value: 'Shortlist có lý do', icon: 'fa-clipboard-check' },
+          { label: 'Đầu ra', value: 'Danh sách đề cử có lý do', icon: 'fa-clipboard-check' },
         ].map((stat) => (
           <div key={stat.label} className="rounded-2xl border border-blue-100 bg-white px-5 py-4 shadow-sm">
             <i className={`fa-solid ${stat.icon} text-sm text-blue-600`} />

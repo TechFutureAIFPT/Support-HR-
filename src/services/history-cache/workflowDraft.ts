@@ -5,6 +5,7 @@ import type {
   HardFilters,
   WeightCriteria,
 } from '@/types';
+import { normalizeVietnamesePayload } from '@/utils/textDisplay';
 
 export interface WorkflowDraftData {
   version: 1;
@@ -52,7 +53,7 @@ export function readWorkflowDraft(): WorkflowDraftData | null {
     const raw = window.localStorage.getItem(WORKFLOW_DRAFT_KEY);
     if (!raw) return null;
 
-    const parsed = JSON.parse(raw) as Partial<WorkflowDraftData>;
+    const parsed = normalizeVietnamesePayload(JSON.parse(raw)) as Partial<WorkflowDraftData>;
 
     return {
       version: 1,
@@ -86,7 +87,7 @@ export function writeWorkflowDraft(draft: Omit<WorkflowDraftData, 'version' | 's
     weights: draft.weights || null,
     hardFilters: draft.hardFilters || null,
     analysisResults: Array.isArray(draft.analysisResults)
-      ? draft.analysisResults.map(normalizeCandidate)
+      ? normalizeVietnamesePayload(draft.analysisResults).map(normalizeCandidate)
       : [],
     activeAnalysisContext: draft.activeAnalysisContext || null,
   };

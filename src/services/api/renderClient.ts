@@ -1,6 +1,7 @@
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '@/services/firebase';
 import { SAFE_ERROR_MESSAGES, sanitizeApiErrorMessage } from '@/utils/errorMessages';
+import { normalizeVietnamesePayload } from '@/utils/textDisplay';
 
 const LOCAL_API_URL = 'http://localhost:8000';
 const REMOTE_API_URL = 'https://backendsupporthr.onrender.com';
@@ -216,7 +217,7 @@ async function request<T>(
       throw new Error(extractErrorMessage(payload, SAFE_ERROR_MESSAGES.generic));
     }
 
-    return payload as T;
+    return normalizeVietnamesePayload(payload) as T;
   } catch (error) {
     if (
       getRemoteFallbackUrl() &&
@@ -254,7 +255,7 @@ async function request<T>(
         throw new Error(extractErrorMessage(fallbackPayload, SAFE_ERROR_MESSAGES.generic));
       }
 
-      return fallbackPayload as T;
+      return normalizeVietnamesePayload(fallbackPayload) as T;
     }
 
     if (error instanceof DOMException && error.name === 'AbortError') {

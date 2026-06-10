@@ -5,7 +5,7 @@ const faqs = [
   {
     question: "1. Support HR phù hợp với quy trình tuyển dụng nào?",
     answer:
-      "Support HR phù hợp cho đội HR nội bộ, agency tuyển dụng và doanh nghiệp SME cần sàng lọc nhiều CV, chuẩn hóa tiêu chí đánh giá và phối hợp nhanh với hiring manager.",
+      "Support HR phù hợp cho đội HR nội bộ, đơn vị tuyển dụng và doanh nghiệp SME cần sàng lọc nhiều CV, chuẩn hóa tiêu chí đánh giá và phối hợp nhanh với quản lý tuyển dụng.",
   },
   {
     question: "2. Cần chuẩn bị dữ liệu gì để bắt đầu?",
@@ -30,7 +30,7 @@ const faqs = [
   {
     question: "6. Support HR có hỗ trợ nhiều CV trong một phiên không?",
     answer:
-      "Có. Một phiên tuyển dụng có thể nạp nhiều hồ sơ, theo dõi danh sách CV, so sánh điểm phù hợp và tạo shortlist để chuyển sang bước phản hồi hoặc phỏng vấn.",
+      "Có. Một phiên tuyển dụng có thể nạp nhiều hồ sơ, theo dõi danh sách CV, so sánh điểm phù hợp và tạo danh sách đề cử để chuyển sang bước phản hồi hoặc phỏng vấn.",
   },
 ];
 

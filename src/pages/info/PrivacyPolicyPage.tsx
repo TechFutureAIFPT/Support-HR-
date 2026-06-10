@@ -33,7 +33,7 @@ const PrivacyPolicyPage: React.FC = () => {
           <div className="space-y-4">
             <LegalCallout tone="cyan" icon="fa-circle-info" title="Google user data disclosure">
               Support HR uses Google sign-in and read-only Google Drive access only to authenticate users and let them
-              select recruiting documents to import into the screening workflow.
+              chọn tài liệu tuyển dụng để nhập vào quy trình sàng lọc.
             </LegalCallout>
 
             <div className="grid gap-4 xl:grid-cols-3">
@@ -66,7 +66,7 @@ const PrivacyPolicyPage: React.FC = () => {
               <LegalCard tone="sky" icon="fa-wand-magic-sparkles" title="Use limitation">
                 <p>
                   Google user data is used to provide sign-in, selected file import, CV/JD extraction, candidate
-                  analysis, saved workflow history, support, security, and product maintenance.
+                  phân tích, lịch sử quy trình đã lưu, hỗ trợ, bảo mật và bảo trì sản phẩm.
                 </p>
               </LegalCard>
             </div>
@@ -99,7 +99,7 @@ const PrivacyPolicyPage: React.FC = () => {
             </LegalCallout>
 
             <div className="grid gap-4 xl:grid-cols-2">
-              <LegalCard tone="emerald" icon="fa-user-tie" title="Khách hàng là bên kiểm soát" badge="Control">
+              <LegalCard tone="emerald" icon="fa-user-tie" title="Khách hàng là bên kiểm soát" badge="Kiểm soát">
                 <p>
                   Khách hàng quyết định mục đích và phương tiện xử lý dữ liệu cá nhân của ứng viên trong từng quy trình
                   tuyển dụng.

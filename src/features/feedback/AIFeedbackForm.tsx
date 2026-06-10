@@ -62,8 +62,8 @@ const ACTION_OPTIONS: Array<{
 }> = [
   {
     value: 'shortlist',
-    label: 'Đưa vào shortlist',
-    shortLabel: 'Shortlist',
+    label: 'Đưa vào danh sách đề cử',
+    shortLabel: 'Đề cử',
     tone: 'border-blue-200 bg-blue-50 text-blue-700',
     icon: ClipboardList,
   },
@@ -196,7 +196,7 @@ export default function AIFeedbackForm({
     if (selectedCriteria.length > 0) return selectedCriteria.join(' | ');
     if (notes.trim()) return notes.trim();
     if (action) return ACTION_OPTIONS.find((option) => option.value === action)?.label || action;
-    return 'Phản hồi từ recruiter';
+    return 'Phản hồi từ nhà tuyển dụng';
   }, [action, notes, selectedCriteria]);
 
   const handleCriteriaChange = (criterion: string) => {
@@ -440,7 +440,7 @@ export default function AIFeedbackForm({
             </div>
             <div>
               <p className="supporthr-mono text-[10px] uppercase tracking-[0.2em] text-blue-600">
-                Workflow feedback
+                Phản hồi quy trình
               </p>
               <h2 className="text-lg font-bold text-slate-900">{displayCandidateName}</h2>
             </div>

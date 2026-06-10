@@ -80,12 +80,22 @@ const ScreenerPage: React.FC<ScreenerPageProps> = (props) => {
     props.setActiveStep('weights');
   }, [props]);
 
+  const handleCvReady = useCallback(() => {
+    if (props.jdText.trim().length === 0 || props.cvFiles.length === 0) return;
+
+    props.markStepAsCompleted('jd');
+    props.markStepAsCompleted('upload');
+    props.setActiveStep('weights');
+  }, [props]);
+
   const handleJdProcessed = useCallback((data: {
     jdText: string;
+    rawJdText?: string;
     jobPosition: string;
     hardFilters: Partial<HardFilters>;
   }) => {
     props.setJdText(data.jdText);
+    props.setRawJdText(data.rawJdText || data.jdText);
     if (data.jobPosition) props.setJobPosition(data.jobPosition);
     if (data.hardFilters && Object.keys(data.hardFilters).length > 0) {
       props.setHardFilters((prev) => ({ ...prev, ...data.hardFilters }));
@@ -153,9 +163,14 @@ const ScreenerPage: React.FC<ScreenerPageProps> = (props) => {
             continueLabel="Thiết lập mặc định"
             onGetStarted={handleContinueIntake}
             onUseTemplate={handleUseTemplate}
+            onCvReady={handleCvReady}
             cvFiles={props.cvFiles}
             setCvFiles={props.setCvFiles}
             hasPreparedJd={props.jdText.trim().length > 0}
+            jdText={props.jdText}
+            rawJdText={props.rawJdText}
+            jobPosition={props.jobPosition}
+            hardFilters={props.hardFilters}
             onFileProcessed={handleJdProcessed}
           />
         )}

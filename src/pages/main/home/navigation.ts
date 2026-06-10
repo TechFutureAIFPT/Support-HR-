@@ -43,7 +43,7 @@ export const primaryNavLinks: NavLink[] = [
     megaMenu: {
       highlight: {
         title: "AI-Powered Screening",
-        desc: "Optimize your hiring process with our advanced AI tools and structured workflow.",
+        desc: "Tối ưu quy trình tuyển dụng với công cụ AI và luồng làm việc có cấu trúc.",
         icon: "fa-solid fa-rocket",
       },
       items: [
@@ -121,7 +121,7 @@ export const primaryNavLinks: NavLink[] = [
       items: [
         {
           label: "Lọc CV Gia sư",
-          desc: "Phần Mềm Hỗ Trợ Tuyển Dụng",
+          desc: "Phần mềm hỗ trợ tuyển dụng",
           icon: "fa-solid fa-user-graduate",
           href: "https://turbondcv.vercel.app/",
         },
@@ -135,7 +135,7 @@ export const primaryNavLinks: NavLink[] = [
     },
   },
   {
-    label: "Pricing",
+    label: "Bảng giá",
     megaMenu: {
       highlight: {
         title: "Bảng giá",

@@ -3402,3 +3402,68 @@ button[style*="linear-gradient"],
   background: linear-gradient(135deg, #2388ff 0%, #14b8a6 100%) !important;
   color: #ffffff !important;
 }
+
+/* Workflow app light-only guardrail for legacy dark cards still present in analytics/detail views. */
+.feature-page-shell {
+  background: #f6f9ff !important;
+  background-image: none !important;
+  color: #102033 !important;
+}
+
+.feature-page-shell :is(
+  [class*="bg-zinc-950"],
+  [class*="bg-zinc-900"],
+  [class*="bg-[#09090b]"],
+  [class*="bg-black/"],
+  [class*="bg-slate-800"],
+  [class*="bg-slate-900"],
+  [class*="from-[#11213A]"],
+  [class*="to-[#0B192C]"]
+) {
+  background: #ffffff !important;
+  background-image: none !important;
+  box-shadow: 0 16px 42px rgba(35, 136, 255, 0.08) !important;
+}
+
+.feature-page-shell :is(
+  [class*="border-zinc-800"],
+  [class*="border-slate-800"],
+  [class*="border-white/"],
+  [class*="border-white["]
+) {
+  border-color: rgba(55, 125, 255, 0.16) !important;
+}
+
+.feature-page-shell :is(.text-white, [class*="text-zinc-100"], [class*="text-zinc-200"], [class*="text-zinc-300"]) {
+  color: #102033 !important;
+}
+
+.feature-page-shell :is([class*="text-zinc-400"], [class*="text-zinc-500"], [class*="text-slate-400"], [class*="text-slate-500"]) {
+  color: #5f718c !important;
+}
+
+.feature-page-shell :is([class*="text-emerald-200"], [class*="text-emerald-300"]) {
+  color: #047857 !important;
+}
+
+.feature-page-shell :is([class*="text-cyan-200"], [class*="text-cyan-300"], [class*="text-cyan-400"]) {
+  color: #0875ee !important;
+}
+
+.feature-page-shell :is([class*="text-rose-200"], [class*="text-rose-300"]) {
+  color: #be123c !important;
+}
+
+.feature-page-shell :is([class*="text-amber-200"], [class*="text-amber-300"], [class*="text-yellow-300"]) {
+  color: #b45309 !important;
+}
+
+.feature-page-shell :is(mark, [class*="bg-emerald-400/10"], [class*="bg-emerald-400/20"], [class*="bg-emerald-500/[0.04]"]) {
+  background: #dcfce7 !important;
+  color: #047857 !important;
+}
+
+.feature-page-shell :is([class*="bg-yellow-950"], [class*="bg-amber-500/10"]) {
+  background: #fff7ed !important;
+  color: #b45309 !important;
+}

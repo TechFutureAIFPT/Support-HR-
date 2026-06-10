@@ -72,7 +72,7 @@ const AIMethodologyPage: React.FC = () => {
           <div className="space-y-4">
             <LegalCard tone="violet" icon="fa-message" title="Vì sao phần giải thích quan trọng">
               <p>
-                Sản phẩm hữu ích hơn khi recruiter nhìn thấy vì sao ứng viên được đưa lên, còn thiếu điều gì, và nên
+                Sản phẩm hữu ích hơn khi nhà tuyển dụng nhìn thấy vì sao ứng viên được đưa lên, còn thiếu điều gì, và nên
                 xác minh thêm gì ở vòng sau.
               </p>
             </LegalCard>
@@ -98,7 +98,7 @@ const AIMethodologyPage: React.FC = () => {
     <LegalPageLayout
       pageLabel="AI"
       title="Phương pháp AI bằng ngôn ngữ dễ hiểu"
-      subtitle="Giải thích ngắn gọn cách Support HR đọc JD, trích tiêu chí, chấm điểm ứng viên và vẫn giữ recruiter trong vòng quyết định."
+      subtitle="Giải thích ngắn gọn cách Support HR đọc JD, trích tiêu chí, chấm điểm ứng viên và vẫn giữ nhà tuyển dụng trong vòng quyết định."
       meta="Tài liệu doanh nghiệp · Cập nhật 2026"
       sections={sections}
       activeSection={activeSection}

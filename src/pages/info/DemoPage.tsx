@@ -71,8 +71,8 @@ const DemoPage: React.FC = () => {
           <div className="space-y-4">
             <LegalCard tone="sky" icon="fa-sliders" title="Bước 3: đối chiếu JD và CV">
               <p>
-                Support HR tổ chức đầu vào thành một bề mặt rà soát nhất quán để recruiter kiểm tra độ phù hợp, lý do và
-                khoảng trống trước khi chốt shortlist.
+                Support HR tổ chức đầu vào thành một bề mặt rà soát nhất quán để nhà tuyển dụng kiểm tra độ phù hợp, lý do và
+                khoảng trống trước khi chốt danh sách đề cử.
               </p>
             </LegalCard>
             <LegalCallout tone="sky" icon="fa-eye" title="Mục tiêu là khả năng rà soát">
@@ -85,7 +85,7 @@ const DemoPage: React.FC = () => {
       case "shortlist":
         return (
           <div className="space-y-4">
-            <LegalCard tone="violet" icon="fa-clipboard-list" title="Bước 4: tạo shortlist">
+            <LegalCard tone="violet" icon="fa-clipboard-list" title="Bước 4: tạo danh sách đề cử">
               <LegalBulletGrid
                 tone="violet"
                 items={[
@@ -103,8 +103,8 @@ const DemoPage: React.FC = () => {
           <div className="space-y-4">
             <LegalCard tone="rose" icon="fa-people-group" title="Bước 5: chia sẻ kết quả">
               <p>
-                Recruiter có thể mang shortlist vào buổi trao đổi nội bộ với nhiều ngữ cảnh đã được chuẩn bị sẵn cho
-                hiring manager hoặc hội đồng phỏng vấn.
+                Nhà tuyển dụng có thể mang danh sách đề cử vào buổi trao đổi nội bộ với nhiều ngữ cảnh đã được chuẩn bị sẵn cho
+                quản lý tuyển dụng hoặc hội đồng phỏng vấn.
               </p>
             </LegalCard>
             <Link
@@ -125,7 +125,7 @@ const DemoPage: React.FC = () => {
     <LegalPageLayout
       pageLabel="Cách sử dụng"
       title="Cách sử dụng Support HR"
-      subtitle="Mô tả rõ từng bước để người xem hiểu cách một recruiter đi từ JD, CV đầu vào đến danh sách đề cử có thể rà soát ngay trong sản phẩm."
+      subtitle="Mô tả rõ từng bước để người xem hiểu cách một nhà tuyển dụng đi từ JD, CV đầu vào đến danh sách đề cử có thể rà soát ngay trong sản phẩm."
       meta="Tài liệu doanh nghiệp · Cập nhật 2026"
       sections={sections}
       activeSection={activeSection}
@@ -141,4 +141,3 @@ const DemoPage: React.FC = () => {
 };
 
 export default DemoPage;
-

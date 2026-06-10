@@ -53,7 +53,7 @@ const ACTION_META: Record<AnalysisFeedbackAction, { label: string; className: st
     className: 'border-amber-200 bg-amber-50 text-amber-700',
   },
   shortlist: {
-    label: 'Shortlist',
+    label: 'Đề cử',
     className: 'border-blue-200 bg-blue-50 text-blue-700',
   },
   reject: {
@@ -389,7 +389,7 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
             <div className="h-9 w-px shrink-0 bg-blue-500" />
             <div className="min-w-0">
               <p className="supporthr-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-blue-600">
-                Feedback workflow
+                Quy trình phản hồi
               </p>
               <h1 className="truncate text-xl font-bold tracking-tight text-slate-900 md:text-2xl">
                 {effectiveJobPosition || 'Phiên phân tích hiện tại'}
@@ -496,7 +496,7 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
                       <div className="text-sm text-slate-500">
                         {entry?.updatedAt
                           ? `Cập nhật: ${new Date(entry.updatedAt).toLocaleString('vi-VN')}`
-                          : 'Chưa có bản ghi feedback'}
+                          : 'Chưa có bản ghi phản hồi'}
                       </div>
                       <button
                         type="button"
@@ -534,7 +534,7 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
 
               <p className="mt-4 flex items-start gap-2 text-sm leading-6 text-zinc-400">
                 <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-blue-600" />
-                Workflow lưu theo session phân tích hiện tại.
+                Phản hồi được lưu theo phiên phân tích hiện tại.
               </p>
             </section>
 

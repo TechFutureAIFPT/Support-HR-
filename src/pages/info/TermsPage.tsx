@@ -107,7 +107,7 @@ const TermsPage: React.FC = () => {
               <LegalCard tone="emerald" icon="fa-user-shield" title="Giữ vòng kiểm duyệt của con người" badge="3.2">
                 <p>
                   Support HR là công cụ hỗ trợ ra quyết định, không phải hệ thống tự động thay thế hoàn toàn chuyên viên
-                  tuyển dụng hoặc hiring manager.
+                  tuyển dụng hoặc quản lý tuyển dụng.
                 </p>
               </LegalCard>
             </div>

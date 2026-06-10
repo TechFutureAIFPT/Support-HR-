@@ -28,6 +28,26 @@ const CRITERIA_META: { [key: string]: { icon: string; color: string } } = {
   'Phù hợp văn hoá': { icon: 'fa-solid fa-users-gear', color: 'text-pink-400' },
 };
 
+function getStageDecisionClasses(candidate: Candidate): string {
+  const status = candidate.stageDecision?.status;
+  if (status === 'ready_to_advance') return 'border-emerald-200 bg-emerald-50 text-emerald-700';
+  if (status === 'hold' || candidate.locationMatch === false || candidate.hardFilterFailureReason) return 'border-rose-200 bg-rose-50 text-rose-700';
+  if (status === 'review') return 'border-amber-200 bg-amber-50 text-amber-700';
+  return 'border-blue-200 bg-blue-50 text-blue-700';
+}
+
+function getStageDecisionIcon(candidate: Candidate): string {
+  const status = candidate.stageDecision?.status;
+  if (status === 'ready_to_advance') return 'fa-circle-check';
+  if (status === 'hold' || candidate.locationMatch === false || candidate.hardFilterFailureReason) return 'fa-circle-xmark';
+  if (status === 'review') return 'fa-clock';
+  return 'fa-arrow-right';
+}
+
+function getStageDecisionLabel(candidate: Candidate): string {
+  return normalizeVietnameseDisplay(candidate.stageDecision?.label || 'Chưa có đề xuất');
+}
+
 // --- New Accordion Component ---
 interface CriterionAccordionProps {
   item: DetailedScore;
@@ -228,6 +248,9 @@ const CandidateCard: React.FC<CandidateCardProps> = ({ candidate, rank }) => {
   
   const overallScoreColor = failed ? 'text-slate-400 bg-slate-800/50 border-slate-700' : getHeaderScoreColor(overallScore);
   const jdFitScoreColor = failed ? 'text-slate-400 bg-slate-800/50 border-slate-700' : getHeaderScoreColor(jdFitScore);
+  const stageDecisionLabel = getStageDecisionLabel(candidate);
+  const stageDecisionClasses = getStageDecisionClasses(candidate);
+  const stageDecisionIcon = getStageDecisionIcon(candidate);
   
   const sortedDetails = useMemo(() => {
     if (!analysis) return [];
@@ -320,9 +343,15 @@ const CandidateCard: React.FC<CandidateCardProps> = ({ candidate, rank }) => {
                   <i className="fa-solid fa-circle-exclamation"></i> {error || 'Lỗi phân tích'}
                 </span>
              ) : (
-                <span className="text-[10px] md:text-xs font-medium text-slate-500 flex items-center gap-1.5">
-                  <i className="fa-regular fa-file-lines"></i> {fileName}
-                </span>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-[10px] md:text-xs font-medium text-slate-500 flex items-center gap-1.5">
+                    <i className="fa-regular fa-file-lines"></i> {fileName}
+                  </span>
+                  <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-bold md:text-xs ${stageDecisionClasses}`}>
+                    <i className={`fa-solid ${stageDecisionIcon}`}></i>
+                    {stageDecisionLabel}
+                  </span>
+                </div>
              )}
           </div>
         </button>

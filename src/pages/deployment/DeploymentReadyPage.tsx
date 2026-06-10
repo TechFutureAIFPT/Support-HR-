@@ -36,7 +36,7 @@ const DeploymentReadyPage: React.FC = () => {
               {[
                 { value: '1 ngày', label: 'Mục tiêu phản hồi', icon: 'fa-clock' },
                 { value: 'JD + CV', label: 'Dữ liệu demo nên chuẩn bị', icon: 'fa-file-lines' },
-                { value: 'Security docs', label: 'Tài liệu có thể gửi trước', icon: 'fa-shield-halved' },
+                { value: 'Tài liệu bảo mật', label: 'Tài liệu có thể gửi trước', icon: 'fa-shield-halved' },
               ].map((stat) => (
                 <div key={stat.label} className="rounded-2xl border border-blue-100 bg-white px-5 py-4 shadow-sm">
                   <i className={`fa-solid ${stat.icon} text-sm text-blue-600`} />
