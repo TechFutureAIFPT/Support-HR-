@@ -10,32 +10,32 @@ interface StepInfo {
 
 const toneMap = {
   cyan: {
-    accent: 'text-[#f5d6bb]',
-    border: 'border-[#f5d6bb]/22',
-    surface: 'bg-[#f5d6bb]/[0.08]',
-    rule: 'via-[#f5d6bb]/32',
-    progress: 'bg-[#f5d6bb]',
+    accent: 'text-cyan-600',
+    border: 'border-cyan-200',
+    surface: 'bg-cyan-50',
+    rule: 'via-cyan-300/70',
+    progress: 'bg-cyan-500',
   },
   violet: {
-    accent: 'text-[#f5d6bb]',
-    border: 'border-[#f5d6bb]/22',
-    surface: 'bg-[#f5d6bb]/[0.08]',
-    rule: 'via-[#f5d6bb]/32',
-    progress: 'bg-[#f5d6bb]',
+    accent: 'text-blue-600',
+    border: 'border-blue-200',
+    surface: 'bg-blue-50',
+    rule: 'via-blue-300/70',
+    progress: 'bg-blue-500',
   },
   emerald: {
-    accent: 'text-[#f5d6bb]',
-    border: 'border-[#f5d6bb]/22',
-    surface: 'bg-[#f5d6bb]/[0.08]',
-    rule: 'via-[#f5d6bb]/32',
-    progress: 'bg-[#f5d6bb]',
+    accent: 'text-emerald-600',
+    border: 'border-emerald-200',
+    surface: 'bg-emerald-50',
+    rule: 'via-emerald-300/70',
+    progress: 'bg-emerald-500',
   },
   sky: {
-    accent: 'text-[#f5d6bb]',
-    border: 'border-[#f5d6bb]/22',
-    surface: 'bg-[#f5d6bb]/[0.08]',
-    rule: 'via-[#f5d6bb]/32',
-    progress: 'bg-[#f5d6bb]',
+    accent: 'text-sky-600',
+    border: 'border-sky-200',
+    surface: 'bg-sky-50',
+    rule: 'via-sky-300/70',
+    progress: 'bg-sky-500',
   },
 } as const;
 
@@ -123,52 +123,46 @@ const PageTransition: React.FC = () => {
     <div
       className={`
         fixed inset-0 z-[9999] flex items-center justify-center
-        bg-black/96 backdrop-blur-md transition-all duration-300
+        bg-white/76 backdrop-blur-md transition-all duration-300
         ${isTransitioning ? 'opacity-100' : 'pointer-events-none opacity-0'}
       `}
     >
-      <div className="pointer-events-none absolute inset-0 supporthr-grid-mask opacity-35" />
-      <div
-        className="pointer-events-none absolute inset-y-0 left-[-16%] w-[28%] bg-gradient-to-r from-transparent via-[#f5d6bb]/[0.08] to-transparent blur-3xl"
-        style={{ animation: 'home-hero-scan 7.8s linear infinite' }}
-      />
-      <div
-        className="pointer-events-none absolute inset-y-0 right-[-18%] w-[28%] bg-gradient-to-r from-transparent via-[#f5d6bb]/[0.07] to-transparent blur-3xl"
-        style={{ animation: 'home-hero-scan 9.1s linear infinite', animationDelay: '0.8s' }}
-      />
+      <div className="pointer-events-none absolute inset-0 supporthr-grid-mask opacity-40" />
+      <div className="pointer-events-none absolute left-[10%] top-[12%] h-44 w-44 rounded-full bg-blue-100/70 blur-3xl" />
+      <div className="pointer-events-none absolute bottom-[16%] right-[12%] h-48 w-48 rounded-full bg-emerald-100/80 blur-3xl" />
 
-      <div className={`relative w-[min(92vw,34rem)] overflow-hidden border ${tone.border} bg-black/88 px-6 py-7 shadow-[0_28px_90px_rgba(0,0,0,0.45)]`}>
+      <div className={`relative w-[min(92vw,34rem)] overflow-hidden rounded-2xl border ${tone.border} bg-white px-6 py-7 shadow-[0_28px_90px_rgba(30,64,175,0.16)]`}>
         <div className={`absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent ${tone.rule} to-transparent`} />
 
-        <div className="supporthr-mono text-[10px] uppercase tracking-[0.28em] text-zinc-500">
+        <div className="supporthr-mono text-[10px] uppercase tracking-[0.28em] text-slate-400">
           {stepInfo.label}
         </div>
 
         <div className="mt-5 flex items-center gap-5">
-          <div className={`relative flex h-16 w-16 shrink-0 items-center justify-center border ${tone.border} ${tone.surface}`}>
+          <div className={`relative flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border ${tone.border} ${tone.surface}`}>
             <div
-              className={`absolute inset-[-1px] border-[3px] border-transparent border-r-current border-t-current ${tone.accent} animate-spin opacity-90`}
+              className={`absolute inset-[-1px] rounded-2xl border-[3px] border-transparent border-r-current border-t-current ${tone.accent} animate-spin opacity-90`}
               style={{ animationDuration: '1.05s' }}
             />
-            <div className="absolute inset-[10px] border border-white/8" />
+            <div className="absolute inset-[10px] rounded-xl border border-white" />
             <div
-              className={`absolute inset-[11px] border-[3px] border-transparent border-b-current border-l-current ${tone.accent} animate-spin opacity-35`}
+              className={`absolute inset-[11px] rounded-xl border-[3px] border-transparent border-b-current border-l-current ${tone.accent} animate-spin opacity-35`}
               style={{ animationDuration: '1.45s', animationDirection: 'reverse' }}
             />
             <i className={`fa-solid ${stepInfo.icon} relative text-lg ${tone.accent}`} />
           </div>
 
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-medium tracking-wide text-zinc-300">
+            <p className="text-sm font-semibold tracking-wide text-slate-800">
               {stepInfo.message}
             </p>
-            <div className="mt-4 h-1.5 w-full overflow-hidden bg-white/[0.06]">
+            <div className="mt-4 h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
               <div
                 className={`h-full ${tone.progress} transition-all duration-150 ease-out`}
                 style={{ width: `${Math.min(progress, 100)}%` }}
               />
             </div>
-            <div className="mt-3 flex items-center justify-between supporthr-mono text-[10px] uppercase tracking-[0.2em] text-zinc-600">
+            <div className="mt-3 flex items-center justify-between supporthr-mono text-[10px] uppercase tracking-[0.2em] text-slate-400">
               <span>Đang chuyển trang</span>
               <span>{Math.round(Math.min(progress, 100))}%</span>
             </div>
@@ -179,8 +173,8 @@ const PageTransition: React.FC = () => {
           {[0, 1, 2].map((index) => (
             <div
               key={index}
-              className={`h-1.5 flex-1 transition-all duration-300 ${
-                index <= Math.floor(progress / 34) ? tone.progress : 'bg-white/[0.08]'
+              className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${
+                index <= Math.floor(progress / 34) ? tone.progress : 'bg-slate-100'
               }`}
             />
           ))}

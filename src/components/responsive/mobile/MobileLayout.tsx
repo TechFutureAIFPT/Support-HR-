@@ -1,5 +1,5 @@
 /**
- * MobileLayout — Chỉ hỗ trợ Dark Mode
+ * MobileLayout — light-only responsive shell
  */
 import React, { useState } from 'react';
 import Navbar from '@/layout/Navbar';
@@ -24,7 +24,7 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({ children }) => {
   const closeSidebar = () => setSidebarOpen(false);
 
   return (
-    <div className="min-h-screen relative bg-black">
+    <div className="min-h-screen relative bg-[#f6f9ff]">
       {/* Sidebar overlay */}
       <div className={`
         fixed inset-0 z-50 transform transition-transform duration-300 ease-in-out
@@ -32,7 +32,7 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({ children }) => {
         md:hidden
       `}>
         <div className="flex h-full">
-          <div className="w-64 bg-black border-white/10">
+          <div className="w-64 bg-white border-r border-blue-100">
             <Sidebar
               activeStep={activeStep} setActiveStep={setActiveStep}
               completedSteps={completedSteps} onReset={handleReset}
@@ -41,12 +41,12 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({ children }) => {
               isOpen={sidebarOpen} onClose={closeSidebar}
             />
           </div>
-          <div className="flex-1 bg-black/50 backdrop-blur-sm" onClick={closeSidebar} />
+          <div className="flex-1 bg-slate-900/20 backdrop-blur-sm" onClick={closeSidebar} />
         </div>
       </div>
 
       {/* Mobile Navbar */}
-      <div className="sticky top-0 z-30 border-b bg-black/95 border-white/10 backdrop-blur-lg mobile-nav">
+      <div className="sticky top-0 z-30 border-b bg-white/95 border-blue-100 backdrop-blur-lg mobile-nav">
         <Navbar
           userEmail={userEmail} onLogout={handleLogout}
           onLoginRequest={handleLoginRequest} onBrandClick={handleBrandClick}
@@ -63,12 +63,13 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({ children }) => {
       </div>
 
       {/* Bottom Navigation */}
-      <div className="fixed bottom-0 left-0 right-0 z-30 border-t bg-black/95 border-white/10 backdrop-blur-lg mobile-bottom-nav">
+      <div className="fixed bottom-0 left-0 right-0 z-30 border-t bg-white/95 border-blue-100 backdrop-blur-lg mobile-bottom-nav">
         <div className="flex justify-around items-center h-16 px-2">
           {[
             { step: 'home' as AppStep, icon: 'fa-home', label: 'Trang chủ' },
-            { step: 'jd' as AppStep, icon: 'fa-file-text', label: 'Công việc' },
-            { step: 'weights' as AppStep, icon: 'fa-sliders', label: 'Trọng số' },
+            { step: 'jd' as AppStep, icon: 'fa-file-text', label: 'JD' },
+            { step: 'upload' as AppStep, icon: 'fa-upload', label: 'Hồ sơ' },
+            { step: 'weights' as AppStep, icon: 'fa-sliders', label: 'Mặc định' },
             { step: 'analysis' as AppStep, icon: 'fa-chart-line', label: 'Phân tích' },
           ].map(({ step, icon, label }) => (
             <button
@@ -78,8 +79,8 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({ children }) => {
                 flex flex-col items-center justify-center flex-1 h-full rounded-lg
                 transition-colors
                 ${activeStep === step
-                  ? 'text-cyan-400 bg-cyan-500/10'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+                  ? 'text-blue-700 bg-blue-50'
+                  : 'text-slate-500 hover:text-blue-700 hover:bg-blue-50'
                 }
               `}
             >
@@ -90,7 +91,7 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({ children }) => {
 
           <button
             onClick={toggleSidebar}
-            className="flex flex-col items-center justify-center flex-1 h-full rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition-colors"
+            className="flex flex-col items-center justify-center flex-1 h-full rounded-lg text-slate-500 hover:text-blue-700 hover:bg-blue-50 transition-colors"
           >
             <i className="fas fa-bars text-lg mb-1" />
             <span className="text-xs font-medium">Menu</span>

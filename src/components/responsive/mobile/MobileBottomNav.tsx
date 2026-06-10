@@ -15,7 +15,8 @@ type NavItem = {
 
 const items: NavItem[] = [
   { step: "jd", label: "JD", iconClass: "fa-solid fa-file-lines" },
-  { step: "weights", label: "Trọng số", iconClass: "fa-solid fa-sliders" },
+  { step: "upload", label: "Hồ sơ", iconClass: "fa-solid fa-upload" },
+  { step: "weights", label: "Mặc định", iconClass: "fa-solid fa-sliders" },
   { step: "analysis", label: "Phân tích", iconClass: "fa-solid fa-chart-line" },
 ];
 
@@ -26,10 +27,12 @@ const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
 }) => {
   const isEnabled = (step: AppStep) => {
     if (step === "jd") return true;
-    if (step === "weights") return completedSteps.includes("jd");
+    if (step === "upload") return completedSteps.includes("jd");
+    if (step === "weights") return completedSteps.includes("jd") && completedSteps.includes("upload");
     if (step === "analysis")
       return (
         completedSteps.includes("jd") &&
+        completedSteps.includes("upload") &&
         completedSteps.includes("weights")
       );
     return true;
@@ -38,7 +41,7 @@ const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
   return (
     <div className="md:hidden fixed bottom-0 left-0 right-0 z-35 opacity-100">
       <div
-        className="mx-2 mb-2 border border-white/10 bg-black/90 shadow-[0_20px_60px_rgba(0,0,0,0.5)] backdrop-blur-xl"
+        className="mx-2 mb-2 rounded-2xl border border-blue-100 bg-white/95 shadow-[0_18px_48px_rgba(37,99,235,0.14)] backdrop-blur-xl"
         style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       >
         <div className="flex items-stretch justify-between h-16 px-2">
@@ -53,8 +56,8 @@ const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
                 disabled={!enabled}
                 className={`flex flex-col items-center justify-center flex-1 border transition-all duration-200 ${
                   isActive
-                    ? "border-[#f5d6bb]/35 bg-[#f5d6bb]/10 text-[#f5d6bb] shadow-[0_0_0_1px_rgba(245,214,187,0.18)]"
-                    : "text-slate-400 hover:text-slate-200 hover:bg-white/5 border border-transparent"
+                    ? "border-blue-200 bg-blue-50 text-blue-700 shadow-[0_8px_22px_rgba(37,99,235,0.12)]"
+                    : "text-slate-500 hover:text-blue-700 hover:bg-blue-50 border border-transparent"
                 } ${!enabled ? "opacity-50 cursor-not-allowed" : ""}`}
                 aria-label={item.label}
               >
@@ -72,4 +75,3 @@ const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
 };
 
 export default MobileBottomNav;
-

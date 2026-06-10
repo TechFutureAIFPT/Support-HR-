@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Users, FileText, X, Star, Mail, Phone, Briefcase, ChevronDown, ChevronUp, CheckCheck, Flag } from 'lucide-react';
 import type { Candidate } from '@/types';
+import { normalizeVietnameseDisplay } from '@/utils/textDisplay';
 
 interface SelectedCandidatesPageProps {
   candidates: Candidate[];
@@ -14,12 +15,12 @@ const SELECTED_VIEW_KEY = 'supporthr.view.selectedCandidates';
 const GradeBadge = ({ grade }: { grade?: string }) => {
   if (!grade) return null;
   const colorMap: Record<string, string> = {
-    A: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/25',
-    B: 'bg-blue-500/15 text-blue-400 border-blue-500/25',
-    C: 'bg-amber-500/15 text-amber-400 border-amber-500/25',
+    A: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    B: 'bg-blue-50 text-blue-700 border-blue-200',
+    C: 'bg-amber-50 text-amber-700 border-amber-200',
   };
   return (
-    <span className={`px-2 py-0.5 text-[10px] font-black uppercase border ${colorMap[grade] || 'bg-slate-700 text-slate-400 border-slate-600'}`}>
+    <span className={`px-2 py-0.5 text-[10px] font-black uppercase border ${colorMap[grade] || 'bg-slate-100 text-slate-600 border-slate-200'}`}>
       Hạng {grade}
     </span>
   );
@@ -33,15 +34,15 @@ const getInitials = (name: string) => {
 };
 
 const getGradeGradient = (grade?: string) => {
-  if (grade === 'A') return 'from-emerald-500/20 to-teal-500/10 border-emerald-500/20';
-  if (grade === 'B') return 'from-blue-500/20 to-indigo-500/10 border-blue-500/20';
-  return 'from-amber-500/15 to-orange-500/5 border-amber-500/15';
+  if (grade === 'A') return 'from-white to-emerald-50 border-emerald-200';
+  if (grade === 'B') return 'from-white to-blue-50 border-blue-200';
+  return 'from-white to-amber-50 border-amber-200';
 };
 
 const getInitialsBg = (grade?: string) => {
-  if (grade === 'A') return 'bg-emerald-500/20 text-emerald-400';
-  if (grade === 'B') return 'bg-blue-500/20 text-blue-400';
-  return 'bg-amber-500/20 text-amber-400';
+  if (grade === 'A') return 'bg-emerald-100 text-emerald-700';
+  if (grade === 'B') return 'bg-blue-100 text-blue-700';
+  return 'bg-amber-100 text-amber-700';
 };
 
 const SelectedCandidatesPage: React.FC<SelectedCandidatesPageProps> = ({ candidates, jobPosition }) => {
@@ -132,7 +133,7 @@ const SelectedCandidatesPage: React.FC<SelectedCandidatesPageProps> = ({ candida
         return sortDir === 'desc' ? ga - gb : gb - ga;
       }
       // name
-      const diff = (a.candidateName ?? '').localeCompare(b.candidateName ?? '', 'vi');
+      const diff = normalizeVietnameseDisplay(a.candidateName).localeCompare(normalizeVietnameseDisplay(b.candidateName), 'vi');
       return sortDir === 'desc' ? diff : -diff;
     });
 
@@ -143,11 +144,11 @@ const SelectedCandidatesPage: React.FC<SelectedCandidatesPageProps> = ({ candida
       headers.join(','),
       ...selectedCandidates.map((c, i) => [
         i + 1,
-        c.candidateName || '',
+        normalizeVietnameseDisplay(c.candidateName),
         c.analysis?.['Hạng'] || 'C',
         c.analysis?.['Tổng điểm'] ?? 0,
-        c.jobTitle || '',
-        c.experienceLevel || '',
+        normalizeVietnameseDisplay(c.jobTitle),
+        normalizeVietnameseDisplay(c.experienceLevel),
         c.email || '',
         c.phone || '',
       ].map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
@@ -180,30 +181,30 @@ const SelectedCandidatesPage: React.FC<SelectedCandidatesPageProps> = ({ candida
     : 0;
 
   return (
-    <div className="feature-page-shell flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden bg-black">
+    <div className="feature-page-shell flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden bg-[#f6f9ff]">
 
       {/* ── Actions & Summary Stats ──────────────────────────────── */}
       {selectedCandidates.length > 0 && (
-        <div className="shrink-0 flex items-center justify-between border-b border-slate-800/40 bg-[#0B192C]/60 px-6 py-3">
+        <div className="shrink-0 flex items-center justify-between border-b border-blue-100 bg-white/95 px-6 py-3">
           <div className="flex items-center gap-6 flex-wrap">
             <div className="flex items-center gap-2">
               <span className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider">Điểm TB</span>
-              <span className="text-sm font-black text-white">{avgScore}</span>
+              <span className="text-sm font-black text-slate-900">{avgScore}</span>
             </div>
-            <div className="h-3 w-px bg-slate-800" />
+            <div className="h-3 w-px bg-blue-100" />
             <div className="flex items-center gap-3">
               {gradeA > 0 && (
-                <span className="flex items-center gap-1.5 text-[10px] font-bold text-emerald-400">
+                <span className="flex items-center gap-1.5 text-[10px] font-bold text-emerald-700">
                   <span className="w-2 h-2 rounded-sm bg-emerald-500" />Hạng A: {gradeA}
                 </span>
               )}
               {gradeB > 0 && (
-                <span className="flex items-center gap-1.5 text-[10px] font-bold text-blue-400">
+                <span className="flex items-center gap-1.5 text-[10px] font-bold text-blue-700">
                   <span className="w-2 h-2 rounded-sm bg-blue-500" />Hạng B: {gradeB}
                 </span>
               )}
               {gradeC > 0 && (
-                <span className="flex items-center gap-1.5 text-[10px] font-bold text-amber-400">
+                <span className="flex items-center gap-1.5 text-[10px] font-bold text-amber-700">
                   <span className="w-2 h-2 rounded-sm bg-amber-500" />Hạng C: {gradeC}
                 </span>
               )}
@@ -220,7 +221,7 @@ const SelectedCandidatesPage: React.FC<SelectedCandidatesPageProps> = ({ candida
             </button>
             <button
               onClick={exportToCSV}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold bg-slate-800 text-white hover:bg-slate-700 transition-all border border-slate-700 rounded-md shadow-sm"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold bg-white text-blue-700 hover:bg-blue-50 transition-all border border-blue-200 rounded-md shadow-sm"
             >
               {exportMsg ? <CheckCheck className="w-3.5 h-3.5 text-emerald-400" /> : <FileText className="w-3.5 h-3.5" />}
               {exportMsg ? 'Đã xuất!' : `Xuất CSV (${selectedCandidates.length})`}
@@ -239,25 +240,25 @@ const SelectedCandidatesPage: React.FC<SelectedCandidatesPageProps> = ({ candida
       {/* ── Empty state ────────────────────────────────── */}
       {selectedCandidates.length === 0 ? (
         <div className="flex flex-1 flex-col items-center justify-center p-8 text-center">
-          <div className="w-24 h-24 bg-[#11213A] border border-slate-800/60 flex items-center justify-center mb-6 shadow-2xl shadow-black/30">
-            <Users className="w-10 h-10 text-slate-600" />
+          <div className="w-24 h-24 bg-blue-50 border border-blue-100 flex items-center justify-center mb-6 shadow-2xl shadow-blue-500/10">
+            <Users className="w-10 h-10 text-blue-500" />
           </div>
-          <h2 className="text-xl font-bold text-white mb-2">Chưa có ứng viên nào được chọn</h2>
+          <h2 className="text-xl font-bold text-slate-900 mb-2">Chưa có ứng viên nào được chọn</h2>
           <p className="text-sm text-slate-500 max-w-xs leading-relaxed">
             Hãy vào trang <span className="text-blue-400 font-semibold">Gợi ý ứng viên AI</span>, trò chuyện với chatbot và nhấn{' '}
-            <span className="text-white font-semibold">Chọn</span> để thêm ứng viên vào danh sách này.
+            <span className="text-slate-900 font-semibold">Chọn</span> để thêm ứng viên vào danh sách này.
           </p>
         </div>
       ) : (
         <>
           {/* ── Sort bar ─────────────────────────────── */}
-          <div className="shrink-0 bg-[#0B192C]/70 border-b border-slate-800/40 px-6 py-2 flex items-center gap-2">
+          <div className="shrink-0 bg-white/95 border-b border-blue-100 px-6 py-2 flex items-center gap-2">
             <span className="text-[10px] text-slate-600 font-semibold uppercase tracking-wider mr-1">Sắp xếp:</span>
             {(['score', 'grade', 'name'] as const).map(f => (
               <button
                 key={f}
                 onClick={() => toggleSort(f)}
-                className={`px-2.5 py-1 text-[10px] font-bold transition-all border ${sortBy === f ? 'bg-emerald-500/10 border-emerald-500/25 text-emerald-400' : 'bg-transparent border-slate-700/40 text-slate-500 hover:text-slate-300 hover:border-slate-600'}`}
+                className={`px-2.5 py-1 text-[10px] font-bold transition-all border ${sortBy === f ? 'bg-blue-50 border-blue-200 text-blue-700' : 'bg-white border-blue-100 text-slate-500 hover:text-blue-700 hover:border-blue-200'}`}
               >
                 {f === 'score' ? 'Điểm' : f === 'grade' ? 'Hạng' : 'Tên'}
                 <SortIcon field={f} />
@@ -272,17 +273,17 @@ const SelectedCandidatesPage: React.FC<SelectedCandidatesPageProps> = ({ candida
               {selectedCandidates.map((c, idx) => (
                 <div
                   key={c.id}
-                  className={`relative group bg-gradient-to-br ${getGradeGradient(c.analysis?.['Hạng'])} border rounded-none p-4 shadow-xl shadow-black/20 hover:shadow-black/30 transition-all duration-200 hover:-translate-y-0.5`}
+                  className={`relative group bg-gradient-to-br ${getGradeGradient(c.analysis?.['Hạng'])} border rounded-2xl p-4 shadow-[0_18px_48px_rgba(37,99,235,0.10)] transition-all duration-200 hover:-translate-y-0.5`}
                 >
                   {/* Rank badge */}
-                  <div className="absolute top-3 left-3 w-6 h-6 bg-slate-900/60 border border-slate-700/40 flex items-center justify-center text-[9px] font-black text-slate-400">
+                  <div className="absolute top-3 left-3 w-6 h-6 bg-white border border-blue-100 flex items-center justify-center text-[9px] font-black text-slate-500">
                     #{idx + 1}
                   </div>
 
                   {/* Remove button */}
                   <button
                     onClick={() => removeCandidate(c.id!)}
-                    className="absolute top-2.5 right-2.5 w-7 h-7 bg-slate-800/80 hover:bg-red-500/20 text-slate-500 hover:text-red-400 flex items-center justify-center transition-all border border-slate-700/40 hover:border-red-500/30 opacity-0 group-hover:opacity-100"
+                    className="absolute top-2.5 right-2.5 w-7 h-7 bg-white hover:bg-red-50 text-slate-400 hover:text-red-600 flex items-center justify-center transition-all border border-blue-100 hover:border-red-200 opacity-0 group-hover:opacity-100"
                     title="Bỏ chọn"
                   >
                     <X className="w-3.5 h-3.5" />
@@ -291,30 +292,30 @@ const SelectedCandidatesPage: React.FC<SelectedCandidatesPageProps> = ({ candida
                   {/* Avatar + Name */}
                   <div className="flex items-center gap-3 mt-2 mb-3">
                     <div className={`w-11 h-11 flex items-center justify-center text-sm font-black flex-shrink-0 ${getInitialsBg(c.analysis?.['Hạng'])}`}>
-                      {getInitials(c.candidateName || '?')}
+                      {getInitials(normalizeVietnameseDisplay(c.candidateName) || '?')}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm font-bold text-white truncate pr-6">{c.candidateName}</p>
-                      <p className="text-[11px] text-slate-400 truncate">{c.jobTitle || '—'}</p>
+                      <p className="text-sm font-bold text-slate-900 truncate pr-6">{normalizeVietnameseDisplay(c.candidateName)}</p>
+                      <p className="text-[11px] text-slate-400 truncate">{normalizeVietnameseDisplay(c.jobTitle) || '—'}</p>
                     </div>
                   </div>
 
                   {/* Badges */}
                   <div className="flex items-center gap-2 flex-wrap mb-3">
                     <GradeBadge grade={c.analysis?.['Hạng']} />
-                    <span className="px-2 py-0.5 text-[10px] font-bold bg-slate-800/80 text-slate-300 border border-slate-700/40">
+                    <span className="px-2 py-0.5 text-[10px] font-bold bg-white text-slate-700 border border-blue-100">
                       <Star className="w-2.5 h-2.5 inline mr-0.5 text-amber-400" />
                       {c.analysis?.['Tổng điểm'] ?? '—'} điểm
                     </span>
                     {c.experienceLevel && (
-                      <span className="px-2 py-0.5 text-[10px] font-semibold bg-slate-800/60 text-slate-400 border border-slate-700/30">
-                        {c.experienceLevel}
+                      <span className="px-2 py-0.5 text-[10px] font-semibold bg-white text-slate-600 border border-blue-100">
+                        {normalizeVietnameseDisplay(c.experienceLevel)}
                       </span>
                     )}
                   </div>
 
                   {/* Contact info */}
-                  <div className="space-y-1.5 border-t border-slate-700/30 pt-2.5">
+                  <div className="space-y-1.5 border-t border-blue-100 pt-2.5">
                     {c.email && (
                       <div className="flex items-center gap-2">
                         <Mail className="w-3 h-3 text-slate-500 flex-shrink-0" />
@@ -326,7 +327,7 @@ const SelectedCandidatesPage: React.FC<SelectedCandidatesPageProps> = ({ candida
                     {c.phone && (
                       <div className="flex items-center gap-2">
                         <Phone className="w-3 h-3 text-slate-500 flex-shrink-0" />
-                        <a href={`tel:${c.phone}`} className="text-[11px] text-slate-300 hover:text-white truncate transition-colors">
+                        <a href={`tel:${c.phone}`} className="text-[11px] text-slate-600 hover:text-blue-700 truncate transition-colors">
                           {c.phone}
                         </a>
                       </div>
@@ -334,20 +335,20 @@ const SelectedCandidatesPage: React.FC<SelectedCandidatesPageProps> = ({ candida
                     {c.detectedLocation && (
                       <div className="flex items-center gap-2">
                         <Briefcase className="w-3 h-3 text-slate-500 flex-shrink-0" />
-                        <span className="text-[11px] text-slate-400 truncate">{c.detectedLocation}</span>
+                        <span className="text-[11px] text-slate-400 truncate">{normalizeVietnameseDisplay(c.detectedLocation)}</span>
                       </div>
                     )}
                   </div>
 
                   {/* Strengths preview */}
                   {c.analysis?.['Điểm mạnh CV'] && c.analysis['Điểm mạnh CV'].length > 0 && (
-                    <div className="mt-3 pt-2.5 border-t border-slate-700/20">
+                    <div className="mt-3 pt-2.5 border-t border-blue-100">
                       <p className="text-[9px] font-black text-slate-500 uppercase tracking-wider mb-1.5">Điểm mạnh</p>
                       <ul className="space-y-0.5">
                         {c.analysis['Điểm mạnh CV'].slice(0, 2).map((s, i) => (
-                          <li key={i} className="text-[10px] text-slate-300 flex items-start gap-1.5">
+                          <li key={i} className="text-[10px] text-slate-600 flex items-start gap-1.5">
                             <span className="mt-1 w-1 h-1 rounded-full bg-emerald-400 flex-shrink-0" />
-                            <span className="leading-snug">{s}</span>
+                            <span className="leading-snug">{normalizeVietnameseDisplay(s)}</span>
                           </li>
                         ))}
                       </ul>
@@ -364,4 +365,3 @@ const SelectedCandidatesPage: React.FC<SelectedCandidatesPageProps> = ({ candida
 };
 
 export default SelectedCandidatesPage;
-

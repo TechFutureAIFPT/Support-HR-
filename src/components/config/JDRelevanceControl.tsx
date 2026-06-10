@@ -42,7 +42,7 @@ const JDRelevanceControl: React.FC<JDRelevanceControlProps> = ({ weights, setWei
   }, [value]);
 
   return (
-    <div className="jd-inline flex items-center gap-4 py-2.5 px-4 rounded-xl bg-gradient-to-r from-slate-800/80 to-slate-700/60 border border-slate-600/30">
+    <div className="jd-inline flex items-center gap-4 py-2.5 px-4 rounded-xl bg-white border border-blue-100 shadow-[0_12px_32px_rgba(37,99,235,0.10)]">
       <div className="progress-ring-container relative flex-shrink-0">
         <svg className="progress-ring" width="60" height="60" viewBox="0 0 60 60">
           <defs>
@@ -63,7 +63,7 @@ const JDRelevanceControl: React.FC<JDRelevanceControlProps> = ({ weights, setWei
                 <stop offset="100%" stopColor="#dc2626" />
             </linearGradient>
           </defs>
-          <circle className="progress-ring-bg" cx="30" cy="30" r="25" fill="none" stroke="#374151" strokeWidth="4"></circle>
+          <circle className="progress-ring-bg" cx="30" cy="30" r="25" fill="none" stroke="#dbeafe" strokeWidth="4"></circle>
           <circle
             className="progress-ring-progress"
             cx="30" cy="30" r="25"
@@ -73,16 +73,16 @@ const JDRelevanceControl: React.FC<JDRelevanceControlProps> = ({ weights, setWei
           ></circle>
         </svg>
         <div className="progress-ring-text absolute inset-0 flex items-center justify-center">
-          <span className="text-sm font-bold text-white">{value}%</span>
+          <span className="text-sm font-bold text-slate-900">{value}%</span>
         </div>
       </div>
       <div className="flex-1">
         <div className="flex items-center justify-between gap-2 mb-2">
-          <span className="text-sm font-semibold text-blue-300 flex items-center gap-2">
+          <span className="text-sm font-semibold text-slate-800 flex items-center gap-2">
             <i className={`${jdCriterion.icon} ${jdCriterion.color}`}></i>
             {jdCriterion.name}
           </span>
-          <span className="jd-inline-badge text-sm font-bold bg-slate-700/70 px-3 py-1 rounded-lg text-slate-200 shadow-inner border border-slate-600/50">{value}%</span>
+          <span className="jd-inline-badge text-sm font-bold bg-blue-50 px-3 py-1 rounded-lg text-blue-700 shadow-inner border border-blue-100">{value}%</span>
         </div>
         <input
           type="range"
@@ -90,7 +90,7 @@ const JDRelevanceControl: React.FC<JDRelevanceControlProps> = ({ weights, setWei
           max="30"
           value={value}
           onChange={handleChange}
-          className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer"
+          className="w-full h-2 bg-blue-100 rounded-lg appearance-none cursor-pointer"
           aria-label={`Trọng số ${jdCriterion.name}`}
         />
       </div>

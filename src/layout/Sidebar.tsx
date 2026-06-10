@@ -4,11 +4,14 @@
  */
 import React, { useState } from 'react';
 import {
-  Briefcase, SlidersHorizontal, Sparkles,
-  PieChart, MessageSquare, LogOut, FileText, Brain, Settings, Clock3
+  Briefcase, SlidersHorizontal, Sparkles, UploadCloud,
+  PieChart, MessageSquare, LogOut, FileText, Brain, Settings, Clock3,
+  LibraryBig, WandSparkles
 } from 'lucide-react';
 import type { AppStep } from '@/types';
-import { useTheme } from '@/context/theme/ThemeProvider.tsx';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from '@/services/firebase';
+import { UserProfileService } from '@/services/data-sync/userProfileService';
 
 interface SidebarProps {
   activeStep: AppStep;
@@ -30,69 +33,37 @@ interface SidebarProps {
 
 // ── Theme-aware palette hook ───────────────────────────────────────────
 function useColors() {
-  const { isDarkMode } = useTheme();
-  return isDarkMode ? {
-    bg:         '#000000',
-    bg2:        '#050505',
-    bg3:        '#0b0b0f',
-    bg4:        '#101014',
-    border:     '#16161d',
-    border2:    '#24242d',
-    text:       '#e2e8f0',
-    text2:      '#94a3b8',
-    text3:      '#475569',
-    accentBlue: '#f5d6bb',
-    accent:     '#ffd8a8',
-    headerGradient: 'linear-gradient(135deg, #0d0d12, #020202)',
-    headerBorderBottom: '1px solid rgba(255,255,255,0.06)',
-    logoBg:     'bg-black/30',
-    logoBorder: 'border-white/20',
-    aiBadgeBg:  'rgba(255,255,255,0.15)',
-    aiBadgeColor: '#f5d6bb',
-    subTextColor: 'rgba(255,255,255,0.55)',
-    navHover:   'hover:bg-white/5',
-    iconBg:     'rgba(255,255,255,0.04)',
-    iconBorder: '1px solid rgba(255,255,255,0.06)',
-    sectionDivider: 'to-slate-800/60',
-    progressTrack: 'rgba(255,255,255,0.06)',
-    accountBg: 'rgba(255,255,255,0.03)',
-    accountBorder: 'rgba(255,255,255,0.08)',
-    onlineDot: 'bg-[#f5d6bb]',
-    proBadgeBg: 'rgba(245,214,187,0.14)',
-    proBadgeColor: '#f5d6bb',
-    loginGrad:  'linear-gradient(135deg, #ffffff, #f5d6bb)',
-    loginShadow: '0 4px 18px rgba(245,214,187,0.18)',
-  } : {
-    bg:         '#ffffff',
-    bg2:        '#f8faff',
-    bg3:        '#eef2ff',
-    bg4:        '#f0f4ff',
-    border:     '#e0e7ff',
-    border2:    '#c7d2fe',
-    text:       '#1e293b',
+  return {
+    bg:         'linear-gradient(180deg, #eaf4ff 0%, #dfeeff 100%)',
+    bg2:        '#e4f1ff',
+    bg3:        '#d8eaff',
+    bg4:        '#d6eaff',
+    border:     'rgba(35,136,255,0.26)',
+    border2:    'rgba(35,136,255,0.34)',
+    text:       '#102033',
     text2:      '#475569',
     text3:      '#94a3b8',
-    accentBlue: '#f5d6bb',
-    accent:     '#e8b879',
-    headerGradient: 'linear-gradient(135deg, #eef2ff, #e0e7ff)',
-    headerBorderBottom: '1px solid rgba(99,102,241,0.12)',
-    logoBg:     'bg-amber-50',
-    logoBorder: 'border-amber-200',
-    aiBadgeBg:  'rgba(99,102,241,0.12)',
-    aiBadgeColor: '#8a5a1f',
+    accentBlue: '#2388ff',
+    accent:     '#2388ff',
+    headerGradient: 'linear-gradient(180deg, #f7fbff 0%, #e4f1ff 100%)',
+    headerBorderBottom: '1px solid rgba(35,136,255,0.22)',
+    logoBg:     'bg-blue-50',
+    logoBorder: 'border-blue-100',
+    aiBadgeBg:  'rgba(35,136,255,0.1)',
+    aiBadgeColor: '#0875ee',
     subTextColor: '#64748b',
-    navHover:   'hover:bg-amber-50',
-    iconBg:     'rgba(99,102,241,0.04)',
-    iconBorder: '1px solid rgba(99,102,241,0.1)',
-    sectionDivider: 'to-amber-200/40',
-    progressTrack: 'rgba(99,102,241,0.08)',
-    accountBg: 'rgba(99,102,241,0.03)',
-    accountBorder: 'rgba(99,102,241,0.12)',
-    onlineDot: 'bg-amber-500',
-    proBadgeBg: 'rgba(245,158,11,0.12)',
-    proBadgeColor: '#8a5a1f',
-    loginGrad:  'linear-gradient(135deg, #ffffff, #f5d6bb)',
-    loginShadow: '0 4px 12px rgba(245,158,11,0.22)',
+    navHover:   'hover:bg-blue-50',
+    iconBg:     'rgba(35,136,255,0.06)',
+    iconBorder: '1px solid rgba(35,136,255,0.12)',
+    sectionDivider: 'to-blue-300/60',
+    progressTrack: 'rgba(35,136,255,0.1)',
+    accountBg: 'rgba(247,251,255,0.92)',
+    accountBorder: 'rgba(55,125,255,0.14)',
+    onlineDot: 'bg-emerald-500',
+    proBadgeBg: 'rgba(35,136,255,0.1)',
+    proBadgeColor: '#0875ee',
+    loginGrad:  'linear-gradient(135deg, #2388ff, #4aa3ff)',
+    loginShadow: '0 14px 34px rgba(35,136,255,0.18)',
   };
 }
 
@@ -102,12 +73,14 @@ const PROCESS_STEPS: Array<{
   icon: React.ComponentType<{ className?: string; size?: number }>;
   color: string; bgActive: string;
 }> = [
-  { key: 'jd',       label: 'Mô tả công việc', sub: 'Nhập JD · Bước 1',
-    icon: Briefcase,         color: '#f5d6bb', bgActive: 'rgba(245,214,187,0.1)' },
-  { key: 'weights',  label: 'Cài Đặt Tiêu Chí', sub: 'Thiết lập · Bước 2',
-    icon: SlidersHorizontal, color: '#f5d6bb', bgActive: 'rgba(245,214,187,0.1)' },
-  { key: 'analysis', label: 'Phân tích AI', sub: 'Xử lý · Bước 3',
-    icon: Sparkles,          color: '#f5d6bb', bgActive: 'rgba(245,214,187,0.1)' },
+  { key: 'jd',       label: 'Nạp JD', sub: 'Mô tả công việc · Bước 1',
+    icon: Briefcase,         color: '#2388ff', bgActive: 'rgba(35,136,255,0.1)' },
+  { key: 'upload',   label: 'Nạp hồ sơ', sub: 'Tải CV · Bước 2',
+    icon: UploadCloud,       color: '#2388ff', bgActive: 'rgba(35,136,255,0.1)' },
+  { key: 'weights',  label: 'Thiết lập mặc định', sub: 'Tiêu chí & bộ lọc · Bước 3',
+    icon: SlidersHorizontal, color: '#2388ff', bgActive: 'rgba(35,136,255,0.1)' },
+  { key: 'analysis', label: 'Phân tích AI', sub: 'Xử lý · Bước 4',
+    icon: Sparkles,          color: '#2388ff', bgActive: 'rgba(35,136,255,0.1)' },
 ];
 
 const TOOL_ITEMS: Array<{
@@ -115,19 +88,25 @@ const TOOL_ITEMS: Array<{
   icon: React.ComponentType<{ className?: string; size?: number }>;
   color: string; bgActive: string;
 }> = [
+  { key: 'records', label: 'Thư viện CV', sub: 'Hồ sơ đã lọc',
+    icon: LibraryBig,    color: '#2388ff', bgActive: 'rgba(35,136,255,0.1)' },
+  { key: 'jd-standardizer', label: 'Chuẩn hóa JD', sub: 'Tối ưu mô tả công việc',
+    icon: WandSparkles,  color: '#2388ff', bgActive: 'rgba(35,136,255,0.1)' },
   { key: 'dashboard', label: 'Thống kê chi tiết', sub: 'Analytics Dashboard',
-    icon: PieChart,      color: '#f5d6bb', bgActive: 'rgba(245,214,187,0.1)' },
+    icon: PieChart,      color: '#2388ff', bgActive: 'rgba(35,136,255,0.1)' },
   { key: 'chatbot',    label: 'Gợi ý ứng viên AI',  sub: 'AI Recruitment Assistant',
-    icon: MessageSquare, color: '#f5d6bb', bgActive: 'rgba(245,214,187,0.1)' },
+    icon: MessageSquare, color: '#2388ff', bgActive: 'rgba(35,136,255,0.1)' },
   { key: 'feedback',   label: 'Phản hồi AI', sub: 'Hiệu chỉnh đánh giá',
-    icon: Brain,        color: '#f5d6bb', bgActive: 'rgba(245,214,187,0.1)' }
+    icon: Brain,        color: '#2388ff', bgActive: 'rgba(35,136,255,0.1)' }
 ];
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 const isStepEnabled = (step: AppStep, completedSteps: AppStep[]): boolean => {
   if (step === 'jd') return true;
-  if (step === 'weights') return completedSteps.includes('jd');
-  if (step === 'analysis') return completedSteps.includes('jd') && completedSteps.includes('weights');
+  if (step === 'upload') return completedSteps.includes('jd');
+  if (step === 'weights') return completedSteps.includes('jd') && completedSteps.includes('upload');
+  if (step === 'analysis') return completedSteps.includes('jd') && completedSteps.includes('upload') && completedSteps.includes('weights');
+  if (step === 'records' || step === 'jd-standardizer') return true;
   if (step === 'dashboard' || step === 'chatbot' || step === 'feedback') return completedSteps.includes('analysis');
   return false;
 };
@@ -163,41 +142,27 @@ const NavItem = ({
       onClick={onClick}
       disabled={!isEnabled}
       className={`
-        relative w-full flex items-center gap-3 px-3 py-2.5 transition-all duration-200 text-left
+        group relative w-full flex items-center gap-3 rounded-xl border px-3 py-2.5 text-left transition-all duration-200
         ${isActive
-          ? ''
+          ? 'border-blue-300 bg-blue-100 shadow-[0_10px_24px_rgba(35,136,255,0.12)]'
           : isEnabled
-            ? C.navHover
-            : 'opacity-35 cursor-not-allowed'
+            ? 'border-blue-100 bg-blue-50 hover:border-blue-200 hover:bg-blue-100'
+            : 'cursor-not-allowed border-blue-50 bg-blue-50/70 opacity-75'
         }
       `}
     >
-      {/* Active background card */}
       {isActive && (
         <div
-          className="absolute inset-0"
-          style={{
-            background: item.bgActive,
-            border: `1px solid ${item.color}25`,
-            boxShadow: `0 0 16px ${item.color}12`,
-          }}
-        />
-      )}
-
-      {/* Left accent bar */}
-      {isActive && (
-        <div
-          className="absolute left-0 top-2.5 bottom-2.5 w-[3px]"
+          className="absolute bottom-2.5 left-0 top-2.5 w-[3px] rounded-r-full"
           style={{ background: `linear-gradient(180deg, ${item.color}, ${item.color}60)` }}
         />
       )}
 
-      {/* Icon */}
       <div
-        className="relative flex h-9 w-9 shrink-0 items-center justify-center transition-all duration-200"
+        className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border transition-all duration-200"
         style={{
-          background: isActive ? `${item.color}15` : C.iconBg,
-          border: isActive ? `1px solid ${item.color}30` : C.iconBorder,
+          background: isActive ? '#dcebff' : isEnabled ? '#e8f3ff' : '#f0f7ff',
+          borderColor: isActive ? `${item.color}38` : 'rgba(55,125,255,0.18)',
         }}
       >
         <span style={{ color: isActive ? item.color : isEnabled ? C.text2 : C.text3 }}>
@@ -205,7 +170,6 @@ const NavItem = ({
         </span>
       </div>
 
-      {/* Label */}
       <div className="relative min-w-0 flex-1">
         <p className="text-[12px] font-semibold leading-tight" style={{
           color: isActive ? C.text : isEnabled ? C.text2 : C.text3,
@@ -217,11 +181,10 @@ const NavItem = ({
         </p>
       </div>
 
-      {/* Done checkmark */}
       {isDone && !isActive && (
         <div
-          className="relative flex h-5 w-5 shrink-0 items-center justify-center"
-          style={{ background: `${item.color}15` }}
+          className="relative flex h-5 w-5 shrink-0 items-center justify-center rounded-md"
+          style={{ background: `${item.color}12` }}
         >
           <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
             <path d="M1.5 4L3 5.5L6.5 2" stroke={item.color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -229,8 +192,8 @@ const NavItem = ({
         </div>
       )}
       {isActive && (
-        <div className="relative flex h-5 w-5 shrink-0 items-center justify-center" style={{ background: `${item.color}20` }}>
-          <div className="h-1.5 w-1.5" style={{ background: item.color }} />
+        <div className="relative flex h-5 w-5 shrink-0 items-center justify-center rounded-md" style={{ background: `${item.color}14` }}>
+          <div className="h-1.5 w-1.5 rounded-sm" style={{ background: item.color }} />
         </div>
       )}
     </button>
@@ -291,9 +254,6 @@ const AccountPanel: React.FC<{
     if (!userEmail || (!needsAvatarLoad && !needsNameLoad)) return;
     (async () => {
       try {
-        const { onAuthStateChanged } = await import('firebase/auth');
-        const { auth }               = await import('@/services/firebase');
-        const { UserProfileService }  = await import('@/services/data-sync/userProfileService');
         const unsub = onAuthStateChanged(auth, async (user) => {
           if (user && user.email === userEmail) {
             if (needsNameLoad) {
@@ -347,7 +307,7 @@ const AccountPanel: React.FC<{
         <button
           type="button"
           onClick={onLoginRequest}
-          className="w-full flex items-center justify-center gap-2 py-2.5 text-[12px] font-black text-black transition-all hover:brightness-105 active:scale-[0.99]"
+          className="w-full flex items-center justify-center gap-2 rounded-xl py-2.5 text-[12px] font-black text-white transition-all hover:brightness-105 active:scale-[0.99]"
           style={{
             background: C.loginGrad,
             boxShadow: C.loginShadow,
@@ -369,8 +329,8 @@ const AccountPanel: React.FC<{
         <div
           className="absolute bottom-[calc(100%+0.5rem)] left-3 right-3 z-30 overflow-hidden border shadow-[0_24px_70px_rgba(0,0,0,0.62)]"
           style={{
-            background: 'linear-gradient(180deg, rgba(15,11,6,0.98), rgba(0,0,0,0.98))',
-            borderColor: 'rgba(245,214,187,0.22)',
+            background: 'linear-gradient(180deg, #ffffff, #f7fbff)',
+            borderColor: 'rgba(55,125,255,0.16)',
           }}
           role="menu"
         >
@@ -382,10 +342,10 @@ const AccountPanel: React.FC<{
               setMenuOpen(false);
               onShowSettings?.();
             }}
-            className="flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-[11px] font-bold transition-all hover:bg-[#f5d6bb]/10"
+            className="flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-[11px] font-bold transition-all hover:bg-blue-50"
             style={{ color: C.text }}
           >
-            <span className="flex h-7 w-7 items-center justify-center border" style={{ borderColor: 'rgba(245,214,187,0.22)', color: C.accentBlue }}>
+            <span className="flex h-7 w-7 items-center justify-center rounded-lg border bg-blue-50" style={{ borderColor: 'rgba(55,125,255,0.16)', color: C.accentBlue }}>
               <FileText size={14} strokeWidth={2.4} />
             </span>
             Mẫu JD
@@ -398,10 +358,10 @@ const AccountPanel: React.FC<{
               setMenuOpen(false);
               onShowHistory?.();
             }}
-            className="flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-[11px] font-bold transition-all hover:bg-[#f5d6bb]/10"
+            className="flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-[11px] font-bold transition-all hover:bg-blue-50"
             style={{ color: C.text }}
           >
-            <span className="flex h-7 w-7 items-center justify-center border" style={{ borderColor: 'rgba(245,214,187,0.22)', color: C.accentBlue }}>
+            <span className="flex h-7 w-7 items-center justify-center rounded-lg border bg-blue-50" style={{ borderColor: 'rgba(55,125,255,0.16)', color: C.accentBlue }}>
               <Clock3 size={14} strokeWidth={2.4} />
             </span>
             Lịch sử hoạt động
@@ -415,7 +375,7 @@ const AccountPanel: React.FC<{
               onLogout?.();
             }}
             className="flex w-full items-center gap-2.5 border-t px-3 py-2.5 text-left text-[11px] font-bold transition-all hover:bg-red-500/10"
-            style={{ color: '#fca5a5', borderColor: 'rgba(245,214,187,0.16)' }}
+            style={{ color: '#f04468', borderColor: 'rgba(55,125,255,0.12)' }}
           >
             <span className="flex h-7 w-7 items-center justify-center border border-red-400/25 text-red-300">
               <LogOut size={14} strokeWidth={2.4} />
@@ -514,39 +474,8 @@ const Sidebar: React.FC<SidebarProps> = ({
         }}
       >
         {/* ── Header ─────────────────────────────────────────── */}
-        <div
-          className="flex shrink-0 items-center gap-2.5 px-3 py-3"
-          style={{
-            background: C.headerGradient,
-            borderBottom: C.headerBorderBottom,
-          }}
-        >
-          <button
-            onClick={() => handleClick('jd')}
-            className={`flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden border ${C.logoBorder} ${C.logoBg} shadow-sm transition-transform hover:scale-105`}
-          >
-            <img src="/images/logos/logo.jpg" alt="SupportHR" className="h-full w-full object-cover" />
-          </button>
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-1.5">
-              <span className="supporthr-sidebar-brand font-black tracking-tight leading-none" style={{ color: C.text }}>
-                SupportHR
-              </span>
-              <span
-                className="px-1.5 py-px text-[8px] font-black uppercase tracking-wide"
-                style={{ background: C.aiBadgeBg, color: C.aiBadgeColor }}
-              >
-                AI
-              </span>
-            </div>
-            <p className="mt-0.5 text-[9px] font-medium leading-none" style={{ color: C.subTextColor }}>
-              Recruitment Intelligence
-            </p>
-          </div>
-        </div>
-
         {/* ── Nav ────────────────────────────────────────────── */}
-        <nav className="flex-1 min-h-0 overflow-y-auto py-2 px-2 custom-scrollbar">
+        <nav className="flex-1 min-h-0 overflow-y-auto px-2 pb-3 pt-4 custom-scrollbar">
           <SectionLabel label="Quy trình phân tích" C={C} />
           <div className="space-y-0.5">
             {PROCESS_STEPS.map(item => (
@@ -577,19 +506,6 @@ const Sidebar: React.FC<SidebarProps> = ({
         </nav>
 
         {/* ── Account ─────────────────────────────────────────── */}
-        <div className="shrink-0 border-t" style={{ borderColor: C.border }}>
-          <AccountPanel
-            completedSteps={completedSteps}
-            userEmail={userEmail}
-            userAvatar={externalAvatar}
-            userName={externalUserName}
-            onLogout={onLogout}
-            onLoginRequest={onLoginRequest}
-            onShowSettings={onShowSettings}
-            onShowHistory={onShowHistory}
-            C={C}
-          />
-        </div>
       </aside>
     </>
   );

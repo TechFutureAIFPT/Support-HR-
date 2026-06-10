@@ -6,6 +6,7 @@ import SelectedCandidatesPage from '@/pages/analytics/SelectedCandidatesPage';
 import { ChatbotHistoryService } from '@/services/data-sync/chatbotHistoryService';
 import { useThemeColors } from '@/hooks/useThemeColors';
 import { readLatestAnalysisRun } from '@/services/history-cache/latestAnalysisRun';
+import { normalizeVietnameseDisplay } from '@/utils/textDisplay';
 import '@/pages/analytics/styles/candidate-suggestions.css';
 
 const SELECTED_IDS_KEY = 'supporthr.selectedCandidateIds';
@@ -169,6 +170,34 @@ const CandidateSuggestions: React.FC<CandidateSuggestionsProps> = ({ candidates,
     }
   };
 
+  useEffect(() => {
+    const handleTopbarAction = (event: Event) => {
+      const action = (event as CustomEvent<{ action?: string }>).detail?.action;
+
+      if (action === 'chatbot') {
+        setActiveTab('chatbot');
+        return;
+      }
+
+      if (action === 'selected') {
+        setActiveTab('selected');
+        setShowHistory(false);
+        return;
+      }
+
+      if (action === 'history') {
+        setActiveTab('chatbot');
+        setShowHistory((current) => {
+          if (!current) void loadPastSessions();
+          return !current;
+        });
+      }
+    };
+
+    window.addEventListener('supporthr:chatbot-action', handleTopbarAction);
+    return () => window.removeEventListener('supporthr:chatbot-action', handleTopbarAction);
+  }, []);
+
   const restoreSession = (session: ChatbotSession) => {
     if (!session.id) return;
     setSessionId(session.id);
@@ -225,10 +254,10 @@ const CandidateSuggestions: React.FC<CandidateSuggestionsProps> = ({ candidates,
     const csvData = [
       headers.join(','),
       ...selectedData.map((c, index) => [
-        index + 1, c.candidateName || '', c.status === 'FAILED' ? 'FAILED' : (c.analysis?.['Hạng'] || 'C'),
+        index + 1, normalizeVietnameseDisplay(c.candidateName), c.status === 'FAILED' ? 'FAILED' : (c.analysis?.['Hạng'] || 'C'),
         c.status === 'FAILED' ? '0' : String(c.analysis?.['Tổng điểm'] || 0),
         `${c.analysis?.['Chi tiết']?.find(i => i['Tiêu chí'].startsWith('Phù hợp JD'))?.['Điểm'].split('/')[0] || 0}%`,
-        c.jobTitle || '', c.email || '', c.phone || ''
+        normalizeVietnameseDisplay(c.jobTitle), c.email || '', c.phone || ''
       ].map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
     ].join('\n');
     const blob = new Blob(['\uFEFF' + csvData], { type: 'text/csv;charset=utf-8;' });
@@ -251,18 +280,18 @@ const CandidateSuggestions: React.FC<CandidateSuggestionsProps> = ({ candidates,
         const parts = str.split(/(\*\*[^*]+\*\*)/g);
         return parts.map((part, i) =>
           part.startsWith('**') && part.endsWith('**')
-            ? <strong key={i} className="text-blue-300 font-bold">{part.slice(2, -2)}</strong>
+            ? <strong key={i} className="text-blue-700 font-bold">{part.slice(2, -2)}</strong>
             : <React.Fragment key={i}>{part}</React.Fragment>
         );
       };
       if (line.trim().startsWith('* ') || line.trim().startsWith('- ')) {
-        return <li key={index} className="ml-5 list-disc marker:text-blue-400 my-1 text-slate-200 leading-relaxed">{formatBold(line.trim().substring(2))}</li>;
+        return <li key={index} className="ml-5 list-disc marker:text-blue-500 my-1 text-slate-700 leading-relaxed">{formatBold(line.trim().substring(2))}</li>;
       }
       if (/^(\d+\.|\*\*\d+\.)/.test(line.trim())) {
-        return <div key={index} className="my-2.5 ml-1 text-blue-300 font-semibold text-sm">{formatBold(line)}</div>;
+        return <div key={index} className="my-2.5 ml-1 text-blue-700 font-semibold text-sm">{formatBold(line)}</div>;
       }
       if (line.trim() === '') return <div key={index} className="h-2" />;
-      return <p key={index} className="text-slate-200 leading-relaxed">{formatBold(line)}</p>;
+      return <p key={index} className="text-slate-700 leading-relaxed">{formatBold(line)}</p>;
     });
   };
 
@@ -296,7 +325,7 @@ const CandidateSuggestions: React.FC<CandidateSuggestionsProps> = ({ candidates,
   return (
     <div className="feature-page-shell chatbot-page-shell flex h-full flex-col overflow-hidden" style={{ background: tc.pageBg }}>
       {/* ── Unified Global Header ─────────────────────────────────── */}
-      <div className="chatbot-global-header flex shrink-0 flex-col gap-3 border-b px-3 py-3 sm:flex-row sm:items-center sm:justify-between md:px-6 md:py-4" style={{ background: tc.pageBg, borderColor: tc.borderColor }}>
+      <div className="chatbot-global-header flex shrink-0 flex-col gap-3 border-b px-3 py-3 sm:flex-row sm:items-center sm:justify-between md:px-6 md:py-4" style={{ display: 'none', background: tc.pageBg, borderColor: tc.borderColor }}>
         {/* Left: Dynamic Content */}
         <div className="flex items-center gap-3 flex-1 min-w-0 pr-4">
           <div className="chatbot-title-mark h-8 w-[3px] rounded-full shrink-0" style={{ background: 'linear-gradient(180deg, #6366f1, #8b5cf6)' }} />
@@ -336,7 +365,7 @@ const CandidateSuggestions: React.FC<CandidateSuggestionsProps> = ({ candidates,
           {activeTab === 'chatbot' && (
             <button
               onClick={() => { setShowHistory(!showHistory); if (!showHistory) loadPastSessions(); }}
-              className={`chatbot-icon-button flex items-center justify-center w-8 h-8 rounded-md transition-all ${showHistory ? 'bg-blue-600/20 text-blue-400 border border-blue-500/30' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/80 border border-transparent'}`}
+              className={`chatbot-icon-button flex items-center justify-center w-8 h-8 rounded-md transition-all ${showHistory ? 'border border-blue-200 bg-blue-50 text-blue-700' : 'border border-blue-100 text-slate-500 hover:bg-blue-50 hover:text-blue-700'}`}
               title="Lịch sử hội thoại"
             >
               <Clock className="w-4 h-4" />
@@ -345,19 +374,19 @@ const CandidateSuggestions: React.FC<CandidateSuggestionsProps> = ({ candidates,
           <div className="chatbot-tabs flex min-w-0 flex-1 items-center rounded-lg border p-1 sm:flex-none" style={{ background: tc.cardBg, borderColor: tc.borderColor }}>
             <button
               onClick={() => setActiveTab('chatbot')}
-              className={`chatbot-tab flex flex-1 items-center justify-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-bold transition-all sm:flex-none md:px-4 ${activeTab === 'chatbot' ? 'chatbot-tab-active bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/80'
+              className={`chatbot-tab flex flex-1 items-center justify-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-bold transition-all sm:flex-none md:px-4 ${activeTab === 'chatbot' ? 'chatbot-tab-active bg-blue-600 text-white shadow-md' : 'text-slate-500 hover:bg-blue-50 hover:text-blue-700'
                 }`}
             >
               <MessageSquare className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Chatbot AI</span><span className="sm:hidden">AI</span>
             </button>
             <button
               onClick={() => setActiveTab('selected')}
-              className={`chatbot-tab flex flex-1 items-center justify-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-bold transition-all sm:flex-none md:px-4 ${activeTab === 'selected' ? 'chatbot-tab-active chatbot-tab-active--selected bg-emerald-600 text-white shadow-md' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/80'
+              className={`chatbot-tab flex flex-1 items-center justify-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-bold transition-all sm:flex-none md:px-4 ${activeTab === 'selected' ? 'chatbot-tab-active chatbot-tab-active--selected bg-emerald-600 text-white shadow-md' : 'text-slate-500 hover:bg-blue-50 hover:text-blue-700'
                 }`}
             >
               <Users className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Đã chọn</span><span className="sm:hidden">Đã chọn</span>
               {selectedIds.size > 0 && (
-                <span className={`ml-1 flex h-4 w-4 items-center justify-center rounded-sm text-[9px] ${activeTab === 'selected' ? 'bg-white/25 text-white' : 'bg-slate-700 text-slate-300'
+                <span className={`ml-1 flex h-4 w-4 items-center justify-center rounded-sm text-[9px] ${activeTab === 'selected' ? 'bg-white/25 text-white' : 'bg-blue-50 text-blue-700'
                   }`}>
                   {selectedIds.size}
                 </span>
@@ -492,7 +521,7 @@ const CandidateSuggestions: React.FC<CandidateSuggestionsProps> = ({ candidates,
                 {messages.map((msg, i) => {
                   const isUser = msg.role === 'user';
                   const isExpanded = expandedMsg === i;
-                  const displayContent = isUser ? msg.content : normalizeChatbotResponseText(msg.content) || msg.content;
+                  const displayContent = normalizeVietnameseDisplay(isUser ? msg.content : normalizeChatbotResponseText(msg.content) || msg.content);
                   return (
                     <div key={i} className={`flex w-full mb-6 ${isUser ? 'justify-end' : 'justify-start'} animate-fade-in`}>
                       {isUser ? (
@@ -552,25 +581,25 @@ const CandidateSuggestions: React.FC<CandidateSuggestionsProps> = ({ candidates,
                                     const isSelected = selectedIds.has(id);
                                     return (
                                       <div key={id} className={`chatbot-candidate-card flex flex-col gap-3 border p-3 transition-all duration-200 sm:flex-row sm:items-center sm:justify-between ${isSelected
-                                        ? 'border-blue-500/40 bg-blue-500/5 shadow-[0_0_15px_rgba(59,130,246,0.05)]'
-                                        : 'border-slate-700/50 bg-slate-800/30 hover:border-blue-500/30 hover:bg-slate-800/50'
+                                        ? 'border-blue-200 bg-blue-50 shadow-[0_14px_34px_rgba(35,136,255,0.08)]'
+                                        : 'border-blue-100 bg-white hover:border-blue-200 hover:bg-blue-50/50'
                                         }`}>
                                         <div className="flex items-center gap-2.5 flex-1 min-w-0">
                                           <div className={`chatbot-candidate-avatar w-8 h-8 flex items-center justify-center text-[10px] font-black flex-shrink-0 ${c.analysis?.['Hạng'] === 'A' ? 'bg-blue-500/20 text-blue-400' :
                                             c.analysis?.['Hạng'] === 'B' ? 'bg-blue-500/20 text-blue-400' :
                                               'bg-blue-500/20 text-blue-400'
                                             }`}>
-                                            {getInitials(c.candidateName || '')}
+                                            {getInitials(normalizeVietnameseDisplay(c.candidateName))}
                                           </div>
                                           <div className="min-w-0 flex-1">
                                             <div className="mb-0.5 flex min-w-0 flex-wrap items-center gap-2">
-                                              <p className="text-sm font-bold text-white truncate">{c.candidateName}</p>
+                                              <p className="text-sm font-bold text-slate-900 truncate">{normalizeVietnameseDisplay(c.candidateName)}</p>
                                               <GradeBadge grade={c.analysis?.['Hạng']} />
                                             </div>
-                                            <p className="text-[10px] text-slate-400 truncate">{c.jobTitle || 'Chưa rõ chức danh'}</p>
-                                            <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] text-slate-300">
-                                              <span>Điểm: <span className="font-bold text-white">{c.analysis?.['Tổng điểm']}</span></span>
-                                              <span>Cấp: <span className="font-semibold">{c.experienceLevel || '—'}</span></span>
+                                            <p className="text-[10px] text-slate-500 truncate">{normalizeVietnameseDisplay(c.jobTitle) || 'Chưa rõ chức danh'}</p>
+                                            <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] text-slate-600">
+                                              <span>Điểm: <span className="font-bold text-slate-900">{c.analysis?.['Tổng điểm']}</span></span>
+                                              <span>Cấp: <span className="font-semibold">{normalizeVietnameseDisplay(c.experienceLevel) || '—'}</span></span>
                                               {c.email && <span className="text-blue-400 truncate">{c.email}</span>}
                                             </div>
                                           </div>
@@ -579,7 +608,7 @@ const CandidateSuggestions: React.FC<CandidateSuggestionsProps> = ({ candidates,
                                           onClick={() => handleToggleSelect(id!)}
                                           className={`chatbot-select-candidate flex w-full flex-shrink-0 items-center justify-center gap-1.5 px-3.5 py-1.5 text-xs font-bold transition-all sm:w-auto ${isSelected
                                             ? 'bg-blue-600 hover:bg-blue-500 text-white shadow shadow-blue-600/20'
-                                            : 'bg-slate-700/80 hover:bg-slate-600 text-slate-200 border border-slate-600/40'
+                                            : 'border border-blue-100 bg-white text-slate-700 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700'
                                             }`}
                                         >
                                           {isSelected ? <Check className="w-3 h-3" /> : <Plus className="w-3 h-3" />}
@@ -597,7 +626,7 @@ const CandidateSuggestions: React.FC<CandidateSuggestionsProps> = ({ candidates,
                               <div className="flex items-center gap-1 mt-3 pt-2.5 border-t border-slate-700/30">
                                 <button
                                   onClick={() => handleCopy(displayContent, `msg-${i}`)}
-                                  className="flex items-center gap-1 text-[10px] text-slate-600 hover:text-slate-400 transition-colors px-2 py-1 hover:bg-slate-800/50"
+                                  className="flex items-center gap-1 rounded-md px-2 py-1 text-[10px] text-slate-500 transition-colors hover:bg-blue-50 hover:text-blue-700"
                                 >
                                   {copiedId === `msg-${i}` ? <CheckCheck className="w-3 h-3 text-blue-400" /> : <Copy className="w-3 h-3" />}
                                   {copiedId === `msg-${i}` ? 'Đã sao chép' : 'Sao chép'}

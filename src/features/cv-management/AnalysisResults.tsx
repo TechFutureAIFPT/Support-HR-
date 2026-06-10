@@ -8,6 +8,7 @@ import { FileText, CheckCircle2, BarChart3, Target, ArrowRight, Layers, Graduati
 import ExpandedContent from '@/features/cv-management/ExpandedContent';
 import { useThemeColors } from '@/hooks/useThemeColors';
 import SupportHRLoading from '@/components/common/SupportHRLoading';
+import { normalizeVietnameseDisplay } from '@/utils/textDisplay';
 
 interface AnalysisResultsProps {
   isLoading: boolean;
@@ -169,9 +170,9 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMes
   const filteredResults = useMemo(() => {
     let r = rankedAndSortedResults;
     if (debouncedSearchTerm) r = r.filter(c =>
-      c.candidateName?.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-      c.jobTitle?.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-      c.detectedLocation?.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
+      normalizeVietnameseDisplay(c.candidateName).toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+      normalizeVietnameseDisplay(c.jobTitle).toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+      normalizeVietnameseDisplay(c.detectedLocation).toLowerCase().includes(debouncedSearchTerm.toLowerCase())
     );
     if (filter !== 'all') r = r.filter(c =>
       c.status === 'FAILED' ? filter === 'FAILED' : c.analysis?.['Hạng'] === filter
@@ -211,7 +212,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMes
   return (
     <section id="module-analysis" className="module-pane active relative flex h-full min-h-0 w-full flex-1 flex-col" style={{ background: tc.pageBg }}>
       {/* ── Premium Global Header ─────────────────────────────────── */}
-      <div className="shrink-0 z-10 flex flex-col justify-between gap-3 border-b px-3 py-3 sm:px-4 md:flex-row md:items-center" style={{ background: tc.headerBg, borderColor: tc.borderSoft }}>
+      <div className="shrink-0 z-10 flex flex-col justify-between gap-3 border-b px-3 py-3 sm:px-4 md:flex-row md:items-center" style={{ display: 'none', background: tc.headerBg, borderColor: tc.borderSoft }}>
         <div className="flex items-center gap-3 flex-1 min-w-0 pr-4">
           <div className="h-8 w-[3px] rounded-full shrink-0" style={{ background: 'linear-gradient(180deg, #6366f1, #8b5cf6)' }} />
           <div className="min-w-0 flex-1">
@@ -378,6 +379,9 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMes
                     const grade = candidate.status === 'FAILED' ? 'FAILED' : (candidate.analysis?.['Hạng'] || 'C');
                     const overallScore = candidate.status === 'FAILED' ? 0 : (candidate.analysis?.['Tổng điểm'] || 0);
                     const jdFitScore = candidate.status === 'FAILED' ? 0 : parseInt(candidate.analysis?.['Chi tiết']?.find(i => i['Tiêu chí'].startsWith('Phù hợp JD'))?.['Điểm'].split('/')[0] || '0', 10);
+                    const displayName = normalizeVietnameseDisplay(candidate.candidateName) || 'Chưa xác định';
+                    const displayLocation = normalizeVietnameseDisplay(candidate.detectedLocation) || 'Chưa rõ';
+                    const displayFileName = normalizeVietnameseDisplay(candidate.fileName);
                     return (
                       <React.Fragment key={candidate.id}>
                         <tr
@@ -386,7 +390,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMes
                           onClick={e => { if ((e.target as HTMLElement).tagName !== 'INPUT') handleExpandCandidate(candidate.id); }}
                         >
                           <td className="px-5 py-3 font-medium" style={{ color: tc.textDim }}>#{index + 1}</td>
-                          <td className="px-5 py-3 font-medium" style={{ color: tc.textSecondary }}>{candidate.candidateName || 'Chưa xác định'}</td>
+                          <td className="px-5 py-3 font-medium" style={{ color: tc.textSecondary }}>{displayName}</td>
                           <td className="px-5 py-3">
                             <span className="rounded-full px-2.5 py-1 text-xs font-bold" style={
                               candidate.status === 'FAILED'
@@ -403,11 +407,11 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMes
                           <td className="hidden px-5 py-3 font-medium lg:table-cell" style={{ color: candidate.locationMatch === false ? '#fca5a5' : tc.textSecondary }}>
                             <span className="inline-flex max-w-[150px] items-center gap-1.5 truncate">
                               <MapPin size={13} className="shrink-0 opacity-70" />
-                              {candidate.detectedLocation || 'Chưa rõ'}
+                              {displayLocation}
                             </span>
                           </td>
                           <td className="hidden items-center justify-between gap-3 px-5 py-3 xl:flex" style={{ color: tc.textDim }}>
-                            <span className="truncate text-sm">{candidate.fileName || ''}</span>
+                            <span className="truncate text-sm">{displayFileName}</span>
                             <button style={{ color: 'rgba(99,102,241,0.5)' }} onClick={e => { e.stopPropagation(); handleExpandCandidate(candidate.id); }}
                               onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#818cf8'; }}
                               onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(99,102,241,0.5)'; }}>
@@ -432,17 +436,21 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMes
                 const grade = candidate.status === 'FAILED' ? 'FAILED' : (candidate.analysis?.['Hạng'] || 'C');
                 const overallScore = candidate.status === 'FAILED' ? 0 : (candidate.analysis?.['Tổng điểm'] || 0);
                 const jdFitScore = candidate.status === 'FAILED' ? 0 : parseInt(candidate.analysis?.['Chi tiết']?.find(i => i['Tiêu chí'].startsWith('Phù hợp JD'))?.['Điểm'].split('/')[0] || '0', 10);
+                const displayName = normalizeVietnameseDisplay(candidate.candidateName) || 'Chưa xác định';
+                const displayJobTitle = normalizeVietnameseDisplay(candidate.jobTitle) || 'Chưa có chức danh';
+                const displayLocation = normalizeVietnameseDisplay(candidate.detectedLocation) || 'Chưa rõ địa điểm';
+                const displayFileName = normalizeVietnameseDisplay(candidate.fileName);
                 return (
                   <div key={candidate.id} className=" rounded p-4 transition-all" style={{ background: isSelected ? 'rgba(99,102,241,0.06)' : tc.cardBg, border: `1px solid ${isSelected ? 'rgba(99,102,241,0.25)' : tc.borderColor}` }}>
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-center gap-3">
                         <span className="text-sm font-medium" style={{ color: tc.textDim }}>#{index + 1}</span>
                         <div className="min-w-0">
-                          <h4 className="max-w-[180px] truncate text-base font-semibold" style={{ color: tc.textSecondary }}>{candidate.candidateName || 'Chưa xác định'}</h4>
-                          <p className="mt-0.5 max-w-[180px] truncate text-xs" style={{ color: tc.textDim }}>{candidate.jobTitle || 'Chưa có chức danh'}</p>
+                          <h4 className="max-w-[180px] truncate text-base font-semibold" style={{ color: tc.textSecondary }}>{displayName}</h4>
+                          <p className="mt-0.5 max-w-[180px] truncate text-xs" style={{ color: tc.textDim }}>{displayJobTitle}</p>
                           <p className="mt-1 flex max-w-[180px] items-center gap-1 truncate text-xs" style={{ color: candidate.locationMatch === false ? '#fca5a5' : tc.textDim }}>
                             <MapPin size={12} className="shrink-0 opacity-70" />
-                            {candidate.detectedLocation || 'Chưa rõ địa điểm'}
+                            {displayLocation}
                           </p>
                         </div>
                       </div>
@@ -465,7 +473,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMes
                       </div>
                     </div>
                     <div className="mt-3 flex items-center justify-between" style={{ borderTop: tc.borderSoft, paddingTop: '12px' }}>
-                      <span className="max-w-[150px] truncate text-xs" style={{ color: tc.textDim }}>{candidate.fileName}</span>
+                      <span className="max-w-[150px] truncate text-xs" style={{ color: tc.textDim }}>{displayFileName}</span>
                       <button onClick={() => handleExpandCandidate(candidate.id)} className="flex items-center gap-1 rounded px-2 py-1 text-xs font-medium transition" style={{ color: 'rgba(99,102,241,0.6)' }}>
                         {expandedCandidate === candidate.id ? 'Thu gọn' : 'Chi tiết'} ▾
                       </button>
@@ -484,12 +492,12 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMes
       {/* ── Expand modal ──────────────────────────────── */}
       {expandedCandidate && results.find(c => c.id === expandedCandidate) && typeof document !== 'undefined' && createPortal(
         <div className="fixed inset-0 flex items-end justify-center p-2 backdrop-blur-sm animate-in fade-in duration-200 sm:items-center sm:p-4" style={{ background: tc.overlayBg, zIndex: 99999 }}>
-          <div className="flex h-[92svh] w-full max-w-7xl flex-col overflow-hidden rounded-t-2xl sm:h-full sm:max-h-[95vh] sm:rounded-xl" style={{ background: tc.modalBg, border: tc.borderAccent, boxShadow: tc.modalShadow }}>
+          <div className="supporthr-analysis-detail-modal flex h-[92svh] w-full max-w-7xl flex-col overflow-hidden rounded-t-2xl sm:h-full sm:max-h-[95vh] sm:rounded-xl" style={{ background: tc.modalBg, border: tc.borderAccent, boxShadow: tc.modalShadow }}>
             <div className="flex shrink-0 items-center justify-between gap-3 p-4 sm:p-5" style={{ borderBottom: tc.border }}>
               <div className="flex items-center gap-3">
                 <div className="h-8 w-[3px] rounded-full shrink-0" style={{ background: 'linear-gradient(180deg, #6366f1, #8b5cf6)' }} />
                 <h3 className="line-clamp-2 text-base font-bold sm:text-xl lg:text-2xl" style={{ color: tc.textPrimary }}>
-                  Kết quả chi tiết: {results.find(c => c.id === expandedCandidate)?.candidateName}
+                  Kết quả chi tiết: {normalizeVietnameseDisplay(results.find(c => c.id === expandedCandidate)?.candidateName)}
                 </h3>
               </div>
               <button onClick={() => setExpandedCandidate(null)} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition" style={{ color: tc.textDim }}
@@ -498,7 +506,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMes
                 ×
               </button>
             </div>
-            <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto p-3 sm:p-5" style={{ background: 'rgba(0, 0, 0, 0.15)' }}>
+            <div className="supporthr-analysis-detail-scroll custom-scrollbar min-h-0 flex-1 overflow-y-auto p-3 sm:p-5" style={{ background: '#f6f9ff' }}>
               <ExpandedContent
                 candidate={results.find(c => c.id === expandedCandidate)!}
                 expandedCriteria={expandedCriteria}
@@ -516,6 +524,3 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ isLoading, loadingMes
 };
 
 export default AnalysisResults;
-
-
-

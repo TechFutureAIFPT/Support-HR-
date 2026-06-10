@@ -7,7 +7,7 @@ const Partners: React.FC = memo(() => {
     { name: 'TopCV', logo: '/images/logos/topcv-1.png' },
     { name: 'Vinedimex', logo: '/images/logos/vinedimex-1.png' },
     { name: 'HB', logo: '/images/logos/hb.png' },
-    { name: 'Mì AI', logo: '/images/logos/mì_ai.png' },
+    { name: 'Mì AI', logo: '/images/logos/mi_ai.png' },
     // Fallback logos với placeholder icons
     { name: 'Microsoft', logo: '', icon: 'fa-brands fa-microsoft' },
     { name: 'Google', logo: '', icon: 'fa-brands fa-google' },
@@ -15,11 +15,11 @@ const Partners: React.FC = memo(() => {
   ];
 
   return (
-    <section className="py-16 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900">
+    <section className="bg-white py-16">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-white mb-4">Đối Tác Hỗ Trợ</h2>
-          <p className="text-slate-400 text-lg">
+          <h2 className="mb-4 text-3xl font-bold text-slate-950">Đối tác hỗ trợ</h2>
+          <p className="text-lg text-slate-600">
             Được tin tưởng và hỗ trợ bởi các công ty công nghệ hàng đầu
           </p>
         </div>
@@ -44,7 +44,7 @@ const Partners: React.FC = memo(() => {
                       />
                     ) : (
                       <div 
-                        className="w-16 h-16 bg-slate-800/50 border border-slate-700/50 rounded-xl flex items-center justify-center text-slate-400 hover:text-white hover:scale-110 transition-all duration-300"
+                        className="flex h-16 w-16 items-center justify-center rounded-xl border border-blue-100 bg-blue-50 text-blue-500 transition-all duration-300 hover:scale-110 hover:border-blue-200 hover:bg-blue-100 hover:text-blue-700"
                       >
                         <i className={`${partner.icon} text-2xl`}></i>
                       </div>

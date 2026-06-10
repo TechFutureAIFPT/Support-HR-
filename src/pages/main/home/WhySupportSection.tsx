@@ -1,43 +1,47 @@
 import { motion, useReducedMotion } from "framer-motion";
 import {
-  Clock3,
-  ShieldCheck,
-  Sparkles,
-  Users,
+  BriefcaseBusiness,
+  ChartNoAxesCombined,
+  ClipboardList,
+  UserRoundCheck,
 } from "lucide-react";
 
-const impactStats = [
+const roleCards = [
   {
-    value: "Nhanh hơn",
-    label: "Rút ngắn thao tác đọc CV và gom về một luồng rà soát gọn hơn.",
-    accent: "text-cyan-300",
-    surface: "bg-[rgba(4,24,28,0.92)]",
-    border: "border-cyan-400/18",
-    Icon: Clock3,
+    role: "Với Giám đốc nhân sự",
+    benefit:
+      "Theo dõi hiệu quả tuyển dụng, chất lượng shortlist và mức độ nhất quán trong đánh giá ứng viên.",
+    accent: "text-blue-700",
+    surface: "bg-blue-50",
+    border: "border-blue-200",
+    Icon: ChartNoAxesCombined,
   },
   {
-    value: "Rõ hơn",
-    label: "Giữ danh sách đề cử, ghi chú và lý do đánh giá trong một màn hình làm việc.",
-    accent: "text-violet-300",
-    surface: "bg-[rgba(13,11,28,0.92)]",
-    border: "border-violet-400/18",
-    Icon: Sparkles,
+    role: "Với HR Manager",
+    benefit:
+      "Rút ngắn thời gian xử lý CV, chuẩn hóa quy trình và giảm phụ thuộc vào đánh giá cảm tính.",
+    accent: "text-teal-700",
+    surface: "bg-teal-50",
+    border: "border-teal-200",
+    Icon: ClipboardList,
   },
   {
-    value: "Chắc hơn",
-    label: "Bổ sung đủ ngữ cảnh để chuyên viên tuyển dụng và quản lý tuyển dụng cùng rà soát.",
-    accent: "text-rose-300",
-    surface: "bg-[rgba(30,8,15,0.92)]",
-    border: "border-rose-400/18",
-    Icon: ShieldCheck,
+    role: "Với Talent Acquisition",
+    benefit:
+      "Có danh sách ưu tiên rõ ràng, bằng chứng so khớp và gợi ý câu hỏi để trao đổi nhanh với ứng viên.",
+    accent: "text-indigo-700",
+    surface: "bg-indigo-50",
+    border: "border-indigo-200",
+    Icon: UserRoundCheck,
   },
   {
-    value: "Dễ mở rộng",
-    label: "Phù hợp từ đội ngũ nhỏ đến quy trình cần chia sẻ danh sách đề cử cho nhiều bên.",
-    accent: "text-emerald-300",
-    surface: "bg-[rgba(4,24,16,0.92)]",
-    border: "border-emerald-400/18",
-    Icon: Users,
+    role: "Với Hiring Manager",
+    benefit:
+      "Nhận báo cáo ngắn gọn, dễ hiểu, tập trung vào năng lực, kinh nghiệm và mức độ phù hợp với vị trí.",
+    accent: "text-sky-700",
+    surface: "bg-sky-50",
+    border: "border-sky-200",
+    Icon: BriefcaseBusiness,
   },
 ];
 
@@ -46,30 +50,27 @@ export default function WhySupportSection() {
   const hoverLift = reduceMotion ? undefined : { y: -4 };
 
   return (
-    <section className="relative overflow-hidden bg-black pt-0 pb-20 sm:pb-24 lg:pb-24">
-      <div className="pointer-events-none absolute inset-0 supporthr-grid-mask opacity-25" />
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_left_center,rgba(255,255,255,0.03),transparent_34%),linear-gradient(180deg,rgba(255,255,255,0.015),transparent_62%)]" />
-      <div className="home-noise-overlay" />
+    <section className="relative overflow-hidden bg-white pt-0 pb-20 sm:pb-24 lg:pb-24">
+      <div className="pointer-events-none absolute inset-0 supporthr-grid-mask opacity-10" />
 
       <div className="relative home-section-frame">
         <div className="grid gap-10 xl:grid-cols-[minmax(0,0.9fr)_minmax(40rem,1.1fr)] xl:items-center">
           <div className="max-w-[42rem]">
-            <p className="supporthr-mono text-[11px] uppercase tracking-[0.24em] text-emerald-300/75">
-              Support HR // Vì sao đội ngũ business dễ chấp nhận hơn
+            <p className="supporthr-mono text-[11px] uppercase tracking-[0.24em] text-blue-600">
+              Giải pháp theo từng đối tượng
             </p>
-            <h2 className="home-section-heading mt-6 max-w-[40rem] font-semibold text-white">
-              Chuyển quy trình sàng lọc thành một bề mặt vận hành rõ ràng cho đội tuyển dụng.
+            <h2 className="home-section-heading mt-6 max-w-[40rem] font-semibold text-slate-900">
+              Mỗi vai trò trong quy trình tuyển dụng nhìn thấy đúng điều họ cần
             </h2>
-            <p className="mt-6 max-w-[38rem] text-base leading-8 text-zinc-400 sm:text-lg">
-              Support HR được thiết kế để đội tuyển dụng nhìn ngay file nào đang được xử lý, ứng viên nào đang được đề
-              cử, và vì sao danh sách đó được đưa lên trước. Mục tiêu là giảm thao tác lặp, không phải tạo thêm một hộp đen.
+            <p className="mt-6 max-w-[38rem] text-base leading-8 text-slate-500 sm:text-lg">
+              Support HR không chỉ tạo điểm số. Sản phẩm giúp từng người trong quy trình tuyển dụng nhận được đúng loại dữ liệu để phối hợp nhanh hơn và quyết định chắc hơn.
             </p>
           </div>
 
-          <div className="home-grid-sheet grid self-stretch gap-px border border-white/[0.08] bg-white/[0.08] sm:grid-cols-2">
-            {impactStats.map(({ value, label, accent, surface, border, Icon }, index) => (
+          <div className="grid self-stretch gap-4 sm:grid-cols-2">
+            {roleCards.map(({ role, benefit, accent, surface, border, Icon }, index) => (
               <motion.div
-                key={label}
+                key={role}
                 initial={reduceMotion ? false : { opacity: 0, y: 24 }}
                 whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.18 }}
@@ -78,16 +79,15 @@ export default function WhySupportSection() {
                   opacity: { duration: 0.42, delay: reduceMotion ? 0 : index * 0.08, ease: "easeOut" },
                   y: { duration: 0.42, delay: reduceMotion ? 0 : index * 0.08, ease: "easeOut" },
                 }}
-                className={`relative min-h-[11.25rem] overflow-hidden border ${border} ${surface} p-6 lg:p-7`}
+                className={`relative min-h-[13rem] overflow-hidden rounded-2xl border ${border} ${surface} p-6 lg:p-7`}
               >
-                <div className="absolute inset-0 opacity-35 [background-image:linear-gradient(rgba(255,255,255,0.025)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.025)_1px,transparent_1px)] [background-size:22px_22px]" />
                 <div className="relative z-10">
                   <Icon className={`h-5 w-5 ${accent}`} />
-                  <p className={`mt-7 text-[clamp(1.8rem,2.45vw,2.45rem)] font-semibold leading-none tracking-normal ${accent}`}>
-                    {value}
+                  <p className={`mt-7 text-[1.35rem] font-bold leading-snug tracking-normal ${accent}`}>
+                    {role}
                   </p>
-                  <p className="mt-3 max-w-[15rem] text-sm leading-7 text-zinc-400">
-                    {label}
+                  <p className="mt-3 max-w-[19rem] text-sm leading-7 text-slate-600">
+                    {benefit}
                   </p>
                 </div>
               </motion.div>

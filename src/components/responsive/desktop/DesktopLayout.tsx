@@ -1,5 +1,5 @@
 /**
- * DesktopLayout — Chỉ hỗ trợ Dark Mode
+ * DesktopLayout — light-only responsive shell
  */
 import React, { useState } from 'react';
 import Navbar from '@/layout/Navbar';

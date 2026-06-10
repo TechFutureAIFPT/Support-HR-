@@ -83,6 +83,10 @@ const ROUTE_SEO: Record<string, RouteSeo> = {
     ...DEFAULT_SEO,
     robots: "noindex, nofollow",
   },
+  "/upload": {
+    ...DEFAULT_SEO,
+    robots: "noindex, nofollow",
+  },
   "/weights": {
     ...DEFAULT_SEO,
     robots: "noindex, nofollow",

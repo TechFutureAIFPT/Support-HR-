@@ -176,14 +176,14 @@ const WeightsConfig: React.FC<WeightsConfigProps> = memo(({ weights, setWeights,
   return (
     <section
       id="module-weights"
-      className="weights-config module-pane active relative flex h-[calc(100vh)] min-h-[400px] w-full flex-col"
+      className="weights-config module-pane active relative flex h-full min-h-0 w-full flex-col overflow-hidden"
       style={themeVars}
     >
       <div className="weights-config__glow weights-config__glow--top" />
       <div className="weights-config__glow weights-config__glow--bottom" />
       <div className="weights-config__glow weights-config__glow--center" />
 
-      <div className="weights-config__header flex shrink-0 flex-col justify-between gap-3 border-b px-4 py-3 md:flex-row md:items-center">
+      <div className="weights-config__header flex shrink-0 flex-col justify-between gap-3 border-b px-4 py-3 md:flex-row md:items-center" style={{ display: 'none' }}>
         <div className="flex items-center gap-3">
           <div className="weights-config__accent shrink-0" />
           <div className="min-w-0 flex-1">
@@ -226,14 +226,14 @@ const WeightsConfig: React.FC<WeightsConfigProps> = memo(({ weights, setWeights,
         </div>
       </div>
 
-      <div className="relative z-10 flex min-h-0 flex-1 flex-col overflow-y-auto lg:flex-row lg:overflow-hidden">
-        <div className="custom-scrollbar flex-none lg:min-h-0 lg:flex-1 lg:overflow-y-auto">
-          <div className="h-auto w-full p-4 md:p-5 lg:h-full lg:p-8">
+      <div className="relative z-10 flex min-h-0 flex-1 flex-col overflow-hidden lg:flex-row">
+        <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto">
+          <div className="w-full p-4 pb-24 md:p-5 md:pb-24 lg:p-5 lg:pb-28">
             {step === 1 ? (
               <HardFilterPanel hardFilters={hardFilters} setHardFilters={setHardFilters} />
             ) : (
-              <div className="space-y-3">
-                <div className="mb-4 flex items-center gap-3">
+              <div className="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-2.5">
+                <div className="hidden">
                   <div className="weights-config__accent shrink-0" />
                   <div>
                     <h3 className="weights-config__section-title text-sm font-bold">
@@ -261,8 +261,8 @@ const WeightsConfig: React.FC<WeightsConfigProps> = memo(({ weights, setWeights,
           </div>
         </div>
 
-        <div className="weights-config__side-panel relative z-10 flex w-full shrink-0 flex-col backdrop-blur-xl lg:h-full lg:w-[340px] xl:w-[400px]">
-          <div className="custom-scrollbar flex max-h-none flex-1 flex-col overflow-y-visible lg:h-full lg:overflow-y-auto">
+        <div className="weights-config__side-panel relative z-10 flex min-h-0 w-full shrink-0 flex-col backdrop-blur-xl lg:w-[340px] xl:w-[400px]">
+          <div className="custom-scrollbar flex min-h-0 flex-1 flex-col overflow-y-auto">
             {step === 1 ? (
               <>
                 <div className="p-4 lg:p-5">
@@ -276,7 +276,7 @@ const WeightsConfig: React.FC<WeightsConfigProps> = memo(({ weights, setWeights,
 
                     <div className="mb-3 grid grid-cols-2 gap-2">
                       <div className="weights-config__metric-card flex flex-col items-center justify-center p-3">
-                        <span className="mb-0.5 text-2xl font-black tracking-tighter text-white">{mandatoryProgress.active}</span>
+                        <span className="mb-0.5 text-2xl font-black tracking-tighter text-slate-900">{mandatoryProgress.active}</span>
                         <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-slate-400">Đã bật</span>
                       </div>
                       <div className="weights-config__metric-card weights-config__metric-card--success flex flex-col items-center justify-center p-3">
@@ -304,9 +304,9 @@ const WeightsConfig: React.FC<WeightsConfigProps> = memo(({ weights, setWeights,
 
                   <div className="weights-config__note flex items-start gap-2.5 overflow-hidden p-3">
                     <div className="weights-config__note-accent h-full w-[2px] shrink-0" />
-                    <p className="weights-config__note-copy text-[11px] font-medium leading-relaxed text-slate-300">
-                      Tiêu chí bật <strong className="font-bold text-white">Bắt buộc</strong> nhưng chưa có giá trị sẽ bị
-                      <strong className="font-bold text-white"> bỏ qua</strong> khi AI phân tích.
+                    <p className="weights-config__note-copy text-[11px] font-medium leading-relaxed text-slate-600">
+                      Tiêu chí bật <strong className="font-bold text-slate-900">Bắt buộc</strong> nhưng chưa có giá trị sẽ bị
+                      <strong className="font-bold text-slate-900"> bỏ qua</strong> khi AI phân tích.
                     </p>
                   </div>
                 </div>

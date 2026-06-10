@@ -73,7 +73,7 @@ const CornerFrame = () => (
 );
 
 const inputBaseClass =
-  'w-full border border-white/10 bg-black/70 px-3.5 py-2.5 text-[13px] text-slate-100 outline-none transition-all placeholder:text-slate-600 focus:border-cyan-400/35 focus:bg-black';
+  'w-full rounded-xl border border-blue-100 bg-white px-3.5 py-2.5 text-[13px] text-slate-900 outline-none transition-all placeholder:text-slate-500 focus:border-blue-300 focus:bg-white';
 
 const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
   const [tab, setTab] = useState<AuthTab>('signin');
@@ -288,7 +288,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
 
   return (
     <div
-      className={`login-page-shell relative min-h-[100svh] overflow-y-auto overflow-x-hidden bg-black text-slate-100 transition-all duration-700 ${
+      className={`login-page-shell relative min-h-[100svh] overflow-y-auto overflow-x-hidden bg-[#f6f9ff] text-slate-900 transition-all duration-700 ${
         successStage === 'transitioning' ? 'opacity-0' : 'opacity-100'
       }`}
     >
@@ -297,7 +297,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
 
       <div className="relative z-10 grid min-h-[100svh] lg:grid-cols-[1.02fr_0.98fr]">
         <section
-          className={`hidden border-r border-white/8 px-8 py-5 lg:flex lg:flex-col lg:justify-between xl:px-10 xl:py-6 transition-all duration-700 ${
+          className={`hidden border-r border-blue-100 px-8 py-5 lg:flex lg:flex-col lg:justify-between xl:px-10 xl:py-6 transition-all duration-700 ${
             loaded ? 'translate-x-0 opacity-100' : '-translate-x-6 opacity-0'
           }`}
         >
@@ -308,7 +308,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
             </div>
 
             <div className="mt-7">
-              <h1 className="max-w-md text-4xl font-black uppercase leading-[0.92] tracking-[-0.04em] text-white xl:text-5xl">
+              <h1 className="max-w-md text-4xl font-black uppercase leading-[0.92] tracking-[-0.04em] text-slate-900 xl:text-5xl">
                 Mở khóa
                 <br />
                 <span className="text-cyan-300">tuyển dụng AI</span>
@@ -327,13 +327,13 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
             {systemSignals.map((signal) => (
               <div
                 key={signal.title}
-                className="flex items-start gap-4 border border-white/8 bg-white/[0.035] px-4 py-3"
+                className="flex items-start gap-4 rounded-2xl border border-blue-100 bg-white px-4 py-3"
               >
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center border border-white/10 bg-black/80 text-slate-100">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-blue-100 bg-blue-50 text-slate-900">
                   <i className={`${signal.icon} text-base`} />
                 </div>
                 <div>
-                  <p className="text-lg font-bold uppercase tracking-[-0.02em] text-white">
+                  <p className="text-lg font-bold uppercase tracking-[-0.02em] text-slate-900">
                     {signal.title}
                   </p>
                   <p className="mt-1 font-mono text-sm leading-6 text-[#f5d6bb]">{signal.status}</p>
@@ -352,18 +352,18 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
             <button
               type="button"
               onClick={handleBackHome}
-              className="inline-flex items-center gap-3 font-mono text-xs uppercase tracking-[0.24em] text-[#f5d6bb] transition-colors hover:text-white"
+              className="inline-flex items-center gap-3 font-mono text-xs uppercase tracking-[0.24em] text-[#f5d6bb] transition-colors hover:text-blue-700"
             >
               <i className="fa-solid fa-arrow-left text-[11px]" />
               TRỞ_VỀ_TRANG_CHỦ
             </button>
 
             <div className="inline-flex items-center gap-3 lg:hidden">
-              <div className="h-10 w-10 overflow-hidden border border-white/10 bg-black/70">
+              <div className="h-10 w-10 overflow-hidden rounded-xl border border-blue-100 bg-white">
                 <img src="/images/logos/logo.jpg" alt="Support HR" className="h-full w-full object-cover" />
               </div>
               <div>
-                <p className="text-sm font-bold text-white">Support HR</p>
+                <p className="text-sm font-bold text-slate-900">Support HR</p>
                 <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-slate-500">
                   Access Layer
                 </p>
@@ -373,17 +373,17 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
 
           <div className="flex flex-1 items-start justify-center py-4 sm:items-center sm:py-5 lg:py-2">
             <div className="w-full max-w-lg">
-              <div className="relative border border-white/10 bg-white/[0.04] px-5 py-5 sm:px-7 sm:py-5 xl:px-8">
+              <div className="relative rounded-2xl border border-blue-100 bg-white shadow-[0_24px_70px_rgba(30,64,175,0.12)] px-5 py-5 sm:px-7 sm:py-5 xl:px-8">
                 <CornerFrame />
 
                 <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center border border-[#f5d6bb]/60 bg-[#f5d6bb]/5 text-[#f5d6bb]">
-                  <div className="flex h-9 w-9 items-center justify-center border border-[#f5d6bb]/25 bg-black/65">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-blue-100 bg-blue-50">
                     <i className="fa-solid fa-user-shield text-lg" />
                   </div>
                 </div>
 
                 <div className="text-center">
-                  <h2 className="text-2xl font-black uppercase tracking-[-0.04em] text-white sm:text-[1.85rem]">
+                  <h2 className="text-2xl font-black uppercase tracking-[-0.04em] text-slate-900 sm:text-[1.85rem]">
                     {showReset ? 'Khôi phục truy cập' : 'Access Control'}
                   </h2>
                   <p className="mt-2 font-mono text-[11px] uppercase tracking-[0.22em] text-[#f5d6bb]">
@@ -417,7 +417,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
                 )}
 
                 {!showReset && (
-                  <div className="mt-4 flex border border-white/10 bg-black/60 p-1">
+                  <div className="mt-4 flex rounded-xl border border-blue-100 bg-blue-50 p-1">
                     {(['signin', 'signup'] as AuthTab[]).map((mode) => (
                       <button
                         key={mode}
@@ -439,7 +439,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
                   {showReset ? (
                     <form onSubmit={handleSubmit} className="space-y-3">
                       <div>
-                        <label className="mb-1.5 block font-mono text-[10px] uppercase tracking-[0.22em] text-slate-400">
+                        <label className="mb-1.5 block font-mono text-[10px] uppercase tracking-[0.22em] text-slate-500">
                           EMAIL_TRUY_CẬP
                         </label>
                         <input
@@ -458,7 +458,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
                         {errors.email && <p className="mt-1 text-xs text-red-400">{errors.email}</p>}
                       </div>
 
-                      <div className="border border-white/8 bg-black/65 px-4 py-3 text-[13px] leading-6 text-slate-400">
+                      <div className="rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-[13px] leading-6 text-slate-500">
                         Nhập email đã đăng ký. Support HR sẽ gửi liên kết đặt lại mật khẩu để bạn
                         khôi phục quyền truy cập phiên làm việc.
                       </div>
@@ -496,7 +496,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
                     <form onSubmit={handleSubmit} className="space-y-3">
                       {tab === 'signup' && (
                         <div>
-                          <label className="mb-1.5 block font-mono text-[10px] uppercase tracking-[0.22em] text-slate-400">
+                          <label className="mb-1.5 block font-mono text-[10px] uppercase tracking-[0.22em] text-slate-500">
                             HỌ_TÊN
                           </label>
                           <input
@@ -515,7 +515,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
                       )}
 
                       <div>
-                        <label className="mb-1.5 block font-mono text-[10px] uppercase tracking-[0.22em] text-slate-400">
+                        <label className="mb-1.5 block font-mono text-[10px] uppercase tracking-[0.22em] text-slate-500">
                           EMAIL_TRUY_CẬP
                         </label>
                         <input
@@ -532,7 +532,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
 
                       <div>
                         <div className="mb-1.5 flex items-end justify-between gap-3">
-                          <label className="block font-mono text-[10px] uppercase tracking-[0.22em] text-slate-400">
+                          <label className="block font-mono text-[10px] uppercase tracking-[0.22em] text-slate-500">
                             MẬT_KHẨU
                           </label>
                           <div className="min-h-[14px] font-mono text-[9px] uppercase tracking-[0.16em] text-cyan-300/85">
@@ -611,7 +611,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
                       type="button"
                       onClick={handleGoogleSignIn}
                       disabled={loading}
-                      className="flex w-full items-center justify-center gap-3 border border-white/10 bg-black/65 px-4 py-3 text-[13px] font-bold uppercase tracking-[0.12em] text-white transition-all hover:border-white/20 hover:bg-white/[0.04] disabled:cursor-not-allowed disabled:opacity-50"
+                      className="flex w-full items-center justify-center gap-3 rounded-xl border border-blue-100 bg-white px-4 py-3 text-[13px] font-bold uppercase tracking-[0.12em] text-slate-900 shadow-sm transition-all hover:border-blue-200 hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       <svg className="h-5 w-5 shrink-0" viewBox="0 0 24 24">
                         <path
@@ -641,11 +641,11 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
                     Khi truy cập, bạn đồng ý với
                   </p>
                   <div className="mt-2 flex flex-wrap items-center justify-center gap-2 text-sm text-slate-300">
-                    <a href="/terms" className="transition-colors hover:text-white">
+                    <a href="/terms" className="transition-colors hover:text-blue-700">
                       Điều khoản dịch vụ
                     </a>
                     <span className="text-slate-600">&amp;</span>
-                    <a href="/privacy-policy" className="transition-colors hover:text-white">
+                    <a href="/privacy-policy" className="transition-colors hover:text-blue-700">
                       Chính sách bảo mật
                     </a>
                   </div>
@@ -660,28 +660,28 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
           <button
             type="button"
-            className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+            className="absolute inset-0 bg-slate-900/25 backdrop-blur-sm"
             onClick={() => setLinkModal((prev) => ({ ...prev, open: false }))}
           />
 
-          <div className="relative w-full max-w-md border border-white/10 bg-[#090909] px-6 py-8 text-slate-100 shadow-2xl shadow-black/60">
+          <div className="relative w-full max-w-md rounded-2xl border border-blue-100 bg-white px-6 py-8 text-slate-900 shadow-2xl shadow-blue-900/10">
             <CornerFrame />
 
             <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center border border-[#f5d6bb]/60 bg-[#f5d6bb]/5 text-[#f5d6bb]">
               <i className="fa-solid fa-link text-lg" />
             </div>
 
-            <h3 className="text-center text-3xl font-black uppercase tracking-[-0.04em] text-white">
+            <h3 className="text-center text-3xl font-black uppercase tracking-[-0.04em] text-slate-900">
               Liên kết tài khoản
             </h3>
-            <p className="mt-4 text-center text-sm leading-7 text-slate-400">
+            <p className="mt-4 text-center text-sm leading-7 text-slate-500">
               Email <span className="text-cyan-300">{linkModal.email}</span> đã tồn tại bằng mật
               khẩu. Xác thực lại để gộp với đăng nhập Google trong cùng một phiên.
             </p>
 
             <form onSubmit={handleLinkAccount} className="mt-8 space-y-4">
               <div>
-                <label className="mb-2 block font-mono text-[11px] uppercase tracking-[0.24em] text-slate-400">
+                <label className="mb-2 block font-mono text-[11px] uppercase tracking-[0.24em] text-slate-500">
                   MẬT_KHẨU_HIỆN_TẠI
                 </label>
                 <div className="relative">

@@ -34,10 +34,10 @@ class AnalysisCacheService {
     const totalScore = Number(
       analysis['Tổng điểm'] ??
       analysis['Tong diem'] ??
-      analysis['Tá»•ng Ä‘iá»ƒm'] ??
+      analysis['Tổng điểm'] ??
       0
     );
-    const details = analysis['Chi tiết'] ?? analysis['Chi tiet'] ?? analysis['Chi tiáº¿t'];
+    const details = analysis['Chi tiết'] ?? analysis['Chi tiet'] ?? analysis['Chi tiết'];
 
     return totalScore > 0 || (Array.isArray(details) && details.length > 0);
   }

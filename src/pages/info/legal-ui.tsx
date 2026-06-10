@@ -24,52 +24,52 @@ export const LEGAL_TONE_STYLES: Record<
   }
 > = {
   cyan: {
-    accent: "text-[#f5d6bb]",
-    label: "text-[#f5d6bb]/90",
-    border: "border-[#f5d6bb]/24",
-    surface: "bg-[#f5d6bb]/[0.07]",
-    dot: "bg-[#f5d6bb]",
-    rule: "via-[#f5d6bb]/45",
+    accent: "text-blue-600",
+    label: "text-blue-700",
+    border: "border-blue-200",
+    surface: "bg-blue-50",
+    dot: "bg-blue-500",
+    rule: "via-blue-300/55",
   },
   emerald: {
-    accent: "text-[#ffd8a8]",
-    label: "text-[#ffd8a8]/90",
-    border: "border-[#f5d6bb]/22",
-    surface: "bg-[#f5d6bb]/[0.055]",
-    dot: "bg-[#ffd8a8]",
-    rule: "via-[#ffd8a8]/36",
+    accent: "text-teal-600",
+    label: "text-teal-700",
+    border: "border-teal-200",
+    surface: "bg-teal-50",
+    dot: "bg-teal-500",
+    rule: "via-teal-300/50",
   },
   sky: {
-    accent: "text-[#f5d6bb]",
-    label: "text-[#f5d6bb]/85",
-    border: "border-[#f5d6bb]/20",
-    surface: "bg-[#f5d6bb]/[0.05]",
-    dot: "bg-[#f5d6bb]",
-    rule: "via-[#f5d6bb]/34",
+    accent: "text-sky-600",
+    label: "text-sky-700",
+    border: "border-sky-200",
+    surface: "bg-sky-50",
+    dot: "bg-sky-500",
+    rule: "via-sky-300/50",
   },
   violet: {
-    accent: "text-[#f5d6bb]",
-    label: "text-[#f5d6bb]/85",
-    border: "border-[#f5d6bb]/18",
-    surface: "bg-[#f5d6bb]/[0.045]",
-    dot: "bg-[#f5d6bb]",
-    rule: "via-[#f5d6bb]/30",
+    accent: "text-indigo-600",
+    label: "text-indigo-700",
+    border: "border-indigo-200",
+    surface: "bg-indigo-50",
+    dot: "bg-indigo-500",
+    rule: "via-indigo-300/45",
   },
   amber: {
-    accent: "text-amber-300",
-    label: "text-amber-200/85",
-    border: "border-amber-400/20",
-    surface: "bg-amber-400/[0.06]",
-    dot: "bg-amber-300",
-    rule: "via-amber-300/30",
+    accent: "text-amber-600",
+    label: "text-amber-700",
+    border: "border-amber-200",
+    surface: "bg-amber-50",
+    dot: "bg-amber-500",
+    rule: "via-amber-300/40",
   },
   rose: {
-    accent: "text-[#f5d6bb]",
-    label: "text-[#f5d6bb]/85",
-    border: "border-[#f5d6bb]/18",
-    surface: "bg-[#f5d6bb]/[0.045]",
-    dot: "bg-[#f5d6bb]",
-    rule: "via-[#f5d6bb]/30",
+    accent: "text-rose-600",
+    label: "text-rose-700",
+    border: "border-rose-200",
+    surface: "bg-rose-50",
+    dot: "bg-rose-500",
+    rule: "via-rose-300/40",
   },
 };
 
@@ -163,7 +163,7 @@ function DocsSearchBar({ compact = false }: { compact?: boolean }) {
   return (
     <div className={wrapperClassName}>
       <form onSubmit={handleSubmit} className="relative">
-        <i className="fa-solid fa-magnifying-glass pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-sm text-zinc-500" />
+        <i className="fa-solid fa-magnifying-glass pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-sm text-slate-500" />
         <input
           ref={inputRef}
           type="search"
@@ -190,15 +190,15 @@ function DocsSearchBar({ compact = false }: { compact?: boolean }) {
             }
           }}
           placeholder="Search tài liệu..."
-          className="h-12 w-full rounded-[1.25rem] border border-white/10 bg-white/[0.03] pl-11 pr-20 text-sm text-white outline-none transition-colors placeholder:text-zinc-500 focus:border-white/22 focus:bg-white/[0.05]"
+          className="h-12 w-full rounded-2xl border border-blue-100 bg-white pl-11 pr-20 text-sm text-slate-900 shadow-sm outline-none transition-colors placeholder:text-slate-400 focus:border-blue-300 focus:bg-white"
         />
-        <span className="supporthr-mono pointer-events-none absolute right-4 top-1/2 hidden -translate-y-1/2 text-[10px] uppercase tracking-[0.22em] text-zinc-500 sm:block">
+        <span className="supporthr-mono pointer-events-none absolute right-4 top-1/2 hidden -translate-y-1/2 text-[10px] uppercase tracking-[0.22em] text-slate-500 sm:block">
           Ctrl K
         </span>
       </form>
 
       {isOpen ? (
-        <div className="absolute left-0 right-0 top-[calc(100%+0.7rem)] z-50 overflow-hidden rounded-[1.15rem] border border-white/10 bg-black/96 shadow-[0_22px_60px_rgba(0,0,0,0.45)] backdrop-blur-xl">
+        <div className="absolute left-0 right-0 top-[calc(100%+0.7rem)] z-50 overflow-hidden rounded-[1.15rem] border border-blue-100 bg-white shadow-[0_22px_60px_rgba(30,64,175,0.14)] backdrop-blur-xl">
           {results.length > 0 ? (
             <div className="p-2">
               {results.map((entry) => (
@@ -207,20 +207,20 @@ function DocsSearchBar({ compact = false }: { compact?: boolean }) {
                   type="button"
                   onMouseDown={(event) => event.preventDefault()}
                   onClick={() => navigateTo(entry.to)}
-                  className="flex w-full items-start gap-3 rounded-2xl px-3 py-3 text-left transition-colors hover:bg-white/[0.05]"
+                  className="flex w-full items-start gap-3 rounded-2xl px-3 py-3 text-left transition-colors hover:bg-blue-50"
                 >
-                  <span className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/[0.03] text-zinc-300">
+                  <span className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-blue-100 bg-blue-50 text-blue-600">
                     <i className="fa-solid fa-arrow-up-right-from-square text-[11px]" />
                   </span>
                   <span className="min-w-0">
-                    <span className="block text-sm font-semibold text-white">{entry.label}</span>
-                    <span className="mt-1 block text-sm leading-6 text-zinc-500">{entry.description}</span>
+                    <span className="block text-sm font-semibold text-slate-900">{entry.label}</span>
+                    <span className="mt-1 block text-sm leading-6 text-slate-500">{entry.description}</span>
                   </span>
                 </button>
               ))}
             </div>
           ) : (
-            <div className="px-4 py-4 text-sm text-zinc-500">Chưa có mục nào khớp với từ khóa này.</div>
+            <div className="px-4 py-4 text-sm text-slate-500">Chưa có mục nào khớp với từ khóa này.</div>
           )}
         </div>
       ) : null}
@@ -240,17 +240,17 @@ export function DocsTopBar({
 }) {
   return (
     <>
-      <nav className="sticky top-0 z-50 border-b border-white/[0.08] bg-black/92 backdrop-blur-xl">
+      <nav className="sticky top-0 z-50 border-b border-blue-100 bg-white/92 shadow-[0_12px_36px_rgba(30,64,175,0.07)] backdrop-blur-xl">
         <div className="mx-auto flex min-h-[4.45rem] w-full max-w-[96rem] items-center justify-between gap-6 px-4 py-3 sm:px-6 lg:px-8">
           <Link to="/" className="flex shrink-0 items-center gap-3 text-left transition-opacity duration-300 hover:opacity-90">
-            <div className="flex h-7 w-7 items-center justify-center overflow-hidden border border-white/14 bg-black">
+            <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-xl border border-blue-100 bg-white shadow-sm">
               <img src="/images/logos/logo.jpg" alt="Support HR" className="h-full w-full object-cover" />
             </div>
             <div className="flex flex-col">
-              <span className="supporthr-mono text-[15px] font-semibold uppercase tracking-[0.08em] text-white">
+              <span className="supporthr-mono text-[15px] font-semibold uppercase tracking-[0.08em] text-slate-900">
                 Support HR
               </span>
-              <span className="mt-0.5 supporthr-mono text-[10px] font-bold uppercase tracking-[0.24em] text-[#f5d6bb]">
+              <span className="mt-0.5 supporthr-mono text-[10px] font-bold uppercase tracking-[0.24em] text-blue-600">
                 {brandContext}
               </span>
             </div>
@@ -263,13 +263,13 @@ export function DocsTopBar({
           <div className="flex shrink-0 items-center gap-4 sm:gap-5">
             <Link
               to={auxiliaryLink.to}
-              className="hidden h-10 items-center justify-center rounded-full border border-white/12 px-5 supporthr-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-200 transition-colors duration-200 hover:border-white/24 hover:text-white sm:inline-flex"
+              className="hidden h-10 items-center justify-center rounded-xl border border-blue-100 bg-white px-5 supporthr-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-700 shadow-sm transition-colors duration-200 hover:border-blue-200 hover:text-blue-700 sm:inline-flex"
             >
               {auxiliaryLink.label}
             </Link>
             <Link
               to="/"
-              className="inline-flex h-10 items-center justify-center rounded-full bg-white px-5 supporthr-mono text-[11px] font-bold uppercase tracking-[0.18em] text-black transition-colors duration-200 hover:bg-zinc-100"
+              className="inline-flex h-10 items-center justify-center rounded-xl border border-blue-100 bg-blue-600 px-5 supporthr-mono text-[11px] font-bold uppercase tracking-[0.18em] text-white shadow-sm transition-colors duration-200 hover:bg-blue-700"
             >
               Trang chủ
             </Link>
@@ -277,7 +277,7 @@ export function DocsTopBar({
         </div>
       </nav>
 
-      <div className="border-b border-white/[0.08] bg-black/96 px-4 py-3 md:hidden">
+      <div className="border-b border-blue-100 bg-white/96 px-4 py-3 md:hidden">
         <div className="mx-auto w-full max-w-[96rem]">
           <DocsSearchBar compact />
         </div>
@@ -292,7 +292,7 @@ export function DocsHeaderTabs({ tabs }: { tabs: DocsHeaderTab[] }) {
   if (!tabs.length) return null;
 
   return (
-    <div className="border-b border-white/[0.08] bg-black/96">
+    <div className="border-b border-blue-100 bg-white/96">
       <div className="mx-auto flex w-full max-w-[96rem] items-center gap-2 overflow-x-auto px-4 sm:px-6 lg:px-8">
         {tabs.map((tab) => {
           const matches = tab.matchPaths?.length ? tab.matchPaths : [tab.to];
@@ -304,8 +304,8 @@ export function DocsHeaderTabs({ tabs }: { tabs: DocsHeaderTab[] }) {
               to={tab.to}
               className={`supporthr-mono shrink-0 border-b px-1 py-4 text-[11px] font-semibold uppercase tracking-[0.18em] transition-colors duration-200 ${
                 isActive
-                  ? "border-white text-white"
-                  : "border-transparent text-zinc-500 hover:text-zinc-200"
+                  ? "border-blue-600 text-blue-700"
+                  : "border-transparent text-slate-500 hover:text-blue-700"
               }`}
             >
               {tab.label}
@@ -337,9 +337,9 @@ export function DocsCopyPageButton() {
     <button
       type="button"
       onClick={handleCopy}
-      className="inline-flex h-9 items-center gap-2 border border-white/10 bg-white/[0.03] px-3 text-sm font-medium text-zinc-300 transition-colors hover:border-white/18 hover:bg-white/[0.055] hover:text-white"
+      className="inline-flex h-9 items-center gap-2 rounded-xl border border-blue-100 bg-white px-3 text-sm font-medium text-slate-600 shadow-sm transition-colors hover:border-blue-200 hover:text-blue-700"
     >
-      <i className={`fa-regular ${copied ? "fa-circle-check" : "fa-copy"} text-xs text-[#f5d6bb]`} />
+      <i className={`fa-regular ${copied ? "fa-circle-check" : "fa-copy"} text-xs text-blue-600`} />
       {copied ? "Đã copy" : "Copy page"}
     </button>
   );
@@ -350,37 +350,37 @@ export function DocsPageLoading() {
   const articleRows = ["w-11/12", "w-10/12", "w-full", "w-9/12"];
 
   return (
-    <div className="legal-page-shell min-h-[58vh] overflow-hidden bg-black px-4 py-8 text-zinc-100 sm:px-6 lg:px-8">
+    <div className="legal-page-shell min-h-[58vh] overflow-hidden bg-[#f6f9ff] px-4 py-8 text-slate-900 sm:px-6 lg:px-8">
       <div className="mx-auto grid max-w-[96rem] gap-8 xl:grid-cols-[17rem_minmax(0,48rem)_15rem]">
         <aside className="hidden xl:block">
-          <div className="space-y-3 border-r border-white/8 pr-6">
-            <div className="h-4 w-24 animate-pulse bg-white/12" />
+          <div className="space-y-3 border-r border-blue-100 pr-6">
+            <div className="h-4 w-24 animate-pulse rounded bg-blue-100" />
             {sidebarRows.map((width, index) => (
-              <div key={index} className={`h-9 ${width} animate-pulse bg-white/[0.055]`} />
+              <div key={index} className={`h-9 ${width} animate-pulse rounded bg-blue-50`} />
             ))}
           </div>
         </aside>
 
         <article className="min-w-0">
-          <div className="h-4 w-32 animate-pulse bg-[#f5d6bb]/18" />
-          <div className="mt-5 h-10 w-8/12 animate-pulse bg-white/12" />
+          <div className="h-4 w-32 animate-pulse rounded bg-blue-100" />
+          <div className="mt-5 h-10 w-8/12 animate-pulse rounded bg-blue-50" />
           <div className="mt-4 space-y-3">
             {articleRows.map((width, index) => (
-              <div key={index} className={`h-4 ${width} animate-pulse bg-white/[0.065]`} />
+              <div key={index} className={`h-4 ${width} animate-pulse rounded bg-slate-100`} />
             ))}
           </div>
           <div className="mt-8 grid gap-3 sm:grid-cols-2">
             {[0, 1, 2, 3].map((item) => (
-              <div key={item} className="h-20 animate-pulse border border-white/8 bg-white/[0.035]" />
+              <div key={item} className="h-20 animate-pulse rounded-2xl border border-blue-100 bg-white" />
             ))}
           </div>
         </article>
 
         <aside className="hidden xl:block">
-          <div className="space-y-3 border-l border-white/8 pl-6">
-            <div className="h-4 w-24 animate-pulse bg-white/12" />
+          <div className="space-y-3 border-l border-blue-100 pl-6">
+            <div className="h-4 w-24 animate-pulse rounded bg-blue-100" />
             {[0, 1, 2].map((item) => (
-              <div key={item} className="h-4 w-32 animate-pulse bg-white/[0.055]" />
+              <div key={item} className="h-4 w-32 animate-pulse rounded bg-blue-50" />
             ))}
           </div>
         </aside>
@@ -421,25 +421,25 @@ export function DocsFooter() {
   ];
 
   return (
-    <footer className="relative border-t border-white/[0.08] bg-black">
+    <footer className="relative border-t border-blue-100 bg-white">
       <div className="pointer-events-none absolute inset-0 supporthr-grid-mask opacity-10" />
       <div className="relative mx-auto max-w-[96rem] px-4 py-8 sm:px-6 lg:px-8">
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.25fr)]">
           <div>
             <Link to="/" className="inline-flex items-center gap-3">
-              <span className="flex h-9 w-9 items-center justify-center overflow-hidden border border-white/12 bg-black">
+              <span className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-xl border border-blue-100 bg-white shadow-sm">
                 <img src="/images/logos/logo.jpg" alt="Support HR" className="h-full w-full object-cover" />
               </span>
               <span>
-                <span className="supporthr-mono block text-lg font-semibold uppercase tracking-[0.08em] text-white">
+                <span className="supporthr-mono block text-lg font-semibold uppercase tracking-[0.08em] text-slate-900">
                   Support HR
                 </span>
-                <span className="supporthr-mono mt-1 block text-[10px] uppercase tracking-[0.22em] text-[#f5d6bb]">
+                <span className="supporthr-mono mt-1 block text-[10px] uppercase tracking-[0.22em] text-blue-600">
                   Tài liệu doanh nghiệp
                 </span>
               </span>
             </Link>
-            <p className="mt-4 max-w-md text-sm leading-7 text-zinc-500">
+            <p className="mt-4 max-w-md text-sm leading-7 text-slate-500">
               Trung tâm tài liệu public cho đội ngũ tuyển dụng, bên mua và người đánh giá bảo mật trước khi trải nghiệm sản phẩm.
             </p>
           </div>
@@ -447,10 +447,10 @@ export function DocsFooter() {
           <div className="grid gap-6 sm:grid-cols-3">
             {footerColumns.map((column) => (
               <section key={column.title}>
-                <p className="supporthr-mono text-[10px] uppercase tracking-[0.22em] text-zinc-500">{column.title}</p>
+                <p className="supporthr-mono text-[10px] uppercase tracking-[0.22em] text-slate-500">{column.title}</p>
                 <div className="mt-4 space-y-3">
                   {column.links.map((link) => (
-                    <Link key={link.to} to={link.to} className="block text-sm text-zinc-400 transition-colors hover:text-white">
+                    <Link key={link.to} to={link.to} className="block text-sm text-slate-500 transition-colors hover:text-blue-700">
                       {link.label}
                     </Link>
                   ))}
@@ -460,14 +460,14 @@ export function DocsFooter() {
           </div>
         </div>
 
-        <div className="mt-8 flex flex-col gap-4 border-t border-white/[0.08] pt-5 lg:flex-row lg:items-center lg:justify-between">
+        <div className="mt-8 flex flex-col gap-4 border-t border-blue-100 pt-5 lg:flex-row lg:items-center lg:justify-between">
           <div className="space-y-1">
-            <p className="text-sm text-zinc-500">© 2026 Support HR. Mọi quyền được bảo lưu.</p>
-            <div className="flex flex-col gap-1 text-sm text-zinc-600 sm:flex-row sm:gap-4">
-              <a href="mailto:support@supporthr.vn" className="transition-colors hover:text-zinc-400">
+            <p className="text-sm text-slate-500">© 2026 Support HR. Mọi quyền được bảo lưu.</p>
+            <div className="flex flex-col gap-1 text-sm text-slate-600 sm:flex-row sm:gap-4">
+              <a href="mailto:support@supporthr.vn" className="transition-colors hover:text-blue-700">
                 support@supporthr.vn
               </a>
-              <a href="tel:0899280108" className="transition-colors hover:text-zinc-400">
+              <a href="tel:0899280108" className="transition-colors hover:text-blue-700">
                 0899 280 108
               </a>
             </div>
@@ -498,10 +498,9 @@ export function LegalPageLayout({
   const activeTone = LEGAL_TONE_STYLES[activeMeta.tone];
 
   return (
-    <div className="legal-page-shell min-h-screen overflow-x-hidden bg-black text-zinc-100">
+    <div className="legal-page-shell min-h-screen overflow-x-hidden bg-[#f6f9ff] text-slate-900">
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="supporthr-grid-mask absolute inset-0 opacity-25" />
-        <div className="absolute inset-x-0 top-0 h-80 bg-[linear-gradient(180deg,rgba(255,255,255,0.045),transparent)]" />
+        <div className="supporthr-grid-mask absolute inset-0 opacity-10" />
       </div>
 
       <div className="relative z-10">
@@ -516,9 +515,9 @@ export function LegalPageLayout({
         >
           <div className="grid gap-8 xl:grid-cols-[17rem_minmax(0,48rem)_15rem] xl:gap-10">
             <aside className="hidden xl:block">
-              <div className="sticky top-28 border-r border-white/8 pr-6">
-                <p className="text-sm font-semibold text-white">Features</p>
-                <p className="mt-5 text-sm text-zinc-500">{pageLabel}</p>
+              <div className="sticky top-28 rounded-2xl border border-blue-100 bg-white p-4 shadow-sm">
+                <p className="text-sm font-semibold text-slate-900">Features</p>
+                <p className="mt-5 text-sm text-slate-500">{pageLabel}</p>
                 <div className="mt-3 space-y-1">
                   {sections.map((section) => {
                     const isActive = section.id === activeSection;
@@ -530,11 +529,11 @@ export function LegalPageLayout({
                         onClick={() => onSectionChange(section.id)}
                         className={`flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm transition-colors ${
                           isActive
-                            ? "bg-white/[0.09] text-white"
-                            : "text-zinc-500 hover:bg-white/[0.04] hover:text-zinc-200"
+                            ? "bg-blue-50 text-blue-700"
+                            : "text-slate-500 hover:bg-blue-50 hover:text-blue-700"
                         }`}
                       >
-                        <i className={`fa-solid ${section.icon} text-[11px] ${isActive ? "text-[#f5d6bb]" : "text-zinc-600"}`} />
+                        <i className={`fa-solid ${section.icon} text-[11px] ${isActive ? "text-blue-600" : "text-slate-500"}`} />
                         <span>{section.title}</span>
                       </button>
                     );
@@ -545,27 +544,27 @@ export function LegalPageLayout({
 
             <article className="min-w-0">
               <header>
-                <p className="text-sm font-semibold text-[#f5d6bb]">{pageLabel}</p>
-                <h1 className="mt-3 max-w-3xl text-[clamp(2rem,3.2vw,2.85rem)] font-semibold leading-[1.08] tracking-[-0.025em] text-white">
+                <p className="text-sm font-semibold text-blue-600">{pageLabel}</p>
+                <h1 className="mt-3 max-w-3xl text-[clamp(2rem,3.2vw,2.85rem)] font-semibold leading-[1.08] tracking-[-0.025em] text-slate-950">
                   {title}
                 </h1>
-                <p className="mt-4 max-w-2xl text-base leading-8 text-zinc-400 sm:text-lg">
+                <p className="mt-4 max-w-2xl text-base leading-8 text-slate-600 sm:text-lg">
                   {subtitle}
                 </p>
                 <div className="mt-5 flex flex-wrap items-center gap-3">
                   <DocsCopyPageButton />
-                  <span className="supporthr-mono text-[10px] uppercase tracking-[0.2em] text-zinc-600">{meta}</span>
+                  <span className="supporthr-mono text-[10px] uppercase tracking-[0.2em] text-slate-500">{meta}</span>
                 </div>
               </header>
 
-              <section className="mt-8 border border-white/10 bg-white/[0.025] px-4 py-4 sm:px-5">
+              <section className="mt-8 rounded-2xl border border-blue-100 bg-white px-4 py-4 shadow-[0_18px_48px_rgba(30,64,175,0.08)] sm:px-5">
                 <div className="flex items-start gap-3">
-                  <span className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center border border-[#f5d6bb]/24 bg-[#f5d6bb]/[0.06] text-[#f5d6bb]">
+                  <span className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-blue-100 bg-blue-50 text-blue-600">
                     <i className="fa-solid fa-book-open text-xs" />
                   </span>
                   <div className="min-w-0">
-                    <h2 className="text-lg font-semibold text-white">Documentation Index</h2>
-                    <p className="mt-2 text-sm leading-7 text-zinc-500">
+                    <h2 className="text-lg font-semibold text-slate-900">Documentation Index</h2>
+                    <p className="mt-2 text-sm leading-7 text-slate-500">
                       Chọn mục bên dưới để đi nhanh tới phần tài liệu cần đọc. Cấu trúc này giúp người xem rà soát theo chủ đề thay vì phải đọc một trang marketing dài.
                     </p>
                     <div className="mt-4 grid gap-2 sm:grid-cols-2">
@@ -580,15 +579,15 @@ export function LegalPageLayout({
                             onClick={() => onSectionChange(section.id)}
                             className={`flex items-center justify-between gap-3 border px-3 py-3 text-left text-sm transition-colors ${
                               isActive
-                                ? `${tone.border} ${tone.surface} text-white`
-                                : "border-white/8 bg-black/20 text-zinc-400 hover:border-white/14 hover:bg-white/[0.035] hover:text-white"
+                                ? `${tone.border} ${tone.surface} text-blue-700`
+                                : "border-blue-100 bg-white text-slate-500 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
                             }`}
                           >
                             <span className="flex min-w-0 items-center gap-2">
-                              <i className={`fa-solid ${section.icon} text-[11px] ${isActive ? tone.accent : "text-zinc-600"}`} />
+                              <i className={`fa-solid ${section.icon} text-[11px] ${isActive ? tone.accent : "text-slate-500"}`} />
                               <span className="truncate">{section.title}</span>
                             </span>
-                            <span className="supporthr-mono shrink-0 text-[10px] text-zinc-600">
+                            <span className="supporthr-mono shrink-0 text-[10px] text-slate-500">
                               {String(index + 1).padStart(2, "0")}
                             </span>
                           </button>
@@ -599,7 +598,7 @@ export function LegalPageLayout({
                 </div>
               </section>
 
-              <section className="mt-5 border-t border-white/8 pt-8">
+              <section className="mt-5 border-t border-blue-100 pt-8">
                 <div className="flex flex-col gap-4 pb-6 sm:flex-row sm:items-center sm:justify-between">
                   <div className="flex items-center gap-4">
                     <div
@@ -608,11 +607,11 @@ export function LegalPageLayout({
                       <i className={`fa-solid ${activeMeta.icon} text-sm`} />
                     </div>
                     <div>
-                      <p className="supporthr-mono text-[10px] uppercase tracking-[0.22em] text-zinc-600">Section</p>
-                      <h2 className="mt-1 text-2xl font-semibold tracking-[-0.02em] text-white">{activeMeta.title}</h2>
+                      <p className="supporthr-mono text-[10px] uppercase tracking-[0.22em] text-slate-500">Section</p>
+                      <h2 className="mt-1 text-2xl font-semibold tracking-[-0.02em] text-slate-900">{activeMeta.title}</h2>
                     </div>
                   </div>
-                  <div className="supporthr-mono text-[11px] uppercase tracking-[0.22em] text-zinc-500">
+                  <div className="supporthr-mono text-[11px] uppercase tracking-[0.22em] text-slate-500">
                     /{String(activeIndex + 1).padStart(2, "0")} of /{String(sections.length).padStart(2, "0")}
                   </div>
                 </div>
@@ -621,9 +620,9 @@ export function LegalPageLayout({
             </article>
 
             <aside className="hidden xl:block">
-              <div className="sticky top-28 border-l border-white/8 pl-6">
-                <p className="flex items-center gap-2 text-sm font-semibold text-white">
-                  <i className="fa-solid fa-list-ul text-[11px] text-[#f5d6bb]" />
+              <div className="sticky top-28 rounded-2xl border border-blue-100 bg-white p-4 shadow-sm">
+                <p className="flex items-center gap-2 text-sm font-semibold text-slate-900">
+                  <i className="fa-solid fa-list-ul text-[11px] text-blue-600" />
                   On this page
                 </p>
                 <div className="mt-4 space-y-1">
@@ -637,10 +636,10 @@ export function LegalPageLayout({
                         type="button"
                         onClick={() => onSectionChange(section.id)}
                         className={`flex w-full items-start gap-2 px-2 py-2 text-left text-sm transition-colors ${
-                          isActive ? "text-white" : "text-zinc-500 hover:text-zinc-200"
+                          isActive ? "text-blue-700" : "text-slate-500 hover:text-blue-700"
                         }`}
                       >
-                        <span className={`mt-[0.45rem] h-1.5 w-1.5 shrink-0 ${isActive ? tone.dot : "bg-zinc-700"}`} />
+                        <span className={`mt-[0.45rem] h-1.5 w-1.5 shrink-0 rounded-full ${isActive ? tone.dot : "bg-blue-100"}`} />
                         <span>{section.title}</span>
                       </button>
                     );
@@ -668,7 +667,7 @@ export function LegalCard({ tone, icon, title, badge, children }: LegalCardProps
   const style = LEGAL_TONE_STYLES[tone];
 
   return (
-    <div className={`relative overflow-hidden border ${style.border} bg-white/[0.02] p-4 sm:p-5`}>
+    <div className={`relative overflow-hidden rounded-2xl border ${style.border} bg-white p-4 shadow-sm sm:p-5`}>
       <div className={`absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent ${style.rule} to-transparent`} />
       <div className="flex items-start gap-3">
         <div className={`flex h-9 w-9 shrink-0 items-center justify-center border ${style.border} ${style.surface} ${style.accent}`}>
@@ -676,14 +675,14 @@ export function LegalCard({ tone, icon, title, badge, children }: LegalCardProps
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <h3 className="text-sm font-semibold text-white sm:text-base">{title}</h3>
+            <h3 className="text-sm font-semibold text-slate-900 sm:text-base">{title}</h3>
             {badge ? (
               <span className={`supporthr-mono border px-2 py-1 text-[10px] uppercase tracking-[0.18em] ${style.border} ${style.label}`}>
                 {badge}
               </span>
             ) : null}
           </div>
-          <div className="mt-3 space-y-3 text-sm leading-7 text-zinc-400">{children}</div>
+          <div className="mt-3 space-y-3 text-sm leading-7 text-slate-600">{children}</div>
         </div>
       </div>
     </div>
@@ -701,15 +700,15 @@ export function LegalCallout({ tone, icon, title, children }: LegalCalloutProps)
   const style = LEGAL_TONE_STYLES[tone];
 
   return (
-    <div className={`relative overflow-hidden border ${style.border} ${style.surface} px-4 py-4 sm:px-5`}>
+    <div className={`relative overflow-hidden rounded-2xl border ${style.border} ${style.surface} px-4 py-4 sm:px-5`}>
       <div className={`absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent ${style.rule} to-transparent`} />
       <div className="flex items-start gap-3">
-        <div className={`flex h-9 w-9 shrink-0 items-center justify-center border ${style.border} bg-black/30 ${style.accent}`}>
+        <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border ${style.border} bg-white ${style.accent}`}>
           <i className={`fa-solid ${icon} text-xs`} />
         </div>
         <div>
           <h3 className={`text-sm font-semibold ${style.label}`}>{title}</h3>
-          <div className="mt-2 text-sm leading-7 text-zinc-300">{children}</div>
+          <div className="mt-2 text-sm leading-7 text-slate-600">{children}</div>
         </div>
       </div>
     </div>
@@ -730,7 +729,7 @@ export function LegalBulletGrid({ tone, items, columns = 1 }: LegalBulletGridPro
   return (
     <div className={`grid gap-2 ${columnsClass}`}>
       {items.map((item) => (
-        <div key={item} className="flex items-start gap-2 text-sm text-zinc-400">
+        <div key={item} className="flex items-start gap-2 text-sm text-slate-600">
           <span className={`mt-[0.55rem] h-1.5 w-1.5 shrink-0 ${style.dot}`} />
           <span>{item}</span>
         </div>

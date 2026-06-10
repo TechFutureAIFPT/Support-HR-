@@ -31,6 +31,7 @@ import {
   getActiveAnalysisContext,
 } from '@/services/history-cache/activeAnalysisContext';
 import { readLatestAnalysisRun } from '@/services/history-cache/latestAnalysisRun';
+import { normalizeVietnameseDisplay } from '@/utils/textDisplay';
 
 type FeedbackView = 'overview' | 'decision';
 
@@ -45,31 +46,31 @@ interface AIFeedbackPageProps {
 const ACTION_META: Record<AnalysisFeedbackAction, { label: string; className: string }> = {
   like: {
     label: 'Đánh giá tốt',
-    className: 'border-emerald-400/25 bg-emerald-400/10 text-emerald-100',
+    className: 'border-emerald-200 bg-emerald-50 text-emerald-700',
   },
   dislike: {
     label: 'Cần xem lại',
-    className: 'border-amber-400/25 bg-amber-400/10 text-amber-100',
+    className: 'border-amber-200 bg-amber-50 text-amber-700',
   },
   shortlist: {
     label: 'Shortlist',
-    className: 'border-[#f5d6bb]/30 bg-[#f5d6bb]/10 text-[#f8e5d3]',
+    className: 'border-blue-200 bg-blue-50 text-blue-700',
   },
   reject: {
     label: 'Từ chối',
-    className: 'border-rose-400/25 bg-rose-400/10 text-rose-100',
+    className: 'border-rose-200 bg-rose-50 text-rose-700',
   },
   interview: {
     label: 'Phỏng vấn',
-    className: 'border-sky-400/25 bg-sky-400/10 text-sky-100',
+    className: 'border-sky-200 bg-sky-50 text-sky-700',
   },
   hire: {
     label: 'Đề xuất',
-    className: 'border-violet-400/25 bg-violet-400/10 text-violet-100',
+    className: 'border-violet-200 bg-violet-50 text-violet-700',
   },
   neutral: {
     label: 'Trung lập',
-    className: 'border-white/[0.08] bg-white/[0.04] text-zinc-200',
+    className: 'border-blue-100 bg-white text-slate-700',
   },
 };
 
@@ -184,7 +185,7 @@ function getActionPresentation(action?: AnalysisFeedbackAction | null): { label:
   return ACTION_META[action] || ACTION_META.neutral;
 }
 
-const badgeClass = 'border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 text-sm text-zinc-300';
+const badgeClass = 'rounded-2xl border border-blue-100 bg-white px-3 py-1.5 text-sm text-slate-600';
 
 const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
   candidates,
@@ -346,7 +347,7 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
       }));
       persistLatestRunFeedback(selectedCandidate.id, draft.finalScore);
       await reloadFeedback();
-      setOverviewNotice(`Đã lưu phản hồi cho ${selectedCandidate.candidateName}.`);
+      setOverviewNotice(`Đã lưu phản hồi cho ${normalizeVietnameseDisplay(selectedCandidate.candidateName)}.`);
       setActiveView('overview');
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Không thể lưu phản hồi. Vui lòng thử lại.';
@@ -358,17 +359,17 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
 
   if (validCandidates.length === 0) {
     return (
-      <div className="feature-page-shell flex h-full flex-col items-center justify-center bg-black p-8 text-center">
-        <div className="mb-6 flex h-24 w-24 items-center justify-center border border-white/[0.08] bg-white/[0.03]">
+      <div className="feature-page-shell flex h-full flex-col items-center justify-center bg-[#f6f9ff] p-8 text-center">
+        <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-2xl border border-blue-100 bg-white">
           <Brain className="h-10 w-10 text-zinc-600" />
         </div>
-        <h2 className="mb-3 text-2xl font-bold text-white">Chưa có dữ liệu ứng viên</h2>
+        <h2 className="mb-3 text-2xl font-bold text-slate-900">Chưa có dữ liệu ứng viên</h2>
         <p className="max-w-md text-sm leading-7 text-zinc-400">
           Không tìm thấy ứng viên nào đã được phân tích. Hãy chạy lại bước phân tích CV trước khi mở màn phản hồi AI.
         </p>
         <button
           onClick={() => navigate('/analysis')}
-          className="mt-6 inline-flex items-center gap-2 border border-white/[0.08] bg-white/[0.02] px-4 py-2 text-sm font-semibold text-zinc-300 transition-colors hover:bg-white/[0.06] hover:text-white"
+          className="mt-6 inline-flex items-center gap-2 rounded-xl border border-blue-100 bg-white px-4 py-2 text-sm font-semibold text-slate-600 transition-colors hover:bg-blue-50 hover:text-blue-700"
         >
           <ArrowLeft className="h-4 w-4" />
           Quay về kết quả phân tích
@@ -378,19 +379,19 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
   }
 
   return (
-    <div className="feature-page-shell relative flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden bg-black text-zinc-100">
+    <div className="feature-page-shell relative flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden bg-[#f6f9ff] text-slate-900">
       <div className="pointer-events-none absolute inset-0 supporthr-grid-mask opacity-[0.16]" />
       <div className="pointer-events-none absolute inset-x-0 top-0 h-56 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.04),transparent_42%)]" />
 
-      <header className="relative z-10 shrink-0 border-b border-white/[0.08] bg-[rgba(8,8,9,0.96)] px-4 py-3 md:px-5">
+      <header className="relative z-10 shrink-0 border-b border-blue-100 bg-white/95 px-4 py-3 md:px-5" style={{ display: 'none' }}>
         <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
           <div className="flex min-w-0 items-center gap-3">
-            <div className="h-9 w-px shrink-0 bg-[#f5d6bb]/80" />
+            <div className="h-9 w-px shrink-0 bg-blue-500" />
             <div className="min-w-0">
-              <p className="supporthr-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-[#f5d6bb]/80">
+              <p className="supporthr-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-blue-600">
                 Feedback workflow
               </p>
-              <h1 className="truncate text-xl font-bold tracking-tight text-white md:text-2xl">
+              <h1 className="truncate text-xl font-bold tracking-tight text-slate-900 md:text-2xl">
                 {effectiveJobPosition || 'Phiên phân tích hiện tại'}
               </h1>
             </div>
@@ -398,7 +399,7 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
 
           <button
             onClick={() => navigate('/analysis')}
-            className="inline-flex h-11 items-center justify-center gap-2 border border-white/[0.08] bg-black px-4 text-sm font-semibold text-zinc-300 transition-colors hover:bg-white/[0.04] hover:text-white"
+            className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-blue-100 bg-white px-4 text-sm font-semibold text-slate-600 transition-colors hover:bg-blue-50 hover:text-blue-700"
           >
             <ArrowLeft className="h-4 w-4" />
             Kết quả phân tích
@@ -413,7 +414,7 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
             Tổng bản ghi: {feedbackStats?.totalFeedback ?? submittedCount}
           </span>
           <span className={`${badgeClass} inline-flex items-center gap-1.5`}>
-            <CheckCircle2 className="h-3.5 w-3.5 text-[#f5d6bb]" />
+            <CheckCircle2 className="h-3.5 w-3.5 text-blue-600" />
             {isLoadingFeedback ? 'Đang đồng bộ...' : 'Sẵn sàng'}
           </span>
           <span className={badgeClass}>
@@ -422,25 +423,25 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
         </div>
       </header>
 
-      <main className="relative z-10 min-h-0 flex-1 overflow-y-auto bg-[rgba(10,10,11,0.94)]">
+      <main className="relative z-10 min-h-0 flex-1 overflow-y-auto bg-[#f6f9ff]">
         {activeView === 'overview' ? (
           <div className="mx-auto flex w-full max-w-7xl flex-col gap-4 px-4 py-5 md:px-5">
-            <section className="border border-white/[0.08] bg-[rgba(10,10,11,0.96)] p-4">
+            <section className="rounded-2xl border border-blue-100 bg-white shadow-[0_18px_48px_rgba(30,64,175,0.08)] p-4">
               <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
                 <div>
-                  <p className="supporthr-mono text-[10px] uppercase tracking-[0.2em] text-[#f5d6bb]/80">
+                  <p className="supporthr-mono text-[10px] uppercase tracking-[0.2em] text-blue-600">
                     Overview
                   </p>
-                  <h2 className="mt-2 text-2xl font-bold text-white">Chọn ứng viên để phản hồi</h2>
+                  <h2 className="mt-2 text-2xl font-bold text-slate-900">Chọn ứng viên để phản hồi</h2>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-zinc-500">
-                  <MessageSquareText className="h-4 w-4 text-[#f5d6bb]/80" />
+                <div className="flex items-center gap-2 text-sm text-slate-500">
+                  <MessageSquareText className="h-4 w-4 text-blue-600" />
                   <span>4 bước gọn cho mỗi ứng viên</span>
                 </div>
               </div>
 
               {overviewNotice ? (
-                <div className="mt-4 flex items-start gap-3 border border-emerald-400/25 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-100">
+                <div className="mt-4 flex items-start gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
                   <CheckCircle2 className="mt-0.5 h-4.5 w-4.5 shrink-0" />
                   <span>{overviewNotice}</span>
                 </div>
@@ -458,24 +459,24 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
                 return (
                   <article
                     key={candidate.id}
-                    className="border border-white/[0.08] bg-[rgba(10,10,11,0.96)] p-4"
+                    className="rounded-2xl border border-blue-100 bg-white shadow-[0_18px_48px_rgba(30,64,175,0.08)] p-4"
                   >
                     <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                       <div className="min-w-0">
-                        <p className="supporthr-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500">
+                        <p className="supporthr-mono text-[10px] uppercase tracking-[0.18em] text-slate-500">
                           Ứng viên
                         </p>
-                        <h3 className="mt-2 truncate text-xl font-bold text-white">{candidate.candidateName}</h3>
+                        <h3 className="mt-2 truncate text-xl font-bold text-slate-900">{normalizeVietnameseDisplay(candidate.candidateName)}</h3>
                         <div className="mt-3 flex flex-wrap gap-2">
                           <span className={`${badgeClass} inline-flex items-center gap-1.5`}>
-                            <FileText className="h-4 w-4 text-zinc-500" />
-                            {candidate.fileName}
+                            <FileText className="h-4 w-4 text-slate-500" />
+                            {normalizeVietnameseDisplay(candidate.fileName)}
                           </span>
                           <span className={badgeClass}>
-                            Điểm: <strong className="ml-1 text-white">{getDisplayedScore(candidate).toFixed(1)}</strong>
+                            Điểm: <strong className="ml-1 text-slate-900">{getDisplayedScore(candidate).toFixed(1)}</strong>
                           </span>
                           <span className={badgeClass}>
-                            Hạng: <strong className="ml-1 text-white">{getCandidateRank(candidate) || 'C'}</strong>
+                            Hạng: <strong className="ml-1 text-slate-900">{getCandidateRank(candidate) || 'C'}</strong>
                           </span>
                         </div>
                       </div>
@@ -485,14 +486,14 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
                           {actionPresentation.label}
                         </span>
                       ) : (
-                        <span className="w-fit border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 text-sm font-semibold text-zinc-500">
+                        <span className="w-fit rounded-2xl border border-blue-100 bg-white px-3 py-1.5 text-sm font-semibold text-slate-500">
                           Chưa phản hồi
                         </span>
                       )}
                     </div>
 
-                    <div className="mt-4 flex items-center justify-between gap-3 border-t border-white/[0.08] pt-4">
-                      <div className="text-sm text-zinc-500">
+                    <div className="mt-4 flex items-center justify-between gap-3 border-t border-blue-100 pt-4">
+                      <div className="text-sm text-slate-500">
                         {entry?.updatedAt
                           ? `Cập nhật: ${new Date(entry.updatedAt).toLocaleString('vi-VN')}`
                           : 'Chưa có bản ghi feedback'}
@@ -500,7 +501,7 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
                       <button
                         type="button"
                         onClick={() => handleOpenCandidate(candidate.id)}
-                        className="inline-flex items-center gap-2 border border-[#f5d6bb]/35 bg-[#f5d6bb] px-4 py-2.5 text-sm font-semibold text-black transition-all hover:bg-[#f1cfb1]"
+                        className="inline-flex items-center gap-2 rounded-xl border border-blue-500/20 bg-gradient-to-r from-blue-600 to-teal-500 px-4 py-2.5 text-sm font-semibold text-white shadow-[0_14px_34px_rgba(35,136,255,0.16)] transition-all hover:brightness-105"
                       >
                         {entry ? 'Chỉnh sửa' : 'Phản hồi'}
                         <ChevronRight className="h-4 w-4" />
@@ -513,26 +514,26 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
           </div>
         ) : selectedCandidate ? (
           <div className="mx-auto flex w-full max-w-7xl flex-col gap-4 px-4 py-5 md:px-5">
-            <section className="border border-white/[0.08] bg-[rgba(10,10,11,0.96)] p-4">
+            <section className="rounded-2xl border border-blue-100 bg-white shadow-[0_18px_48px_rgba(30,64,175,0.08)] p-4">
               <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
                 <div>
-                  <p className="supporthr-mono text-[10px] uppercase tracking-[0.2em] text-[#f5d6bb]/80">
+                  <p className="supporthr-mono text-[10px] uppercase tracking-[0.2em] text-blue-600">
                     Ứng viên đang phản hồi
                   </p>
-                  <h2 className="mt-2 text-2xl font-bold text-white">{selectedCandidate.candidateName}</h2>
+                  <h2 className="mt-2 text-2xl font-bold text-slate-900">{normalizeVietnameseDisplay(selectedCandidate.candidateName)}</h2>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   <span className={badgeClass}>
-                    Điểm AI: <strong className="ml-1 text-white">{getCandidateScore(selectedCandidate).toFixed(1)}</strong>
+                    Điểm AI: <strong className="ml-1 text-slate-900">{getCandidateScore(selectedCandidate).toFixed(1)}</strong>
                   </span>
                   <span className={badgeClass}>
-                    Hạng: <strong className="ml-1 text-white">{getCandidateRank(selectedCandidate) || 'C'}</strong>
+                    Hạng: <strong className="ml-1 text-slate-900">{getCandidateRank(selectedCandidate) || 'C'}</strong>
                   </span>
                 </div>
               </div>
 
               <p className="mt-4 flex items-start gap-2 text-sm leading-6 text-zinc-400">
-                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-[#f5d6bb]/80" />
+                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-blue-600" />
                 Workflow lưu theo session phân tích hiện tại.
               </p>
             </section>
@@ -551,15 +552,15 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
             />
           </div>
         ) : (
-          <div className="flex h-full flex-col items-center justify-center px-6 text-center text-zinc-500">
-            <div className="mb-4 flex h-16 w-16 items-center justify-center border border-white/[0.08] bg-white/[0.03]">
+          <div className="flex h-full flex-col items-center justify-center px-6 text-center text-slate-500">
+            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border border-blue-100 bg-white">
               <Brain className="h-7 w-7 text-zinc-600" />
             </div>
-            <p className="text-base font-semibold text-zinc-300">Không tìm thấy ứng viên đang chọn</p>
+            <p className="text-base font-semibold text-slate-600">Không tìm thấy ứng viên đang chọn</p>
             <button
               type="button"
               onClick={() => setActiveView('overview')}
-              className="mt-4 inline-flex items-center gap-2 border border-white/[0.08] bg-white/[0.02] px-4 py-2 text-sm font-semibold text-zinc-300 transition-colors hover:bg-white/[0.06] hover:text-white"
+              className="mt-4 inline-flex items-center gap-2 rounded-xl border border-blue-100 bg-white px-4 py-2 text-sm font-semibold text-slate-600 transition-colors hover:bg-blue-50 hover:text-blue-700"
             >
               Về overview
             </button>

@@ -39,7 +39,7 @@ function normalizeCompletedSteps(value: unknown): AppStep[] {
   if (!Array.isArray(value)) return [];
 
   return value.filter((step): step is AppStep =>
-    ['home', 'jd', 'weights', 'upload', 'analysis', 'dashboard', 'chatbot', 'process', 'history', 'feedback'].includes(
+    ['home', 'jd', 'weights', 'upload', 'analysis', 'dashboard', 'chatbot', 'records', 'jd-standardizer', 'process', 'history', 'feedback'].includes(
       String(step)
     )
   );

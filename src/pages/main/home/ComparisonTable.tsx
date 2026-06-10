@@ -1,190 +1,79 @@
 import {
-  BriefcaseBusiness,
-  Check,
-  CircleMinus,
-  FileSearch,
-  Files,
-  History,
-  ListChecks,
-  ScanSearch,
+  ArrowUpRight,
+  BarChart3,
+  FileText,
+  MessageSquareText,
+  Trophy,
 } from "lucide-react";
 
-const comparisonRows = [
+const features = [
   {
-    title: "Xử lý nhiều CV trong cùng một quy trình",
-    detail: "Khi khối lượng CV lớn, việc gom mọi bước về cùng một bề mặt giúp đội ngũ ít bị vỡ mạch hơn.",
-    generalAi: "Thường phải tách từng việc nhỏ rồi nối kết quả lại bằng tay.",
-    supportHr: "Giữ toàn bộ phiên sàng lọc trong một luồng làm việc xuyên suốt.",
-    Icon: Files,
+    title: "Nạp JD và chuẩn hóa tiêu chí",
+    benefit: "Biến mô tả công việc thành bộ tiêu chí đánh giá rõ ràng, có trọng số và có thể điều chỉnh.",
+    href: "/guide",
+    Icon: FileText,
   },
   {
-    title: "Đọc file scan và dữ liệu tổng hợp",
-    detail: "Nguồn CV trong thực tế rất lẫn lộn: PDF, ảnh scan, thư mục cũ, bảng tổng hợp ứng viên.",
-    generalAi: "Dễ phát sinh bước làm sạch hoặc chuyển đổi thủ công trước khi dùng.",
-    supportHr: "Hỗ trợ OCR và luồng nhập rõ ràng để giảm công đoạn chuẩn bị ban đầu.",
-    Icon: ScanSearch,
+    title: "Phân tích CV bằng AI",
+    benefit: "Tự động đọc hồ sơ, so khớp với JD và đưa ra điểm phù hợp theo từng nhóm tiêu chí.",
+    href: "/ai-methodology",
+    Icon: BarChart3,
   },
   {
-    title: "Đối chiếu theo đúng một JD cụ thể",
-    detail: "Điều quan trọng không chỉ là đọc CV, mà là đọc trong đúng ngữ cảnh vị trí đang tuyển.",
-    generalAi: "Thường trả lời theo từng tệp riêng lẻ, khó giữ cùng một chuẩn so sánh.",
-    supportHr: "Giữ xuyên suốt ngữ cảnh vị trí, tiêu chí và mức ưu tiên trong cả phiên.",
-    Icon: FileSearch,
+    title: "Bảng xếp hạng ứng viên",
+    benefit: "Nhìn nhanh ai phù hợp nhất, ai cần xem thêm và lý do vì sao hệ thống đề xuất.",
+    href: "/use-cases",
+    Icon: Trophy,
   },
   {
-    title: "Tạo danh sách đề cử để chia sẻ nội bộ",
-    detail: "Đầu ra tốt phải đủ gọn để bàn giao cho người quản lý tuyển dụng hoặc hội đồng phỏng vấn.",
-    generalAi: "Kết quả thường cần tổng hợp lại trước khi đưa sang vòng tiếp theo.",
-    supportHr: "Có sẵn danh sách đề cử, lý do đánh giá và bề mặt trao đổi cho cả đội.",
-    Icon: ListChecks,
-  },
-  {
-    title: "Giữ lịch sử và trạng thái của phiên",
-    detail: "Một quy trình tuyển dụng hiếm khi xong trong một lần mở màn hình.",
-    generalAi: "Dễ đứt mạch khi đổi bước hoặc tải lại trang sau một khoảng làm việc.",
-    supportHr: "Ghi nhớ trạng thái gần nhất để người dùng quay lại đúng chỗ đang làm dở.",
-    Icon: History,
-  },
-  {
-    title: "Phù hợp với mục tiêu sản phẩm",
-    detail: "Đội ngũ business thường mua một công cụ vận hành, không phải một ô chat đa dụng.",
-    generalAi: "Là công cụ chung, linh hoạt nhưng không tối ưu cho tuyển dụng theo quy trình.",
-    supportHr: "Là không gian làm việc chuyên cho sàng lọc, rà soát và bàn giao ứng viên.",
-    Icon: BriefcaseBusiness,
+    title: "Feedback tuyển dụng có cấu trúc",
+    benefit: "Ghi nhận phản hồi sau phân tích để cải thiện chất lượng shortlist và tăng tính nhất quán trong quyết định.",
+    href: "/process",
+    Icon: MessageSquareText,
   },
 ];
-
-const comparisonHighlights = [
-  "Một quy trình xuyên suốt từ JD đến danh sách đề cử.",
-  "Ít thao tác vòng lại hơn khi nhập, đọc và đối chiếu CV.",
-  "Giữ được lý do đánh giá để chia sẻ với đội ngũ tuyển dụng.",
-];
-
-function ColumnCell({
-  tone,
-  children,
-}: {
-  tone: "general" | "support";
-  children: string;
-}) {
-  const isSupport = tone === "support";
-
-  return (
-    <div
-      className={`relative h-full border px-5 py-5 ${
-        isSupport
-          ? "border-[#f5d6bb]/18 bg-[linear-gradient(180deg,rgba(245,214,187,0.08),rgba(245,214,187,0.03))]"
-          : "border-white/8 bg-white/[0.02]"
-      }`}
-    >
-      <div className="flex items-start gap-3">
-        <span
-          className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center border ${
-            isSupport
-              ? "border-[#f5d6bb]/24 bg-[#f5d6bb]/10 text-[#f5d6bb]"
-              : "border-white/10 bg-black/45 text-zinc-500"
-          }`}
-        >
-          {isSupport ? <Check className="h-3.5 w-3.5" aria-hidden="true" /> : <CircleMinus className="h-3.5 w-3.5" aria-hidden="true" />}
-        </span>
-        <p className={`text-sm leading-7 ${isSupport ? "font-medium text-zinc-100" : "text-zinc-400"}`}>{children}</p>
-      </div>
-    </div>
-  );
-}
 
 const ComparisonTable = () => {
   return (
-    <div className="home-grid-sheet mx-auto w-full max-w-[102rem]">
-      <div className="grid gap-8 xl:grid-cols-[minmax(0,0.48fr)_minmax(0,1.12fr)] xl:items-start">
-        <div className="max-w-[28rem]">
-          <p className="supporthr-mono text-[11px] uppercase tracking-[0.24em] text-[#f5d6bb]/75">
-            Support HR // Ma trận so sánh
+    <div className="mx-auto w-full max-w-[92rem]">
+      <div className="grid gap-8 lg:grid-cols-[0.72fr_1.28fr] lg:items-start">
+        <div className="max-w-[34rem]">
+          <p className="supporthr-mono text-[11px] uppercase tracking-[0.24em] text-blue-600">
+            Tính năng nổi bật
           </p>
-          <h2 className="home-section-heading mt-6 max-w-[18ch] text-white">
-            So sánh theo đúng nhu cầu vận hành tuyển dụng.
+          <h2 className="home-section-heading mt-6 max-w-[14ch] text-slate-900">
+            Tính năng được xây dựng để giúp đội tuyển dụng làm việc nhanh và chắc hơn
           </h2>
-          <p className="mt-6 text-base leading-8 text-zinc-400 sm:text-lg">
-            Phần khác biệt lớn nhất không nằm ở việc “có AI hay không”, mà ở việc sản phẩm có giữ được cả quy trình
-            tuyển dụng trên cùng một bề mặt làm việc hay không.
+          <p className="mt-6 text-base leading-8 text-slate-500 sm:text-lg">
+            Mỗi tính năng tập trung vào một lợi ích vận hành: giảm thao tác thủ công, chuẩn hóa đánh giá và giúp đội ngũ giải thích quyết định tuyển dụng rõ ràng hơn.
           </p>
-
-          <div className="mt-8 grid gap-3">
-            {comparisonHighlights.map((highlight, index) => (
-              <div key={highlight} className="border border-white/8 bg-white/[0.02] px-4 py-4">
-                <div className="flex items-start gap-3">
-                  <span className="supporthr-mono mt-0.5 text-[11px] uppercase tracking-[0.18em] text-[#f5d6bb]/70">
-                    /0{index + 1}
-                  </span>
-                  <p className="text-sm leading-7 text-zinc-300">{highlight}</p>
-                </div>
-              </div>
-            ))}
-          </div>
         </div>
 
-        <div className="relative border border-white/[0.08] bg-black/80">
-          <div className="home-noise-overlay" />
-          <div className="hidden lg:grid lg:grid-cols-[15rem_minmax(0,1fr)_minmax(0,1fr)] 2xl:grid-cols-[16rem_minmax(0,1fr)_minmax(0,1fr)]">
-            <div className="border-b border-r border-white/8 px-5 py-5">
-              <p className="supporthr-mono text-[10px] uppercase tracking-[0.24em] text-zinc-500">Tiêu chí</p>
-            </div>
-            <div className="border-b border-r border-white/8 px-5 py-5">
-              <p className="supporthr-mono text-[10px] uppercase tracking-[0.24em] text-zinc-500">AI đa dụng</p>
-            </div>
-            <div className="border-b border-[#f5d6bb]/18 bg-[#f5d6bb]/[0.05] px-5 py-5">
-              <p className="supporthr-mono text-[10px] uppercase tracking-[0.24em] text-[#f5d6bb]">Support HR</p>
-            </div>
-
-            {comparisonRows.map(({ title, detail, generalAi, supportHr, Icon }) => (
-              <>
-                <div key={`${title}-meta`} className="border-r border-t border-white/8 px-5 py-5">
-                  <div className="flex items-start gap-3">
-                    <span className="flex h-10 w-10 shrink-0 items-center justify-center border border-white/10 bg-white/[0.03] text-[#f5d6bb]">
-                      <Icon className="h-4.5 w-4.5" aria-hidden="true" />
-                    </span>
-                    <div>
-                      <h3 className="text-sm font-semibold text-white">{title}</h3>
-                      <p className="mt-2 text-sm leading-6 text-zinc-500">{detail}</p>
-                    </div>
-                  </div>
-                </div>
-                <div key={`${title}-general`} className="border-r border-t border-white/8 p-4">
-                  <ColumnCell tone="general">{generalAi}</ColumnCell>
-                </div>
-                <div key={`${title}-support`} className="border-t border-[#f5d6bb]/18 bg-[#f5d6bb]/[0.03] p-4">
-                  <ColumnCell tone="support">{supportHr}</ColumnCell>
-                </div>
-              </>
-            ))}
-          </div>
-
-          <div className="grid gap-4 p-4 lg:hidden">
-            {comparisonRows.map(({ title, detail, generalAi, supportHr, Icon }) => (
-              <article key={title} className="border border-white/8 bg-white/[0.02] p-4">
-                <div className="flex items-start gap-3">
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center border border-white/10 bg-white/[0.03] text-[#f5d6bb]">
-                    <Icon className="h-4.5 w-4.5" aria-hidden="true" />
-                  </span>
-                  <div>
-                    <h3 className="text-sm font-semibold text-white">{title}</h3>
-                    <p className="mt-2 text-sm leading-6 text-zinc-500">{detail}</p>
-                  </div>
-                </div>
-
-                <div className="mt-4 grid gap-3">
-                  <div>
-                    <p className="supporthr-mono mb-2 text-[10px] uppercase tracking-[0.22em] text-zinc-500">AI đa dụng</p>
-                    <ColumnCell tone="general">{generalAi}</ColumnCell>
-                  </div>
-                  <div>
-                    <p className="supporthr-mono mb-2 text-[10px] uppercase tracking-[0.22em] text-[#f5d6bb]">Support HR</p>
-                    <ColumnCell tone="support">{supportHr}</ColumnCell>
-                  </div>
-                </div>
-              </article>
-            ))}
-          </div>
+        <div className="grid gap-4 sm:grid-cols-2">
+          {features.map(({ title, benefit, href, Icon }, index) => (
+            <article
+              key={title}
+              className="group flex min-h-[17rem] flex-col rounded-2xl border border-blue-100 bg-white p-6 shadow-[0_16px_42px_rgba(30,64,175,0.07)] transition-colors hover:bg-blue-50/70"
+            >
+              <div className="flex items-start justify-between gap-4">
+                <span className="flex h-12 w-12 items-center justify-center rounded-2xl border border-blue-100 bg-blue-50 text-blue-600 group-hover:bg-white">
+                  <Icon className="h-5 w-5" />
+                </span>
+                <span className="supporthr-mono text-[11px] font-bold text-blue-500">
+                  /0{index + 1}
+                </span>
+              </div>
+              <h3 className="mt-7 text-xl font-bold leading-snug text-slate-900">{title}</h3>
+              <p className="mt-4 text-sm leading-7 text-slate-600">{benefit}</p>
+              <a
+                href={href}
+                className="mt-auto inline-flex items-center gap-2 pt-7 supporthr-mono text-[11px] font-bold uppercase tracking-[0.18em] text-blue-700 transition-colors hover:text-blue-900"
+              >
+                Xem chi tiết
+                <ArrowUpRight className="h-4 w-4" />
+              </a>
+            </article>
+          ))}
         </div>
       </div>
     </div>

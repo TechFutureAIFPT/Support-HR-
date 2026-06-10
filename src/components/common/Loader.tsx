@@ -1,5 +1,5 @@
 /**
- * Loader — Chỉ hỗ trợ Dark Mode
+ * Loader — light-only loading state
  */
 import React from 'react';
 import SupportHRLoading from '@/components/common/SupportHRLoading';

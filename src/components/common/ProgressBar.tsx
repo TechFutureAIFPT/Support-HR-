@@ -1,6 +1,3 @@
-/**
- * ProgressBar (Step Indicator) — Chỉ hỗ trợ Dark Mode
- */
 import React from 'react';
 import type { AppStep } from '@/types';
 
@@ -12,24 +9,22 @@ interface ProgressBarProps {
 const ProgressBar: React.FC<ProgressBarProps> = ({ activeStep, completedSteps }) => {
   const steps = [
     { key: 'jd' as AppStep, label: 'JD', icon: 'fa-clipboard-list' },
-    { key: 'weights' as AppStep, label: 'Trọng số', icon: 'fa-sliders' },
+    { key: 'upload' as AppStep, label: 'Hồ sơ', icon: 'fa-upload' },
+    { key: 'weights' as AppStep, label: 'Mặc định', icon: 'fa-sliders' },
     { key: 'analysis' as AppStep, label: 'AI', icon: 'fa-rocket' },
   ];
 
-  const getStepIndex = (step: AppStep): number => steps.findIndex(s => s.key === step);
+  const getStepIndex = (step: AppStep): number => steps.findIndex((item) => item.key === step);
   const activeIndex = getStepIndex(activeStep);
   const progress = (activeIndex / (steps.length - 1)) * 100;
 
   return (
-    <div className="md:hidden w-full mb-4 px-2 mt-2">
-      <div className="border border-white/10 bg-black/90 p-4 shadow-xl backdrop-blur-md">
-        <div className="flex items-center justify-between relative">
-          {/* Background line */}
-          <div className="absolute top-4 left-0 right-0 h-0.5 -z-10 bg-slate-700" />
-
-          {/* Active progress line */}
+    <div className="mb-4 mt-2 w-full px-2 md:hidden">
+      <div className="rounded-2xl border border-blue-100 bg-white p-4 shadow-[0_14px_36px_rgba(30,64,175,0.1)] backdrop-blur-md">
+        <div className="relative flex items-center justify-between">
+          <div className="absolute left-0 right-0 top-4 -z-10 h-0.5 bg-blue-100" />
           <div
-            className="absolute top-4 left-0 h-0.5 transition-all duration-500 ease-out -z-10 bg-gradient-to-r from-[#f5d6bb] to-[#ffd8a8]"
+            className="absolute left-0 top-4 -z-10 h-0.5 bg-gradient-to-r from-blue-500 to-emerald-400 transition-all duration-500 ease-out"
             style={{ width: `${progress}%` }}
           />
 
@@ -38,28 +33,30 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ activeStep, completedSteps })
             const isActive = activeStep === step.key;
 
             const circleClass = isActive
-              ? 'bg-black border-2 border-[#f5d6bb] text-[#f5d6bb] shadow-[0_0_10px_rgba(245,214,187,0.24)] scale-110'
+              ? 'border-blue-500 bg-blue-50 text-blue-600 shadow-[0_8px_20px_rgba(35,136,255,0.18)] scale-110'
               : isCompleted
-                ? 'bg-black border-2 border-[#f5d6bb]/50 text-[#f5d6bb]'
-                : 'bg-slate-800 border-2 border-slate-700 text-slate-500';
+                ? 'border-emerald-300 bg-emerald-50 text-emerald-600'
+                : 'border-blue-100 bg-white text-slate-400';
 
             const textClass = isActive
-              ? 'text-[#f5d6bb] font-bold'
+              ? 'text-blue-700 font-bold'
               : isCompleted
-                ? 'text-[#f5d6bb]/80 font-medium'
+                ? 'text-emerald-600 font-medium'
                 : 'text-slate-500';
 
             return (
-              <div key={step.key} className="flex flex-col items-center relative z-10 group cursor-default">
-                <div className={`
-                  w-8 h-8 rounded-full flex items-center justify-center text-xs
-                  transition-all duration-300
-                  ${circleClass}
-                  ${isActive ? 'animate-pulse' : ''}
-                `}>
+              <div key={step.key} className="group relative z-10 flex cursor-default flex-col items-center">
+                <div
+                  className={`
+                    flex h-8 w-8 items-center justify-center rounded-full border-2 text-xs
+                    transition-all duration-300
+                    ${circleClass}
+                    ${isActive ? 'animate-pulse' : ''}
+                  `}
+                >
                   <i className={`fa-solid ${step.icon}`} />
                 </div>
-                <span className={`text-[10px] mt-1.5 transition-colors duration-300 ${textClass}`}>
+                <span className={`mt-1.5 text-[10px] transition-colors duration-300 ${textClass}`}>
                   {step.label}
                 </span>
               </div>

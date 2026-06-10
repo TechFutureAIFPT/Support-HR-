@@ -1,10 +1,10 @@
 /**
- * ThemeProvider — Hỗ trợ Dark Mode và Light Mode
- * - Toggle được lưu vào localStorage để nhớ qua các lần load
- * - Đặt CSS variables trên documentElement để dùng xuyên suốt app
+ * ThemeProvider - light-only runtime.
+ * The public API is preserved so existing components keep working, but all
+ * theme calls resolve to the light design system.
  */
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useEffect, useCallback } from 'react';
 import { tokens, ThemeMode } from '@/context/theme/tokens.ts';
 
 interface ThemeContextType {
@@ -15,26 +15,20 @@ interface ThemeContextType {
 }
 
 const ThemeContext = createContext<ThemeContextType>({
-  isDarkMode: true,
-  themeMode: 'dark',
+  isDarkMode: false,
+  themeMode: 'light',
   toggleTheme: () => {},
   setTheme: () => {},
 });
 
-const STORAGE_KEY = 'supporthr-theme';
-
-function applyThemeVariables(mode: ThemeMode) {
+function applyThemeVariables() {
   const root = document.documentElement;
-  const t = tokens[mode];
+  const t = tokens.light;
 
-  // Update HTML class for Tailwind dark: selectors and our .light/.dark CSS
-  root.classList.remove('light', 'dark');
-  root.classList.add(mode);
+  root.classList.remove('dark');
+  root.classList.add('light');
+  root.style.colorScheme = 'light';
 
-  // Color scheme for browser native UI
-  root.style.colorScheme = mode === 'dark' ? 'dark' : 'light';
-
-  // Apply all CSS custom properties
   root.style.setProperty('--th-bg', t.bgPrimary);
   root.style.setProperty('--th-bg-secondary', t.bgSecondary);
   root.style.setProperty('--th-bg-tertiary', t.bgTertiary);
@@ -93,27 +87,27 @@ function applyThemeVariables(mode: ThemeMode) {
 }
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const themeMode: ThemeMode = 'dark';
-
   useEffect(() => {
-    applyThemeVariables(themeMode);
-  }, [themeMode]);
+    applyThemeVariables();
+  }, []);
 
-  const setTheme = useCallback((mode: ThemeMode) => {
-    // Light mode has been removed, do nothing
+  const setTheme = useCallback((_mode: ThemeMode) => {
+    applyThemeVariables();
   }, []);
 
   const toggleTheme = useCallback(() => {
-    // Light mode has been removed, do nothing
+    applyThemeVariables();
   }, []);
 
   return (
-    <ThemeContext.Provider value={{
-      isDarkMode: true,
-      themeMode: 'dark',
-      toggleTheme,
-      setTheme,
-    }}>
+    <ThemeContext.Provider
+      value={{
+        isDarkMode: false,
+        themeMode: 'light',
+        toggleTheme,
+        setTheme,
+      }}
+    >
       {children}
     </ThemeContext.Provider>
   );
@@ -122,15 +116,13 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 export const useTheme = () => useContext(ThemeContext);
 
 export function useThemeVar(varName: string): string {
-  const { themeMode } = useTheme();
-  const t = tokens[themeMode];
+  const t = tokens.light;
   const key = varName.replace('--th-', '') as keyof typeof t;
   return (t as any)[key] as string;
 }
 
 export function useThemeVars(...varNames: string[]): Record<string, string> {
-  const { themeMode } = useTheme();
-  const t = tokens[themeMode];
+  const t = tokens.light;
   const result: Record<string, string> = {};
   for (const name of varNames) {
     const key = name.replace('--th-', '') as keyof typeof t;

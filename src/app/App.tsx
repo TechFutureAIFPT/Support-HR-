@@ -13,6 +13,7 @@ import type { AuthUser } from '@/services/auth/authTypes';
 import type { AppStep, Candidate, HardFilters, WeightCriteria, AnalysisRunData, ActiveAnalysisContext } from '@/types';
 import { initialWeights } from '@/config/constants';
 import Sidebar from '@/layout/Sidebar';
+import WorkspaceTopbar from '@/components/workspace/WorkspaceTopbar';
 import JDTemplatesModal, { JDTemplate } from '@/components/history/JDTemplatesModal';
 import HistoryModal from '@/components/history/HistoryModal';
 import PageTransition from '@/components/PageTransition';
@@ -38,8 +39,9 @@ const AIMethodologyPage = lazy(() => import('@/pages/info/AIMethodologyPage'));
 const UseCasesPage = lazy(() => import('@/pages/info/UseCasesPage'));
 const IntegrationsPage = lazy(() => import('@/pages/info/IntegrationsPage'));
 const BookDemoPage = lazy(() => import('@/pages/info/BookDemoPage'));
-const SelectedCandidatesPage = lazy(() => import('@/pages/analytics/SelectedCandidatesPage'));
 const AIFeedbackPage = lazy(() => import('@/pages/main/AIFeedbackPage'));
+const FilteredCvLibraryPage = lazy(() => import('@/pages/tools/FilteredCvLibraryPage'));
+const JDStandardizerPage = lazy(() => import('@/pages/tools/JDStandardizerPage'));
 import CandidateSuggestions from '@/pages/analytics/CandidateSuggestions';
 // HistoryPage removed from UI (still saving to Firestore silently)
 import { saveHistorySession } from '@/services/history-cache/historyService';
@@ -112,6 +114,22 @@ function readStoredJson<T>(key: string): T | null {
   }
 }
 
+function normalizeCompletedSteps(steps: AppStep[]): AppStep[] {
+  const normalized = [...steps];
+  const shouldBackfillUpload = (normalized.includes('weights') || normalized.includes('analysis')) && !normalized.includes('upload');
+
+  if (shouldBackfillUpload) {
+    const weightIndex = normalized.indexOf('weights');
+    if (weightIndex >= 0) {
+      normalized.splice(weightIndex, 0, 'upload');
+    } else {
+      normalized.push('upload');
+    }
+  }
+
+  return [...new Set(normalized)];
+}
+
 const App = () => {
   return (
     <ThemeProvider>
@@ -182,7 +200,7 @@ const MainApp = () => {
   };
 
   useEffect(() => {
-    const protectedPaths = ['/jd', '/weights', '/analysis', '/dashboard', '/detailed-analytics', '/chatbot', '/feedback'];
+    const protectedPaths = ['/jd', '/upload', '/weights', '/analysis', '/dashboard', '/detailed-analytics', '/chatbot', '/feedback', '/records', '/jd-standardizer'];
 
     if (!isInitializing && !isLoggedIn && protectedPaths.includes(location.pathname)) {
       setShowLoginModal(true);
@@ -323,8 +341,8 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
   });
   const [completedSteps, setCompletedSteps] = useState<AppStep[]>(
     () => {
-      if (initialWorkflowDraft?.completedSteps?.length) return initialWorkflowDraft.completedSteps;
-      return initialStoredRun ? ['jd', 'weights', 'analysis'] : [];
+      if (initialWorkflowDraft?.completedSteps?.length) return normalizeCompletedSteps(initialWorkflowDraft.completedSteps);
+      return initialStoredRun ? ['jd', 'upload', 'weights', 'analysis'] : [];
     }
   );
   const [jdTemplatesModalOpen, setJdTemplatesModalOpen] = useState<boolean>(false);
@@ -429,7 +447,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
       if (payload.weights) setWeights(payload.weights);
       if (payload.hardFilters) setHardFilters(payload.hardFilters);
       if (payload.candidates) setAnalysisResults(payload.candidates);
-      setCompletedSteps(['jd', 'weights', 'analysis']);
+      setCompletedSteps(['jd', 'upload', 'weights', 'analysis']);
       if (payload.candidates) {
         writeLatestAnalysisRun({
           timestamp: Number(payload.timestamp || Date.now()),
@@ -613,12 +631,15 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
     switch (location.pathname) {
       case '/process': return 'process';
       case '/jd': return 'jd';
+      case '/upload': return 'upload';
       case '/weights': return 'weights';
       case '/analysis': return 'analysis';
       case '/dashboard': return 'dashboard';
       case '/detailed-analytics': return 'dashboard'; // Show dashboard as active for detailed analytics page
       case '/chatbot': return 'chatbot';
       case '/feedback': return 'feedback';
+      case '/records': return 'records';
+      case '/jd-standardizer': return 'jd-standardizer';
       case '/':
       default:
         return 'home';
@@ -651,11 +672,14 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
     const pathMap: Partial<Record<AppStep, string>> = {
       home: '/',
       jd: '/jd',
+      upload: '/upload',
       weights: '/weights',
       analysis: '/analysis',
       dashboard: '/detailed-analytics',
       chatbot: '/chatbot',
       feedback: '/feedback',
+      records: '/records',
+      'jd-standardizer': '/jd-standardizer',
       process: '/process'
     };
     if (pathMap[step]) navigate(pathMap[step]!);
@@ -668,36 +692,66 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
   useEffect(() => {
     const hasUsableAnalysis = analysisResults.some((candidate) => candidate.status === 'SUCCESS' && candidate.analysis);
     if (!isLoading && hasUsableAnalysis) {
-      setCompletedSteps(prev => [...new Set<AppStep>([...prev, 'jd', 'weights', 'analysis'])]);
+      setCompletedSteps(prev => [...new Set<AppStep>([...prev, 'jd', 'upload', 'weights', 'analysis'])]);
     }
   }, [analysisResults, isLoading]);
 
   const isHomeView = activeStep === 'home';
   const isLandingFallbackView =
     !isLoggedIn &&
-    ['/jd', '/weights', '/analysis', '/dashboard', '/detailed-analytics', '/chatbot', '/feedback'].includes(location.pathname);
+    ['/jd', '/upload', '/weights', '/analysis', '/dashboard', '/detailed-analytics', '/chatbot', '/feedback', '/records', '/jd-standardizer'].includes(location.pathname);
   const isMarketingRoute = publicMarketingPaths.has(location.pathname);
   const isLandingView = isHomeView || isLandingFallbackView || isMarketingRoute;
   const isWorkflowView =
     !isLandingView &&
     (activeStep === 'jd' ||
+      activeStep === 'upload' ||
       activeStep === 'weights' ||
       activeStep === 'analysis' ||
       activeStep === 'dashboard' ||
       activeStep === 'chatbot' ||
+      activeStep === 'records' ||
+      activeStep === 'jd-standardizer' ||
       activeStep === 'feedback');
 
   useEffect(() => {
     const path = location.pathname;
-    const requiresJD = ['/weights', '/analysis'];
+    const requiresJD = ['/upload', '/weights', '/analysis'];
     if (requiresJD.includes(path) && !completedSteps.includes('jd')) {
       navigate('/jd', { replace: true });
       return;
     }
+    const requiresUpload = ['/weights', '/analysis'];
+    if (requiresUpload.includes(path) && !completedSteps.includes('upload')) {
+      navigate('/upload', { replace: true });
+      return;
+    }
     if (path === '/analysis' && (!completedSteps.includes('weights'))) {
-      navigate('/jd', { replace: true });
+      navigate('/weights', { replace: true });
     }
   }, [location.pathname, completedSteps, navigate]);
+
+  const handleUseStandardizedJD = useCallback((payload: {
+    jdText: string;
+    rawJdText: string;
+    jobPosition: string;
+    supplementalFields?: { location?: string; salary?: string };
+  }) => {
+    const nextJd = payload.jdText || '';
+    const nextRawJd = payload.rawJdText || nextJd;
+    setJdText(nextJd);
+    setRawJdText(nextRawJd);
+    setJobPosition(payload.jobPosition || '');
+    setHardFilters((prev) => ({
+      ...prev,
+      location: payload.supplementalFields?.location || prev.location,
+      salaryMax: payload.supplementalFields?.salary || prev.salaryMax,
+    }));
+    localStorage.setItem('currentJD', nextJd);
+    localStorage.setItem('currentRawJD', nextRawJd);
+    markStepAsCompleted('jd');
+    setActiveStep('jd');
+  }, [markStepAsCompleted, setActiveStep]);
 
   const screenerPageProps = {
     jdText, setJdText,
@@ -718,7 +772,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
   };
 
   return (
-    <div className={`h-[100dvh] bg-black text-slate-100 flex flex-col overflow-hidden ${className || ''}`}>
+    <div className={`h-[100dvh] bg-white text-slate-900 flex flex-col overflow-hidden ${className || ''}`}>
       {!isLandingView && (
         <div className="hidden lg:block">
           <Sidebar
@@ -770,13 +824,13 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
       {!isLandingView && (
         <header
           className="fixed top-0 left-0 right-0 z-[45] flex min-h-14 items-center justify-between gap-3 px-3 py-2 lg:hidden"
-          style={{ background: '#000000', borderBottom: '1px solid rgba(255,255,255,0.08)' }}
+          style={{ background: 'rgba(255,255,255,0.94)', borderBottom: '1px solid rgba(55,125,255,0.12)', boxShadow: '0 12px 32px rgba(30,64,175,0.08)' }}
         >
           <button
             type="button"
             onClick={() => setIsSidebarDrawerOpen(true)}
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-none border border-[#f5d6bb]/16 bg-white/[0.03] text-slate-200 transition hover:border-[#f5d6bb]/45 hover:text-[#f5d6bb]"
-            aria-label="Mo menu dieu huong"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-blue-200 bg-white text-slate-700 shadow-sm transition hover:border-blue-300 hover:text-blue-600"
+            aria-label="Mở menu điều hướng"
           >
             <i className="fa-solid fa-bars text-sm" />
           </button>
@@ -784,7 +838,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
           <div className="flex min-w-0 flex-1 items-center gap-2">
             <img src="/images/logos/logo.jpg" alt="Logo" className="w-8 h-8 rounded-lg object-contain shrink-0" />
             <div className="min-w-0">
-              <span className="block truncate text-sm font-black leading-tight" style={{ color: '#e2e8f0' }}>SupportHR</span>
+              <span className="block truncate text-sm font-black leading-tight" style={{ color: '#102033' }}>SupportHR</span>
               <span className="hidden text-[9px] font-semibold uppercase tracking-[0.14em] text-slate-500 sm:block">Recruitment Intelligence</span>
             </div>
           </div>
@@ -793,14 +847,14 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
               <img
                 src={userAvatar || '/images/logos/logo.jpg'}
                 alt=""
-                className="h-9 w-9 rounded-full object-cover border border-slate-600/80"
+                className="h-9 w-9 rounded-full object-cover border border-blue-100 shadow-sm"
               />
             </div>
           ) : (
             <button
               type="button"
               onClick={onLoginRequest}
-              className="shrink-0 rounded-lg border border-slate-600 px-2.5 py-1.5 text-[11px] font-bold text-slate-200"
+              className="shrink-0 rounded-lg border border-blue-200 bg-white px-2.5 py-1.5 text-[11px] font-bold text-blue-700 shadow-sm"
             >
               Đăng nhập
             </button>
@@ -815,6 +869,37 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
             : 'ml-0 w-full'
         }`}
       >
+        {isWorkflowView && (
+          <WorkspaceTopbar
+            activeStep={activeStep}
+            completedSteps={completedSteps}
+            jobPosition={jobPosition}
+            userName={userName}
+            userAvatar={userAvatar}
+            userEmail={userEmail}
+            onLogout={handleLogout}
+            onNewSession={handleNewSession}
+            onOpenTemplates={() => {
+              setJdTemplateSelectionMode('analysis');
+              setJdTemplatesModalOpen(true);
+            }}
+            onOpenHistory={() => setHistoryModalOpen(true)}
+            onOpenAnalysis={() => {
+              setActiveStep('analysis');
+              navigate('/analysis');
+            }}
+            onOpenDetailedAnalytics={() => {
+              markStepAsCompleted('analysis');
+              setActiveStep('dashboard');
+              navigate('/detailed-analytics');
+            }}
+            onOpenCandidateSuggestions={() => {
+              markStepAsCompleted('analysis');
+              setActiveStep('chatbot');
+              navigate('/chatbot');
+            }}
+          />
+        )}
         <div className={`flex h-full min-h-0 w-full flex-1 flex-col ${isWorkflowView ? 'overflow-hidden' : isLandingView ? '' : 'max-w-7xl px-4 sm:px-6 lg:px-8 mx-auto py-4 overflow-y-auto custom-scrollbar'}`}>
           <Suspense fallback={
             isMarketingRoute ? (
@@ -837,6 +922,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
             <Routes>
               <Route path="/" element={<HomePage setActiveStep={setActiveStep} isLoggedIn={isLoggedIn} onLoginRequest={onLoginRequest} completedSteps={completedSteps} userName={userName} userEmail={userEmail} />} />
               <Route path="/jd" element={isLoggedIn ? <ScreenerPage {...screenerPageProps} /> : <HomePage setActiveStep={setActiveStep} isLoggedIn={isLoggedIn} onLoginRequest={onLoginRequest} completedSteps={completedSteps} userName={userName} userEmail={userEmail} />} />
+              <Route path="/upload" element={isLoggedIn ? <ScreenerPage {...screenerPageProps} /> : <HomePage setActiveStep={setActiveStep} isLoggedIn={isLoggedIn} onLoginRequest={onLoginRequest} completedSteps={completedSteps} userName={userName} userEmail={userEmail} />} />
               <Route path="/weights" element={isLoggedIn ? <ScreenerPage {...screenerPageProps} /> : <HomePage setActiveStep={setActiveStep} isLoggedIn={isLoggedIn} onLoginRequest={onLoginRequest} completedSteps={completedSteps} userName={userName} userEmail={userEmail} />} />
               <Route path="/analysis" element={isLoggedIn ? <ScreenerPage {...screenerPageProps} /> : <HomePage setActiveStep={setActiveStep} isLoggedIn={isLoggedIn} onLoginRequest={onLoginRequest} completedSteps={completedSteps} userName={userName} userEmail={userEmail} />} />
 
@@ -844,6 +930,8 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
               <Route path="/detailed-analytics" element={isLoggedIn ? <DetailedAnalyticsPage candidates={analysisResults} jobPosition={jobPosition} onReset={onResetRequest} /> : <HomePage setActiveStep={setActiveStep} isLoggedIn={isLoggedIn} onLoginRequest={onLoginRequest} completedSteps={completedSteps} userName={userName} userEmail={userEmail} />} />
               <Route path="/chatbot" element={isLoggedIn ? <CandidateSuggestions candidates={analysisResults} jobPosition={jobPosition} /> : <HomePage setActiveStep={setActiveStep} isLoggedIn={isLoggedIn} onLoginRequest={onLoginRequest} completedSteps={completedSteps} userName={userName} userEmail={userEmail} />} />
               <Route path="/feedback" element={isLoggedIn ? <AIFeedbackPage candidates={analysisResults} jobPosition={jobPosition} weights={weights} hardFilters={hardFilters} analysisContext={activeAnalysisContext} /> : <HomePage setActiveStep={setActiveStep} isLoggedIn={isLoggedIn} onLoginRequest={onLoginRequest} completedSteps={completedSteps} userName={userName} userEmail={userEmail} />} />
+              <Route path="/records" element={isLoggedIn ? <FilteredCvLibraryPage userEmail={userEmail} /> : <HomePage setActiveStep={setActiveStep} isLoggedIn={isLoggedIn} onLoginRequest={onLoginRequest} completedSteps={completedSteps} userName={userName} userEmail={userEmail} />} />
+              <Route path="/jd-standardizer" element={isLoggedIn ? <JDStandardizerPage onUseJD={handleUseStandardizedJD} /> : <HomePage setActiveStep={setActiveStep} isLoggedIn={isLoggedIn} onLoginRequest={onLoginRequest} completedSteps={completedSteps} userName={userName} userEmail={userEmail} />} />
               <Route path="/process" element={<ProcessPage />} />
               <Route path="/contact-ready" element={<DeploymentReadyPage />} />
               <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
@@ -881,6 +969,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
           }
 
           markStepAsCompleted('jd');
+          markStepAsCompleted('upload');
           markStepAsCompleted('weights');
           setActiveStep('analysis');
         }}

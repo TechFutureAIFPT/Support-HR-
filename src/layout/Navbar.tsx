@@ -1,5 +1,5 @@
 /**
- * Navbar — Chỉ hỗ trợ Dark Mode
+ * Navbar — light-only legacy navigation
  * Màu sắc đồng bộ từ tokens.ts
  */
 import React, { useState } from 'react';

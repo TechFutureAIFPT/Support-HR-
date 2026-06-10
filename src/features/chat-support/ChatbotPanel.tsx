@@ -5,6 +5,7 @@ import { analyzeSalary } from '@/services/salary-analysis/salaryAnalysisService'
 import { ChatbotHistoryService } from '@/services/data-sync/chatbotHistoryService';
 import { useThemeColors } from '@/hooks/useThemeColors';
 import { getSafeErrorMessage } from '@/utils/errorMessages';
+import { normalizeVietnameseDisplay } from '@/utils/textDisplay';
 
 interface ChatbotPanelProps {
   analysisData: AnalysisRunData;
@@ -25,6 +26,8 @@ const ChatbotPanel: React.FC<ChatbotPanelProps> = ({ analysisData, onClose }) =>
   const [showHistory, setShowHistory] = useState(false);
   const [isMobileSheetOpen, setIsMobileSheetOpen] = useState(false);
   const sessionInitRef = useRef(false);
+  const displayJobPosition = normalizeVietnameseDisplay(analysisData.job.position);
+  const displayLocationRequirement = normalizeVietnameseDisplay(analysisData.job.locationRequirement) || 'Việt Nam';
 
   // Auto-create or resume chatbot session
   useEffect(() => {
@@ -111,7 +114,7 @@ const ChatbotPanel: React.FC<ChatbotPanelProps> = ({ analysisData, onClose }) =>
   // Build dynamic suggestions based on candidate/job context
   const suggestions = useMemo(() => {
     const cands = analysisData?.candidates || [];
-    const jobTitle = analysisData.job.position;
+    const jobTitle = displayJobPosition;
     if (!cands.length) {
       return [
         `Ứng viên nào phù hợp nhất với vị trí ${jobTitle}?`,
@@ -122,7 +125,7 @@ const ChatbotPanel: React.FC<ChatbotPanelProps> = ({ analysisData, onClose }) =>
 
     const industryCount: Record<string, number> = {};
     for (const c of cands) {
-      const ind = (c.industry || '').trim();
+      const ind = normalizeVietnameseDisplay(c.industry).trim();
       if (!ind) continue;
       industryCount[ind] = (industryCount[ind] || 0) + 1;
     }
@@ -156,7 +159,7 @@ const ChatbotPanel: React.FC<ChatbotPanelProps> = ({ analysisData, onClose }) =>
 
     // Trả về đúng 3 câu (ưu tiên mức độ quyết định: chọn ai -> shortlist -> rủi ro -> phỏng vấn)
     return baseQuestions.slice(0, 3);
-  }, [analysisData]);
+  }, [analysisData, displayJobPosition]);
 
   const handleSuggestionClick = async (suggestion: string) => {
     setUserInput(suggestion);
@@ -341,7 +344,7 @@ const ChatbotPanel: React.FC<ChatbotPanelProps> = ({ analysisData, onClose }) =>
 
   const MessageBubble: React.FC<{ message: ChatMessage }> = ({ message }) => {
     const isBot = message.author === 'bot';
-    const displayContent = isBot ? normalizeChatbotResponseText(message.content) || message.content : message.content;
+    const displayContent = normalizeVietnameseDisplay(isBot ? normalizeChatbotResponseText(message.content) || message.content : message.content);
     return (
       <div className={`flex gap-3 ${isBot ? 'justify-start' : 'justify-end'}`}>
         {isBot && (
@@ -352,12 +355,12 @@ const ChatbotPanel: React.FC<ChatbotPanelProps> = ({ analysisData, onClose }) =>
         <div className={`max-w-xs md:max-w-sm lg:max-w-xs px-4 py-2.5 border rounded-lg`} style={{ backgroundColor: isBot ? tc.cardBg : tc.isDark ? 'rgba(14,165,233,0.2)' : 'rgba(14,165,233,0.1)', borderColor: isBot ? tc.borderColor : 'rgba(14,165,233,0.3)', color: tc.textPrimary }}>
           <p className="whitespace-pre-line text-sm leading-relaxed">{displayContent}</p>
           {message.suggestedCandidates && (
-            <div className="mt-3 pt-3 border-t border-slate-800 space-y-2">
+            <div className="mt-3 space-y-2 border-t border-blue-100 pt-3">
               <p className="text-xs font-semibold text-slate-400">Ứng viên liên quan:</p>
               {message.suggestedCandidates.map(c => (
-                <div key={c.id} className="bg-slate-800/50 p-2 rounded-lg text-xs">
-                  <p className="font-bold text-white">{c.candidateName}</p>
-                  <p className="text-slate-300">Hạng: {c.analysis?.['Hạng']} - Điểm: {c.analysis?.['Tổng điểm']}</p>
+                <div key={c.id} className="rounded-lg border border-blue-100 bg-blue-50/70 p-2 text-xs">
+                  <p className="font-bold text-slate-900">{normalizeVietnameseDisplay(c.candidateName)}</p>
+                  <p className="text-slate-600">Hạng: {c.analysis?.['Hạng']} - Điểm: {c.analysis?.['Tổng điểm']}</p>
                 </div>
               ))}
             </div>
@@ -394,7 +397,7 @@ const ChatbotPanel: React.FC<ChatbotPanelProps> = ({ analysisData, onClose }) =>
           {(onClose || isMobileSheetOpen) && (
             <button
               onClick={handlePanelClose}
-              className="text-slate-400 hover:text-white transition-colors"
+              className="text-slate-400 transition-colors hover:text-blue-600"
               aria-label="Đóng chatbot"
             >
               <i className="fa-solid fa-times"></i>
@@ -412,7 +415,7 @@ const ChatbotPanel: React.FC<ChatbotPanelProps> = ({ analysisData, onClose }) =>
                 <i className="fa-solid fa-clock-rotate-left text-sky-500"></i>
                 Lịch sử hội thoại
               </h4>
-              <button onClick={() => setShowHistory(false)} className="text-slate-400 hover:text-white text-sm p-1">
+            <button onClick={() => setShowHistory(false)} className="p-1 text-sm text-slate-400 hover:text-blue-600">
                 <i className="fa-solid fa-times"></i>
               </button>
             </div>
@@ -472,17 +475,17 @@ const ChatbotPanel: React.FC<ChatbotPanelProps> = ({ analysisData, onClose }) =>
                         <div className="flex items-center justify-between mb-1">
                           <p className={`text-xs font-semibold truncate max-w-[70%]`} style={{ color: isActive ? 'rgb(14, 165, 233)' : tc.textPrimary }}>
                             {isActive && <i className="fa-solid fa-circle text-sky-500 text-[6px] mr-1.5 align-middle"></i>}
-                            {s.sessionTitle}
+                            {normalizeVietnameseDisplay(s.sessionTitle)}
                           </p>
                           <span className="text-[10px] flex-shrink-0" style={{ color: tc.textMuted }}>{timeStr}</span>
                         </div>
                         <div className="flex items-center gap-2 mt-1">
-                          <span className="text-[10px] text-slate-500 bg-slate-700/50 px-1.5 py-0.5 rounded">
+                          <span className="rounded bg-blue-50 px-1.5 py-0.5 text-[10px] text-slate-500">
                             <i className="fa-solid fa-message text-[8px] mr-1"></i>{s.messageCount}
                           </span>
                           {lastMsg && (
                             <p className="text-[10px] text-slate-400 truncate flex-1">
-                              {lastMsg.author === 'user' ? 'Bạn: ' : 'AI: '}{lastMsg.content.slice(0, 50)}...
+                              {lastMsg.author === 'user' ? 'Bạn: ' : 'AI: '}{normalizeVietnameseDisplay(lastMsg.content).slice(0, 50)}...
                             </p>
                           )}
                         </div>
@@ -545,11 +548,11 @@ const ChatbotPanel: React.FC<ChatbotPanelProps> = ({ analysisData, onClose }) =>
             </div>
             
             {/* Quick Interview Questions */}
-            <p className="text-xs text-slate-400 mb-2">Câu hỏi phỏng vấn nhanh:</p>
+            <p className="mb-2 text-xs text-slate-500">Câu hỏi phỏng vấn nhanh:</p>
             <div className="flex flex-wrap gap-2">
               <button
-                onClick={() => handleSuggestionClick(`Gợi ý 5 câu hỏi phỏng vấn chính cho vị trí ${analysisData.job.position}?`)}
-                className="text-xs bg-purple-700 hover:bg-purple-600 text-purple-200 px-3 py-1.5 rounded-full transition-colors border border-purple-600"
+                onClick={() => handleSuggestionClick(`Gợi ý 5 câu hỏi phỏng vấn chính cho vị trí ${displayJobPosition}?`)}
+                className="rounded-full border border-violet-200 bg-violet-50 px-3 py-1.5 text-xs text-violet-700 transition-colors hover:bg-violet-100"
                 disabled={isLoading}
               >
                 <i className="fa-solid fa-question-circle mr-1"></i>
@@ -557,8 +560,8 @@ const ChatbotPanel: React.FC<ChatbotPanelProps> = ({ analysisData, onClose }) =>
               </button>
               
               <button
-                onClick={() => handleSuggestionClick(`Câu hỏi kỹ thuật nào phù hợp để đánh giá ứng viên ${analysisData.job.position}?`)}
-                className="text-xs bg-green-700 hover:bg-green-600 text-green-200 px-3 py-1.5 rounded-full transition-colors border border-green-600"
+                onClick={() => handleSuggestionClick(`Câu hỏi kỹ thuật nào phù hợp để đánh giá ứng viên ${displayJobPosition}?`)}
+                className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs text-emerald-700 transition-colors hover:bg-emerald-100"
                 disabled={isLoading}
               >
                 <i className="fa-solid fa-cogs mr-1"></i>
@@ -566,8 +569,8 @@ const ChatbotPanel: React.FC<ChatbotPanelProps> = ({ analysisData, onClose }) =>
               </button>
               
               <button
-                onClick={() => handleSuggestionClick(`Tôi nên hỏi gì để phân biệt ứng viên giỏi và xuất sắc cho ${analysisData.job.position}?`)}
-                className="text-xs bg-orange-700 hover:bg-orange-600 text-orange-200 px-3 py-1.5 rounded-full transition-colors border border-orange-600"
+                onClick={() => handleSuggestionClick(`Tôi nên hỏi gì để phân biệt ứng viên giỏi và xuất sắc cho ${displayJobPosition}?`)}
+                className="rounded-full border border-orange-200 bg-orange-50 px-3 py-1.5 text-xs text-orange-700 transition-colors hover:bg-orange-100"
                 disabled={isLoading}
               >
                 <i className="fa-solid fa-balance-scale mr-1"></i>
@@ -576,11 +579,11 @@ const ChatbotPanel: React.FC<ChatbotPanelProps> = ({ analysisData, onClose }) =>
             </div>
 
             {/* Salary Analysis Quick Actions */}
-            <p className="text-xs text-slate-400 mb-2 mt-3">Phân tích mức lương:</p>
+            <p className="mb-2 mt-3 text-xs text-slate-500">Phân tích mức lương:</p>
             <div className="flex flex-wrap gap-2">
               <button
-                onClick={() => handleSuggestionClick(`Mức lương thị trường cho vị trí ${analysisData.job.position} tại ${analysisData.job.locationRequirement || 'Việt Nam'} là bao nhiêu?`)}
-                className="text-xs bg-green-700 hover:bg-green-600 text-green-200 px-3 py-1.5 rounded-full transition-colors border border-green-600"
+                onClick={() => handleSuggestionClick(`Mức lương thị trường cho vị trí ${displayJobPosition} tại ${displayLocationRequirement} là bao nhiêu?`)}
+                className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs text-emerald-700 transition-colors hover:bg-emerald-100"
                 disabled={isLoading}
               >
                 <i className="fa-solid fa-dollar-sign mr-1"></i>
@@ -589,7 +592,7 @@ const ChatbotPanel: React.FC<ChatbotPanelProps> = ({ analysisData, onClose }) =>
               
               <button
                 onClick={() => handleSuggestionClick(`Gợi ý mức lương hợp lý cho các ứng viên top theo kinh nghiệm?`)}
-                className="text-xs bg-emerald-700 hover:bg-emerald-600 text-emerald-200 px-3 py-1.5 rounded-full transition-colors border border-emerald-600"
+                className="rounded-full border border-teal-200 bg-teal-50 px-3 py-1.5 text-xs text-teal-700 transition-colors hover:bg-teal-100"
                 disabled={isLoading}
               >
                 <i className="fa-solid fa-chart-line mr-1"></i>
@@ -597,8 +600,8 @@ const ChatbotPanel: React.FC<ChatbotPanelProps> = ({ analysisData, onClose }) =>
               </button>
               
               <button
-                onClick={() => handleSuggestionClick(`Phân tích chi phí tuyển dụng cho vị trí ${analysisData.job.position}?`)}
-                className="text-xs bg-teal-700 hover:bg-teal-600 text-teal-200 px-3 py-1.5 rounded-full transition-colors border border-teal-600"
+                onClick={() => handleSuggestionClick(`Phân tích chi phí tuyển dụng cho vị trí ${displayJobPosition}?`)}
+                className="rounded-full border border-cyan-200 bg-cyan-50 px-3 py-1.5 text-xs text-cyan-700 transition-colors hover:bg-cyan-100"
                 disabled={isLoading}
               >
                 <i className="fa-solid fa-calculator mr-1"></i>
@@ -631,14 +634,14 @@ const ChatbotPanel: React.FC<ChatbotPanelProps> = ({ analysisData, onClose }) =>
         type="button"
         onClick={() => setIsMobileSheetOpen(true)}
         className="fixed bottom-5 right-5 z-50 flex h-14 w-14 items-center justify-center rounded-full border border-sky-300/30 bg-gradient-to-br from-sky-500 to-blue-600 text-white shadow-[0_18px_44px_rgba(14,165,233,0.35)] transition hover:scale-105 md:hidden"
-        aria-label="Mo tro ly tuyen dung AI"
+        aria-label="Mở trợ lý tuyển dụng AI"
       >
         <i className="fa-solid fa-robot text-lg" />
       </button>
 
       {isMobileSheetOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black/65 backdrop-blur-sm md:hidden"
+          className="fixed inset-0 z-40 bg-slate-900/25 backdrop-blur-sm md:hidden"
           onClick={() => setIsMobileSheetOpen(false)}
         />
       )}

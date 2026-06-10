@@ -1,6 +1,6 @@
 /**
  * Theme System — Barrel Export
- * Chỉ hỗ trợ Dark Mode
+ * Light-only theme system with legacy component exports
  */
 
 // Core Provider & Hooks
@@ -12,7 +12,7 @@ export type { ThemeMode } from '@/context/theme/tokens.ts';
 export { tokens, getToken, themeClasses } from '@/context/theme/tokens.ts';
 export type { TokenKey } from '@/context/theme/tokens.ts';
 
-// Dark Mode Components
+// Legacy component exports kept for import compatibility.
 export { DarkCard, DarkCardSkeleton } from '@/context/theme/dark/Card.tsx';
 export { DarkButton } from '@/context/theme/dark/Button.tsx';
 export { DarkInput } from '@/context/theme/dark/Input.tsx';

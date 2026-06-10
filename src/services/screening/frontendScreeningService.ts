@@ -208,11 +208,11 @@ function normalizeDetail(detail: unknown): DetailedScore {
   const record = (detail && typeof detail === 'object') ? detail as Record<string, unknown> : {};
 
   return {
-    'Tiêu chí': String(record['Tiêu chí'] || record['Tieu chi'] || record['TiÃªu chÃ­'] || 'Tiêu chí'),
-    'Điểm': String(record['Điểm'] || record['Diem'] || record['Äiá»ƒm'] || ''),
-    'Công thức': String(record['Công thức'] || record['Cong thuc'] || record['CÃ´ng thá»©c'] || ''),
-    'Dẫn chứng': String(record['Dẫn chứng'] || record['Dan chung'] || record['Dáº«n chá»©ng'] || ''),
-    'Giải thích': String(record['Giải thích'] || record['Giai thich'] || record['Giáº£i thÃ­ch'] || ''),
+    'Tiêu chí': String(record['Tiêu chí'] || record['Tieu chi'] || record['Tiêu chí'] || 'Tiêu chí'),
+    'Điểm': String(record['Điểm'] || record['Diem'] || record['Điểm'] || ''),
+    'Công thức': String(record['Công thức'] || record['Cong thuc'] || record['Công thức'] || ''),
+    'Dẫn chứng': String(record['Dẫn chứng'] || record['Dan chung'] || record['Dẫn chứng'] || ''),
+    'Giải thích': String(record['Giải thích'] || record['Giai thich'] || record['Giải thích'] || ''),
     advancedBreakdown: normalizeAdvancedBreakdown(record.advancedBreakdown || record.advanced_breakdown),
   };
 }
@@ -365,9 +365,9 @@ function normalizeAnalysis(rawAnalysis: unknown): CandidateAnalysis | undefined 
   if (!rawAnalysis || typeof rawAnalysis !== 'object') return undefined;
 
   const analysis = rawAnalysis as Record<string, unknown>;
-  const totalScoreRaw = analysis['Tổng điểm'] ?? analysis['Tong diem'] ?? analysis['Tá»•ng Ä‘iá»ƒm'] ?? 0;
-  const gradeRaw = analysis['Hạng'] ?? analysis['Hang'] ?? analysis['Háº¡ng'] ?? 'C';
-  const detailsRaw = analysis['Chi tiết'] ?? analysis['Chi tiet'] ?? analysis['Chi tiáº¿t'] ?? [];
+  const totalScoreRaw = analysis['Tổng điểm'] ?? analysis['Tong diem'] ?? 0;
+  const gradeRaw = analysis['Hạng'] ?? analysis['Hang'] ?? analysis['Hạng'] ?? 'C';
+  const detailsRaw = analysis['Chi tiết'] ?? analysis['Chi tiet'] ?? analysis['Chi tiết'] ?? [];
   const details = Array.isArray(detailsRaw) ? detailsRaw.map(normalizeDetail) : [];
   const detailFallbackScore = scoreFromDetails(details);
   const totalScore = Number(totalScoreRaw) || (detailFallbackScore > 0 ? Math.min(100, Math.round(detailFallbackScore * 10) / 10) : 0);
@@ -378,8 +378,8 @@ function normalizeAnalysis(rawAnalysis: unknown): CandidateAnalysis | undefined 
     'Tổng điểm': totalScore,
     'Hạng': (normalizedGrade === 'A' || normalizedGrade === 'B' || normalizedGrade === 'C' ? normalizedGrade : computedGrade) as 'A' | 'B' | 'C',
     'Chi tiết': details,
-    'Điểm mạnh CV': toArray(analysis['Điểm mạnh CV'] ?? analysis['Diem manh CV'] ?? analysis['Äiá»ƒm máº¡nh CV']),
-    'Điểm yếu CV': toArray(analysis['Điểm yếu CV'] ?? analysis['Diem yeu CV'] ?? analysis['Äiá»ƒm yáº¿u CV']),
+    'Điểm mạnh CV': toArray(analysis['Điểm mạnh CV'] ?? analysis['Diem manh CV'] ?? analysis['Điểm mạnh CV']),
+    'Điểm yếu CV': toArray(analysis['Điểm yếu CV'] ?? analysis['Diem yeu CV'] ?? analysis['Điểm yếu CV']),
     educationValidation: normalizeEducationValidation(
       analysis.educationValidation ?? analysis['educationValidation']
     ),

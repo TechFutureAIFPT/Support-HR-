@@ -1,5 +1,5 @@
 /**
- * Button — Chỉ hỗ trợ Dark Mode
+ * Button — light-only shared control
  */
 import React, { ReactNode } from 'react';
 
@@ -38,24 +38,24 @@ const Button: React.FC<ButtonProps> = ({
 
   const variantStyles = {
     primary: {
-      base: 'border border-white bg-white text-black shadow-[0_14px_30px_rgba(245,214,187,0.12)] hover:bg-slate-100 hover:shadow-[0_18px_36px_rgba(245,214,187,0.18)]',
-      focus: 'focus:ring-[#f5d6bb]/40 focus:ring-offset-black',
+      base: 'border border-blue-500/20 bg-gradient-to-r from-blue-600 to-emerald-500 text-white shadow-[0_14px_34px_rgba(35,136,255,0.2)] hover:brightness-105',
+      focus: 'focus:ring-blue-400/40 focus:ring-offset-white',
     },
     secondary: {
-      base: 'bg-slate-800/80 hover:bg-slate-700/85 text-white border border-white/[0.08] shadow-[0_12px_28px_rgba(15,23,42,0.14)]',
-      focus: 'focus:ring-slate-400/30 focus:ring-offset-slate-900',
+      base: 'border border-blue-100 bg-white text-slate-700 shadow-sm hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700',
+      focus: 'focus:ring-blue-300/30 focus:ring-offset-white',
     },
     outline: {
-      base: 'bg-transparent border border-[#f5d6bb]/35 hover:bg-[#f5d6bb]/10 hover:border-[#f5d6bb]/45 text-[#f5d6bb] hover:text-white',
-      focus: 'focus:ring-[#f5d6bb]/35 focus:ring-offset-black',
+      base: 'bg-transparent border border-blue-200 hover:bg-blue-50 hover:border-blue-300 text-blue-700',
+      focus: 'focus:ring-blue-300/35 focus:ring-offset-white',
     },
     ghost: {
-      base: 'bg-transparent hover:bg-white/[0.05] text-slate-300 hover:text-white border border-transparent',
-      focus: 'focus:ring-slate-400/30 focus:ring-offset-slate-900',
+      base: 'bg-transparent hover:bg-blue-50 text-slate-600 hover:text-blue-700 border border-transparent',
+      focus: 'focus:ring-blue-300/30 focus:ring-offset-white',
     },
     danger: {
       base: 'bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white shadow-[0_14px_30px_rgba(127,29,29,0.2)] hover:shadow-[0_18px_36px_rgba(239,68,68,0.22)]',
-      focus: 'focus:ring-red-500/35 focus:ring-offset-slate-900',
+      focus: 'focus:ring-red-500/35 focus:ring-offset-white',
     },
   };
 
@@ -92,7 +92,7 @@ const Button: React.FC<ButtonProps> = ({
       {loading ? (
         <>
           <LoadingSpinner />
-          <span>Loading...</span>
+          <span>Đang xử lý...</span>
         </>
       ) : (
         <>

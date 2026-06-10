@@ -1,5 +1,5 @@
 /**
- * Badge — Chỉ hỗ trợ Dark Mode
+ * Badge — light-only shared status label
  */
 import React from 'react';
 
@@ -26,12 +26,12 @@ const Badge: React.FC<BadgeProps> = ({
   };
 
   const variantStyles = {
-    success: { bg: 'bg-[#f5d6bb]/10', text: 'text-[#f5d6bb]', border: 'border-[#f5d6bb]/20', dot: 'bg-[#f5d6bb]' },
-    warning: { bg: 'bg-amber-500/10', text: 'text-amber-400', border: 'border-amber-500/20', dot: 'bg-amber-400' },
-    error: { bg: 'bg-red-500/10', text: 'text-red-400', border: 'border-red-500/20', dot: 'bg-red-400' },
-    info: { bg: 'bg-[#f5d6bb]/10', text: 'text-[#f5d6bb]', border: 'border-[#f5d6bb]/20', dot: 'bg-[#f5d6bb]' },
-    neutral: { bg: 'bg-slate-700/50', text: 'text-slate-300', border: 'border-slate-600/30', dot: 'bg-slate-400' },
-    primary: { bg: 'bg-[#f5d6bb]/10', text: 'text-[#f5d6bb]', border: 'border-[#f5d6bb]/20', dot: 'bg-[#f5d6bb]' },
+    success: { bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200', dot: 'bg-emerald-500' },
+    warning: { bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-200', dot: 'bg-amber-500' },
+    error: { bg: 'bg-rose-50', text: 'text-rose-700', border: 'border-rose-200', dot: 'bg-rose-500' },
+    info: { bg: 'bg-sky-50', text: 'text-sky-700', border: 'border-sky-200', dot: 'bg-sky-500' },
+    neutral: { bg: 'bg-slate-50', text: 'text-slate-600', border: 'border-slate-200', dot: 'bg-slate-400' },
+    primary: { bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-200', dot: 'bg-blue-500' },
   };
 
   const config = sizeConfig[size];

@@ -35,7 +35,7 @@ const JDMetaToolbar: React.FC<JDMetaToolbarProps> = ({
       className="shrink-0 border-b"
       style={{
         background: tc.headerBg,
-        borderColor: 'rgba(99,102,241,0.18)',
+        borderColor: 'rgba(55,125,255,0.14)',
       }}
       role="region"
       aria-label="Thông tin JD nhanh"
@@ -45,8 +45,8 @@ const JDMetaToolbar: React.FC<JDMetaToolbarProps> = ({
         style={{ borderBottom: tc.borderSoft }}
       >
         <div
-          className="h-8 w-[3px] -full shrink-0"
-          style={{ background: 'linear-gradient(180deg, #6366f1, #3b82f6)' }}
+          className="h-8 w-[3px] rounded-full shrink-0"
+          style={{ background: 'linear-gradient(180deg, #2388ff, #14b8a6)' }}
         />
 
         {leading ? (
@@ -98,15 +98,15 @@ const JDMetaToolbar: React.FC<JDMetaToolbarProps> = ({
             style={
               isCompleteEnabled
                 ? {
-                    background: 'linear-gradient(135deg, #4f46e5, #6366f1)',
-                    border: '1px solid rgba(99,102,241,0.4)',
+                    background: 'linear-gradient(135deg, #2388ff, #14b8a6)',
+                    border: '1px solid rgba(35,136,255,0.28)',
                     color: '#fff',
-                    boxShadow: '0 2px 12px rgba(99,102,241,0.3)',
+                    boxShadow: '0 14px 34px rgba(35,136,255,0.18)',
                   }
                 : {
-                    background: 'rgba(255,255,255,0.05)',
-                    border: '1px solid rgba(255,255,255,0.08)',
-                    color: '#475569',
+                    background: '#f8fbff',
+                    border: '1px solid rgba(55,125,255,0.14)',
+                    color: '#94a3b8',
                   }
             }
           >
@@ -120,13 +120,14 @@ const JDMetaToolbar: React.FC<JDMetaToolbarProps> = ({
         <div
           className="flex items-center gap-2 px-3 py-2 transition-all"
           style={{
-            background: 'rgba(255,255,255,0.04)',
-            border: '1px solid rgba(255,255,255,0.08)',
+            background: '#ffffff',
+            border: '1px solid rgba(55,125,255,0.14)',
+            borderRadius: '12px',
             minWidth: '160px',
             flex: '1 1 140px',
           }}
         >
-          <span className="text-[9px] font-bold uppercase tracking-wider shrink-0" style={{ color: 'rgba(99,102,241,0.6)' }}>
+          <span className="text-[9px] font-bold uppercase tracking-wider shrink-0" style={{ color: '#2388ff' }}>
             Vị trí
           </span>
           <input
@@ -134,20 +135,21 @@ const JDMetaToolbar: React.FC<JDMetaToolbarProps> = ({
             placeholder="VD: Senior Frontend Developer"
             value={jobPosition}
             onChange={(e) => setJobPosition(e.target.value)}
-            className="min-w-0 flex-1 bg-transparent text-[11px] font-medium text-slate-200 outline-none placeholder:text-slate-600"
+            className="min-w-0 flex-1 bg-transparent text-[11px] font-medium text-slate-900 outline-none placeholder:text-slate-400"
           />
         </div>
 
         <div
           className="flex items-center gap-2 px-3 py-2 transition-all"
           style={{
-            background: 'rgba(255,255,255,0.04)',
-            border: '1px solid rgba(255,255,255,0.08)',
+            background: '#ffffff',
+            border: '1px solid rgba(55,125,255,0.14)',
+            borderRadius: '12px',
             minWidth: '130px',
             flex: '1 1 110px',
           }}
         >
-          <span className="text-[9px] font-bold uppercase tracking-wider shrink-0" style={{ color: 'rgba(99,102,241,0.6)' }}>
+          <span className="text-[9px] font-bold uppercase tracking-wider shrink-0" style={{ color: '#2388ff' }}>
             Công ty
           </span>
           <input
@@ -155,20 +157,21 @@ const JDMetaToolbar: React.FC<JDMetaToolbarProps> = ({
             placeholder="VD: TechCorp Vietnam"
             value={company}
             onChange={(e) => setCompany(e.target.value)}
-            className="min-w-0 flex-1 bg-transparent text-[11px] font-medium text-slate-200 outline-none placeholder:text-slate-600"
+            className="min-w-0 flex-1 bg-transparent text-[11px] font-medium text-slate-900 outline-none placeholder:text-slate-400"
           />
         </div>
 
         <div
           className="flex items-center gap-2 px-3 py-2 transition-all"
           style={{
-            background: 'rgba(255,255,255,0.04)',
-            border: '1px solid rgba(255,255,255,0.08)',
+            background: '#ffffff',
+            border: '1px solid rgba(55,125,255,0.14)',
+            borderRadius: '12px',
             minWidth: '120px',
             flex: '1 1 100px',
           }}
         >
-          <span className="text-[9px] font-bold uppercase tracking-wider shrink-0" style={{ color: 'rgba(99,102,241,0.6)' }}>
+          <span className="text-[9px] font-bold uppercase tracking-wider shrink-0" style={{ color: '#2388ff' }}>
             Ngành
           </span>
           <input
@@ -182,20 +185,21 @@ const JDMetaToolbar: React.FC<JDMetaToolbarProps> = ({
                 industryManual: 'manual',
               }))
             }
-            className="min-w-0 flex-1 bg-transparent text-[11px] font-medium text-slate-200 outline-none placeholder:text-slate-600"
+            className="min-w-0 flex-1 bg-transparent text-[11px] font-medium text-slate-900 outline-none placeholder:text-slate-400"
           />
         </div>
 
         <div
           className="flex items-center gap-2 px-3 py-2 transition-all"
           style={{
-            background: 'rgba(255,255,255,0.04)',
-            border: '1px solid rgba(255,255,255,0.08)',
+            background: '#ffffff',
+            border: '1px solid rgba(55,125,255,0.14)',
+            borderRadius: '12px',
             minWidth: '130px',
             flex: '1 1 110px',
           }}
         >
-          <span className="text-[9px] font-bold uppercase tracking-wider shrink-0" style={{ color: 'rgba(99,102,241,0.6)' }}>
+          <span className="text-[9px] font-bold uppercase tracking-wider shrink-0" style={{ color: '#2388ff' }}>
             Lương
           </span>
           <input
@@ -203,20 +207,21 @@ const JDMetaToolbar: React.FC<JDMetaToolbarProps> = ({
             placeholder="VD: 15–25 triệu"
             value={hardFilters.salaryMin}
             onChange={(e) => setHardFilters((prev) => ({ ...prev, salaryMin: e.target.value }))}
-            className="min-w-0 flex-1 bg-transparent text-[11px] font-medium text-slate-200 outline-none placeholder:text-slate-600"
+            className="min-w-0 flex-1 bg-transparent text-[11px] font-medium text-slate-900 outline-none placeholder:text-slate-400"
           />
         </div>
 
         <div
           className="flex items-center gap-2 px-3 py-2 transition-all"
           style={{
-            background: 'rgba(255,255,255,0.04)',
-            border: '1px solid rgba(255,255,255,0.08)',
+            background: '#ffffff',
+            border: '1px solid rgba(55,125,255,0.14)',
+            borderRadius: '12px',
             minWidth: '140px',
             flex: '1 1 120px',
           }}
         >
-          <span className="text-[9px] font-bold uppercase tracking-wider shrink-0" style={{ color: 'rgba(99,102,241,0.6)' }}>
+          <span className="text-[9px] font-bold uppercase tracking-wider shrink-0" style={{ color: '#2388ff' }}>
             Kinh nghiệm
           </span>
           <input
@@ -224,7 +229,7 @@ const JDMetaToolbar: React.FC<JDMetaToolbarProps> = ({
             placeholder="VD: 3+ năm"
             value={hardFilters.minExp}
             onChange={(e) => setHardFilters((prev) => ({ ...prev, minExp: e.target.value }))}
-            className="min-w-0 flex-1 bg-transparent text-[11px] font-medium text-slate-200 outline-none placeholder:text-slate-600"
+            className="min-w-0 flex-1 bg-transparent text-[11px] font-medium text-slate-900 outline-none placeholder:text-slate-400"
           />
         </div>
       </div>

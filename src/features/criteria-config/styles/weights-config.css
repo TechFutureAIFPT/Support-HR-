@@ -1,20 +1,23 @@
 .weights-config {
-  background: var(--weights-page-bg);
+  background:
+    radial-gradient(circle at 14% 0%, rgba(35, 136, 255, 0.08), transparent 24rem),
+    linear-gradient(180deg, #f6f9ff 0%, #ffffff 100%);
+  color: #102033;
 }
 
 .weights-config__glow {
   pointer-events: none;
   position: absolute;
   border-radius: 9999px;
-  filter: blur(48px);
+  filter: blur(52px);
 }
 
 .weights-config__glow--top {
   top: 0;
   right: 0;
-  height: 24rem;
-  width: 24rem;
-  background: rgba(245, 214, 187, 0.08);
+  height: 22rem;
+  width: 22rem;
+  background: rgba(35, 136, 255, 0.1);
 }
 
 .weights-config__glow--bottom {
@@ -22,28 +25,29 @@
   left: 0;
   height: 18rem;
   width: 18rem;
-  background: rgba(255, 216, 168, 0.06);
+  background: rgba(20, 184, 166, 0.09);
 }
 
 .weights-config__glow--center {
-  top: 33%;
-  left: 25%;
+  top: 34%;
+  left: 28%;
   height: 16rem;
   width: 16rem;
-  background: rgba(245, 214, 187, 0.045);
+  background: rgba(35, 136, 255, 0.06);
 }
 
 .weights-config__header {
-  background: linear-gradient(180deg, rgba(4, 4, 6, 0.98) 0%, rgba(0, 0, 0, 0.96) 100%);
-  border-color: var(--weights-border-color);
+  background: rgba(255, 255, 255, 0.96);
+  border-color: rgba(55, 125, 255, 0.14);
+  box-shadow: 0 10px 28px rgba(30, 64, 175, 0.05);
 }
 
 .weights-config__accent,
 .weights-config__card-accent,
 .weights-config__note-accent {
-  border-radius: 0;
-  background: linear-gradient(180deg, #ffffff, #f5d6bb 45%, #b9895b);
-  box-shadow: 0 0 18px rgba(245, 214, 187, 0.42);
+  border-radius: 999px;
+  background: linear-gradient(180deg, #2388ff, #14b8a6);
+  box-shadow: 0 10px 22px rgba(35, 136, 255, 0.2);
 }
 
 .weights-config__accent {
@@ -53,13 +57,10 @@
 
 .weights-config__heading,
 .weights-config__section-title {
-  color: var(--weights-text-primary);
+  color: #102033;
 }
 
-.weights-config__subheading {
-  color: var(--weights-text-muted);
-}
-
+.weights-config__subheading,
 .weights-config__section-copy {
   color: #64748b;
 }
@@ -69,74 +70,72 @@
   align-items: center;
   gap: 0.5rem;
   border: 1px solid transparent;
-  border-radius: 0.75rem;
+  border-radius: 999px;
 }
 
 .weights-config__step-button[data-state='idle'] {
-  background: var(--weights-card-bg-2);
-  border: var(--weights-card-border);
-  color: var(--weights-text-dim);
+  background: #ffffff;
+  border-color: rgba(55, 125, 255, 0.14);
+  color: #64748b;
 }
 
 .weights-config__step-button[data-state='active'] {
-  background: rgba(245, 214, 187, 0.08);
-  border-color: rgba(245, 214, 187, 0.36);
-  box-shadow: 0 10px 28px -20px rgba(245, 214, 187, 0.72);
-  color: var(--weights-text-primary);
+  background: #eef6ff;
+  border-color: rgba(35, 136, 255, 0.28);
+  box-shadow: 0 12px 28px rgba(35, 136, 255, 0.1);
+  color: #102033;
 }
 
 .weights-config__step-button[data-state='done'] {
-  background: rgba(245, 214, 187, 0.1);
-  border-color: rgba(245, 214, 187, 0.34);
-  color: #f5d6bb;
+  background: rgba(20, 184, 166, 0.1);
+  border-color: rgba(20, 184, 166, 0.24);
+  color: #0f766e;
 }
 
 .weights-config__step-index {
-  border-radius: 0.5rem;
+  border-radius: 999px;
 }
 
 .weights-config__step-button[data-state='idle'] .weights-config__step-index {
-  background: var(--weights-card-bg-2);
-  color: var(--weights-text-dim);
+  background: #f6f9ff;
+  color: #94a3b8;
 }
 
 .weights-config__step-button[data-state='active'] .weights-config__step-index {
-  background: rgba(245, 214, 187, 0.16);
-  color: #f5d6bb;
+  background: #ffffff;
+  color: #2388ff;
 }
 
 .weights-config__step-button[data-state='done'] .weights-config__step-index {
-  background: rgba(245, 214, 187, 0.2);
-  color: #f5d6bb;
+  background: #ffffff;
+  color: #14b8a6;
 }
 
 .weights-config__step-connector[data-state='idle'] {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(55, 125, 255, 0.14);
 }
 
 .weights-config__step-connector[data-state='done'] {
-  background: rgba(245, 214, 187, 0.46);
+  background: rgba(20, 184, 166, 0.34);
 }
 
 .weights-config__side-panel {
-  border-top: 1px solid rgba(245, 214, 187, 0.18);
-  background:
-    radial-gradient(520px circle at 16% 0%, rgba(245, 214, 187, 0.12), transparent 42%),
-    linear-gradient(180deg, rgba(9, 7, 5, 0.98), rgba(0, 0, 0, 0.99));
-  box-shadow: 0 -14px 42px -28px rgba(245, 214, 187, 0.5);
+  border-top: 1px solid rgba(55, 125, 255, 0.14);
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 -14px 42px rgba(30, 64, 175, 0.06);
 }
 
 .weights-config__card {
-  border: 1px solid rgba(245, 214, 187, 0.18);
-  border-radius: 0;
+  border: 1px solid rgba(55, 125, 255, 0.14);
+  border-radius: 18px;
   background:
-    radial-gradient(360px circle at 100% 0%, rgba(245, 214, 187, 0.14), transparent 46%),
-    linear-gradient(180deg, rgba(245, 214, 187, 0.055), rgba(0, 0, 0, 0.92));
-  box-shadow: inset 0 1px 0 rgba(245, 214, 187, 0.12), 0 20px 58px rgba(0, 0, 0, 0.28);
+    radial-gradient(320px circle at 100% 0%, rgba(35, 136, 255, 0.08), transparent 44%),
+    #ffffff;
+  box-shadow: 0 18px 48px rgba(30, 64, 175, 0.08);
 }
 
 .weights-config__card-title {
-  color: #ffffff;
+  color: #102033;
 }
 
 .weights-config__card-glow {
@@ -147,14 +146,14 @@
   height: 10rem;
   width: 10rem;
   border-radius: 9999px;
-  filter: blur(48px);
+  filter: blur(52px);
   transform: translate(25%, -50%);
   transition: background 0.4s ease;
 }
 
 .weights-config__card-glow--info,
 .weights-config__card-glow[data-status='balanced'] {
-  background: rgba(245, 214, 187, 0.24);
+  background: rgba(35, 136, 255, 0.14);
 }
 
 .weights-config__card-glow[data-status='over'] {
@@ -162,112 +161,112 @@
 }
 
 .weights-config__card-glow[data-status='under'] {
-  background: rgba(245, 214, 187, 0.18);
+  background: rgba(35, 136, 255, 0.1);
 }
 
 .weights-config__metric-card,
 .weights-config__total-card,
 .weights-config__summary-row {
-  border-radius: 0;
+  border-radius: 12px;
 }
 
 .weights-config__metric-card {
-  border: 1px solid rgba(245, 214, 187, 0.2);
-  background: rgba(245, 214, 187, 0.055);
+  border: 1px solid rgba(55, 125, 255, 0.14);
+  background: #f6f9ff;
+  color: #102033;
 }
 
 .weights-config__metric-card--success {
-  border: 1px solid rgba(245, 214, 187, 0.34);
-  background: rgba(245, 214, 187, 0.095);
+  border-color: rgba(20, 184, 166, 0.2);
+  background: rgba(20, 184, 166, 0.08);
 }
 
 .weights-config__metric-value,
 .weights-config__metric-label {
-  color: #f5d6bb;
+  color: #14b8a6;
 }
 
 .weights-config__metric-value {
-  text-shadow: 0 0 22px rgba(245, 214, 187, 0.48);
+  text-shadow: none;
 }
 
 .weights-config__progress-shell {
-  border: 1px solid rgba(245, 214, 187, 0.18);
-  border-radius: 0;
-  background: rgba(245, 214, 187, 0.055);
+  border: 1px solid rgba(55, 125, 255, 0.14);
+  border-radius: 12px;
+  background: #f6f9ff;
 }
 
 .weights-config__progress-label {
-  color: rgba(245, 214, 187, 0.74);
+  color: #2388ff;
 }
 
 .weights-config__progress-value {
-  color: #f5d6bb;
-  text-shadow: 0 0 12px rgba(245, 214, 187, 0.42);
+  color: #102033;
+  text-shadow: none;
 }
 
 .weights-config__progress-track {
-  border: 1px solid rgba(245, 214, 187, 0.18);
-  border-radius: 0;
-  background: rgba(0, 0, 0, 0.55);
+  border-radius: 999px;
+  background: rgba(100, 116, 139, 0.18);
 }
 
 .weights-config__progress-fill {
   width: var(--weights-progress-width);
-  border-radius: 0;
-  background: linear-gradient(90deg, #b9895b, #f5d6bb 48%, #ffffff);
-  box-shadow: 0 0 18px rgba(245, 214, 187, 0.52);
+  border-radius: 999px;
+  background: linear-gradient(90deg, #2388ff, #14b8a6);
+  box-shadow: 0 8px 18px rgba(35, 136, 255, 0.18);
 }
 
 .weights-config__progress-shine {
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3));
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.42));
   filter: blur(2px);
 }
 
 .weights-config__note {
-  border: 1px solid rgba(245, 214, 187, 0.18);
-  border-radius: 0;
-  background: rgba(245, 214, 187, 0.055);
+  border: 1px solid rgba(55, 125, 255, 0.14);
+  border-radius: 14px;
+  background: #ffffff;
+}
+
+.weights-config__note-copy,
+.weights-config__note-copy strong {
+  color: #102033 !important;
 }
 
 .weights-config__footer-actions {
-  border-top: var(--weights-border-soft);
+  border-top: 1px solid rgba(55, 125, 255, 0.12);
+  background: rgba(255, 255, 255, 0.84);
 }
 
 .weights-config__primary-cta,
 .weights-config__finish-cta,
 .weights-config__back-button {
-  border-radius: 0;
+  border-radius: 12px;
 }
 
-.weights-config__primary-cta {
-  border: 1px solid rgba(245, 214, 187, 0.42);
-  background: linear-gradient(135deg, rgba(245, 214, 187, 0.96), rgba(255, 255, 255, 0.92));
-  box-shadow: 0 16px 38px -18px rgba(245, 214, 187, 0.78);
-  color: #000000 !important;
-}
-
+.weights-config__primary-cta,
 .weights-config__finish-cta[data-ready='true'] {
-  border: 1px solid rgba(245, 214, 187, 0.42);
-  background: linear-gradient(135deg, rgba(245, 214, 187, 0.96), rgba(255, 255, 255, 0.92));
-  box-shadow: 0 16px 38px -18px rgba(245, 214, 187, 0.72);
-  color: #000000;
+  border: 1px solid rgba(35, 136, 255, 0.24);
+  background: linear-gradient(135deg, #2388ff, #14b8a6);
+  box-shadow: 0 16px 36px rgba(35, 136, 255, 0.16);
+  color: #ffffff !important;
 }
 
 .weights-config__finish-cta[data-ready='false'] {
-  background: var(--weights-card-bg-2);
-  border: var(--weights-card-border);
-  color: var(--weights-text-dim);
+  background: #eef4ff;
+  border: 1px solid rgba(55, 125, 255, 0.14);
+  color: #94a3b8;
   cursor: not-allowed;
 }
 
 .weights-config__back-button {
   border: 1px solid transparent;
-  color: var(--weights-text-dim);
+  color: #64748b;
 }
 
 .weights-config__back-button:hover {
-  background: var(--weights-card-bg-2);
-  color: var(--weights-text-muted);
+  background: #eef6ff;
+  color: #2388ff;
 }
 
 .weights-config__error {
@@ -282,39 +281,33 @@
 }
 
 .weights-config__total-card {
-  border: var(--weights-panel-border);
-  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(55, 125, 255, 0.14);
+  background: #ffffff;
 }
 
 .weights-config__total-value {
-  color: var(--weights-text-primary);
+  color: #102033;
 }
 
-.weights-config__total-value[data-status='balanced'] {
-  text-shadow: 0 0 20px rgba(245, 214, 187, 0.36);
-}
-
-.weights-config__total-value[data-status='over'] {
-  text-shadow: 0 0 20px rgba(244, 63, 94, 0.3);
-}
-
+.weights-config__total-value[data-status='balanced'],
+.weights-config__total-value[data-status='over'],
 .weights-config__total-value[data-status='under'] {
-  text-shadow: 0 0 20px rgba(245, 158, 11, 0.3);
+  text-shadow: none;
 }
 
 .weights-config__total-suffix[data-status='balanced'],
 .weights-config__status-pill[data-status='balanced'] {
-  color: #f5d6bb;
+  color: #14b8a6;
 }
 
 .weights-config__total-suffix[data-status='over'],
 .weights-config__status-pill[data-status='over'] {
-  color: #fda4af;
+  color: #ef4444;
 }
 
 .weights-config__total-suffix[data-status='under'],
 .weights-config__status-pill[data-status='under'] {
-  color: #fcd34d;
+  color: #0875ee;
 }
 
 .weights-config__status-pill {
@@ -323,43 +316,43 @@
 }
 
 .weights-config__status-pill[data-status='balanced'] {
-  background: rgba(245, 214, 187, 0.12);
-  border-color: rgba(245, 214, 187, 0.3);
+  background: rgba(20, 184, 166, 0.08);
+  border-color: rgba(20, 184, 166, 0.2);
 }
 
 .weights-config__status-pill[data-status='over'] {
-  background: rgba(244, 63, 94, 0.12);
-  border-color: rgba(244, 63, 94, 0.3);
+  background: rgba(239, 68, 68, 0.08);
+  border-color: rgba(239, 68, 68, 0.18);
 }
 
 .weights-config__status-pill[data-status='under'] {
-  background: rgba(245, 158, 11, 0.12);
-  border-color: rgba(245, 158, 11, 0.3);
+  background: rgba(35, 136, 255, 0.08);
+  border-color: rgba(35, 136, 255, 0.18);
 }
 
 .weights-config__summary-row {
-  border: var(--weights-panel-border);
-  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(55, 125, 255, 0.14);
+  background: #ffffff;
 }
 
 .weights-config__summary-accent[data-tone='high'],
 .weights-config__summary-accent[data-tone='medium'],
 .weights-config__summary-accent[data-tone='low'] {
-  background: linear-gradient(180deg, #b9895b, #f5d6bb);
+  background: linear-gradient(180deg, #2388ff, #14b8a6);
 }
 
 .weights-config__summary-label {
-  color: var(--weights-text-secondary);
+  color: #475569;
 }
 
 .weights-config__summary-value {
-  color: var(--weights-text-muted);
+  color: #64748b;
 }
 
 @media (min-width: 1024px) {
   .weights-config__side-panel {
     border-top: 0;
-    border-left: 1px solid var(--weights-border-color);
-    box-shadow: -14px 0 42px -28px rgba(0, 0, 0, 0.95);
+    border-left: 1px solid rgba(55, 125, 255, 0.14);
+    box-shadow: -14px 0 42px rgba(30, 64, 175, 0.06);
   }
 }

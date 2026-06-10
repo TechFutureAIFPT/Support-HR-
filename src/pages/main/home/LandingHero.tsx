@@ -1,77 +1,20 @@
 import React from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { ArrowUpRight } from "lucide-react";
-
-const HERO_SYSTEM_PANELS = [
-  {
-    label: "QUY TRÌNH // JD",
-    dotClass: "bg-cyan-400",
-    accentClass: "text-cyan-400",
-    lines: [
-      "[VAI TRÒ] Chốt một vị trí cần tuyển",
-      "[BẮT BUỘC] Giữ các tiêu chí cần có",
-      "[LUỒNG] Bắt đầu từ một ngữ cảnh rõ ràng",
-    ],
-  },
-  {
-    label: "NHẬP LIỆU // CV",
-    dotClass: "bg-emerald-400",
-    accentClass: "text-emerald-400",
-    lines: [
-      "[NGUỒN] Tải file lên hoặc lấy từ Google Drive",
-      "[OCR] Có thể đọc tài liệu scan",
-      "[HÀNG ĐỢI] Đưa về cùng một quy trình sàng lọc",
-    ],
-  },
-  {
-    label: "ĐÁNH GIÁ // ĐIỂM",
-    dotClass: "bg-sky-400",
-    accentClass: "text-sky-400",
-    lines: [
-      "[XEM] So sánh CV với cùng một JD",
-      "[GHI CHÚ] Giữ lại lý do để xếp shortlist",
-      "[KHOẢNG TRỐNG] Để recruiter kiểm tra thêm khi cần",
-    ],
-  },
-  {
-    label: "ĐỘI NGŨ // BÀN GIAO",
-    dotClass: "bg-violet-400",
-    accentClass: "text-violet-400",
-    lines: [
-      "[CHIA SẺ] Người duyệt tuyển dụng nhìn được ngữ cảnh",
-      "[DANH SÁCH] Giảm việc tổng hợp lại thủ công",
-      "[TIẾP THEO] Chuyển sang vòng phỏng vấn dễ hơn",
-    ],
-  },
-  {
-    label: "PHIÊN // GHI NHỚ",
-    dotClass: "bg-cyan-400",
-    accentClass: "text-cyan-400",
-    lines: [
-      "[TRẠNG THÁI] Lưu trạng thái gần nhất của phiên làm việc",
-      "[LÀM MỚI] Phiên cũ tự hết hạn sau khi không dùng",
-      "[QUAY LẠI] F5 thông thường vẫn giữ được tiến trình",
-    ],
-  },
-  {
-    label: "NIỀM TIN // TÀI LIỆU",
-    dotClass: "bg-emerald-400",
-    accentClass: "text-emerald-400",
-    lines: [
-      "[TRANG] Bảng giá, Bảo mật, Hỏi đáp, Trải nghiệm",
-      "[KHÁCH HÀNG] Dễ tìm trong 1-2 lần bấm",
-      "[DOANH NGHIỆP] Nội dung ưu tiên cho đội ngũ mua hàng",
-    ],
-  },
-];
-
-const HERO_HEADLINE_LINES = [
-  { text: "Giải phóng thời gian lọc," },
-  { text: "tối ưu thời gian tuyển." },
-];
-
-const HERO_VIEWPORT = { once: true, amount: 0.2 };
-const HERO_TRANSITION = { duration: 0.72, ease: [0.22, 1, 0.36, 1] as const };
+import {
+  ArrowRight,
+  BarChart3,
+  Bot,
+  Briefcase,
+  CheckCircle2,
+  FileText,
+  ListChecks,
+  Search,
+  ShieldCheck,
+  SlidersHorizontal,
+  Sparkles,
+  UploadCloud,
+  Users,
+} from "lucide-react";
 
 interface LandingHeroProps {
   onPrimaryAction: () => void;
@@ -79,132 +22,150 @@ interface LandingHeroProps {
   primaryLabel: string;
 }
 
-function TypeLine({
-  text,
-  lineDelay,
-  reduceMotion,
-  accentClass,
-}: {
-  text: string;
-  lineDelay: number;
-  reduceMotion: boolean;
-  accentClass: string;
-}) {
-  const [displayed, setDisplayed] = React.useState(reduceMotion ? text : "");
-  const [done, setDone] = React.useState(reduceMotion);
+const pipeline = [
+  { label: "CV đang chờ", value: "128", tone: "text-blue-700 bg-blue-50" },
+  { label: "Đã phân tích", value: "92", tone: "text-teal-700 bg-teal-50" },
+  { label: "Cần rà soát", value: "18", tone: "text-amber-700 bg-amber-50" },
+];
 
-  React.useEffect(() => {
-    if (reduceMotion) {
-      setDisplayed(text);
-      setDone(true);
-      return;
-    }
+const menuItems = [
+  { label: "Nạp JD", Icon: FileText },
+  { label: "Nạp hồ sơ", Icon: UploadCloud },
+  { label: "Thiết lập mặc định", Icon: SlidersHorizontal },
+  { label: "Phân tích AI", Icon: Sparkles },
+];
 
-    setDisplayed("");
-    setDone(false);
-    let intervalId: number | undefined;
-    let timerId: number | undefined;
-    let index = 0;
+const candidates = [
+  { name: "Nguyễn Minh Anh", role: "Senior Recruiter", score: 94, status: "Ưu tiên" },
+  { name: "Trần Hải Nam", role: "HR Business Partner", score: 88, status: "Phù hợp" },
+  { name: "Lê Thu Hà", role: "Talent Acquisition", score: 81, status: "Cần xem" },
+];
 
-    const runTypewriter = () => {
-      intervalId = window.setInterval(() => {
-        index += 1;
-        setDisplayed(text.slice(0, index));
-        if (index >= text.length) {
-          window.clearInterval(intervalId);
-          setDone(true);
-        }
-      }, 18);
-    };
+const bars = [48, 62, 70, 78, 84, 90];
 
-    timerId = window.setTimeout(runTypewriter, lineDelay);
-
-    return () => {
-      if (timerId) window.clearTimeout(timerId);
-      if (intervalId) window.clearInterval(intervalId);
-    };
-  }, [text, lineDelay, reduceMotion]);
-
-  const match = displayed.match(/^(\[[A-Z0-9_-]+\])(.*)$/);
-
+function DashboardPreview() {
   return (
-    <span className="relative block supporthr-mono text-[12px] font-medium leading-6 xl:text-[13px]">
-      {match ? (
-        <>
-          <span className={`${accentClass} font-semibold`}>{match[1]}</span>
-          <span className="ml-1.5 text-zinc-300">{match[2]}</span>
-        </>
-      ) : (
-        <span className="text-zinc-300">{displayed}</span>
-      )}
-      {!done ? (
-        <span
-          className="ml-[1.5px] inline-block h-[1.1em] w-[1.5px] animate-[supporthr-terminal-blink_0.9s_steps(1)_infinite] bg-zinc-300 align-middle"
-          aria-hidden="true"
-        />
-      ) : null}
-    </span>
-  );
-}
-
-function SystemPanel({
-  label,
-  dotClass,
-  accentClass,
-  lines,
-  reduceMotion,
-}: {
-  label: string;
-  dotClass: string;
-  accentClass: string;
-  lines: string[];
-  reduceMotion: boolean;
-}) {
-  return (
-    <motion.div
-      className="relative flex h-full flex-col justify-between overflow-hidden bg-black/90 p-4 xl:p-5"
-      initial={{ opacity: 0 }}
-      whileInView={{ opacity: 1 }}
-      viewport={{ once: true, amount: 0.3 }}
-      transition={{ duration: 0.25 }}
-    >
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-zinc-900" />
-
-      <div className="relative flex items-center justify-between">
-        <span className="supporthr-mono text-[10px] font-bold uppercase tracking-[0.24em] text-zinc-500">
-          {label}
-        </span>
-        <span className={`h-1.5 w-1.5 rounded-full ${dotClass}`} />
+    <div className="relative mx-auto w-full max-w-full overflow-hidden lg:max-w-[50rem]">
+      <div className="absolute -right-3 top-8 z-20 hidden rounded-2xl border border-blue-100 bg-white px-4 py-3 shadow-[0_24px_70px_rgba(30,64,175,0.12)] lg:block">
+        <div className="flex items-center gap-3">
+          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+            <Bot size={20} />
+          </span>
+          <div>
+            <p className="text-xs font-bold text-slate-900">AI tóm tắt</p>
+            <p className="mt-1 max-w-[13rem] text-[11px] leading-5 text-slate-500">
+              3 ứng viên phù hợp nhất đã có lý do đề xuất và điểm cần xác thực.
+            </p>
+          </div>
+        </div>
       </div>
 
-      <div className="relative mt-5 space-y-1">
-        {lines.map((line, index) => (
-          <TypeLine
-            key={line}
-            text={line}
-            lineDelay={reduceMotion ? 0 : index * 120}
-            reduceMotion={reduceMotion}
-            accentClass={accentClass}
-          />
-        ))}
-      </div>
-    </motion.div>
-  );
-}
+      <div className="rounded-[1.75rem] border border-blue-100 bg-white p-3 shadow-[0_30px_90px_rgba(30,64,175,0.14)]">
+        <div className="flex items-center justify-between gap-3 border-b border-blue-50 px-3 py-2.5">
+          <div className="flex items-center gap-2">
+            <span className="grid h-9 w-9 place-items-center rounded-xl bg-blue-600 text-white">
+              <Briefcase size={18} />
+            </span>
+            <div>
+              <p className="text-sm font-black text-slate-900">Support HR</p>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-blue-500">Recruitment Workspace</p>
+            </div>
+          </div>
+          <div className="hidden h-10 min-w-[14rem] items-center gap-2 rounded-xl bg-slate-50 px-3 text-slate-400 sm:flex">
+            <Search size={15} />
+            <span className="text-xs font-medium">Tìm ứng viên, JD, báo cáo...</span>
+          </div>
+        </div>
 
-function HeadlineLine({ text }: { text: string }) {
-  return (
-    <span className="relative block leading-[1.02] sm:whitespace-nowrap">
-      <motion.span
-        className="relative block text-white"
-        initial={{ opacity: 0, y: 28 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
-      >
-        {text}
-      </motion.span>
-    </span>
+        <div className="grid gap-3 p-3 lg:grid-cols-[0.62fr_1.38fr]">
+          <aside className="hidden rounded-2xl bg-blue-50/70 p-3 lg:block">
+            {menuItems.map(({ label, Icon }, index) => (
+              <div
+                key={label}
+                className={`mb-2 flex items-center gap-3 rounded-xl px-3 py-2.5 text-xs font-bold ${
+                  index === 3 ? "bg-white text-blue-700 shadow-sm" : "text-slate-600"
+                }`}
+              >
+                <span className={`grid h-8 w-8 place-items-center rounded-lg ${index === 3 ? "bg-blue-600 text-white" : "bg-white text-blue-500"}`}>
+                  <Icon size={15} />
+                </span>
+                {label}
+              </div>
+            ))}
+          </aside>
+
+          <main className="min-w-0 space-y-3">
+            <div className="rounded-2xl border border-blue-100 bg-gradient-to-r from-blue-50 to-teal-50 p-4">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <div className="flex items-center gap-2 text-blue-700">
+                    <Sparkles size={16} />
+                    <p className="text-xs font-black uppercase tracking-[0.16em]">Phân tích bởi AI</p>
+                  </div>
+                  <p className="mt-2 text-sm font-semibold leading-6 text-slate-700">
+                    JD đã được chuẩn hóa thành tiêu chí, CV được xếp hạng theo mức phù hợp và bằng chứng so khớp.
+                  </p>
+                </div>
+                <span className="hidden rounded-xl bg-white px-3 py-2 text-xs font-black text-blue-700 shadow-sm sm:inline-flex">Live</span>
+              </div>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-3">
+              {pipeline.map((item) => (
+                <div key={item.label} className="rounded-2xl border border-blue-100 bg-white p-4 shadow-sm">
+                  <p className="text-[11px] font-bold text-slate-500">{item.label}</p>
+                  <div className="mt-3 flex items-end justify-between">
+                    <span className="text-2xl font-black text-slate-900">{item.value}</span>
+                    <span className={`rounded-lg px-2 py-1 text-[10px] font-black ${item.tone}`}>+12%</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="grid gap-3 md:grid-cols-[1.08fr_0.92fr]">
+              <div className="rounded-2xl border border-blue-100 bg-white p-4 shadow-sm">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-black text-slate-900">Danh sách ưu tiên</p>
+                  <ListChecks className="text-blue-500" size={18} />
+                </div>
+                <div className="mt-4 space-y-3">
+                  {candidates.map((candidate, index) => (
+                    <div key={candidate.name} className="flex items-center justify-between gap-3 rounded-xl bg-slate-50 px-3 py-3">
+                      <div className="min-w-0">
+                        <p className="truncate text-xs font-bold text-slate-900">{candidate.name}</p>
+                        <p className="mt-0.5 truncate text-[11px] text-slate-500">{candidate.role}</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-black text-blue-700">{candidate.score}%</span>
+                        <span className={`hidden rounded-lg px-2 py-1 text-[10px] font-bold sm:inline-flex ${index === 0 ? "bg-teal-50 text-teal-700" : "bg-blue-50 text-blue-700"}`}>
+                          {candidate.status}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-blue-100 bg-white p-4 shadow-sm">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-black text-slate-900">Hiệu quả sàng lọc</p>
+                  <BarChart3 className="text-blue-500" size={18} />
+                </div>
+                <div className="mt-5 flex h-32 items-end gap-2">
+                  {bars.map((height, index) => (
+                    <span
+                      key={index}
+                      className="flex-1 rounded-t-xl bg-gradient-to-t from-blue-600 to-teal-300"
+                      style={{ height: `${height}%` }}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+          </main>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -216,85 +177,61 @@ export default function LandingHero({
   const reduceMotion = useReducedMotion();
 
   return (
-    <section id="hero" className="relative overflow-hidden bg-black pt-0">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_12%,rgba(255,255,255,0.05),transparent_20%),linear-gradient(180deg,#000000_0%,#010101_56%,#000000_100%)]" />
-      <div className="pointer-events-none absolute inset-0 supporthr-grid-mask opacity-18" />
-      <div className="pointer-events-none absolute inset-y-0 left-0 w-full bg-[linear-gradient(90deg,rgba(0,0,0,1)_0%,rgba(0,0,0,0.992)_34%,rgba(0,0,0,0.972)_48%,rgba(0,0,0,0.9)_62%,rgba(0,0,0,0.56)_80%,transparent_94%)]" />
-      <div className="pointer-events-none absolute left-[-4rem] top-[4rem] z-[1] h-[36rem] w-[74rem] max-w-[80%] bg-[radial-gradient(circle_at_18%_16%,rgba(255,255,255,0.06)_0%,rgba(0,0,0,0.9)_34%,rgba(0,0,0,0.98)_68%,transparent_100%)] blur-[10px]" />
+    <section id="hero" className="relative overflow-hidden bg-white">
+      <div className="pointer-events-none absolute inset-0 supporthr-grid-mask opacity-10" />
 
-      <div className="w-full">
-        <div className="relative min-h-[540px] sm:min-h-[580px] lg:min-h-[610px] xl:min-h-[640px]">
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-0 hidden overflow-hidden opacity-[0.9] lg:grid lg:grid-cols-3 lg:grid-rows-2"
-          >
-            {HERO_SYSTEM_PANELS.map((panel, index) => (
-              <div
-                key={panel.label}
-                className={`border-zinc-900 ${
-                  index % 3 !== 2 ? "border-r" : ""
-                } ${index < HERO_SYSTEM_PANELS.length - 3 ? "border-b" : ""}`}
-              >
-                <SystemPanel {...panel} reduceMotion={reduceMotion ?? false} />
-              </div>
-            ))}
+      <div className="relative mx-auto grid min-h-[calc(100vh-4.45rem)] max-w-[92rem] items-center gap-10 overflow-hidden px-4 py-10 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:px-8 lg:py-12">
+        <motion.div
+          initial={reduceMotion ? false : { opacity: 0, y: 22 }}
+          whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+          className="max-w-2xl"
+        >
+          <h1 className="max-w-[11ch] text-[clamp(2.45rem,8.4vw,5.45rem)] font-black leading-[1.03] tracking-normal text-slate-950 sm:max-w-[12ch] sm:text-[clamp(3rem,5.1vw,5.45rem)]">
+            Sàng lọc ứng viên nhanh hơn, ra quyết định tuyển dụng rõ ràng hơn
+          </h1>
+
+          <p className="mt-6 max-w-[42rem] text-base leading-8 text-slate-600 sm:text-lg">
+            Support HR giúp đội ngũ tuyển dụng đọc JD, chuẩn hóa tiêu chí, phân tích CV và xếp hạng ứng viên bằng AI trong một quy trình thống nhất, minh bạch và dễ kiểm soát.
+          </p>
+
+          <div className="mt-8 flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+            <motion.button
+              type="button"
+              whileHover={reduceMotion ? undefined : { y: -2 }}
+              whileTap={reduceMotion ? undefined : { scale: 0.98 }}
+              onClick={onPrimaryAction}
+              className="inline-flex h-12 items-center justify-center gap-3 rounded-xl bg-blue-600 px-6 text-sm font-black text-white shadow-[0_18px_44px_rgba(35,136,255,0.22)] transition hover:bg-blue-700 sm:w-auto"
+            >
+              {primaryLabel}
+              <ArrowRight size={18} />
+            </motion.button>
+
+            <button
+              type="button"
+              onClick={onSecondaryAction}
+              className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-blue-100 bg-white px-6 text-sm font-black text-blue-700 shadow-sm transition hover:border-blue-200 hover:bg-blue-50 sm:w-auto"
+            >
+              <CheckCircle2 size={17} />
+              Nhận tư vấn triển khai
+            </button>
           </div>
 
-          <motion.div
-            initial={reduceMotion ? false : { opacity: 0, y: 20 }}
-            whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
-            viewport={HERO_VIEWPORT}
-            transition={HERO_TRANSITION}
-            className="relative z-10 max-w-[46rem] px-6 py-12 sm:px-10 sm:py-14 lg:max-w-[60%] lg:px-16 lg:py-14 xl:max-w-[62%] xl:py-16"
-          >
-            <div className="pointer-events-none absolute bottom-[-2.5rem] left-[-2.25rem] right-0 top-[-2.5rem] -z-10 bg-[radial-gradient(circle_at_22%_24%,rgba(5,14,26,0.98)_0%,rgba(0,0,0,0.94)_26%,rgba(0,0,0,0.74)_54%,rgba(0,0,0,0.34)_76%,transparent_100%)]" />
-            <div className="pointer-events-none absolute bottom-[-1.5rem] left-[-2.5rem] right-0 top-[11.25rem] -z-10 bg-[linear-gradient(90deg,rgba(0,0,0,0.98)_0%,rgba(0,0,0,0.88)_34%,rgba(0,0,0,0.54)_62%,rgba(0,0,0,0.12)_88%,transparent_100%)] blur-[3px]" />
+          <div className="mt-5 flex items-center gap-2 text-sm font-medium text-slate-500">
+            <ShieldCheck size={17} className="text-teal-600" />
+            Không cần thay đổi quy trình hiện tại. Bắt đầu từ JD và CV bạn đang có.
+          </div>
+        </motion.div>
 
-            <motion.div
-              initial={reduceMotion ? false : { opacity: 0, x: -12 }}
-              whileInView={reduceMotion ? undefined : { opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-              className="mb-4 flex items-center xl:mb-5"
-            >
-              <span className="supporthr-mono text-[11px] font-bold uppercase tracking-[0.32em] text-[#f5d6bb]/90">
-                NỀN TẢNG TUYỂN DỤNG
-              </span>
-            </motion.div>
-
-            <h1 className="home-hero-heading supporthr-display max-w-[20ch] text-[clamp(3.5rem,6vw,6.5rem)] font-bold leading-[1.02] tracking-normal">
-              {HERO_HEADLINE_LINES.map((line) => (
-                <HeadlineLine key={line.text} text={line.text} />
-              ))}
-            </h1>
-
-            <p className="home-hero-copy mt-6 max-w-[43rem] text-[clamp(1rem,1.18vw,1.18rem)] font-light leading-[1.75] tracking-normal text-zinc-400 xl:mt-7">
-              Support HR tập trung vào một bài toán rất cụ thể: lấy JD, nạp CV, đối chiếu, và tạo danh sách đề cử có
-              thể rà soát để recruiter và người quản lý tuyển dụng ra quyết định nhanh hơn.
-            </p>
-
-            <div className="mt-8 flex flex-wrap items-center gap-3 xl:mt-9">
-              <motion.button
-                type="button"
-                whileHover={reduceMotion ? undefined : { scale: 1.02 }}
-                whileTap={reduceMotion ? undefined : { scale: 0.97 }}
-                onClick={onPrimaryAction}
-                className="group relative inline-flex h-[3.1rem] items-center gap-3.5 overflow-hidden bg-white px-7 text-[12px] font-bold uppercase tracking-[0.14em] text-black shadow-[0_20px_50px_rgba(255,255,255,0.12)] transition-all duration-200 hover:bg-zinc-100 hover:shadow-[0_24px_60px_rgba(255,255,255,0.2)] sm:h-[3.35rem] sm:px-9 sm:text-[13px]"
-              >
-                <span className="relative z-10">{primaryLabel}</span>
-                <ArrowUpRight className="relative z-10 h-4.5 w-4.5 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 sm:h-5 sm:w-5" />
-              </motion.button>
-
-              <button
-                type="button"
-                onClick={onSecondaryAction}
-                className="inline-flex h-[3.1rem] items-center justify-center border border-white/12 px-7 supporthr-mono text-[12px] font-semibold uppercase tracking-[0.14em] text-zinc-100 transition-colors hover:border-white/24 hover:bg-white/[0.03] sm:h-[3.35rem] sm:px-9 sm:text-[13px]"
-              >
-                Xem quy trình
-              </button>
-            </div>
-          </motion.div>
-        </div>
+        <motion.div
+          initial={reduceMotion ? false : { opacity: 0, x: 24 }}
+          whileInView={reduceMotion ? undefined : { opacity: 1, x: 0 }}
+          viewport={{ once: true, amount: 0.25 }}
+          transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1], delay: 0.08 }}
+        >
+          <DashboardPreview />
+        </motion.div>
       </div>
     </section>
   );

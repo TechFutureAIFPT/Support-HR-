@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import SupportHRLoading from '@/components/common/SupportHRLoading';
 import { fetchManualHistory, fetchRecentHistory } from '@/services/history-cache/historyService';
 import type { HistoryEntry } from '@/types';
+import { normalizeVietnameseDisplay } from '@/utils/textDisplay';
 
 interface HistoryPageProps {
   userEmail?: string;
@@ -237,7 +238,7 @@ const HistoryPage: React.FC<HistoryPageProps> = ({ userEmail, onRestore }) => {
 
                 <div className="mt-4 border border-white/10 bg-black/45 p-3">
                   <p className="line-clamp-3 font-mono text-[11px] leading-6 text-slate-400">
-                    {item.jdTextSnippet || 'Không có nội dung JD'}
+                    {normalizeVietnameseDisplay(item.jdTextSnippet) || 'Không có nội dung JD'}
                   </p>
                 </div>
 
@@ -376,7 +377,7 @@ function HistoryDetailModal({ selected, onClose, onRestore }: HistoryDetailModal
               <section className="border border-white/10 bg-black/45 p-4">
                 <p className="supporthr-mono text-[10px] uppercase tracking-[0.2em] text-[#f5d6bb]/70">JD Snapshot</p>
                 <p className="mt-3 font-mono text-xs leading-6 text-slate-400">
-                  {selected.jdTextSnippet || selected.fullPayload?.jdText || 'Không có nội dung JD'}
+                  {normalizeVietnameseDisplay(selected.jdTextSnippet || selected.fullPayload?.jdText) || 'Không có nội dung JD'}
                 </p>
               </section>
 
@@ -447,8 +448,8 @@ function HistoryDetailModal({ selected, onClose, onRestore }: HistoryDetailModal
                           const grade = getCandidateGrade(candidate);
                           return (
                             <tr key={candidate.id || candidate.fileName} className="hover:bg-white/[0.03]">
-                              <td className="max-w-[140px] truncate px-3 py-2" title={candidate.candidateName}>
-                                {candidate.candidateName}
+                              <td className="max-w-[140px] truncate px-3 py-2" title={normalizeVietnameseDisplay(candidate.candidateName)}>
+                                {normalizeVietnameseDisplay(candidate.candidateName)}
                               </td>
                               <td className="px-3 py-2 text-center">
                                 <span className={`border px-2 py-0.5 text-[9px] font-bold ${gradeTone[grade] || gradeTone.C}`}>

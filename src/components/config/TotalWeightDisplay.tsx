@@ -9,20 +9,20 @@ const TotalWeightDisplay: React.FC<TotalWeightDisplayProps> = ({ totalWeight }) 
 
   const status = useMemo(() => {
     if (totalWeight === 100) {
-      return { label: 'Chuẩn', color: 'text-[#f5d6bb]', stroke: '#f5d6bb' };
+      return { label: 'Chuẩn', color: 'text-emerald-600', stroke: '#14b8a6' };
     }
     if (totalWeight > 100) {
-      return { label: 'Dư', color: 'text-[#f0c892]', stroke: '#d9a56d' };
+      return { label: 'Dư', color: 'text-red-600', stroke: '#ef4444' };
     }
-    return { label: 'Thiếu', color: 'text-[#ecd0aa]', stroke: '#e4bf8f' };
+    return { label: 'Thiếu', color: 'text-orange-500', stroke: '#ff9f43' };
   }, [totalWeight]);
 
   return (
-    <div className="flex items-center gap-4 border border-white/[0.08] bg-white/[0.025] p-3">
+    <div className="flex items-center gap-4 rounded-2xl border border-blue-100 bg-white p-3 shadow-[0_12px_30px_rgba(30,64,175,0.06)]">
       <div className="relative h-16 w-16 shrink-0">
         <svg className="h-full w-full -rotate-90" viewBox="0 0 36 36">
           <path
-            className="text-white/10"
+            className="text-blue-100"
             d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
             fill="none"
             stroke="currentColor"
@@ -37,15 +37,15 @@ const TotalWeightDisplay: React.FC<TotalWeightDisplayProps> = ({ totalWeight }) 
           />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-sm font-bold text-white">{totalWeight}%</span>
+          <span className="text-sm font-bold text-slate-900">{totalWeight}%</span>
         </div>
       </div>
 
       <div className="flex-1">
-        <p className={`mb-1 text-sm font-medium ${status.color}`}>{status.label}</p>
-        <div className="h-1.5 w-full overflow-hidden bg-white/[0.08]">
+        <p className={`mb-1 text-sm font-semibold ${status.color}`}>{status.label}</p>
+        <div className="h-1.5 w-full overflow-hidden rounded-full bg-blue-100">
           <div
-            className="h-full transition-all duration-500"
+            className="h-full rounded-full transition-all duration-500"
             style={{
               width: `${Math.min(totalWeight, 100)}%`,
               backgroundColor: status.stroke,

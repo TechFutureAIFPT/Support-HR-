@@ -1,6 +1,7 @@
   
 import React, { useState, useMemo } from 'react';
 import type { Candidate, DetailedScore } from '@/types';
+import { normalizeVietnameseDisplay } from '@/utils/textDisplay';
 
 // --- Constants for the new UI ---
 const CRITERIA_ORDER = [
@@ -202,6 +203,9 @@ const CandidateCard: React.FC<CandidateCardProps> = ({ candidate, rank }) => {
   const [expandedAccordions, setExpandedAccordions] = useState<Record<string, boolean>>({});
 
   const { candidateName, phone, email, fileName, jobTitle, status, error, experienceLevel, hardFilterFailureReason, softFilterWarnings, analysis } = candidate;
+  const displayCandidateName = normalizeVietnameseDisplay(candidateName);
+  const displayJobTitle = normalizeVietnameseDisplay(jobTitle);
+  const displayExperienceLevel = normalizeVietnameseDisplay(experienceLevel);
 
   const failed = status === 'FAILED';
   const grade = analysis?.["Hạng"] || 'C';
@@ -283,11 +287,11 @@ const CandidateCard: React.FC<CandidateCardProps> = ({ candidate, rank }) => {
               {/* Candidate Info */}
               <div className="min-w-0 flex-1 space-y-0.5 md:space-y-1">
                 <h3 className="text-lg md:text-2xl font-bold text-white truncate group-hover:text-cyan-400 transition-colors">
-                  {candidateName || 'Chưa xác định'}
+                  {displayCandidateName || 'Chưa xác định'}
                 </h3>
                 <div className="flex flex-wrap items-center gap-x-2 md:gap-x-3 gap-y-1 text-xs md:text-sm text-slate-400">
-                  {jobTitle && <span className="font-medium text-slate-300 flex items-center gap-1 md:gap-1.5"><i className="fa-solid fa-briefcase text-slate-500"></i>{jobTitle}</span>}
-                  {experienceLevel && <span className="flex items-center gap-1 md:gap-1.5"><i className="fa-solid fa-layer-group text-slate-500"></i>{experienceLevel}</span>}
+                  {displayJobTitle && <span className="font-medium text-slate-300 flex items-center gap-1 md:gap-1.5"><i className="fa-solid fa-briefcase text-slate-500"></i>{displayJobTitle}</span>}
+                  {displayExperienceLevel && <span className="flex items-center gap-1 md:gap-1.5"><i className="fa-solid fa-layer-group text-slate-500"></i>{displayExperienceLevel}</span>}
                 </div>
               </div>
             </div>

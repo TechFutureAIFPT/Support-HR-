@@ -1,9 +1,6 @@
-import React, { Suspense, lazy, useCallback, useState } from 'react';
+import React, { Suspense, lazy, useCallback, useEffect, useState } from 'react';
 import type { AppStep, Candidate, HardFilters, WeightCriteria } from '@/types';
-import JDInput from '@/features/criteria-config/JDInput';
-import JDMetaToolbar from '@/features/criteria-config/JDMetaToolbar';
 import CVScreenerWelcome from '@/pages/main/CVScreenerWelcome';
-import CVUploadMini from '@/features/cv-management/CVUploadMini';
 import { analyzeCVs } from '@/services/screening/frontendScreeningService';
 import { getSafeErrorMessage } from '@/utils/errorMessages';
 import SupportHRLoading from '@/components/common/SupportHRLoading';
@@ -55,50 +52,48 @@ interface ScreenerPageProps {
 
 const ScreenerPage: React.FC<ScreenerPageProps> = (props) => {
   const { activeStep } = props;
-  const [showWelcome, setShowWelcome] = useState<boolean>(() => props.jdText.trim().length === 0);
-  const [manualJdFlow, setManualJdFlow] = useState(false);
+  const [intakeNotice, setIntakeNotice] = useState('');
 
-  const hideWelcome = useCallback(() => {
-    setShowWelcome(false);
-    props.onWelcomeChange?.(false);
-  }, [props.onWelcomeChange]);
-
-  const showWelcomePanel = useCallback(() => {
-    setShowWelcome(true);
-    props.onWelcomeChange?.(true);
-  }, [props.onWelcomeChange]);
+  useEffect(() => {
+    if (props.jdText.trim().length > 0) setIntakeNotice('');
+  }, [props.jdText]);
 
   const handleUseTemplate = useCallback(() => {
     props.onOpenJdTemplates?.();
   }, [props.onOpenJdTemplates]);
 
-  const moveToWeights = useCallback(() => {
-    props.markStepAsCompleted('jd');
-    props.setActiveStep('weights');
-    setManualJdFlow(false);
-  }, [props.markStepAsCompleted, props.setActiveStep]);
-
-  const handleContinueAfterWelcome = useCallback(() => {
-    hideWelcome();
-
-    if (manualJdFlow && props.jdText.trim().length > 0 && props.cvFiles.length > 0) {
-      moveToWeights();
-    }
-  }, [hideWelcome, manualJdFlow, moveToWeights, props.cvFiles.length, props.jdText]);
-
-  const handleJdComplete = useCallback(() => {
-    if (props.cvFiles.length === 0) {
-      if (manualJdFlow) {
-        showWelcomePanel();
-        return;
-      }
-
-      alert('Vui lòng tải lên ít nhất 1 CV để tiếp tục.');
+  const handleContinueIntake = useCallback(() => {
+    if (props.jdText.trim().length === 0) {
+      setIntakeNotice('Vui lòng nhập hoặc tải JD trước khi tiếp tục.');
+      props.setActiveStep('jd');
       return;
     }
 
-    moveToWeights();
-  }, [manualJdFlow, moveToWeights, props.cvFiles.length, showWelcomePanel]);
+    props.markStepAsCompleted('jd');
+
+    if (props.cvFiles.length === 0) {
+      props.setActiveStep('upload');
+      return;
+    }
+
+    props.markStepAsCompleted('upload');
+    props.setActiveStep('weights');
+  }, [props]);
+
+  const handleJdProcessed = useCallback((data: {
+    jdText: string;
+    jobPosition: string;
+    hardFilters: Partial<HardFilters>;
+  }) => {
+    props.setJdText(data.jdText);
+    if (data.jobPosition) props.setJobPosition(data.jobPosition);
+    if (data.hardFilters && Object.keys(data.hardFilters).length > 0) {
+      props.setHardFilters((prev) => ({ ...prev, ...data.hardFilters }));
+    }
+
+    props.markStepAsCompleted('jd');
+    props.setActiveStep('upload');
+  }, [props]);
 
   const handleStartAnalysis = async () => {
     props.setActiveStep('analysis');
@@ -142,71 +137,28 @@ const ScreenerPage: React.FC<ScreenerPageProps> = (props) => {
     }
   };
 
-  if (activeStep === 'jd' && showWelcome) {
-    return (
-      <div className="fixed inset-0 z-50 overflow-hidden">
-        <CVScreenerWelcome
-          onGetStarted={handleContinueAfterWelcome}
-          onUseTemplate={handleUseTemplate}
-          cvFiles={props.cvFiles}
-          setCvFiles={props.setCvFiles}
-          hasPreparedJd={props.jdText.trim().length > 0}
-          onFileProcessed={(data) => {
-            setManualJdFlow(false);
-            props.setJdText(data.jdText);
-            if (data.jobPosition) props.setJobPosition(data.jobPosition);
-            if (data.hardFilters && Object.keys(data.hardFilters).length > 0) {
-              props.setHardFilters((prev) => ({ ...prev, ...data.hardFilters }));
-            }
-          }}
-        />
-      </div>
-    );
-  }
-
   return (
-    <div className="feature-page-shell flex h-full flex-1 flex-col overflow-hidden bg-black">
-      {activeStep === 'jd' && (
-        <JDMetaToolbar
-          jdText={props.jdText}
-          setJdText={props.setJdText}
-          rawJdText={props.rawJdText}
-          setRawJdText={props.setRawJdText}
-          jobPosition={props.jobPosition}
-          setJobPosition={props.setJobPosition}
-          hardFilters={props.hardFilters}
-          setHardFilters={props.setHardFilters}
-          onComplete={handleJdComplete}
-          onBackToWelcome={showWelcomePanel}
-        />
-      )}
-
-      <div
-        className={`flex min-h-0 flex-1 flex-col ${
-          activeStep === 'jd' || activeStep === 'analysis'
-            ? 'overflow-hidden'
-            : 'custom-scrollbar overflow-y-auto'
-        }`}
-      >
-        <div className={activeStep === 'jd' ? 'flex h-full min-h-0 flex-1 flex-col md:flex-row' : 'hidden'}>
-          <div className="flex min-w-0 flex-1 flex-col border-b border-slate-800 md:border-b-0 md:border-r">
-            <JDInput
-              hideToolbar
-              jdText={props.jdText}
-              setJdText={props.setJdText}
-              jobPosition={props.jobPosition}
-              setJobPosition={props.setJobPosition}
-              hardFilters={props.hardFilters}
-              setHardFilters={props.setHardFilters}
-              onComplete={handleJdComplete}
-              onBackToWelcome={showWelcomePanel}
-            />
+    <div className="feature-page-shell flex h-full flex-1 flex-col overflow-hidden bg-white">
+      <div className={`flex min-h-0 flex-1 flex-col ${activeStep === 'analysis' ? 'overflow-hidden' : 'overflow-hidden'}`}>
+        {intakeNotice && (
+          <div className="shrink-0 border-b border-amber-200 bg-amber-50 px-5 py-3 text-sm font-semibold text-amber-800">
+            {intakeNotice}
           </div>
+        )}
 
-          <div className="h-[38svh] min-h-[260px] w-full shrink-0 bg-black md:h-full md:min-h-0 md:w-[320px] lg:w-[400px]">
-            <CVUploadMini cvFiles={props.cvFiles} />
-          </div>
-        </div>
+        {(activeStep === 'jd' || activeStep === 'upload') && (
+          <CVScreenerWelcome
+            embedded
+            initialStage={activeStep === 'upload' ? 'cv' : 'jd'}
+            continueLabel="Thiết lập mặc định"
+            onGetStarted={handleContinueIntake}
+            onUseTemplate={handleUseTemplate}
+            cvFiles={props.cvFiles}
+            setCvFiles={props.setCvFiles}
+            hasPreparedJd={props.jdText.trim().length > 0}
+            onFileProcessed={handleJdProcessed}
+          />
+        )}
 
         <div className={activeStep === 'weights' ? 'block h-full' : 'hidden'}>
           <Suspense fallback={<ModuleLoader />}>
@@ -216,6 +168,8 @@ const ScreenerPage: React.FC<ScreenerPageProps> = (props) => {
               hardFilters={props.hardFilters}
               setHardFilters={props.setHardFilters}
               onComplete={() => {
+                props.markStepAsCompleted('jd');
+                props.markStepAsCompleted('upload');
                 props.markStepAsCompleted('weights');
                 handleStartAnalysis();
               }}
@@ -237,14 +191,6 @@ const ScreenerPage: React.FC<ScreenerPageProps> = (props) => {
               weights={props.weights}
               hardFilters={props.hardFilters}
             />
-          </Suspense>
-        </div>
-
-        <div className={activeStep === 'chatbot' ? 'block h-full' : 'hidden'}>
-          <Suspense fallback={<ModuleLoader />}>
-            <div className="p-4">
-              <ModuleLoader />
-            </div>
           </Suspense>
         </div>
       </div>

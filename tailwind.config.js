@@ -6,7 +6,7 @@ export default {
     "./components/**/*.{js,ts,jsx,tsx}",
     "./*.{js,ts,jsx,tsx}",
   ],
-  darkMode: 'class', // Enable class-based dark mode
+  darkMode: false,
   theme: {
     extend: {
       colors: {

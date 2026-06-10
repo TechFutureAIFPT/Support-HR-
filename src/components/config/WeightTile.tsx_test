@@ -76,7 +76,7 @@ const WeightTile: React.FC<WeightTileProps> = ({ criterion, setWeights, isExpand
                         style={{ width: `${Math.min(total, 100)}%` }}
                     ></div>
                  </div>
-                 <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Tá»•ng {total}%</span>
+                 <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Tổng {total}%</span>
               </div>
             </div>
         </div>
@@ -144,5 +144,3 @@ const WeightTile: React.FC<WeightTileProps> = ({ criterion, setWeights, isExpand
 };
 
 export default WeightTile;
-
-

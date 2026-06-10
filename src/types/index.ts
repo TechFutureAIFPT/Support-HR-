@@ -32,7 +32,19 @@ export interface AdvancedScoreBreakdown {
   quality_flags: string[];
 }
 
-export type AppStep = 'home' | 'jd' | 'weights' | 'upload' | 'analysis' | 'dashboard' | 'chatbot' | 'process' | 'history' | 'feedback';
+export type AppStep =
+  | 'home'
+  | 'jd'
+  | 'weights'
+  | 'upload'
+  | 'analysis'
+  | 'dashboard'
+  | 'chatbot'
+  | 'records'
+  | 'jd-standardizer'
+  | 'process'
+  | 'history'
+  | 'feedback';
 
 export interface DetailedScore {
   'Tiêu chí': string;
@@ -261,6 +273,115 @@ export interface HistoryEntry {
     hardFilters: any;
     candidates: Candidate[];
   };
+}
+
+export interface MobileInboxCandidate {
+  id: string;
+  sourceHistoryId?: string;
+  syncHistoryId?: string;
+  sessionId?: string;
+  candidateName: string;
+  avatarUrl?: string;
+  fileName: string;
+  jobTitle: string;
+  industry: string;
+  experienceLevel: string;
+  detectedLocation?: string;
+  score: number;
+  rank: 'A' | 'B' | 'C' | string;
+  strengths: string[];
+  weaknesses: string[];
+  interviewQuestions: string[];
+  details: Array<Record<string, unknown>>;
+  warnings: string[];
+  hardFilterFailureReason?: string | null;
+  hardFilters?: Record<string, unknown>;
+  jdText?: string;
+  jobPosition?: string;
+  raw?: Record<string, unknown>;
+}
+
+export interface MobileInboxHistory {
+  id: string;
+  timestamp: number;
+  jobPosition: string;
+  locationRequirement?: string;
+  totalCandidates: number;
+  userEmail?: string;
+  fullPayload?: {
+    jdText?: string;
+    jobPosition?: string;
+    hardFilters?: Record<string, unknown>;
+    candidates?: Array<Record<string, unknown>>;
+  };
+  topCandidates?: Array<Record<string, unknown>>;
+}
+
+export interface MobileInboxResponse {
+  candidates: MobileInboxCandidate[];
+  history: MobileInboxHistory[];
+  stats: {
+    candidateCount: number;
+    historyCount: number;
+    latestTimestamp?: number | null;
+  };
+  revision?: string;
+  generatedAt?: number;
+}
+
+export type JDStandardizeTargetPlatform = 'generic' | 'topcv' | 'vietnamworks' | 'linkedin' | 'parse_jd';
+
+export interface JDSupplementalFields {
+  companyName?: string;
+  salary?: string;
+  location?: string;
+  workingTime?: string;
+  benefits?: string;
+  applicationInfo?: string;
+  notes?: string;
+}
+
+export interface JDStandardizeRequest {
+  jdText: string;
+  targetPlatform: JDStandardizeTargetPlatform;
+  supplementalFields?: JDSupplementalFields;
+}
+
+export interface JDQualityFinding {
+  key?: string;
+  label: string;
+  reason?: string;
+  priority?: 'high' | 'medium' | 'low' | string;
+  detail?: string;
+}
+
+export interface NormalizedJD {
+  title: string;
+  overview: string;
+  responsibilities: string[];
+  requirements: string[];
+  benefits: string[];
+  workingTime: string;
+  location: string;
+  salary: string;
+  applicationInfo: string;
+  keywords: string[];
+}
+
+export interface JDStandardizeResponse {
+  score: number;
+  missingSections: JDQualityFinding[];
+  weakPoints: JDQualityFinding[];
+  suggestions: JDQualityFinding[];
+  normalizedJD: NormalizedJD;
+  platform: {
+    name: string;
+    url: string;
+  };
+  platformUrl: string;
+  generatedAt: string;
+  source: 'ai' | 'fallback' | string;
+  savedRecordId?: string | null;
 }
 
 export interface ChatMessage {
