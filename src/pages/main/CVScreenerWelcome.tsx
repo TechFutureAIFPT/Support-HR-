@@ -5,11 +5,14 @@ import {
   BriefcaseBusiness,
   Check,
   CheckCircle2,
+  Database,
   FileText,
   FolderOpen,
   HardDriveUpload,
   ListChecks,
+  Loader2,
   MapPin,
+  Search,
   Sparkles,
   UploadCloud,
   X,
@@ -21,8 +24,10 @@ import {
   filterAndStructureJD,
 } from '@/services/screening/frontendScreeningService';
 import { googleDriveService } from '@/services/file-processing/googleDriveService';
-import type { HardFilters } from '@/types';
+import { fetchFilteredCvLibrary } from '@/services/data-sync/recruitmentToolsService';
+import type { HardFilters, MobileInboxCandidate, MobileInboxHistory } from '@/types';
 import { getSafeErrorMessage, isRedirectingToGoogle } from '@/utils/errorMessages';
+import { normalizeVietnameseDisplay, normalizeVietnameseList } from '@/utils/textDisplay';
 
 interface CVScreenerWelcomeProps {
   onGetStarted: () => void;
@@ -57,6 +62,17 @@ const PROCESSING_STEPS = [
 
 const MAX_CV_PER_BATCH = 20;
 const FILE_ACCEPT = '.pdf,.docx,.png,.jpg,.jpeg';
+const LIBRARY_TEXT_FIELDS = [
+  '_cvText',
+  'cvText',
+  'extractedText',
+  'rawText',
+  'resumeText',
+  'candidateText',
+  'fileText',
+  'content',
+  'text',
+];
 
 const accent = '#2388ff';
 const modalPanelClass = 'rounded-2xl border border-blue-100 bg-white shadow-[0_24px_80px_rgba(30,64,175,0.14)]';
@@ -64,6 +80,94 @@ const secondaryButtonClass =
   'inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-blue-100 bg-white px-3 text-xs font-semibold text-slate-600 transition-colors hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-45 sm:h-10 sm:px-3';
 const primaryButtonClass =
   'inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 text-sm font-bold text-white shadow-[0_14px_34px_rgba(35,136,255,0.24)] transition-colors hover:bg-blue-500 disabled:cursor-not-allowed disabled:border disabled:border-blue-200 disabled:bg-blue-100 disabled:text-blue-700 disabled:shadow-none disabled:opacity-100 sm:h-11 sm:px-5';
+
+const getRecordString = (record: Record<string, unknown> | undefined, keys: string[]) => {
+  if (!record) return '';
+
+  for (const key of keys) {
+    const value = record[key];
+    if (typeof value === 'string' && value.trim()) return value.trim();
+  }
+
+  return '';
+};
+
+const findLibraryHistory = (candidate: MobileInboxCandidate, history: MobileInboxHistory[]) =>
+  history.find((item) => item.id === candidate.sourceHistoryId || item.id === candidate.syncHistoryId || item.id === candidate.sessionId);
+
+const findCandidatePayload = (candidate: MobileInboxCandidate, history: MobileInboxHistory[]) => {
+  const source = findLibraryHistory(candidate, history);
+  const payloadCandidates = source?.fullPayload?.candidates || [];
+  const candidateKeys = [
+    candidate.id,
+    candidate.fileName,
+    candidate.candidateName,
+  ].map((item) => String(item || '').trim().toLowerCase()).filter(Boolean);
+
+  return payloadCandidates.find((item) => {
+    const record = item as Record<string, unknown>;
+    const recordKeys = [
+      record.id,
+      record.candidateId,
+      record.fileName,
+      record.candidateName,
+      record.name,
+    ].map((value) => String(value || '').trim().toLowerCase()).filter(Boolean);
+
+    return recordKeys.some((key) => candidateKeys.includes(key));
+  }) as Record<string, unknown> | undefined;
+};
+
+const buildLibraryCandidateText = (candidate: MobileInboxCandidate, history: MobileInboxHistory[]) => {
+  const directText = getRecordString(candidate.raw, LIBRARY_TEXT_FIELDS);
+  if (directText) return directText;
+
+  const historyPayload = findCandidatePayload(candidate, history);
+  const historyText = getRecordString(historyPayload, LIBRARY_TEXT_FIELDS)
+    || getRecordString(historyPayload?.raw as Record<string, unknown> | undefined, LIBRARY_TEXT_FIELDS);
+  if (historyText) return historyText;
+
+  const source = findLibraryHistory(candidate, history);
+  const detailsText = candidate.details
+    .map((detail, index) => {
+      const criterion = normalizeVietnameseDisplay(detail['Tiêu chí'] || detail['Tieu chi'] || detail.criterion || `Tiêu chí ${index + 1}`);
+      const evidence = normalizeVietnameseDisplay(detail['Dẫn chứng'] || detail['Dan chung'] || detail.evidence || detail['Giải thích'] || detail.explanation || '');
+      return [criterion, evidence].filter(Boolean).join(': ');
+    })
+    .filter(Boolean);
+
+  return [
+    `Ứng viên: ${normalizeVietnameseDisplay(candidate.candidateName)}`,
+    `File CV: ${normalizeVietnameseDisplay(candidate.fileName)}`,
+    `Vị trí: ${normalizeVietnameseDisplay(candidate.jobTitle || candidate.jobPosition || source?.jobPosition || '')}`,
+    `Ngành: ${normalizeVietnameseDisplay(candidate.industry)}`,
+    `Cấp độ: ${normalizeVietnameseDisplay(candidate.experienceLevel)}`,
+    `Địa điểm: ${normalizeVietnameseDisplay(candidate.detectedLocation || '')}`,
+    `Điểm AI trước đó: ${candidate.score}`,
+    `Hạng: ${candidate.rank}`,
+    normalizeVietnameseList(candidate.strengths).length ? `Điểm mạnh: ${normalizeVietnameseList(candidate.strengths).join('; ')}` : '',
+    normalizeVietnameseList(candidate.weaknesses).length ? `Điểm cần rà soát: ${normalizeVietnameseList(candidate.weaknesses).join('; ')}` : '',
+    detailsText.length ? `Bằng chứng phân tích:\n${detailsText.join('\n')}` : '',
+  ].filter(Boolean).join('\n');
+};
+
+const toSafeLibraryFileName = (candidate: MobileInboxCandidate) => {
+  const baseName = normalizeVietnameseDisplay(candidate.fileName || candidate.candidateName || 'cv-thu-vien')
+    .replace(/[\\/:*?"<>|]+/g, '-')
+    .trim() || 'cv-thu-vien';
+  return /\.[a-z0-9]{2,5}$/i.test(baseName) ? baseName.replace(/\.[^.]+$/i, '.txt') : `${baseName}.txt`;
+};
+
+const createLibraryCvFile = (candidate: MobileInboxCandidate, history: MobileInboxHistory[]) => {
+  const text = buildLibraryCandidateText(candidate, history);
+  const file = new File([text], toSafeLibraryFileName(candidate), { type: 'text/plain' }) as File & {
+    __preExtractedText?: string;
+    __libraryCandidateId?: string;
+  };
+  file.__preExtractedText = text;
+  file.__libraryCandidateId = candidate.id;
+  return file;
+};
 
 const StepButton = ({
   active,
@@ -158,6 +262,159 @@ const ProcessingModal = ({
   </div>
 );
 
+const CvLibraryImportModal = ({
+  candidates,
+  history,
+  selectedIds,
+  query,
+  isLoading,
+  error,
+  remainingSlots,
+  onQueryChange,
+  onReload,
+  onToggle,
+  onClose,
+  onImport,
+}: {
+  candidates: MobileInboxCandidate[];
+  history: MobileInboxHistory[];
+  selectedIds: Set<string>;
+  query: string;
+  isLoading: boolean;
+  error: string;
+  remainingSlots: number;
+  onQueryChange: (value: string) => void;
+  onReload: () => void;
+  onToggle: (candidate: MobileInboxCandidate) => void;
+  onClose: () => void;
+  onImport: () => void;
+}) => {
+  const filteredCandidates = useMemo(() => {
+    const normalizedQuery = query.trim().toLowerCase();
+    return candidates
+      .filter((candidate) => {
+        if (!normalizedQuery) return true;
+        return [
+          candidate.candidateName,
+          candidate.fileName,
+          candidate.jobTitle,
+          candidate.jobPosition,
+          candidate.industry,
+        ].some((value) => normalizeVietnameseDisplay(value || '').toLowerCase().includes(normalizedQuery));
+      })
+      .sort((left, right) => right.score - left.score);
+  }, [candidates, query]);
+
+  return (
+    <div className="fixed inset-0 z-[80] flex items-center justify-center bg-slate-900/25 px-4 backdrop-blur-sm" onClick={onClose}>
+      <div className="flex max-h-[86vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-blue-100 bg-white shadow-[0_30px_90px_rgba(15,23,42,0.18)]" onClick={(event) => event.stopPropagation()}>
+        <div className="flex shrink-0 flex-col gap-4 border-b border-blue-100 p-5 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0">
+            <p className="supporthr-mono text-[10px] font-black uppercase tracking-[0.2em] text-blue-600">Thư viện CV</p>
+            <h2 className="mt-1 text-xl font-black text-slate-950">Đưa hồ sơ đã lọc vào phiên này</h2>
+            <p className="mt-1 text-sm leading-6 text-slate-600">
+              Chọn hồ sơ từ thư viện để phân tích lại với JD và bộ tiêu chí hiện tại.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-blue-100 bg-white text-slate-500 transition hover:bg-blue-50 hover:text-blue-700"
+            aria-label="Đóng thư viện CV"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        <div className="grid shrink-0 gap-3 border-b border-blue-100 bg-[#f8fbff] p-4 sm:grid-cols-[minmax(0,1fr)_auto]">
+          <label className="flex h-11 min-w-0 items-center rounded-xl border border-blue-100 bg-white px-3 shadow-sm">
+            <Search className="mr-2 h-4 w-4 text-blue-500" />
+            <input
+              value={query}
+              onChange={(event) => onQueryChange(event.target.value)}
+              placeholder="Tìm theo tên, file CV, vị trí..."
+              className="min-w-0 flex-1 bg-transparent text-sm font-semibold text-slate-800 outline-none placeholder:text-slate-400"
+            />
+          </label>
+          <button type="button" onClick={onReload} className={secondaryButtonClass}>
+            {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Database className="h-4 w-4" />}
+            Tải lại
+          </button>
+        </div>
+
+        <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto p-4">
+          {isLoading ? (
+            <div className="flex min-h-[280px] flex-col items-center justify-center text-center">
+              <Loader2 className="h-10 w-10 animate-spin text-blue-600" />
+              <p className="mt-4 text-base font-bold text-slate-950">Đang tải thư viện CV</p>
+              <p className="mt-2 text-sm text-slate-600">Support HR đang lấy hồ sơ đã lọc từ backend.</p>
+            </div>
+          ) : error ? (
+            <div className="rounded-2xl border border-rose-100 bg-rose-50 p-5 text-sm font-semibold text-rose-700">{error}</div>
+          ) : filteredCandidates.length === 0 ? (
+            <div className="flex min-h-[280px] flex-col items-center justify-center rounded-2xl border border-blue-100 bg-blue-50/50 px-4 text-center">
+              <FileText className="h-10 w-10 text-blue-500" />
+              <p className="mt-4 text-base font-bold text-slate-950">Chưa có hồ sơ phù hợp</p>
+              <p className="mt-2 max-w-sm text-sm leading-6 text-slate-600">
+                Sau khi có lịch sử phân tích, hồ sơ đã lọc sẽ xuất hiện tại đây.
+              </p>
+            </div>
+          ) : (
+            <div className="grid gap-2">
+              {filteredCandidates.map((candidate) => {
+                const checked = selectedIds.has(candidate.id);
+                const source = findLibraryHistory(candidate, history);
+                return (
+                  <button
+                    key={candidate.id}
+                    type="button"
+                    onClick={() => onToggle(candidate)}
+                    className={`flex items-center gap-3 rounded-xl border p-3 text-left transition ${
+                      checked ? 'border-blue-300 bg-blue-50 shadow-sm' : 'border-blue-100 bg-white hover:border-blue-200 hover:bg-blue-50/50'
+                    }`}
+                  >
+                    <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border text-sm font-black ${
+                      checked ? 'border-blue-200 bg-white text-blue-700' : 'border-blue-100 bg-blue-50 text-blue-600'
+                    }`}>
+                      {checked ? <Check className="h-4 w-4" /> : <FileText className="h-4 w-4" />}
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-sm font-black text-slate-950">{normalizeVietnameseDisplay(candidate.candidateName)}</span>
+                      <span className="mt-1 block truncate text-xs font-semibold text-slate-600">
+                        {normalizeVietnameseDisplay(candidate.fileName)} · {normalizeVietnameseDisplay(candidate.jobTitle || candidate.jobPosition || source?.jobPosition || 'Chưa rõ vị trí')}
+                      </span>
+                    </span>
+                    <span className="hidden shrink-0 rounded-lg border border-blue-100 bg-white px-3 py-2 text-center sm:block">
+                      <span className="block text-[10px] font-black uppercase tracking-[0.12em] text-blue-600">Điểm</span>
+                      <span className="text-sm font-black text-slate-950">{candidate.score}</span>
+                    </span>
+                    <span className="supporthr-mono shrink-0 rounded-lg border border-blue-100 bg-blue-50 px-2 py-1 text-[10px] font-black text-blue-700">
+                      {candidate.rank}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        <div className="flex shrink-0 flex-col gap-3 border-t border-blue-100 bg-white p-4 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm font-semibold text-slate-600">
+            Đã chọn <span className="font-black text-blue-700">{selectedIds.size}</span> hồ sơ · còn <span className="font-black text-blue-700">{remainingSlots}</span> chỗ trong phiên này.
+          </p>
+          <div className="flex gap-2">
+            <button type="button" onClick={onClose} className={secondaryButtonClass}>Đóng</button>
+            <button type="button" onClick={onImport} disabled={selectedIds.size === 0 || remainingSlots <= 0} className={primaryButtonClass}>
+              Đưa vào danh sách CV
+              <ArrowRight className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
   onGetStarted,
   onUseTemplate,
@@ -184,6 +441,13 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
   const [jdFileName, setJdFileName] = useState('');
   const [cvError, setCvError] = useState('');
   const [isLoadingCvDrive, setIsLoadingCvDrive] = useState(false);
+  const [isCvLibraryOpen, setIsCvLibraryOpen] = useState(false);
+  const [isLoadingCvLibrary, setIsLoadingCvLibrary] = useState(false);
+  const [cvLibraryError, setCvLibraryError] = useState('');
+  const [cvLibraryCandidates, setCvLibraryCandidates] = useState<MobileInboxCandidate[]>([]);
+  const [cvLibraryHistory, setCvLibraryHistory] = useState<MobileInboxHistory[]>([]);
+  const [cvLibraryQuery, setCvLibraryQuery] = useState('');
+  const [selectedLibraryCvIds, setSelectedLibraryCvIds] = useState<Set<string>>(new Set());
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cvFileInputRef = useRef<HTMLInputElement>(null);
   const hasHandledPendingDriveRef = useRef(false);
@@ -194,6 +458,7 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
     [cvFiles.length],
   );
   const canContinue = jdReady && cvFiles.length > 0;
+  const remainingCvSlots = MAX_CV_PER_BATCH - cvFiles.length;
   const previewText = useMemo(() => (jdText || rawJdText || '').trim(), [jdText, rawJdText]);
   const previewCharacterCount = previewText.length;
   const extractedRules = useMemo(() => {
@@ -391,6 +656,60 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
     }
   };
 
+  const loadCvLibrary = useCallback(async () => {
+    setIsLoadingCvLibrary(true);
+    setCvLibraryError('');
+    try {
+      const response = await fetchFilteredCvLibrary({ historyLimit: 30, candidateLimit: 160 });
+      setCvLibraryCandidates(response.candidates);
+      setCvLibraryHistory(response.history);
+    } catch (err: any) {
+      setCvLibraryCandidates([]);
+      setCvLibraryHistory([]);
+      setCvLibraryError(getSafeErrorMessage(err, 'ai') || 'Không thể tải thư viện CV.');
+    } finally {
+      setIsLoadingCvLibrary(false);
+    }
+  }, []);
+
+  const openCvLibrary = () => {
+    setIsCvLibraryOpen(true);
+    setSelectedLibraryCvIds(new Set());
+    if (cvLibraryCandidates.length === 0 && !isLoadingCvLibrary) {
+      void loadCvLibrary();
+    }
+  };
+
+  const toggleLibraryCandidate = (candidate: MobileInboxCandidate) => {
+    setSelectedLibraryCvIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(candidate.id)) {
+        next.delete(candidate.id);
+        return next;
+      }
+
+      if (next.size >= remainingCvSlots) {
+        setCvError(`Chỉ còn ${remainingCvSlots} chỗ trong phiên phân tích này.`);
+        return next;
+      }
+
+      next.add(candidate.id);
+      setCvError('');
+      return next;
+    });
+  };
+
+  const importSelectedLibraryCvs = () => {
+    const selectedCandidates = cvLibraryCandidates.filter((candidate) => selectedLibraryCvIds.has(candidate.id));
+    if (selectedCandidates.length === 0) return;
+
+    const files = selectedCandidates.map((candidate) => createLibraryCvFile(candidate, cvLibraryHistory));
+    appendCvFiles(files);
+    setSuccessMsg(`Đã đưa ${files.length} hồ sơ từ thư viện CV vào phiên lọc.`);
+    setIsCvLibraryOpen(false);
+    setSelectedLibraryCvIds(new Set());
+  };
+
   useEffect(() => {
     if (hasHandledPendingDriveRef.current) return;
     hasHandledPendingDriveRef.current = true;
@@ -501,6 +820,22 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
       }`}
     >
       {isProcessing && <ProcessingModal step={processingStep} />}
+      {isCvLibraryOpen && (
+        <CvLibraryImportModal
+          candidates={cvLibraryCandidates}
+          history={cvLibraryHistory}
+          selectedIds={selectedLibraryCvIds}
+          query={cvLibraryQuery}
+          isLoading={isLoadingCvLibrary}
+          error={cvLibraryError}
+          remainingSlots={Math.max(0, remainingCvSlots)}
+          onQueryChange={setCvLibraryQuery}
+          onReload={() => void loadCvLibrary()}
+          onToggle={toggleLibraryCandidate}
+          onClose={() => setIsCvLibraryOpen(false)}
+          onImport={importSelectedLibraryCvs}
+        />
+      )}
 
       <aside className={`relative z-10 h-full w-[19rem] shrink-0 flex-col border-r border-blue-100 bg-white/95 shadow-[18px_0_44px_rgba(30,64,175,0.07)] ${embedded ? 'hidden' : 'hidden lg:flex'}`}>
         <div className="flex h-[6.6rem] items-center gap-3 border-b border-blue-100 px-5">
@@ -814,7 +1149,7 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
                   <p className="mt-5 text-xl font-semibold tracking-tight text-slate-900 sm:text-2xl">Kéo thả CV</p>
                   <p className="mt-2 text-sm text-slate-500">PDF, DOCX, PNG, JPG</p>
 
-                  <div className="relative z-10 mt-4 flex justify-center gap-5">
+                  <div className="relative z-10 mt-4 flex flex-wrap justify-center gap-3">
                     <button
                       type="button"
                       onClick={(event) => {
@@ -841,6 +1176,18 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
                         <FolderOpen className="h-4 w-4" />
                       )}
                       Drive
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        openCvLibrary();
+                      }}
+                      disabled={remainingCvSlots <= 0}
+                      className={secondaryButtonClass}
+                    >
+                      <Database className="h-4 w-4" />
+                      Thư viện CV
                     </button>
                   </div>
                 </div>

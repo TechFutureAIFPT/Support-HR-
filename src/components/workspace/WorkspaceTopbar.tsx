@@ -25,6 +25,7 @@ import {
 import type { AppStep } from '@/types';
 import type { AccountNotification } from '@/services/data-sync/notificationService';
 import { NotificationService } from '@/services/data-sync/notificationService';
+import WindowsAppInstallButton from '@/components/pwa/WindowsAppInstallButton';
 
 interface WorkspaceTopbarProps {
   activeStep: AppStep;
@@ -218,6 +219,8 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
       items.map((item) => item.id === notification.id ? { ...item, read: true } : item),
     );
 
+    if (notification.id.startsWith('history-')) return;
+
     try {
       await NotificationService.markRead(notification.id);
     } catch (error) {
@@ -367,6 +370,8 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
             <Plus size={16} strokeWidth={2.6} />
             Phiên mới
           </button>
+
+          <WindowsAppInstallButton variant="compact" className="hidden md:inline-flex" />
 
           {false && (
           <>

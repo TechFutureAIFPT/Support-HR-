@@ -1,4 +1,6 @@
 import { apiGet, apiPost, pickArray } from '@/services/api/renderClient';
+import { fetchFilteredCvLibrary } from '@/services/data-sync/recruitmentToolsService';
+import { normalizeVietnameseDisplay } from '@/utils/textDisplay';
 
 export interface AccountNotification {
   id: string;
@@ -47,15 +49,58 @@ function normalizeNotification(raw: unknown): AccountNotification | null {
   };
 }
 
+function normalizeInboxHistoryNotification(raw: unknown): AccountNotification | null {
+  if (!raw || typeof raw !== 'object') return null;
+
+  const item = raw as Record<string, unknown>;
+  const id = String(item.id || item.historyId || item.syncHistoryId || '');
+  if (!id) return null;
+
+  const fullPayload = item.fullPayload && typeof item.fullPayload === 'object'
+    ? item.fullPayload as Record<string, unknown>
+    : {};
+  const candidates = Array.isArray(fullPayload.candidates)
+    ? fullPayload.candidates
+    : Array.isArray(item.candidates)
+      ? item.candidates
+      : [];
+  const jobPosition = normalizeVietnameseDisplay(
+    item.jobPosition || fullPayload.jobPosition || 'Phiên lọc CV'
+  );
+  const totalCandidates = Number(item.totalCandidates || candidates.length || 0);
+
+  return {
+    id: `history-${id}`,
+    title: 'Đã lọc hồ sơ thành công',
+    message: `${jobPosition}${totalCandidates ? ` · ${totalCandidates} hồ sơ` : ''}`,
+    type: 'success',
+    read: false,
+    createdAt: normalizeTimestamp(item.timestamp || item.createdAt || item.updatedAt),
+    actionUrl: '/dashboard',
+  };
+}
+
 export class NotificationService {
   static async list(limitCount: number = 20): Promise<AccountNotification[]> {
-    const response = await apiGet<unknown>(
-      `/api/account/notifications?limit_count=${limitCount}`,
-      { authRequired: true, timeoutMs: 15000 },
-    );
+    try {
+      const response = await apiGet<unknown>(
+        `/api/account/notifications?limit_count=${limitCount}`,
+        { authRequired: true, timeoutMs: 15000 },
+      );
 
-    return pickArray<unknown>(response, ['notifications', 'items', 'data', 'results'])
-      .map(normalizeNotification)
+      const notifications = pickArray<unknown>(response, ['notifications', 'items', 'data', 'results'])
+        .map(normalizeNotification)
+        .filter((item): item is AccountNotification => Boolean(item));
+      if (notifications.length > 0) return notifications;
+    } catch (error) {
+      console.warn('Notifications endpoint unavailable, using mobile inbox fallback:', error);
+    }
+
+    const inbox = await fetchFilteredCvLibrary({ historyLimit: limitCount, candidateLimit: 1 });
+    return inbox.history
+      .sort((left, right) => (right.timestamp || 0) - (left.timestamp || 0))
+      .slice(0, limitCount)
+      .map(normalizeInboxHistoryNotification)
       .filter((item): item is AccountNotification => Boolean(item));
   }
 

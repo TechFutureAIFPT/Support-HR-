@@ -25,6 +25,7 @@ import { DocsPageLoading } from '@/pages/info/legal-ui';
 const ScreenerPage = lazy(() => import('@/pages/main/ScreenerPage'));
 const ProcessPage = lazy(() => import('@/pages/main/ProcessPage'));
 const HomePage = lazy(() => import('@/pages/main/HomePage'));
+const WelcomeAppPage = lazy(() => import('@/pages/main/WelcomeAppPage'));
 const AchievementsContactPage = lazy(() => import('@/pages/info/AchievementsContactPage'));
 const DeploymentReadyPage = lazy(() => import('@/pages/deployment/DeploymentReadyPage'));
 const LoginPage = lazy(() => import('@/pages/auth/LoginPage'));
@@ -176,7 +177,7 @@ const MainApp = () => {
   clearExpiredWorkflowSession();
   const location = useLocation();
   const initialPath = typeof window !== 'undefined' ? window.location.pathname : '/';
-  const shouldBlockInitialRender = !publicMarketingPaths.has(initialPath);
+  const shouldBlockInitialRender = !publicMarketingPaths.has(initialPath) && initialPath !== '/welcome';
 
   // Initialize state
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -720,7 +721,8 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
     !isLoggedIn &&
     ['/jd', '/upload', '/weights', '/analysis', '/dashboard', '/detailed-analytics', '/chatbot', '/feedback', '/records', '/jd-standardizer', '/history', '/jd-templates'].includes(location.pathname);
   const isMarketingRoute = publicMarketingPaths.has(location.pathname);
-  const isStandaloneToolRoute = isLoggedIn && ['/records', '/jd-standardizer', '/history', '/jd-templates'].includes(location.pathname);
+  const isWelcomeRoute = location.pathname === '/welcome';
+  const isStandaloneToolRoute = isWelcomeRoute || (isLoggedIn && ['/records', '/jd-standardizer', '/history', '/jd-templates'].includes(location.pathname));
   const isLandingView = isHomeView || isLandingFallbackView || isMarketingRoute;
   const isWorkflowView =
     !isLandingView &&
@@ -945,6 +947,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
             )
           }>
             <Routes>
+              <Route path="/welcome" element={<WelcomeAppPage isLoggedIn={isLoggedIn} onLoginRequest={onLoginRequest} />} />
               <Route path="/" element={<HomePage setActiveStep={setActiveStep} isLoggedIn={isLoggedIn} onLoginRequest={onLoginRequest} completedSteps={completedSteps} userName={userName} userEmail={userEmail} />} />
               <Route path="/jd" element={isLoggedIn ? <ScreenerPage {...screenerPageProps} /> : <HomePage setActiveStep={setActiveStep} isLoggedIn={isLoggedIn} onLoginRequest={onLoginRequest} completedSteps={completedSteps} userName={userName} userEmail={userEmail} />} />
               <Route path="/upload" element={isLoggedIn ? <ScreenerPage {...screenerPageProps} /> : <HomePage setActiveStep={setActiveStep} isLoggedIn={isLoggedIn} onLoginRequest={onLoginRequest} completedSteps={completedSteps} userName={userName} userEmail={userEmail} />} />

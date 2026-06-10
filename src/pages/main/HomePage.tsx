@@ -7,6 +7,7 @@ import WorkflowMatrixSection from "@/pages/main/home/WorkflowMatrixSection";
 import Footer from "@/pages/main/home/Footer";
 import PricingSection from "@/pages/main/home/PricingSection";
 import FAQSection from "@/pages/main/home/FAQSection";
+import WindowsAppInstallButton from "@/components/pwa/WindowsAppInstallButton";
 
 const partners = [
   { name: "FPT", logo: "/images/logos/fpt.png" },
@@ -121,6 +122,34 @@ function HomeToolsSection({ onOpenTool }: { onOpenTool: (step: AppStep) => void 
               </button>
             ))}
           </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function WindowsInstallSection() {
+  return (
+    <section className="border-b border-blue-100 bg-white py-10">
+      <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-12">
+        <div className="grid gap-5 rounded-3xl border border-blue-100 bg-[#f8fbff] p-5 shadow-[0_18px_44px_rgba(30,64,175,0.07)] sm:p-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+          <div className="flex min-w-0 items-start gap-4">
+            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-blue-100 bg-white text-blue-600 shadow-sm">
+              <i className="fa-solid fa-display text-base" />
+            </span>
+            <div className="min-w-0">
+              <p className="supporthr-mono text-[10px] font-black uppercase tracking-[0.22em] text-blue-600">
+                Ứng dụng Windows
+              </p>
+              <h2 className="mt-2 text-2xl font-black tracking-tight text-slate-950">
+                Mở Support HR như một ứng dụng riêng trên máy tính.
+              </h2>
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
+                Cài từ Chrome hoặc Edge để mở nhanh quy trình nạp JD, nạp CV và phân tích ứng viên trong cửa sổ app riêng.
+              </p>
+            </div>
+          </div>
+          <WindowsAppInstallButton variant="full" className="h-11 px-5" />
         </div>
       </div>
     </section>
@@ -265,6 +294,10 @@ const HomePage: React.FC<HomePageProps> = ({
               </span>
             </button>
           ))}
+
+          <div className="px-3 pt-3">
+            <WindowsAppInstallButton variant="full" className="w-full" />
+          </div>
         </div>
 
         <div className="space-y-2 border-t border-blue-100 p-4">
@@ -412,6 +445,7 @@ const HomePage: React.FC<HomePageProps> = ({
                     ĐĂNG NHẬP
                   </button>
                 ) : null}
+                <WindowsAppInstallButton variant="full" className="hidden xl:inline-flex" />
                 <button
                   type="button"
                   onClick={handleStart}
@@ -440,6 +474,7 @@ const HomePage: React.FC<HomePageProps> = ({
 
         <PartnerTickerSection partners={partners} />
         <HomeToolsSection onOpenTool={openTool} />
+        <WindowsInstallSection />
         <section className="border-y border-blue-100 bg-white">
           <WorkflowMatrixSection onPrimaryAction={handleStart} merged />
         </section>

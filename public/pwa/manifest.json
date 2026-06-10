@@ -1,13 +1,38 @@
 {
-  "id": "/",
-  "name": "Support HR",
+  "id": "/?app=supporthr",
+  "name": "Support HR Desktop",
   "short_name": "SupportHR",
-  "start_url": "/",
+  "description": "Ứng dụng Windows cho quy trình sàng lọc CV, chuẩn hóa JD và phân tích ứng viên bằng AI.",
+  "start_url": "/welcome?source=pwa",
   "scope": "/",
   "display": "standalone",
-  "orientation": "portrait",
+  "orientation": "landscape",
   "background_color": "#ffffff",
-  "theme_color": "#000000",
+  "theme_color": "#2388ff",
+  "categories": ["business", "productivity", "utilities"],
+  "shortcuts": [
+    {
+      "name": "Nạp JD & CV",
+      "short_name": "Nạp hồ sơ",
+      "description": "Mở nhanh quy trình nạp JD và CV.",
+      "url": "/jd",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "Thư viện CV",
+      "short_name": "Thư viện",
+      "description": "Xem lại hồ sơ đã lọc.",
+      "url": "/records",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "Thống kê chi tiết",
+      "short_name": "Thống kê",
+      "description": "Mở dashboard phân tích.",
+      "url": "/detailed-analytics",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    }
+  ],
   "icons": [
     {
       "src": "/icons/icon-192.png",
