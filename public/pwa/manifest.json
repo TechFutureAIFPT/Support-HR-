@@ -3,7 +3,7 @@
   "name": "Support HR Desktop",
   "short_name": "SupportHR",
   "description": "Ứng dụng Windows cho quy trình sàng lọc CV, chuẩn hóa JD và phân tích ứng viên bằng AI.",
-  "start_url": "/welcome?source=pwa",
+  "start_url": "/jd?source=pwa",
   "scope": "/",
   "display": "standalone",
   "orientation": "landscape",
@@ -12,7 +12,7 @@
   "categories": ["business", "productivity", "utilities"],
   "shortcuts": [
     {
-      "name": "Nạp JD & CV",
+      "name": "Nạp JD và CV",
       "short_name": "Nạp hồ sơ",
       "description": "Mở nhanh quy trình nạp JD và CV.",
       "url": "/jd",

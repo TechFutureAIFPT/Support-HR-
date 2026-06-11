@@ -6,72 +6,78 @@
   <title>Support HR - Offline</title>
   <style>
     * {
+      box-sizing: border-box;
       margin: 0;
       padding: 0;
-      box-sizing: border-box;
     }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      display: flex;
       align-items: center;
+      background: #f6f9ff;
+      color: #0f172a;
+      display: flex;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       justify-content: center;
       min-height: 100vh;
-      padding: 20px;
-      color: #333;
+      padding: 24px;
     }
 
     .container {
       background: #ffffff;
-      border-radius: 20px;
-      padding: 40px 30px;
+      border: 1px solid #bfdbfe;
+      border-radius: 24px;
+      box-shadow: 0 24px 70px rgba(30, 64, 175, 0.12);
+      max-width: 420px;
+      padding: 36px 28px;
       text-align: center;
-      max-width: 400px;
       width: 100%;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
     }
 
     .icon {
-      width: 80px;
-      height: 80px;
-      margin: 0 auto 20px;
-      background: #f0f0f0;
-      border-radius: 50%;
-      display: flex;
       align-items: center;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 18px;
+      color: #2388ff;
+      display: flex;
+      font-size: 34px;
+      height: 72px;
       justify-content: center;
-      font-size: 40px;
+      margin: 0 auto 20px;
+      width: 72px;
     }
 
     h1 {
+      color: #0f172a;
       font-size: 28px;
-      color: #000000;
-      margin-bottom: 15px;
-      font-weight: 700;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
     }
 
     p {
-      font-size: 16px;
-      color: #666;
-      line-height: 1.6;
-      margin-bottom: 30px;
+      color: #64748b;
+      font-size: 15px;
+      font-weight: 600;
+      line-height: 1.7;
+      margin-bottom: 26px;
     }
 
     .retry-btn {
-      background: #000000;
+      background: #2388ff;
+      border: 0;
+      border-radius: 12px;
       color: #ffffff;
-      border: none;
-      padding: 12px 30px;
-      border-radius: 8px;
-      font-size: 16px;
-      font-weight: 600;
       cursor: pointer;
-      transition: background 0.3s ease;
+      font-size: 15px;
+      font-weight: 900;
+      height: 46px;
+      padding: 0 28px;
+      transition: background 0.2s ease, transform 0.2s ease;
     }
 
     .retry-btn:hover {
-      background: #333333;
+      background: #176fe0;
     }
 
     .retry-btn:active {
@@ -81,9 +87,9 @@
 </head>
 <body>
   <div class="container">
-    <div class="icon">📡</div>
-    <h1>Support HR</h1>
-    <p>Bạn đang offline. Vui lòng kiểm tra lại kết nối mạng.</p>
+    <div class="icon">↻</div>
+    <h1>Support HR đang offline</h1>
+    <p>Không thể kết nối máy chủ. Vui lòng kiểm tra mạng rồi thử tải lại ứng dụng.</p>
     <button class="retry-btn" onclick="window.location.reload()">Thử lại</button>
   </div>
 </body>
