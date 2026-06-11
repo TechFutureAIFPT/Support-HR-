@@ -14,6 +14,7 @@ import type { AppStep, Candidate, HardFilters, WeightCriteria, AnalysisRunData, 
 import { initialWeights } from '@/config/constants';
 import Sidebar from '@/layout/Sidebar';
 import WorkspaceTopbar from '@/components/workspace/WorkspaceTopbar';
+import DesktopAppMenuBar from '@/components/workspace/DesktopAppMenuBar';
 import JDTemplatesModal, { JDTemplate } from '@/components/history/JDTemplatesModal';
 import HistoryModal from '@/components/history/HistoryModal';
 import PageTransition from '@/components/PageTransition';
@@ -369,6 +370,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
   const [userAvatar, setUserAvatar] = useState<string | null>(null);
   const [userName, setUserName] = useState<string>('');
   const [isSidebarDrawerOpen, setIsSidebarDrawerOpen] = useState(false);
+  const [isDesktopSidebarCollapsed, setIsDesktopSidebarCollapsed] = useState(false);
 
   // Load avatar and user name for mobile navbar
   useEffect(() => {
@@ -815,9 +817,18 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
     },
   };
 
+  const shouldUseWorkspaceShell = !isLandingView && !isStandaloneToolRoute;
+
   return (
-    <div className={`h-[100dvh] bg-white text-slate-900 flex flex-col overflow-hidden ${className || ''}`}>
-      {!isLandingView && !isStandaloneToolRoute && (
+    <div className={`h-[100dvh] bg-white text-slate-900 flex flex-col overflow-hidden ${shouldUseWorkspaceShell ? 'supporthr-shell--with-app-menu' : ''} ${className || ''}`}>
+      {shouldUseWorkspaceShell && (
+        <DesktopAppMenuBar
+          sidebarCollapsed={isDesktopSidebarCollapsed}
+          onToggleSidebar={() => setIsDesktopSidebarCollapsed((value) => !value)}
+        />
+      )}
+
+      {shouldUseWorkspaceShell && !isDesktopSidebarCollapsed && (
         <div className="hidden lg:block">
           <Sidebar
             activeStep={activeStep}
@@ -840,7 +851,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
         </div>
       )}
 
-      {!isLandingView && !isStandaloneToolRoute && (
+      {shouldUseWorkspaceShell && (
         <div className="lg:hidden">
           <Sidebar
             activeStep={activeStep}
@@ -865,7 +876,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
       )}
 
       {/* Mobile Fixed Header — full width, NOT offset by sidebar */}
-      {!isLandingView && !isStandaloneToolRoute && (
+      {shouldUseWorkspaceShell && (
         <header
           className="fixed top-0 left-0 right-0 z-[45] flex min-h-14 items-center justify-between gap-3 px-3 py-2 lg:hidden"
           style={{ background: 'rgba(255,255,255,0.94)', borderBottom: '1px solid rgba(55,125,255,0.12)', boxShadow: '0 12px 32px rgba(30,64,175,0.08)' }}
@@ -907,7 +918,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
       )}
 
       <main
-        className={`main-content supporthr-main pb-0 ${!isLandingView && !isStandaloneToolRoute ? 'supporthr-main--with-sidebar mt-14 lg:mt-0' : ''} flex-1 flex flex-col min-h-0 overflow-x-hidden transition-all duration-300 ease-in-out ${
+        className={`main-content supporthr-main pb-0 ${shouldUseWorkspaceShell ? `supporthr-main--with-sidebar supporthr-main--with-app-menu ${isDesktopSidebarCollapsed ? 'supporthr-main--sidebar-collapsed' : ''} mt-14 lg:mt-0` : ''} flex-1 flex flex-col min-h-0 overflow-x-hidden transition-all duration-300 ease-in-out ${
           !isLandingView
             ? 'min-w-0'
             : 'ml-0 w-full'
