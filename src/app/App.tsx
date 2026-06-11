@@ -934,10 +934,6 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
             userEmail={userEmail}
             onLogout={handleLogout}
             onNewSession={handleNewSession}
-            onOpenTemplates={() => {
-              setJdTemplateSelectionMode('analysis');
-              setJdTemplatesModalOpen(true);
-            }}
             onOpenHistory={() => setHistoryModalOpen(true)}
             onOpenAnalysis={() => {
               setActiveStep('analysis');

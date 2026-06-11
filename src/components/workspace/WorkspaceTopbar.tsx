@@ -14,7 +14,6 @@ import {
   MessageSquare,
   Plus,
   RefreshCw,
-  Search,
   Target,
   UploadCloud,
   Users,
@@ -32,7 +31,6 @@ interface WorkspaceTopbarProps {
   completedSteps: AppStep[];
   jobPosition?: string;
   onNewSession?: () => void;
-  onOpenTemplates?: () => void;
   onOpenHistory?: () => void;
   onOpenAnalysis?: () => void;
   onOpenDetailedAnalytics?: () => void;
@@ -121,7 +119,6 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
   completedSteps,
   jobPosition,
   onNewSession,
-  onOpenTemplates,
   onOpenHistory,
   onOpenAnalysis,
   onOpenDetailedAnalytics,
@@ -270,14 +267,23 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
 
         <div className="mx-2 hidden h-9 w-px bg-blue-100 xl:block" />
 
-        <div className="hidden min-w-[18rem] max-w-[34rem] flex-1 items-center rounded-xl border border-blue-100 bg-[#f8fbff] px-3 py-2 text-slate-500 shadow-inner lg:flex">
-          <Search size={16} className="mr-2 shrink-0 text-slate-400" />
-          <input
-            type="search"
-            placeholder="Tìm JD, CV, ứng viên, phiên phân tích..."
-            className="min-w-0 flex-1 bg-transparent text-sm font-medium text-slate-700 outline-none placeholder:text-slate-400"
-          />
-          <span className="ml-2 rounded-md border border-blue-100 bg-white px-2 py-0.5 text-[10px] font-bold text-slate-400">Ctrl K</span>
+        <div className="hidden flex-1 items-center gap-2 lg:flex">
+          <button
+            type="button"
+            onClick={() => navigate('/records', { state: { from: location.pathname } })}
+            className="inline-flex h-10 items-center gap-2 rounded-xl border border-blue-100 bg-[#f8fbff] px-4 text-xs font-black text-blue-700 shadow-sm transition hover:border-blue-200 hover:bg-blue-50"
+          >
+            <LibraryBig size={15} />
+            Kho lưu trữ CV
+          </button>
+          <button
+            type="button"
+            onClick={() => navigate('/jd-templates', { state: { from: location.pathname } })}
+            className="inline-flex h-10 items-center gap-2 rounded-xl border border-blue-100 bg-white px-4 text-xs font-black text-slate-700 shadow-sm transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
+          >
+            <UploadCloud size={15} />
+            Mẫu JD
+          </button>
         </div>
 
         <div className="ml-auto flex shrink-0 items-center gap-2">
@@ -352,15 +358,6 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
               Kết quả phân tích
             </button>
           )}
-
-          <button
-            type="button"
-            onClick={onOpenTemplates}
-            className="hidden"
-          >
-            <UploadCloud size={15} />
-            Mẫu JD
-          </button>
 
           <button
             type="button"
