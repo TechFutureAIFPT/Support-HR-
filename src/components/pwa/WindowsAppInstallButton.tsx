@@ -8,6 +8,8 @@ interface WindowsAppInstallButtonProps {
   className?: string;
 }
 
+const APP_WELCOME_PATH = '/welcome?source=pwa';
+
 const WindowsAppInstallButton: React.FC<WindowsAppInstallButtonProps> = ({
   variant = 'full',
   className = '',
@@ -19,9 +21,13 @@ const WindowsAppInstallButton: React.FC<WindowsAppInstallButtonProps> = ({
   const isCompact = variant === 'compact';
   const isInstalled = status === 'installed';
 
+  const openAppWorkspace = () => {
+    navigate(APP_WELCOME_PATH);
+  };
+
   const handleInstall = async () => {
     if (isInstalled) {
-      navigate('/welcome');
+      openAppWorkspace();
       return;
     }
 
@@ -29,7 +35,7 @@ const WindowsAppInstallButton: React.FC<WindowsAppInstallButtonProps> = ({
     try {
       const installed = await install();
       if (!installed) {
-        navigate('/welcome?install=1');
+        openAppWorkspace();
       }
     } finally {
       setIsPrompting(false);
@@ -44,7 +50,7 @@ const WindowsAppInstallButton: React.FC<WindowsAppInstallButtonProps> = ({
         ? 'inline-flex h-9 w-9 items-center justify-center rounded-xl border border-blue-100 bg-white text-blue-600 shadow-sm transition hover:border-blue-200 hover:bg-blue-50'
         : 'inline-flex h-9 items-center justify-center gap-2 rounded-xl border border-blue-100 bg-white px-4 text-xs font-black text-blue-700 shadow-sm transition hover:border-blue-200 hover:bg-blue-50'
       } ${className}`}
-      aria-label={isInstalled ? 'Mở trang chào mừng Support HR' : 'Tải ứng dụng Windows Support HR'}
+      aria-label={isInstalled ? 'Mở ứng dụng Support HR' : 'Tải ứng dụng Windows Support HR'}
       title={isInstalled ? 'Mở Support HR Desktop' : 'Tải ứng dụng Windows'}
     >
       {isInstalled ? <CheckCircle2 className="h-4 w-4" /> : <MonitorDown className="h-4 w-4" />}
