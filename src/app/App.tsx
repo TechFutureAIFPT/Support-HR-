@@ -814,13 +814,11 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
   const shouldUseWorkspaceShell = !isLandingView && !isStandaloneToolRoute;
 
   return (
-    <div className={`h-[100dvh] bg-white text-slate-900 flex flex-col overflow-hidden ${shouldUseWorkspaceShell ? 'supporthr-shell--with-app-menu' : ''} ${className || ''}`}>
-      {shouldUseWorkspaceShell && (
-        <DesktopAppMenuBar
-          sidebarCollapsed={isDesktopSidebarCollapsed}
-          onToggleSidebar={() => setIsDesktopSidebarCollapsed((value) => !value)}
-        />
-      )}
+    <div className={`h-[100dvh] bg-white text-slate-900 flex flex-col overflow-hidden supporthr-shell--with-app-menu ${className || ''}`}>
+      <DesktopAppMenuBar
+        sidebarCollapsed={isDesktopSidebarCollapsed}
+        onToggleSidebar={() => setIsDesktopSidebarCollapsed((value) => !value)}
+      />
 
       {shouldUseWorkspaceShell && !isDesktopSidebarCollapsed && (
         <div className="hidden lg:block">
@@ -912,7 +910,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
       )}
 
       <main
-        className={`main-content supporthr-main pb-0 ${shouldUseWorkspaceShell ? `supporthr-main--with-sidebar supporthr-main--with-app-menu ${isDesktopSidebarCollapsed ? 'supporthr-main--sidebar-collapsed' : ''} mt-14 lg:mt-0` : ''} flex-1 flex flex-col min-h-0 overflow-x-hidden transition-all duration-300 ease-in-out ${
+        className={`main-content supporthr-main pb-0 ${shouldUseWorkspaceShell ? `supporthr-main--with-sidebar supporthr-main--with-app-menu ${isDesktopSidebarCollapsed ? 'supporthr-main--sidebar-collapsed' : ''} mt-14 lg:mt-0` : 'lg:pt-[34px]'} flex-1 flex flex-col min-h-0 overflow-x-hidden transition-all duration-300 ease-in-out ${
           !isLandingView
             ? 'min-w-0'
             : 'ml-0 w-full'
@@ -945,7 +943,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
             }}
           />
         )}
-        <div className={`flex h-full min-h-0 w-full flex-1 flex-col ${isWorkflowView ? 'overflow-hidden' : isLandingView || isStandaloneToolRoute ? '' : 'max-w-7xl px-4 sm:px-6 lg:px-8 mx-auto py-4 overflow-y-auto custom-scrollbar'}`}>
+        <div className={`flex h-full min-h-0 w-full flex-1 flex-col ${isWorkflowView ? 'overflow-hidden' : isLandingView || isStandaloneToolRoute ? 'overflow-y-auto custom-scrollbar' : 'max-w-7xl px-4 sm:px-6 lg:px-8 mx-auto py-4 overflow-y-auto custom-scrollbar'}`}>
           <Suspense fallback={
             isMarketingRoute ? (
               <DocsPageLoading />

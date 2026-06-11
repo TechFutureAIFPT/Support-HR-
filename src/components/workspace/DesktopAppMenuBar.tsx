@@ -84,13 +84,13 @@ const DesktopAppMenuBar: React.FC<DesktopAppMenuBarProps> = ({ sidebarCollapsed,
   return (
     <div
       ref={barRef}
-      className="fixed left-0 right-0 top-0 z-[70] hidden h-[34px] items-center justify-between border-b border-blue-200 bg-[#eaf4ff]/96 px-2 text-slate-700 shadow-[0_8px_24px_rgba(30,64,175,0.08)] backdrop-blur-xl lg:flex"
+      className="fixed left-0 right-0 top-0 z-[70] hidden h-[34px] items-center justify-between border-b border-blue-300 bg-[#d9ecff]/98 px-2 text-slate-800 shadow-[0_10px_26px_rgba(30,64,175,0.12)] backdrop-blur-xl lg:flex"
     >
       <div className="flex h-full items-center gap-1">
         <button
           type="button"
           onClick={onToggleSidebar}
-          className="flex h-7 w-7 items-center justify-center rounded-lg border border-blue-100 bg-white text-slate-600 shadow-sm transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
+          className="flex h-7 w-7 items-center justify-center rounded-lg border border-blue-200 bg-white text-slate-700 shadow-sm transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700"
           aria-label={sidebarCollapsed ? 'Mở sidebar' : 'Đóng sidebar'}
           title={sidebarCollapsed ? 'Mở sidebar' : 'Đóng sidebar'}
         >
@@ -100,7 +100,7 @@ const DesktopAppMenuBar: React.FC<DesktopAppMenuBarProps> = ({ sidebarCollapsed,
         <button
           type="button"
           onClick={() => navigate(-1)}
-          className="flex h-7 w-7 items-center justify-center rounded-lg text-slate-500 transition hover:bg-blue-50 hover:text-blue-700"
+          className="flex h-7 w-7 items-center justify-center rounded-lg text-slate-700 transition hover:bg-white hover:text-blue-700"
           aria-label="Quay lại"
           title="Quay lại"
         >
@@ -109,14 +109,14 @@ const DesktopAppMenuBar: React.FC<DesktopAppMenuBarProps> = ({ sidebarCollapsed,
         <button
           type="button"
           onClick={() => navigate(1)}
-          className="flex h-7 w-7 items-center justify-center rounded-lg text-slate-500 transition hover:bg-blue-50 hover:text-blue-700"
+          className="flex h-7 w-7 items-center justify-center rounded-lg text-slate-700 transition hover:bg-white hover:text-blue-700"
           aria-label="Tiến tới"
           title="Tiến tới"
         >
           <ArrowRight className="h-4 w-4" />
         </button>
 
-        <div className="mx-2 h-4 w-px bg-blue-200" />
+        <div className="mx-2 h-4 w-px bg-blue-300" />
 
         {menuGroups.map((group) => (
           <div key={group.label} className="relative h-full">
@@ -124,7 +124,7 @@ const DesktopAppMenuBar: React.FC<DesktopAppMenuBarProps> = ({ sidebarCollapsed,
               type="button"
               onClick={() => setOpenMenu((current) => (current === group.label ? null : group.label))}
               className={`flex h-full items-center gap-1.5 rounded-lg px-3 text-[12px] font-bold transition ${
-                openMenu === group.label ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-600 hover:bg-white/80 hover:text-blue-700'
+                openMenu === group.label ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-700 hover:bg-white/85 hover:text-blue-700'
               }`}
             >
               {group.label}
@@ -156,7 +156,7 @@ const DesktopAppMenuBar: React.FC<DesktopAppMenuBarProps> = ({ sidebarCollapsed,
       </div>
 
       <div className="flex items-center gap-2 pr-2">
-        <span className="rounded-full border border-blue-200 bg-white px-3 py-1 text-[11px] font-black uppercase tracking-[0.16em] text-blue-700">
+        <span className="rounded-full border border-blue-300 bg-white px-3 py-1 text-[11px] font-black uppercase tracking-[0.16em] text-blue-700 shadow-sm">
           Support HR Desktop
         </span>
       </div>
