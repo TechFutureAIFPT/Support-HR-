@@ -356,7 +356,7 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
           <button
             type="button"
             onClick={onOpenTemplates}
-            className={`${topbarButtonClass} text-slate-600 xl:inline-flex`}
+            className="hidden"
           >
             <UploadCloud size={15} />
             Mẫu JD
