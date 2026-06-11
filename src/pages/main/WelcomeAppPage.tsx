@@ -6,14 +6,12 @@ import {
   CheckCircle2,
   FileCheck2,
   FileText,
-  MonitorDown,
   ShieldCheck,
   Sparkles,
   UploadCloud,
   Users,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import WindowsAppInstallButton from '@/components/pwa/WindowsAppInstallButton';
 
 interface WelcomeAppPageProps {
   isLoggedIn: boolean;
@@ -68,59 +66,66 @@ const WelcomeAppPage: React.FC<WelcomeAppPageProps> = ({ isLoggedIn, onLoginRequ
   };
 
   return (
-    <div className="min-h-screen overflow-hidden bg-white text-slate-950">
-      <div className="pointer-events-none fixed inset-0 -z-10 bg-[radial-gradient(circle_at_18%_12%,rgba(35,136,255,0.12),transparent_34%),radial-gradient(circle_at_78%_18%,rgba(20,184,166,0.1),transparent_30%)]" />
+    <div className="min-h-screen overflow-y-auto bg-white text-slate-950">
+      <div className="pointer-events-none fixed inset-0 -z-10 bg-[radial-gradient(circle_at_16%_8%,rgba(35,136,255,0.08),transparent_32%),radial-gradient(circle_at_78%_14%,rgba(20,184,166,0.07),transparent_30%)]" />
 
-      <header className="border-b border-blue-100 bg-white/90 px-5 py-4 shadow-[0_12px_36px_rgba(30,64,175,0.07)] backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4">
+      <header className="border-b border-blue-100 bg-white/95 px-4 py-3 shadow-[0_10px_28px_rgba(30,64,175,0.06)] backdrop-blur-xl">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <img src="/images/logos/logo.jpg" alt="Support HR" className="h-11 w-11 rounded-2xl object-cover shadow-sm" />
+            <img src="/images/logos/logo.jpg" alt="Support HR" className="h-10 w-10 rounded-xl object-cover shadow-sm" />
             <div>
               <p className="text-sm font-black text-slate-950">Support HR</p>
-              <p className="text-xs font-semibold text-slate-500">Ứng dụng lọc CV bằng AI cho Windows</p>
+              <p className="text-xs font-semibold text-slate-500">Không gian lọc CV bằng AI</p>
             </div>
           </div>
-          <WindowsAppInstallButton variant="full" />
+          <button
+            type="button"
+            onClick={handleStart}
+            className="hidden h-10 items-center gap-2 rounded-xl bg-blue-600 px-4 text-xs font-black text-white shadow-sm transition hover:bg-blue-700 sm:inline-flex"
+          >
+            Vào ứng dụng
+            <ArrowRight className="h-4 w-4" />
+          </button>
         </div>
       </header>
 
-      <main className="mx-auto grid min-h-[calc(100vh-76px)] max-w-7xl gap-10 px-5 py-8 sm:px-8 lg:grid-cols-[0.92fr_1.08fr] lg:px-12 lg:py-10">
-        <section className="flex flex-col justify-center">
-          <div className="inline-flex w-fit items-center gap-2 rounded-full border border-blue-100 bg-blue-50 px-3 py-1.5 text-xs font-black uppercase tracking-[0.14em] text-blue-700">
-            <MonitorDown className="h-4 w-4" />
+      <main className="mx-auto grid min-h-[calc(100vh-65px)] max-w-6xl gap-8 px-4 py-6 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:py-7">
+        <section>
+          <div className="inline-flex w-fit items-center gap-2 rounded-full border border-blue-100 bg-blue-50 px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.14em] text-blue-700">
+            <Brain className="h-4 w-4" />
             Support HR Desktop
           </div>
 
-          <h1 className="mt-5 max-w-3xl text-4xl font-black leading-tight tracking-tight text-slate-950 sm:text-5xl lg:text-6xl">
+          <h1 className="mt-4 max-w-2xl text-4xl font-black leading-[1.05] tracking-tight text-slate-950 sm:text-5xl lg:text-[56px]">
             Chào mừng đến với phần mềm lọc CV bằng AI
           </h1>
-          <p className="mt-5 max-w-2xl text-base leading-8 text-slate-600">
+          <p className="mt-4 max-w-2xl text-[15px] font-medium leading-7 text-slate-600">
             Một cửa sổ làm việc riêng cho đội tuyển dụng: nạp JD, chuẩn hóa tiêu chí, phân tích CV và xem shortlist có bằng chứng trong cùng một luồng rõ ràng.
           </p>
 
-          <div className="mt-7 grid gap-3">
+          <div className="mt-5 grid gap-2.5">
             {onboardingSteps.map((item, index) => {
               const Icon = item.icon;
               return (
-                <div key={item.title} className="flex gap-4 rounded-2xl border border-blue-100 bg-white p-4 shadow-[0_14px_34px_rgba(30,64,175,0.06)]">
-                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-blue-100 bg-blue-50 text-blue-600">
+                <div key={item.title} className="flex gap-3 rounded-2xl border border-blue-100 bg-white p-3 shadow-[0_12px_28px_rgba(30,64,175,0.05)]">
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-blue-100 bg-blue-50 text-blue-600">
                     <Icon className="h-5 w-5" />
                   </span>
                   <div className="min-w-0">
                     <p className="text-[10px] font-black uppercase tracking-[0.18em] text-blue-600">Bước {String(index + 1).padStart(2, '0')}</p>
-                    <h2 className="mt-1 text-base font-black text-slate-950">{item.title}</h2>
-                    <p className="mt-1 text-sm leading-6 text-slate-600">{item.detail}</p>
+                    <h2 className="mt-0.5 text-base font-black text-slate-950">{item.title}</h2>
+                    <p className="mt-0.5 text-sm leading-5 text-slate-600">{item.detail}</p>
                   </div>
                 </div>
               );
             })}
           </div>
 
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+          <div className="mt-5 flex flex-col gap-3 sm:flex-row">
             <button
               type="button"
               onClick={handleStart}
-              className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 text-sm font-black text-white shadow-[0_16px_36px_rgba(35,136,255,0.22)] transition hover:bg-blue-700"
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 text-sm font-black text-white shadow-[0_14px_30px_rgba(35,136,255,0.22)] transition hover:bg-blue-700"
             >
               {isLoggedIn ? 'Bắt đầu sàng lọc CV' : 'Đăng nhập để bắt đầu'}
               <ArrowRight className="h-4 w-4" />
@@ -128,41 +133,41 @@ const WelcomeAppPage: React.FC<WelcomeAppPageProps> = ({ isLoggedIn, onLoginRequ
             <button
               type="button"
               onClick={() => navigate('/jd-standardizer')}
-              className="inline-flex h-12 items-center justify-center rounded-xl border border-blue-100 bg-white px-6 text-sm font-bold text-blue-700 shadow-sm transition hover:bg-blue-50"
+              className="inline-flex h-11 items-center justify-center rounded-xl border border-blue-100 bg-white px-5 text-sm font-bold text-blue-700 shadow-sm transition hover:bg-blue-50"
             >
               Chuẩn hóa JD trước
             </button>
           </div>
 
-          <div className="mt-5 flex flex-wrap gap-3 text-xs font-bold text-slate-500">
+          <div className="mt-4 flex flex-wrap gap-3 text-xs font-bold text-slate-500">
             <span className="inline-flex items-center gap-1.5"><ShieldCheck className="h-4 w-4 text-emerald-600" /> Dữ liệu đồng bộ backend</span>
             <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 text-blue-600" /> Không cần mở nhiều tab</span>
           </div>
         </section>
 
-        <section className="flex items-center">
-          <div className="w-full overflow-hidden rounded-[30px] border border-blue-100 bg-[#f4f9ff] shadow-[0_30px_90px_rgba(30,64,175,0.18)]">
-            <div className="flex items-center justify-between border-b border-blue-100 bg-white px-5 py-4">
+        <section className="min-w-0">
+          <div className="w-full overflow-hidden rounded-[26px] border border-blue-100 bg-[#f4f9ff] shadow-[0_24px_70px_rgba(30,64,175,0.14)]">
+            <div className="flex items-center justify-between border-b border-blue-100 bg-white px-4 py-3">
               <div className="flex items-center gap-3">
-                <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
+                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
                   <Brain className="h-5 w-5" />
                 </span>
                 <div>
-                  <p className="text-base font-black text-slate-950">Recruitment cockpit</p>
+                  <p className="text-sm font-black text-slate-950">Recruitment cockpit</p>
                   <p className="text-xs font-semibold text-slate-500">Phiên sàng lọc Java Developer · 12 CV</p>
                 </div>
               </div>
               <span className="rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1 text-xs font-black text-emerald-700">AI sẵn sàng</span>
             </div>
 
-            <div className="grid gap-4 p-5 lg:grid-cols-[0.78fr_1.22fr]">
-              <div className="space-y-3 rounded-3xl border border-blue-100 bg-white p-4">
+            <div className="grid gap-3 p-4 lg:grid-cols-[0.78fr_1.22fr]">
+              <div className="space-y-2.5 rounded-2xl border border-blue-100 bg-white p-3">
                 <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">Luồng xử lý</p>
                 {workflowPreviewRows.map((item) => {
                   const RowIcon = item.icon;
                   return (
-                    <div key={item.title} className="flex items-center gap-3 rounded-2xl border border-blue-100 bg-blue-50/60 p-3">
-                      <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-blue-600">
+                    <div key={item.title} className="flex items-center gap-2.5 rounded-xl border border-blue-100 bg-blue-50/60 p-2.5">
+                      <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-white text-blue-600">
                         <RowIcon className="h-4 w-4" />
                       </span>
                       <span>
@@ -174,23 +179,23 @@ const WelcomeAppPage: React.FC<WelcomeAppPageProps> = ({ isLoggedIn, onLoginRequ
                 })}
               </div>
 
-              <div className="space-y-4">
-                <div className="grid gap-3 sm:grid-cols-3">
+              <div className="space-y-3">
+                <div className="grid gap-2.5 sm:grid-cols-3">
                   {statCards.map((item) => {
                     const StatIcon = item.icon;
                     return (
-                      <div key={item.label} className="rounded-2xl border border-blue-100 bg-white p-4">
+                      <div key={item.label} className="rounded-2xl border border-blue-100 bg-white p-3">
                         <div className="flex items-center justify-between">
                           <p className="text-xs font-bold text-slate-500">{item.label}</p>
                           <StatIcon className="h-4 w-4 text-blue-600" />
                         </div>
-                        <p className="mt-3 text-3xl font-black text-slate-950">{item.value}</p>
+                        <p className="mt-2 text-2xl font-black text-slate-950">{item.value}</p>
                       </div>
                     );
                   })}
                 </div>
 
-                <div className="rounded-3xl border border-blue-100 bg-white p-4">
+                <div className="rounded-2xl border border-blue-100 bg-white p-3">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-black text-slate-950">Danh sách ưu tiên</p>
@@ -198,10 +203,10 @@ const WelcomeAppPage: React.FC<WelcomeAppPageProps> = ({ isLoggedIn, onLoginRequ
                     </div>
                     <span className="rounded-xl bg-blue-50 px-3 py-1 text-xs font-black text-blue-700">Live</span>
                   </div>
-                  <div className="mt-4 space-y-3">
+                  <div className="mt-3 space-y-2.5">
                     {candidateRows.map(([name, score, status, tone], index) => (
-                      <div key={name} className="grid grid-cols-[auto_1fr_auto] items-center gap-3 rounded-2xl border border-blue-100 bg-[#f8fbff] p-3">
-                        <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white text-xs font-black text-blue-700">#{index + 1}</span>
+                      <div key={name} className="grid grid-cols-[auto_1fr_auto] items-center gap-2.5 rounded-xl border border-blue-100 bg-[#f8fbff] p-2.5">
+                        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-xs font-black text-blue-700">#{index + 1}</span>
                         <div className="min-w-0">
                           <p className="truncate text-sm font-black text-slate-950">{name}</p>
                           <p className="text-xs font-semibold text-slate-500">Bằng chứng khớp JD đã sẵn sàng</p>
@@ -215,9 +220,9 @@ const WelcomeAppPage: React.FC<WelcomeAppPageProps> = ({ isLoggedIn, onLoginRequ
                   </div>
                 </div>
 
-                <div className="rounded-3xl border border-cyan-100 bg-cyan-50/70 p-4">
+                <div className="rounded-2xl border border-cyan-100 bg-cyan-50/70 p-3">
                   <p className="text-[10px] font-black uppercase tracking-[0.18em] text-cyan-700">AI tóm tắt</p>
-                  <p className="mt-2 text-sm font-semibold leading-6 text-slate-700">
+                  <p className="mt-1.5 text-sm font-semibold leading-6 text-slate-700">
                     3 ứng viên phù hợp nhất đã có lý do đề xuất, điểm cần xác thực và câu hỏi phỏng vấn gợi ý.
                   </p>
                 </div>

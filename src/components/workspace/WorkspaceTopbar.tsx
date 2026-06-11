@@ -24,7 +24,6 @@ import {
 import type { AppStep } from '@/types';
 import type { AccountNotification } from '@/services/data-sync/notificationService';
 import { NotificationService } from '@/services/data-sync/notificationService';
-import WindowsAppInstallButton from '@/components/pwa/WindowsAppInstallButton';
 
 interface WorkspaceTopbarProps {
   activeStep: AppStep;
@@ -367,8 +366,6 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
             <Plus size={16} strokeWidth={2.6} />
             Phiên mới
           </button>
-
-          <WindowsAppInstallButton variant="compact" className="hidden md:inline-flex" />
 
           {false && (
           <>
