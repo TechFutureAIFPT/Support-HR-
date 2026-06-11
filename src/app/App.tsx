@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useMemo, useEffect, useRef, Suspense, lazy } from 'react';
 import { detectIndustryFromJD } from '@/services/jd/industryDetector';
-import { BrowserRouter, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Navigate, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '@/services/firebase';
 import { SpeedInsights } from '@vercel/speed-insights/react';
@@ -24,23 +24,10 @@ import { DocsPageLoading } from '@/pages/info/legal-ui';
 
 // Lazy load pages for code-splitting
 const ScreenerPage = lazy(() => import('@/pages/main/ScreenerPage'));
-const ProcessPage = lazy(() => import('@/pages/main/ProcessPage'));
-const HomePage = lazy(() => import('@/pages/main/HomePage'));
 const WelcomeAppPage = lazy(() => import('@/pages/main/WelcomeAppPage'));
-const AchievementsContactPage = lazy(() => import('@/pages/info/AchievementsContactPage'));
-const DeploymentReadyPage = lazy(() => import('@/pages/deployment/DeploymentReadyPage'));
+const AppDocumentationPage = lazy(() => import('@/pages/info/AppDocumentationPage'));
 const LoginPage = lazy(() => import('@/pages/auth/LoginPage'));
 const DetailedAnalyticsPage = lazy(() => import('@/pages/analytics/DetailedAnalyticsPage'));
-const PrivacyPolicyPage = lazy(() => import('@/pages/info/PrivacyPolicyPage'));
-const TermsPage = lazy(() => import('@/pages/info/TermsPage'));
-const SecurityCompliancePage = lazy(() => import('@/pages/info/SecurityCompliancePage'));
-const FAQPage = lazy(() => import('@/pages/info/FAQPage'));
-const PricingPage = lazy(() => import('@/pages/info/PricingPage'));
-const DemoPage = lazy(() => import('@/pages/info/DemoPage'));
-const AIMethodologyPage = lazy(() => import('@/pages/info/AIMethodologyPage'));
-const UseCasesPage = lazy(() => import('@/pages/info/UseCasesPage'));
-const IntegrationsPage = lazy(() => import('@/pages/info/IntegrationsPage'));
-const BookDemoPage = lazy(() => import('@/pages/info/BookDemoPage'));
 const AIFeedbackPage = lazy(() => import('@/pages/main/AIFeedbackPage'));
 const FilteredCvLibraryPage = lazy(() => import('@/pages/tools/FilteredCvLibraryPage'));
 const JDStandardizerPage = lazy(() => import('@/pages/tools/JDStandardizerPage'));
@@ -144,6 +131,7 @@ const App = () => {
 
 const publicMarketingPaths = new Set([
   '/',
+  '/app-docs',
   '/process',
   '/contact-ready',
   '/privacy-policy',
@@ -799,6 +787,12 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
     navigate(from && from !== location.pathname ? from : '/');
   }, [location.pathname, location.state, navigate]);
 
+  const authFallback = (
+    <WelcomeAppPage isLoggedIn={isLoggedIn} onLoginRequest={onLoginRequest} />
+  );
+
+  const appDocumentationPage = <AppDocumentationPage />;
+
   const screenerPageProps = {
     jdText, setJdText,
     rawJdText, setRawJdText,
@@ -972,23 +966,23 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
           }>
             <Routes>
               <Route path="/welcome" element={<WelcomeAppPage isLoggedIn={isLoggedIn} onLoginRequest={onLoginRequest} />} />
-              <Route path="/" element={<HomePage setActiveStep={setActiveStep} isLoggedIn={isLoggedIn} onLoginRequest={onLoginRequest} completedSteps={completedSteps} userName={userName} userEmail={userEmail} />} />
-              <Route path="/jd" element={isLoggedIn ? <ScreenerPage {...screenerPageProps} /> : <HomePage setActiveStep={setActiveStep} isLoggedIn={isLoggedIn} onLoginRequest={onLoginRequest} completedSteps={completedSteps} userName={userName} userEmail={userEmail} />} />
-              <Route path="/upload" element={isLoggedIn ? <ScreenerPage {...screenerPageProps} /> : <HomePage setActiveStep={setActiveStep} isLoggedIn={isLoggedIn} onLoginRequest={onLoginRequest} completedSteps={completedSteps} userName={userName} userEmail={userEmail} />} />
-              <Route path="/weights" element={isLoggedIn ? <ScreenerPage {...screenerPageProps} /> : <HomePage setActiveStep={setActiveStep} isLoggedIn={isLoggedIn} onLoginRequest={onLoginRequest} completedSteps={completedSteps} userName={userName} userEmail={userEmail} />} />
-              <Route path="/analysis" element={isLoggedIn ? <ScreenerPage {...screenerPageProps} /> : <HomePage setActiveStep={setActiveStep} isLoggedIn={isLoggedIn} onLoginRequest={onLoginRequest} completedSteps={completedSteps} userName={userName} userEmail={userEmail} />} />
+              <Route path="/" element={<Navigate to={isLoggedIn ? '/jd' : '/welcome'} replace />} />
+              <Route path="/jd" element={isLoggedIn ? <ScreenerPage {...screenerPageProps} /> : authFallback} />
+              <Route path="/upload" element={isLoggedIn ? <ScreenerPage {...screenerPageProps} /> : authFallback} />
+              <Route path="/weights" element={isLoggedIn ? <ScreenerPage {...screenerPageProps} /> : authFallback} />
+              <Route path="/analysis" element={isLoggedIn ? <ScreenerPage {...screenerPageProps} /> : authFallback} />
 
-              <Route path="/dashboard" element={isLoggedIn ? <DetailedAnalyticsPage candidates={analysisResults} jobPosition={jobPosition} onReset={onResetRequest} /> : <HomePage setActiveStep={setActiveStep} isLoggedIn={isLoggedIn} onLoginRequest={onLoginRequest} completedSteps={completedSteps} userName={userName} userEmail={userEmail} />} />
-              <Route path="/detailed-analytics" element={isLoggedIn ? <DetailedAnalyticsPage candidates={analysisResults} jobPosition={jobPosition} onReset={onResetRequest} /> : <HomePage setActiveStep={setActiveStep} isLoggedIn={isLoggedIn} onLoginRequest={onLoginRequest} completedSteps={completedSteps} userName={userName} userEmail={userEmail} />} />
-              <Route path="/chatbot" element={isLoggedIn ? <CandidateSuggestions candidates={analysisResults} jobPosition={jobPosition} /> : <HomePage setActiveStep={setActiveStep} isLoggedIn={isLoggedIn} onLoginRequest={onLoginRequest} completedSteps={completedSteps} userName={userName} userEmail={userEmail} />} />
-              <Route path="/feedback" element={isLoggedIn ? <AIFeedbackPage candidates={analysisResults} jobPosition={jobPosition} weights={weights} hardFilters={hardFilters} analysisContext={activeAnalysisContext} /> : <HomePage setActiveStep={setActiveStep} isLoggedIn={isLoggedIn} onLoginRequest={onLoginRequest} completedSteps={completedSteps} userName={userName} userEmail={userEmail} />} />
-              <Route path="/records" element={isLoggedIn ? <FilteredCvLibraryPage userEmail={userEmail} /> : <HomePage setActiveStep={setActiveStep} isLoggedIn={isLoggedIn} onLoginRequest={onLoginRequest} completedSteps={completedSteps} userName={userName} userEmail={userEmail} />} />
-              <Route path="/jd-standardizer" element={isLoggedIn ? <JDStandardizerPage onUseJD={handleUseStandardizedJD} /> : <HomePage setActiveStep={setActiveStep} isLoggedIn={isLoggedIn} onLoginRequest={onLoginRequest} completedSteps={completedSteps} userName={userName} userEmail={userEmail} />} />
+              <Route path="/dashboard" element={isLoggedIn ? <DetailedAnalyticsPage candidates={analysisResults} jobPosition={jobPosition} onReset={onResetRequest} /> : authFallback} />
+              <Route path="/detailed-analytics" element={isLoggedIn ? <DetailedAnalyticsPage candidates={analysisResults} jobPosition={jobPosition} onReset={onResetRequest} /> : authFallback} />
+              <Route path="/chatbot" element={isLoggedIn ? <CandidateSuggestions candidates={analysisResults} jobPosition={jobPosition} /> : authFallback} />
+              <Route path="/feedback" element={isLoggedIn ? <AIFeedbackPage candidates={analysisResults} jobPosition={jobPosition} weights={weights} hardFilters={hardFilters} analysisContext={activeAnalysisContext} /> : authFallback} />
+              <Route path="/records" element={isLoggedIn ? <FilteredCvLibraryPage userEmail={userEmail} /> : authFallback} />
+              <Route path="/jd-standardizer" element={isLoggedIn ? <JDStandardizerPage onUseJD={handleUseStandardizedJD} /> : authFallback} />
               <Route path="/history" element={isLoggedIn ? (
                 <div className="min-h-screen bg-white">
                   <HistoryModal isOpen onClose={handleCloseStandalonePage} />
                 </div>
-              ) : <HomePage setActiveStep={setActiveStep} isLoggedIn={isLoggedIn} onLoginRequest={onLoginRequest} completedSteps={completedSteps} userName={userName} userEmail={userEmail} />} />
+              ) : authFallback} />
               <Route path="/jd-templates" element={isLoggedIn ? (
                 <div className="min-h-screen bg-white">
                   <JDTemplatesModal
@@ -997,21 +991,22 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
                     onSelectTemplate={(template: JDTemplate) => handleSelectJDTemplate(template, 'analysis')}
                   />
                 </div>
-              ) : <HomePage setActiveStep={setActiveStep} isLoggedIn={isLoggedIn} onLoginRequest={onLoginRequest} completedSteps={completedSteps} userName={userName} userEmail={userEmail} />} />
-              <Route path="/process" element={<ProcessPage />} />
-              <Route path="/contact-ready" element={<DeploymentReadyPage />} />
-              <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
-              <Route path="/terms" element={<TermsPage />} />
-              <Route path="/team" element={<AchievementsContactPage />} />
-              <Route path="/security" element={<SecurityCompliancePage />} />
-              <Route path="/faq" element={<FAQPage />} />
-              <Route path="/pricing" element={<PricingPage />} />
-              <Route path="/guide" element={<DemoPage />} />
-              <Route path="/demo" element={<DemoPage />} />
-              <Route path="/ai-methodology" element={<AIMethodologyPage />} />
-              <Route path="/use-cases" element={<UseCasesPage />} />
-              <Route path="/integrations" element={<IntegrationsPage />} />
-              <Route path="/book-demo" element={<BookDemoPage />} />
+              ) : authFallback} />
+              <Route path="/app-docs" element={appDocumentationPage} />
+              <Route path="/process" element={appDocumentationPage} />
+              <Route path="/contact-ready" element={appDocumentationPage} />
+              <Route path="/privacy-policy" element={appDocumentationPage} />
+              <Route path="/terms" element={appDocumentationPage} />
+              <Route path="/team" element={appDocumentationPage} />
+              <Route path="/security" element={appDocumentationPage} />
+              <Route path="/faq" element={appDocumentationPage} />
+              <Route path="/pricing" element={appDocumentationPage} />
+              <Route path="/guide" element={appDocumentationPage} />
+              <Route path="/demo" element={appDocumentationPage} />
+              <Route path="/ai-methodology" element={appDocumentationPage} />
+              <Route path="/use-cases" element={appDocumentationPage} />
+              <Route path="/integrations" element={appDocumentationPage} />
+              <Route path="/book-demo" element={appDocumentationPage} />
             </Routes>
           </Suspense>
         </div>

@@ -1,5 +1,21 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ArrowLeft, ArrowRight, BookOpen, ChevronDown, FileText, HelpCircle, Home, PanelLeftClose, PanelLeftOpen, ShieldCheck, Workflow } from 'lucide-react';
+import {
+  ArrowLeft,
+  ArrowRight,
+  BarChart3,
+  BookOpen,
+  ChevronDown,
+  FileText,
+  HelpCircle,
+  LibraryBig,
+  PanelLeftClose,
+  PanelLeftOpen,
+  ShieldCheck,
+  SlidersHorizontal,
+  Sparkles,
+  UploadCloud,
+  Workflow,
+} from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface DesktopAppMenuBarProps {
@@ -11,28 +27,28 @@ const menuGroups = [
   {
     label: 'Sản phẩm',
     items: [
-      { label: 'Trang chủ', href: '/', icon: Home },
-      { label: 'Quy trình', href: '/process', icon: Workflow },
-      { label: 'Demo', href: '/demo', icon: BookOpen },
-      { label: 'Tích hợp', href: '/integrations', icon: Workflow },
+      { label: 'Nạp JD & CV', href: '/jd', icon: UploadCloud },
+      { label: 'Thiết lập mặc định', href: '/weights', icon: SlidersHorizontal },
+      { label: 'Phân tích AI', href: '/analysis', icon: Sparkles },
+      { label: 'Thống kê chi tiết', href: '/detailed-analytics', icon: BarChart3 },
     ],
   },
   {
     label: 'Tài liệu',
     items: [
-      { label: 'Hướng dẫn', href: '/guide', icon: BookOpen },
-      { label: 'Bảo mật', href: '/security', icon: ShieldCheck },
-      { label: 'Câu hỏi thường gặp', href: '/faq', icon: HelpCircle },
-      { label: 'Phương pháp AI', href: '/ai-methodology', icon: FileText },
+      { label: 'Tài liệu ứng dụng', href: '/app-docs', icon: BookOpen },
+      { label: 'Kho lưu trữ CV', href: '/records', icon: LibraryBig },
+      { label: 'Mẫu JD', href: '/jd-templates', icon: FileText },
+      { label: 'Chuẩn hóa JD', href: '/jd-standardizer', icon: Workflow },
     ],
   },
   {
     label: 'Chính sách',
     items: [
-      { label: 'Chính sách bảo mật', href: '/privacy-policy', icon: ShieldCheck },
-      { label: 'Điều khoản sử dụng', href: '/terms', icon: FileText },
-      { label: 'Bảng giá', href: '/pricing', icon: FileText },
-      { label: 'Đặt lịch tư vấn', href: '/book-demo', icon: BookOpen },
+      { label: 'Bảo mật & dữ liệu', href: '/app-docs#bao-mat', icon: ShieldCheck },
+      { label: 'Điều khoản sử dụng', href: '/app-docs#dieu-khoan', icon: FileText },
+      { label: 'Triển khai & bảng giá', href: '/app-docs#trien-khai', icon: FileText },
+      { label: 'Câu hỏi thường gặp', href: '/app-docs#faq', icon: HelpCircle },
     ],
   },
 ];
@@ -68,7 +84,7 @@ const DesktopAppMenuBar: React.FC<DesktopAppMenuBarProps> = ({ sidebarCollapsed,
   return (
     <div
       ref={barRef}
-      className="fixed left-0 right-0 top-0 z-[70] hidden h-[34px] items-center justify-between border-b border-blue-100 bg-[#f8fbff]/95 px-2 text-slate-700 shadow-[0_8px_24px_rgba(30,64,175,0.08)] backdrop-blur-xl lg:flex"
+      className="fixed left-0 right-0 top-0 z-[70] hidden h-[34px] items-center justify-between border-b border-blue-200 bg-[#eaf4ff]/96 px-2 text-slate-700 shadow-[0_8px_24px_rgba(30,64,175,0.08)] backdrop-blur-xl lg:flex"
     >
       <div className="flex h-full items-center gap-1">
         <button
@@ -100,7 +116,7 @@ const DesktopAppMenuBar: React.FC<DesktopAppMenuBarProps> = ({ sidebarCollapsed,
           <ArrowRight className="h-4 w-4" />
         </button>
 
-        <div className="mx-2 h-4 w-px bg-blue-100" />
+        <div className="mx-2 h-4 w-px bg-blue-200" />
 
         {menuGroups.map((group) => (
           <div key={group.label} className="relative h-full">
@@ -108,7 +124,7 @@ const DesktopAppMenuBar: React.FC<DesktopAppMenuBarProps> = ({ sidebarCollapsed,
               type="button"
               onClick={() => setOpenMenu((current) => (current === group.label ? null : group.label))}
               className={`flex h-full items-center gap-1.5 rounded-lg px-3 text-[12px] font-bold transition ${
-                openMenu === group.label ? 'bg-blue-50 text-blue-700' : 'text-slate-600 hover:bg-blue-50 hover:text-blue-700'
+                openMenu === group.label ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-600 hover:bg-white/80 hover:text-blue-700'
               }`}
             >
               {group.label}
@@ -140,7 +156,7 @@ const DesktopAppMenuBar: React.FC<DesktopAppMenuBarProps> = ({ sidebarCollapsed,
       </div>
 
       <div className="flex items-center gap-2 pr-2">
-        <span className="rounded-full border border-blue-100 bg-white px-3 py-1 text-[11px] font-black uppercase tracking-[0.16em] text-blue-700">
+        <span className="rounded-full border border-blue-200 bg-white px-3 py-1 text-[11px] font-black uppercase tracking-[0.16em] text-blue-700">
           Support HR Desktop
         </span>
       </div>
