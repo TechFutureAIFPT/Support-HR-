@@ -731,6 +731,8 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
   const isWelcomeRoute = location.pathname === '/welcome';
   const isStandaloneToolRoute = isWelcomeRoute || (isLoggedIn && ['/records', '/jd-standardizer', '/history', '/jd-templates'].includes(location.pathname));
   const isLandingView = isHomeView || isLandingFallbackView || isMarketingRoute;
+  const isFirstPageRoute = location.pathname === '/' || isWelcomeRoute;
+  const shouldShowDesktopAppMenu = !isFirstPageRoute;
   const isWorkflowView =
     !isLandingView &&
     !isStandaloneToolRoute &&
@@ -814,11 +816,13 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
   const shouldUseWorkspaceShell = !isLandingView && !isStandaloneToolRoute;
 
   return (
-    <div className={`h-[100dvh] bg-white text-slate-900 flex flex-col overflow-hidden supporthr-shell--with-app-menu ${className || ''}`}>
-      <DesktopAppMenuBar
-        sidebarCollapsed={isDesktopSidebarCollapsed}
-        onToggleSidebar={() => setIsDesktopSidebarCollapsed((value) => !value)}
-      />
+    <div className={`h-[100dvh] bg-white text-slate-900 flex flex-col overflow-hidden ${shouldShowDesktopAppMenu ? 'supporthr-shell--with-app-menu' : ''} ${className || ''}`}>
+      {shouldShowDesktopAppMenu && (
+        <DesktopAppMenuBar
+          sidebarCollapsed={isDesktopSidebarCollapsed}
+          onToggleSidebar={() => setIsDesktopSidebarCollapsed((value) => !value)}
+        />
+      )}
 
       {shouldUseWorkspaceShell && !isDesktopSidebarCollapsed && (
         <div className="hidden lg:block">
@@ -910,7 +914,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
       )}
 
       <main
-        className={`main-content supporthr-main pb-0 ${shouldUseWorkspaceShell ? `supporthr-main--with-sidebar supporthr-main--with-app-menu ${isDesktopSidebarCollapsed ? 'supporthr-main--sidebar-collapsed' : ''} mt-14 lg:mt-0` : 'lg:pt-[34px]'} flex-1 flex flex-col min-h-0 overflow-x-hidden transition-all duration-300 ease-in-out ${
+        className={`main-content supporthr-main pb-0 ${shouldUseWorkspaceShell ? `supporthr-main--with-sidebar supporthr-main--with-app-menu ${isDesktopSidebarCollapsed ? 'supporthr-main--sidebar-collapsed' : ''} mt-14 lg:mt-0` : shouldShowDesktopAppMenu ? 'lg:pt-[34px]' : ''} flex-1 flex flex-col min-h-0 overflow-x-hidden transition-all duration-300 ease-in-out ${
           !isLandingView
             ? 'min-w-0'
             : 'ml-0 w-full'

@@ -266,6 +266,7 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
 
         <div className="mx-2 hidden h-9 w-px bg-blue-100 xl:block" />
 
+        {false && (
         <div className="hidden flex-1 items-center gap-2 lg:flex">
           <button
             type="button"
@@ -284,6 +285,7 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
             Mẫu JD
           </button>
         </div>
+        )}
 
         <div className="ml-auto flex shrink-0 items-center gap-2">
           {activeStep === 'analysis' && (

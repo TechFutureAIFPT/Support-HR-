@@ -88,6 +88,7 @@ const navGroups = [
     items: [
       { label: 'Bảo mật dữ liệu', id: 'bao-mat' },
       { label: 'Bảng giá & triển khai', id: 'bang-gia' },
+      { label: 'Doanh nghiệp thử nghiệm', id: 'doi-tac-thu-nghiem' },
       { label: 'Điều khoản', id: 'dieu-khoan' },
       { label: 'Câu hỏi thường gặp', id: 'faq' },
     ],
@@ -392,6 +393,44 @@ const sections: DocSection[] = [
     ],
   },
   {
+    id: 'doi-tac-thu-nghiem',
+    eyebrow: 'Pilot partners',
+    title: 'Doanh nghiệp hợp tác thử nghiệm sản phẩm',
+    description:
+      'Khu vực này dùng để giới thiệu các nhóm doanh nghiệp đang phối hợp đánh giá Support HR trong môi trường thử nghiệm. Tên và logo chính thức chỉ nên công bố khi đã được đối tác xác nhận.',
+    icon: BriefcaseBusiness,
+    bullets: [
+      'Ưu tiên các doanh nghiệp có nhu cầu sàng lọc nhiều CV, chuẩn hóa JD và phối hợp nhanh giữa HR với hiring manager.',
+      'Mỗi chương trình thử nghiệm nên có phạm vi rõ: vị trí tuyển dụng, số lượng CV mẫu, tiêu chí đánh giá và người phụ trách phản hồi.',
+      'Sau giai đoạn thử nghiệm, đội triển khai tổng hợp phản hồi về độ chính xác, tốc độ xử lý, trải nghiệm sử dụng và yêu cầu tích hợp.',
+    ],
+    cards: [
+      {
+        title: 'Doanh nghiệp công nghệ',
+        description: 'Thử nghiệm luồng tuyển kỹ sư, sản phẩm, dữ liệu và các vị trí cần so sánh kỹ năng theo JD.',
+        meta: 'Pilot',
+      },
+      {
+        title: 'Đơn vị dịch vụ nhân sự',
+        description: 'Đánh giá khả năng xử lý nhiều JD, nhiều nguồn CV và tạo shortlist có bằng chứng cho khách hàng.',
+        meta: 'HR agency',
+      },
+      {
+        title: 'SME đang mở rộng',
+        description: 'Kiểm tra cách chuẩn hóa tiêu chí tuyển dụng khi đội HR nhỏ cần xử lý hồ sơ nhanh hơn.',
+        meta: 'SME',
+      },
+    ],
+    reference: {
+      title: 'Thông tin cần xác nhận trước khi công bố',
+      rows: [
+        { label: 'Tên đối tác', value: 'Tên doanh nghiệp, ngành hoạt động và người phụ trách xác nhận thông tin.' },
+        { label: 'Phạm vi thử nghiệm', value: 'Số lượng JD/CV, nhóm vị trí, thời gian pilot và dữ liệu được phép sử dụng.' },
+        { label: 'Quyền công bố', value: 'Trạng thái cho phép hiển thị tên, logo, nhận xét hoặc chỉ mô tả theo nhóm ẩn danh.' },
+      ],
+    },
+  },
+  {
     id: 'dieu-khoan',
     eyebrow: 'Terms',
     title: 'Điều khoản sử dụng chính',
@@ -460,6 +499,7 @@ const rightLinks = [
   { label: 'Quy trình', id: 'quy-trinh' },
   { label: 'Chuẩn hóa JD', id: 'chuan-hoa-jd' },
   { label: 'Thư viện CV', id: 'thu-vien-cv' },
+  { label: 'Doanh nghiệp thử nghiệm', id: 'doi-tac-thu-nghiem' },
   { label: 'Bảo mật', id: 'bao-mat' },
   { label: 'FAQ', id: 'faq' },
 ];
