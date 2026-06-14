@@ -43,14 +43,14 @@
   ],
   "screenshots": [
     {
-      "src": "/images/logos/screenshot-1.png",
+      "src": "/screenshots/screenshot-1.png",
       "sizes": "1920x1080",
       "type": "image/png",
       "form_factor": "wide",
       "label": "Giao diện chính trên Máy tính - Support HR"
     },
     {
-      "src": "/images/logos/screenshot-2.png",
+      "src": "/screenshots/screenshot-2.png",
       "sizes": "1080x1920",
       "type": "image/png",
       "form_factor": "narrow",
