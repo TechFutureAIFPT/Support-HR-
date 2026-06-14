@@ -2,6 +2,7 @@
   "name": "Support HR",
   "short_name": "Support HR",
   "description": "Support HR - AI sàng lọc CV thông minh | Tuyển dụng tự động",
+  "id": "/",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
@@ -38,6 +39,22 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/screenshot-1.png",
+      "sizes": "1920x1080",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Giao diện chính trên Máy tính - Support HR"
+    },
+    {
+      "src": "/screenshots/screenshot-2.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Giao diện chính trên Điện thoại - Support HR"
     }
   ]
 }
