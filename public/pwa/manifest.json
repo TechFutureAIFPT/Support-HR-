@@ -44,17 +44,17 @@
   "screenshots": [
     {
       "src": "/images/logos/screenshot-1.png",
-      "sizes": "1920x1080",
+      "sizes": "1024x575",
       "type": "image/png",
       "form_factor": "wide",
-      "label": "Giao diện chính trên Máy tính - Support HR"
+      "label": "Giao diện nạp tài liệu - Support HR"
     },
     {
       "src": "/images/logos/screenshot-2.png",
-      "sizes": "1080x1920",
+      "sizes": "1024x575",
       "type": "image/png",
-      "form_factor": "narrow",
-      "label": "Giao diện chính trên Điện thoại - Support HR"
+      "form_factor": "wide",
+      "label": "Giao diện cấu hình tiêu chí - Support HR"
     }
   ]
 }
