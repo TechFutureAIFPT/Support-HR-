@@ -13,7 +13,6 @@ import {
   Loader2,
   MapPin,
   Search,
-  Sparkle,
   Sparkles,
   UploadCloud,
   X,
@@ -451,6 +450,7 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
   const [selectedLibraryCvIds, setSelectedLibraryCvIds] = useState<Set<string>>(new Set());
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cvFileInputRef = useRef<HTMLInputElement>(null);
+  const progressBarRef = useRef<HTMLDivElement>(null);
   const hasHandledPendingDriveRef = useRef(false);
   const lastAutoAdvancedCvCountRef = useRef(0);
 
@@ -458,6 +458,12 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
     () => Math.min(100, Math.round((cvFiles.length / MAX_CV_PER_BATCH) * 100)),
     [cvFiles.length],
   );
+
+  useEffect(() => {
+    if (progressBarRef.current) {
+      progressBarRef.current.style.width = `${cvProgressPercent}%`;
+    }
+  }, [cvProgressPercent]);
   const canContinue = jdReady && cvFiles.length > 0;
   const remainingCvSlots = MAX_CV_PER_BATCH - cvFiles.length;
   const previewText = useMemo(() => (jdText || rawJdText || '').trim(), [jdText, rawJdText]);
@@ -588,7 +594,6 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
         setJdReady(true);
         setJdFileName(file.name);
         setSuccessMsg(`Đã nạp JD: ${file.name}`);
-        setStage('cv');
       } catch (err: any) {
         setErrorMsg(getSafeErrorMessage(err, 'ai'));
       } finally {
@@ -807,11 +812,6 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
     setStage('cv');
   };
 
-  const continueAfterJd = () => {
-    if (!jdReady) return;
-    onGetStarted();
-  };
-
   return (
     <div
       className={`relative flex w-full overflow-hidden bg-white text-slate-900 transition-opacity duration-300 ${
@@ -935,87 +935,72 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
         )}
 
         {stage === 'jd' ? (
-          <main className={`relative min-h-0 flex-1 overflow-hidden rounded-[2rem] border border-blue-50 bg-[#f7fbff] ${embedded ? 'my-2' : 'my-5'}`}>
-            <div className="pointer-events-none absolute inset-0 overflow-hidden">
-              <div className="absolute -left-24 bottom-4 h-48 w-48 rounded-[3rem] border border-slate-200/80 rotate-45" />
-              <div className="absolute -right-20 top-8 h-72 w-72 rounded-[3rem] border border-slate-200/90 rotate-[-32deg]" />
-              <div className="absolute right-36 top-8 h-28 w-px rotate-[28deg] bg-slate-300/80" />
-              <div className="absolute right-24 top-28 h-5 w-5 rotate-45 rounded-sm bg-slate-300/70" />
-              <div className="absolute right-60 top-12 h-4 w-4 rotate-12 rounded-sm bg-slate-300/70" />
-              <div className="absolute right-72 top-24 h-4 w-4 rotate-12 border border-slate-300" />
-              <div className="absolute right-48 top-20 h-0 w-0 border-y-[12px] border-l-[20px] border-y-transparent border-l-slate-300/80" />
-            </div>
-            <section className="relative z-10 flex h-full min-h-0 flex-col px-4 py-5 sm:px-7 lg:px-8 xl:px-10">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <main className="grid min-h-0 flex-1 gap-6 py-5 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] lg:gap-10 lg:py-6">
+            <section className="flex min-h-0 flex-col">
+              <div className="flex flex-row items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="supporthr-mono text-sm font-black uppercase tracking-[0.18em] text-slate-600">
+                  <p className="supporthr-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-[#2388ff]/75">
                     Bước 01
                   </p>
-                  <h2 className="mt-3 text-[2.4rem] font-black leading-none tracking-[-0.03em] text-slate-950 sm:text-5xl">Nạp JD</h2>
-                  <p className="mt-5 max-w-2xl text-base font-semibold leading-7 text-slate-700 sm:text-lg">
-                    Tải JD để hệ thống đọc nội dung, chuẩn hóa tiêu chí và mở bước nạp CV.
+                  <h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">Nạp JD</h2>
+                  <p className="mt-2 max-w-xl text-sm leading-6 text-slate-500">
+                    Tải JD để hệ thống đọc nội dung, chuẩn hóa tiêu chí.
                   </p>
                 </div>
-                <div
-                  className={`supporthr-mono flex shrink-0 items-center gap-3 rounded-full border px-5 py-3 text-xs font-black uppercase tracking-[0.16em] shadow-[inset_0_1px_0_rgba(255,255,255,0.8),0_10px_22px_rgba(15,23,42,0.10)] ${
-                    errorMsg
-                      ? 'border-red-200 bg-red-50 text-red-700'
-                      : jdReady
-                        ? 'border-blue-200 bg-blue-50 text-blue-700'
-                        : 'border-slate-200 bg-white text-slate-500'
-                  }`}
-                >
-                  <span>{isProcessing ? `${String(processingStep + 1).padStart(2, '0')}/04` : jdReady ? '04/04' : '00/04'}</span>
-                  <span>{isProcessing ? 'Đang xử lý' : errorMsg ? 'Cần kiểm tra' : jdReady ? 'Sẵn sàng' : 'Chưa có JD'}</span>
+                <div className="supporthr-mono w-fit shrink-0 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+                  {isProcessing ? `${String(processingStep + 1).padStart(2, '0')}/04` : jdReady ? '04/04' : '00/04'}
                 </div>
               </div>
 
-              <input ref={fileInputRef} type="file" className="hidden" accept={FILE_ACCEPT} onChange={handleFileChange} />
+              <input
+                ref={fileInputRef}
+                type="file"
+                className="hidden"
+                accept={FILE_ACCEPT}
+                onChange={handleFileChange}
+                title="Tải lên tệp JD"
+                aria-label="Tải lên tệp JD"
+              />
 
-              <div className="mt-8 min-h-0 flex-1">
-                <div
-                  className="mx-auto flex h-full max-w-[68rem] flex-col rounded-[1.6rem] border border-slate-100 bg-white p-5 text-center shadow-[0_26px_70px_rgba(15,23,42,0.16)] sm:p-6"
-                >
-                  <div
-                    className="flex flex-1 flex-col rounded-[1.2rem] border border-cyan-300/80 bg-[#f3f8ff]/80 p-6 text-center shadow-[inset_0_0_0_1px_rgba(37,99,235,0.10)] transition hover:border-cyan-400 hover:bg-[#eef7ff]"
-                    onDragOver={handleDragOver}
-                    onDrop={handleDropJdFile}
-                  >
-                    <div className="flex flex-1 flex-col items-center justify-center">
-                      <div className="flex h-20 w-20 items-center justify-center rounded-[1.2rem] border border-white/80 bg-gradient-to-br from-white to-blue-50 text-sky-500 shadow-[0_12px_30px_rgba(35,136,255,0.15),inset_0_1px_0_rgba(255,255,255,0.95)]">
-                        {isProcessing ? (
-                          <div className="h-9 w-9 animate-spin rounded-full border-[3px] border-sky-500 border-t-transparent" />
-                        ) : jdReady ? (
-                          <CheckCircle2 className="h-10 w-10" strokeWidth={2.4} />
-                        ) : (
-                          <UploadCloud className="h-10 w-10" strokeWidth={2.4} />
-                        )}
-                      </div>
-
-                      <h3 className="mt-5 text-2xl font-black leading-tight tracking-[-0.01em] text-slate-950 sm:text-3xl">
-                        {isProcessing ? 'Đang xử lý JD' : jdReady ? 'JD đã sẵn sàng' : 'Kéo thả JD'}
-                      </h3>
-                      <p className="mt-2 max-w-lg text-sm font-semibold leading-6 text-slate-600 sm:text-base">
-                        {isProcessing
-                          ? PROCESSING_STEPS[processingStep]
-                          : jdReady
-                            ? jdFileName || 'Nội dung JD đã được chuẩn hóa.'
-                            : 'Hỗ trợ PDF, DOCX, PNG, JPG.'}
-                      </p>
-
-                      <button
-                        type="button"
-                        onClick={() => fileInputRef.current?.click()}
-                        disabled={isProcessing}
-                        className="mt-5 inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-sky-400 px-6 text-sm font-black text-white shadow-[0_10px_25px_rgba(35,136,255,0.22)] transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
-                      >
-                        <HardDriveUpload className="h-5 w-5" />
-                        {jdReady ? 'Đổi JD' : 'Nạp file'}
-                      </button>
-                    </div>
+              <div
+                className="mt-5 flex min-h-[240px] flex-col justify-between border border-dashed border-blue-100 bg-white p-4 transition-colors hover:border-blue-200 hover:bg-white sm:p-6 lg:min-h-[360px]"
+                onDragOver={handleDragOver}
+                onDrop={handleDropJdFile}
+              >
+                <div className="flex flex-1 flex-col items-center justify-center text-center">
+                  <div className="flex h-16 w-16 shrink-0 items-center justify-center border border-[#2388ff]/24 bg-[#2388ff]/8 text-[#2388ff] sm:h-20 sm:w-20">
+                    {isProcessing ? (
+                      <Loader2 className="h-8 w-8 animate-spin sm:h-9 sm:w-9" />
+                    ) : jdReady ? (
+                      <CheckCircle2 className="h-8 w-8 sm:h-9 sm:w-9" />
+                    ) : (
+                      <UploadCloud className="h-8 w-8 sm:h-9 sm:w-9" />
+                    )}
                   </div>
+                  <p className="mt-5 text-xl font-semibold tracking-tight text-slate-900 sm:text-2xl">
+                    {isProcessing ? 'Đang xử lý JD' : jdReady ? 'JD đã sẵn sàng' : 'Kéo thả JD'}
+                  </p>
+                  <p className="mt-2 text-sm text-slate-500">
+                    {isProcessing
+                      ? PROCESSING_STEPS[processingStep]
+                      : jdReady
+                        ? jdFileName || 'Nội dung JD đã được chuẩn hóa.'
+                        : 'Hỗ trợ PDF, DOCX, PNG, JPG'}
+                  </p>
 
-                  <div className="relative z-10 mt-5 flex justify-center gap-4">
+                  <div className="relative z-10 mt-6 flex flex-wrap justify-center gap-3">
+                    <button
+                      type="button"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        fileInputRef.current?.click();
+                      }}
+                      disabled={isProcessing}
+                      className={secondaryButtonClass}
+                    >
+                      <HardDriveUpload className="h-4 w-4" />
+                      {jdReady ? 'Đổi file' : 'Nạp file'}
+                    </button>
                     <button
                       type="button"
                       onClick={(event) => {
@@ -1023,9 +1008,9 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
                         void handleGoogleDrive();
                       }}
                       disabled={isProcessing}
-                      className="inline-flex h-11 min-w-[7.5rem] items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-45"
+                      className={secondaryButtonClass}
                     >
-                      <FolderOpen className="h-5 w-5" />
+                      <FolderOpen className="h-4 w-4" />
                       Drive
                     </button>
                     <button
@@ -1035,49 +1020,40 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
                         (onUseTemplate ?? onGetStarted)();
                       }}
                       disabled={isProcessing}
-                      className="inline-flex h-11 min-w-[7.5rem] items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-45"
+                      className={secondaryButtonClass}
                     >
-                      <FileText className="h-5 w-5" />
+                      <FileText className="h-4 w-4" />
                       Mẫu
                     </button>
                   </div>
                 </div>
               </div>
 
-              <div className="mt-6 flex shrink-0 flex-col gap-4 border-t border-slate-200/80 pt-5 sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex min-w-0 items-center gap-4">
-                  {jdReady ? <CheckCircle2 className="h-8 w-8 shrink-0 text-blue-600" /> : <FileText className="h-8 w-8 shrink-0 text-slate-500" />}
-                  <div className="min-w-0">
-                    <p className={`truncate text-xl font-black ${errorMsg ? 'text-red-700' : 'text-slate-950'}`}>
-                      {errorMsg ? 'Kiểm tra lại tệp JD' : jdReady ? 'JD đã nạp' : 'Chưa có JD'}
-                    </p>
-                    <p className={`mt-1 truncate text-base font-semibold leading-6 ${errorMsg ? 'text-red-600' : 'text-slate-600'}`}>
-                      {errorMsg || successMsg || 'Nạp JD để mở bước CV'}
-                    </p>
-                  </div>
+              {errorMsg && (
+                <div className="mt-4 border-l border-red-400/50 bg-red-500/5 px-4 py-3 text-sm text-red-700">
+                  {errorMsg}
                 </div>
+              )}
+
+              <div className="mt-auto flex flex-col gap-2 border-t border-blue-100 pt-4 sm:flex-row sm:gap-3 lg:mt-6">
                 <button
                   type="button"
-                  onClick={continueAfterJd}
+                  onClick={goToCv}
                   disabled={!jdReady}
-                  className="relative overflow-hidden inline-flex h-14 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-sky-400 px-7 text-base font-black text-white shadow-[0_12px_28px_rgba(35,136,255,0.25)] transition hover:brightness-105 disabled:cursor-not-allowed disabled:border disabled:border-blue-100 disabled:bg-none disabled:bg-blue-100 disabled:text-blue-700 disabled:shadow-none sm:w-auto"
+                  className={`${primaryButtonClass} flex-1`}
                 >
-                  <span className="flex items-center gap-2">
-                    Tiếp tục nạp CV
-                    <ArrowRight className="h-5 w-5" />
-                  </span>
-                  <Sparkle className="absolute right-1.5 bottom-1.5 h-3.5 w-3.5 text-white/40" />
+                  Tiếp tục nạp CV
+                  <ArrowRight className="h-4 w-4" />
                 </button>
               </div>
             </section>
 
-            <section className="hidden">
-              <div className="flex shrink-0 flex-col gap-3 border-b border-blue-100 p-5 sm:flex-row sm:items-start sm:justify-between">
+            <section className="flex min-h-[300px] flex-col overflow-hidden border-t border-blue-100 pt-5 lg:min-h-0 lg:border-l border-blue-100 lg:border-t-0 lg:pl-10 lg:pt-0">
+              <div className="flex shrink-0 flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div className="min-w-0">
-                  <p className="supporthr-mono text-[10px] font-bold uppercase tracking-[0.18em] text-blue-600">Nội dung JD</p>
-                  <h3 className="mt-2 text-xl font-bold text-slate-950">Bản JD đang dùng</h3>
-                  <p className="mt-1 text-sm leading-6 text-slate-600">
-                    Nội dung này được dùng để trích xuất điều kiện bắt buộc và tiêu chí đánh giá.
+                  <h3 className="text-xl font-semibold tracking-tight text-slate-900">Thông tin JD</h3>
+                  <p className="mt-2 hidden text-sm leading-6 text-slate-500 sm:block">
+                    Dùng để trích xuất điều kiện bắt buộc và tiêu chí đánh giá.
                   </p>
                 </div>
                 <span className="supporthr-mono shrink-0 rounded-lg border border-blue-100 bg-blue-50 px-3 py-2 text-[10px] font-bold uppercase tracking-[0.16em] text-blue-700">
@@ -1085,7 +1061,7 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
                 </span>
               </div>
 
-              <div className="grid min-h-0 flex-1 gap-4 p-5 lg:grid-rows-[auto_minmax(0,1fr)]">
+              <div className="grid min-h-0 flex-1 gap-4 mt-5 lg:grid-rows-[auto_minmax(0,1fr)]">
                 <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
                   {extractedRules.length > 0 ? (
                     extractedRules.map((rule) => {
@@ -1154,6 +1130,8 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
                 accept={FILE_ACCEPT}
                 className="hidden"
                 onChange={handleCvFileChange}
+                title="Tải lên danh sách CV"
+                aria-label="Tải lên danh sách CV"
               />
 
               <div
@@ -1218,8 +1196,8 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
                   </div>
                   <div className="mt-2 h-px bg-blue-100">
                     <div
+                      ref={progressBarRef}
                       className="h-px bg-[#2388ff] transition-[width] duration-500"
-                      style={{ width: `${cvProgressPercent}%` }}
                     />
                   </div>
                 </div>
