@@ -162,43 +162,56 @@
             .then(registration => {
               console.log('SW registered: ', registration);
 
-              if ('sync' in registration) {
-                registration.sync.register('supporthr-background-sync')
+              const registerBackgroundSync = (readyRegistration) => {
+                if (!('sync' in readyRegistration)) {
+                  return;
+                }
+
+                readyRegistration.sync.register('supporthr-background-sync')
                   .catch((error) => {
                     console.log('Background sync registration skipped: ', error);
                   });
-              }
+              };
 
-              if ('periodicSync' in registration) {
-                const registerPeriodicSync = async () => {
-                  try {
-                    if ('permissions' in navigator && navigator.permissions.query) {
-                      const permission = await navigator.permissions.query({ name: 'periodic-background-sync' });
+              const registerPeriodicSync = async (readyRegistration) => {
+                if (!('periodicSync' in readyRegistration)) {
+                  return;
+                }
 
-                      if (permission.state === 'denied') {
-                        return;
-                      }
+                try {
+                  if ('permissions' in navigator && navigator.permissions.query) {
+                    const permission = await navigator.permissions.query({ name: 'periodic-background-sync' });
+
+                    if (permission.state === 'denied') {
+                      return;
                     }
-
-                    await registration.periodicSync.register('supporthr-periodic-sync', {
-                      minInterval: 24 * 60 * 60 * 1000
-                    });
-                  } catch (error) {
-                    console.log('Periodic sync registration skipped: ', error);
                   }
-                };
 
-                registerPeriodicSync();
-              }
-
-              const warmCoreCache = () => {
-                if (registration.active) {
-                  registration.active.postMessage({ type: 'CACHE_CORE' });
+                  await readyRegistration.periodicSync.register('supporthr-periodic-sync', {
+                    minInterval: 24 * 60 * 60 * 1000
+                  });
+                } catch (error) {
+                  console.log('Periodic sync registration skipped: ', error);
                 }
               };
 
-              warmCoreCache();
-              navigator.serviceWorker.ready.then(warmCoreCache).catch(() => {});
+              const warmCoreCache = (readyRegistration) => {
+                if (readyRegistration.active) {
+                  readyRegistration.active.postMessage({ type: 'CACHE_CORE' });
+                }
+              };
+
+              if (registration.active) {
+                warmCoreCache(registration);
+              }
+
+              navigator.serviceWorker.ready
+                .then((readyRegistration) => {
+                  registerBackgroundSync(readyRegistration);
+                  registerPeriodicSync(readyRegistration);
+                  warmCoreCache(readyRegistration);
+                })
+                .catch(() => {});
             })
             .catch(registrationError => {
               console.log('SW registration failed: ', registrationError);
