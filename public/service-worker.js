@@ -4,12 +4,13 @@ if (workbox) {
   console.log('Workbox loaded successfully');
 
   const CACHE_PREFIX = 'SupportHR-PWA-cache';
-  const CACHE_VERSION = 'v3';
+  const CACHE_VERSION = 'v4';
   const ASSET_CACHE = `${CACHE_PREFIX}-assets-${CACHE_VERSION}`;
   const FONT_CACHE = `${CACHE_PREFIX}-fonts-${CACHE_VERSION}`;
   const IMAGE_CACHE = `${CACHE_PREFIX}-images-${CACHE_VERSION}`;
   const PAGE_CACHE = `${CACHE_PREFIX}-pages-${CACHE_VERSION}`;
   const CURRENT_CACHES = new Set([ASSET_CACHE, FONT_CACHE, IMAGE_CACHE, PAGE_CACHE]);
+  const OFFLINE_URL = '/pwa/offline.html';
 
   workbox.core.skipWaiting();
   workbox.core.clientsClaim();
@@ -31,7 +32,7 @@ if (workbox) {
   });
 
   workbox.precaching.precacheAndRoute([
-    { url: '/pwa/offline.html', revision: '1' }
+    { url: OFFLINE_URL, revision: '2' }
   ]);
 
   workbox.routing.registerRoute(
@@ -90,7 +91,7 @@ if (workbox) {
 
   workbox.routing.setCatchHandler(({ event }) => {
     if (event.request.mode === 'navigate') {
-      return caches.match('/pwa/offline.html');
+      return caches.match(OFFLINE_URL);
     }
     return Response.error();
   });

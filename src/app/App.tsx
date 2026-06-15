@@ -914,11 +914,10 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
       )}
 
       <main
-        className={`main-content supporthr-main pb-0 ${shouldUseWorkspaceShell ? `supporthr-main--with-sidebar supporthr-main--with-app-menu ${isDesktopSidebarCollapsed ? 'supporthr-main--sidebar-collapsed' : ''} mt-14 lg:mt-0` : shouldShowDesktopAppMenu ? 'lg:pt-[34px]' : ''} flex-1 flex flex-col min-h-0 overflow-x-hidden transition-all duration-300 ease-in-out ${
-          !isLandingView
+        className={`main-content supporthr-main pb-0 ${shouldUseWorkspaceShell ? `supporthr-main--with-sidebar supporthr-main--with-app-menu ${isDesktopSidebarCollapsed ? 'supporthr-main--sidebar-collapsed' : ''} mt-14 lg:mt-0` : shouldShowDesktopAppMenu ? 'lg:pt-[34px]' : ''} flex-1 flex flex-col min-h-0 overflow-x-hidden transition-all duration-300 ease-in-out ${!isLandingView
             ? 'min-w-0'
             : 'ml-0 w-full'
-        }`}
+          }`}
       >
         {isWorkflowView && (
           <WorkspaceTopbar

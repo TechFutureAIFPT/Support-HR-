@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#2388ff" />
+    <title>Support HR offline</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f4f7ff;
+        --card: #ffffff;
+        --text: #102033;
+        --muted: #5c6b82;
+        --brand: #2388ff;
+        --ring: rgba(35, 136, 255, 0.18);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        min-height: 100%;
+        background:
+          radial-gradient(circle at top, rgba(35, 136, 255, 0.14), transparent 38%),
+          linear-gradient(180deg, #f8fbff 0%, var(--bg) 100%);
+        font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        color: var(--text);
+      }
+
+      body {
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+      }
+
+      .card {
+        width: min(100%, 560px);
+        background: var(--card);
+        border: 1px solid rgba(16, 32, 51, 0.08);
+        border-radius: 28px;
+        box-shadow: 0 24px 80px rgba(35, 58, 107, 0.12);
+        padding: 28px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 24px;
+      }
+
+      .logo {
+        width: 64px;
+        height: 64px;
+        border-radius: 20px;
+        overflow: hidden;
+        background: #000;
+        flex: 0 0 auto;
+        display: grid;
+        place-items: center;
+      }
+
+      .logo img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(1.6rem, 4vw, 2.25rem);
+        line-height: 1.1;
+      }
+
+      p {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.65;
+      }
+
+      .copy {
+        margin-top: 8px;
+        font-size: 1rem;
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 24px;
+      }
+
+      a {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 46px;
+        padding: 0 18px;
+        border-radius: 999px;
+        text-decoration: none;
+        font-weight: 700;
+      }
+
+      .primary {
+        background: var(--brand);
+        color: white;
+        box-shadow: 0 12px 28px rgba(35, 136, 255, 0.22);
+      }
+
+      .secondary {
+        color: var(--brand);
+        border: 1px solid var(--ring);
+        background: rgba(35, 136, 255, 0.06);
+      }
+
+      .note {
+        margin-top: 20px;
+        font-size: 0.95rem;
+      }
+
+      @media (max-width: 520px) {
+        .card {
+          padding: 22px;
+          border-radius: 24px;
+        }
+
+        .brand {
+          align-items: flex-start;
+        }
+
+        .logo {
+          width: 56px;
+          height: 56px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="card">
+      <div class="brand">
+        <div class="logo">
+          <img src="/images/logos/logo.jpg" alt="Support HR" />
+        </div>
+        <div>
+          <h1>Support HR is offline</h1>
+          <p class="copy">Your app shell is still available. Reconnect to continue screening CVs and reviewing JD content.</p>
+        </div>
+      </div>
+
+      <p>
+        The Windows app can still launch from the installed shortcut, but some network-backed sections need a connection to sync data and load fresh records.
+      </p>
+
+      <div class="actions">
+        <a class="primary" href="/">Try again</a>
+        <a class="secondary" href="/welcome">Open home</a>
+      </div>
+
+      <p class="note">If you were mid-workflow, your local draft should still be preserved in the browser cache when the connection returns.</p>
+    </main>
+  </body>
+</html>

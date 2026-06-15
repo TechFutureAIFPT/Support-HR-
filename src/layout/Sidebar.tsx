@@ -1,11 +1,21 @@
-/**
- * Sidebar — Professional HR Platform (Dark + Light Theme)
- * Theme-aware: dùng useTheme() để tự động switch palette
- */
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-  SlidersHorizontal, Sparkles, UploadCloud,
-  PieChart, MessageSquare, LogOut, FileText, Brain, Settings, Clock3,
+  BarChart3,
+  BookOpenText,
+  Brain,
+  Check,
+  ChevronRight,
+  Clock3,
+  FileText,
+  History,
+  LogOut,
+  MessageSquare,
+  PanelLeft,
+  Plus,
+  Settings,
+  SlidersHorizontal,
+  Sparkles,
+  UploadCloud,
 } from 'lucide-react';
 import type { AppStep } from '@/types';
 import { onAuthStateChanged } from 'firebase/auth';
@@ -30,71 +40,31 @@ interface SidebarProps {
   onNewSession?: () => void;
 }
 
-// ── Theme-aware palette hook ───────────────────────────────────────────
-function useColors() {
-  return {
-    bg:         'linear-gradient(180deg, #eaf4ff 0%, #dfeeff 100%)',
-    bg2:        '#e4f1ff',
-    bg3:        '#d8eaff',
-    bg4:        '#d6eaff',
-    border:     'rgba(35,136,255,0.26)',
-    border2:    'rgba(35,136,255,0.34)',
-    text:       '#102033',
-    text2:      '#475569',
-    text3:      '#94a3b8',
-    accentBlue: '#2388ff',
-    accent:     '#2388ff',
-    headerGradient: 'linear-gradient(180deg, #f7fbff 0%, #e4f1ff 100%)',
-    headerBorderBottom: '1px solid rgba(35,136,255,0.22)',
-    logoBg:     'bg-blue-50',
-    logoBorder: 'border-blue-100',
-    aiBadgeBg:  'rgba(35,136,255,0.1)',
-    aiBadgeColor: '#0875ee',
-    subTextColor: '#64748b',
-    navHover:   'hover:bg-blue-50',
-    iconBg:     'rgba(35,136,255,0.06)',
-    iconBorder: '1px solid rgba(35,136,255,0.12)',
-    sectionDivider: 'to-blue-300/60',
-    progressTrack: 'rgba(35,136,255,0.1)',
-    accountBg: 'rgba(247,251,255,0.92)',
-    accountBorder: 'rgba(55,125,255,0.14)',
-    onlineDot: 'bg-emerald-500',
-    proBadgeBg: 'rgba(35,136,255,0.1)',
-    proBadgeColor: '#0875ee',
-    loginGrad:  'linear-gradient(135deg, #2388ff, #4aa3ff)',
-    loginShadow: '0 14px 34px rgba(35,136,255,0.18)',
-  };
-}
+type NavConfig = {
+  key: AppStep;
+  label: string;
+  sub: string;
+  icon: React.ComponentType<{ className?: string; size?: number; strokeWidth?: number }>;
+};
 
-// ── Step definitions ───────────────────────────────────────────────────────
-const PROCESS_STEPS: Array<{
-  key: AppStep; label: string; sub: string;
-  icon: React.ComponentType<{ className?: string; size?: number }>;
-  color: string; bgActive: string;
-}> = [
-  { key: 'jd',       label: 'Nạp JD & CV', sub: 'Tải JD/CV · Bước 1-2',
-    icon: UploadCloud,       color: '#2388ff', bgActive: 'rgba(35,136,255,0.1)' },
-  { key: 'weights',  label: 'Thiết lập mặc định', sub: 'Tiêu chí & bộ lọc · Bước 3',
-    icon: SlidersHorizontal, color: '#2388ff', bgActive: 'rgba(35,136,255,0.1)' },
-  { key: 'analysis', label: 'Phân tích AI', sub: 'Xử lý · Bước 4',
-    icon: Sparkles,          color: '#2388ff', bgActive: 'rgba(35,136,255,0.1)' },
+const PROCESS_STEPS: NavConfig[] = [
+  { key: 'jd', label: 'Nạp JD & CV', sub: 'Tài liệu đầu vào', icon: UploadCloud },
+  { key: 'weights', label: 'Thiết lập tiêu chí', sub: 'Trọng số và bộ lọc', icon: SlidersHorizontal },
+  { key: 'analysis', label: 'Phân tích AI', sub: 'Kết quả sàng lọc', icon: Sparkles },
 ];
 
-const TOOL_ITEMS: Array<{
-  key: AppStep; label: string; sub: string;
-  icon: React.ComponentType<{ className?: string; size?: number }>;
-  color: string; bgActive: string;
-}> = [
-  { key: 'dashboard', label: 'Thống kê chi tiết', sub: 'Bảng điều khiển phân tích',
-    icon: PieChart,      color: '#2388ff', bgActive: 'rgba(35,136,255,0.1)' },
-  { key: 'chatbot',    label: 'Gợi ý ứng viên AI',  sub: 'Trợ lý tuyển dụng AI',
-    icon: MessageSquare, color: '#2388ff', bgActive: 'rgba(35,136,255,0.1)' },
-  { key: 'feedback',   label: 'Phản hồi AI', sub: 'Hiệu chỉnh đánh giá',
-    icon: Brain,        color: '#2388ff', bgActive: 'rgba(35,136,255,0.1)' }
+const TOOL_ITEMS: NavConfig[] = [
+  { key: 'dashboard', label: 'Thống kê', sub: 'Dashboard phân tích', icon: BarChart3 },
+  { key: 'chatbot', label: 'Gợi ý ứng viên', sub: 'Trợ lý tuyển dụng', icon: MessageSquare },
+  { key: 'feedback', label: 'Phản hồi AI', sub: 'Hiệu chỉnh đánh giá', icon: Brain },
 ];
 
-// ── Helpers ────────────────────────────────────────────────────────────────
-const isStepEnabled = (step: AppStep, completedSteps: AppStep[]): boolean => {
+const SUPPORT_ITEMS: NavConfig[] = [
+  { key: 'records', label: 'Thư viện CV', sub: 'Hồ sơ đã lọc', icon: BookOpenText },
+  { key: 'jd-standardizer', label: 'Chuẩn hóa JD', sub: 'Công cụ soạn JD', icon: FileText },
+];
+
+function isStepEnabled(step: AppStep, completedSteps: AppStep[]): boolean {
   if (step === 'jd') return true;
   if (step === 'upload') return completedSteps.includes('jd');
   if (step === 'weights') return completedSteps.includes('jd') && completedSteps.includes('upload');
@@ -102,406 +72,337 @@ const isStepEnabled = (step: AppStep, completedSteps: AppStep[]): boolean => {
   if (step === 'records' || step === 'jd-standardizer') return true;
   if (step === 'dashboard' || step === 'chatbot' || step === 'feedback') return completedSteps.includes('analysis');
   return false;
-};
+}
 
-// ── Sub-components ─────────────────────────────────────────────────────────
-const SectionLabel = ({ label, C }: { label: string; C: ReturnType<typeof useColors> }) => (
-  <div className="flex items-center gap-2.5 px-3 pt-4 pb-1.5">
-    <div className={`h-px flex-1 bg-gradient-to-r from-transparent ${C.sectionDivider}`} />
-    <span className="text-[9px] font-bold uppercase tracking-[0.14em] whitespace-nowrap" style={{ color: C.text3 }}>
-      {label}
-    </span>
-    <div className={`h-px flex-1 bg-gradient-to-l from-transparent ${C.sectionDivider}`} />
-  </div>
-);
+function getInitials(label: string): string {
+  const parts = label.trim().split(/\s+/).filter(Boolean);
+  return parts.slice(0, 2).map((part) => part[0]).join('').toUpperCase() || 'HR';
+}
 
-const NavItem = ({
-  item, activeStep, completedSteps, onClick, C,
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="px-2 pb-1 pt-4 text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">
+      {children}
+    </div>
+  );
+}
+
+function NavItem({
+  item,
+  activeStep,
+  completedSteps,
+  onClick,
 }: {
-  item: (typeof PROCESS_STEPS)[number] | (typeof TOOL_ITEMS)[number];
+  item: NavConfig;
   activeStep: AppStep;
   completedSteps: AppStep[];
   onClick: () => void;
-  C: ReturnType<typeof useColors>;
-}) => {
+}) {
   const isCombinedUploadStep = item.key === 'jd';
-  const isActive  = activeStep === item.key || (isCombinedUploadStep && activeStep === 'upload');
-  const isDone    = isCombinedUploadStep
+  const isActive = activeStep === item.key || (isCombinedUploadStep && activeStep === 'upload');
+  const isDone = isCombinedUploadStep
     ? completedSteps.includes('jd') && completedSteps.includes('upload')
     : completedSteps.includes(item.key);
   const isEnabled = isStepEnabled(item.key, completedSteps);
-  const Icon      = item.icon;
+  const Icon = item.icon;
 
   return (
     <button
       type="button"
       onClick={onClick}
       disabled={!isEnabled}
-      className={`
-        group relative w-full flex items-center gap-3 rounded-xl border px-3 py-2.5 text-left transition-all duration-200
-        ${isActive
-          ? 'border-blue-300 bg-blue-100 shadow-[0_10px_24px_rgba(35,136,255,0.12)]'
+      className={`group flex w-full items-center gap-2 rounded-lg border px-2.5 py-2 text-left transition ${
+        isActive
+          ? 'border-slate-300 bg-white text-slate-950 shadow-sm'
           : isEnabled
-            ? 'border-blue-100 bg-blue-50 hover:border-blue-200 hover:bg-blue-100'
-            : 'cursor-not-allowed border-blue-50 bg-blue-50/70 opacity-75'
-        }
-      `}
+            ? 'border-transparent text-slate-600 hover:border-slate-200 hover:bg-white hover:text-slate-950'
+            : 'cursor-not-allowed border-transparent text-slate-300'
+      }`}
     >
-      {isActive && (
-        <div
-          className="absolute bottom-2.5 left-0 top-2.5 w-[3px] rounded-r-full"
-          style={{ background: `linear-gradient(180deg, ${item.color}, ${item.color}60)` }}
-        />
-      )}
-
-      <div
-        className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border transition-all duration-200"
-        style={{
-          background: isActive ? '#dcebff' : isEnabled ? '#e8f3ff' : '#f0f7ff',
-          borderColor: isActive ? `${item.color}38` : 'rgba(55,125,255,0.18)',
-        }}
+      <span
+        className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md border ${
+          isActive
+            ? 'border-slate-300 bg-slate-950 text-white'
+            : 'border-slate-200 bg-white text-slate-500 group-hover:text-slate-900'
+        }`}
       >
-        <span style={{ color: isActive ? item.color : isEnabled ? C.text2 : C.text3 }}>
-          <Icon size={17} />
+        <Icon size={15} strokeWidth={2.25} />
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block truncate text-[13px] font-semibold leading-5">{item.label}</span>
+        <span className="block truncate text-[11px] leading-4 text-slate-400">{item.sub}</span>
+      </span>
+      {isDone ? (
+        <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-emerald-50 text-emerald-600">
+          <Check size={12} strokeWidth={2.7} />
         </span>
-      </div>
-
-      <div className="relative min-w-0 flex-1">
-        <p className="text-[12px] font-semibold leading-tight" style={{
-          color: isActive ? C.text : isEnabled ? C.text2 : C.text3,
-        }}>
-          {item.label}
-        </p>
-        <p className="text-[10px] leading-tight mt-0.5" style={{ color: isActive ? item.color : C.text3 }}>
-          {item.sub}
-        </p>
-      </div>
-
-      {isDone && !isActive && (
-        <div
-          className="relative flex h-5 w-5 shrink-0 items-center justify-center rounded-md"
-          style={{ background: `${item.color}12` }}
-        >
-          <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
-            <path d="M1.5 4L3 5.5L6.5 2" stroke={item.color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </div>
-      )}
-      {isActive && (
-        <div className="relative flex h-5 w-5 shrink-0 items-center justify-center rounded-md" style={{ background: `${item.color}14` }}>
-          <div className="h-1.5 w-1.5 rounded-sm" style={{ background: item.color }} />
-        </div>
+      ) : (
+        <ChevronRight size={14} className={isActive ? 'text-slate-500' : 'text-slate-300'} />
       )}
     </button>
   );
-};
+}
 
-const StepProgress = ({ completedSteps, C }: { completedSteps: AppStep[]; C: ReturnType<typeof useColors> }) => {
-  const total = PROCESS_STEPS.length;
-  const done  = PROCESS_STEPS.filter(s => completedSteps.includes(s.key)).length;
-  const pct   = total === 0 ? 0 : Math.round((done / total) * 100);
-
-  return (
-    <div className="px-3 py-2">
-      <div className="flex items-center justify-between mb-1.5">
-        <span className="text-[10px] font-semibold" style={{ color: C.text3 }}>Tiến độ</span>
-        <span className="text-[10px] font-bold" style={{ color: pct === 100 ? '#34d399' : C.accentBlue }}>
-          {pct === 100 ? 'Hoàn tất!' : `${done}/${total} bước`}
-        </span>
-      </div>
-      <div className="h-1 w-full overflow-hidden" style={{ background: C.progressTrack }}>
-        <div
-          className="h-full transition-all duration-500"
-          style={{
-            width: `${pct}%`,
-            background: pct === 100
-              ? 'linear-gradient(90deg, #10b981, #34d399)'
-              : 'linear-gradient(90deg, #2388ff, #22c7c8)',
-          }}
-        />
-      </div>
-    </div>
-  );
-};
-
-// ── Account Panel ──────────────────────────────────────────────────────────
-const AccountPanel: React.FC<{
-  completedSteps: AppStep[];
+function AccountPanel({
+  userEmail,
+  userAvatar,
+  userName,
+  onLoginRequest,
+  onLogout,
+  onShowSettings,
+  onShowHistory,
+}: {
   userEmail?: string;
   userAvatar?: string | null;
   userName?: string;
-  onLogout?: () => void;
   onLoginRequest?: () => void;
+  onLogout?: () => void;
   onShowSettings?: () => void;
   onShowHistory?: () => void;
-  C: ReturnType<typeof useColors>;
-}> = ({ completedSteps, userEmail, userAvatar: avatar, userName: name, onLogout, onLoginRequest, onShowSettings, onShowHistory, C }) => {
+}) {
   const [localAvatar, setLocalAvatar] = useState<string | null>(null);
-  const [localName, setLocalName]     = useState<string>('');
-  const [menuOpen, setMenuOpen]       = useState(false);
+  const [localName, setLocalName] = useState('');
+  const [menuOpen, setMenuOpen] = useState(false);
 
-  const effectiveAvatar = (avatar !== undefined && avatar !== null) ? avatar : localAvatar;
-  const effectiveName   = (name !== undefined && name !== '') ? name : localName;
-
-  React.useEffect(() => {
-    // Load từ Firebase nếu: có email, và avatar chưa được cung cấp (undefined hoặc null) HOẶC name chưa có
-    const needsAvatarLoad = avatar === undefined || avatar === null;
-    const needsNameLoad   = name === undefined || name === '';
+  useEffect(() => {
+    const needsAvatarLoad = userAvatar === undefined || userAvatar === null;
+    const needsNameLoad = !userName;
     if (!userEmail || (!needsAvatarLoad && !needsNameLoad)) return;
-    (async () => {
+
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (!user || user.email !== userEmail) return;
+
+      if (needsNameLoad) {
+        setLocalName(user.displayName || userEmail.split('@')[0]);
+      }
+
+      if (!needsAvatarLoad) return;
+      if (user.photoURL) {
+        setLocalAvatar(user.photoURL);
+        return;
+      }
+
       try {
-        const unsub = onAuthStateChanged(auth, async (user) => {
-          if (user && user.email === userEmail) {
-            if (needsNameLoad) {
-              setLocalName(user.displayName || userEmail.split('@')[0]);
-            }
-            if (needsAvatarLoad) {
-              // Ưu tiên: Firebase photoURL → Firestore avatar → localStorage cache
-              if (user.photoURL) {
-                setLocalAvatar(user.photoURL);
-              } else {
-                const profile = await UserProfileService.getUserProfile(user.uid);
-                if (profile?.avatar) {
-                  setLocalAvatar(profile.avatar);
-                } else {
-                  // fallback localStorage (lưu bởi Navbar với key avatar_${email})
-                  const cached = localStorage.getItem(`avatar_${userEmail}`);
-                  if (cached) setLocalAvatar(cached);
-                }
-              }
-            }
-          }
-        });
-        return () => unsub();
-      } catch { /* ignore */ }
-    })();
-  }, [userEmail, avatar, name]);
+        const profile = await UserProfileService.getUserProfile(user.uid);
+        setLocalAvatar(profile?.avatar || localStorage.getItem(`avatar_${userEmail}`));
+      } catch {
+        setLocalAvatar(localStorage.getItem(`avatar_${userEmail}`));
+      }
+    });
 
-  const getInitials = (n: string) => {
-    const p = n.trim().split(' ');
-    return p.length >= 2
-      ? (p[0][0] + p[p.length - 1][0]).toUpperCase()
-      : n.charAt(0).toUpperCase();
-  };
-
-  const getAvatarGradient = (email: string) => {
-    const grads = [
-      'from-blue-500 to-cyan-500', 'from-sky-500 to-blue-600',
-      'from-cyan-500 to-emerald-500', 'from-blue-600 to-indigo-500',
-      'from-teal-500 to-sky-500',
-    ];
-    return grads[email.charCodeAt(0) % grads.length];
-  };
+    return () => unsubscribe();
+  }, [userAvatar, userEmail, userName]);
 
   if (!userEmail) {
-    return onLoginRequest ? (
-      <div className="border p-3" style={{
-        background: C.accountBg,
-        borderColor: C.accountBorder,
-      }}>
-        <StepProgress completedSteps={completedSteps} C={C} />
+    return (
+      <div className="border-t border-slate-200 p-3">
         <button
           type="button"
           onClick={onLoginRequest}
-          className="w-full flex items-center justify-center gap-2 rounded-xl py-2.5 text-[12px] font-black text-white transition-all hover:brightness-105 active:scale-[0.99]"
-          style={{
-            background: C.loginGrad,
-            boxShadow: C.loginShadow,
-          }}
+          className="flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-slate-950 px-3 text-[13px] font-semibold text-white transition hover:bg-slate-800"
         >
-          <i className="fa-solid fa-right-to-bracket text-[11px]" />
-          Đăng nhập ngay
+          Đăng nhập
         </button>
       </div>
-    ) : null;
+    );
   }
 
+  const label = userName || localName || userEmail.split('@')[0];
+  const avatar = userAvatar || localAvatar;
+
   return (
-    <div
-      className="relative w-full px-3 py-2.5 text-left transition-all"
-      style={{ background: C.accountBg }}
-    >
+    <div className="relative border-t border-slate-200 p-3">
       {menuOpen && (
-        <div
-          className="absolute bottom-[calc(100%+0.5rem)] left-3 right-3 z-30 overflow-hidden border shadow-[0_24px_70px_rgba(0,0,0,0.62)]"
-          style={{
-            background: 'linear-gradient(180deg, #ffffff, #f7fbff)',
-            borderColor: 'rgba(55,125,255,0.16)',
-          }}
-          role="menu"
-        >
+        <div className="absolute bottom-[calc(100%-0.25rem)] left-3 right-3 z-30 overflow-hidden rounded-lg border border-slate-200 bg-white p-1 shadow-xl">
           <button
             type="button"
-            role="menuitem"
-            onClick={(e) => {
-              e.stopPropagation();
+            onClick={() => {
               setMenuOpen(false);
               onShowSettings?.();
             }}
-            className="flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-[11px] font-bold transition-all hover:bg-blue-50"
-            style={{ color: C.text }}
+            className="flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-left text-[12px] font-medium text-slate-700 hover:bg-slate-100"
           >
-            <span className="flex h-7 w-7 items-center justify-center rounded-lg border bg-blue-50" style={{ borderColor: 'rgba(55,125,255,0.16)', color: C.accentBlue }}>
-              <FileText size={14} strokeWidth={2.4} />
-            </span>
+            <Settings size={14} />
             Mẫu JD
           </button>
           <button
             type="button"
-            role="menuitem"
-            onClick={(e) => {
-              e.stopPropagation();
+            onClick={() => {
               setMenuOpen(false);
               onShowHistory?.();
             }}
-            className="flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-[11px] font-bold transition-all hover:bg-blue-50"
-            style={{ color: C.text }}
+            className="flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-left text-[12px] font-medium text-slate-700 hover:bg-slate-100"
           >
-            <span className="flex h-7 w-7 items-center justify-center rounded-lg border bg-blue-50" style={{ borderColor: 'rgba(55,125,255,0.16)', color: C.accentBlue }}>
-              <Clock3 size={14} strokeWidth={2.4} />
-            </span>
-            Lịch sử hoạt động
+            <History size={14} />
+            Lịch sử
           </button>
           <button
             type="button"
-            role="menuitem"
-            onClick={(e) => {
-              e.stopPropagation();
+            onClick={() => {
               setMenuOpen(false);
               onLogout?.();
             }}
-            className="flex w-full items-center gap-2.5 border-t px-3 py-2.5 text-left text-[11px] font-bold transition-all hover:bg-red-500/10"
-            style={{ color: '#f04468', borderColor: 'rgba(55,125,255,0.12)' }}
+            className="flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-left text-[12px] font-medium text-rose-600 hover:bg-rose-50"
           >
-            <span className="flex h-7 w-7 items-center justify-center border border-red-400/25 text-red-300">
-              <LogOut size={14} strokeWidth={2.4} />
-            </span>
+            <LogOut size={14} />
             Đăng xuất
           </button>
         </div>
       )}
 
-      <div className="flex w-full items-center gap-2.5">
-        {/* Avatar */}
-        <div
-          className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden border"
-          style={{ borderColor: C.accountBorder }}
-        >
-          {effectiveAvatar ? (
-            <img src={effectiveAvatar} alt="" className="h-full w-full object-cover" />
-          ) : (
-            <div className={`flex h-full w-full items-center justify-center bg-gradient-to-br ${getAvatarGradient(userEmail)} text-white text-xs font-black`}>
-              {getInitials(effectiveName || userEmail)}
-            </div>
-          )}
-        </div>
-
-        {/* Info */}
-        <div className="min-w-0 flex-1">
-          <p className="truncate text-[13px] font-bold leading-tight" style={{ color: C.text }}>
-            {effectiveName || userEmail.split('@')[0]}
-          </p>
-          <div className="mt-0.5 flex items-center gap-1.5">
-            <span className="flex items-center gap-1">
-              <span className={`h-1.5 w-1.5 rounded-full ${C.onlineDot}`} />
-              <span className="text-[10px] font-medium" style={{ color: C.text3 }}>Trực tuyến</span>
-            </span>
-          </div>
-        </div>
-
-        <button
-          type="button"
-          title="Cài đặt tài khoản"
-          aria-label="Mở cài đặt tài khoản"
-          aria-haspopup="menu"
-          aria-expanded={menuOpen}
-          onClick={(e) => {
-            e.stopPropagation();
-            setMenuOpen((open) => !open);
-          }}
-          className="flex h-9 w-9 shrink-0 items-center justify-center border transition-all hover:bg-blue-50"
-          style={{
-            color: menuOpen ? C.accentBlue : C.text2,
-            borderColor: menuOpen ? 'rgba(35,136,255,0.35)' : 'transparent',
-          }}
-        >
-          <Settings size={17} strokeWidth={2.35} />
-        </button>
-      </div>
+      <button
+        type="button"
+        onClick={() => setMenuOpen((open) => !open)}
+        className="flex w-full items-center gap-2 rounded-lg border border-slate-200 bg-white px-2.5 py-2 text-left transition hover:border-slate-300"
+      >
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-md bg-slate-950 text-[11px] font-bold text-white">
+          {avatar ? <img src={avatar} alt="" className="h-full w-full object-cover" /> : getInitials(label)}
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block truncate text-[13px] font-semibold text-slate-950">{label}</span>
+          <span className="block truncate text-[11px] text-slate-400">{userEmail}</span>
+        </span>
+        <Settings size={15} className="text-slate-400" />
+      </button>
     </div>
   );
-};
+}
 
-// ── Main Sidebar ────────────────────────────────────────────────────────────
 const Sidebar: React.FC<SidebarProps> = ({
-  activeStep, setActiveStep, completedSteps, onReset, onLogout,
-  userEmail, userAvatar: externalAvatar, userName: externalUserName,
-  onLoginRequest, isOpen = true, onClose, onShowSettings, onShowHistory,
+  activeStep,
+  setActiveStep,
+  completedSteps,
+  onReset,
+  onLogout,
+  userEmail,
+  userAvatar,
+  userName,
+  onLoginRequest,
+  isOpen = true,
+  onClose,
+  onShowSettings,
+  onShowHistory,
+  onNewSession,
 }) => {
-  const C = useColors();
   const handleClick = (step: AppStep) => {
     if (isStepEnabled(step, completedSteps)) setActiveStep(step);
-    if (window.innerWidth < 1024 && onClose) onClose();
+    if (window.innerWidth < 1024) onClose?.();
+  };
+
+  const handleNewSession = () => {
+    if (onNewSession) {
+      onNewSession();
+    } else {
+      onReset();
+    }
+    if (window.innerWidth < 1024) onClose?.();
   };
 
   return (
     <>
-      {/* Mobile overlay */}
       {isOpen && onClose && (
         <div
-          className="fixed inset-0 z-40 lg:hidden"
-          style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(2px)' }}
+          className="fixed inset-0 z-40 bg-slate-950/35 backdrop-blur-[2px] lg:hidden"
           onClick={onClose}
         />
       )}
 
-      {/* Sidebar */}
       <aside
         id="cv-sidebar"
-        className={`
-          supporthr-sidebar fixed top-0 left-0 z-50 flex h-screen flex-col
-          transition-transform duration-300 ease-in-out
-          ${isOpen ? 'translate-x-0' : '-translate-x-full'}
-          lg:translate-x-0
-        `}
-        style={{
-          background: C.bg,
-          borderRight: `1px solid ${C.border}`,
-        }}
+        className={`supporthr-sidebar supporthr-codex-sidebar fixed left-0 top-0 z-50 flex h-screen flex-col border-r border-slate-200 bg-[#f4f4f2] text-slate-900 transition-transform duration-300 ease-out ${
+          isOpen ? 'translate-x-0' : '-translate-x-full'
+        } lg:translate-x-0`}
       >
-        {/* ── Header ─────────────────────────────────────────── */}
-        {/* ── Nav ────────────────────────────────────────────── */}
-        <nav className="flex-1 min-h-0 overflow-y-auto px-2 pb-3 pt-4 custom-scrollbar">
-          <SectionLabel label="Quy trình phân tích" C={C} />
-          <div className="space-y-0.5">
-            {PROCESS_STEPS.map(item => (
+        <div className="flex h-[54px] shrink-0 items-center gap-2 border-b border-slate-200 px-3">
+          <span className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg border border-slate-200 bg-white">
+            <img src="/images/logos/logo.jpg" alt="Support HR" className="h-full w-full object-cover" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-[13px] font-semibold leading-5 text-slate-950">Support HR</p>
+            <p className="truncate text-[11px] text-slate-500">Recruiting workspace</p>
+          </div>
+          <button
+            type="button"
+            onClick={handleNewSession}
+            className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-100"
+            aria-label="Tạo phiên mới"
+            title="Tạo phiên mới"
+          >
+            <Plus size={15} />
+          </button>
+        </div>
+
+        <div className="flex items-center gap-2 border-b border-slate-200 px-3 py-2">
+          <span className="flex h-7 w-7 items-center justify-center rounded-md bg-slate-950 text-white">
+            <PanelLeft size={14} />
+          </span>
+          <div className="min-w-0">
+            <p className="text-[12px] font-semibold text-slate-800">Workspace</p>
+            <p className="truncate text-[11px] text-slate-500">{completedSteps.length}/4 bước đã hoàn tất</p>
+          </div>
+        </div>
+
+        <nav className="custom-scrollbar min-h-0 flex-1 overflow-y-auto px-2 pb-3">
+          <SectionLabel>Quy trình</SectionLabel>
+          <div className="space-y-1">
+            {PROCESS_STEPS.map((item) => (
               <NavItem
                 key={item.key}
                 item={item}
                 activeStep={activeStep}
                 completedSteps={completedSteps}
                 onClick={() => handleClick(item.key)}
-                C={C}
               />
             ))}
           </div>
 
-          <SectionLabel label="Công cụ hỗ trợ" C={C} />
-          <div className="space-y-0.5">
-            {TOOL_ITEMS.map(item => (
+          <SectionLabel>Công cụ</SectionLabel>
+          <div className="space-y-1">
+            {TOOL_ITEMS.map((item) => (
               <NavItem
                 key={item.key}
                 item={item}
                 activeStep={activeStep}
                 completedSteps={completedSteps}
                 onClick={() => handleClick(item.key)}
-                C={C}
+              />
+            ))}
+          </div>
+
+          <SectionLabel>Thư viện</SectionLabel>
+          <div className="space-y-1">
+            {SUPPORT_ITEMS.map((item) => (
+              <NavItem
+                key={item.key}
+                item={item}
+                activeStep={activeStep}
+                completedSteps={completedSteps}
+                onClick={() => handleClick(item.key)}
               />
             ))}
           </div>
         </nav>
 
-        {/* ── Account ─────────────────────────────────────────── */}
+        <div className="border-t border-slate-200 px-3 py-2">
+          <button
+            type="button"
+            onClick={onShowHistory}
+            className="flex h-9 w-full items-center gap-2 rounded-lg px-2 text-[12px] font-medium text-slate-600 hover:bg-white hover:text-slate-950"
+          >
+            <Clock3 size={15} />
+            Lịch sử hoạt động
+          </button>
+        </div>
+
+        <AccountPanel
+          userEmail={userEmail}
+          userAvatar={userAvatar}
+          userName={userName}
+          onLoginRequest={onLoginRequest}
+          onLogout={onLogout}
+          onShowSettings={onShowSettings}
+          onShowHistory={onShowHistory}
+        />
       </aside>
     </>
   );

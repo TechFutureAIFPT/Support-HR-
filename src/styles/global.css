@@ -3486,3 +3486,23 @@ button[style*="linear-gradient"],
   background: #fff7ed !important;
   color: #b45309 !important;
 }
+
+/* Compact desktop shell inspired by Codex: neutral surfaces, tighter controls. */
+.supporthr-codex-sidebar {
+  background: #f4f4f2 !important;
+  border-right-color: #d8d8d4 !important;
+  box-shadow: none !important;
+}
+
+.supporthr-codex-sidebar button,
+.supporthr-codex-sidebar a,
+.supporthr-codex-sidebar span,
+.supporthr-codex-sidebar div {
+  border-radius: 8px !important;
+}
+
+.supporthr-codex-sidebar [style*="background: linear-gradient"],
+.supporthr-codex-sidebar [style*="background: rgb(0, 0, 0)"],
+.supporthr-codex-sidebar [style*="background: #000000"] {
+  background: #ffffff !important;
+}

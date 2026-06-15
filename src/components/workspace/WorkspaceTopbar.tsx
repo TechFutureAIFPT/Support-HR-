@@ -110,7 +110,7 @@ function notificationTone(type: AccountNotification['type']) {
   if (type === 'success') return 'border-emerald-100 bg-emerald-50 text-emerald-700';
   if (type === 'warning') return 'border-amber-100 bg-amber-50 text-amber-700';
   if (type === 'error') return 'border-rose-100 bg-rose-50 text-rose-700';
-  return 'border-blue-100 bg-blue-50 text-blue-700';
+  return 'border-slate-200 bg-slate-50 text-slate-700';
 }
 
 const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
@@ -239,32 +239,32 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
   };
 
   const topbarButtonClass =
-    'hidden h-9 items-center gap-2 rounded-xl border border-blue-100 bg-white px-3 text-xs font-bold text-slate-700 shadow-sm transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700';
+    'hidden h-8 items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-100 hover:text-slate-950';
   const topbarPrimaryButtonClass =
-    'hidden h-9 items-center gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 px-3 text-xs font-black text-white shadow-[0_12px_24px_rgba(35,136,255,0.18)] transition hover:brightness-105';
+    'hidden h-8 items-center gap-2 rounded-lg bg-slate-950 px-3 text-xs font-semibold text-white shadow-sm transition hover:bg-slate-800';
   const topbarIconButtonClass =
-    'flex h-9 w-9 items-center justify-center rounded-xl border border-blue-100 bg-white text-slate-600 shadow-sm transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-600';
+    'flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:border-slate-300 hover:bg-slate-100 hover:text-slate-950';
   const dropdownIconButtonClass =
-    'flex h-8 w-8 items-center justify-center rounded-xl border border-blue-100 bg-white text-slate-500 transition hover:bg-blue-50 hover:text-blue-600';
+    'flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 transition hover:bg-slate-100 hover:text-slate-950';
 
   return (
-    <header className="shrink-0 border-b border-blue-100 bg-white/95 shadow-[0_10px_30px_rgba(30,64,175,0.06)] backdrop-blur-xl">
-      <div className="flex min-h-[68px] items-center gap-3 px-4 lg:px-5">
-        <div className="min-w-0 border-l-4 border-blue-500 pl-3">
+    <header className="shrink-0 border-b border-slate-200 bg-[#fbfbfa]/95 shadow-none backdrop-blur-xl">
+      <div className="flex min-h-[52px] items-center gap-3 px-3 lg:px-4">
+        <div className="min-w-0 pl-1">
           <div className="flex min-w-0 items-center gap-2">
-            <span className="truncate text-lg font-black leading-tight text-slate-950">{meta.title}</span>
-            <span className="hidden rounded-md bg-blue-50 px-1.5 py-0.5 text-[10px] font-black uppercase tracking-[0.12em] text-blue-600 sm:inline-flex">
+            <span className="truncate text-[15px] font-semibold leading-tight text-slate-950">{meta.title}</span>
+            <span className="hidden rounded-md border border-slate-200 bg-white px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-slate-500 sm:inline-flex">
               {meta.module}
             </span>
           </div>
-          <div className="mt-1 flex min-w-0 items-center gap-2 text-[11px] font-semibold text-slate-500">
+          <div className="mt-0.5 flex min-w-0 items-center gap-2 text-[11px] font-medium text-slate-500">
             <span className="truncate">{jobPosition || meta.subtitle}</span>
             <span className="hidden h-1 w-1 rounded-full bg-slate-300 sm:inline-block" />
-            <span className="hidden shrink-0 text-blue-600 sm:inline">{progressLabel}</span>
+            <span className="hidden shrink-0 text-slate-500 sm:inline">{progressLabel}</span>
           </div>
         </div>
 
-        <div className="mx-2 hidden h-9 w-px bg-blue-100 xl:block" />
+        <div className="mx-1 hidden h-7 w-px bg-slate-200 xl:block" />
 
         {false && (
         <div className="hidden flex-1 items-center gap-2 lg:flex">
@@ -321,11 +321,11 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
           )}
 
           {activeStep === 'chatbot' && (
-            <div className="hidden items-center gap-1.5 rounded-xl border border-blue-100 bg-[#f8fbff] p-1 md:flex">
+            <div className="hidden items-center gap-1 rounded-lg border border-slate-200 bg-white p-1 md:flex">
               <button
                 type="button"
                 onClick={() => handleChatbotAction('history')}
-                className="flex h-8 w-8 items-center justify-center rounded-xl border border-blue-100 bg-white text-blue-600 shadow-sm transition hover:bg-blue-50"
+                className="flex h-7 w-7 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:bg-slate-100"
                 aria-label="Mở lịch sử hội thoại"
               >
                 <Clock3 size={15} />
@@ -333,7 +333,7 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
               <button
                 type="button"
                 onClick={() => handleChatbotAction('chatbot')}
-                className="flex h-8 items-center gap-1.5 rounded-xl bg-blue-600 px-3 text-xs font-black text-white shadow-sm transition hover:bg-blue-700"
+                className="flex h-7 items-center gap-1.5 rounded-md bg-slate-950 px-3 text-xs font-semibold text-white shadow-sm transition hover:bg-slate-800"
               >
                 <MessageSquare size={14} />
                 Chatbot AI
@@ -341,7 +341,7 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
               <button
                 type="button"
                 onClick={() => handleChatbotAction('selected')}
-                className="flex h-8 items-center gap-1.5 rounded-xl bg-white px-3 text-xs font-bold text-blue-700 shadow-sm transition hover:bg-blue-50"
+                className="flex h-7 items-center gap-1.5 rounded-md bg-white px-3 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-100"
               >
                 <Users size={14} />
                 Đã chọn
@@ -353,7 +353,7 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
             <button
               type="button"
               onClick={onOpenAnalysis}
-              className={`${topbarButtonClass} text-blue-700 md:inline-flex`}
+              className={`${topbarButtonClass} md:inline-flex`}
             >
               <ArrowLeft size={15} />
               Kết quả phân tích
@@ -407,8 +407,8 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
             </button>
 
             {isOpen && (
-              <div className="absolute right-0 top-[calc(100%+0.65rem)] z-[70] w-[min(23rem,calc(100vw-1.5rem))] overflow-hidden rounded-2xl border border-blue-100 bg-white shadow-[0_26px_70px_rgba(30,64,175,0.18)]">
-                <div className="flex items-center justify-between gap-3 border-b border-blue-100 bg-[#f8fbff] px-4 py-3">
+              <div className="absolute right-0 top-[calc(100%+0.55rem)] z-[70] w-[min(23rem,calc(100vw-1.5rem))] overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl">
+                <div className="flex items-center justify-between gap-3 border-b border-slate-200 bg-[#f4f4f2] px-4 py-3">
                   <div>
                     <p className="text-sm font-black text-slate-950">Thông báo</p>
                     <p className="mt-0.5 text-xs text-slate-500">{unreadCount > 0 ? `${unreadCount} thông báo chưa đọc` : 'Đã đọc tất cả'}</p>
@@ -443,12 +443,12 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
 
                 <div className="custom-scrollbar max-h-[22rem] overflow-y-auto p-2">
                   {loadError ? (
-                    <div className="m-2 rounded-xl border border-amber-100 bg-amber-50 px-3 py-3 text-sm text-amber-700">
+                    <div className="m-2 rounded-lg border border-amber-100 bg-amber-50 px-3 py-3 text-sm text-amber-700">
                       {loadError}
                     </div>
                   ) : visibleNotifications.length === 0 ? (
                     <div className="flex min-h-[10rem] flex-col items-center justify-center px-6 py-8 text-center">
-                      <Megaphone className="text-blue-300" size={34} />
+                      <Megaphone className="text-slate-300" size={34} />
                       <p className="mt-3 text-sm font-bold text-slate-950">Chưa có thông báo</p>
                       <p className="mt-1 text-xs leading-5 text-slate-500">Các cập nhật từ backend sẽ hiển thị tại đây.</p>
                     </div>
@@ -459,10 +459,10 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
                           type="button"
                           key={notification.id}
                           onClick={() => void handleMarkRead(notification)}
-                          className={`w-full rounded-xl border p-3 text-left transition hover:shadow-sm ${notificationTone(notification.type)} ${notification.read ? 'opacity-70' : ''}`}
+                          className={`w-full rounded-lg border p-3 text-left transition hover:shadow-sm ${notificationTone(notification.type)} ${notification.read ? 'opacity-70' : ''}`}
                         >
                           <div className="flex items-start gap-2">
-                            <span className={`mt-1 h-2 w-2 shrink-0 rounded-full ${notification.read ? 'bg-slate-300' : 'bg-blue-500'}`} />
+                            <span className={`mt-1 h-2 w-2 shrink-0 rounded-full ${notification.read ? 'bg-slate-300' : 'bg-slate-900'}`} />
                             <div className="min-w-0 flex-1">
                               <p className="truncate text-sm font-black">{notification.title}</p>
                               <p className="mt-1 line-clamp-2 text-xs leading-5 text-slate-600">{notification.message}</p>
@@ -487,11 +487,11 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
                 setIsAccountOpen((open) => !open);
                 setIsOpen(false);
               }}
-              className="flex h-9 items-center gap-2 rounded-xl border border-blue-100 bg-white px-2 text-xs font-bold text-slate-600 shadow-sm transition hover:border-blue-200 hover:bg-blue-50"
+              className="flex h-8 items-center gap-2 rounded-lg border border-slate-200 bg-white px-2 text-xs font-semibold text-slate-600 shadow-sm transition hover:border-slate-300 hover:bg-slate-100"
               aria-label="Tài khoản"
               aria-expanded={isAccountOpen}
             >
-              <span className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-blue-100 bg-blue-50 text-[10px] font-black text-blue-700">
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center overflow-hidden rounded-md border border-slate-200 bg-slate-950 text-[10px] font-semibold text-white">
                 {userAvatar ? (
                   <img src={userAvatar} alt="" className="h-full w-full object-cover" />
                 ) : (
@@ -502,10 +502,10 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
             </button>
 
             {isAccountOpen && (
-              <div className="absolute right-0 top-[calc(100%+0.65rem)] z-[70] w-[min(18rem,calc(100vw-1.5rem))] overflow-hidden rounded-2xl border border-blue-100 bg-white shadow-[0_26px_70px_rgba(30,64,175,0.18)]">
-                <div className="flex items-start justify-between gap-3 border-b border-blue-100 bg-[#f8fbff] px-4 py-3">
+              <div className="absolute right-0 top-[calc(100%+0.55rem)] z-[70] w-[min(18rem,calc(100vw-1.5rem))] overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl">
+                <div className="flex items-start justify-between gap-3 border-b border-slate-200 bg-[#f4f4f2] px-4 py-3">
                   <div className="flex min-w-0 items-center gap-3">
-                    <span className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-blue-100 bg-blue-50 text-xs font-black text-blue-700">
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-slate-200 bg-slate-950 text-xs font-semibold text-white">
                       {userAvatar ? (
                         <img src={userAvatar} alt="" className="h-full w-full object-cover" />
                       ) : (
@@ -533,7 +533,7 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
                       setIsAccountOpen(false);
                       navigate('/jd-templates', { state: { from: location.pathname } });
                     }}
-                    className="flex items-center gap-2 rounded-xl px-3 py-2 text-left text-xs font-bold text-slate-700 transition hover:bg-blue-50 hover:text-blue-700"
+                    className="flex items-center gap-2 rounded-md px-3 py-2 text-left text-xs font-medium text-slate-700 transition hover:bg-slate-100 hover:text-slate-950"
                   >
                     <UploadCloud size={15} />
                     Mẫu JD
@@ -544,7 +544,7 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
                       setIsAccountOpen(false);
                       navigate('/history', { state: { from: location.pathname } });
                     }}
-                    className="flex items-center gap-2 rounded-xl px-3 py-2 text-left text-xs font-bold text-slate-700 transition hover:bg-blue-50 hover:text-blue-700"
+                    className="flex items-center gap-2 rounded-md px-3 py-2 text-left text-xs font-medium text-slate-700 transition hover:bg-slate-100 hover:text-slate-950"
                   >
                     <Clock3 size={15} />
                     Lịch sử hoạt động
@@ -555,7 +555,7 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
                       setIsAccountOpen(false);
                       navigate('/records', { state: { from: location.pathname } });
                     }}
-                    className="flex items-center gap-2 rounded-xl px-3 py-2 text-left text-xs font-bold text-slate-700 transition hover:bg-blue-50 hover:text-blue-700"
+                    className="flex items-center gap-2 rounded-md px-3 py-2 text-left text-xs font-medium text-slate-700 transition hover:bg-slate-100 hover:text-slate-950"
                   >
                     <LibraryBig size={15} />
                     Thư viện CV
@@ -566,7 +566,7 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
                       setIsAccountOpen(false);
                       navigate('/jd-standardizer', { state: { from: location.pathname } });
                     }}
-                    className="flex items-center gap-2 rounded-xl px-3 py-2 text-left text-xs font-bold text-slate-700 transition hover:bg-blue-50 hover:text-blue-700"
+                    className="flex items-center gap-2 rounded-md px-3 py-2 text-left text-xs font-medium text-slate-700 transition hover:bg-slate-100 hover:text-slate-950"
                   >
                     <WandSparkles size={15} />
                     Chuẩn hóa JD
@@ -578,7 +578,7 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
                         setIsAccountOpen(false);
                         onLogout();
                       }}
-                      className="flex items-center gap-2 rounded-xl px-3 py-2 text-left text-xs font-bold text-rose-600 transition hover:bg-rose-50"
+                      className="flex items-center gap-2 rounded-md px-3 py-2 text-left text-xs font-medium text-rose-600 transition hover:bg-rose-50"
                     >
                       <LogOut size={15} />
                       Đăng xuất
