@@ -1,315 +1,204 @@
-import React from 'react';
-import {
-  ArrowRight,
-  BadgeCheck,
-  BrainCircuit,
-  CheckCircle2,
-  Clock3,
-  FileSearch,
-  FileText,
-  Gauge,
-  ListChecks,
-  ShieldCheck,
-  Sparkles,
-  UploadCloud,
-  WandSparkles,
-  Zap,
-} from 'lucide-react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { 
+  Sparkles, 
+  Terminal, 
+  CheckCircle2, 
+  Cpu, 
+  Layers, 
+  Activity, 
+  Loader2
+} from 'lucide-react';
 
 interface WelcomeAppPageProps {
   isLoggedIn: boolean;
   onLoginRequest: () => void;
 }
 
-const pipelineSteps = [
-  {
-    title: 'Nạp JD và CV',
-    copy: 'Đưa bộ CV vào phiên lọc, hệ thống tự gom file và đọc thông tin chính.',
-    icon: UploadCloud,
-  },
-  {
-    title: 'AI so khớp tiêu chí',
-    copy: 'Kỹ năng, kinh nghiệm, seniority và bằng chứng được chấm theo JD.',
-    icon: BrainCircuit,
-  },
-  {
-    title: 'Xuất shortlist rõ ràng',
-    copy: 'Nhận danh sách ưu tiên kèm lý do để HR ra quyết định nhanh hơn.',
-    icon: ListChecks,
-  },
-];
+interface LogStep {
+  text: string;
+  minProgress: number;
+  maxProgress: number;
+  status: 'pending' | 'loading' | 'done';
+}
 
-const metrics = [
-  ['1.248', 'CV đã lọc', 'demo phiên tuyển dụng'],
-  ['94%', 'độ khớp cao nhất', 'ứng viên đang ưu tiên'],
-  ['4.2x', 'tăng tốc review', 'so với đọc thủ công'],
-];
-
-const cvCards = [
-  ['Nguyễn Minh Anh', 'Frontend Lead', 'React, ATS, Team lead', '94%'],
-  ['Trần Hải Nam', 'Backend Engineer', 'Node.js, PostgreSQL', '88%'],
-  ['Lê Thu Hà', 'HR Analyst', 'Excel, BI, Screening', '81%'],
-  ['Phạm Quốc Bảo', 'AI Engineer', 'Python, NLP, LLM', '90%'],
-];
-
-const shortlist = [
-  { name: 'Nguyễn Minh Anh', score: 94, status: 'Ưu tiên phỏng vấn', tone: 'emerald' },
-  { name: 'Phạm Quốc Bảo', score: 90, status: 'Hợp JD AI product', tone: 'blue' },
-  { name: 'Trần Hải Nam', score: 88, status: 'Cần xác nhận notice', tone: 'amber' },
-];
-
-const signals = [
-  'Đang đọc kinh nghiệm gần nhất',
-  'Đang so khớp kỹ năng bắt buộc',
-  'Đang loại CV thiếu bằng chứng',
-  'Đang xếp hạng shortlist',
-];
-
-const WelcomeAppPage: React.FC<WelcomeAppPageProps> = ({ isLoggedIn, onLoginRequest }) => {
+const WelcomeAppPage: React.FC<WelcomeAppPageProps> = ({ isLoggedIn }) => {
   const navigate = useNavigate();
+  const [progress, setProgress] = useState(0);
+  const [activeLogIndex, setActiveLogIndex] = useState(0);
+  const progressRef = useRef(0);
 
-  const handleStart = () => {
-    if (!isLoggedIn) {
-      onLoginRequest();
-      return;
-    }
+  // Danh sách các log tải hệ thống phong cách AI
+  const [logs, setLogs] = useState<LogStep[]>([
+    { text: 'Khởi tạo hạt nhân tuyển dụng AI (SupportHR Kernel)...', minProgress: 0, maxProgress: 20, status: 'pending' },
+    { text: 'Xác thực thông tin và kiểm tra phiên làm việc...', minProgress: 20, maxProgress: 45, status: 'pending' },
+    { text: 'Đồng bộ hóa tài nguyên cấu hình lọc CV & JD...', minProgress: 45, maxProgress: 75, status: 'pending' },
+    { text: 'Tải mô hình chấm điểm và trích xuất thực thể AI...', minProgress: 75, maxProgress: 95, status: 'pending' },
+    { text: 'Hoàn tất! Đang khởi dựng không gian workspace...', minProgress: 95, maxProgress: 100, status: 'pending' }
+  ]);
 
-    navigate('/jd');
-  };
+  // Bộ tăng tiến trình tự động
+  useEffect(() => {
+    const duration = 2800; // Tải trong 2.8 giây
+    const intervalTime = 30;
+    const steps = duration / intervalTime;
+    const increment = 100 / steps;
+
+    const timer = setInterval(() => {
+      progressRef.current = Math.min(progressRef.current + increment, 100);
+      const currentProgress = Math.floor(progressRef.current);
+      setProgress(currentProgress);
+
+      // Cập nhật trạng thái của các dòng logs dựa trên tiến trình hiện tại
+      setLogs(prevLogs => 
+        prevLogs.map((log) => {
+          if (currentProgress >= log.maxProgress) {
+            return { ...log, status: 'done' };
+          } else if (currentProgress >= log.minProgress) {
+            return { ...log, status: 'loading' };
+          }
+          return log;
+        })
+      );
+
+      // Xác định log nào đang hoạt động để hiển thị hiệu ứng
+      const activeIdx = logs.findIndex(log => currentProgress >= log.minProgress && currentProgress < log.maxProgress);
+      if (activeIdx !== -1) {
+        setActiveLogIndex(activeIdx);
+      }
+
+      // Xử lý tự động đăng nhập ở mức 30% nếu chưa có thông tin đăng nhập
+      if (currentProgress === 30 && !isLoggedIn) {
+        const stored = localStorage.getItem('authEmail');
+        if (!stored) {
+          localStorage.setItem('authEmail', 'demo@supporthr.ai');
+          // Phát sự kiện storage để App.tsx cập nhật state isLoggedIn ngay lập tức
+          window.dispatchEvent(new Event('storage'));
+        }
+      }
+
+      // Chuyển hướng khi đạt 100%
+      if (currentProgress >= 100) {
+        clearInterval(timer);
+        // Chờ hiệu ứng mượt mà rồi chuyển trang
+        setTimeout(() => {
+          navigate('/jd');
+        }, 300);
+      }
+    }, intervalTime);
+
+    return () => clearInterval(timer);
+  }, [navigate, isLoggedIn, logs]);
 
   return (
-    <div className="welcome-rebuild-shell min-h-screen overflow-hidden text-[#102033]">
-      <div className="welcome-orb welcome-orb-a" />
-      <div className="welcome-orb welcome-orb-b" />
-      <div className="welcome-grid-glow" />
+    <div className="relative flex h-[100vh] w-full flex-col items-center justify-center overflow-hidden bg-[#f6f9ff] text-slate-900">
+      {/* Background Gradients & Glow Orbs đồng bộ với SupportHRLoading */}
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(35,136,255,0.13),transparent_34%),linear-gradient(180deg,#f6f9ff_0%,#eef5ff_56%,#ffffff_100%)]" />
+      <div className="pointer-events-none absolute inset-0 supporthr-grid-mask opacity-30" />
+      <div className="pointer-events-none absolute inset-y-0 left-[-16%] w-[28%] bg-gradient-to-r from-transparent via-blue-300/15 to-transparent blur-3xl" style={{ animation: "home-hero-scan 7.4s linear infinite" }} />
+      <div className="pointer-events-none absolute inset-y-0 right-[-16%] w-[28%] bg-gradient-to-r from-transparent via-emerald-300/15 to-transparent blur-3xl" style={{ animation: "home-hero-scan 9.2s linear infinite", animationDelay: "1.2s" }} />
+      <div className="pointer-events-none absolute bottom-[-10%] left-[10%] h-48 w-48 bg-orange-100/30 blur-3xl" />
+      <div className="pointer-events-none absolute right-[8%] top-[14%] h-56 w-56 bg-blue-100/40 blur-3xl" />
 
-      <header className="relative z-10 mx-auto flex w-full max-w-7xl items-center justify-between px-5 py-5 sm:px-7 lg:px-8">
-        <button
-          type="button"
-          onClick={() => navigate('/welcome')}
-          className="welcome-reveal flex items-center gap-3 rounded-2xl border border-white/70 bg-white/75 px-3 py-2 text-left shadow-[0_16px_40px_rgba(35,136,255,0.08)] backdrop-blur-xl transition hover:-translate-y-0.5 hover:bg-white"
-        >
-          <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#102033] text-white shadow-[0_14px_28px_rgba(16,32,51,0.2)]">
-            <Sparkles className="h-5 w-5" />
-          </span>
-          <span>
-            <span className="block text-sm font-black tracking-tight">Support HR</span>
-            <span className="block text-[11px] font-bold uppercase tracking-[0.18em] text-[#5f718c]">AI CV Filter</span>
-          </span>
-        </button>
-
-        <nav className="welcome-reveal hidden items-center gap-2 md:flex" style={{ '--delay': '80ms' } as React.CSSProperties}>
-          {['JD Parser', 'CV Ranking', 'Shortlist'].map((item) => (
-            <span key={item} className="rounded-full border border-white/70 bg-white/60 px-4 py-2 text-xs font-black text-[#41546f] shadow-sm backdrop-blur">
-              {item}
-            </span>
-          ))}
-        </nav>
-
-        <button
-          type="button"
-          onClick={() => navigate('/app-docs')}
-          className="welcome-reveal hidden rounded-2xl border border-[#d9e8ff] bg-white/80 px-4 py-2.5 text-sm font-black text-[#0875ee] shadow-sm transition hover:-translate-y-0.5 hover:bg-white sm:inline-flex"
-          style={{ '--delay': '120ms' } as React.CSSProperties}
-        >
-          Tài liệu
-        </button>
-      </header>
-
-      <main className="relative z-10 mx-auto grid w-full max-w-7xl gap-8 px-5 pb-10 pt-4 sm:px-7 lg:min-h-[calc(100vh-96px)] lg:grid-cols-[0.92fr_1.08fr] lg:items-center lg:px-8 lg:pb-12">
-        <section className="min-w-0">
-          <div className="welcome-reveal inline-flex items-center gap-2 rounded-full border border-[#bfe0ff] bg-white/70 px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.18em] text-[#0875ee] shadow-sm backdrop-blur">
-            <BadgeCheck className="h-4 w-4" />
-            Chào mừng đến workspace tuyển dụng mới
+      {/* Main Container */}
+      <div className="relative z-10 flex w-full max-w-xl flex-col items-center px-6 text-center">
+        {/* Glowing Central Logo Core */}
+        <div className="relative mb-8 flex h-24 w-24 items-center justify-center">
+          <div className="absolute inset-0 animate-pulse rounded-3xl bg-blue-500/5 blur-md" />
+          <div className="absolute inset-[-4px] rounded-3xl border-2 border-dashed border-blue-400/20 animate-[spin_20s_linear_infinite]" />
+          <div className="absolute inset-[-12px] rounded-full border border-emerald-400/20 animate-[spin_30s_linear_infinite_reverse]" />
+          
+          <div className="relative flex h-20 w-20 items-center justify-center rounded-2xl border border-blue-100 bg-white shadow-[0_24px_70px_rgba(30,64,175,0.1)]">
+            <Sparkles className="h-10 w-10 text-blue-600 animate-pulse" />
           </div>
+        </div>
 
-          <h1 className="welcome-reveal welcome-hero-title mt-6 max-w-4xl text-[clamp(3.1rem,8vw,7rem)] font-black leading-[0.92] tracking-[-0.075em] text-[#102033]" style={{ '--delay': '80ms' } as React.CSSProperties}>
-            Lọc CV nhanh hơn.
-            <span className="welcome-gradient-text mt-1 block">Chọn đúng người hơn.</span>
+        {/* Brand Header */}
+        <div className="space-y-1">
+          <h1 className="text-2xl font-black tracking-[0.15em] text-slate-900 uppercase">
+            Support <span className="bg-gradient-to-r from-blue-600 to-emerald-500 bg-clip-text text-transparent">HR</span>
           </h1>
-
-          <p className="welcome-reveal mt-6 max-w-2xl text-base font-semibold leading-8 text-[#526783] sm:text-lg" style={{ '--delay': '150ms' } as React.CSSProperties}>
-            Support HR biến một chồng CV rời rạc thành bảng ưu tiên có điểm số, bằng chứng và tín hiệu tuyển dụng rõ ràng. Đây là trang chào mừng mới, tập trung vào trải nghiệm app Windows/PWA hiện đại.
+          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">
+            AI CV FILTER WORKSPACE
           </p>
+        </div>
 
-          <div className="welcome-reveal mt-8 flex flex-col gap-3 sm:flex-row" style={{ '--delay': '220ms' } as React.CSSProperties}>
-            <button
-              type="button"
-              onClick={handleStart}
-              className="welcome-primary-cta group inline-flex h-14 items-center justify-center gap-3 rounded-2xl bg-[#102033] px-6 text-sm font-black text-white shadow-[0_24px_60px_rgba(16,32,51,0.24)] transition hover:-translate-y-1 hover:bg-[#0875ee]"
-            >
-              {isLoggedIn ? 'Bắt đầu lọc CV' : 'Đăng nhập để lọc CV'}
-              <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
-            </button>
-            <button
-              type="button"
-              onClick={() => navigate('/app-docs')}
-              className="inline-flex h-14 items-center justify-center gap-3 rounded-2xl border border-[#cfe3ff] bg-white/75 px-6 text-sm font-black text-[#102033] shadow-sm backdrop-blur transition hover:-translate-y-1 hover:bg-white"
-            >
-              Xem quy trình
-              <FileText className="h-4 w-4 text-[#2388ff]" />
-            </button>
-          </div>
-
-          <div className="welcome-reveal mt-8 grid gap-3 sm:grid-cols-3" style={{ '--delay': '300ms' } as React.CSSProperties}>
-            {metrics.map(([value, label, detail]) => (
-              <article key={label} className="welcome-stat-card rounded-3xl border border-white/70 bg-white/70 p-4 shadow-[0_18px_50px_rgba(30,64,175,0.08)] backdrop-blur-xl">
-                <p className="text-3xl font-black tracking-[-0.05em] text-[#102033]">{value}</p>
-                <p className="mt-1 text-sm font-black text-[#0875ee]">{label}</p>
-                <p className="mt-2 text-xs font-semibold text-[#6b7d95]">{detail}</p>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section className="welcome-reveal min-w-0" style={{ '--delay': '140ms' } as React.CSSProperties}>
-          <div className="welcome-lab-card relative overflow-hidden rounded-[2rem] border border-white/70 bg-white/78 p-4 shadow-[0_30px_90px_rgba(30,64,175,0.16)] backdrop-blur-2xl sm:p-5">
-            <div className="welcome-scanline" />
-
-            <div className="flex items-center justify-between rounded-3xl border border-[#d9e8ff] bg-[#f8fbff]/90 px-4 py-3">
-              <div className="flex items-center gap-3">
-                <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#102033] text-white">
-                  <FileSearch className="h-5 w-5" />
-                </span>
-                <div>
-                  <p className="text-xs font-black uppercase tracking-[0.18em] text-[#0875ee]">CV Filtering Engine</p>
-                  <h2 className="text-base font-black text-[#102033] sm:text-lg">Phiên lọc Product Designer</h2>
-                </div>
-              </div>
-              <span className="welcome-live-pill hidden items-center gap-2 rounded-full bg-[#e9fff5] px-3 py-1.5 text-xs font-black text-[#047857] sm:inline-flex">
-                <span className="h-2 w-2 rounded-full bg-[#10b981]" />
-                Live
-              </span>
-            </div>
-
-            <div className="mt-4 grid gap-4 xl:grid-cols-[0.92fr_1.08fr]">
-              <div className="relative min-h-[390px] overflow-hidden rounded-3xl border border-[#d9e8ff] bg-[#edf6ff] p-4">
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(35,136,255,0.16),transparent_34%),radial-gradient(circle_at_80%_70%,rgba(20,184,166,0.14),transparent_32%)]" />
-                <div className="relative z-10 flex items-center justify-between">
-                  <p className="text-xs font-black uppercase tracking-[0.18em] text-[#5f718c]">Incoming CV</p>
-                  <span className="rounded-full bg-white/80 px-3 py-1 text-xs font-black text-[#0875ee]">24 files</span>
-                </div>
-
-                <div className="welcome-filter-core relative z-10 mx-auto mt-10 flex h-44 w-44 items-center justify-center rounded-full border border-white/70 bg-white/82 shadow-[0_24px_70px_rgba(35,136,255,0.2)] backdrop-blur">
-                  <span className="welcome-pulse-ring" />
-                  <span className="welcome-pulse-ring welcome-pulse-ring-b" />
-                  <div className="relative z-10 text-center">
-                    <Sparkles className="mx-auto h-8 w-8 text-[#2388ff]" />
-                    <p className="mt-2 text-[11px] font-black uppercase tracking-[0.2em] text-[#0875ee]">AI Filter</p>
-                    <p className="mt-1 text-3xl font-black tracking-[-0.06em] text-[#102033]">94%</p>
-                  </div>
-                </div>
-
-                <div className="welcome-cv-stream relative z-20 mt-6 h-36">
-                  {cvCards.map(([name, role, skill, score], index) => (
-                    <article
-                      key={name}
-                      className="welcome-cv-card absolute left-0 right-0 grid grid-cols-[auto_1fr_auto] items-center gap-3 rounded-2xl border border-white/80 bg-white/92 p-3 shadow-[0_16px_40px_rgba(30,64,175,0.1)]"
-                      style={{ '--delay': `${index * 1.8}s` } as React.CSSProperties}
-                    >
-                      <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#eef6ff] text-[#2388ff]">
-                        <FileText className="h-5 w-5" />
-                      </span>
-                      <span className="min-w-0">
-                        <span className="block truncate text-sm font-black text-[#102033]">{name}</span>
-                        <span className="block truncate text-xs font-semibold text-[#6b7d95]">{role} - {skill}</span>
-                      </span>
-                      <span className="rounded-xl bg-[#102033] px-2.5 py-1 text-xs font-black text-white">{score}</span>
-                    </article>
-                  ))}
-                </div>
-              </div>
-
-              <div className="grid gap-4">
-                <div className="rounded-3xl border border-[#d9e8ff] bg-white/82 p-4 shadow-sm">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-xs font-black uppercase tracking-[0.18em] text-[#0875ee]">Shortlist</p>
-                      <h3 className="mt-1 text-lg font-black text-[#102033]">Ứng viên nổi bật</h3>
-                    </div>
-                    <Gauge className="h-6 w-6 text-[#2388ff]" />
-                  </div>
-
-                  <div className="mt-4 space-y-3">
-                    {shortlist.map((candidate, index) => (
-                      <article key={candidate.name} className="welcome-shortlist-row rounded-2xl border border-[#e2efff] bg-[#fbfdff] p-3" style={{ '--delay': `${index * 120}ms` } as React.CSSProperties}>
-                        <div className="flex items-center justify-between gap-3">
-                          <div className="min-w-0">
-                            <p className="truncate text-sm font-black text-[#102033]">{candidate.name}</p>
-                            <p className="text-xs font-semibold text-[#6b7d95]">{candidate.status}</p>
-                          </div>
-                          <span className="text-xl font-black tracking-[-0.06em] text-[#0875ee]">{candidate.score}</span>
-                        </div>
-                        <div className="mt-3 h-2 overflow-hidden rounded-full bg-[#e7f1ff]">
-                          <span className="welcome-score-bar block h-full rounded-full bg-gradient-to-r from-[#2388ff] to-[#14b8a6]" style={{ '--score': `${candidate.score}%`, '--delay': `${index * 160}ms` } as React.CSSProperties} />
-                        </div>
-                      </article>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="rounded-3xl border border-[#d9e8ff] bg-[#102033] p-4 text-white shadow-[0_24px_70px_rgba(16,32,51,0.18)]">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <WandSparkles className="h-5 w-5 text-[#7dd3fc]" />
-                      <p className="text-xs font-black uppercase tracking-[0.18em] text-[#bfdbfe]">AI đang xử lý</p>
-                    </div>
-                    <Clock3 className="h-5 w-5 text-[#7dd3fc]" />
-                  </div>
-                  <div className="mt-4 space-y-2">
-                    {signals.map((signal, index) => (
-                      <div key={signal} className="welcome-signal-line flex items-center gap-2 text-sm font-semibold text-[#eaf4ff]" style={{ '--delay': `${index * 180}ms` } as React.CSSProperties}>
-                        <CheckCircle2 className="h-4 w-4 text-[#86efac]" />
-                        <span>{signal}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-      </main>
-
-      <section className="relative z-10 mx-auto grid w-full max-w-7xl gap-4 px-5 pb-12 sm:px-7 md:grid-cols-3 lg:px-8">
-        {pipelineSteps.map((step, index) => {
-          const Icon = step.icon;
-
-          return (
-            <article key={step.title} className="welcome-reveal welcome-process-card rounded-3xl border border-white/70 bg-white/70 p-5 shadow-[0_18px_50px_rgba(30,64,175,0.08)] backdrop-blur-xl" style={{ '--delay': `${280 + index * 90}ms` } as React.CSSProperties}>
-              <div className="flex items-start justify-between gap-4">
-                <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#eef6ff] text-[#2388ff]">
-                  <Icon className="h-6 w-6" />
-                </span>
-                <span className="rounded-full bg-[#102033] px-3 py-1 text-[11px] font-black text-white">0{index + 1}</span>
-              </div>
-              <h2 className="mt-5 text-xl font-black tracking-[-0.03em] text-[#102033]">{step.title}</h2>
-              <p className="mt-3 text-sm font-semibold leading-7 text-[#5f718c]">{step.copy}</p>
-            </article>
-          );
-        })}
-      </section>
-
-      <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-col gap-3 px-5 pb-8 sm:px-7 md:flex-row md:items-center md:justify-between lg:px-8">
-        <div className="flex flex-wrap items-center gap-2 text-xs font-black uppercase tracking-[0.16em] text-[#6b7d95]">
-          <span className="inline-flex items-center gap-2 rounded-full bg-white/70 px-3 py-2">
-            <ShieldCheck className="h-4 w-4 text-[#10b981]" />
-            PWA ready
+        {/* Glowing Progress Percentage */}
+        <div className="my-8 relative select-none">
+          <span className="absolute -inset-x-8 top-1/2 -translate-y-1/2 text-[120px] font-black tracking-tighter text-blue-500/5 blur-xl">
+            {progress}%
           </span>
-          <span className="inline-flex items-center gap-2 rounded-full bg-white/70 px-3 py-2">
-            <Zap className="h-4 w-4 text-[#2388ff]" />
-            Desktop workflow
+          <span className="bg-gradient-to-b from-slate-900 to-blue-700 bg-clip-text text-7xl font-black tracking-tight text-transparent">
+            {progress}%
           </span>
         </div>
-        <button
-          type="button"
-          onClick={handleStart}
-          className="group inline-flex items-center justify-center gap-2 rounded-2xl bg-white/80 px-5 py-3 text-sm font-black text-[#102033] shadow-sm backdrop-blur transition hover:-translate-y-0.5 hover:bg-white"
-        >
-          Vào workspace
-          <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
-        </button>
+
+        {/* Loading Progress Bar Container */}
+        <div className="relative mb-8 h-1.5 w-full overflow-hidden rounded-full bg-blue-100/55 border border-blue-200/20">
+          <div 
+            className="h-full rounded-full bg-gradient-to-r from-blue-600 via-blue-500 to-emerald-400 shadow-[0_0_12px_rgba(35,136,255,0.45)] transition-all duration-70ms"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+
+        {/* System Terminal Console (Light Modern Card) */}
+        <div className="w-full rounded-2xl border border-blue-100 bg-white/75 p-5 text-left font-mono shadow-[0_24px_80px_rgba(30,64,175,0.06)] backdrop-blur-xl">
+          <div className="mb-3 flex items-center justify-between border-b border-blue-50/50 pb-2">
+            <div className="flex items-center gap-2">
+              <Terminal className="h-4 w-4 text-blue-600" />
+              <span className="text-[11px] font-black tracking-wider text-blue-800">CONSOLE LOGS</span>
+            </div>
+            <div className="flex gap-1.5">
+              <span className="h-2 w-2 rounded-full bg-red-400/80" />
+              <span className="h-2 w-2 rounded-full bg-yellow-400/80" />
+              <span className="h-2 w-2 rounded-full bg-green-400/80" />
+            </div>
+          </div>
+
+          <div className="space-y-2.5 text-xs text-slate-700 min-h-[140px]">
+            {logs.map((log, index) => {
+              const isActive = log.status === 'loading';
+              const isDone = log.status === 'done';
+
+              let statusIcon = <div className="h-3.5 w-3.5 rounded bg-slate-100 border border-slate-200 shrink-0" />;
+              if (isActive) {
+                statusIcon = <Loader2 className="h-3.5 w-3.5 text-blue-600 animate-spin shrink-0" />;
+              } else if (isDone) {
+                statusIcon = <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0 shadow-[0_0_8px_rgba(16,185,129,0.2)]" />;
+              }
+
+              return (
+                <div 
+                  key={index} 
+                  className={`flex items-center gap-3 transition-all duration-300 ${
+                    isActive ? 'text-slate-900 font-bold scale-[1.01]' : isDone ? 'text-slate-400' : 'text-slate-300'
+                  }`}
+                >
+                  {statusIcon}
+                  <span className="truncate">{log.text}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Footer Info */}
+        <div className="mt-10 flex items-center gap-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+          <div className="flex items-center gap-1.5">
+            <Cpu className="h-3.5 w-3.5 text-blue-600" />
+            <span>AI CORE v2</span>
+          </div>
+          <span className="h-3 w-px bg-slate-200" />
+          <div className="flex items-center gap-1.5">
+            <Layers className="h-3.5 w-3.5 text-blue-600" />
+            <span>HYBRID ENGINE</span>
+          </div>
+          <span className="h-3 w-px bg-slate-200" />
+          <div className="flex items-center gap-1.5">
+            <Activity className="h-3.5 w-3.5 text-emerald-500 animate-pulse" />
+            <span>SYSTEM ACTIVE</span>
+          </div>
+        </div>
       </div>
     </div>
   );
