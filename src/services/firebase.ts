@@ -15,16 +15,19 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-// Initialize Firebase App Check with reCAPTCHA v3 using provided site key
-try {
-  initializeAppCheck(app, {
-    provider: new ReCaptchaV3Provider('6LfPgyksAAAAAFZUVhfmSQ_4XuOVU3c-G2KJGnXH'),
-    isTokenAutoRefreshEnabled: true,
-  });
-} catch (e) {
-  // Fail gracefully in non-browser environments (SSR/tests)
-  // eslint-disable-next-line no-console
-  console.warn('App Check initialization skipped:', e);
+
+const appCheckSiteKey = import.meta.env.VITE_FIREBASE_APPCHECK_SITE_KEY?.trim();
+
+if (typeof window !== 'undefined' && appCheckSiteKey) {
+  try {
+    initializeAppCheck(app, {
+      provider: new ReCaptchaV3Provider(appCheckSiteKey),
+      isTokenAutoRefreshEnabled: true,
+    });
+  } catch (error) {
+    console.warn('Firebase App Check initialization skipped:', error);
+  }
 }
+
 export const auth = getAuth(app);
 export const db = getFirestore(app);
