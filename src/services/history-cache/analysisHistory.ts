@@ -84,6 +84,12 @@ class CVFilterHistoryService {
     localStorage.removeItem(this.STORAGE_KEY);
   }
 
+  trimHistory(keepCount: number): void {
+    if (!Number.isFinite(keepCount) || keepCount < 0) return;
+    const history = this.getHistory();
+    this.saveHistory(history.slice(0, keepCount));
+  }
+
   /**
    * Get simple history stats
    */

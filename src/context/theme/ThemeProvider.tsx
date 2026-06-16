@@ -1,17 +1,17 @@
-/**
- * ThemeProvider - light-only runtime.
- * The public API is preserved so existing components keep working, but all
- * theme calls resolve to the light design system.
- */
-
-import React, { createContext, useContext, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useEffect, useCallback, useState } from 'react';
 import { tokens, ThemeMode } from '@/context/theme/tokens.ts';
+import { readLocalUserSettings, USER_SETTINGS_EVENT } from '@/services/settings/userSettingsService';
 
 interface ThemeContextType {
   isDarkMode: boolean;
   themeMode: ThemeMode;
   toggleTheme: () => void;
   setTheme: (mode: ThemeMode) => void;
+  isAccessibleMode: boolean;
+  setAccessibleMode: (enabled: boolean) => void;
+  toggleAccessibleMode: () => void;
+  reducedMotion: boolean;
+  setReducedMotion: (enabled: boolean) => void;
 }
 
 const ThemeContext = createContext<ThemeContextType>({
@@ -19,6 +19,11 @@ const ThemeContext = createContext<ThemeContextType>({
   themeMode: 'light',
   toggleTheme: () => {},
   setTheme: () => {},
+  isAccessibleMode: false,
+  setAccessibleMode: () => {},
+  toggleAccessibleMode: () => {},
+  reducedMotion: false,
+  setReducedMotion: () => {},
 });
 
 function applyThemeVariables() {
@@ -87,8 +92,47 @@ function applyThemeVariables() {
 }
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const localSettings = readLocalUserSettings();
+  const [isAccessibleMode, setIsAccessibleMode] = useState<boolean>(() => {
+    return localSettings.ui.accessibleMode;
+  });
+  const [reducedMotion, setReducedMotionState] = useState<boolean>(() => localSettings.ui.reducedMotion);
+
   useEffect(() => {
     applyThemeVariables();
+  }, []);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (isAccessibleMode) {
+      root.classList.add('supporthr-accessible');
+    } else {
+      root.classList.remove('supporthr-accessible');
+    }
+  }, [isAccessibleMode]);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (reducedMotion) {
+      root.classList.add('supporthr-reduced-motion');
+      root.style.setProperty('scroll-behavior', 'auto');
+    } else {
+      root.classList.remove('supporthr-reduced-motion');
+      root.style.removeProperty('scroll-behavior');
+    }
+  }, [reducedMotion]);
+
+  useEffect(() => {
+    const syncFromSettings = () => {
+      const next = readLocalUserSettings();
+      setIsAccessibleMode(next.ui.accessibleMode);
+      setReducedMotionState(next.ui.reducedMotion);
+    };
+
+    window.addEventListener(USER_SETTINGS_EVENT, syncFromSettings as EventListener);
+    return () => {
+      window.removeEventListener(USER_SETTINGS_EVENT, syncFromSettings as EventListener);
+    };
   }, []);
 
   const setTheme = useCallback((_mode: ThemeMode) => {
@@ -99,6 +143,24 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     applyThemeVariables();
   }, []);
 
+  const setAccessibleMode = useCallback((enabled: boolean) => {
+    localStorage.setItem('accessibleMode', String(enabled));
+    setIsAccessibleMode(enabled);
+  }, []);
+
+  const toggleAccessibleMode = useCallback(() => {
+    setIsAccessibleMode((prev) => {
+      const next = !prev;
+      localStorage.setItem('accessibleMode', String(next));
+      return next;
+    });
+  }, []);
+
+  const setReducedMotion = useCallback((enabled: boolean) => {
+    localStorage.setItem('supporthr.reducedMotion', String(enabled));
+    setReducedMotionState(enabled);
+  }, []);
+
   return (
     <ThemeContext.Provider
       value={{
@@ -106,6 +168,11 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         themeMode: 'light',
         toggleTheme,
         setTheme,
+        isAccessibleMode,
+        setAccessibleMode,
+        toggleAccessibleMode,
+        reducedMotion,
+        setReducedMotion,
       }}
     >
       {children}

@@ -7,7 +7,9 @@ import { SpeedInsights } from '@vercel/speed-insights/react';
 import { Analytics } from '@vercel/analytics/react';
 import WebVitalsReporter from '@/components/charts/WebVitalsReporter';
 import { ThemeProvider } from '@/context/theme/ThemeProvider';
+import { UserSettingsProvider, useUserSettings } from '@/context/settings/UserSettingsProvider';
 
+import { DataSyncService } from '@/services/data-sync/dataSyncService';
 import { UserProfileService } from '@/services/data-sync/userProfileService';
 import type { AuthUser } from '@/services/auth/authTypes';
 import type { AppStep, Candidate, HardFilters, WeightCriteria, AnalysisRunData, ActiveAnalysisContext } from '@/types';
@@ -15,6 +17,7 @@ import { initialWeights } from '@/config/constants';
 import Sidebar from '@/layout/Sidebar';
 import WorkspaceTopbar from '@/components/workspace/WorkspaceTopbar';
 import DesktopAppMenuBar from '@/components/workspace/DesktopAppMenuBar';
+import SidebarSettingsModal from '@/components/settings/SidebarSettingsModal';
 import JDTemplatesModal, { JDTemplate } from '@/components/history/JDTemplatesModal';
 import HistoryModal from '@/components/history/HistoryModal';
 import PageTransition from '@/components/PageTransition';
@@ -55,6 +58,7 @@ import {
   touchWorkflowActivity,
   writeWorkflowDraft,
 } from '@/services/history-cache/workflowDraft';
+import { analysisCacheService } from '@/services/history-cache/analysisCache';
 
 function usePrevious<T>(value: T): T | undefined {
   const ref = useRef<T | undefined>(undefined);
@@ -78,12 +82,16 @@ function createDefaultHardFilters(): HardFilters {
     salaryMax: '',
     workFormat: '',
     contractType: '',
+    age: {},
+    majorGroups: [],
     locationMandatory: true,
     minExpMandatory: true,
     seniorityMandatory: true,
     educationMandatory: false,
+    ageMandatory: false,
     contactMandatory: false,
     industryMandatory: true,
+    majorMandatory: false,
     languageMandatory: false,
     certificatesMandatory: false,
     salaryMandatory: false,
@@ -262,7 +270,7 @@ const MainApp = () => {
   useEffect(() => {
     if (!isInitializing && !currentUser) {
       const syncLoginState = () => {
-        try {
+          try {
           const authEmail = localStorage.getItem('authEmail') || '';
           const wasLoggedIn = !!(authEmail && authEmail.length > 0);
           if (wasLoggedIn && !isLoggedIn) {
@@ -305,12 +313,17 @@ const MainApp = () => {
     <>
       <SeoManager />
       <PageTransition />
-      <MainLayout
-        onResetRequest={handleFullReset}
-        isLoggedIn={isLoggedIn}
-        onLoginRequest={handleLoginRequest}
+      <UserSettingsProvider
         currentUser={currentUser}
-      />
+        fallbackEmail={typeof window !== 'undefined' ? window.localStorage.getItem('authEmail') || '' : ''}
+      >
+        <MainLayout
+          onResetRequest={handleFullReset}
+          isLoggedIn={isLoggedIn}
+          onLoginRequest={handleLoginRequest}
+          currentUser={currentUser}
+        />
+      </UserSettingsProvider>
       {showLoginModal && (
         <div className="fixed inset-0 z-50">
           <LoginPage onLogin={handleLogin} onClose={() => setShowLoginModal(false)} />
@@ -330,18 +343,31 @@ interface MainLayoutProps {
 }
 
 const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, currentUser }: MainLayoutProps) => {
-  const initialStoredRun = useMemo(() => readLatestAnalysisRun(), []);
-  const initialWorkflowDraft = useMemo(() => readWorkflowDraft(), []);
-  const initialStoredWeights = useMemo(() => readStoredJson<WeightCriteria>('analysisWeights'), []);
-  const initialStoredHardFilters = useMemo(() => readStoredJson<HardFilters>('hardFilters'), []);
+  const { settings, syncError, syncStatus, updateAccountSnapshot } = useUserSettings();
+  const initialStoredRun = useMemo(
+    () => settings.workflow.restoreDraft ? readLatestAnalysisRun() : null,
+    [settings.workflow.restoreDraft],
+  );
+  const initialWorkflowDraft = useMemo(
+    () => settings.workflow.restoreDraft ? readWorkflowDraft() : null,
+    [settings.workflow.restoreDraft],
+  );
+  const initialStoredWeights = useMemo(
+    () => settings.workflow.rememberScoringConfig ? readStoredJson<WeightCriteria>('analysisWeights') : null,
+    [settings.workflow.rememberScoringConfig],
+  );
+  const initialStoredHardFilters = useMemo(
+    () => settings.workflow.rememberScoringConfig ? readStoredJson<HardFilters>('hardFilters') : null,
+    [settings.workflow.rememberScoringConfig],
+  );
   const initialStoredJdText = useMemo(() => {
-    if (typeof window === 'undefined') return '';
+    if (typeof window === 'undefined' || !settings.workflow.restoreDraft) return '';
     return window.localStorage.getItem('currentJD') || '';
-  }, []);
+  }, [settings.workflow.restoreDraft]);
   const initialStoredRawJdText = useMemo(() => {
-    if (typeof window === 'undefined') return '';
+    if (typeof window === 'undefined' || !settings.workflow.restoreDraft) return '';
     return window.localStorage.getItem('currentRawJD') || '';
-  }, []);
+  }, [settings.workflow.restoreDraft]);
   const [userEmail, setUserEmail] = useState<string>(() => {
     // attempt to get from auth current user if available
     return (typeof window !== 'undefined' && (window as any).localStorage?.getItem('authEmail')) || '';
@@ -355,10 +381,13 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
   const [jdTemplatesModalOpen, setJdTemplatesModalOpen] = useState<boolean>(false);
   const [jdTemplateSelectionMode, setJdTemplateSelectionMode] = useState<'analysis' | 'welcome'>('analysis');
   const [historyModalOpen, setHistoryModalOpen] = useState<boolean>(false);
+  const [sidebarSettingsOpen, setSidebarSettingsOpen] = useState<boolean>(false);
   const [userAvatar, setUserAvatar] = useState<string | null>(null);
   const [userName, setUserName] = useState<string>('');
   const [isSidebarDrawerOpen, setIsSidebarDrawerOpen] = useState(false);
   const [isDesktopSidebarCollapsed, setIsDesktopSidebarCollapsed] = useState(false);
+  const [appNotice, setAppNotice] = useState<{ tone: 'success' | 'error'; message: string } | null>(null);
+  const noticeTimeoutRef = useRef<number | null>(null);
 
   // Load avatar and user name for mobile navbar
   useEffect(() => {
@@ -394,10 +423,23 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
 
   const location = useLocation();
   const navigate = useNavigate();
+  const prevSyncStatus = usePrevious(syncStatus);
 
   useEffect(() => {
     setIsSidebarDrawerOpen(false);
   }, [location.pathname]);
+
+  const showAppNotice = useCallback((message: string, tone: 'success' | 'error' = 'success') => {
+    if (noticeTimeoutRef.current) {
+      window.clearTimeout(noticeTimeoutRef.current);
+    }
+
+    setAppNotice({ tone, message });
+    noticeTimeoutRef.current = window.setTimeout(() => {
+      setAppNotice(null);
+      noticeTimeoutRef.current = null;
+    }, 3600);
+  }, []);
 
   const handleLogout = useCallback(async () => {
     try {
@@ -410,6 +452,12 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
       window.location.href = '/';
     }
   }, [navigate]);
+
+  useEffect(() => () => {
+    if (noticeTimeoutRef.current) {
+      window.clearTimeout(noticeTimeoutRef.current);
+    }
+  }, []);
 
   const [jdText, setJdText] = useState<string>(() => initialWorkflowDraft?.jdText || initialStoredJdText);
   const [rawJdText, setRawJdText] = useState<string>(() => initialWorkflowDraft?.rawJdText || initialStoredRawJdText);
@@ -425,6 +473,9 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
   const [cvFiles, setCvFiles] = useState<File[]>([]);
   const [analysisResults, setAnalysisResults] = useState<Candidate[]>(
     () => initialWorkflowDraft?.analysisResults || initialStoredRun?.candidates || []
+  );
+  const prevHadSuccessfulAnalysis = usePrevious(
+    analysisResults.some((candidate) => candidate.status === 'SUCCESS')
   );
   const [activeAnalysisContext, setActiveAnalysisContext] = useState<ActiveAnalysisContext | null>(
     () => initialWorkflowDraft?.activeAnalysisContext || getActiveAnalysisContext()
@@ -507,13 +558,18 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
   };
 
   useEffect(() => {
+    if (syncStatus === 'error' && prevSyncStatus !== 'error' && settings.notifications.syncErrors) {
+      showAppNotice(syncError || 'Đồng bộ cài đặt thất bại. Hệ thống đang dùng bản cục bộ.', 'error');
+    }
+  }, [prevSyncStatus, settings.notifications.syncErrors, showAppNotice, syncError, syncStatus]);
+
+  useEffect(() => {
     if (prevIsLoading && !isLoading && analysisResults.length > 0) {
-      const successfulCandidates = analysisResults.filter(c => c.status === 'SUCCESS');
+      const successfulCandidates = analysisResults.filter((candidate) => candidate.status === 'SUCCESS');
       if (successfulCandidates.length > 0) {
-        // Add unique IDs to candidates before saving
-        const candidatesWithIds = successfulCandidates.map(c => ({
-          ...c,
-          id: c.id || `${c.fileName}-${c.candidateName}-${Math.random()}`
+        const candidatesWithIds = successfulCandidates.map((candidate) => ({
+          ...candidate,
+          id: candidate.id || `${candidate.fileName}-${candidate.candidateName}-${Math.random()}`,
         }));
 
         const analysisRun: AnalysisRunData = {
@@ -525,11 +581,6 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
           candidates: candidatesWithIds,
         };
         writeLatestAnalysisRun(analysisRun);
-        localStorage.setItem('currentJD', jdText);
-        localStorage.setItem('currentLocation', hardFilters.location || '');
-        localStorage.setItem('analysisWeights', JSON.stringify(weights));
-        localStorage.setItem('hardFilters', JSON.stringify(hardFilters));
-
         const baseContext: ActiveAnalysisContext = {
           sessionId: buildAnalysisSessionId(analysisRun.timestamp),
           timestamp: analysisRun.timestamp,
@@ -539,12 +590,17 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
         saveActiveAnalysisContext(baseContext);
         setActiveAnalysisContext(baseContext);
 
-        // Save to CV filter history (always enabled)
-        try {
-          cvFilterHistoryService.addFilterSession(
+        if (settings.notifications.analysisComplete && !prevHadSuccessfulAnalysis) {
+          showAppNotice('Phan tich AI da hoan tat.', 'success');
+        }
+
+        if (settings.workflow.autoSaveHistory) {
+          try {
+            cvFilterHistoryService.addFilterSession(
             jobPosition || 'Không rõ vị trí',
             hardFilters.industry || 'Khác'
-          );
+            );
+            cvFilterHistoryService.trimHistory(settings.sync.historyRetention);
         } catch (error) {
           console.warn('Failed to save filter history:', error);
         }
@@ -559,21 +615,59 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
           weights,
           hardFilters,
         })
-          .then((historyId) => {
-            if (!historyId) return;
-            const nextContext: ActiveAnalysisContext = {
-              ...baseContext,
-              historyId,
-            };
-            saveActiveAnalysisContext(nextContext);
-            setActiveAnalysisContext(nextContext);
+          .then(async (historyId) => {
+            if (historyId) {
+              const nextContext: ActiveAnalysisContext = {
+                ...baseContext,
+                historyId,
+              };
+              saveActiveAnalysisContext(nextContext);
+              setActiveAnalysisContext(nextContext);
+            }
+
+            if (currentUser) {
+              try {
+                await UserProfileService.cleanupOldHistory(currentUser.uid, settings.sync.historyRetention);
+              } catch (error) {
+                console.warn('Failed to trim remote history:', error);
+              }
+            }
+
+            if (settings.notifications.historySaved) {
+              showAppNotice('Da luu history phan tich.', 'success');
+            }
           })
-          .catch(err => console.warn('Save history failed', err));
+          .catch((error) => console.warn('Save history failed', error));
+        } else {
+          cvFilterHistoryService.trimHistory(settings.sync.historyRetention);
+        }
       }
     }
-  }, [isLoading, prevIsLoading, analysisResults, jobPosition, hardFilters.location, jdText, userEmail, weights, hardFilters]);
+  }, [
+    analysisResults,
+    currentUser,
+    hardFilters,
+    isLoading,
+    jdText,
+    jobPosition,
+    prevHadSuccessfulAnalysis,
+    prevIsLoading,
+    settings.notifications.analysisComplete,
+    settings.notifications.historySaved,
+    settings.sync.historyRetention,
+    settings.workflow.autoSaveHistory,
+    showAppNotice,
+    userEmail,
+    weights,
+  ]);
 
   useEffect(() => {
+    if (!settings.workflow.autoSaveDraft) {
+      clearWorkflowDraft();
+      clearWorkflowActivity();
+      return;
+    }
+
     writeWorkflowDraft({
       completedSteps,
       jdText,
@@ -585,24 +679,60 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
       activeAnalysisContext,
     });
   }, [
-    completedSteps,
-    jdText,
-    rawJdText,
-    jobPosition,
-    weights,
-    hardFilters,
-    analysisResults,
     activeAnalysisContext,
+    analysisResults,
+    completedSteps,
+    hardFilters,
+    jdText,
+    jobPosition,
+    rawJdText,
+    settings.workflow.autoSaveDraft,
+    weights,
   ]);
 
   useEffect(() => {
-    localStorage.setItem('currentJD', jdText);
-    localStorage.setItem('currentRawJD', rawJdText);
-    localStorage.setItem('analysisWeights', JSON.stringify(weights));
-    localStorage.setItem('hardFilters', JSON.stringify(hardFilters));
-  }, [jdText, rawJdText, weights, hardFilters]);
+    if (settings.workflow.autoSaveDraft) {
+      localStorage.setItem('currentJD', jdText);
+      localStorage.setItem('currentRawJD', rawJdText);
+      localStorage.setItem('currentLocation', hardFilters.location || '');
+    } else {
+      localStorage.removeItem('currentJD');
+      localStorage.removeItem('currentRawJD');
+      localStorage.removeItem('currentLocation');
+    }
+
+    if (settings.workflow.rememberScoringConfig) {
+      localStorage.setItem('analysisWeights', JSON.stringify(weights));
+      localStorage.setItem('hardFilters', JSON.stringify(hardFilters));
+    } else {
+      localStorage.removeItem('analysisWeights');
+      localStorage.removeItem('hardFilters');
+    }
+  }, [
+    hardFilters,
+    jdText,
+    rawJdText,
+    settings.workflow.autoSaveDraft,
+    settings.workflow.rememberScoringConfig,
+    weights,
+  ]);
 
   useEffect(() => {
+    cvFilterHistoryService.trimHistory(settings.sync.historyRetention);
+
+    if (!currentUser) return;
+
+    void UserProfileService.cleanupOldHistory(currentUser.uid, settings.sync.historyRetention).catch((error) => {
+      console.warn('Failed to apply remote history retention:', error);
+    });
+  }, [currentUser, settings.sync.historyRetention]);
+
+  useEffect(() => {
+    if (!settings.workflow.autoSaveDraft) {
+      clearWorkflowActivity();
+      return;
+    }
+
     touchWorkflowActivity(Date.now(), 0);
 
     let lastTouchedAt = Date.now();
@@ -633,11 +763,17 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
       });
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, []);
+  }, [settings.workflow.autoSaveDraft]);
 
   const activeStep = useMemo((): AppStep => {
     switch (location.pathname) {
-      case '/process': return 'process';
+      case '/process':
+      case '/app-docs':
+      case '/terms':
+      case '/privacy-policy':
+      case '/faq':
+      case '/pricing':
+        return 'app-docs';
       case '/jd': return 'jd';
       case '/upload': return 'upload';
       case '/weights': return 'weights';
@@ -648,6 +784,8 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
       case '/feedback': return 'feedback';
       case '/records': return 'records';
       case '/jd-standardizer': return 'jd-standardizer';
+      case '/history': return 'history';
+      case '/jd-templates': return 'jd-templates';
       case '/':
       default:
         return 'home';
@@ -658,8 +796,15 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
     setJdText('');
     setRawJdText('');
     setJobPosition('');
-    setWeights(initialWeights);
-    setHardFilters(createDefaultHardFilters());
+    if (settings.workflow.newSessionMode === 'keep-config' && settings.workflow.rememberScoringConfig) {
+      localStorage.setItem('analysisWeights', JSON.stringify(weights));
+      localStorage.setItem('hardFilters', JSON.stringify(hardFilters));
+    } else {
+      setWeights(initialWeights);
+      setHardFilters(createDefaultHardFilters());
+      localStorage.removeItem('analysisWeights');
+      localStorage.removeItem('hardFilters');
+    }
     setCvFiles([]);
     setAnalysisResults([]);
     setActiveAnalysisContext(null);
@@ -670,11 +815,9 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
     localStorage.removeItem('currentJD');
     localStorage.removeItem('currentRawJD');
     localStorage.removeItem('currentLocation');
-    localStorage.removeItem('analysisWeights');
-    localStorage.removeItem('hardFilters');
     setCompletedSteps([]);
     navigate('/jd');
-  }, [navigate]);
+  }, [hardFilters, navigate, settings.workflow.newSessionMode, settings.workflow.rememberScoringConfig, weights]);
 
   const setActiveStep = useCallback((step: AppStep) => {
     const pathMap: Partial<Record<AppStep, string>> = {
@@ -723,26 +866,16 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
     }
   }, [analysisResults, isLoading]);
 
-  const isHomeView = activeStep === 'home';
-  const isLandingFallbackView =
-    !isLoggedIn &&
-    ['/jd', '/upload', '/weights', '/analysis', '/dashboard', '/detailed-analytics', '/chatbot', '/feedback', '/records', '/jd-standardizer', '/history', '/jd-templates'].includes(location.pathname);
-  const isMarketingRoute = publicMarketingPaths.has(location.pathname);
   const isWelcomeRoute = location.pathname === '/welcome';
-  const isStandaloneToolRoute = isWelcomeRoute || (isLoggedIn && ['/records', '/jd-standardizer', '/history', '/jd-templates'].includes(location.pathname));
-  const isLandingView = isHomeView || isLandingFallbackView || isMarketingRoute;
-  const isFirstPageRoute = location.pathname === '/' || isWelcomeRoute;
-  const shouldShowDesktopAppMenu = !isFirstPageRoute;
-  const isWorkflowView =
-    !isLandingView &&
-    !isStandaloneToolRoute &&
-    (activeStep === 'jd' ||
-      activeStep === 'upload' ||
-      activeStep === 'weights' ||
-      activeStep === 'analysis' ||
-      activeStep === 'dashboard' ||
-      activeStep === 'chatbot' ||
-      activeStep === 'feedback');
+  const isFirstPageRoute = location.pathname === '/';
+  const isMarketingRoute = publicMarketingPaths.has(location.pathname);
+  
+  // Show workspace shell (sidebar + header) for all routes except welcome/landing when logged in
+  const shouldUseWorkspaceShell = isLoggedIn && !isWelcomeRoute && !isFirstPageRoute;
+  const isWorkflowView = shouldUseWorkspaceShell;
+  const isLandingView = !shouldUseWorkspaceShell;
+  const isStandaloneToolRoute = false;
+  const shouldShowDesktopAppMenu = false;
 
   useEffect(() => {
     const path = location.pathname;
@@ -777,11 +910,71 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
       location: payload.supplementalFields?.location || prev.location,
       salaryMax: payload.supplementalFields?.salary || prev.salaryMax,
     }));
-    localStorage.setItem('currentJD', nextJd);
-    localStorage.setItem('currentRawJD', nextRawJd);
     markStepAsCompleted('jd');
     setActiveStep('jd');
   }, [markStepAsCompleted, setActiveStep]);
+
+  const handleSaveAccountProfile = useCallback(async (payload: { displayName: string; avatar: string | null }) => {
+    const nextDisplayName = payload.displayName.trim() || (userEmail ? userEmail.split('@')[0] : 'Support HR');
+    const nextAvatar = payload.avatar;
+
+    setUserName(nextDisplayName);
+    setUserAvatar(nextAvatar);
+
+    if (currentUser?.email) {
+      await UserProfileService.saveUserProfile(
+        currentUser.uid,
+        currentUser.email,
+        nextDisplayName,
+        nextAvatar || undefined,
+      );
+
+      if (nextAvatar) {
+        await UserProfileService.updateUserAvatar(currentUser.uid, nextAvatar);
+      }
+    } else if (userEmail) {
+      localStorage.setItem(`avatar_${userEmail}`, nextAvatar || '');
+    }
+
+    updateAccountSnapshot({
+      displayName: nextDisplayName,
+      avatar: nextAvatar,
+      email: currentUser?.email || userEmail,
+    });
+  }, [currentUser, updateAccountSnapshot, userEmail]);
+
+  const handleClearWorkflowDraft = useCallback(() => {
+    clearWorkflowDraft();
+    clearWorkflowActivity();
+    localStorage.removeItem('currentJD');
+    localStorage.removeItem('currentRawJD');
+    localStorage.removeItem('currentLocation');
+  }, []);
+
+  const handleClearLocalCache = useCallback(() => {
+    analysisCacheService.clearCache();
+    localStorage.removeItem('cvAnalysisCache');
+  }, []);
+
+  const handleClearLocalHistory = useCallback(() => {
+    cvFilterHistoryService.clearHistory();
+    clearLatestAnalysisRun();
+    clearActiveAnalysisContext();
+    localStorage.removeItem('analysisHistory');
+    localStorage.removeItem('cvAnalysis.latest');
+  }, []);
+
+  const handleClearSyncedData = useCallback(async () => {
+    await DataSyncService.clearUserSyncedData();
+
+    if (currentUser) {
+      try {
+        await UserProfileService.cleanupOldHistory(currentUser.uid, 0);
+      } catch (error) {
+        console.warn('Failed to clear remote history:', error);
+      }
+    }
+  }, [currentUser]);
 
   const handleCloseStandalonePage = useCallback(() => {
     const routeState = location.state as { from?: string } | null;
@@ -800,7 +993,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
     rawJdText, setRawJdText,
     jobPosition, setJobPosition,
     weights, setWeights,
-    hardFilters, setHardFilters,
+    hardFilters, setHardFilters: setHardFiltersWithFlag,
     cvFiles, setCvFiles,
     analysisResults, setAnalysisResults,
     isLoading, setIsLoading,
@@ -812,8 +1005,6 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
       setJdTemplatesModalOpen(true);
     },
   };
-
-  const shouldUseWorkspaceShell = !isLandingView && !isStandaloneToolRoute;
 
   return (
     <div className={`h-[100dvh] bg-white text-slate-900 flex flex-col overflow-hidden ${shouldShowDesktopAppMenu ? 'supporthr-shell--with-app-menu' : ''} ${className || ''}`}>
@@ -841,6 +1032,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
               setJdTemplateSelectionMode('analysis');
               setJdTemplatesModalOpen(true);
             }}
+            onOpenSettingsPanel={() => setSidebarSettingsOpen(true)}
             onShowHistory={() => setHistoryModalOpen(true)}
             onNewSession={handleNewSession}
           />
@@ -865,6 +1057,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
               setJdTemplateSelectionMode('analysis');
               setJdTemplatesModalOpen(true);
             }}
+            onOpenSettingsPanel={() => setSidebarSettingsOpen(true)}
             onShowHistory={() => setHistoryModalOpen(true)}
             onNewSession={handleNewSession}
           />
@@ -930,6 +1123,8 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
             onLogout={handleLogout}
             onNewSession={handleNewSession}
             onOpenHistory={() => setHistoryModalOpen(true)}
+            sidebarCollapsed={isDesktopSidebarCollapsed}
+            onToggleSidebar={() => setIsDesktopSidebarCollapsed((value) => !value)}
             onOpenAnalysis={() => {
               setActiveStep('analysis');
               navigate('/analysis');
@@ -1025,6 +1220,35 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
         isOpen={historyModalOpen}
         onClose={() => setHistoryModalOpen(false)}
       />
+
+      {/* Sidebar Settings Modal */}
+      <SidebarSettingsModal
+        isOpen={sidebarSettingsOpen}
+        onClose={() => setSidebarSettingsOpen(false)}
+        userEmail={currentUser?.email || userEmail}
+        userName={userName}
+        userAvatar={userAvatar}
+        onLogout={isLoggedIn ? handleLogout : undefined}
+        onSaveAccountProfile={handleSaveAccountProfile}
+        onClearWorkflowDraft={handleClearWorkflowDraft}
+        onClearLocalCache={handleClearLocalCache}
+        onClearLocalHistory={handleClearLocalHistory}
+        onClearSyncedData={handleClearSyncedData}
+      />
+
+      {appNotice ? (
+        <div className="pointer-events-none fixed bottom-5 right-5 z-[90] max-w-sm">
+          <div
+            className={`rounded-2xl border px-4 py-3 text-[13px] font-medium shadow-xl ${
+              appNotice.tone === 'error'
+                ? 'border-rose-200 bg-rose-50 text-rose-700'
+                : 'border-emerald-200 bg-emerald-50 text-emerald-700'
+            }`}
+          >
+            {appNotice.message}
+          </div>
+        </div>
+      ) : null}
 
       {/* Vercel Analytics & Speed Insights for performance monitoring */}
       <Analytics />

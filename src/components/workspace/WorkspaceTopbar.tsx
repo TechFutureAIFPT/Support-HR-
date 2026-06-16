@@ -2,8 +2,10 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
   ArrowLeft,
+  ArrowRight,
   BarChart3,
   Bell,
+  BookOpen,
   CheckCheck,
   ChevronDown,
   Clock3,
@@ -12,6 +14,8 @@ import {
   LibraryBig,
   Megaphone,
   MessageSquare,
+  PanelLeftClose,
+  PanelLeftOpen,
   Plus,
   RefreshCw,
   Target,
@@ -20,10 +24,15 @@ import {
   WandSparkles,
   X,
   Zap,
+  FileText,
+  SlidersHorizontal,
+  Sparkles,
+  Workflow,
 } from 'lucide-react';
 import type { AppStep } from '@/types';
 import type { AccountNotification } from '@/services/data-sync/notificationService';
 import { NotificationService } from '@/services/data-sync/notificationService';
+
 
 interface WorkspaceTopbarProps {
   activeStep: AppStep;
@@ -38,6 +47,8 @@ interface WorkspaceTopbarProps {
   userAvatar?: string | null;
   userEmail?: string;
   onLogout?: () => void;
+  sidebarCollapsed?: boolean;
+  onToggleSidebar?: () => void;
 }
 
 const stepMeta: Partial<Record<AppStep, { module: string; title: string; subtitle: string }>> = {
@@ -86,7 +97,43 @@ const stepMeta: Partial<Record<AppStep, { module: string; title: string; subtitl
     title: 'Chuẩn hóa JD',
     subtitle: 'Tạo bản mô tả công việc rõ ràng hơn bằng AI',
   },
+  'app-docs': {
+    module: 'Hướng dẫn',
+    title: 'Tài liệu ứng dụng',
+    subtitle: 'Hướng dẫn sử dụng và tài liệu kỹ thuật',
+  },
+  history: {
+    module: 'Hệ thống',
+    title: 'Lịch sử hoạt động',
+    subtitle: 'Các phiên phân tích CV đã lưu trong hệ thống',
+  },
+  'jd-templates': {
+    module: 'Thư viện',
+    title: 'Mẫu JD chuẩn',
+    subtitle: 'Danh sách các mẫu mô tả công việc sẵn có',
+  },
 };
+
+const menuGroups = [
+  {
+    label: 'Sản phẩm',
+    items: [
+      { label: 'Nạp JD & CV', href: '/jd', icon: UploadCloud },
+      { label: 'Thiết lập mặc định', href: '/weights', icon: SlidersHorizontal },
+      { label: 'Phân tích AI', href: '/analysis', icon: Sparkles },
+      { label: 'Thống kê chi tiết', href: '/detailed-analytics', icon: BarChart3 },
+    ],
+  },
+  {
+    label: 'Tài liệu',
+    items: [
+      { label: 'Tài liệu ứng dụng', href: '/app-docs', icon: BookOpen },
+      { label: 'Kho lưu trữ CV', href: '/records', icon: LibraryBig },
+      { label: 'Mẫu JD', href: '/jd-templates', icon: FileText },
+      { label: 'Chuẩn hóa JD', href: '/jd-standardizer', icon: Workflow },
+    ],
+  },
+];
 
 function formatNotificationTime(timestamp: number): string {
   const diffMs = Date.now() - timestamp;
@@ -126,6 +173,8 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
   userAvatar,
   userEmail,
   onLogout,
+  sidebarCollapsed = false,
+  onToggleSidebar,
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -134,6 +183,9 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
   const [isAccountOpen, setIsAccountOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [loadError, setLoadError] = useState('');
+  const [openMenu, setOpenMenu] = useState<string | null>(null);
+
+  const topbarRef = useRef<HTMLDivElement | null>(null);
   const notificationRef = useRef<HTMLDivElement>(null);
   const accountRef = useRef<HTMLDivElement>(null);
 
@@ -148,6 +200,7 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
     .map((part) => part[0])
     .join('')
     .toUpperCase() || 'HR';
+
   const progressLabel = `${completedSteps.length}/4 bước`;
 
   const loadNotifications = useCallback(async () => {
@@ -193,12 +246,16 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
       if (isAccountOpen && accountRef.current && !accountRef.current.contains(target)) {
         setIsAccountOpen(false);
       }
+      if (openMenu && topbarRef.current && !topbarRef.current.contains(target)) {
+        setOpenMenu(null);
+      }
     };
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         setIsOpen(false);
         setIsAccountOpen(false);
+        setOpenMenu(null);
       }
     };
 
@@ -208,7 +265,7 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
       document.removeEventListener('mousedown', handlePointerDown);
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [isAccountOpen, isOpen]);
+  }, [isAccountOpen, isOpen, openMenu]);
 
   const handleMarkRead = async (notification: AccountNotification) => {
     setNotifications((items) =>
@@ -238,6 +295,11 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
     window.dispatchEvent(new CustomEvent('supporthr:chatbot-action', { detail: { action } }));
   };
 
+  const goTo = (href: string) => {
+    setOpenMenu(null);
+    navigate(href);
+  };
+
   const topbarButtonClass =
     'hidden h-8 items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-100 hover:text-slate-950';
   const topbarPrimaryButtonClass =
@@ -248,46 +310,116 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
     'flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 transition hover:bg-slate-100 hover:text-slate-950';
 
   return (
-    <header className="shrink-0 border-b border-slate-200 bg-[#fbfbfa]/95 shadow-none backdrop-blur-xl">
-      <div className="flex min-h-[52px] items-center gap-3 px-3 lg:px-4">
-        <div className="min-w-0 pl-1">
-          <div className="flex min-w-0 items-center gap-2">
-            <span className="truncate text-[15px] font-semibold leading-tight text-slate-950">{meta.title}</span>
-            <span className="hidden rounded-md border border-slate-200 bg-white px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-slate-500 sm:inline-flex">
-              {meta.module}
-            </span>
-          </div>
-          <div className="mt-0.5 flex min-w-0 items-center gap-2 text-[11px] font-medium text-slate-500">
-            <span className="truncate">{jobPosition || meta.subtitle}</span>
-            <span className="hidden h-1 w-1 rounded-full bg-slate-300 sm:inline-block" />
-            <span className="hidden shrink-0 text-slate-500 sm:inline">{progressLabel}</span>
-          </div>
-        </div>
+    <header 
+      ref={topbarRef}
+      className="relative shrink-0 border-b border-slate-200 bg-[#f4f4f2]/98 shadow-none backdrop-blur-xl h-[54px] z-[60]"
+    >
+      <div className="flex h-full items-center justify-between gap-3 px-3 lg:px-4">
+        
+        {/* Left Side: Desktop Navigation & Menu Groups */}
+        <div className="flex items-center gap-1.5 min-w-0">
+          {onToggleSidebar && (
+            <button
+              type="button"
+              onClick={onToggleSidebar}
+              className="hidden h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-100 lg:flex shrink-0"
+              aria-label={sidebarCollapsed ? 'Mở sidebar' : 'Đóng sidebar'}
+              title={sidebarCollapsed ? 'Mở sidebar' : 'Đóng sidebar'}
+            >
+              {sidebarCollapsed ? <PanelLeftOpen className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
+            </button>
+          )}
 
-        <div className="mx-1 hidden h-7 w-px bg-slate-200 xl:block" />
-
-        {false && (
-        <div className="hidden flex-1 items-center gap-2 lg:flex">
           <button
             type="button"
-            onClick={() => navigate('/records', { state: { from: location.pathname } })}
-            className="inline-flex h-10 items-center gap-2 rounded-xl border border-blue-100 bg-[#f8fbff] px-4 text-xs font-black text-blue-700 shadow-sm transition hover:border-blue-200 hover:bg-blue-50"
+            onClick={() => navigate(-1)}
+            className="hidden h-8 w-8 items-center justify-center rounded-lg text-slate-700 transition hover:bg-white hover:text-slate-950 sm:flex shrink-0"
+            aria-label="Quay lại"
+            title="Quay lại"
           >
-            <LibraryBig size={15} />
-            Kho lưu trữ CV
+            <ArrowLeft className="h-4 w-4" />
           </button>
           <button
             type="button"
-            onClick={() => navigate('/jd-templates', { state: { from: location.pathname } })}
-            className="inline-flex h-10 items-center gap-2 rounded-xl border border-blue-100 bg-white px-4 text-xs font-black text-slate-700 shadow-sm transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
+            onClick={() => navigate(1)}
+            className="hidden h-8 w-8 items-center justify-center rounded-lg text-slate-700 transition hover:bg-white hover:text-slate-950 sm:flex shrink-0"
+            aria-label="Tiến tới"
+            title="Tiến tới"
           >
-            <UploadCloud size={15} />
-            Mẫu JD
+            <ArrowRight className="h-4 w-4" />
           </button>
-        </div>
-        )}
 
-        <div className="ml-auto flex shrink-0 items-center gap-2">
+          <div className="hidden h-4 w-px bg-slate-300 mx-1 sm:block shrink-0" />
+
+          {/* Product Dropdowns */}
+          <div className="hidden items-center gap-1 lg:flex shrink-0">
+            {menuGroups.map((group) => (
+              <div key={group.label} className="relative">
+                <button
+                  type="button"
+                  onClick={() => setOpenMenu((current) => (current === group.label ? null : group.label))}
+                  className={`flex h-8 items-center gap-1 rounded-lg px-2.5 text-[12px] font-bold transition ${
+                    openMenu === group.label ? 'bg-white text-slate-950 shadow-sm' : 'text-slate-700 hover:bg-white/80 hover:text-slate-950'
+                  }`}
+                >
+                  {group.label}
+                  <ChevronDown className="h-3.5 w-3.5" />
+                </button>
+
+                {openMenu === group.label && (
+                  <div className="absolute left-0 top-[36px] z-50 w-60 overflow-hidden rounded-lg border border-slate-200 bg-white p-1 shadow-xl">
+                    {group.items.map((item) => {
+                      const Icon = item.icon;
+                      return (
+                        <button
+                          key={item.href}
+                          type="button"
+                          onClick={() => goTo(item.href)}
+                          className="flex w-full items-center gap-3 rounded-md px-2.5 py-1.5 text-left text-[13px] font-medium text-slate-700 transition hover:bg-slate-100 hover:text-slate-950"
+                        >
+                          <span className="flex h-6 w-6 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-500">
+                            <Icon className="h-3.5 w-3.5" />
+                          </span>
+                          {item.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* Mobile Step Info */}
+          <div className="min-w-0 pl-1 lg:hidden">
+            <div className="flex min-w-0 items-center gap-2">
+              <span className="truncate text-[14px] font-bold leading-tight text-slate-950">{meta.title}</span>
+              <span className="hidden rounded-md border border-slate-200 bg-white px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.1em] text-slate-500 sm:inline-flex">
+                {meta.module}
+              </span>
+            </div>
+            <div className="mt-0.5 flex min-w-0 items-center gap-2 text-[10px] font-medium text-slate-500">
+              <span className="truncate">{jobPosition || meta.subtitle}</span>
+              <span className="hidden h-1 w-1 rounded-full bg-slate-300 sm:inline-block" />
+              <span className="hidden shrink-0 text-slate-500 sm:inline">{progressLabel}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Center: Desktop-only Page Title (macOS style) */}
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 hidden xl:flex items-center gap-2 pointer-events-none select-none">
+          <span className="text-sm font-bold text-slate-800">{meta.title}</span>
+          <span className="rounded-md border border-slate-250 bg-white/70 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.06em] text-slate-500">
+            {meta.module}
+          </span>
+          <span className="text-[11px] text-slate-400">•</span>
+          <span className="text-[11px] font-semibold text-slate-500 truncate max-w-[200px]">
+            {jobPosition || meta.subtitle}
+          </span>
+        </div>
+
+        {/* Right Side: Action Buttons, Notifications & Account */}
+        <div className="flex shrink-0 items-center gap-2">
           {activeStep === 'analysis' && (
             <>
               <button
@@ -360,36 +492,8 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
             </button>
           )}
 
-          <button
-            type="button"
-            onClick={onNewSession}
-            className={`${topbarPrimaryButtonClass} md:inline-flex`}
-          >
-            <Plus size={16} strokeWidth={2.6} />
-            Phiên mới
-          </button>
 
-          {false && (
-          <>
-          <button
-            type="button"
-            onClick={onOpenHistory}
-            className={`${topbarIconButtonClass} hidden md:inline-flex`}
-            aria-label="Mở lịch sử hoạt động"
-          >
-            <Clock3 size={16} />
-          </button>
-
-          <button
-            type="button"
-            className={`${topbarIconButtonClass} hidden sm:inline-flex`}
-            aria-label="Trợ giúp"
-          >
-            <HelpCircle size={16} />
-          </button>
-          </>
-          )}
-
+          {/* Notifications */}
           <div className="relative" ref={notificationRef}>
             <button
               type="button"
@@ -398,9 +502,9 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
               aria-label="Mở thông báo"
               aria-expanded={isOpen}
             >
-              <Bell size={16} />
+              <Bell size={15} />
               {unreadCount > 0 && (
-                <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-black text-white shadow-sm">
+                <span className="absolute -right-1 -top-1 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-rose-500 px-1 text-[9px] font-black text-white shadow-sm">
                   {unreadCount > 9 ? '9+' : unreadCount}
                 </span>
               )}
@@ -480,6 +584,7 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
             )}
           </div>
 
+          {/* Account Settings */}
           <div className="relative hidden sm:block" ref={accountRef}>
             <button
               type="button"

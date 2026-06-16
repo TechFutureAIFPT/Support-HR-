@@ -62,7 +62,7 @@ interface JdPositionResponse {
 }
 
 interface JdHardFiltersResponse {
-  filters?: Record<string, string>;
+  filters?: Record<string, unknown>;
 }
 
 interface BackendChatResponse {
@@ -407,6 +407,56 @@ function normalizeStageDecision(
   };
 }
 
+function normalizeCandidateProfile(value: unknown): Candidate['candidateProfile'] | undefined {
+  if (!value || typeof value !== 'object') return undefined;
+  const record = value as Record<string, unknown>;
+  const workPeriods = Array.isArray(record.workPeriods)
+    ? record.workPeriods
+      .filter((item): item is Record<string, unknown> => Boolean(item && typeof item === 'object'))
+      .map((item) => ({
+        start: String(item.start || ''),
+        end: String(item.end || ''),
+        isCurrent: typeof item.isCurrent === 'boolean' ? item.isCurrent : undefined,
+        evidence: item.evidence ? String(item.evidence) : undefined,
+      }))
+      .filter((item) => item.start && item.end)
+    : [];
+
+  return {
+    birthYear: typeof record.birthYear === 'number' ? record.birthYear : record.birthYear ? Number(record.birthYear) : undefined,
+    age: typeof record.age === 'number' ? record.age : record.age ? Number(record.age) : undefined,
+    currentLocation: record.currentLocation ? String(record.currentLocation) : undefined,
+    educationLevel: record.educationLevel ? String(record.educationLevel) : undefined,
+    educationMajors: toArray(record.educationMajors),
+    inferredKnowledgeAreas: toArray(record.inferredKnowledgeAreas),
+    workPeriods,
+    totalExperienceMonths: typeof record.totalExperienceMonths === 'number' ? record.totalExperienceMonths : record.totalExperienceMonths ? Number(record.totalExperienceMonths) : undefined,
+    relevantExperienceMonths: typeof record.relevantExperienceMonths === 'number' ? record.relevantExperienceMonths : record.relevantExperienceMonths ? Number(record.relevantExperienceMonths) : undefined,
+    experienceDomains: toArray(record.experienceDomains),
+    extractionWarnings: toArray(record.extractionWarnings),
+  };
+}
+
+function normalizeScreeningSummary(value: unknown): Candidate['screeningSummary'] | undefined {
+  if (!value || typeof value !== 'object') return undefined;
+  const summary: Candidate['screeningSummary'] = {};
+
+  for (const [key, rawItem] of Object.entries(value as Record<string, unknown>)) {
+    if (!rawItem || typeof rawItem !== 'object') continue;
+    const item = rawItem as Record<string, unknown>;
+    summary[key] = {
+      status: String(item.status || 'na'),
+      mandatory: Boolean(item.mandatory),
+      expected: item.expected,
+      observed: item.observed,
+      evidence: item.evidence ? String(item.evidence) : undefined,
+      reason: item.reason ? String(item.reason) : undefined,
+    };
+  }
+
+  return Object.keys(summary).length > 0 ? summary : undefined;
+}
+
 function normalizeAscii(value: string): string {
   return value
     .normalize('NFD')
@@ -514,6 +564,11 @@ function normalizeCandidate(rawCandidate: unknown, fallbackFile?: File, cvText?:
     detectedLocationSource: candidate.detectedLocationSource ? String(candidate.detectedLocationSource) : undefined,
     locationMatch: typeof candidate.locationMatch === 'boolean' ? candidate.locationMatch : null,
     stageDecision: normalizeStageDecision(candidate.stageDecision, candidate, normalizedAnalysis),
+    candidateProfile: normalizeCandidateProfile(candidate.candidateProfile),
+    screeningSummary: normalizeScreeningSummary(candidate.screeningSummary),
+    autoRejectReasons: Array.isArray(candidate.autoRejectReasons)
+      ? candidate.autoRejectReasons.map((reason) => String(reason))
+      : undefined,
     embeddingInsights: normalizeEmbeddingInsight(candidate.embeddingInsights),
     jdCvMatchInsights: normalizeJdCvMatchInsights(candidate.jdCvMatchInsights),
     analysis: normalizedAnalysis,
@@ -650,7 +705,7 @@ export async function extractHardFiltersFromJD(jdText: string): Promise<Partial<
     jd_text: jdText,
   });
 
-  return response.filters || {};
+  return (response.filters || {}) as Partial<HardFilters>;
 }
 
 export async function* analyzeCVs(

@@ -1,0 +1,384 @@
+/* ── ExpandedContent — Accessible Light-Mode Overrides ────────────────────
+   Mục tiêu: chữ to hơn, tương phản cao, nền sáng, phù hợp người lớn tuổi
+   ─────────────────────────────────────────────────────────────────────── */
+
+/* Wrapper toàn bộ */
+.supporthr-detail-content {
+  font-size: 14px !important;
+  color: #1e293b !important;
+  line-height: 1.6 !important;
+}
+
+/* ── Nền tổng thể của mọi card trong detail ── */
+.supporthr-detail-content div[class*="rounded"][class*="border"] {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+/* ── Override nền tối ── */
+.supporthr-detail-content [class*="bg-zinc-950"],
+.supporthr-detail-content [class*="bg-zinc-900"],
+.supporthr-detail-content [class*="bg-slate-950"],
+.supporthr-detail-content [class*="bg-slate-900"] {
+  background: #f8fafc !important;
+}
+
+/* ── Text màu: các màu nhạt/mờ → đậm rõ ── */
+.supporthr-detail-content .text-zinc-200,
+.supporthr-detail-content .text-zinc-300,
+.supporthr-detail-content .text-slate-100,
+.supporthr-detail-content .text-slate-200,
+.supporthr-detail-content .text-slate-300 {
+  color: #0f172a !important;
+}
+
+.supporthr-detail-content .text-zinc-400,
+.supporthr-detail-content .text-zinc-500,
+.supporthr-detail-content .text-slate-400,
+.supporthr-detail-content .text-slate-500 {
+  color: #475569 !important;
+}
+
+/* ── Tăng cỡ chữ toàn diện ── */
+.supporthr-detail-content [class*="text-\[10px\]"],
+.supporthr-detail-content [class*="text-\[9px\]"],
+.supporthr-detail-content [class*="text-\[8px\]"],
+.supporthr-detail-content [class*="text-\[11px\]"] {
+  font-size: 12px !important;
+}
+
+.supporthr-detail-content .text-xs {
+  font-size: 13px !important;
+  line-height: 1.6 !important;
+}
+
+.supporthr-detail-content .text-sm {
+  font-size: 14px !important;
+  line-height: 1.6 !important;
+}
+
+.supporthr-detail-content .text-base {
+  font-size: 15px !important;
+}
+
+.supporthr-detail-content .text-lg {
+  font-size: 17px !important;
+}
+
+.supporthr-detail-content .text-xl {
+  font-size: 20px !important;
+}
+
+.supporthr-detail-content .text-2xl {
+  font-size: 22px !important;
+}
+
+/* ── Score/stat cards với màu sắc ── */
+.supporthr-detail-content [class*="bg-cyan-950"],
+.supporthr-detail-content [class*="bg-cyan-500\/"] {
+  background: #ecfeff !important;
+}
+.supporthr-detail-content [class*="bg-emerald-950"],
+.supporthr-detail-content [class*="bg-emerald-500\/"] {
+  background: #ecfdf5 !important;
+}
+.supporthr-detail-content [class*="bg-red-950"],
+.supporthr-detail-content [class*="bg-red-500\/"] {
+  background: #fef2f2 !important;
+}
+.supporthr-detail-content [class*="bg-yellow-950"],
+.supporthr-detail-content [class*="bg-amber-950"],
+.supporthr-detail-content [class*="bg-amber-500\/"] {
+  background: #fffbeb !important;
+}
+.supporthr-detail-content [class*="bg-purple-950"],
+.supporthr-detail-content [class*="bg-indigo-950"],
+.supporthr-detail-content [class*="bg-purple-500\/"],
+.supporthr-detail-content [class*="bg-indigo-500\/"] {
+  background: #f5f3ff !important;
+}
+.supporthr-detail-content [class*="bg-green-950"],
+.supporthr-detail-content [class*="bg-green-500\/"] {
+  background: #f0fdf4 !important;
+}
+.supporthr-detail-content [class*="bg-sky-950"],
+.supporthr-detail-content [class*="bg-sky-500\/"] {
+  background: #f0f9ff !important;
+}
+.supporthr-detail-content [class*="bg-orange-950"],
+.supporthr-detail-content [class*="bg-orange-500\/"] {
+  background: #fff7ed !important;
+}
+.supporthr-detail-content [class*="bg-pink-950"],
+.supporthr-detail-content [class*="bg-pink-500\/"] {
+  background: #fdf2f8 !important;
+}
+.supporthr-detail-content [class*="bg-lime-950"],
+.supporthr-detail-content [class*="bg-lime-500\/"] {
+  background: #f7fee7 !important;
+}
+
+/* ── Progress track nền ── */
+.supporthr-detail-content [class*="bg-zinc-900"] {
+  background: #f1f5f9 !important;
+}
+
+/* ── Màu chữ accent giữ rõ trên nền sáng ── */
+.supporthr-detail-content .text-cyan-300,
+.supporthr-detail-content .text-cyan-400 { color: #0891b2 !important; }
+.supporthr-detail-content .text-emerald-300,
+.supporthr-detail-content .text-emerald-400 { color: #059669 !important; }
+.supporthr-detail-content .text-red-300,
+.supporthr-detail-content .text-red-400 { color: #dc2626 !important; }
+.supporthr-detail-content .text-yellow-300,
+.supporthr-detail-content .text-yellow-400,
+.supporthr-detail-content .text-amber-300,
+.supporthr-detail-content .text-amber-400 { color: #b45309 !important; }
+.supporthr-detail-content .text-purple-400 { color: #7c3aed !important; }
+.supporthr-detail-content .text-indigo-400 { color: #4f46e5 !important; }
+.supporthr-detail-content .text-green-400 { color: #16a34a !important; }
+.supporthr-detail-content .text-sky-400 { color: #0284c7 !important; }
+.supporthr-detail-content .text-orange-400 { color: #ea580c !important; }
+.supporthr-detail-content .text-pink-400 { color: #db2777 !important; }
+.supporthr-detail-content .text-lime-400 { color: #65a30d !important; }
+
+/* ── Border tất cả về sáng ── */
+.supporthr-detail-content [class*="border-zinc-800"],
+.supporthr-detail-content [class*="border-zinc-700"],
+.supporthr-detail-content [class*="border-slate-800"],
+.supporthr-detail-content [class*="border-slate-700"] {
+  border-color: #e2e8f0 !important;
+}
+
+/* ── Blockquote / evidence ── */
+.supporthr-detail-content blockquote,
+.supporthr-detail-content [class*="italic"] {
+  color: #334155 !important;
+  font-size: 14px !important;
+  line-height: 1.7 !important;
+}
+
+/* ── Accordion header ── */
+.supporthr-detail-content button[aria-expanded] {
+  background: transparent !important;
+}
+
+/* ── Tags và badges nhỏ ── */
+.supporthr-detail-content span[class*="px-2"][class*="py-0.5"],
+.supporthr-detail-content span[class*="rounded-full"] {
+  font-size: 12px !important;
+}
+
+/* ── Hover button ── */
+.supporthr-detail-content button:hover {
+  opacity: 0.85;
+}
+
+/* ── Đảm bảo modal trắng vẫn dùng border sáng ── */
+.supporthr-analysis-detail-modal .supporthr-detail-content [class*="border-zinc"] {
+  border-color: #cbd5e1 !important;
+}
+
+/* ── Padding tăng nhẹ cho dễ đọc ── */
+.supporthr-detail-content .p-3\.5,
+.supporthr-detail-content .p-3 {
+  padding: 14px !important;
+}
+.supporthr-detail-content .p-4 {
+  padding: 16px !important;
+}
+
+/* ── Section card: đổi nền tối → sáng ── */
+.supporthr-detail-content [class*="bg-zinc-950"],
+.supporthr-detail-content [class*="bg-zinc-900"],
+.supporthr-detail-content [class*="bg-slate-950"] {
+  background: #ffffff !important;
+}
+.supporthr-detail-content [class*="bg-zinc-950\/"] {
+  background: #ffffff !important;
+}
+
+/* Card chính Tổng hợp */
+.supporthr-detail-content > div > div:first-child {
+  background: #ffffff !important;
+  border: 1.5px solid #e2e8f0 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06) !important;
+}
+
+/* ── Màu text: đổi zinc → slate sáng ── */
+.supporthr-detail-content .text-zinc-200,
+.supporthr-detail-content .text-zinc-300,
+.supporthr-detail-content .text-slate-100,
+.supporthr-detail-content .text-slate-200,
+.supporthr-detail-content .text-slate-300 {
+  color: #0f172a !important;
+}
+
+.supporthr-detail-content .text-zinc-400,
+.supporthr-detail-content .text-zinc-500,
+.supporthr-detail-content .text-slate-400,
+.supporthr-detail-content .text-slate-500 {
+  color: #475569 !important;
+}
+
+/* ── Tăng cỡ chữ các label nhỏ ── */
+.supporthr-detail-content [class*="text-\[10px\]"],
+.supporthr-detail-content [class*="text-\[9px\]"],
+.supporthr-detail-content [class*="text-\[8px\]"] {
+  font-size: 12px !important;
+}
+
+.supporthr-detail-content .text-xs {
+  font-size: 13px !important;
+}
+
+.supporthr-detail-content .text-sm {
+  font-size: 14px !important;
+}
+
+.supporthr-detail-content .text-base {
+  font-size: 15px !important;
+}
+
+.supporthr-detail-content .text-lg {
+  font-size: 17px !important;
+}
+
+.supporthr-detail-content .text-xl {
+  font-size: 20px !important;
+}
+
+.supporthr-detail-content .text-2xl {
+  font-size: 22px !important;
+}
+
+/* ── Score cards: nền tối → nền sáng có màu ── */
+.supporthr-detail-content [class*="bg-cyan-950"] {
+  background: #ecfeff !important;
+  border-color: #06b6d4 !important;
+}
+.supporthr-detail-content [class*="bg-emerald-950"] {
+  background: #ecfdf5 !important;
+  border-color: #10b981 !important;
+}
+.supporthr-detail-content [class*="bg-red-950"] {
+  background: #fef2f2 !important;
+  border-color: #f87171 !important;
+}
+.supporthr-detail-content [class*="bg-yellow-950"],
+.supporthr-detail-content [class*="bg-amber-950"] {
+  background: #fffbeb !important;
+  border-color: #f59e0b !important;
+}
+.supporthr-detail-content [class*="bg-purple-950"],
+.supporthr-detail-content [class*="bg-indigo-950"] {
+  background: #f5f3ff !important;
+  border-color: #8b5cf6 !important;
+}
+.supporthr-detail-content [class*="bg-green-950"] {
+  background: #f0fdf4 !important;
+  border-color: #22c55e !important;
+}
+.supporthr-detail-content [class*="bg-sky-950"] {
+  background: #f0f9ff !important;
+  border-color: #0ea5e9 !important;
+}
+.supporthr-detail-content [class*="bg-orange-950"] {
+  background: #fff7ed !important;
+  border-color: #f97316 !important;
+}
+.supporthr-detail-content [class*="bg-pink-950"] {
+  background: #fdf2f8 !important;
+  border-color: #ec4899 !important;
+}
+.supporthr-detail-content [class*="bg-lime-950"] {
+  background: #f7fee7 !important;
+  border-color: #84cc16 !important;
+}
+
+/* ── Màu chữ giá trị score giữ nguyên (cyan, emerald...) ── */
+.supporthr-detail-content .text-cyan-300,
+.supporthr-detail-content .text-cyan-400 {
+  color: #0891b2 !important;
+}
+.supporthr-detail-content .text-emerald-300,
+.supporthr-detail-content .text-emerald-400 {
+  color: #059669 !important;
+}
+.supporthr-detail-content .text-red-300,
+.supporthr-detail-content .text-red-400 {
+  color: #dc2626 !important;
+}
+.supporthr-detail-content .text-yellow-300,
+.supporthr-detail-content .text-yellow-400 {
+  color: #d97706 !important;
+}
+.supporthr-detail-content .text-purple-400 {
+  color: #7c3aed !important;
+}
+.supporthr-detail-content .text-indigo-400 {
+  color: #4f46e5 !important;
+}
+.supporthr-detail-content .text-green-400 {
+  color: #16a34a !important;
+}
+.supporthr-detail-content .text-sky-400 {
+  color: #0284c7 !important;
+}
+.supporthr-detail-content .text-orange-400 {
+  color: #ea580c !important;
+}
+.supporthr-detail-content .text-pink-400 {
+  color: #db2777 !important;
+}
+.supporthr-detail-content .text-lime-400 {
+  color: #65a30d !important;
+}
+
+/* ── Border đổi tối → sáng ── */
+.supporthr-detail-content [class*="border-zinc-800"],
+.supporthr-detail-content [class*="border-zinc-700"],
+.supporthr-detail-content [class*="border-slate-800"],
+.supporthr-detail-content [class*="border-slate-700"] {
+  border-color: #e2e8f0 !important;
+}
+
+/* ── Progress bars: nền track sáng ── */
+.supporthr-detail-content [class*="bg-zinc-900"] {
+  background: #f1f5f9 !important;
+}
+
+/* ── Accordion card nền ── */
+.supporthr-detail-content [class*="bg-slate-900"],
+.supporthr-detail-content [class*="bg-slate-950"] {
+  background: #f8fafc !important;
+}
+
+/* ── Blockquote / evidence box ── */
+.supporthr-detail-content blockquote {
+  color: #334155 !important;
+  font-size: 14px !important;
+  line-height: 1.7 !important;
+}
+
+/* ── Accordion header text ── */
+.supporthr-detail-content [class*="rounded-2xl"] .text-slate-300,
+.supporthr-detail-content [class*="rounded-xl"] .text-slate-300 {
+  color: #1e293b !important;
+}
+
+/* ── Tags / badges ── */
+.supporthr-detail-content [class*="rounded-full"][class*="bg-"] {
+  font-size: 12px !important;
+}
+
+/* Hover cải thiện */
+.supporthr-detail-content button:hover {
+  opacity: 0.85;
+}
+
+/* Đảm bảo tất cả border sáng hơn trong modal trắng */
+.supporthr-analysis-detail-modal .supporthr-detail-content [class*="border-zinc"] {
+  border-color: #cbd5e1 !important;
+}

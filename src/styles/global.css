@@ -1030,16 +1030,16 @@
 
 @media (min-width: 1024px) {
   .supporthr-sidebar {
-    top: 68px;
+    top: 54px;
     width: var(--supporthr-sidebar-width);
-    height: calc(100vh - 68px);
+    height: calc(100vh - 54px);
   }
 
   .main-content.supporthr-main--with-sidebar {
     width: calc(100vw - var(--supporthr-sidebar-width));
     max-width: calc(100vw - var(--supporthr-sidebar-width));
     margin-left: var(--supporthr-sidebar-width);
-    padding-top: 68px;
+    padding-top: 54px;
   }
 
   .main-content.supporthr-main--with-sidebar > header:first-child {
@@ -1063,7 +1063,7 @@
     top: 34px;
   }
 
-  .supporthr-shell--with-app-menu .main-content.supporthr-main--with-sidebar.supporthr-main--sidebar-collapsed {
+  .main-content.supporthr-main--with-sidebar.supporthr-main--sidebar-collapsed {
     width: 100vw;
     max-width: 100vw;
     margin-left: 0;
@@ -3498,7 +3498,7 @@ button[style*="linear-gradient"],
 .supporthr-codex-sidebar a,
 .supporthr-codex-sidebar span,
 .supporthr-codex-sidebar div {
-  border-radius: 8px !important;
+  border-radius: 10px !important;
 }
 
 .supporthr-codex-sidebar [style*="background: linear-gradient"],

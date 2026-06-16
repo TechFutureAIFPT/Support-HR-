@@ -13,13 +13,16 @@ interface WeightsConfigProps {
   hardFilters: HardFilters;
   setHardFilters: React.Dispatch<React.SetStateAction<HardFilters>>;
   onComplete: () => void;
+  jdText?: string;
 }
 
 const MANDATORY_FIELDS_FOR_VALIDATION = [
   { key: 'location', label: 'Địa điểm làm việc' },
+  { key: 'age', label: 'Độ tuổi' },
   { key: 'minExp', label: 'Kinh nghiệm tối thiểu' },
   { key: 'seniority', label: 'Cấp độ' },
   { key: 'education', label: 'Học vấn' },
+  { key: 'majorGroups', label: 'Nhóm chuyên ngành' },
   { key: 'industry', label: 'Ngành nghề' },
   { key: 'language', label: 'Ngôn ngữ' },
   { key: 'certificates', label: 'Chứng chỉ' },
@@ -27,6 +30,16 @@ const MANDATORY_FIELDS_FOR_VALIDATION = [
   { key: 'workFormat', label: 'Hình thức làm việc' },
   { key: 'contractType', label: 'Hợp đồng' },
 ] as const;
+
+function hasHardFilterValue(hardFilters: HardFilters, key: string): boolean {
+  if (key === 'salary') return Boolean(hardFilters.salaryMin || hardFilters.salaryMax);
+  if (key === 'age') return Boolean(hardFilters.age?.min !== undefined || hardFilters.age?.max !== undefined);
+  if (key === 'majorGroups') return Boolean((hardFilters.majorGroups || []).length > 0);
+  const value = hardFilters[key as keyof HardFilters];
+  if (typeof value === 'string') return value.trim().length > 0;
+  if (Array.isArray(value)) return value.length > 0;
+  return Boolean(value);
+}
 
 const STEPS = [
   { num: 1 as const, label: 'Bộ lọc cứng' },
@@ -56,7 +69,7 @@ const getSummaryTone = (pct: number): SummaryTone => {
   return 'low';
 };
 
-const WeightsConfig: React.FC<WeightsConfigProps> = memo(({ weights, setWeights, hardFilters, setHardFilters, onComplete }) => {
+const WeightsConfig: React.FC<WeightsConfigProps> = memo(({ weights, setWeights, hardFilters, setHardFilters, onComplete, jdText }) => {
   const [expandedCriterion, setExpandedCriterion] = useState<string | null>(null);
   const [validationErrorFilters, setValidationErrorFilters] = useState<string | null>(null);
   const [validationErrorWeights, setValidationErrorWeights] = useState<string | null>(null);
@@ -107,9 +120,7 @@ const WeightsConfig: React.FC<WeightsConfigProps> = memo(({ weights, setWeights,
     const invalidField = MANDATORY_FIELDS_FOR_VALIDATION.find((field) => {
       const mandatoryKey = `${field.key}Mandatory` as keyof HardFilters;
       if (!hardFilters[mandatoryKey]) return false;
-      if (field.key === 'salary') return !hardFilters.salaryMin && !hardFilters.salaryMax;
-      const valueKey = field.key as keyof HardFilters;
-      return !hardFilters[valueKey];
+      return !hasHardFilterValue(hardFilters, field.key);
     });
 
     if (invalidField) {
@@ -146,9 +157,9 @@ const WeightsConfig: React.FC<WeightsConfigProps> = memo(({ weights, setWeights,
     const active = keys.filter((key) => hardFilters[key]).length;
     const fulfilled = keys.filter((key) => {
       if (!hardFilters[key]) return false;
-      const valueKey = key.replace('Mandatory', '') as keyof HardFilters;
-      const value = hardFilters[valueKey];
-      return typeof value === 'string' ? value.trim().length > 0 : Boolean(value);
+      const rawValueKey = key.replace('Mandatory', '');
+      const valueKey = rawValueKey === 'major' ? 'majorGroups' : rawValueKey;
+      return hasHardFilterValue(hardFilters, valueKey);
     }).length;
 
     return {
@@ -226,25 +237,94 @@ const WeightsConfig: React.FC<WeightsConfigProps> = memo(({ weights, setWeights,
         </div>
       </div>
 
-      <div className="relative z-10 flex min-h-0 flex-1 flex-col overflow-hidden lg:flex-row">
+      <div className="relative z-10 flex min-h-0 flex-1 flex-col overflow-hidden">
+        {/* Side panel content moved to top as compact bar */}
+        <div className="shrink-0 border-b border-blue-100 bg-white">
+          {step === 1 ? (
+            <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
+              {/* Progress summary */}
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold uppercase tracking-[0.14em] text-slate-500">Đã bật</span>
+                  <span className="text-2xl font-black text-slate-900">{mandatoryProgress.active}</span>
+                </div>
+                <div className="h-6 w-px bg-blue-100" />
+                <div className="flex items-center gap-2">
+                  <span className="weights-config__metric-label text-xs font-bold uppercase tracking-[0.14em] text-slate-500">Hợp lệ</span>
+                  <span className="weights-config__metric-value text-2xl font-black">{mandatoryProgress.fulfilled}</span>
+                </div>
+                <div className="h-6 w-px bg-blue-100" />
+                <div className="flex min-w-[120px] items-center gap-2">
+                  <div className="weights-config__progress-track relative h-2 flex-1 overflow-hidden rounded-full">
+                    <div className="weights-config__progress-fill h-full transition-all duration-700 ease-out" />
+                  </div>
+                  <span className="weights-config__progress-value text-xs font-bold">{mandatoryProgress.percent}%</span>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={handleFiltersComplete}
+                className="weights-config__primary-cta flex items-center gap-2 px-5 py-2 text-[11px] font-bold text-white transition-all"
+              >
+                Tiếp tục phân bổ trọng số
+                <span className="text-[10px] opacity-80">→</span>
+              </button>
+              {validationErrorFilters && (
+                <p className="w-full text-[10px] font-medium text-red-500">{validationErrorFilters}</p>
+              )}
+            </div>
+          ) : (
+            <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold uppercase tracking-[0.14em] text-slate-500">Tổng trọng số</span>
+                  <span className="weights-config__total-value text-2xl font-black tracking-tighter" data-status={weightStatus.state}>
+                    {totalWeight}
+                    <span className="weights-config__total-suffix text-base font-bold">%</span>
+                  </span>
+                </div>
+                <div
+                  className="weights-config__status-pill flex items-center gap-1.5 px-3 py-1 text-[9px] font-bold uppercase tracking-[0.1em]"
+                  data-status={weightStatus.state}
+                >
+                  {weightStatus.label} · {weightStatus.desc}
+                </div>
+                <TotalWeightDisplay totalWeight={totalWeight} />
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setStep(1)}
+                  className="weights-config__back-button flex items-center gap-1.5 px-4 py-2 text-[9px] font-bold uppercase tracking-[0.1em] transition-all"
+                >
+                  <span className="text-[10px]">←</span>
+                  Quay lại
+                </button>
+                <button
+                  type="button"
+                  onClick={handleWeightsComplete}
+                  disabled={totalWeight !== 100}
+                  data-ready={totalWeight === 100}
+                  className="weights-config__finish-cta flex items-center gap-2 px-5 py-2 text-[11px] font-bold transition-all"
+                >
+                  Hoàn tất và phân tích ngay
+                  <span className="text-[10px] opacity-80">→</span>
+                </button>
+              </div>
+              {validationErrorWeights && (
+                <p className="w-full text-[10px] font-medium text-red-500">{validationErrorWeights}</p>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Main scrollable content — full width */}
         <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto">
-          <div className="w-full p-3 pb-16 md:p-4 md:pb-16 lg:p-4 lg:pb-20">
+          <div className="w-full p-3 pb-6 md:p-4 md:pb-8 lg:p-5">
             {step === 1 ? (
-              <HardFilterPanel hardFilters={hardFilters} setHardFilters={setHardFilters} />
+              <HardFilterPanel hardFilters={hardFilters} setHardFilters={setHardFilters} jdText={jdText} />
             ) : (
               <div className="grid grid-cols-1 gap-2">
-                <div className="hidden">
-                  <div className="weights-config__accent shrink-0" />
-                  <div>
-                    <h3 className="weights-config__section-title text-sm font-bold">
-                      Phân bổ trọng số cho từng tiêu chí
-                    </h3>
-                    <p className="weights-config__section-copy text-[11px]">
-                      Kéo thanh trượt hoặc nhập số để điều chỉnh mức độ quan trọng.
-                    </p>
-                  </div>
-                </div>
-
                 {primaryCriteria.map((criterion) => (
                   <WeightTile
                     key={criterion.key}
@@ -260,157 +340,8 @@ const WeightsConfig: React.FC<WeightsConfigProps> = memo(({ weights, setWeights,
             )}
           </div>
         </div>
-
-        <div className="weights-config__side-panel relative z-10 flex min-h-0 w-full shrink-0 flex-col backdrop-blur-xl lg:w-[340px] xl:w-[400px]">
-          <div className="custom-scrollbar flex min-h-0 flex-1 flex-col overflow-y-auto">
-            {step === 1 ? (
-              <>
-                <div className="p-4 lg:p-5">
-                  <div className="weights-config__card weights-config__card--progress relative mb-3 overflow-hidden p-4">
-                    <div className="weights-config__card-glow weights-config__card-glow--info" />
-
-                    <h4 className="weights-config__card-title relative z-10 mb-3 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em]">
-                      <div className="weights-config__card-accent h-6 w-[2px] shrink-0" />
-                      Tiến trình bộ lọc
-                    </h4>
-
-                    <div className="mb-3 grid grid-cols-2 gap-2">
-                      <div className="weights-config__metric-card flex flex-col items-center justify-center p-3">
-                        <span className="mb-0.5 text-2xl font-black tracking-tighter text-slate-900">{mandatoryProgress.active}</span>
-                        <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-slate-400">Đã bật</span>
-                      </div>
-                      <div className="weights-config__metric-card weights-config__metric-card--success flex flex-col items-center justify-center p-3">
-                        <span className="weights-config__metric-value mb-0.5 text-2xl font-black tracking-tighter">
-                          {mandatoryProgress.fulfilled}
-                        </span>
-                        <span className="weights-config__metric-label text-[9px] font-bold uppercase tracking-[0.2em]">
-                          Hợp lệ
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="weights-config__progress-shell relative space-y-1.5 p-2.5">
-                      <div className="flex justify-between text-[10px] font-bold tracking-[0.15em]">
-                        <span className="weights-config__progress-label uppercase">Hoàn tất</span>
-                        <span className="weights-config__progress-value">{mandatoryProgress.percent}%</span>
-                      </div>
-                      <div className="weights-config__progress-track relative h-2 overflow-hidden">
-                        <div className="weights-config__progress-fill relative flex h-full justify-end transition-all duration-700 ease-out">
-                          <div className="weights-config__progress-shine absolute top-0 right-0 h-full w-6" />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="weights-config__note flex items-start gap-2.5 overflow-hidden p-3">
-                    <div className="weights-config__note-accent h-full w-[2px] shrink-0" />
-                    <p className="weights-config__note-copy text-[11px] font-medium leading-relaxed text-slate-600">
-                      Tiêu chí bật <strong className="font-bold text-slate-900">Bắt buộc</strong> nhưng chưa có giá trị sẽ bị
-                      <strong className="font-bold text-slate-900"> bỏ qua</strong> khi AI phân tích.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="weights-config__footer-actions mt-auto space-y-2 p-3 lg:p-4">
-                  <button
-                    type="button"
-                    onClick={handleFiltersComplete}
-                    className="weights-config__primary-cta flex w-full items-center justify-center gap-2 py-2.5 text-[11px] font-bold text-white transition-all"
-                  >
-                    Tiếp tục phân bổ trọng số
-                    <span className="text-[10px] opacity-80">→</span>
-                  </button>
-
-                  {validationErrorFilters && (
-                    <div className="weights-config__error flex items-start gap-2 p-2">
-                      <div className="weights-config__error-bar h-full w-[2px] shrink-0" />
-                      <p className="text-[10px] font-medium leading-relaxed text-red-300">{validationErrorFilters}</p>
-                    </div>
-                  )}
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="p-4 lg:p-5">
-                  <div className="weights-config__card relative mb-3 overflow-hidden p-4">
-                    <div className="weights-config__card-glow" data-status={weightStatus.state} />
-
-                    <h4 className="weights-config__card-title relative z-10 mb-3 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em]">
-                      <div className="weights-config__card-accent h-6 w-[2px] shrink-0" />
-                      Tổng trọng số
-                    </h4>
-
-                    <div className="weights-config__total-card mb-3 flex flex-col items-center justify-center p-3">
-                      <div className="relative z-10 flex items-baseline gap-1 transition-transform duration-500">
-                        <span className="weights-config__total-value text-4xl font-black tracking-tighter" data-status={weightStatus.state}>
-                          {totalWeight}
-                        </span>
-                        <span className="weights-config__total-suffix text-lg font-bold" data-status={weightStatus.state}>
-                          %
-                        </span>
-                      </div>
-                      <div
-                        className="weights-config__status-pill mt-1.5 flex items-center gap-1.5 px-3 py-1 text-[9px] font-bold uppercase tracking-[0.1em]"
-                        data-status={weightStatus.state}
-                      >
-                        {weightStatus.label} · {weightStatus.desc}
-                      </div>
-                    </div>
-
-                    <TotalWeightDisplay totalWeight={totalWeight} />
-                  </div>
-
-                  <div className="space-y-1.5">
-                    {primaryCriteria.slice(0, 4).map((criterion) => {
-                      const subTotal = criterion.children?.reduce((sum, child) => sum + child.weight, 0) || 0;
-                      const pct = Math.round(subTotal);
-
-                      return (
-                        <div key={criterion.key} className="weights-config__summary-row flex items-center gap-2 px-2 py-1.5">
-                          <div className="weights-config__summary-accent h-5 w-[2px] shrink-0" data-tone={getSummaryTone(pct)} />
-                          <span className="weights-config__summary-label flex-1 truncate text-[10px] font-medium">
-                            {criterion.name}
-                          </span>
-                          <span className="weights-config__summary-value text-[10px] font-bold">{pct}%</span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                <div className="weights-config__footer-actions mt-auto space-y-2 p-3 lg:p-4">
-                  <button
-                    type="button"
-                    onClick={handleWeightsComplete}
-                    disabled={totalWeight !== 100}
-                    data-ready={totalWeight === 100}
-                    className="weights-config__finish-cta flex w-full items-center justify-center gap-2 py-2.5 text-[11px] font-bold transition-all"
-                  >
-                    Hoàn tất và phân tích ngay
-                    <span className="text-[10px] opacity-80">→</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setStep(1)}
-                    className="weights-config__back-button flex w-full items-center justify-center gap-1.5 py-1.5 text-[9px] font-bold uppercase tracking-[0.1em] transition-all"
-                  >
-                    <span className="text-[10px]">←</span>
-                    Quay lại
-                  </button>
-
-                  {validationErrorWeights && (
-                    <div className="weights-config__error flex items-start gap-2 p-2">
-                      <div className="weights-config__error-bar h-full w-[2px] shrink-0" />
-                      <p className="text-[10px] font-medium leading-relaxed text-red-300">{validationErrorWeights}</p>
-                    </div>
-                  )}
-                </div>
-              </>
-            )}
-          </div>
-        </div>
       </div>
+
     </section>
   );
 });

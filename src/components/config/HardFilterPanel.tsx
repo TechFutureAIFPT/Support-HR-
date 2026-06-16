@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Award,
   Building,
@@ -8,14 +8,21 @@ import {
   GraduationCap,
   Languages,
   Layers,
+  Loader2,
   MapPin,
+  Plus,
+  Tags,
+  X,
   ShieldCheck,
+  Wand2,
 } from 'lucide-react';
 import type { HardFilters } from '@/types';
+import { extractHardFiltersFromJD } from '@/services/screening/frontendScreeningService';
 
 interface HardFilterPanelProps {
   hardFilters: HardFilters;
   setHardFilters: React.Dispatch<React.SetStateAction<HardFilters>>;
+  jdText?: string;
 }
 
 type MandatoryKey = Extract<keyof HardFilters, `${string}Mandatory`>;
@@ -173,7 +180,34 @@ const detailFields: FieldConfig[] = [
   },
 ];
 
-const HardFilterPanel: React.FC<HardFilterPanelProps> = ({ hardFilters, setHardFilters }) => {
+const HardFilterPanel: React.FC<HardFilterPanelProps> = ({ hardFilters, setHardFilters, jdText }) => {
+  const [isAutoFilling, setIsAutoFilling] = useState(false);
+  const [autoFillNotice, setAutoFillNotice] = useState('');
+  const [majorInput, setMajorInput] = useState('');
+
+  const handleAutoFill = async () => {
+    if (!jdText || jdText.trim().length < 20) {
+      setAutoFillNotice('Chưa có nội dung JD để phân tích.');
+      return;
+    }
+    setIsAutoFilling(true);
+    setAutoFillNotice('');
+    try {
+      const extracted = await extractHardFiltersFromJD(jdText);
+      setHardFilters((prev) => ({
+        ...prev,
+        ...Object.fromEntries(
+          Object.entries(extracted).filter(([, v]) => v !== undefined && v !== '')
+        ),
+      }));
+      setAutoFillNotice('Đã tự động điền thông tin từ JD.');
+    } catch {
+      setAutoFillNotice('Không thể trích xuất thông tin từ JD.');
+    } finally {
+      setIsAutoFilling(false);
+    }
+  };
+
   const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { id, value } = event.target;
     setHardFilters((prev) => ({ ...prev, [id]: value }));
@@ -182,6 +216,33 @@ const HardFilterPanel: React.FC<HardFilterPanelProps> = ({ hardFilters, setHardF
   const handleMandatoryChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { id, checked } = event.target;
     setHardFilters((prev) => ({ ...prev, [id]: checked }));
+  };
+
+  const handleAgeChange = (key: 'min' | 'max', value: string) => {
+    setHardFilters((prev) => ({
+      ...prev,
+      age: {
+        ...(prev.age || {}),
+        [key]: value === '' ? undefined : Number(value),
+      },
+    }));
+  };
+
+  const addMajorGroup = () => {
+    const value = majorInput.trim();
+    if (!value) return;
+    setHardFilters((prev) => ({
+      ...prev,
+      majorGroups: Array.from(new Set([...(prev.majorGroups || []), value])),
+    }));
+    setMajorInput('');
+  };
+
+  const removeMajorGroup = (value: string) => {
+    setHardFilters((prev) => ({
+      ...prev,
+      majorGroups: (prev.majorGroups || []).filter((item) => item !== value),
+    }));
   };
 
   const hasValue = (value: unknown) => {
@@ -264,6 +325,29 @@ const HardFilterPanel: React.FC<HardFilterPanelProps> = ({ hardFilters, setHardF
 
   return (
     <div className="w-full animate-fade-in space-y-4 pb-4">
+      {/* Auto-fill from JD */}
+      {jdText && jdText.trim().length >= 20 && (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-blue-100 bg-blue-50 px-4 py-3">
+          <div className="min-w-0">
+            <p className="text-[13px] font-bold text-slate-900">Tự động điền từ JD</p>
+            <p className="mt-0.5 text-[11px] text-slate-500">
+              {autoFillNotice || 'AI sẽ phân tích nội dung JD và điền các trường phù hợp.'}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => void handleAutoFill()}
+            disabled={isAutoFilling}
+            className="inline-flex h-9 shrink-0 items-center gap-2 rounded-lg bg-blue-600 px-4 text-[13px] font-bold text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-300"
+          >
+            {isAutoFilling
+              ? <Loader2 className="h-4 w-4 animate-spin" />
+              : <Wand2 className="h-4 w-4" />}
+            {isAutoFilling ? 'Đang phân tích...' : 'Tự động điền'}
+          </button>
+        </div>
+      )}
+
       <section>
         <div className="mb-3 flex items-center gap-3">
           <span className="flex h-8 w-8 items-center justify-center rounded-lg border border-blue-100 bg-blue-50 text-blue-600">
@@ -293,6 +377,95 @@ const HardFilterPanel: React.FC<HardFilterPanelProps> = ({ hardFilters, setHardF
         </div>
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
           {detailFields.map((config) => <FieldCard key={String(config.id)} config={config} />)}
+
+          <div className={`relative overflow-hidden rounded-xl border bg-white p-3.5 shadow-[0_10px_26px_rgba(30,64,175,0.055)] transition ${
+            hardFilters.ageMandatory ? 'border-blue-200' : 'border-blue-100 hover:border-blue-200'
+          }`}>
+            {hardFilters.ageMandatory && <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-blue-500 to-emerald-300" />}
+            <div className="mb-2.5 flex items-center justify-between gap-3">
+              <label className="flex min-w-0 items-center gap-2.5">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-blue-100 bg-blue-50 text-blue-600">
+                  <Clock className="h-4 w-4" />
+                </span>
+                <span className="min-w-0">
+                  <span className="block truncate text-sm font-bold text-slate-900">Độ tuổi</span>
+                  <span className="block truncate text-[11px] text-slate-500">Khoảng tuổi chấp nhận</span>
+                </span>
+              </label>
+              <Toggle id="ageMandatory" checked={Boolean(hardFilters.ageMandatory)} />
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <input
+                type="number"
+                value={hardFilters.age?.min ?? ''}
+                onChange={(event) => handleAgeChange('min', event.target.value)}
+                placeholder="Tuổi tối thiểu"
+                className={inputClasses(Boolean(hardFilters.ageMandatory), hasValue(hardFilters.age?.min))}
+              />
+              <input
+                type="number"
+                value={hardFilters.age?.max ?? ''}
+                onChange={(event) => handleAgeChange('max', event.target.value)}
+                placeholder="Tuổi tối đa"
+                className={inputClasses(Boolean(hardFilters.ageMandatory), hasValue(hardFilters.age?.max))}
+              />
+            </div>
+          </div>
+
+          <div className={`relative overflow-hidden rounded-xl border bg-white p-3.5 shadow-[0_10px_26px_rgba(30,64,175,0.055)] transition md:col-span-2 xl:col-span-2 ${
+            hardFilters.majorMandatory ? 'border-blue-200' : 'border-blue-100 hover:border-blue-200'
+          }`}>
+            {hardFilters.majorMandatory && <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-blue-500 to-emerald-300" />}
+            <div className="mb-2.5 flex items-center justify-between gap-3">
+              <label className="flex min-w-0 items-center gap-2.5">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-orange-100 bg-orange-50 text-orange-500">
+                  <Tags className="h-4 w-4" />
+                </span>
+                <span className="min-w-0">
+                  <span className="block truncate text-sm font-bold text-slate-900">Nhóm chuyên ngành</span>
+                  <span className="block truncate text-[11px] text-slate-500">Ví dụ: business-administration, accounting-finance</span>
+                </span>
+              </label>
+              <Toggle id="majorMandatory" checked={Boolean(hardFilters.majorMandatory)} />
+            </div>
+
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={majorInput}
+                onChange={(event) => setMajorInput(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter') {
+                    event.preventDefault();
+                    addMajorGroup();
+                  }
+                }}
+                placeholder="Nhập nhóm ngành rồi Enter"
+                className={inputClasses(Boolean(hardFilters.majorMandatory), (hardFilters.majorGroups || []).length > 0)}
+              />
+              <button
+                type="button"
+                onClick={addMajorGroup}
+                className="inline-flex h-[42px] shrink-0 items-center gap-1 rounded-lg border border-blue-200 bg-blue-50 px-3 text-xs font-bold text-blue-600 transition hover:border-blue-300 hover:bg-blue-100"
+              >
+                <Plus className="h-4 w-4" />
+                Thêm
+              </button>
+            </div>
+
+            {(hardFilters.majorGroups || []).length > 0 && (
+              <div className="mt-3 flex flex-wrap gap-2">
+                {(hardFilters.majorGroups || []).map((group) => (
+                  <span key={group} className="inline-flex items-center gap-1 rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-[11px] font-semibold text-blue-700">
+                    {group}
+                    <button type="button" onClick={() => removeMajorGroup(group)} className="text-blue-500 hover:text-blue-700">
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
 
           <div className={`relative overflow-hidden rounded-xl border bg-white p-3.5 shadow-[0_10px_26px_rgba(30,64,175,0.055)] transition ${
             hardFilters.languageMandatory ? 'border-blue-200' : 'border-blue-100 hover:border-blue-200'

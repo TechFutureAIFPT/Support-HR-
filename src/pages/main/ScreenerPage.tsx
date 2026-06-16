@@ -182,6 +182,7 @@ const ScreenerPage: React.FC<ScreenerPageProps> = (props) => {
               setWeights={props.setWeights}
               hardFilters={props.hardFilters}
               setHardFilters={props.setHardFilters}
+              jdText={props.jdText}
               onComplete={() => {
                 props.markStepAsCompleted('jd');
                 props.markStepAsCompleted('upload');

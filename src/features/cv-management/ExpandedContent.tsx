@@ -22,6 +22,8 @@ import { analyzeExperience, extractJDRequirements, compareEvidence } from '@/ser
 import { UploadedFilesService } from '@/services/data-sync/uploadedFilesService';
 import { useThemeColors } from '@/hooks/useThemeColors';
 import { normalizeVietnameseDisplay } from '@/utils/textDisplay';
+import '@/features/cv-management/styles/expanded-content-accessible.css';
+
 
 // ── Phân loại tiêu chí ──────────────────────────────────────────────────────
 

@@ -1,0 +1,246 @@
+/* ── Support HR — Accessible Theme Stylesheet ───────────────────────────
+   Mục tiêu:
+   1. Chữ to hơn rõ rệt (hệ thống font size tăng từ 2px - 4px).
+   2. Tương phản cực cao (đổi các màu xám mờ thành xám đậm/đen, viền rõ nét).
+   3. Khoảng cách (padding, margin, gap) rộng rãi, dễ click, dễ bấm.
+   4. Phù hợp tuyệt đối cho người lớn tuổi hoặc người có thị lực kém.
+   ─────────────────────────────────────────────────────────────────────── */
+
+/* ── Áp dụng khi bật chế độ dễ nhìn (.supporthr-accessible) ── */
+.supporthr-accessible {
+  /* Tăng font size cơ bản */
+  font-size: 16px !important;
+}
+
+/* 1. Đảm bảo text và icon lớn hơn khắp nơi */
+.supporthr-accessible body,
+.supporthr-accessible input,
+.supporthr-accessible select,
+.supporthr-accessible textarea,
+.supporthr-accessible button {
+  font-size: 15px !important;
+  line-height: 1.625 !important;
+  letter-spacing: 0.01em !important;
+}
+
+/* 2. Cỡ chữ tiện ích (Utility Typography Overrides) */
+.supporthr-accessible [class*="text-[8px]"],
+.supporthr-accessible [class*="text-[9px]"],
+.supporthr-accessible [class*="text-[10px]"],
+.supporthr-accessible [class*="text-[11px]"],
+.supporthr-accessible [class*="text-xxs"] {
+  font-size: 13px !important;
+  font-weight: 700 !important; /* Đậm hơn cho dễ đọc */
+  letter-spacing: 0.02em !important;
+}
+
+.supporthr-accessible .text-xs,
+.supporthr-accessible [class*="text-xs"] {
+  font-size: 14px !important;
+  line-height: 1.6 !important;
+}
+
+.supporthr-accessible .text-sm,
+.supporthr-accessible [class*="text-sm"] {
+  font-size: 16px !important;
+  line-height: 1.6 !important;
+}
+
+.supporthr-accessible .text-base,
+.supporthr-accessible [class*="text-base"] {
+  font-size: 18px !important;
+}
+
+.supporthr-accessible .text-lg,
+.supporthr-accessible [class*="text-lg"] {
+  font-size: 20px !important;
+  font-weight: 700 !important;
+}
+
+.supporthr-accessible .text-xl,
+.supporthr-accessible [class*="text-xl"] {
+  font-size: 24px !important;
+  font-weight: 800 !important;
+}
+
+.supporthr-accessible .text-2xl,
+.supporthr-accessible [class*="text-2xl"] {
+  font-size: 28px !important;
+  font-weight: 950 !important;
+}
+
+.supporthr-accessible .text-3xl,
+.supporthr-accessible [class*="text-3xl"] {
+  font-size: 32px !important;
+  font-weight: 950 !important;
+}
+
+/* 3. Tương phản màu sắc - Khắc phục chữ xám mờ khó nhìn */
+.supporthr-accessible .text-slate-400,
+.supporthr-accessible .text-zinc-400,
+.supporthr-accessible .text-gray-400,
+.supporthr-accessible .text-slate-500,
+.supporthr-accessible .text-zinc-500,
+.supporthr-accessible .text-gray-500,
+.supporthr-accessible .text-zinc-600,
+.supporthr-accessible .text-slate-600 {
+  color: #1e293b !important; /* Chuyển thành slate-800 cực kì đậm nét */
+}
+
+.supporthr-accessible .text-slate-300,
+.supporthr-accessible .text-zinc-300,
+.supporthr-accessible .text-gray-300 {
+  color: #0f172a !important; /* Chuyển hẳn thành slate-900 đen đậm */
+}
+
+/* Cải thiện các đoạn gợi ý nhỏ/chữ phụ */
+.supporthr-accessible p[class*="text-muted"],
+.supporthr-accessible span[class*="text-muted"],
+.supporthr-accessible div[class*="text-muted"] {
+  color: #0f172a !important;
+  font-weight: 500 !important;
+}
+
+/* 4. Viền và bóng đổ đậm rõ nét (High-Contrast Borders) */
+.supporthr-accessible [class*="border-slate-"],
+.supporthr-accessible [class*="border-zinc-"],
+.supporthr-accessible [class*="border-gray-"],
+.supporthr-accessible [class*="border-blue-100"],
+.supporthr-accessible [class*="border-blue-50"] {
+  border-color: #94a3b8 !important; /* Thay viền siêu nhạt bằng slate-400 rõ ràng */
+}
+
+.supporthr-accessible [class*="shadow-"] {
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.15) !important; /* Tăng bóng để nổi khối rõ */
+}
+
+/* 5. Inputs, Buttons & Selects dễ tương tác */
+.supporthr-accessible input[type="text"],
+.supporthr-accessible input[type="number"],
+.supporthr-accessible select,
+.supporthr-accessible textarea {
+  padding-top: 12px !important;
+  padding-bottom: 12px !important;
+  border-color: #475569 !important; /* Slate-600 viền cực nét */
+  border-width: 2px !important;
+  font-size: 15px !important;
+  background-color: #ffffff !important;
+}
+
+.supporthr-accessible input::placeholder {
+  color: #64748b !important; /* Placeholder cũng rõ hơn */
+  font-weight: 500;
+}
+
+/* Checkbox và Toggle Switch to hơn */
+.supporthr-accessible input[type="checkbox"] {
+  transform: scale(1.3) !important;
+  margin: 4px !important;
+}
+
+/* Toggle switch custom ở HardFilterPanel */
+.supporthr-accessible .relative.h-5.w-10 {
+  height: 28px !important;
+  width: 52px !important;
+}
+.supporthr-accessible .relative.h-5.w-10 > span {
+  height: 22px !important;
+  width: 22px !important;
+  top: 2px !important;
+}
+.supporthr-accessible .relative.h-5.w-10 > span[class*="left-5"] {
+  left: 26px !important;
+}
+
+/* Nút bấm (Buttons) */
+.supporthr-accessible button {
+  padding-top: 10px !important;
+  padding-bottom: 10px !important;
+  font-weight: 800 !important; /* Cho chữ đậm hẳn */
+}
+
+/* 6. Sidebar & Menu */
+.supporthr-accessible .supporthr-sidebar-link,
+.supporthr-accessible [class*="sidebar"] a,
+.supporthr-accessible [class*="sidebar"] button {
+  font-size: 16px !important;
+  padding-top: 12px !important;
+  padding-bottom: 12px !important;
+}
+
+/* Icon trong Sidebar to hơn */
+.supporthr-accessible [class*="sidebar"] svg,
+.supporthr-accessible [class*="sidebar"] i {
+  width: 22px !important;
+  height: 22px !important;
+}
+
+/* 7. Bộ lọc và Trọng số (WeightsConfig & HardFilterPanel) */
+.supporthr-accessible .weights-config__step-button {
+  font-size: 14px !important;
+  padding: 8px 16px !important;
+}
+
+.supporthr-accessible .weights-config__step-index {
+  width: 24px !important;
+  height: 24px !important;
+  font-size: 12px !important;
+}
+
+.supporthr-accessible .weights-config__primary-cta,
+.supporthr-accessible .weights-config__finish-cta {
+  font-size: 14px !important;
+  padding: 12px 24px !important;
+}
+
+/* Slider (Thanh kéo trọng số) */
+.supporthr-accessible input[type="range"] {
+  height: 12px !important; /* Slider dày gấp đôi để kéo chính xác */
+}
+.supporthr-accessible input[type="range"]::-webkit-slider-thumb {
+  width: 24px !important;
+  height: 24px !important;
+  border-radius: 50% !important;
+  background: #2388ff !important;
+  border: 3px solid #ffffff !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3) !important;
+}
+
+/* 8. Modal & Chi tiết ứng viên (ExpandedContent) */
+.supporthr-accessible .supporthr-analysis-detail-modal {
+  max-width: 90% !important; /* Rộng rãi hơn */
+}
+
+.supporthr-accessible .supporthr-detail-content {
+  font-size: 16px !important;
+}
+
+.supporthr-accessible .supporthr-detail-content blockquote,
+.supporthr-accessible .supporthr-detail-content [class*="italic"] {
+  font-size: 15px !important;
+  color: #0f172a !important;
+  border-left-width: 4px !important;
+  border-left-color: #2388ff !important;
+  padding-left: 12px !important;
+}
+
+/* Badge và Tag */
+.supporthr-accessible span[class*="rounded-full"],
+.supporthr-accessible span[class*="px-2"][class*="py-0.5"] {
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  padding: 4px 8px !important;
+  border: 1px solid currentColor !important; /* Có viền để phân biệt rõ */
+}
+
+/* 9. Wizard Chuẩn hóa JD (JDStandardizerPage) */
+.supporthr-accessible .jd-standardizer-card {
+  border-width: 2px !important;
+}
+.supporthr-accessible .jd-standardizer-card h3 {
+  font-size: 18px !important;
+}
+.supporthr-accessible .jd-standardizer-card p {
+  font-size: 14px !important;
+  color: #1e293b !important;
+}

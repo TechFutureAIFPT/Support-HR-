@@ -44,7 +44,9 @@ export type AppStep =
   | 'jd-standardizer'
   | 'process'
   | 'history'
-  | 'feedback';
+  | 'feedback'
+  | 'app-docs'
+  | 'jd-templates';
 
 export interface DetailedScore {
   'Tiêu chí': string;
@@ -66,6 +68,46 @@ export interface StageDecision {
   blockingReasons: string[];
 }
 
+export interface CandidateWorkPeriod {
+  start: string;
+  end: string;
+  isCurrent?: boolean;
+  evidence?: string;
+}
+
+export interface CandidateProfile {
+  birthYear?: number | null;
+  age?: number | null;
+  currentLocation?: string;
+  educationLevel?: string;
+  educationMajors?: string[];
+  inferredKnowledgeAreas?: string[];
+  workPeriods?: CandidateWorkPeriod[];
+  totalExperienceMonths?: number;
+  relevantExperienceMonths?: number;
+  experienceDomains?: string[];
+  extractionWarnings?: string[];
+}
+
+export interface ScreeningFactorSummary {
+  status: 'pass' | 'fail' | 'review' | 'na' | string;
+  mandatory: boolean;
+  expected?: unknown;
+  observed?: unknown;
+  evidence?: string;
+  reason?: string;
+}
+
+export interface ScreeningSummary {
+  age?: ScreeningFactorSummary;
+  education?: ScreeningFactorSummary;
+  major?: ScreeningFactorSummary;
+  knowledge?: ScreeningFactorSummary;
+  experience?: ScreeningFactorSummary;
+  location?: ScreeningFactorSummary;
+  [key: string]: ScreeningFactorSummary | undefined;
+}
+
 export interface Candidate {
   id: string;
   candidateName: string;
@@ -82,6 +124,9 @@ export interface Candidate {
   detectedLocationSource?: string;
   locationMatch?: boolean | null;
   stageDecision?: StageDecision;
+  candidateProfile?: CandidateProfile;
+  screeningSummary?: ScreeningSummary;
+  autoRejectReasons?: string[];
   embeddingInsights?: CandidateEmbeddingInsight;
   jdCvMatchInsights?: CandidateJdCvMatchInsight;
 
@@ -135,6 +180,9 @@ export interface HardFilters {
   salaryMandatory: boolean;
 
   age?: { min?: number; max?: number };
+  ageMandatory?: boolean;
+  majorGroups?: string[];
+  majorMandatory?: boolean;
   gender?: string[];
   ethnicity?: string[];
   religion?: string[];
@@ -445,4 +493,63 @@ export interface ChatbotSession {
   createdAt: any;
   updatedAt: any;
   lastMessageAt: number;
+}
+
+export type SidebarDensity = 'compact' | 'cozy';
+export type UserSettingsTheme = 'light';
+export type UserSettingsLanguage = 'vi-VN';
+export type NewSessionMode = 'reset' | 'keep-config';
+export type HistoryRetention = 50 | 100 | 200;
+
+export interface UserSettingsUI {
+  sidebarDensity: SidebarDensity;
+  accessibleMode: boolean;
+  reducedMotion: boolean;
+  language: UserSettingsLanguage;
+  theme: UserSettingsTheme;
+}
+
+export interface UserSettingsAccount {
+  displayName: string;
+  avatar: string | null;
+  email: string;
+}
+
+export interface UserSettingsWorkflow {
+  autoSaveDraft: boolean;
+  restoreDraft: boolean;
+  rememberScoringConfig: boolean;
+  autoSaveHistory: boolean;
+  newSessionMode: NewSessionMode;
+}
+
+export interface UserSettingsNotifications {
+  analysisComplete: boolean;
+  syncErrors: boolean;
+  historySaved: boolean;
+  sidebarBadge: boolean;
+  inAppOnly: true;
+}
+
+export interface UserSettingsSync {
+  autoSync: boolean;
+  historyRetention: HistoryRetention;
+  lastSyncedAt: number | null;
+}
+
+export interface UserSettings {
+  version: 1;
+  ui: UserSettingsUI;
+  account: UserSettingsAccount;
+  workflow: UserSettingsWorkflow;
+  notifications: UserSettingsNotifications;
+  sync: UserSettingsSync;
+}
+
+export interface UserSettingsPatch {
+  ui?: Partial<UserSettingsUI>;
+  account?: Partial<UserSettingsAccount>;
+  workflow?: Partial<UserSettingsWorkflow>;
+  notifications?: Partial<UserSettingsNotifications>;
+  sync?: Partial<UserSettingsSync>;
 }

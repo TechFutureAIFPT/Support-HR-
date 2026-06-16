@@ -48,6 +48,42 @@ function getStageDecisionLabel(candidate: Candidate): string {
   return normalizeVietnameseDisplay(candidate.stageDecision?.label || 'Chưa có đề xuất');
 }
 
+const SCREENING_ORDER = ['age', 'education', 'major', 'knowledge', 'experience', 'location'] as const;
+
+const SCREENING_LABELS: Record<(typeof SCREENING_ORDER)[number], string> = {
+  age: 'Độ tuổi',
+  education: 'Học vấn',
+  major: 'Chuyên ngành',
+  knowledge: 'Kiến thức suy luận',
+  experience: 'Kinh nghiệm',
+  location: 'Địa điểm',
+};
+
+function formatScreeningValue(value: unknown): string {
+  if (value === null || value === undefined || value === '') return 'Chưa có';
+  if (Array.isArray(value)) return value.length ? value.join(', ') : 'Chưa có';
+  if (typeof value === 'object') {
+    return Object.entries(value as Record<string, unknown>)
+      .map(([key, item]) => `${key}: ${String(item ?? '')}`)
+      .join(' | ');
+  }
+  return String(value);
+}
+
+function getScreeningBadgeClasses(status: string): string {
+  if (status === 'pass') return 'border-emerald-200 bg-emerald-50 text-emerald-700';
+  if (status === 'fail') return 'border-rose-200 bg-rose-50 text-rose-700';
+  if (status === 'review') return 'border-amber-200 bg-amber-50 text-amber-700';
+  return 'border-slate-200 bg-slate-50 text-slate-600';
+}
+
+function getScreeningOutcomeLabel(candidate: Candidate): string {
+  if (candidate.stageDecision?.status === 'hold') return 'Loại tự động';
+  if (candidate.stageDecision?.status === 'review') return 'Cần HR rà soát';
+  if (candidate.stageDecision?.status === 'ready_to_advance') return 'Đạt tự động';
+  return 'Chưa kết luận';
+}
+
 // --- New Accordion Component ---
 interface CriterionAccordionProps {
   item: DetailedScore;
@@ -251,6 +287,16 @@ const CandidateCard: React.FC<CandidateCardProps> = ({ candidate, rank }) => {
   const stageDecisionLabel = getStageDecisionLabel(candidate);
   const stageDecisionClasses = getStageDecisionClasses(candidate);
   const stageDecisionIcon = getStageDecisionIcon(candidate);
+  const screeningRows = useMemo(
+    () => SCREENING_ORDER
+      .map((key) => ({
+        key,
+        label: SCREENING_LABELS[key],
+        factor: candidate.screeningSummary?.[key],
+      }))
+      .filter((item) => item.factor),
+    [candidate.screeningSummary]
+  );
   
   const sortedDetails = useMemo(() => {
     if (!analysis) return [];
@@ -428,6 +474,48 @@ const CandidateCard: React.FC<CandidateCardProps> = ({ candidate, rank }) => {
                       </div>
                     </div>
                   )}
+                </div>
+              )}
+
+              {screeningRows.length > 0 && (
+                <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5">
+                  <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3">
+                    <div>
+                      <h4 className="text-sm font-bold uppercase tracking-[0.16em] text-slate-200">Kết quả sàng lọc</h4>
+                      <p className="mt-1 text-xs text-slate-400">{getScreeningOutcomeLabel(candidate)}</p>
+                    </div>
+                    {candidate.autoRejectReasons && candidate.autoRejectReasons.length > 0 && (
+                      <span className="rounded-full border border-rose-200 bg-rose-50 px-3 py-1 text-[11px] font-bold text-rose-700">
+                        {candidate.autoRejectReasons[0]}
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="space-y-3">
+                    {screeningRows.map(({ key, label, factor }) => (
+                      <div key={key} className="rounded-xl border border-slate-800 bg-slate-950/50 p-3">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-semibold text-white">{label}</span>
+                            {factor?.mandatory && (
+                              <span className="rounded-full border border-blue-200 bg-blue-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-blue-700">
+                                Mandatory
+                              </span>
+                            )}
+                          </div>
+                          <span className={`rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] ${getScreeningBadgeClasses(String(factor?.status || 'na'))}`}>
+                            {String(factor?.status || 'na')}
+                          </span>
+                        </div>
+                        <div className="mt-2 grid gap-2 text-xs text-slate-300 md:grid-cols-2">
+                          <p><span className="font-semibold text-slate-400">Expected:</span> {formatScreeningValue(factor?.expected)}</p>
+                          <p><span className="font-semibold text-slate-400">Observed:</span> {formatScreeningValue(factor?.observed)}</p>
+                        </div>
+                        {factor?.reason && <p className="mt-2 text-xs text-slate-300">{factor.reason}</p>}
+                        {factor?.evidence && <p className="mt-1 text-xs text-slate-500">{factor.evidence}</p>}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
               

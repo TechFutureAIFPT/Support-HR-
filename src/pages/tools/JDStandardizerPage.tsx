@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import {
   AlertCircle,
+  ArrowLeft,
   ArrowRight,
   CheckCircle2,
   Clipboard,
@@ -9,24 +10,81 @@ import {
   Loader2,
   Save,
   Sparkles,
+  Star,
   UploadCloud,
   WandSparkles,
+  Zap,
 } from 'lucide-react';
-import type { JDStandardizeResponse, JDStandardizeTargetPlatform, JDSupplementalFields, NormalizedJD } from '@/types';
+import type {
+  JDStandardizeResponse,
+  JDStandardizeTargetPlatform,
+  JDSupplementalFields,
+  NormalizedJD,
+} from '@/types';
 import { standardizeJDFile, standardizeJDText } from '@/services/data-sync/recruitmentToolsService';
 import { JDTemplatesService } from '@/services/data-sync/jdTemplatesService';
 
+// ─── Types ───────────────────────────────────────────────────────────────────
+
+type WizardStage = 'input' | 'supplement' | 'format' | 'result';
+
+type ExtendedPlatform = JDStandardizeTargetPlatform | 'support_hr';
+
 interface JDStandardizerPageProps {
-  onUseJD?: (payload: { jdText: string; rawJdText: string; jobPosition: string; supplementalFields: JDSupplementalFields }) => void;
+  onUseJD?: (payload: {
+    jdText: string;
+    rawJdText: string;
+    jobPosition: string;
+    supplementalFields: JDSupplementalFields;
+  }) => void;
 }
 
-const platformOptions: Array<{ value: JDStandardizeTargetPlatform; label: string; hint: string }> = [
-  { value: 'generic', label: 'Mẫu tuyển dụng chung', hint: 'Phù hợp đăng nội bộ hoặc gửi quản lý tuyển dụng' },
-  { value: 'topcv', label: 'TopCV', hint: 'Tối ưu cho bài đăng tuyển dụng phổ biến' },
-  { value: 'vietnamworks', label: 'VietnamWorks', hint: 'Rõ mô tả, yêu cầu và quyền lợi' },
-  { value: 'linkedin', label: 'LinkedIn', hint: 'Ngắn gọn, chuyên nghiệp, dễ quét' },
-  { value: 'parse_jd', label: 'Chuẩn hóa để phân tích', hint: 'Ưu tiên cấu trúc cho AI đọc JD' },
+// ─── Platform config ──────────────────────────────────────────────────────────
+
+interface PlatformOption {
+  value: ExtendedPlatform;
+  label: string;
+  hint: string;
+  badge?: string;
+  highlight?: boolean;
+}
+
+const platformOptions: PlatformOption[] = [
+  {
+    value: 'support_hr',
+    label: 'Support HR',
+    hint: 'Tối ưu cho hệ thống phân tích AI của Support HR — tự động lưu bộ lọc và paste vào trang nạp dữ liệu.',
+    badge: 'Đề xuất',
+    highlight: true,
+  },
+  {
+    value: 'generic',
+    label: 'Mẫu tuyển dụng chung',
+    hint: 'Phù hợp đăng nội bộ hoặc gửi quản lý tuyển dụng.',
+  },
+  {
+    value: 'topcv',
+    label: 'TopCV',
+    hint: 'Tối ưu cho bài đăng tuyển dụng phổ biến tại Việt Nam.',
+  },
+  {
+    value: 'vietnamworks',
+    label: 'VietnamWorks',
+    hint: 'Rõ mô tả, yêu cầu và quyền lợi theo chuẩn VietnamWorks.',
+  },
+  {
+    value: 'linkedin',
+    label: 'LinkedIn',
+    hint: 'Ngắn gọn, chuyên nghiệp, dễ quét theo chuẩn quốc tế.',
+  },
+  {
+    value: 'parse_jd',
+    label: 'Chuẩn hóa để phân tích AI',
+    hint: 'Ưu tiên cấu trúc tối ưu cho AI đọc và phân tích JD.',
+  },
 ];
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const emptyNormalizedJD: NormalizedJD = {
   title: '',
@@ -41,13 +99,29 @@ const emptyNormalizedJD: NormalizedJD = {
   keywords: [],
 };
 
-const buildJDText = (normalized: NormalizedJD) => {
+const emptySupplemental: JDSupplementalFields = {
+  companyName: '',
+  salary: '',
+  location: '',
+  workingTime: '',
+  benefits: '',
+  applicationInfo: '',
+  notes: '',
+};
+
+function buildJDText(normalized: NormalizedJD): string {
   const sections = [
     normalized.title ? `# ${normalized.title}` : '',
     normalized.overview ? `\n## Tổng quan\n${normalized.overview}` : '',
-    normalized.responsibilities.length ? `\n## Trách nhiệm chính\n${normalized.responsibilities.map((item) => `- ${item}`).join('\n')}` : '',
-    normalized.requirements.length ? `\n## Yêu cầu ứng viên\n${normalized.requirements.map((item) => `- ${item}`).join('\n')}` : '',
-    normalized.benefits.length ? `\n## Quyền lợi\n${normalized.benefits.map((item) => `- ${item}`).join('\n')}` : '',
+    normalized.responsibilities.length
+      ? `\n## Trách nhiệm chính\n${normalized.responsibilities.map((item) => `- ${item}`).join('\n')}`
+      : '',
+    normalized.requirements.length
+      ? `\n## Yêu cầu ứng viên\n${normalized.requirements.map((item) => `- ${item}`).join('\n')}`
+      : '',
+    normalized.benefits.length
+      ? `\n## Quyền lợi\n${normalized.benefits.map((item) => `- ${item}`).join('\n')}`
+      : '',
     normalized.workingTime ? `\n## Thời gian làm việc\n${normalized.workingTime}` : '',
     normalized.location ? `\n## Địa điểm\n${normalized.location}` : '',
     normalized.salary ? `\n## Mức lương\n${normalized.salary}` : '',
@@ -55,70 +129,165 @@ const buildJDText = (normalized: NormalizedJD) => {
     normalized.keywords.length ? `\n## Từ khóa chính\n${normalized.keywords.join(', ')}` : '',
   ];
   return sections.filter(Boolean).join('\n').trim();
-};
+}
+
+// Determine if JD has enough info to skip supplemental step
+function hasEnoughInfo(result: JDStandardizeResponse): boolean {
+  return result.score >= 55 && result.missingSections.length < 4;
+}
+
+// Resolve actual API platform from extended
+function resolveApiPlatform(platform: ExtendedPlatform): JDStandardizeTargetPlatform {
+  if (platform === 'support_hr') return 'parse_jd';
+  return platform;
+}
+
+// ─── Main Component ───────────────────────────────────────────────────────────
 
 const JDStandardizerPage: React.FC<JDStandardizerPageProps> = ({ onUseJD }) => {
+  const [stage, setStage] = useState<WizardStage>('input');
   const [jdText, setJdText] = useState('');
   const [file, setFile] = useState<File | null>(null);
-  const [targetPlatform, setTargetPlatform] = useState<JDStandardizeTargetPlatform>('generic');
   const [forceOcr, setForceOcr] = useState(false);
-  const [supplementalFields, setSupplementalFields] = useState<JDSupplementalFields>({
-    companyName: '',
-    salary: '',
-    location: '',
-    workingTime: '',
-    benefits: '',
-    applicationInfo: '',
-    notes: '',
-  });
+  const [supplementalFields, setSupplementalFields] = useState<JDSupplementalFields>(emptySupplemental);
+  const [selectedPlatform, setSelectedPlatform] = useState<ExtendedPlatform>('support_hr');
+  const [preAnalysisResult, setPreAnalysisResult] = useState<JDStandardizeResponse | null>(null);
   const [result, setResult] = useState<JDStandardizeResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
+  const [templateSaved, setTemplateSaved] = useState(false);
 
-  const normalizedJD = result?.normalizedJD || emptyNormalizedJD;
+  const normalizedJD = result?.normalizedJD ?? emptyNormalizedJD;
   const outputText = useMemo(() => buildJDText(normalizedJD), [normalizedJD]);
-  const selectedPlatform = platformOptions.find((item) => item.value === targetPlatform) || platformOptions[0];
 
-  const updateField = (key: keyof JDSupplementalFields, value: string) => {
+  const updateSupplemental = (key: keyof JDSupplementalFields, value: string) => {
     setSupplementalFields((prev) => ({ ...prev, [key]: value }));
   };
 
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
+  // ── Step 1: analyse JD to detect missing fields ───────────────────────────
+  const handleAnalyseJD = async () => {
     setError('');
-    setNotice('');
-
     if (!file && jdText.trim().length < 20) {
-      setError('Vui lòng nhập JD hoặc tải file JD để chuẩn hóa.');
+      setError('Vui lòng nhập JD hoặc tải file JD để tiếp tục.');
       return;
     }
 
     setIsLoading(true);
     try {
       const response = file
-        ? await standardizeJDFile({ file, targetPlatform, supplementalFields, forceOcr })
-        : await standardizeJDText({ jdText, targetPlatform, supplementalFields });
-      setResult(response);
-      setNotice('JD đã được chuẩn hóa. Bạn có thể sao chép, lưu mẫu hoặc dùng ngay trong quy trình.');
-    } catch (submitError) {
-      console.warn('Không thể chuẩn hóa JD:', submitError);
-      setError(submitError instanceof Error ? submitError.message : 'Không thể chuẩn hóa JD từ backend.');
+        ? await standardizeJDFile({ file, targetPlatform: 'parse_jd', supplementalFields, forceOcr })
+        : await standardizeJDText({ jdText, targetPlatform: 'parse_jd', supplementalFields });
+
+      setPreAnalysisResult(response);
+
+      if (hasEnoughInfo(response)) {
+        // Skip supplement stage
+        setStage('format');
+      } else {
+        setStage('supplement');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Không thể phân tích JD. Vui lòng thử lại.');
     } finally {
       setIsLoading(false);
     }
   };
 
+  // ── Step 2/3: do full standardization ────────────────────────────────────
+  const handleStandardize = async () => {
+    setError('');
+    setNotice('');
+    setIsLoading(true);
+    setTemplateSaved(false);
+
+    try {
+      const apiPlatform = resolveApiPlatform(selectedPlatform);
+      const response = file
+        ? await standardizeJDFile({ file, targetPlatform: apiPlatform, supplementalFields, forceOcr })
+        : await standardizeJDText({ jdText, targetPlatform: apiPlatform, supplementalFields });
+
+      setResult(response);
+      setStage('result');
+      setNotice('JD đã được chuẩn hóa thành công.');
+
+      // Auto-save + paste for Support HR
+      if (selectedPlatform === 'support_hr') {
+        void handleSupportHRActions(response);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Không thể chuẩn hóa JD từ backend.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSupportHRActions = async (res: JDStandardizeResponse) => {
+    const jdOutputText = buildJDText(res.normalizedJD);
+    const title = res.normalizedJD.title || 'Vị trí tuyển dụng';
+
+    try {
+      await JDTemplatesService.createTemplate({
+        name: `Support HR — ${title}`,
+        category: 'Support HR',
+        jobPosition: title,
+        jdText: jdOutputText,
+        hardFilters: {
+          location: res.normalizedJD.location || supplementalFields.location || '',
+          minExp: '',
+          seniority: '',
+          education: '',
+          industry: '',
+          language: '',
+          languageLevel: '',
+          certificates: '',
+          salaryMin: '',
+          salaryMax: res.normalizedJD.salary || supplementalFields.salary || '',
+          workFormat: '',
+          contractType: '',
+          age: {},
+          majorGroups: [],
+          locationMandatory: Boolean(res.normalizedJD.location || supplementalFields.location),
+          minExpMandatory: false,
+          seniorityMandatory: false,
+          educationMandatory: false,
+          ageMandatory: false,
+          contactMandatory: false,
+          industryMandatory: false,
+          majorMandatory: false,
+          languageMandatory: false,
+          certificatesMandatory: false,
+          salaryMandatory: Boolean(res.normalizedJD.salary || supplementalFields.salary),
+          workFormatMandatory: false,
+          contractTypeMandatory: false,
+        },
+      });
+      setTemplateSaved(true);
+      setNotice('Đã lưu bộ lọc Support HR. JD sẵn sàng để phân tích.');
+    } catch {
+      // Non-blocking
+    }
+  };
+
+  const handleUseJD = () => {
+    if (!outputText) return;
+    onUseJD?.({
+      jdText: outputText,
+      rawJdText: jdText || outputText,
+      jobPosition: normalizedJD.title || 'Vị trí tuyển dụng',
+      supplementalFields,
+    });
+  };
+
   const handleCopy = async () => {
     if (!outputText) return;
     await navigator.clipboard?.writeText(outputText);
-    setNotice('Đã sao chép JD chuẩn hóa.');
+    setNotice('Đã sao chép JD chuẩn hóa vào clipboard.');
   };
 
   const handleSaveTemplate = async () => {
     if (!outputText) return;
     setError('');
-    setNotice('');
     try {
       await JDTemplatesService.createTemplate({
         name: normalizedJD.title ? `Chuẩn hóa JD - ${normalizedJD.title}` : 'Chuẩn hóa JD',
@@ -138,12 +307,16 @@ const JDStandardizerPage: React.FC<JDStandardizerPageProps> = ({ onUseJD }) => {
           salaryMax: normalizedJD.salary || supplementalFields.salary || '',
           workFormat: '',
           contractType: '',
+          age: {},
+          majorGroups: [],
           locationMandatory: Boolean(normalizedJD.location || supplementalFields.location),
           minExpMandatory: false,
           seniorityMandatory: false,
           educationMandatory: false,
+          ageMandatory: false,
           contactMandatory: false,
           industryMandatory: false,
+          majorMandatory: false,
           languageMandatory: false,
           certificatesMandatory: false,
           salaryMandatory: Boolean(normalizedJD.salary || supplementalFields.salary),
@@ -152,210 +325,548 @@ const JDStandardizerPage: React.FC<JDStandardizerPageProps> = ({ onUseJD }) => {
         },
       });
       setNotice('Đã lưu mẫu JD chuẩn hóa.');
-    } catch (saveError) {
-      console.warn('Không thể lưu mẫu JD:', saveError);
-      setError(saveError instanceof Error ? saveError.message : 'Không thể lưu mẫu JD.');
+    } catch {
+      setError('Không thể lưu mẫu JD.');
     }
   };
 
-  const handleUseJD = () => {
-    if (!outputText) return;
-    onUseJD?.({
-      jdText: outputText,
-      rawJdText: jdText || outputText,
-      jobPosition: normalizedJD.title || 'Vị trí tuyển dụng',
-      supplementalFields,
-    });
+  const handleReset = () => {
+    setStage('input');
+    setJdText('');
+    setFile(null);
+    setForceOcr(false);
+    setSupplementalFields(emptySupplemental);
+    setSelectedPlatform('support_hr');
+    setPreAnalysisResult(null);
+    setResult(null);
+    setError('');
+    setNotice('');
+    setTemplateSaved(false);
   };
+
+  // ─── Render ────────────────────────────────────────────────────────────────
 
   return (
     <div className="feature-page-shell flex h-full min-h-0 w-full flex-1 flex-col bg-white">
+      {/* Page Header */}
       <div className="shrink-0 border-b border-blue-100 bg-white px-5 py-4">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="border-l-4 border-blue-500 pl-3">
-            <p className="supporthr-mono text-[10px] font-bold uppercase tracking-[0.2em] text-blue-600">JD Standardizer</p>
+            <p className="supporthr-mono text-[10px] font-bold uppercase tracking-[0.2em] text-blue-600">
+              JD Standardizer
+            </p>
             <h1 className="mt-1 text-2xl font-black text-slate-950">Chuẩn hóa JD</h1>
-            <p className="mt-1 text-sm text-slate-600">Biến mô tả công việc thô thành bản JD rõ ràng, đủ mục và dễ dùng cho phân tích AI.</p>
+            <p className="mt-1 text-sm text-slate-600">
+              Quy trình từng bước biến mô tả công việc thô thành JD rõ ràng, đủ mục và sẵn sàng cho AI.
+            </p>
           </div>
-          <div className="rounded-2xl border border-blue-100 bg-blue-50 px-4 py-3">
-            <p className="text-[10px] font-black uppercase tracking-[0.16em] text-blue-600">Nền tảng mục tiêu</p>
-            <p className="mt-1 text-sm font-black text-slate-950">{selectedPlatform.label}</p>
-          </div>
+          {/* Wizard step indicator */}
+          <WizardStepBar stage={stage} />
         </div>
       </div>
 
-      <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto bg-white p-5">
-        <div className="grid min-h-full gap-5 xl:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)]">
-          <form onSubmit={handleSubmit} className="space-y-4 rounded-3xl border border-blue-100 bg-[#f8fbff] p-5 shadow-[0_18px_46px_rgba(30,64,175,0.07)]">
-            <PanelTitle icon={<WandSparkles className="h-5 w-5" />} title="Thông tin đầu vào" subtitle="Nhập JD hoặc tải file, sau đó bổ sung ngữ cảnh tuyển dụng." />
+      {/* Main Content */}
+      <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto bg-[#f8fbff] p-5">
+        <div className="space-y-5">
 
-            <div>
-              <label className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">Nội dung JD</label>
-              <textarea
-                value={jdText}
-                onChange={(event) => setJdText(event.target.value)}
-                placeholder="Dán mô tả công việc hiện tại vào đây..."
-                className="mt-2 min-h-[14rem] w-full resize-y rounded-2xl border border-blue-100 bg-white px-4 py-3 text-sm leading-6 text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-blue-300 focus:ring-4 focus:ring-blue-100"
-              />
+          {/* Error */}
+          {error && (
+            <div className="flex items-start gap-2 rounded-2xl border border-rose-100 bg-rose-50 px-4 py-3 text-sm font-semibold text-rose-700">
+              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+              {error}
             </div>
+          )}
 
-            <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_auto]">
-              <label className="flex min-h-20 cursor-pointer items-center gap-3 rounded-2xl border border-dashed border-blue-200 bg-white px-4 py-3 transition hover:bg-blue-50">
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
-                  <UploadCloud className="h-5 w-5" />
-                </span>
-                <span className="min-w-0">
-                  <span className="block text-sm font-black text-slate-950">{file ? file.name : 'Tải file JD'}</span>
-                  <span className="block truncate text-xs text-slate-500">PDF, DOCX, PNG, JPG hoặc tài liệu JD phổ biến</span>
-                </span>
-                <input
-                  type="file"
-                  className="hidden"
-                  accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.txt"
-                  onChange={(event) => setFile(event.target.files?.[0] || null)}
-                />
-              </label>
-              <label className="flex h-20 items-center gap-2 rounded-2xl border border-blue-100 bg-white px-4 text-xs font-bold text-slate-600">
-                <input type="checkbox" checked={forceOcr} onChange={(event) => setForceOcr(event.target.checked)} className="h-4 w-4 rounded border-blue-200 text-blue-600" />
-                Ưu tiên OCR
-              </label>
+          {/* Notice */}
+          {notice && (
+            <div className="flex items-start gap-2 rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700">
+              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
+              {notice}
             </div>
+          )}
 
-            <div className="grid gap-3 md:grid-cols-2">
-              <SelectField label="Nền tảng" value={targetPlatform} onChange={(value) => setTargetPlatform(value as JDStandardizeTargetPlatform)}>
-                {platformOptions.map((option) => (
-                  <option key={option.value} value={option.value}>{option.label}</option>
-                ))}
-              </SelectField>
-              <InputField label="Công ty" value={supplementalFields.companyName || ''} onChange={(value) => updateField('companyName', value)} placeholder="VD: TechCorp Vietnam" />
-              <InputField label="Mức lương" value={supplementalFields.salary || ''} onChange={(value) => updateField('salary', value)} placeholder="VD: 15-25 triệu" />
-              <InputField label="Địa điểm" value={supplementalFields.location || ''} onChange={(value) => updateField('location', value)} placeholder="VD: Hà Nội / Remote" />
-              <InputField label="Thời gian làm việc" value={supplementalFields.workingTime || ''} onChange={(value) => updateField('workingTime', value)} placeholder="VD: Thứ 2 - Thứ 6" />
-              <InputField label="Thông tin ứng tuyển" value={supplementalFields.applicationInfo || ''} onChange={(value) => updateField('applicationInfo', value)} placeholder="Email hoặc form ứng tuyển" />
-            </div>
-
-            <InputField label="Quyền lợi bổ sung" value={supplementalFields.benefits || ''} onChange={(value) => updateField('benefits', value)} placeholder="Bảo hiểm, đào tạo, thưởng hiệu suất..." />
-            <InputField label="Ghi chú cho AI" value={supplementalFields.notes || ''} onChange={(value) => updateField('notes', value)} placeholder="Nhấn mạnh kỹ năng, ngành hoặc yêu cầu nội bộ..." />
-
-            {error && (
-              <div className="flex items-start gap-2 rounded-2xl border border-rose-100 bg-rose-50 px-4 py-3 text-sm font-semibold text-rose-700">
-                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
-                {error}
-              </div>
-            )}
-
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-blue-600 px-5 text-sm font-black text-white shadow-[0_18px_38px_rgba(35,136,255,0.2)] transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-200"
+          {/* ── Stage: input ── */}
+          {stage === 'input' && (
+            <StageCard
+              icon={<FileText className="h-5 w-5" />}
+              title="Nhập mô tả công việc"
+              subtitle="Dán nội dung JD hoặc tải file. Hệ thống sẽ tự phân tích và hỏi bổ sung nếu thiếu thông tin."
             >
-              {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-              Chuẩn hóa JD
-              <ArrowRight className="h-4 w-4" />
-            </button>
-          </form>
+              <div>
+                <label className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">
+                  Nội dung JD
+                </label>
+                <textarea
+                  value={jdText}
+                  onChange={(e) => setJdText(e.target.value)}
+                  placeholder="Dán mô tả công việc hiện tại vào đây..."
+                  className="mt-2 min-h-[16rem] w-full resize-y rounded-2xl border border-blue-100 bg-white px-4 py-3 text-sm leading-6 text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-blue-300 focus:ring-4 focus:ring-blue-100"
+                />
+              </div>
 
-          <section className="flex min-h-[34rem] flex-col rounded-3xl border border-blue-100 bg-white shadow-[0_18px_46px_rgba(30,64,175,0.07)]">
-            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-blue-100 bg-[#f8fbff] px-5 py-4">
-              <PanelTitle icon={<FileText className="h-5 w-5" />} title="Kết quả chuẩn hóa" subtitle={selectedPlatform.hint} compact />
-              {result && (
-                <div className="flex items-center gap-2">
-                  <ActionButton icon={<Copy className="h-4 w-4" />} label="Sao chép" onClick={() => void handleCopy()} />
-                  <ActionButton icon={<Save className="h-4 w-4" />} label="Lưu mẫu JD" onClick={() => void handleSaveTemplate()} />
+              <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_auto]">
+                <label className="flex min-h-16 cursor-pointer items-center gap-3 rounded-2xl border border-dashed border-blue-200 bg-white px-4 py-3 transition hover:bg-blue-50">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+                    <UploadCloud className="h-5 w-5" />
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block text-sm font-black text-slate-950">
+                      {file ? file.name : 'Tải file JD'}
+                    </span>
+                    <span className="block truncate text-xs text-slate-500">
+                      PDF, DOCX, PNG, JPG
+                    </span>
+                  </span>
+                  <input
+                    type="file"
+                    className="hidden"
+                    accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.txt"
+                    onChange={(e) => setFile(e.target.files?.[0] || null)}
+                  />
+                </label>
+                <label className="flex h-16 items-center gap-2 rounded-2xl border border-blue-100 bg-white px-4 text-xs font-bold text-slate-600">
+                  <input
+                    type="checkbox"
+                    checked={forceOcr}
+                    onChange={(e) => setForceOcr(e.target.checked)}
+                    className="h-4 w-4 rounded border-blue-200 text-blue-600"
+                  />
+                  Ưu tiên OCR
+                </label>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => void handleAnalyseJD()}
+                disabled={isLoading}
+                className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-blue-600 px-5 text-sm font-black text-white shadow-[0_18px_38px_rgba(35,136,255,0.2)] transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-200"
+              >
+                {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+                {isLoading ? 'Đang phân tích JD...' : 'Phân tích & Tiếp tục'}
+                {!isLoading && <ArrowRight className="h-4 w-4" />}
+              </button>
+            </StageCard>
+          )}
+
+          {/* ── Stage: supplement ── */}
+          {stage === 'supplement' && preAnalysisResult && (
+            <>
+              {/* Missing sections banner */}
+              <div className="rounded-2xl border border-amber-100 bg-amber-50 p-4">
+                <div className="flex items-start gap-3">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-600">
+                    <AlertCircle className="h-5 w-5" />
+                  </span>
+                  <div>
+                    <p className="text-sm font-black text-amber-900">
+                      JD chưa đủ thông tin (điểm: {preAnalysisResult.score}/100)
+                    </p>
+                    <p className="mt-1 text-xs text-amber-700">
+                      Các mục còn thiếu:{' '}
+                      <span className="font-semibold">
+                        {preAnalysisResult.missingSections.map((s) => s.label).join(', ') || 'Một số trường quan trọng'}
+                      </span>
+                      . Bổ sung bên dưới để JD chuẩn hóa chính xác hơn.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <StageCard
+                icon={<WandSparkles className="h-5 w-5" />}
+                title="Bổ sung thông tin còn thiếu"
+                subtitle="Điền các trường bên dưới để AI chuẩn hóa JD chính xác hơn."
+              >
+                <div className="grid gap-3 md:grid-cols-2">
+                  <InputField
+                    label="Công ty"
+                    value={supplementalFields.companyName || ''}
+                    onChange={(v) => updateSupplemental('companyName', v)}
+                    placeholder="VD: TechCorp Vietnam"
+                  />
+                  <InputField
+                    label="Địa điểm"
+                    value={supplementalFields.location || ''}
+                    onChange={(v) => updateSupplemental('location', v)}
+                    placeholder="VD: Hà Nội / Remote"
+                  />
+                  <InputField
+                    label="Mức lương"
+                    value={supplementalFields.salary || ''}
+                    onChange={(v) => updateSupplemental('salary', v)}
+                    placeholder="VD: 15-25 triệu"
+                  />
+                  <InputField
+                    label="Thời gian làm việc"
+                    value={supplementalFields.workingTime || ''}
+                    onChange={(v) => updateSupplemental('workingTime', v)}
+                    placeholder="VD: Thứ 2 - Thứ 6"
+                  />
+                  <InputField
+                    label="Thông tin ứng tuyển"
+                    value={supplementalFields.applicationInfo || ''}
+                    onChange={(v) => updateSupplemental('applicationInfo', v)}
+                    placeholder="Email hoặc link form ứng tuyển"
+                  />
+                  <InputField
+                    label="Quyền lợi bổ sung"
+                    value={supplementalFields.benefits || ''}
+                    onChange={(v) => updateSupplemental('benefits', v)}
+                    placeholder="Bảo hiểm, đào tạo, thưởng..."
+                  />
+                </div>
+                <InputField
+                  label="Ghi chú thêm cho AI"
+                  value={supplementalFields.notes || ''}
+                  onChange={(v) => updateSupplemental('notes', v)}
+                  placeholder="Nhấn mạnh kỹ năng, ngành hoặc yêu cầu nội bộ..."
+                />
+
+                <div className="flex flex-col gap-2 sm:flex-row">
+                  <button
+                    type="button"
+                    onClick={() => setStage('input')}
+                    className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-2xl border border-blue-100 bg-white px-4 text-sm font-bold text-slate-700 transition hover:bg-blue-50"
+                  >
+                    <ArrowLeft className="h-4 w-4" />
+                    Quay lại
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setStage('format')}
+                    className="inline-flex h-11 flex-[2] items-center justify-center gap-2 rounded-2xl bg-blue-600 px-4 text-sm font-black text-white shadow-[0_18px_38px_rgba(35,136,255,0.2)] transition hover:bg-blue-700"
+                  >
+                    Chọn định dạng
+                    <ArrowRight className="h-4 w-4" />
+                  </button>
+                </div>
+              </StageCard>
+            </>
+          )}
+
+          {/* ── Stage: format ── */}
+          {stage === 'format' && (
+            <StageCard
+              icon={<Sparkles className="h-5 w-5" />}
+              title="Chọn định dạng chuẩn hóa"
+              subtitle="Chọn nền tảng hoặc mục đích sử dụng JD sau khi chuẩn hóa."
+            >
+              <div className="grid gap-3 sm:grid-cols-2">
+                {platformOptions.map((option) => {
+                  const isSelected = selectedPlatform === option.value;
+                  return (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => setSelectedPlatform(option.value)}
+                      className={`group relative flex flex-col items-start gap-2 rounded-2xl border p-4 text-left transition-all ${
+                        isSelected
+                          ? option.highlight
+                            ? 'border-blue-400 bg-blue-600 text-white shadow-[0_12px_32px_rgba(35,136,255,0.3)]'
+                            : 'border-blue-300 bg-blue-50 shadow-[0_8px_24px_rgba(35,136,255,0.12)]'
+                          : option.highlight
+                            ? 'border-blue-200 bg-white hover:border-blue-300 hover:bg-blue-50'
+                            : 'border-blue-100 bg-white hover:border-blue-200 hover:bg-blue-50'
+                      }`}
+                    >
+                      {option.badge && (
+                        <span
+                          className={`absolute right-3 top-3 rounded-full px-2 py-0.5 text-[10px] font-black uppercase tracking-[0.12em] ${
+                            isSelected && option.highlight
+                              ? 'bg-white/20 text-white'
+                              : 'bg-blue-100 text-blue-700'
+                          }`}
+                        >
+                          {option.badge}
+                        </span>
+                      )}
+                      <span
+                        className={`flex h-9 w-9 items-center justify-center rounded-xl ${
+                          isSelected && option.highlight
+                            ? 'bg-white/20 text-white'
+                            : isSelected
+                              ? 'bg-blue-100 text-blue-600'
+                              : 'bg-blue-50 text-blue-500'
+                        }`}
+                      >
+                        {option.highlight ? (
+                          <Star className="h-4 w-4" />
+                        ) : (
+                          <FileText className="h-4 w-4" />
+                        )}
+                      </span>
+                      <div className="min-w-0 pr-8">
+                        <p
+                          className={`text-sm font-black ${
+                            isSelected && option.highlight ? 'text-white' : 'text-slate-950'
+                          }`}
+                        >
+                          {option.label}
+                        </p>
+                        <p
+                          className={`mt-0.5 text-xs leading-5 ${
+                            isSelected && option.highlight ? 'text-blue-100' : 'text-slate-500'
+                          }`}
+                        >
+                          {option.hint}
+                        </p>
+                      </div>
+                      {isSelected && (
+                        <span
+                          className={`absolute bottom-3 right-3 flex h-6 w-6 items-center justify-center rounded-full ${
+                            option.highlight ? 'bg-white text-blue-600' : 'bg-blue-600 text-white'
+                          }`}
+                        >
+                          <CheckCircle2 className="h-4 w-4" />
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Support HR note */}
+              {selectedPlatform === 'support_hr' && (
+                <div className="flex items-start gap-3 rounded-2xl border border-blue-100 bg-blue-50 px-4 py-3">
+                  <Zap className="mt-0.5 h-4 w-4 shrink-0 text-blue-600" />
+                  <p className="text-xs leading-5 text-blue-700">
+                    <span className="font-black">Support HR:</span> Sau khi chuẩn hóa, hệ thống sẽ tự động lưu bộ lọc
+                    từ JD vào danh sách mẫu và paste JD vào trang nạp dữ liệu để bạn dùng ngay.
+                  </p>
+                </div>
+              )}
+
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <button
+                  type="button"
+                  onClick={() =>
+                    setStage(preAnalysisResult && !hasEnoughInfo(preAnalysisResult) ? 'supplement' : 'input')
+                  }
+                  className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-2xl border border-blue-100 bg-white px-4 text-sm font-bold text-slate-700 transition hover:bg-blue-50"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                  Quay lại
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void handleStandardize()}
+                  disabled={isLoading}
+                  className="inline-flex h-11 flex-[2] items-center justify-center gap-2 rounded-2xl bg-blue-600 px-4 text-sm font-black text-white shadow-[0_18px_38px_rgba(35,136,255,0.2)] transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-200"
+                >
+                  {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <WandSparkles className="h-4 w-4" />}
+                  {isLoading ? 'Đang chuẩn hóa...' : 'Chuẩn hóa JD'}
+                  {!isLoading && <ArrowRight className="h-4 w-4" />}
+                </button>
+              </div>
+            </StageCard>
+          )}
+
+          {/* ── Stage: result ── */}
+          {stage === 'result' && result && (
+            <>
+              {/* Quality score */}
+              <div className="grid gap-3 sm:grid-cols-3">
+                <div className="rounded-2xl border border-blue-100 bg-white p-4 text-center shadow-sm">
+                  <p className="text-[10px] font-black uppercase tracking-[0.14em] text-blue-600">Điểm chất lượng</p>
+                  <p className="mt-2 text-4xl font-black text-slate-950">
+                    {result.score}
+                    <span className="text-lg text-blue-600">/100</span>
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-blue-100 bg-white p-4 shadow-sm">
+                  <p className="text-[10px] font-black uppercase tracking-[0.14em] text-slate-500">Nền tảng</p>
+                  <p className="mt-2 text-base font-black text-slate-950">
+                    {selectedPlatform === 'support_hr' ? 'Support HR' : result.platform.name}
+                  </p>
+                  {selectedPlatform === 'support_hr' && templateSaved && (
+                    <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
+                      <CheckCircle2 className="h-3 w-3" />
+                      Đã lưu bộ lọc
+                    </span>
+                  )}
+                </div>
+                <div className="rounded-2xl border border-blue-100 bg-white p-4 shadow-sm">
+                  <p className="text-[10px] font-black uppercase tracking-[0.14em] text-slate-500">Mục còn thiếu</p>
+                  <p className="mt-2 text-4xl font-black text-slate-950">{result.missingSections.length}</p>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex flex-wrap items-center gap-2">
+                <ActionButton icon={<Copy className="h-4 w-4" />} label="Sao chép" onClick={() => void handleCopy()} />
+                <ActionButton icon={<Save className="h-4 w-4" />} label="Lưu mẫu JD" onClick={() => void handleSaveTemplate()} />
+                {onUseJD && (
                   <button
                     type="button"
                     onClick={handleUseJD}
                     className="inline-flex h-10 items-center gap-2 rounded-xl bg-blue-600 px-4 text-sm font-black text-white transition hover:bg-blue-700"
                   >
-                    Dùng JD này
-                    <ArrowRight className="h-4 w-4" />
+                    {selectedPlatform === 'support_hr' ? (
+                      <>
+                        <Zap className="h-4 w-4" />
+                        Paste vào Screener
+                      </>
+                    ) : (
+                      <>
+                        Dùng JD này
+                        <ArrowRight className="h-4 w-4" />
+                      </>
+                    )}
                   </button>
+                )}
+                <button
+                  type="button"
+                  onClick={handleReset}
+                  className="ml-auto inline-flex h-10 items-center gap-2 rounded-xl border border-blue-100 bg-white px-3 text-sm font-bold text-slate-600 transition hover:bg-blue-50"
+                >
+                  Chuẩn hóa JD mới
+                </button>
+              </div>
+
+              {/* Findings */}
+              {(result.missingSections.length > 0 || result.weakPoints.length > 0 || result.suggestions.length > 0) && (
+                <div className="grid gap-3 md:grid-cols-3">
+                  <FindingList title="Mục còn thiếu" items={result.missingSections} />
+                  <FindingList title="Điểm yếu" items={result.weakPoints} tone="amber" />
+                  <FindingList title="Gợi ý cải thiện" items={result.suggestions} tone="emerald" />
                 </div>
               )}
-            </div>
 
-            {notice && (
-              <div className="mx-5 mt-4 flex items-start gap-2 rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700">
-                <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
-                {notice}
-              </div>
-            )}
-
-            {!result ? (
-              <div className="flex flex-1 flex-col items-center justify-center px-6 py-16 text-center">
-                <Clipboard className="h-12 w-12 text-blue-500" />
-                <h2 className="mt-4 text-xl font-black text-slate-950">Chưa có JD chuẩn hóa</h2>
-                <p className="mt-2 max-w-md text-sm leading-6 text-slate-600">Sau khi gửi JD, kết quả sẽ hiển thị gồm điểm chất lượng, mục còn thiếu, gợi ý cải thiện và bản JD mới.</p>
-              </div>
-            ) : (
-              <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto p-5">
-                <div className="grid gap-4 lg:grid-cols-[15rem_minmax(0,1fr)]">
-                  <aside className="space-y-3">
-                    <div className="rounded-2xl border border-blue-100 bg-blue-50 p-4">
-                      <p className="text-[10px] font-black uppercase tracking-[0.14em] text-blue-600">Điểm chất lượng</p>
-                      <p className="mt-2 text-4xl font-black text-slate-950">{result.score}<span className="text-lg text-blue-600">/100</span></p>
-                    </div>
-                    <FindingList title="Mục còn thiếu" items={result.missingSections} />
-                    <FindingList title="Điểm yếu" items={result.weakPoints} tone="amber" />
-                    <FindingList title="Gợi ý cải thiện" items={result.suggestions} tone="emerald" />
-                  </aside>
-
-                  <article className="rounded-2xl border border-blue-100 bg-white p-5">
-                    <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
-                      <div>
-                        <p className="supporthr-mono text-[10px] font-bold uppercase tracking-[0.2em] text-blue-600">Normalized JD</p>
-                        <h2 className="mt-1 text-2xl font-black text-slate-950">{normalizedJD.title || 'JD đã chuẩn hóa'}</h2>
-                      </div>
-                      <span className="rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-xs font-black text-blue-700">{result.platform.name}</span>
-                    </div>
-                    <JDPreview normalized={normalizedJD} />
-                  </article>
+              {/* JD Preview */}
+              <div className="rounded-3xl border border-blue-100 bg-white p-5 shadow-[0_18px_46px_rgba(30,64,175,0.07)]">
+                <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <p className="supporthr-mono text-[10px] font-bold uppercase tracking-[0.2em] text-blue-600">
+                      Normalized JD
+                    </p>
+                    <h2 className="mt-1 text-2xl font-black text-slate-950">
+                      {normalizedJD.title || 'JD đã chuẩn hóa'}
+                    </h2>
+                  </div>
+                  <span className="rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-xs font-black text-blue-700">
+                    {selectedPlatform === 'support_hr' ? 'Support HR' : result.platform.name}
+                  </span>
                 </div>
+                <JDPreview normalized={normalizedJD} />
               </div>
-            )}
-          </section>
+            </>
+          )}
         </div>
       </div>
     </div>
   );
 };
 
-const PanelTitle = ({ icon, title, subtitle, compact = false }: { icon: React.ReactNode; title: string; subtitle: string; compact?: boolean }) => (
-  <div className="flex min-w-0 items-center gap-3">
-    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-blue-100 bg-blue-50 text-blue-600">{icon}</span>
-    <div className="min-w-0">
-      <h2 className={`${compact ? 'text-base' : 'text-lg'} font-black text-slate-950`}>{title}</h2>
-      <p className="mt-0.5 text-sm text-slate-600">{subtitle}</p>
+// ─── Sub-components ───────────────────────────────────────────────────────────
+
+const WizardStepBar = ({ stage }: { stage: WizardStage }) => {
+  const steps: { key: WizardStage | 'supplement'; label: string }[] = [
+    { key: 'input', label: 'Nhập JD' },
+    { key: 'supplement', label: 'Bổ sung' },
+    { key: 'format', label: 'Định dạng' },
+    { key: 'result', label: 'Kết quả' },
+  ];
+
+  const stageOrder: Record<WizardStage, number> = { input: 0, supplement: 1, format: 2, result: 3 };
+  const currentIndex = stageOrder[stage];
+
+  return (
+    <div className="flex items-center gap-1">
+      {steps.map((step, index) => {
+        const isDone = index < currentIndex;
+        const isCurrent = index === currentIndex;
+        return (
+          <React.Fragment key={step.key}>
+            <div className="flex flex-col items-center gap-1">
+              <div
+                className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-black transition-all ${
+                  isDone
+                    ? 'bg-emerald-500 text-white'
+                    : isCurrent
+                      ? 'bg-blue-600 text-white shadow-[0_4px_12px_rgba(35,136,255,0.35)]'
+                      : 'bg-slate-100 text-slate-400'
+                }`}
+              >
+                {isDone ? <CheckCircle2 className="h-4 w-4" /> : index + 1}
+              </div>
+              <span
+                className={`hidden text-[10px] font-bold sm:block ${
+                  isCurrent ? 'text-blue-600' : isDone ? 'text-emerald-600' : 'text-slate-400'
+                }`}
+              >
+                {step.label}
+              </span>
+            </div>
+            {index < steps.length - 1 && (
+              <div
+                className={`mb-4 h-0.5 w-6 rounded transition-all ${
+                  index < currentIndex ? 'bg-emerald-300' : 'bg-slate-200'
+                }`}
+              />
+            )}
+          </React.Fragment>
+        );
+      })}
     </div>
+  );
+};
+
+const StageCard = ({
+  icon,
+  title,
+  subtitle,
+  children,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  subtitle: string;
+  children: React.ReactNode;
+}) => (
+  <div className="space-y-4 rounded-3xl border border-blue-100 bg-white p-5 shadow-[0_18px_46px_rgba(30,64,175,0.07)]">
+    <div className="flex items-center gap-3">
+      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-blue-100 bg-blue-50 text-blue-600">
+        {icon}
+      </span>
+      <div>
+        <h2 className="text-lg font-black text-slate-950">{title}</h2>
+        <p className="mt-0.5 text-sm text-slate-600">{subtitle}</p>
+      </div>
+    </div>
+    {children}
   </div>
 );
 
-const InputField = ({ label, value, onChange, placeholder }: { label: string; value: string; onChange: (value: string) => void; placeholder: string }) => (
+const InputField = ({
+  label,
+  value,
+  onChange,
+  placeholder,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  placeholder: string;
+}) => (
   <label className="block">
     <span className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">{label}</span>
     <input
       value={value}
-      onChange={(event) => onChange(event.target.value)}
+      onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
       className="mt-2 h-11 w-full rounded-xl border border-blue-100 bg-white px-3 text-sm font-semibold text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-blue-300 focus:ring-4 focus:ring-blue-100"
     />
   </label>
 );
 
-const SelectField = ({ label, value, onChange, children }: { label: string; value: string; onChange: (value: string) => void; children: React.ReactNode }) => (
-  <label className="block">
-    <span className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">{label}</span>
-    <select
-      value={value}
-      onChange={(event) => onChange(event.target.value)}
-      className="mt-2 h-11 w-full rounded-xl border border-blue-100 bg-white px-3 text-sm font-bold text-slate-800 outline-none transition focus:border-blue-300 focus:ring-4 focus:ring-blue-100"
-    >
-      {children}
-    </select>
-  </label>
-);
-
-const ActionButton = ({ icon, label, onClick }: { icon: React.ReactNode; label: string; onClick: () => void }) => (
+const ActionButton = ({
+  icon,
+  label,
+  onClick,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  onClick: () => void;
+}) => (
   <button
     type="button"
     onClick={onClick}
@@ -366,12 +877,21 @@ const ActionButton = ({ icon, label, onClick }: { icon: React.ReactNode; label: 
   </button>
 );
 
-const FindingList = ({ title, items, tone = 'blue' }: { title: string; items: JDStandardizeResponse['suggestions']; tone?: 'blue' | 'amber' | 'emerald' }) => {
-  const color = tone === 'amber'
-    ? 'border-amber-100 bg-amber-50 text-amber-700'
-    : tone === 'emerald'
-      ? 'border-emerald-100 bg-emerald-50 text-emerald-700'
-      : 'border-blue-100 bg-blue-50 text-blue-700';
+const FindingList = ({
+  title,
+  items,
+  tone = 'blue',
+}: {
+  title: string;
+  items: JDStandardizeResponse['suggestions'];
+  tone?: 'blue' | 'amber' | 'emerald';
+}) => {
+  const color =
+    tone === 'amber'
+      ? 'border-amber-100 bg-amber-50 text-amber-700'
+      : tone === 'emerald'
+        ? 'border-emerald-100 bg-emerald-50 text-emerald-700'
+        : 'border-blue-100 bg-blue-50 text-blue-700';
 
   return (
     <div className="rounded-2xl border border-blue-100 bg-white p-3">
@@ -379,12 +899,16 @@ const FindingList = ({ title, items, tone = 'blue' }: { title: string; items: JD
       <div className="mt-2 grid gap-2">
         {items.length === 0 ? (
           <p className="rounded-xl bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-500">Không có ghi nhận.</p>
-        ) : items.map((item, index) => (
-          <div key={`${item.label}-${index}`} className={`rounded-xl border px-3 py-2 ${color}`}>
-            <p className="text-xs font-black">{item.label}</p>
-            {(item.reason || item.detail) && <p className="mt-1 text-xs leading-5 text-slate-600">{item.reason || item.detail}</p>}
-          </div>
-        ))}
+        ) : (
+          items.map((item, index) => (
+            <div key={`${item.label}-${index}`} className={`rounded-xl border px-3 py-2 ${color}`}>
+              <p className="text-xs font-black">{item.label}</p>
+              {(item.reason || item.detail) && (
+                <p className="mt-1 text-xs leading-5 text-slate-600">{item.reason || item.detail}</p>
+              )}
+            </div>
+          ))
+        )}
       </div>
     </div>
   );
@@ -404,18 +928,36 @@ const JDPreview = ({ normalized }: { normalized: NormalizedJD }) => (
     </SectionPreview>
     <SectionPreview title="Trách nhiệm chính">
       {normalized.responsibilities.length ? (
-        <ul className="list-disc space-y-1 pl-5">{normalized.responsibilities.map((item) => <li key={item}>{item}</li>)}</ul>
-      ) : <p>Chưa có trách nhiệm chính.</p>}
+        <ul className="list-disc space-y-1 pl-5">
+          {normalized.responsibilities.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
+      ) : (
+        <p>Chưa có trách nhiệm chính.</p>
+      )}
     </SectionPreview>
     <SectionPreview title="Yêu cầu ứng viên">
       {normalized.requirements.length ? (
-        <ul className="list-disc space-y-1 pl-5">{normalized.requirements.map((item) => <li key={item}>{item}</li>)}</ul>
-      ) : <p>Chưa có yêu cầu ứng viên.</p>}
+        <ul className="list-disc space-y-1 pl-5">
+          {normalized.requirements.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
+      ) : (
+        <p>Chưa có yêu cầu ứng viên.</p>
+      )}
     </SectionPreview>
     <SectionPreview title="Quyền lợi">
       {normalized.benefits.length ? (
-        <ul className="list-disc space-y-1 pl-5">{normalized.benefits.map((item) => <li key={item}>{item}</li>)}</ul>
-      ) : <p>Chưa có quyền lợi.</p>}
+        <ul className="list-disc space-y-1 pl-5">
+          {normalized.benefits.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
+      ) : (
+        <p>Chưa có quyền lợi.</p>
+      )}
     </SectionPreview>
     <div className="grid gap-3 border-t border-blue-100 pt-4 md:grid-cols-3">
       <MiniInfo label="Địa điểm" value={normalized.location || 'Chưa có'} />
@@ -425,7 +967,12 @@ const JDPreview = ({ normalized }: { normalized: NormalizedJD }) => (
     {normalized.keywords.length > 0 && (
       <div className="mt-4 flex flex-wrap gap-2">
         {normalized.keywords.map((keyword) => (
-          <span key={keyword} className="rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700">{keyword}</span>
+          <span
+            key={keyword}
+            className="rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700"
+          >
+            {keyword}
+          </span>
         ))}
       </div>
     )}

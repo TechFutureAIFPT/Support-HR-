@@ -1,5 +1,6 @@
 import { apiDelete, apiGet, apiPost, pickArray } from '@/services/api/renderClient';
 import type { AnalysisRunData } from '@/types';
+import { readLocalUserSettings } from '@/services/settings/userSettingsService';
 
 interface CacheEntryRecord {
   cacheKey: string;
@@ -24,6 +25,7 @@ export class DataSyncService {
     filtersHash: string,
     fileInfo: { name: string; size: number; lastModified: number }
   ): Promise<void> {
+    if (!readLocalUserSettings().sync.autoSync) return;
     await apiPost(
       '/api/account/sync/cache',
       {
@@ -79,6 +81,7 @@ export class DataSyncService {
   }
 
   static async syncHistoryToFirebase(analysisData: AnalysisRunData): Promise<void> {
+    if (!readLocalUserSettings().sync.autoSync) return;
     await apiPost('/api/account/sync/history', analysisData, { authRequired: true });
   }
 
@@ -156,6 +159,7 @@ export class DataSyncService {
   }
 
   static async loadDataFromFirebase(): Promise<void> {
+    if (!readLocalUserSettings().sync.autoSync) return;
     try {
       const cacheMap = await this.getAllUserCacheFromFirebase();
       if (cacheMap.size > 0) {
@@ -178,7 +182,6 @@ export class DataSyncService {
 
   static async clearUserSyncedData(): Promise<void> {
     await apiDelete('/api/account/sync/cache', { authRequired: true });
-    localStorage.removeItem('cvAnalysisCache');
   }
 
   static async getSyncStats(): Promise<{
