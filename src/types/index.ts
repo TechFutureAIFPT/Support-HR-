@@ -108,6 +108,24 @@ export interface ScreeningSummary {
   [key: string]: ScreeningFactorSummary | undefined;
 }
 
+export interface HrSummarySkillAssessment {
+  ten_ky_nang: string;
+  muc_do_dap_ung: string;
+  bang_chung_tu_cv: string;
+}
+
+export interface HrSummary {
+  tong_diem_phu_hop: number;
+  nhan_xet_tong_quan: string;
+  canh_bao_red_flag: string[];
+  kinh_nghiem: {
+    so_nam_yeu_cau: string;
+    so_nam_thuc_te: string;
+    ket_luan: string;
+  };
+  danh_gia_ky_nang: HrSummarySkillAssessment[];
+}
+
 export interface Candidate {
   id: string;
   candidateName: string;
@@ -127,6 +145,7 @@ export interface Candidate {
   candidateProfile?: CandidateProfile;
   screeningSummary?: ScreeningSummary;
   autoRejectReasons?: string[];
+  hrSummary?: HrSummary;
   embeddingInsights?: CandidateEmbeddingInsight;
   jdCvMatchInsights?: CandidateJdCvMatchInsight;
 

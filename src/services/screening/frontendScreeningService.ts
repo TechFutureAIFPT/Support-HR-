@@ -457,6 +457,35 @@ function normalizeScreeningSummary(value: unknown): Candidate['screeningSummary'
   return Object.keys(summary).length > 0 ? summary : undefined;
 }
 
+function normalizeHrSummary(value: unknown): Candidate['hrSummary'] | undefined {
+  if (!value || typeof value !== 'object') return undefined;
+  const record = value as Record<string, unknown>;
+  const experience = (record.kinh_nghiem && typeof record.kinh_nghiem === 'object')
+    ? record.kinh_nghiem as Record<string, unknown>
+    : {};
+
+  return {
+    tong_diem_phu_hop: Number(record.tong_diem_phu_hop || 0),
+    nhan_xet_tong_quan: String(record.nhan_xet_tong_quan || '').trim(),
+    canh_bao_red_flag: toArray(record.canh_bao_red_flag),
+    kinh_nghiem: {
+      so_nam_yeu_cau: String(experience.so_nam_yeu_cau || '').trim(),
+      so_nam_thuc_te: String(experience.so_nam_thuc_te || '').trim(),
+      ket_luan: String(experience.ket_luan || '').trim(),
+    },
+    danh_gia_ky_nang: Array.isArray(record.danh_gia_ky_nang)
+      ? record.danh_gia_ky_nang
+        .filter((item): item is Record<string, unknown> => Boolean(item && typeof item === 'object'))
+        .map((item) => ({
+          ten_ky_nang: String(item.ten_ky_nang || '').trim(),
+          muc_do_dap_ung: String(item.muc_do_dap_ung || '').trim(),
+          bang_chung_tu_cv: String(item.bang_chung_tu_cv || '').trim(),
+        }))
+        .filter((item) => item.ten_ky_nang)
+      : [],
+  };
+}
+
 function normalizeAscii(value: string): string {
   return value
     .normalize('NFD')
@@ -569,6 +598,7 @@ function normalizeCandidate(rawCandidate: unknown, fallbackFile?: File, cvText?:
     autoRejectReasons: Array.isArray(candidate.autoRejectReasons)
       ? candidate.autoRejectReasons.map((reason) => String(reason))
       : undefined,
+    hrSummary: normalizeHrSummary(candidate.hrSummary),
     embeddingInsights: normalizeEmbeddingInsight(candidate.embeddingInsights),
     jdCvMatchInsights: normalizeJdCvMatchInsights(candidate.jdCvMatchInsights),
     analysis: normalizedAnalysis,

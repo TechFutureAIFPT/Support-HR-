@@ -84,6 +84,12 @@ function getScreeningOutcomeLabel(candidate: Candidate): string {
   return 'Chưa kết luận';
 }
 
+function getHrSkillTone(status: string): string {
+  if (status === 'Đạt') return 'border-emerald-200 bg-emerald-50 text-emerald-700';
+  if (status === 'Đạt một phần') return 'border-amber-200 bg-amber-50 text-amber-700';
+  return 'border-rose-200 bg-rose-50 text-rose-700';
+}
+
 // --- New Accordion Component ---
 interface CriterionAccordionProps {
   item: DetailedScore;
@@ -516,6 +522,66 @@ const CandidateCard: React.FC<CandidateCardProps> = ({ candidate, rank }) => {
                       </div>
                     ))}
                   </div>
+                </div>
+              )}
+
+              {candidate.hrSummary && (
+                <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5">
+                  <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3">
+                    <div>
+                      <h4 className="text-sm font-bold uppercase tracking-[0.16em] text-slate-200">Tóm tắt HR</h4>
+                      <p className="mt-1 text-xs text-slate-400">{candidate.hrSummary.nhan_xet_tong_quan}</p>
+                    </div>
+                    <span className="rounded-full border border-cyan-200 bg-cyan-50 px-3 py-1 text-[11px] font-bold text-cyan-700">
+                      {candidate.hrSummary.tong_diem_phu_hop}/100
+                    </span>
+                  </div>
+
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div className="rounded-xl border border-slate-800 bg-slate-950/50 p-4">
+                      <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-400">Kinh nghiệm</p>
+                      <div className="mt-3 space-y-2 text-sm text-slate-300">
+                        <p><span className="font-semibold text-slate-100">Yêu cầu:</span> {candidate.hrSummary.kinh_nghiem.so_nam_yeu_cau || 'Chưa có'}</p>
+                        <p><span className="font-semibold text-slate-100">Thực tế:</span> {candidate.hrSummary.kinh_nghiem.so_nam_thuc_te || 'Chưa có'}</p>
+                        <p><span className="font-semibold text-slate-100">Kết luận:</span> {candidate.hrSummary.kinh_nghiem.ket_luan || 'Chưa có'}</p>
+                      </div>
+                    </div>
+
+                    <div className="rounded-xl border border-slate-800 bg-slate-950/50 p-4">
+                      <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-400">Red Flags</p>
+                      {candidate.hrSummary.canh_bao_red_flag.length > 0 ? (
+                        <ul className="mt-3 space-y-2 text-sm text-rose-300">
+                          {candidate.hrSummary.canh_bao_red_flag.map((item) => (
+                            <li key={item} className="flex items-start gap-2">
+                              <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-rose-400" />
+                              <span>{item}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p className="mt-3 text-sm text-slate-300">Không có cảnh báo rủi ro cao.</p>
+                      )}
+                    </div>
+                  </div>
+
+                  {candidate.hrSummary.danh_gia_ky_nang.length > 0 && (
+                    <div className="mt-4 rounded-xl border border-slate-800 bg-slate-950/50 p-4">
+                      <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-400">Đánh giá kỹ năng</p>
+                      <div className="mt-3 space-y-3">
+                        {candidate.hrSummary.danh_gia_ky_nang.map((item) => (
+                          <div key={`${item.ten_ky_nang}-${item.bang_chung_tu_cv}`} className="rounded-lg border border-slate-800 bg-slate-900/70 p-3">
+                            <div className="flex flex-wrap items-center justify-between gap-2">
+                              <span className="text-sm font-semibold text-white">{item.ten_ky_nang}</span>
+                              <span className={`rounded-full border px-2.5 py-1 text-[10px] font-bold ${getHrSkillTone(item.muc_do_dap_ung)}`}>
+                                {item.muc_do_dap_ung}
+                              </span>
+                            </div>
+                            <p className="mt-2 text-xs text-slate-300">{item.bang_chung_tu_cv || 'Không tìm thấy trong CV'}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
               
