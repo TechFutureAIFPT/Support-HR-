@@ -766,7 +766,7 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-[80] flex items-center justify-center bg-slate-950/35 px-3 py-4 backdrop-blur-sm sm:px-4 sm:py-6">
-      <div className="flex h-[min(94vh,860px)] w-full max-w-5xl flex-col overflow-hidden rounded-[28px] border border-slate-200 bg-[#f7f7f5] shadow-[0_30px_80px_rgba(15,23,42,0.18)]">
+      <div className="flex h-[min(94vh,860px)] w-full max-w-[1080px] flex-col overflow-hidden rounded-[28px] border border-slate-200 bg-[#f7f7f5] shadow-[0_30px_80px_rgba(15,23,42,0.18)]">
         <div className="flex items-start justify-between gap-4 border-b border-slate-200 bg-white px-5 py-4 sm:px-6">
           <div>
             <div className="flex items-center gap-2 text-slate-950">
@@ -788,12 +788,12 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
           </button>
         </div>
 
-        <div className="min-h-0 flex-1 lg:grid lg:grid-cols-[280px,minmax(0,1fr)]">
-          <aside className="border-b border-slate-200 bg-white p-3 lg:border-b-0 lg:border-r lg:p-4">
+        <div className="min-h-0 flex-1 lg:flex">
+          <aside className="border-b border-slate-200 bg-white p-3 lg:w-[280px] lg:shrink-0 lg:border-b-0 lg:border-r lg:bg-[#fbfbfa] lg:p-4">
             <div className="mb-3 hidden px-2 lg:block">
               <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">Danh mục</p>
             </div>
-            <div className="flex gap-2 overflow-x-auto pb-1 lg:block lg:space-y-1 lg:overflow-visible lg:pb-0">
+            <div className="flex gap-2 overflow-x-auto pb-1 lg:block lg:space-y-1.5 lg:overflow-visible lg:pb-0">
               {TABS.map((tab) => {
                 const Icon = tab.icon;
                 const active = tab.id === activeTab;
@@ -802,10 +802,10 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
                     key={tab.id}
                     type="button"
                     onClick={() => setActiveTab(tab.id)}
-                    className={`relative flex min-w-[140px] items-center gap-3 rounded-xl px-3 py-2.5 text-left transition lg:min-w-0 lg:w-full ${
+                    className={`relative flex min-w-[140px] items-center gap-3 rounded-xl px-3 py-2.5 text-left transition lg:min-w-0 lg:w-full lg:rounded-lg ${
                       active
                         ? 'bg-blue-50 text-slate-950'
-                        : 'bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-950'
+                        : 'bg-transparent text-slate-600 hover:bg-white hover:text-slate-950'
                     }`}
                   >
                     <span
@@ -832,9 +832,9 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
             </div>
           </aside>
 
-          <main className="custom-scrollbar min-h-0 overflow-y-auto p-4 sm:p-5 lg:p-6">
-            <div className="mb-5 flex items-start gap-4 border-b border-slate-200 pb-4">
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-white text-blue-600 shadow-sm">
+          <main className="custom-scrollbar min-h-0 flex-1 overflow-y-auto p-4 sm:p-5 lg:p-6">
+            <div className="mb-5 flex items-start gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
                 <ActiveIcon size={19} />
               </span>
               <div>
