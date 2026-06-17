@@ -2,71 +2,16 @@
   "name": "Support HR",
   "short_name": "Support HR",
   "description": "AI CV screening and recruiting workspace for HR teams.",
-  "id": "/",
+  "id": "https://www.supporthr-tf.com.vn/",
   "lang": "vi",
   "dir": "ltr",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "display_override": ["window-controls-overlay", "standalone"],
   "background_color": "#ffffff",
   "theme_color": "#2388ff",
   "orientation": "any",
   "categories": ["business", "productivity", "utilities"],
-  "prefer_related_applications": false,
-  "related_applications": [
-    {
-      "platform": "webapp",
-      "url": "https://www.supporthr-tf.com.vn/pwa/manifest.json"
-    }
-  ],
-  "launch_handler": {
-    "client_mode": "focus-existing"
-  },
-  "protocol_handlers": [
-    {
-      "protocol": "web+supporthr",
-      "url": "/welcome?protocol=%s"
-    }
-  ],
-  "file_handlers": [
-    {
-      "action": "/upload?source=file-handler",
-      "accept": {
-        "application/pdf": [".pdf"],
-        "application/msword": [".doc"],
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [".docx"],
-        "text/plain": [".txt"]
-      }
-    }
-  ],
-  "share_target": {
-    "action": "/upload",
-    "method": "POST",
-    "enctype": "multipart/form-data",
-    "params": {
-      "title": "title",
-      "text": "text",
-      "url": "url",
-      "files": [
-        {
-          "name": "files",
-          "accept": [
-            "application/pdf",
-            "application/msword",
-            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-            "text/plain"
-          ]
-        }
-      ]
-    }
-  },
-  "note_taking": {
-    "new_note_url": "/jd-standardizer?source=note-taking"
-  },
-  "edge_side_panel": {
-    "preferred_width": 420
-  },
   "icons": [
     {
       "src": "/icons/icon-192.png",
@@ -104,7 +49,7 @@
       "name": "Resume screening",
       "short_name": "Screening",
       "description": "Open the main workflow for JD review and CV screening.",
-      "url": "/welcome?source=pwa",
+      "url": "/",
       "icons": [
         {
           "src": "/icons/icon-192.png",

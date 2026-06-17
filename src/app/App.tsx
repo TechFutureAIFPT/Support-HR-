@@ -170,20 +170,9 @@ function clearExpiredWorkflowSession(): void {
   window.localStorage.removeItem('hardFilters');
 }
 
-function isRunningAsInstalledApp(): boolean {
-  if (typeof window === 'undefined') return false;
-
-  const standaloneMedia = window.matchMedia?.('(display-mode: standalone)').matches;
-  const windowControlsMedia = window.matchMedia?.('(display-mode: window-controls-overlay)').matches;
-  const iosStandalone = (window.navigator as Navigator & { standalone?: boolean }).standalone === true;
-
-  return Boolean(standaloneMedia || windowControlsMedia || iosStandalone);
-}
-
 const MainApp = () => {
   clearExpiredWorkflowSession();
   const location = useLocation();
-  const navigate = useNavigate();
   const initialPath = typeof window !== 'undefined' ? window.location.pathname : '/';
   const shouldBlockInitialRender = !publicMarketingPaths.has(initialPath) && initialPath !== '/welcome';
 
@@ -207,12 +196,6 @@ const MainApp = () => {
   const handleLoginRequest = () => {
     setShowLoginModal(true);
   };
-
-  useEffect(() => {
-    if (location.pathname === '/' && isRunningAsInstalledApp()) {
-      navigate('/welcome?source=pwa', { replace: true });
-    }
-  }, [location.pathname, navigate]);
 
   useEffect(() => {
     const protectedPaths = ['/jd', '/upload', '/weights', '/analysis', '/dashboard', '/detailed-analytics', '/chatbot', '/feedback', '/records', '/jd-standardizer', '/history', '/jd-templates'];
