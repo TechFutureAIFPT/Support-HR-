@@ -375,6 +375,14 @@ export interface MobileInboxCandidate {
   warnings: string[];
   hardFilterFailureReason?: string | null;
   stageDecision?: StageDecision;
+  screeningOutcome?: {
+    status: string;
+    label: string;
+  };
+  autoRejectReasons?: string[];
+  screeningSummary?: ScreeningSummary;
+  candidateProfile?: CandidateProfile;
+  hrSummary?: HrSummary;
   hardFilters?: Record<string, unknown>;
   jdText?: string;
   jobPosition?: string;
@@ -388,6 +396,15 @@ export interface MobileInboxHistory {
   locationRequirement?: string;
   totalCandidates: number;
   userEmail?: string;
+  screeningStats?: {
+    totalCandidates: number;
+    byDecision: Record<string, number>;
+    failFactors: Record<string, number>;
+  };
+  autoRejectCount?: number;
+  reviewCount?: number;
+  readyCount?: number;
+  topHrSummaries?: Array<Record<string, unknown>>;
   fullPayload?: {
     jdText?: string;
     jobPosition?: string;
