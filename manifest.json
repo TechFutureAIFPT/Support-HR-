@@ -3,102 +3,27 @@
   "short_name": "Support HR",
   "description": "AI CV screening and recruiting workspace for HR teams.",
   "id": "https://www.supporthr-tf.com.vn/",
-  "lang": "vi",
-  "dir": "ltr",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#2388ff",
-  "orientation": "any",
-  "categories": ["business", "productivity", "utilities"],
   "icons": [
     {
       "src": "/icons/icon-192.png",
       "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/icons/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "maskable"
-    },
-    {
-      "src": "/icons/icon-256.png",
-      "sizes": "256x256",
-      "type": "image/png",
-      "purpose": "any"
+      "type": "image/png"
     },
     {
       "src": "/icons/icon-512.png",
       "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any"
+      "type": "image/png"
     },
     {
       "src": "/icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
-    }
-  ],
-  "shortcuts": [
-    {
-      "name": "Resume screening",
-      "short_name": "Screening",
-      "description": "Open the main workflow for JD review and CV screening.",
-      "url": "/",
-      "icons": [
-        {
-          "src": "/icons/icon-192.png",
-          "sizes": "192x192",
-          "type": "image/png"
-        }
-      ]
-    },
-    {
-      "name": "CV library",
-      "short_name": "Library",
-      "description": "Open the filtered CV library.",
-      "url": "/records",
-      "icons": [
-        {
-          "src": "/icons/icon-192.png",
-          "sizes": "192x192",
-          "type": "image/png"
-        }
-      ]
-    },
-    {
-      "name": "Standardize JD",
-      "short_name": "JD Tool",
-      "description": "Clean up and standardize job descriptions.",
-      "url": "/jd-standardizer",
-      "icons": [
-        {
-          "src": "/icons/icon-192.png",
-          "sizes": "192x192",
-          "type": "image/png"
-        }
-      ]
-    }
-  ],
-  "screenshots": [
-    {
-      "src": "/images/logos/screenshot-1.png",
-      "sizes": "1024x575",
-      "type": "image/png",
-      "form_factor": "wide",
-      "label": "Desktop workflow screenshot"
-    },
-    {
-      "src": "/images/logos/screenshot-mobile.png",
-      "sizes": "390x844",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "Mobile install screenshot"
     }
   ]
 }
