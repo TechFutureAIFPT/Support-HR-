@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useMemo, useEffect, useRef, Suspense, lazy } from 'react';
 import { detectIndustryFromJD } from '@/services/jd/industryDetector';
-import { BrowserRouter, Navigate, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '@/services/firebase';
 import { SpeedInsights } from '@vercel/speed-insights/react';
@@ -774,6 +774,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
       case '/faq':
       case '/pricing':
         return 'app-docs';
+      case '/':
       case '/jd': return 'jd';
       case '/upload': return 'upload';
       case '/weights': return 'weights';
@@ -786,7 +787,6 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
       case '/jd-standardizer': return 'jd-standardizer';
       case '/history': return 'history';
       case '/jd-templates': return 'jd-templates';
-      case '/':
       default:
         return 'home';
     }
@@ -816,13 +816,13 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
     localStorage.removeItem('currentRawJD');
     localStorage.removeItem('currentLocation');
     setCompletedSteps([]);
-    navigate('/jd');
+    navigate('/');
   }, [hardFilters, navigate, settings.workflow.newSessionMode, settings.workflow.rememberScoringConfig, weights]);
 
   const setActiveStep = useCallback((step: AppStep) => {
     const pathMap: Partial<Record<AppStep, string>> = {
       home: '/',
-      jd: '/jd',
+      jd: '/',
       upload: '/upload',
       weights: '/weights',
       analysis: '/analysis',
@@ -867,11 +867,10 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
   }, [analysisResults, isLoading]);
 
   const isWelcomeRoute = location.pathname === '/welcome';
-  const isFirstPageRoute = location.pathname === '/';
   const isMarketingRoute = publicMarketingPaths.has(location.pathname);
   
   // Show workspace shell (sidebar + header) for all routes except welcome/landing when logged in
-  const shouldUseWorkspaceShell = isLoggedIn && !isWelcomeRoute && !isFirstPageRoute;
+  const shouldUseWorkspaceShell = isLoggedIn && !isWelcomeRoute;
   const isWorkflowView = shouldUseWorkspaceShell;
   const isLandingView = !shouldUseWorkspaceShell;
   const isStandaloneToolRoute = false;
@@ -881,7 +880,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
     const path = location.pathname;
     const requiresJD = ['/upload', '/weights', '/analysis'];
     if (requiresJD.includes(path) && !completedSteps.includes('jd')) {
-      navigate('/jd', { replace: true });
+      navigate('/', { replace: true });
       return;
     }
     const requiresUpload = ['/weights', '/analysis'];
@@ -1162,7 +1161,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
           }>
             <Routes>
               <Route path="/welcome" element={<WelcomeAppPage isLoggedIn={isLoggedIn} onLoginRequest={onLoginRequest} />} />
-              <Route path="/" element={<Navigate to={isLoggedIn ? '/jd' : '/welcome'} replace />} />
+              <Route path="/" element={isLoggedIn ? <ScreenerPage {...screenerPageProps} /> : authFallback} />
               <Route path="/jd" element={isLoggedIn ? <ScreenerPage {...screenerPageProps} /> : authFallback} />
               <Route path="/upload" element={isLoggedIn ? <ScreenerPage {...screenerPageProps} /> : authFallback} />
               <Route path="/weights" element={isLoggedIn ? <ScreenerPage {...screenerPageProps} /> : authFallback} />
