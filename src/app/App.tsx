@@ -29,6 +29,19 @@ import { DocsPageLoading } from '@/pages/info/legal-ui';
 const ScreenerPage = lazy(() => import('@/pages/main/ScreenerPage'));
 const WelcomeAppPage = lazy(() => import('@/pages/main/WelcomeAppPage'));
 const AppDocumentationPage = lazy(() => import('@/pages/info/AppDocumentationPage'));
+const ProcessPage = lazy(() => import('@/pages/main/ProcessPage'));
+const DemoPage = lazy(() => import('@/pages/info/DemoPage'));
+const AIMethodologyPage = lazy(() => import('@/pages/info/AIMethodologyPage'));
+const UseCasesPage = lazy(() => import('@/pages/info/UseCasesPage'));
+const IntegrationsPage = lazy(() => import('@/pages/info/IntegrationsPage'));
+const SecurityCompliancePage = lazy(() => import('@/pages/info/SecurityCompliancePage'));
+const PricingPage = lazy(() => import('@/pages/info/PricingPage'));
+const FAQPage = lazy(() => import('@/pages/info/FAQPage'));
+const PrivacyPolicyPage = lazy(() => import('@/pages/info/PrivacyPolicyPage'));
+const TermsPage = lazy(() => import('@/pages/info/TermsPage'));
+const AchievementsContactPage = lazy(() => import('@/pages/info/AchievementsContactPage'));
+const BookDemoPage = lazy(() => import('@/pages/info/BookDemoPage'));
+const DeploymentReadyPage = lazy(() => import('@/pages/deployment/DeploymentReadyPage'));
 const LoginPage = lazy(() => import('@/pages/auth/LoginPage'));
 const DetailedAnalyticsPage = lazy(() => import('@/pages/analytics/DetailedAnalyticsPage'));
 const AIFeedbackPage = lazy(() => import('@/pages/main/AIFeedbackPage'));
@@ -155,6 +168,8 @@ const publicMarketingPaths = new Set([
   '/integrations',
   '/book-demo',
 ]);
+
+const publicDocsPaths = new Set([...publicMarketingPaths].filter((path) => path !== '/'));
 
 function clearExpiredWorkflowSession(): void {
   if (typeof window === 'undefined' || !isWorkflowSessionExpired()) return;
@@ -852,8 +867,9 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
   const isWelcomeRoute = location.pathname === '/welcome';
   const isMarketingRoute = publicMarketingPaths.has(location.pathname);
   
-  // Show workspace shell (sidebar + header) for all routes except welcome/landing when logged in
-  const shouldUseWorkspaceShell = isLoggedIn && !isWelcomeRoute;
+  // Documentation is public and always uses its own header-only layout.
+  const isDocsRoute = publicDocsPaths.has(location.pathname);
+  const shouldUseWorkspaceShell = isLoggedIn && !isWelcomeRoute && !isDocsRoute;
   const isWorkflowView = shouldUseWorkspaceShell;
   const isLandingView = !shouldUseWorkspaceShell;
   const isStandaloneToolRoute = false;
@@ -1171,20 +1187,20 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
                 </div>
               ) : authFallback} />
               <Route path="/app-docs" element={appDocumentationPage} />
-              <Route path="/process" element={appDocumentationPage} />
-              <Route path="/contact-ready" element={appDocumentationPage} />
-              <Route path="/privacy-policy" element={appDocumentationPage} />
-              <Route path="/terms" element={appDocumentationPage} />
-              <Route path="/team" element={appDocumentationPage} />
-              <Route path="/security" element={appDocumentationPage} />
-              <Route path="/faq" element={appDocumentationPage} />
-              <Route path="/pricing" element={appDocumentationPage} />
-              <Route path="/guide" element={appDocumentationPage} />
-              <Route path="/demo" element={appDocumentationPage} />
-              <Route path="/ai-methodology" element={appDocumentationPage} />
-              <Route path="/use-cases" element={appDocumentationPage} />
-              <Route path="/integrations" element={appDocumentationPage} />
-              <Route path="/book-demo" element={appDocumentationPage} />
+              <Route path="/process" element={<ProcessPage />} />
+              <Route path="/guide" element={<DemoPage />} />
+              <Route path="/demo" element={<DemoPage />} />
+              <Route path="/ai-methodology" element={<AIMethodologyPage />} />
+              <Route path="/use-cases" element={<UseCasesPage />} />
+              <Route path="/integrations" element={<IntegrationsPage />} />
+              <Route path="/security" element={<SecurityCompliancePage />} />
+              <Route path="/pricing" element={<PricingPage />} />
+              <Route path="/faq" element={<FAQPage />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+              <Route path="/terms" element={<TermsPage />} />
+              <Route path="/team" element={<AchievementsContactPage />} />
+              <Route path="/contact-ready" element={<DeploymentReadyPage />} />
+              <Route path="/book-demo" element={<BookDemoPage />} />
             </Routes>
           </Suspense>
         </div>

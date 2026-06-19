@@ -21,6 +21,10 @@ const DEFAULT_SEO: RouteSeo = {
 
 const ROUTE_SEO: Record<string, RouteSeo> = {
   "/": DEFAULT_SEO,
+  "/app-docs": {
+    title: "Trung tâm tài liệu sản phẩm | Support HR",
+    description: "Tổng quan sản phẩm, quy trình, phương pháp đánh giá, hướng dẫn, bảo mật và tài liệu triển khai Support HR.",
+  },
   "/process": {
     title: "Quy trình sàng lọc CV thông minh | Support HR",
     description: "Luồng 5 bước từ JD, CV đầu vào đến danh sách đề cử có lý do để nhà tuyển dụng và quản lý tuyển dụng rà soát.",
@@ -52,7 +56,6 @@ const ROUTE_SEO: Record<string, RouteSeo> = {
   "/faq": {
     title: "Hỏi đáp Support HR",
     description: "Câu hỏi thường gặp về bảng giá, dữ liệu, bảo mật, AI và triển khai Support HR.",
-    canonicalPath: "/pricing",
   },
   "/guide": {
     title: "Cách sử dụng Support HR",

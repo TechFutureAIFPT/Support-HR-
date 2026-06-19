@@ -23,6 +23,7 @@ import {
   UsersRound,
   Workflow,
 } from 'lucide-react';
+import { DocsFooter, DocsTopBar } from './legal-ui';
 
 type IconType = React.ComponentType<{ className?: string; size?: number }>;
 
@@ -520,7 +521,8 @@ const AppDocumentationPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#f7fbff] text-slate-900">
-      <header className="border-b border-blue-100 bg-white">
+      <DocsTopBar auxiliaryLink={{ label: 'Hướng dẫn sử dụng', to: '/guide' }} brandContext="Trung tâm tài liệu" />
+      <header className="hidden">
         <div className="mx-auto flex min-h-20 w-full max-w-[1520px] items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
           <Link to="/jd" className="flex items-center gap-3">
             <span className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-xl border border-blue-100 bg-white shadow-sm">
@@ -563,8 +565,8 @@ const AppDocumentationPage: React.FC = () => {
         </div>
       </header>
 
-      <main className="mx-auto grid w-full max-w-[1520px] gap-6 px-4 py-6 sm:px-6 lg:grid-cols-[260px_minmax(0,1fr)_280px] lg:px-8">
-        <aside className="hidden lg:block">
+      <main className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+        <aside className="hidden">
           <nav className="sticky top-[58px] max-h-[calc(100vh-82px)] overflow-y-auto rounded-3xl border border-blue-100 bg-white p-4 shadow-[0_20px_50px_rgba(30,64,175,0.08)]">
             <p className="px-3 text-[11px] font-black uppercase tracking-[0.22em] text-slate-400">Documentation</p>
             <div className="mt-4 space-y-5">
@@ -762,7 +764,7 @@ const AppDocumentationPage: React.FC = () => {
           </div>
         </div>
 
-        <aside className="hidden xl:block">
+        <aside className="hidden">
           <div className="sticky top-[58px] space-y-4">
             <div className="rounded-3xl border border-blue-100 bg-white p-4 shadow-[0_18px_50px_rgba(30,64,175,0.08)]">
               <p className="text-[11px] font-black uppercase tracking-[0.22em] text-slate-400">Trong trang này</p>
@@ -791,6 +793,7 @@ const AppDocumentationPage: React.FC = () => {
           </div>
         </aside>
       </main>
+      <DocsFooter />
     </div>
   );
 };

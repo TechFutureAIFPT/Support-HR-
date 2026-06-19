@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState, type ReactNode } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import DmcaBadge from "@/components/common/DmcaBadge";
 import { productDocsSearchEntries, type DocsHeaderTab, type DocsSearchEntry } from "./docs-header-tabs";
+import DocsStandaloneHeader from "./DocsStandaloneHeader";
 
 export type LegalTone = "cyan" | "emerald" | "sky" | "violet" | "amber" | "rose";
 
@@ -189,7 +190,7 @@ function DocsSearchBar({ compact = false }: { compact?: boolean }) {
               }
             }
           }}
-          placeholder="Search tài liệu..."
+          placeholder="Tìm kiếm tài liệu..."
           className="h-12 w-full rounded-2xl border border-blue-100 bg-white pl-11 pr-20 text-sm text-slate-900 shadow-sm outline-none transition-colors placeholder:text-slate-400 focus:border-blue-300 focus:bg-white"
         />
         <span className="supporthr-mono pointer-events-none absolute right-4 top-1/2 hidden -translate-y-1/2 text-[10px] uppercase tracking-[0.22em] text-slate-500 sm:block">
@@ -239,82 +240,18 @@ export function DocsTopBar({
   };
 }) {
   return (
-    <>
-      <nav className="sticky top-0 z-50 border-b border-blue-100 bg-white/92 shadow-[0_12px_36px_rgba(30,64,175,0.07)] backdrop-blur-xl">
-        <div className="mx-auto flex min-h-[4.45rem] w-full max-w-[96rem] items-center justify-between gap-6 px-4 py-3 sm:px-6 lg:px-8">
-          <Link to="/" className="flex shrink-0 items-center gap-3 text-left transition-opacity duration-300 hover:opacity-90">
-            <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-xl border border-blue-100 bg-white shadow-sm">
-              <img src="/images/logos/logo.jpg" alt="Support HR" className="h-full w-full object-cover" />
-            </div>
-            <div className="flex flex-col">
-              <span className="supporthr-mono text-[15px] font-semibold uppercase tracking-[0.08em] text-slate-900">
-                Support HR
-              </span>
-              <span className="mt-0.5 supporthr-mono text-[10px] font-bold uppercase tracking-[0.24em] text-blue-600">
-                {brandContext}
-              </span>
-            </div>
-          </Link>
-
-          <div className="flex flex-1 justify-center">
-            <DocsSearchBar />
-          </div>
-
-          <div className="flex shrink-0 items-center gap-4 sm:gap-5">
-            <Link
-              to={auxiliaryLink.to}
-              className="hidden h-10 items-center justify-center rounded-xl border border-blue-100 bg-white px-5 supporthr-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-700 shadow-sm transition-colors duration-200 hover:border-blue-200 hover:text-blue-700 sm:inline-flex"
-            >
-              {auxiliaryLink.label}
-            </Link>
-            <Link
-              to="/"
-              className="inline-flex h-10 items-center justify-center rounded-xl border border-blue-100 bg-blue-600 px-5 supporthr-mono text-[11px] font-bold uppercase tracking-[0.18em] text-white shadow-sm transition-colors duration-200 hover:bg-blue-700"
-            >
-              Trang chủ
-            </Link>
-          </div>
-        </div>
-      </nav>
-
-      <div className="border-b border-blue-100 bg-white/96 px-4 py-3 md:hidden">
-        <div className="mx-auto w-full max-w-[96rem]">
-          <DocsSearchBar compact />
-        </div>
-      </div>
-    </>
+    <DocsStandaloneHeader
+      brandContext={brandContext}
+      auxiliaryLink={auxiliaryLink}
+      search={<DocsSearchBar />}
+      compactSearch={<DocsSearchBar compact />}
+    />
   );
 }
 
 export function DocsHeaderTabs({ tabs }: { tabs: DocsHeaderTab[] }) {
-  const location = useLocation();
-
-  if (!tabs.length) return null;
-
-  return (
-    <div className="border-b border-blue-100 bg-white/96">
-      <div className="mx-auto flex w-full max-w-[96rem] items-center gap-2 overflow-x-auto px-4 sm:px-6 lg:px-8">
-        {tabs.map((tab) => {
-          const matches = tab.matchPaths?.length ? tab.matchPaths : [tab.to];
-          const isActive = matches.includes(location.pathname);
-
-          return (
-            <Link
-              key={tab.to}
-              to={tab.to}
-              className={`supporthr-mono shrink-0 border-b px-1 py-4 text-[11px] font-semibold uppercase tracking-[0.18em] transition-colors duration-200 ${
-                isActive
-                  ? "border-blue-600 text-blue-700"
-                  : "border-transparent text-slate-500 hover:text-blue-700"
-              }`}
-            >
-              {tab.label}
-            </Link>
-          );
-        })}
-      </div>
-    </div>
-  );
+  void tabs;
+  return null;
 }
 
 export function DocsCopyPageButton() {
@@ -513,8 +450,8 @@ export function LegalPageLayout({
             isVisible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
           }`}
         >
-          <div className="grid gap-8 xl:grid-cols-[17rem_minmax(0,48rem)_15rem] xl:gap-10">
-            <aside className="hidden xl:block">
+          <div className="mx-auto max-w-4xl">
+            <aside className="hidden">
               <div className="sticky top-28 rounded-2xl border border-blue-100 bg-white p-4 shadow-sm">
                 <p className="text-sm font-semibold text-slate-900">Features</p>
                 <p className="mt-5 text-sm text-slate-500">{pageLabel}</p>
@@ -619,7 +556,7 @@ export function LegalPageLayout({
               </section>
             </article>
 
-            <aside className="hidden xl:block">
+            <aside className="hidden">
               <div className="sticky top-28 rounded-2xl border border-blue-100 bg-white p-4 shadow-sm">
                 <p className="flex items-center gap-2 text-sm font-semibold text-slate-900">
                   <i className="fa-solid fa-list-ul text-[11px] text-blue-600" />
