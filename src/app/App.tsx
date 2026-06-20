@@ -873,7 +873,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
   
   // Documentation is public and always uses its own header-only layout.
   const isDocsRoute = publicDocsPaths.has(location.pathname);
-  const shouldUseWorkspaceShell = isLoggedIn && !isWelcomeRoute && !isDocsRoute;
+  const shouldUseWorkspaceShell = isLoggedIn && !isMarketingRoute && !isWelcomeRoute && !isDocsRoute;
   const isWorkflowView = shouldUseWorkspaceShell;
   const isLandingView = !shouldUseWorkspaceShell;
   const isStandaloneToolRoute = false;
@@ -1164,7 +1164,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
           }>
             <Routes>
               <Route path="/welcome" element={<WelcomeAppPage isLoggedIn={isLoggedIn} onLoginRequest={onLoginRequest} />} />
-              <Route path="/" element={isLoggedIn ? <ScreenerPage {...screenerPageProps} /> : authFallback} />
+              <Route path="/" element={<WelcomeAppPage isLoggedIn={isLoggedIn} onLoginRequest={onLoginRequest} />} />
               <Route path="/jd" element={isLoggedIn ? <ScreenerPage {...screenerPageProps} /> : authFallback} />
               <Route path="/upload" element={isLoggedIn ? <ScreenerPage {...screenerPageProps} /> : authFallback} />
               <Route path="/weights" element={isLoggedIn ? <ScreenerPage {...screenerPageProps} /> : authFallback} />
