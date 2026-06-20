@@ -63,30 +63,43 @@ export default function DocsStandaloneHeader({ brandContext, auxiliaryLink, sear
                   <button
                     type="button"
                     onClick={() => setOpenMenu((current) => current === group.label ? null : group.label)}
+                    onMouseEnter={() => setOpenMenu(group.label)}
+                    onFocus={() => setOpenMenu(group.label)}
                     className={`flex h-10 items-center gap-2 rounded-xl px-4 text-sm font-semibold transition-colors ${
                       groupActive || openMenu === group.label
                         ? "bg-blue-50 text-blue-700"
                         : "text-slate-600 hover:bg-slate-50 hover:text-slate-950"
                     }`}
                     aria-expanded={openMenu === group.label}
+                    aria-haspopup="menu"
                   >
                     {group.label}
                     <i className={`fa-solid fa-chevron-down text-[10px] transition-transform ${openMenu === group.label ? "rotate-180" : ""}`} />
                   </button>
 
                   {openMenu === group.label ? (
-                    <div className="absolute left-0 top-12 w-72 rounded-2xl border border-blue-100 bg-white p-2 shadow-[0_20px_50px_rgba(30,64,175,0.14)]">
+                    <div
+                      className="absolute left-0 top-12 z-[100] w-[22rem] rounded-2xl border border-blue-100 bg-white p-2 shadow-[0_24px_64px_rgba(30,64,175,0.2)]"
+                      role="menu"
+                    >
                       {group.items.map((item) => (
                         <Link
                           key={item.to}
                           to={item.to}
-                          className={`block rounded-xl px-4 py-3 text-sm transition-colors ${
+                          role="menuitem"
+                          className={`flex items-start gap-3 rounded-xl px-3 py-3 text-sm transition-colors ${
                             isActive(item)
                               ? "bg-blue-50 font-semibold text-blue-700"
                               : "font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-950"
                           }`}
                         >
-                          {item.label}
+                          <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border ${isActive(item) ? "border-blue-200 bg-white text-blue-600" : "border-slate-200 bg-slate-50 text-slate-500"}`}>
+                            <i className={`fa-solid ${item.icon} text-xs`} />
+                          </span>
+                          <span className="min-w-0">
+                            <span className="block font-semibold text-slate-900">{item.label}</span>
+                            <span className="mt-0.5 block text-xs font-normal leading-5 text-slate-500">{item.description}</span>
+                          </span>
                         </Link>
                       ))}
                     </div>
@@ -120,6 +133,26 @@ export default function DocsStandaloneHeader({ brandContext, auxiliaryLink, sear
           </div>
         </div>
 
+        <div className="hidden border-t border-blue-100/80 bg-white lg:block">
+          <div className="mx-auto flex w-full max-w-[86rem] items-center gap-1 overflow-x-auto px-6 py-2 lg:px-8">
+            <span className="mr-2 shrink-0 text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400">Danh mục</span>
+            {productDocsMenus.flatMap((group) => group.items).map((item) => (
+              <Link
+                key={`quick-${item.to}`}
+                to={item.to}
+                className={`inline-flex h-8 shrink-0 items-center gap-2 rounded-lg px-3 text-xs font-semibold transition-colors ${
+                  isActive(item)
+                    ? "bg-blue-50 text-blue-700"
+                    : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+                }`}
+              >
+                <i className={`fa-solid ${item.icon} text-[10px]`} />
+                {item.label}
+              </Link>
+            ))}
+          </div>
+        </div>
+
         {mobileOpen ? (
           <div className="border-t border-blue-100 bg-white px-4 py-4 lg:hidden">
             <div className="mx-auto max-w-[86rem] space-y-5">
@@ -131,9 +164,15 @@ export default function DocsStandaloneHeader({ brandContext, auxiliaryLink, sear
                       <Link
                         key={item.to}
                         to={item.to}
-                        className={`rounded-xl px-3 py-2.5 text-sm ${isActive(item) ? "bg-blue-50 font-semibold text-blue-700" : "text-slate-600"}`}
+                        className={`flex items-start gap-3 rounded-xl px-3 py-2.5 text-sm ${isActive(item) ? "bg-blue-50 font-semibold text-blue-700" : "text-slate-600"}`}
                       >
-                        {item.label}
+                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-blue-100 bg-white text-blue-600">
+                          <i className={`fa-solid ${item.icon} text-[11px]`} />
+                        </span>
+                        <span>
+                          <span className="block font-semibold text-slate-900">{item.label}</span>
+                          <span className="mt-0.5 block text-xs font-normal leading-5 text-slate-500">{item.description}</span>
+                        </span>
                       </Link>
                     ))}
                   </div>

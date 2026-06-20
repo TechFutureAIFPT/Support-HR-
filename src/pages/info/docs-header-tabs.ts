@@ -1,5 +1,7 @@
 export interface DocsHeaderTab {
   label: string;
+  description: string;
+  icon: string;
   to: string;
   matchPaths?: string[];
 }
@@ -20,93 +22,31 @@ export const productDocsMenus: DocsMenuGroup[] = [
   {
     label: "Sản phẩm",
     items: [
-      { label: "Tổng quan", to: "/app-docs" },
-      { label: "Quy trình sàng lọc", to: "/process" },
-      { label: "Phương pháp đánh giá", to: "/ai-methodology" },
-      { label: "Tình huống sử dụng", to: "/use-cases" },
-      { label: "Tích hợp", to: "/integrations" },
+      { label: "Tổng quan Support HR", description: "Khả năng và phạm vi sản phẩm", icon: "fa-compass", to: "/app-docs" },
+      { label: "Quy trình sàng lọc", description: "Từ JD đến danh sách đề xuất", icon: "fa-route", to: "/process" },
+      { label: "Phương pháp đánh giá", description: "Tiêu chí, điểm số và bằng chứng", icon: "fa-scale-balanced", to: "/ai-methodology" },
+      { label: "Tình huống sử dụng", description: "Các bài toán tuyển dụng phù hợp", icon: "fa-briefcase", to: "/use-cases" },
+      { label: "Tích hợp", description: "Drive, tải file và đồng bộ", icon: "fa-plug", to: "/integrations" },
     ],
   },
   {
     label: "Tài liệu",
     items: [
-      { label: "Hướng dẫn sử dụng", to: "/guide", matchPaths: ["/guide", "/demo"] },
-      { label: "Bảo mật dữ liệu", to: "/security" },
-      { label: "Câu hỏi thường gặp", to: "/faq" },
-      { label: "Bảng giá & triển khai", to: "/pricing" },
-      { label: "Chính sách bảo mật", to: "/privacy-policy" },
-      { label: "Điều khoản", to: "/terms" },
+      { label: "Hướng dẫn sử dụng", description: "Các bước trên Website và App mobile", icon: "fa-book-open", to: "/guide", matchPaths: ["/guide", "/demo"] },
+      { label: "Kho lưu trữ CV", description: "Quản lý hồ sơ và lịch sử sàng lọc", icon: "fa-box-archive", to: "/docs/cv-library" },
+      { label: "Mẫu JD", description: "Tạo và tái sử dụng mẫu tuyển dụng", icon: "fa-file-lines", to: "/docs/jd-templates" },
+      { label: "Chuẩn hóa JD", description: "Kiểm tra và bổ sung nội dung JD", icon: "fa-wand-magic-sparkles", to: "/docs/jd-standardizer" },
+      { label: "Bảo mật dữ liệu", description: "Cách dữ liệu tuyển dụng được bảo vệ", icon: "fa-shield-halved", to: "/security" },
+      { label: "Câu hỏi thường gặp", description: "Giải đáp nhanh khi sử dụng", icon: "fa-circle-question", to: "/faq" },
     ],
   },
 ];
 
 export const productDocsTabs = productDocsMenus.flatMap((group) => group.items);
 
-export const productDocsSearchEntries: DocsSearchEntry[] = [
-  {
-    label: "Tổng quan Support HR",
-    to: "/app-docs",
-    description: "Khả năng chính và cách Support HR hỗ trợ đội tuyển dụng.",
-    keywords: ["tổng quan", "sản phẩm", "support hr", "tính năng"],
-  },
-  {
-    label: "Quy trình sàng lọc",
-    to: "/process",
-    description: "Quy trình từ JD và CV đến danh sách ứng viên đề xuất.",
-    keywords: ["quy trình", "workflow", "jd", "cv", "sàng lọc"],
-  },
-  {
-    label: "Phương pháp đánh giá",
-    to: "/ai-methodology",
-    description: "Cách trích tiêu chí, chấm điểm và giải thích kết quả.",
-    keywords: ["đánh giá", "phương pháp", "điểm", "giải thích", "ai"],
-  },
-  {
-    label: "Tình huống sử dụng",
-    to: "/use-cases",
-    description: "Các tình huống tuyển dụng phù hợp với Support HR.",
-    keywords: ["tình huống", "use case", "shortlist", "tuyển dụng"],
-  },
-  {
-    label: "Tích hợp",
-    to: "/integrations",
-    description: "Google Drive, tải file trực tiếp và khả năng mở rộng.",
-    keywords: ["tích hợp", "google drive", "upload", "ats", "hris"],
-  },
-  {
-    label: "Hướng dẫn sử dụng",
-    to: "/guide",
-    description: "Hướng dẫn sử dụng sản phẩm theo từng bước.",
-    keywords: ["hướng dẫn", "cách dùng", "demo", "bắt đầu"],
-  },
-  {
-    label: "Bảo mật dữ liệu",
-    to: "/security",
-    description: "Cách Support HR xử lý, lưu trữ và bảo vệ dữ liệu.",
-    keywords: ["bảo mật", "dữ liệu", "lưu trữ", "quyền truy cập"],
-  },
-  {
-    label: "Câu hỏi thường gặp",
-    to: "/faq",
-    description: "Giải đáp nhanh về sản phẩm, dữ liệu và triển khai.",
-    keywords: ["faq", "câu hỏi", "hỏi đáp", "hỗ trợ"],
-  },
-  {
-    label: "Bảng giá & triển khai",
-    to: "/pricing",
-    description: "Phạm vi gói dịch vụ và thông tin triển khai.",
-    keywords: ["bảng giá", "chi phí", "gói", "triển khai"],
-  },
-  {
-    label: "Chính sách bảo mật",
-    to: "/privacy-policy",
-    description: "Chính sách quyền riêng tư và xử lý dữ liệu người dùng.",
-    keywords: ["chính sách", "quyền riêng tư", "privacy", "dữ liệu"],
-  },
-  {
-    label: "Điều khoản sử dụng",
-    to: "/terms",
-    description: "Điều khoản và trách nhiệm khi sử dụng Support HR.",
-    keywords: ["điều khoản", "terms", "trách nhiệm", "dịch vụ"],
-  },
-];
+export const productDocsSearchEntries: DocsSearchEntry[] = productDocsTabs.map((item) => ({
+  label: item.label,
+  to: item.to,
+  description: item.description,
+  keywords: [item.label.toLowerCase(), item.description.toLowerCase(), "support hr", "tài liệu"],
+}));

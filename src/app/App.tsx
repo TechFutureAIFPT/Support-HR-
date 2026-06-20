@@ -31,6 +31,7 @@ const WelcomeAppPage = lazy(() => import('@/pages/main/WelcomeAppPage'));
 const AppDocumentationPage = lazy(() => import('@/pages/info/AppDocumentationPage'));
 const ProcessPage = lazy(() => import('@/pages/main/ProcessPage'));
 const DemoPage = lazy(() => import('@/pages/info/DemoPage'));
+const ProductFeatureDocsPage = lazy(() => import('@/pages/info/ProductFeatureDocsPage'));
 const AIMethodologyPage = lazy(() => import('@/pages/info/AIMethodologyPage'));
 const UseCasesPage = lazy(() => import('@/pages/info/UseCasesPage'));
 const IntegrationsPage = lazy(() => import('@/pages/info/IntegrationsPage'));
@@ -166,6 +167,9 @@ const publicMarketingPaths = new Set([
   '/ai-methodology',
   '/use-cases',
   '/integrations',
+  '/docs/cv-library',
+  '/docs/jd-templates',
+  '/docs/jd-standardizer',
   '/book-demo',
 ]);
 
@@ -1193,6 +1197,9 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
               <Route path="/ai-methodology" element={<AIMethodologyPage />} />
               <Route path="/use-cases" element={<UseCasesPage />} />
               <Route path="/integrations" element={<IntegrationsPage />} />
+              <Route path="/docs/cv-library" element={<ProductFeatureDocsPage />} />
+              <Route path="/docs/jd-templates" element={<ProductFeatureDocsPage />} />
+              <Route path="/docs/jd-standardizer" element={<ProductFeatureDocsPage />} />
               <Route path="/security" element={<SecurityCompliancePage />} />
               <Route path="/pricing" element={<PricingPage />} />
               <Route path="/faq" element={<FAQPage />} />

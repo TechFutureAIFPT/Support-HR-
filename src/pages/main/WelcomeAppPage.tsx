@@ -1,13 +1,18 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React from 'react';
+import { motion, useReducedMotion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { 
-  Sparkles, 
-  Terminal, 
-  CheckCircle2, 
-  Cpu, 
-  Layers, 
-  Activity, 
-  Loader2
+import {
+  ArrowRight,
+  BadgeCheck,
+  BrainCircuit,
+  Building2,
+  ChevronRight,
+  Cpu,
+  LayoutGrid,
+  ShieldCheck,
+  Sparkles,
+  UploadCloud,
+  Workflow,
 } from 'lucide-react';
 
 interface WelcomeAppPageProps {
@@ -15,191 +20,470 @@ interface WelcomeAppPageProps {
   onLoginRequest: () => void;
 }
 
-interface LogStep {
-  text: string;
-  minProgress: number;
-  maxProgress: number;
-  status: 'pending' | 'loading' | 'done';
+const metrics = [
+  { label: 'Tổng CV đã xử lý', value: '128K+', detail: 'Pipeline nhiều lớp cho web và desktop.' },
+  { label: 'Tỷ lệ chính xác đối sánh', value: '96.4%', detail: 'Khung chỉ số enterprise ưu tiên độ rõ ràng.' },
+  { label: 'Thời gian trích xuất', value: '18s', detail: 'Sẵn sàng cho baseline tương tác drag & drop.' },
+  { label: 'Phiên đồng bộ đang hoạt động', value: '24/7', detail: 'Thiết kế chừa không gian cho desktop wrapper.' },
+];
+
+const processSteps = [
+  {
+    title: 'Chuẩn hóa JD',
+    description: 'Làm sạch yêu cầu tuyển dụng, chuẩn hóa tiêu chí và thống nhất ngôn ngữ đầu vào.',
+  },
+  {
+    title: 'Trích xuất tín hiệu CV',
+    description: 'Tách kỹ năng, kinh nghiệm và bằng chứng liên quan từ hồ sơ ứng viên.',
+  },
+  {
+    title: 'Đối sánh Vector Embeddings',
+    description: 'So sánh ngữ nghĩa giữa JD và CV bằng pipeline embedding có thể mở rộng.',
+  },
+  {
+    title: 'Xếp hạng shortlist',
+    description: 'Đưa ra đề xuất hành động rõ ràng cho đội tuyển dụng và bộ phận vận hành.',
+  },
+];
+
+const proofItems = ['Cross-platform Web & PC', 'Semantic HTML baseline', 'Glass enterprise surfaces'];
+const metricFloatDurations = [4, 5, 6, 5.5];
+
+function SectionShell({
+  children,
+  className = '',
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return <div className={`mx-auto w-full max-w-supporthr-shell px-4 sm:px-6 lg:px-8 xl:px-10 ${className}`}>{children}</div>;
 }
 
-const WelcomeAppPage: React.FC<WelcomeAppPageProps> = ({ isLoggedIn }) => {
-  const navigate = useNavigate();
-  const [progress, setProgress] = useState(0);
-  const [activeLogIndex, setActiveLogIndex] = useState(0);
-  const progressRef = useRef(0);
+function GlassPanel({
+  children,
+  className = '',
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <div
+      className={`rounded-3xl border border-slate-200/80 bg-white/65 shadow-supporthr-card backdrop-blur-md ${className}`}
+    >
+      {children}
+    </div>
+  );
+}
 
-  // Danh sách các log tải hệ thống phong cách AI
-  const [logs, setLogs] = useState<LogStep[]>([
-    { text: 'Khởi tạo hạt nhân tuyển dụng AI (SupportHR Kernel)...', minProgress: 0, maxProgress: 20, status: 'pending' },
-    { text: 'Xác thực thông tin và kiểm tra phiên làm việc...', minProgress: 20, maxProgress: 45, status: 'pending' },
-    { text: 'Đồng bộ hóa tài nguyên cấu hình lọc CV & JD...', minProgress: 45, maxProgress: 75, status: 'pending' },
-    { text: 'Tải mô hình chấm điểm và trích xuất thực thể AI...', minProgress: 75, maxProgress: 95, status: 'pending' },
-    { text: 'Hoàn tất! Đang khởi dựng không gian workspace...', minProgress: 95, maxProgress: 100, status: 'pending' }
-  ]);
+function EnterpriseHeader({
+  isLoggedIn,
+  onPrimaryAction,
+}: {
+  isLoggedIn: boolean;
+  onPrimaryAction: () => void;
+}) {
+  return (
+    <header className="sticky top-0 z-40 border-b border-supporthr-border/80 bg-supporthr-surface-glass backdrop-blur-supporthr">
+      <SectionShell>
+        <div className="flex min-h-[76px] items-center justify-between gap-4 lg:min-h-[88px]">
+          <a href="#hero" className="flex min-w-0 items-center gap-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-supporthr-accent to-supporthr-accent-sky text-white shadow-supporthr-card">
+              <Sparkles className="h-5 w-5" />
+            </div>
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold uppercase tracking-[0.2em] text-supporthr-muted">Support HR</p>
+              <p className="truncate text-base font-semibold text-supporthr-ink">Enterprise Homepage Baseline</p>
+            </div>
+          </a>
 
-  // Bộ tăng tiến trình tự động
-  useEffect(() => {
-    const duration = 2800; // Tải trong 2.8 giây
-    const intervalTime = 30;
-    const steps = duration / intervalTime;
-    const increment = 100 / steps;
+          <nav aria-label="Homepage sections" className="hidden items-center gap-2 lg:flex">
+            <a className="rounded-full px-4 py-2 text-sm font-medium text-supporthr-muted transition-colors hover:text-supporthr-accent" href="#hero">
+              Hero
+            </a>
+            <a className="rounded-full px-4 py-2 text-sm font-medium text-supporthr-muted transition-colors hover:text-supporthr-accent" href="#metrics">
+              Metrics
+            </a>
+            <a className="rounded-full px-4 py-2 text-sm font-medium text-supporthr-muted transition-colors hover:text-supporthr-accent" href="#process">
+              AI Process
+            </a>
+            <a className="rounded-full px-4 py-2 text-sm font-medium text-supporthr-muted transition-colors hover:text-supporthr-accent" href="#cta">
+              CTA
+            </a>
+          </nav>
 
-    const timer = setInterval(() => {
-      progressRef.current = Math.min(progressRef.current + increment, 100);
-      const currentProgress = Math.floor(progressRef.current);
-      setProgress(currentProgress);
+          <button
+            type="button"
+            onClick={onPrimaryAction}
+            className="inline-flex items-center gap-2 rounded-full bg-supporthr-accent px-5 py-3 text-sm font-semibold text-white shadow-supporthr-card transition-colors duration-300 hover:bg-supporthr-accent-sky"
+          >
+            {isLoggedIn ? 'Mở workspace' : 'Đăng nhập'}
+            <ChevronRight className="h-4 w-4" />
+          </button>
+        </div>
+      </SectionShell>
+    </header>
+  );
+}
 
-      // Cập nhật trạng thái của các dòng logs dựa trên tiến trình hiện tại
-      setLogs(prevLogs => 
-        prevLogs.map((log) => {
-          if (currentProgress >= log.maxProgress) {
-            return { ...log, status: 'done' };
-          } else if (currentProgress >= log.minProgress) {
-            return { ...log, status: 'loading' };
-          }
-          return log;
-        })
-      );
-
-      // Xác định log nào đang hoạt động để hiển thị hiệu ứng
-      const activeIdx = logs.findIndex(log => currentProgress >= log.minProgress && currentProgress < log.maxProgress);
-      if (activeIdx !== -1) {
-        setActiveLogIndex(activeIdx);
-      }
-
-      // Xử lý tự động đăng nhập ở mức 30% nếu chưa có thông tin đăng nhập
-      if (currentProgress === 30 && !isLoggedIn) {
-        const stored = localStorage.getItem('authEmail');
-        if (!stored) {
-          localStorage.setItem('authEmail', 'demo@supporthr.ai');
-          // Phát sự kiện storage để App.tsx cập nhật state isLoggedIn ngay lập tức
-          window.dispatchEvent(new Event('storage'));
-        }
-      }
-
-      // Chuyển hướng khi đạt 100%
-      if (currentProgress >= 100) {
-        clearInterval(timer);
-        // Chờ hiệu ứng mượt mà rồi chuyển trang
-        setTimeout(() => {
-          navigate('/jd');
-        }, 300);
-      }
-    }, intervalTime);
-
-    return () => clearInterval(timer);
-  }, [navigate, isLoggedIn, logs]);
+function HeroSection({
+  isLoggedIn,
+  onPrimaryAction,
+  onSecondaryAction,
+}: {
+  isLoggedIn: boolean;
+  onPrimaryAction: () => void;
+  onSecondaryAction: () => void;
+}) {
+  const shouldReduceMotion = useReducedMotion();
 
   return (
-    <div className="relative flex h-[100vh] w-full flex-col items-center justify-center overflow-hidden bg-[#f6f9ff] text-slate-900">
-      {/* Background Gradients & Glow Orbs đồng bộ với SupportHRLoading */}
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(35,136,255,0.13),transparent_34%),linear-gradient(180deg,#f6f9ff_0%,#eef5ff_56%,#ffffff_100%)]" />
-      <div className="pointer-events-none absolute inset-0 supporthr-grid-mask opacity-30" />
-      <div className="pointer-events-none absolute inset-y-0 left-[-16%] w-[28%] bg-gradient-to-r from-transparent via-blue-300/15 to-transparent blur-3xl" style={{ animation: "home-hero-scan 7.4s linear infinite" }} />
-      <div className="pointer-events-none absolute inset-y-0 right-[-16%] w-[28%] bg-gradient-to-r from-transparent via-emerald-300/15 to-transparent blur-3xl" style={{ animation: "home-hero-scan 9.2s linear infinite", animationDelay: "1.2s" }} />
-      <div className="pointer-events-none absolute bottom-[-10%] left-[10%] h-48 w-48 bg-orange-100/30 blur-3xl" />
-      <div className="pointer-events-none absolute right-[8%] top-[14%] h-56 w-56 bg-blue-100/40 blur-3xl" />
+    <section id="hero" className="relative overflow-hidden py-10 sm:py-14 lg:py-20">
+      <SectionShell>
+        <div className="grid gap-8 xl:grid-cols-[minmax(0,1.05fr)_minmax(380px,0.95fr)] xl:items-center">
+          <article className="min-w-0">
+            <div className="inline-flex items-center gap-2 rounded-full border border-supporthr-border bg-white/80 px-4 py-2 text-sm font-medium text-supporthr-muted shadow-supporthr-card">
+              <Building2 className="h-4 w-4 text-supporthr-accent" />
+              Antigravity x Enterprise baseline cho Web và PC
+            </div>
 
-      {/* Main Container */}
-      <div className="relative z-10 flex w-full max-w-xl flex-col items-center px-6 text-center">
-        {/* Glowing Central Logo Core */}
-        <div className="relative mb-8 flex h-24 w-24 items-center justify-center">
-          <div className="absolute inset-0 animate-pulse rounded-3xl bg-blue-500/5 blur-md" />
-          <div className="absolute inset-[-4px] rounded-3xl border-2 border-dashed border-blue-400/20 animate-[spin_20s_linear_infinite]" />
-          <div className="absolute inset-[-12px] rounded-full border border-emerald-400/20 animate-[spin_30s_linear_infinite_reverse]" />
-          
-          <div className="relative flex h-20 w-20 items-center justify-center rounded-2xl border border-blue-100 bg-white shadow-[0_24px_70px_rgba(30,64,175,0.1)]">
-            <Sparkles className="h-10 w-10 text-blue-600 animate-pulse" />
-          </div>
+            <h1 className="mt-6 max-w-4xl text-4xl font-semibold tracking-tight text-supporthr-ink sm:text-5xl xl:text-6xl">
+              Homepage nền tảng cho hệ thống lọc CV và chuẩn hóa JD bằng AI.
+            </h1>
+
+            <p className="mt-6 max-w-2xl text-base leading-8 text-supporthr-muted sm:text-lg">
+              Giai đoạn 1 chỉ dựng baseline architecture: token màu, semantic layout 5 phần và skeleton grid đủ ổn định để bước sang animation ở vòng sau.
+            </p>
+
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <button
+                type="button"
+                onClick={onPrimaryAction}
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-supporthr-accent px-6 py-3.5 text-sm font-semibold text-white shadow-supporthr-card transition-colors duration-300 hover:bg-supporthr-accent-sky"
+              >
+                {isLoggedIn ? 'Tiếp tục sàng lọc' : 'Đăng nhập để bắt đầu'}
+                <ArrowRight className="h-4 w-4" />
+              </button>
+
+              <button
+                type="button"
+                onClick={onSecondaryAction}
+                className="inline-flex items-center justify-center gap-2 rounded-full border border-supporthr-border bg-white px-6 py-3.5 text-sm font-semibold text-supporthr-ink shadow-supporthr-card transition-colors duration-300 hover:border-supporthr-accent hover:text-supporthr-accent"
+              >
+                Xem tài liệu hệ thống
+              </button>
+            </div>
+
+            <ul className="mt-8 grid gap-3 sm:grid-cols-3">
+              {proofItems.map((item) => (
+                <li
+                  key={item}
+                  className="flex items-center gap-2 rounded-2xl border border-supporthr-border bg-white/80 px-4 py-3 text-sm text-supporthr-muted shadow-supporthr-card"
+                >
+                  <BadgeCheck className="h-4 w-4 shrink-0 text-supporthr-accent" />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </article>
+
+          <aside className="min-w-0">
+            <GlassPanel className="overflow-hidden p-5 sm:p-6">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-supporthr-border pb-4">
+                <div>
+                  <p className="text-sm font-semibold text-supporthr-ink">Dropzone Skeleton</p>
+                  <p className="mt-1 text-sm text-supporthr-muted">Chuẩn bị cho Phase 2 drag & drop interaction.</p>
+                </div>
+                <span className="rounded-full bg-supporthr-accent-soft px-3 py-1 text-xs font-semibold text-supporthr-accent">
+                  Desktop-safe spacing
+                </span>
+              </div>
+
+              <motion.div
+                whileHover={
+                  shouldReduceMotion
+                    ? undefined
+                    : {
+                        y: -4,
+                        scale: 1.01,
+                      }
+                }
+                transition={
+                  shouldReduceMotion
+                    ? undefined
+                    : {
+                        type: 'spring',
+                        stiffness: 300,
+                        damping: 20,
+                      }
+                }
+                className="mt-5 rounded-[28px] border-2 border-dashed border-slate-200/80 bg-white/65 p-6 backdrop-blur-md sm:p-8"
+                style={{ willChange: shouldReduceMotion ? undefined : 'transform' }}
+              >
+                <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-white text-supporthr-accent shadow-supporthr-card">
+                    <UploadCloud className="h-8 w-8" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-lg font-semibold text-supporthr-ink">Kéo CV vào đây hoặc chọn tệp từ máy</p>
+                    <p className="mt-2 text-sm leading-7 text-supporthr-muted">
+                      Baseline này mới dựng khung semantic và responsive. Hiệu ứng spring và trạng thái upload sẽ được thêm ở Giai đoạn 2 và 3.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-6 grid gap-4 lg:grid-cols-2">
+                  <div className="rounded-2xl border border-supporthr-border bg-white p-4 shadow-supporthr-card">
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-supporthr-muted">Khung nhập liệu</p>
+                    <p className="mt-3 text-sm leading-7 text-supporthr-ink">JD input, CV intake và validation panel sẽ dùng cùng hệ token này để đồng bộ giữa web và desktop wrapper.</p>
+                  </div>
+                  <div className="rounded-2xl border border-supporthr-border bg-white p-4 shadow-supporthr-card">
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-supporthr-muted">PC titlebar reserve</p>
+                    <p className="mt-3 text-sm leading-7 text-supporthr-ink">Khoảng thở phía trên đã được giữ rộng hơn để sau này gắn Electron/Tauri shell mà không va vào vùng điều hướng.</p>
+                  </div>
+                </div>
+              </motion.div>
+            </GlassPanel>
+          </aside>
         </div>
+      </SectionShell>
+    </section>
+  );
+}
 
-        {/* Brand Header */}
-        <div className="space-y-1">
-          <h1 className="text-2xl font-black tracking-[0.15em] text-slate-900 uppercase">
-            Support <span className="bg-gradient-to-r from-blue-600 to-emerald-500 bg-clip-text text-transparent">HR</span>
-          </h1>
-          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">
-            AI CV FILTER WORKSPACE
+function MetricsSection() {
+  const shouldReduceMotion = useReducedMotion();
+
+  return (
+    <section id="metrics" className="border-y border-supporthr-border/80 bg-white/60 py-12 sm:py-14 lg:py-16">
+      <SectionShell>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div className="max-w-2xl">
+            <p className="text-sm font-semibold uppercase tracking-[0.22em] text-supporthr-accent">Metrics dashboard grid</p>
+            <h2 className="mt-3 text-3xl font-semibold tracking-tight text-supporthr-ink sm:text-4xl">
+              Dashboard baseline có cấu trúc rõ ràng trước khi thêm chuyển động.
+            </h2>
+          </div>
+          <p className="max-w-xl text-sm leading-7 text-supporthr-muted">
+            Mỗi card đang dùng cùng glass surface, border và layered shadow token để sau này chỉ cần gắn animation vào đúng khung có sẵn.
           </p>
         </div>
 
-        {/* Glowing Progress Percentage */}
-        <div className="my-8 relative select-none">
-          <span className="absolute -inset-x-8 top-1/2 -translate-y-1/2 text-[120px] font-black tracking-tighter text-blue-500/5 blur-xl">
-            {progress}%
-          </span>
-          <span className="bg-gradient-to-b from-slate-900 to-blue-700 bg-clip-text text-7xl font-black tracking-tight text-transparent">
-            {progress}%
-          </span>
-        </div>
+        <ul className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          {metrics.map((metric, index) => (
+            <li key={metric.label}>
+              <motion.div
+                animate={
+                  shouldReduceMotion
+                    ? undefined
+                    : {
+                        y: [0, -10, 0],
+                      }
+                }
+                transition={
+                  shouldReduceMotion
+                    ? undefined
+                    : {
+                        repeat: Infinity,
+                        duration: metricFloatDurations[index % metricFloatDurations.length],
+                        ease: 'easeInOut',
+                        delay: index * 0.18,
+                      }
+                }
+                whileHover={
+                  shouldReduceMotion
+                    ? undefined
+                    : {
+                        scale: 1.02,
+                        boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02)',
+                      }
+                }
+                className="h-full will-change-transform"
+              >
+                <GlassPanel className="h-full p-5">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-sm font-medium text-supporthr-muted">{metric.label}</span>
+                    <LayoutGrid className="h-5 w-5 text-supporthr-accent" />
+                  </div>
+                  <p className="mt-6 text-4xl font-semibold tracking-tight text-supporthr-ink">{metric.value}</p>
+                  <p className="mt-4 text-sm leading-7 text-supporthr-muted">{metric.detail}</p>
+                </GlassPanel>
+              </motion.div>
+            </li>
+          ))}
+        </ul>
+      </SectionShell>
+    </section>
+  );
+}
 
-        {/* Loading Progress Bar Container */}
-        <div className="relative mb-8 h-1.5 w-full overflow-hidden rounded-full bg-blue-100/55 border border-blue-200/20">
-          <div 
-            className="h-full rounded-full bg-gradient-to-r from-blue-600 via-blue-500 to-emerald-400 shadow-[0_0_12px_rgba(35,136,255,0.45)] transition-all duration-70ms"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
+function ProcessSection() {
+  return (
+    <section id="process" className="py-12 sm:py-14 lg:py-20">
+      <SectionShell>
+        <div className="grid gap-6 xl:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)]">
+          <article className="min-w-0">
+            <GlassPanel className="h-full p-6 sm:p-8">
+              <p className="text-sm font-semibold uppercase tracking-[0.22em] text-supporthr-accent">AI process showcase</p>
+              <h2 className="mt-4 text-3xl font-semibold tracking-tight text-supporthr-ink sm:text-4xl">
+                Khung mô phỏng pipeline kỹ thuật đã sẵn để nâng cấp ở các phase tiếp theo.
+              </h2>
+              <p className="mt-5 text-sm leading-8 text-supporthr-muted sm:text-base">
+                Ở baseline này, phần quy trình chỉ tập trung phân cấp nội dung, grid và semantic structure. Chưa có state machine, animation hay micro-interaction.
+              </p>
 
-        {/* System Terminal Console (Light Modern Card) */}
-        <div className="w-full rounded-2xl border border-blue-100 bg-white/75 p-5 text-left font-mono shadow-[0_24px_80px_rgba(30,64,175,0.06)] backdrop-blur-xl">
-          <div className="mb-3 flex items-center justify-between border-b border-blue-50/50 pb-2">
-            <div className="flex items-center gap-2">
-              <Terminal className="h-4 w-4 text-blue-600" />
-              <span className="text-[11px] font-black tracking-wider text-blue-800">CONSOLE LOGS</span>
-            </div>
-            <div className="flex gap-1.5">
-              <span className="h-2 w-2 rounded-full bg-red-400/80" />
-              <span className="h-2 w-2 rounded-full bg-yellow-400/80" />
-              <span className="h-2 w-2 rounded-full bg-green-400/80" />
-            </div>
-          </div>
-
-          <div className="space-y-2.5 text-xs text-slate-700 min-h-[140px]">
-            {logs.map((log, index) => {
-              const isActive = log.status === 'loading';
-              const isDone = log.status === 'done';
-
-              let statusIcon = <div className="h-3.5 w-3.5 rounded bg-slate-100 border border-slate-200 shrink-0" />;
-              if (isActive) {
-                statusIcon = <Loader2 className="h-3.5 w-3.5 text-blue-600 animate-spin shrink-0" />;
-              } else if (isDone) {
-                statusIcon = <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0 shadow-[0_0_8px_rgba(16,185,129,0.2)]" />;
-              }
-
-              return (
-                <div 
-                  key={index} 
-                  className={`flex items-center gap-3 transition-all duration-300 ${
-                    isActive ? 'text-slate-900 font-bold scale-[1.01]' : isDone ? 'text-slate-400' : 'text-slate-300'
-                  }`}
-                >
-                  {statusIcon}
-                  <span className="truncate">{log.text}</span>
+              <div className="mt-8 grid gap-4 sm:grid-cols-2">
+                <div className="rounded-2xl border border-supporthr-border bg-white p-4 shadow-supporthr-card">
+                  <Cpu className="h-5 w-5 text-supporthr-accent" />
+                  <p className="mt-4 text-base font-semibold text-supporthr-ink">Semantic-first</p>
+                  <p className="mt-2 text-sm leading-7 text-supporthr-muted">Section, article, aside, ol, ul và footer được tách rõ để giữ nền vững cho SEO và maintainability.</p>
                 </div>
-              );
-            })}
-          </div>
-        </div>
+                <div className="rounded-2xl border border-supporthr-border bg-white p-4 shadow-supporthr-card">
+                  <ShieldCheck className="h-5 w-5 text-supporthr-accent-sky" />
+                  <p className="mt-4 text-base font-semibold text-supporthr-ink">Responsive-first</p>
+                  <p className="mt-2 text-sm leading-7 text-supporthr-muted">Tỷ lệ cột và container width được khóa theo desktop rộng nhưng vẫn co gọn sạch trên web thường.</p>
+                </div>
+              </div>
+            </GlassPanel>
+          </article>
 
-        {/* Footer Info */}
-        <div className="mt-10 flex items-center gap-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
-          <div className="flex items-center gap-1.5">
-            <Cpu className="h-3.5 w-3.5 text-blue-600" />
-            <span>AI CORE v2</span>
+          <aside className="min-w-0">
+            <ol className="grid gap-4">
+              {processSteps.map((step, index) => (
+                <li key={step.title}>
+                  <GlassPanel className="p-5 sm:p-6 transition-shadow duration-300 hover:shadow-supporthr-float">
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
+                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-supporthr-accent-soft to-supporthr-accent-sky-soft text-supporthr-accent shadow-supporthr-card">
+                        {index % 2 === 0 ? <Workflow className="h-5 w-5" /> : <BrainCircuit className="h-5 w-5" />}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold uppercase tracking-[0.18em] text-supporthr-muted">Bước {index + 1}</p>
+                        <h3 className="mt-2 text-xl font-semibold text-supporthr-ink">{step.title}</h3>
+                        <p className="mt-3 text-sm leading-7 text-supporthr-muted">{step.description}</p>
+                      </div>
+                    </div>
+                  </GlassPanel>
+                </li>
+              ))}
+            </ol>
+          </aside>
+        </div>
+      </SectionShell>
+    </section>
+  );
+}
+
+function EnterpriseFooter({
+  isLoggedIn,
+  onPrimaryAction,
+  onSecondaryAction,
+}: {
+  isLoggedIn: boolean;
+  onPrimaryAction: () => void;
+  onSecondaryAction: () => void;
+}) {
+  return (
+    <footer id="cta" className="border-t border-supporthr-border/80 pb-10 pt-6 sm:pb-12 lg:pb-16">
+      <SectionShell>
+        <GlassPanel className="overflow-hidden p-6 sm:p-8 lg:p-10">
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+            <div className="min-w-0">
+              <p className="text-sm font-semibold uppercase tracking-[0.22em] text-supporthr-accent">Enterprise footer & call to action</p>
+              <h2 className="mt-4 max-w-3xl text-3xl font-semibold tracking-tight text-supporthr-ink sm:text-4xl">
+                Baseline layout đã sẵn sàng cho review trước khi thêm Framer Motion ở Giai đoạn 2.
+              </h2>
+              <p className="mt-4 max-w-2xl text-sm leading-8 text-supporthr-muted sm:text-base">
+                Cấu trúc này giữ đúng tinh thần tài liệu: nền sáng enterprise, card kính mờ, grid sạch và không đẩy quá sớm sang layer animation.
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
+              <button
+                type="button"
+                onClick={onPrimaryAction}
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-supporthr-accent px-6 py-3.5 text-sm font-semibold text-white shadow-supporthr-card transition-colors duration-300 hover:bg-supporthr-accent-sky"
+              >
+                {isLoggedIn ? 'Mở luồng phân tích' : 'Đăng nhập vào Support HR'}
+                <ArrowRight className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                onClick={onSecondaryAction}
+                className="inline-flex items-center justify-center gap-2 rounded-full border border-supporthr-border bg-white px-6 py-3.5 text-sm font-semibold text-supporthr-ink shadow-supporthr-card transition-colors duration-300 hover:border-supporthr-accent hover:text-supporthr-accent"
+              >
+                Mở documentation
+              </button>
+            </div>
           </div>
-          <span className="h-3 w-px bg-slate-200" />
-          <div className="flex items-center gap-1.5">
-            <Layers className="h-3.5 w-3.5 text-blue-600" />
-            <span>HYBRID ENGINE</span>
+
+          <div className="mt-8 grid gap-4 border-t border-supporthr-border pt-6 md:grid-cols-3">
+            <div className="rounded-2xl border border-supporthr-border bg-white p-4 shadow-supporthr-card">
+              <p className="text-sm font-semibold text-supporthr-ink">Token system</p>
+              <p className="mt-2 text-sm leading-7 text-supporthr-muted">Palette, shadow, blur và container width đã được đẩy vào Tailwind config để tái dùng toàn site.</p>
+            </div>
+            <div className="rounded-2xl border border-supporthr-border bg-white p-4 shadow-supporthr-card">
+              <p className="text-sm font-semibold text-supporthr-ink">Cross-platform shell</p>
+              <p className="mt-2 text-sm leading-7 text-supporthr-muted">Layout chừa nhịp thở phía trên và giữ giới hạn chiều rộng phù hợp cho màn hình desktop lớn.</p>
+            </div>
+            <div className="rounded-2xl border border-supporthr-border bg-white p-4 shadow-supporthr-card">
+              <p className="text-sm font-semibold text-supporthr-ink">Phase boundary</p>
+              <p className="mt-2 text-sm leading-7 text-supporthr-muted">Chưa thêm motion, chưa thêm state upload giả lập và chưa chạm smooth scroll theo đúng yêu cầu phase.</p>
+            </div>
           </div>
-          <span className="h-3 w-px bg-slate-200" />
-          <div className="flex items-center gap-1.5">
-            <Activity className="h-3.5 w-3.5 text-emerald-500 animate-pulse" />
-            <span>SYSTEM ACTIVE</span>
+        </GlassPanel>
+
+        <div className="mt-6 flex flex-col gap-3 border-t border-supporthr-border/70 pt-5 text-sm text-supporthr-muted sm:flex-row sm:items-center sm:justify-between">
+          <p>Support HR — baseline homepage architecture for Web and Desktop wrapper.</p>
+          <div className="flex flex-wrap items-center gap-4">
+            <span>Semantic HTML</span>
+            <span>Tailwind tokens</span>
+            <span>Responsive grid</span>
           </div>
         </div>
-      </div>
+      </SectionShell>
+    </footer>
+  );
+}
+
+const WelcomeAppPage: React.FC<WelcomeAppPageProps> = ({ isLoggedIn, onLoginRequest }) => {
+  const navigate = useNavigate();
+
+  const handlePrimaryAction = () => {
+    if (isLoggedIn) {
+      navigate('/jd');
+      return;
+    }
+
+    onLoginRequest();
+  };
+
+  const handleSecondaryAction = () => {
+    navigate('/app-docs');
+  };
+
+  return (
+    <div className="relative min-h-screen overflow-hidden bg-supporthr-background text-supporthr-ink">
+      <div className="pointer-events-none absolute inset-0 bg-supporthr-hero-glow" />
+      <div className="pointer-events-none absolute inset-0 bg-supporthr-grid bg-[length:56px_56px] opacity-40 [mask-image:radial-gradient(circle_at_top,black,transparent_72%)]" />
+      <div className="pointer-events-none absolute left-[-10%] top-20 h-72 w-72 rounded-full bg-supporthr-accent-soft/70 blur-3xl" />
+      <div className="pointer-events-none absolute bottom-12 right-[-6%] h-80 w-80 rounded-full bg-supporthr-accent-sky-soft/80 blur-3xl" />
+
+      <EnterpriseHeader isLoggedIn={isLoggedIn} onPrimaryAction={handlePrimaryAction} />
+
+      <main className="relative z-10">
+        <HeroSection
+          isLoggedIn={isLoggedIn}
+          onPrimaryAction={handlePrimaryAction}
+          onSecondaryAction={handleSecondaryAction}
+        />
+        <MetricsSection />
+        <ProcessSection />
+      </main>
+
+      <EnterpriseFooter
+        isLoggedIn={isLoggedIn}
+        onPrimaryAction={handlePrimaryAction}
+        onSecondaryAction={handleSecondaryAction}
+      />
     </div>
   );
 };

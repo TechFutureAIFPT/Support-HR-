@@ -34,7 +34,28 @@ export default {
           700: '#334155',
           800: '#1e293b',
           900: '#0f172a',
-        }
+        },
+        supporthr: {
+          background: '#fafbfe',
+          surface: '#ffffff',
+          'surface-subtle': '#f8fbff',
+          'surface-glass': 'rgba(255, 255, 255, 0.65)',
+          border: '#e2e8f0',
+          ink: '#0f172a',
+          muted: '#475569',
+          accent: '#2563eb',
+          'accent-sky': '#0ea5e9',
+          'accent-soft': '#dbeafe',
+          'accent-sky-soft': '#e0f2fe',
+        },
+      },
+      boxShadow: {
+        'supporthr-card': '0 4px 6px -1px rgba(0, 0, 0, 0.03), 0 2px 4px -1px rgba(0, 0, 0, 0.02)',
+        'supporthr-float': '0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02)',
+      },
+      maxWidth: {
+        'supporthr-shell': '1440px',
+        'supporthr-reading': '1120px',
       },
       animation: {
         'shimmer': 'shimmer 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
@@ -59,6 +80,13 @@ export default {
       },
       backdropBlur: {
         xs: '2px',
+        supporthr: '12px',
+      },
+      backgroundImage: {
+        'supporthr-grid':
+          'linear-gradient(rgba(37,99,235,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(37,99,235,0.08) 1px, transparent 1px)',
+        'supporthr-hero-glow':
+          'radial-gradient(circle at top, rgba(37,99,235,0.12), transparent 34%), linear-gradient(180deg, #fafbfe 0%, #f3f7ff 54%, #ffffff 100%)',
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],

@@ -40,7 +40,7 @@ const toneMap = {
 } as const;
 
 const instantRoutes = new Set(['/', '/process', '/contact-ready', '/privacy-policy', '/terms']);
-const docsRoutes = new Set(['/team', '/security', '/faq', '/pricing', '/guide', '/demo', '/ai-methodology', '/use-cases', '/integrations', '/book-demo']);
+const docsRoutes = new Set(['/app-docs', '/process', '/team', '/security', '/faq', '/pricing', '/guide', '/demo', '/ai-methodology', '/use-cases', '/integrations', '/docs/cv-library', '/docs/jd-templates', '/docs/jd-standardizer', '/book-demo']);
 
 const PageTransition: React.FC = () => {
   const location = useLocation();

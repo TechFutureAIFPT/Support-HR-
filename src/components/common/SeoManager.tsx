@@ -78,6 +78,18 @@ const ROUTE_SEO: Record<string, RouteSeo> = {
     title: "Tích hợp Google Drive và quy trình | Support HR",
     description: "Tổng quan tích hợp Google Drive, upload trực tiếp, lịch sử phiên và hướng mở rộng ATS/HRIS của Support HR.",
   },
+  "/docs/cv-library": {
+    title: "Kho lưu trữ CV | Support HR",
+    description: "Hướng dẫn quản lý hồ sơ ứng viên, lịch sử sàng lọc và dữ liệu đã đồng bộ trong Support HR.",
+  },
+  "/docs/jd-templates": {
+    title: "Mẫu JD tuyển dụng | Support HR",
+    description: "Hướng dẫn tạo, lưu và sử dụng lại mẫu mô tả công việc trong quy trình tuyển dụng Support HR.",
+  },
+  "/docs/jd-standardizer": {
+    title: "Chuẩn hóa JD | Support HR",
+    description: "Hướng dẫn kiểm tra cấu trúc, bổ sung thông tin thiếu và chuẩn hóa mô tả công việc trước khi sàng lọc CV.",
+  },
   "/book-demo": {
     title: "Đặt lịch demo Support HR",
     description: "Kênh liên hệ, nội dung buổi làm việc và kỳ vọng phản hồi khi đặt lịch demo Support HR.",
