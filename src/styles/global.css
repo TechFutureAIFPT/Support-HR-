@@ -606,15 +606,6 @@
   text-wrap: balance;
 }
 
-.home-page-shell #hero .home-hero-heading {
-  font-size: clamp(3.85rem, 6vw, 6.55rem) !important;
-  line-height: 1.02 !important;
-}
-
-.home-page-shell #hero .home-hero-copy {
-  font-size: clamp(1.04rem, 1.24vw, 1.24rem) !important;
-}
-
 .home-section-frame {
   box-sizing: border-box;
   width: min(108rem, 100%);
@@ -647,15 +638,6 @@
 }
 
 @media (max-width: 767px) {
-  .home-page-shell #hero .home-hero-heading {
-    font-size: clamp(3rem, 13vw, 4rem) !important;
-    line-height: 1.04 !important;
-  }
-
-  .home-page-shell #hero .home-hero-copy {
-    font-size: 1rem !important;
-  }
-
   .home-section-heading {
     font-size: clamp(2.08rem, 9vw, 3.12rem) !important;
     line-height: 1.02 !important;

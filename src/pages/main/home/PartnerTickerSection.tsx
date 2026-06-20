@@ -23,7 +23,7 @@ export default function PartnerTickerSection({
   const tickerItems = [...partners, ...partners];
 
   return (
-    <section className="border-y border-blue-100 bg-white">
+    <section className="bg-white">
       <div className="mx-auto max-w-[92rem] px-4 py-8 sm:px-6 lg:px-8">
         <div className="grid gap-8 lg:grid-cols-[0.95fr_1.35fr] lg:items-center">
           <div>
@@ -37,7 +37,7 @@ export default function PartnerTickerSection({
 
           <div className="grid gap-3 sm:grid-cols-4">
             {proofMetrics.map((metric) => (
-              <div key={metric.label} className="rounded-2xl border border-blue-100 bg-blue-50/60 p-4">
+              <div key={metric.label} className="rounded-2xl border border-slate-200/80 bg-[#F9FAFB] p-4 shadow-[0_14px_40px_rgba(15,23,42,0.035)]">
                 <p className="text-2xl font-black text-blue-700">{metric.value}</p>
                 <p className="mt-2 text-xs font-medium leading-5 text-slate-600">{metric.label}</p>
               </div>
@@ -46,7 +46,7 @@ export default function PartnerTickerSection({
         </div>
       </div>
 
-      <div className="border-t border-blue-100">
+      <div className="border-t border-slate-200/70">
         <div className="relative overflow-hidden">
           <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-white to-transparent" />
           <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-white to-transparent" />
@@ -59,7 +59,7 @@ export default function PartnerTickerSection({
             {tickerItems.map((partner, index) => (
               <div
                 key={`${partner.name}-${index}`}
-                className="group flex min-h-[74px] w-[142px] flex-none items-center justify-center border-r border-blue-100 px-5 py-3 sm:w-[174px] lg:w-[205px]"
+                className="group flex min-h-[74px] w-[142px] flex-none items-center justify-center border-r border-slate-200/70 px-5 py-3 sm:w-[174px] lg:w-[205px]"
               >
                 <img
                   src={partner.logo}

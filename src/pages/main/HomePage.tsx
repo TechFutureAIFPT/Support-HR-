@@ -86,10 +86,10 @@ const headerMenus: Array<{
 
 function HomeToolsSection({ onOpenTool }: { onOpenTool: (step: AppStep) => void }) {
   return (
-    <section id="tools" className="border-b border-blue-100 bg-white py-12 sm:py-14">
+    <section id="tools" className="bg-[#F4F6F8] py-14 sm:py-16">
       <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-12">
         <div className="grid gap-4 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:items-stretch">
-          <div className="rounded-3xl border border-blue-100 bg-blue-50/55 p-6">
+          <div className="rounded-3xl border border-slate-200/80 bg-white/80 p-6 shadow-[0_18px_50px_rgba(15,23,42,0.035)] backdrop-blur-sm">
             <p className="supporthr-mono text-[10px] font-bold uppercase tracking-[0.22em] text-blue-600">
               Công cụ nhanh
             </p>
@@ -107,7 +107,7 @@ function HomeToolsSection({ onOpenTool }: { onOpenTool: (step: AppStep) => void 
                 key={item.step}
                 type="button"
                 onClick={() => onOpenTool(item.step)}
-                className="group flex h-full items-start gap-4 rounded-3xl border border-blue-100 bg-white p-5 text-left shadow-[0_18px_44px_rgba(30,64,175,0.07)] transition hover:-translate-y-0.5 hover:border-blue-200 hover:bg-blue-50/60"
+                className="group flex h-full items-start gap-4 rounded-3xl border border-slate-200/80 bg-white p-5 text-left shadow-[0_18px_48px_rgba(15,23,42,0.04)] transition hover:-translate-y-1 hover:border-blue-200 hover:shadow-[0_24px_58px_rgba(37,99,235,0.09)]"
               >
                 <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-blue-100 bg-blue-50 text-blue-600 transition group-hover:bg-white">
                   <i className={`fa-solid ${item.icon} text-base`} />
@@ -130,9 +130,9 @@ function HomeToolsSection({ onOpenTool }: { onOpenTool: (step: AppStep) => void 
 
 function WindowsInstallSection() {
   return (
-    <section className="border-b border-blue-100 bg-white py-10">
+    <section className="bg-white py-12">
       <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-12">
-        <div className="grid gap-5 rounded-3xl border border-blue-100 bg-[#f8fbff] p-5 shadow-[0_18px_44px_rgba(30,64,175,0.07)] sm:p-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+        <div className="grid gap-5 rounded-3xl border border-slate-200/80 bg-gradient-to-r from-[#F9FAFB] via-white to-blue-50/50 p-5 shadow-[0_20px_56px_rgba(37,99,235,0.055)] sm:p-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
           <div className="flex min-w-0 items-start gap-4">
             <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-blue-100 bg-white text-blue-600 shadow-sm">
               <i className="fa-solid fa-display text-base" />
@@ -215,7 +215,7 @@ const HomePage: React.FC<HomePageProps> = ({
   };
 
   return (
-    <div className="home-page-shell min-h-screen overflow-x-hidden bg-white text-slate-900">
+    <div className="home-page-shell min-h-screen overflow-x-hidden bg-[#F9FAFB] text-slate-900">
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
         <div className="supporthr-grid-mask absolute inset-0 opacity-10" />
       </div>
@@ -339,7 +339,7 @@ const HomePage: React.FC<HomePageProps> = ({
       </div>
 
       <div className="relative z-10">
-        <nav className="sticky top-0 z-50 w-full border-b border-blue-100 bg-white/92 backdrop-blur-xl shadow-[0_12px_36px_rgba(30,64,175,0.07)]">
+        <nav className="sticky top-0 z-50 w-full border-b border-slate-200/70 bg-white/88 backdrop-blur-xl shadow-[0_12px_36px_rgba(15,23,42,0.035)]">
           <div className="flex h-[4.45rem] w-full items-center justify-between px-6 sm:px-10 lg:px-16">
             <button
               type="button"
@@ -475,9 +475,7 @@ const HomePage: React.FC<HomePageProps> = ({
         <PartnerTickerSection partners={partners} />
         <HomeToolsSection onOpenTool={openTool} />
         <WindowsInstallSection />
-        <section className="border-y border-blue-100 bg-white">
-          <WorkflowMatrixSection onPrimaryAction={handleStart} merged />
-        </section>
+        <WorkflowMatrixSection onPrimaryAction={handleStart} merged />
 
         <PricingSection />
         <FAQSection />

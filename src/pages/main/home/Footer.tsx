@@ -94,9 +94,10 @@ function FooterLink({
 
 export default function Footer({ onNavigate }: FooterProps) {
   return (
-    <footer id="contact" className="relative overflow-hidden border-t border-blue-100 bg-white">
+    <footer id="contact" className="relative overflow-hidden bg-[#F4F6F8]">
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-blue-400/70 to-violet-400/70" />
       <div className="pointer-events-none absolute inset-0 supporthr-grid-mask opacity-15" />
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.03),transparent_42%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(147,197,253,0.16),transparent_38%)]" />
 
       <div className="relative px-4 py-8 sm:px-6 sm:py-10 lg:px-8 lg:py-12">
         <div className="relative overflow-hidden">
@@ -106,8 +107,8 @@ export default function Footer({ onNavigate }: FooterProps) {
             </p>
           </div>
 
-          <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-16">
-            <div className="relative z-10 flex flex-col gap-6">
+          <div className="grid gap-12 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 lg:gap-8">
+            <div className="sm:col-span-2 lg:col-span-2 relative z-10 flex flex-col gap-6">
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl border border-blue-100 bg-white shadow-sm">
                   <img src="/images/logos/logo.jpg" alt="Support HR" className="h-full w-full object-cover" />
@@ -123,28 +124,26 @@ export default function Footer({ onNavigate }: FooterProps) {
                 </p>
               </div>
 
-              <p className="max-w-md text-sm leading-7 text-slate-500 sm:text-base">
+              <p className="max-w-sm text-sm leading-7 text-slate-500 sm:text-base">
                 Không gian sàng lọc dành cho đội tuyển dụng cần tốc độ, ngữ cảnh và khả năng bàn giao rõ ràng.
               </p>
             </div>
 
-            <div className="relative z-10 grid gap-8 sm:grid-cols-3 sm:gap-12">
-              {footerColumns.map((column) => (
-                <section key={column.title} className="min-w-[150px]">
-                  <p className="supporthr-mono text-[11px] uppercase tracking-[0.18em] text-slate-500">
-                    {column.title}
-                  </p>
-                  <div className="mt-5 space-y-4">
-                    {column.items.map((item) => (
-                      <FooterLink key={item.label} item={item} onNavigate={onNavigate} />
-                    ))}
-                  </div>
-                </section>
-              ))}
-            </div>
+            {footerColumns.map((column) => (
+              <section key={column.title} className="relative z-10 min-w-[140px]">
+                <p className="supporthr-mono text-[11px] uppercase tracking-[0.18em] text-slate-500">
+                  {column.title}
+                </p>
+                <div className="mt-5 space-y-4">
+                  {column.items.map((item) => (
+                    <FooterLink key={item.label} item={item} onNavigate={onNavigate} />
+                  ))}
+                </div>
+              </section>
+            ))}
           </div>
 
-          <div className="mt-8 border-t border-blue-100 pt-4 sm:mt-9 sm:pt-5">
+          <div className="mt-8 border-t border-slate-200/80 pt-4 sm:mt-9 sm:pt-5">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
               <div className="space-y-1.5">
                 <p className="text-sm text-slate-500">© 2026 Support HR. Mọi quyền được bảo lưu.</p>

@@ -90,6 +90,7 @@ export default {
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+        space: ['Space Grotesk', 'sans-serif'],
       },
     },
   },

@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { CheckCircle2, MonitorDown, X } from 'lucide-react';
 import { usePwaInstall } from '@/hooks/usePwaInstall';
 
@@ -18,6 +19,23 @@ const WindowsAppInstallButton: React.FC<WindowsAppInstallButtonProps> = ({
 
   const isCompact = variant === 'compact';
   const isInstalled = status === 'installed';
+
+  useEffect(() => {
+    if (!isGuideOpen) return undefined;
+
+    const previousOverflow = document.body.style.overflow;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setIsGuideOpen(false);
+    };
+
+    document.body.style.overflow = 'hidden';
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isGuideOpen]);
 
   const handleInstall = async () => {
     if (isInstalled) {
@@ -62,8 +80,13 @@ const WindowsAppInstallButton: React.FC<WindowsAppInstallButtonProps> = ({
         )}
       </button>
 
-      {isGuideOpen && (
-        <div className="fixed inset-0 z-[120] flex items-center justify-center bg-slate-950/25 px-4 backdrop-blur-sm">
+      {isGuideOpen && typeof document !== 'undefined' && createPortal(
+        <div
+          className="fixed inset-0 z-[200] flex items-start justify-center overflow-y-auto bg-slate-950/25 px-4 py-6 backdrop-blur-sm sm:items-center sm:py-8"
+          onMouseDown={(event) => {
+            if (event.currentTarget === event.target) setIsGuideOpen(false);
+          }}
+        >
           <div className="w-full max-w-md overflow-hidden rounded-3xl border border-blue-100 bg-white shadow-[0_28px_80px_rgba(30,64,175,0.22)]">
             <div className="flex items-start justify-between gap-4 border-b border-blue-100 bg-[#f8fbff] px-5 py-4">
               <div>
@@ -101,7 +124,8 @@ const WindowsAppInstallButton: React.FC<WindowsAppInstallButtonProps> = ({
               ))}
             </div>
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
     </>
   );

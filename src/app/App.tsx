@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useMemo, useEffect, useRef, Suspense, lazy } from 'react';
 import { detectIndustryFromJD } from '@/services/jd/industryDetector';
-import { BrowserRouter, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Navigate, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '@/services/firebase';
 import { SpeedInsights } from '@vercel/speed-insights/react';
@@ -8,6 +8,7 @@ import { Analytics } from '@vercel/analytics/react';
 import WebVitalsReporter from '@/components/charts/WebVitalsReporter';
 import { ThemeProvider } from '@/context/theme/ThemeProvider';
 import { UserSettingsProvider, useUserSettings } from '@/context/settings/UserSettingsProvider';
+import HomeIntroPage from '@/pages/main/HomeIntroPage';
 
 import { DataSyncService } from '@/services/data-sync/dataSyncService';
 import { UserProfileService } from '@/services/data-sync/userProfileService';
@@ -27,7 +28,6 @@ import { DocsPageLoading } from '@/pages/info/legal-ui';
 
 // Lazy load pages for code-splitting
 const ScreenerPage = lazy(() => import('@/pages/main/ScreenerPage'));
-const WelcomeAppPage = lazy(() => import('@/pages/main/WelcomeAppPage'));
 const AppDocumentationPage = lazy(() => import('@/pages/info/AppDocumentationPage'));
 const ProcessPage = lazy(() => import('@/pages/main/ProcessPage'));
 const DemoPage = lazy(() => import('@/pages/info/DemoPage'));
@@ -776,7 +776,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
       case '/faq':
       case '/pricing':
         return 'app-docs';
-      case '/':
+      case '/': return 'home';
       case '/jd': return 'jd';
       case '/upload': return 'upload';
       case '/weights': return 'weights';
@@ -824,7 +824,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
   const setActiveStep = useCallback((step: AppStep) => {
     const pathMap: Partial<Record<AppStep, string>> = {
       home: '/',
-      jd: '/',
+      jd: '/jd',
       upload: '/upload',
       weights: '/weights',
       analysis: '/analysis',
@@ -984,9 +984,18 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
     navigate(from && from !== location.pathname ? from : '/');
   }, [location.pathname, location.state, navigate]);
 
-  const authFallback = (
-    <WelcomeAppPage isLoggedIn={isLoggedIn} onLoginRequest={onLoginRequest} />
-  );
+  const homePageProps = {
+    setActiveStep,
+    isLoggedIn,
+    onLoginRequest,
+    completedSteps,
+    userAvatar,
+    userName,
+    userEmail,
+    onLogout: handleLogout,
+  };
+
+  const authFallback = <HomeIntroPage {...homePageProps} />;
 
   const appDocumentationPage = <AppDocumentationPage />;
 
@@ -1163,8 +1172,8 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
             )
           }>
             <Routes>
-              <Route path="/welcome" element={<WelcomeAppPage isLoggedIn={isLoggedIn} onLoginRequest={onLoginRequest} />} />
-              <Route path="/" element={<WelcomeAppPage isLoggedIn={isLoggedIn} onLoginRequest={onLoginRequest} />} />
+              <Route path="/welcome" element={<Navigate to="/" replace />} />
+              <Route path="/" element={<HomeIntroPage {...homePageProps} />} />
               <Route path="/jd" element={isLoggedIn ? <ScreenerPage {...screenerPageProps} /> : authFallback} />
               <Route path="/upload" element={isLoggedIn ? <ScreenerPage {...screenerPageProps} /> : authFallback} />
               <Route path="/weights" element={isLoggedIn ? <ScreenerPage {...screenerPageProps} /> : authFallback} />

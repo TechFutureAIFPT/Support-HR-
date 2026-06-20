@@ -38,10 +38,10 @@ export default function FAQSection() {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   return (
-    <section id="faq" className="relative border-b border-blue-100 bg-white py-20 sm:py-24">
+    <section id="faq" className="relative bg-[#F4F6F8] py-20 sm:py-24">
       <div className="home-section-frame">
         <div className="mx-auto max-w-[68rem] text-center">
-          <h2 className="text-4xl font-black tracking-tight text-slate-950 sm:text-5xl">
+          <h2 className="font-space text-4xl font-black tracking-tight text-slate-950 sm:text-5xl">
             Câu hỏi thường gặp
           </h2>
           <p className="mx-auto mt-5 max-w-3xl text-base leading-8 text-slate-600 sm:text-lg">
@@ -49,33 +49,36 @@ export default function FAQSection() {
           </p>
         </div>
 
-        <div className="mx-auto mt-12 max-w-[86rem] space-y-4">
+        <div className="mx-auto mt-12 max-w-[50rem] space-y-4">
           {faqs.map((item, index) => {
             const isOpen = openIndex === index;
 
             return (
               <article
                 key={item.question}
-                className="overflow-hidden rounded-3xl border border-blue-100 bg-white shadow-[0_14px_38px_rgba(30,64,175,0.06)] transition-colors hover:border-blue-200"
+                className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-[0_12px_34px_rgba(15,23,42,0.03)] hover:border-blue-200 hover:shadow-[0_18px_44px_rgba(37,99,235,0.07)] transition-all duration-300"
               >
                 <button
                   type="button"
-                  className="flex w-full items-center justify-between gap-5 px-5 py-6 text-left sm:px-8 sm:py-7"
+                  className="flex w-full items-center justify-between gap-5 px-5 py-5.5 text-left sm:px-7 sm:py-6"
                   aria-expanded={isOpen}
                   onClick={() => setOpenIndex(isOpen ? null : index)}
                 >
-                  <span className="text-lg font-bold leading-snug text-slate-900 sm:text-xl">
+                  <span className="text-base font-bold leading-snug text-slate-900 sm:text-lg">
                     {item.question}
                   </span>
                   <span
-                    className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border transition-colors ${
+                    className={`flex h-9.5 w-9.5 shrink-0 items-center justify-center rounded-xl transition-all duration-300 ${
                       isOpen
-                        ? "border-blue-200 bg-blue-600 text-white"
-                        : "border-blue-100 bg-blue-50 text-blue-600"
+                        ? "bg-blue-600 text-white shadow-[0_4px_12px_rgba(37,99,235,0.25)]"
+                        : "bg-blue-50 text-blue-600 hover:bg-blue-100"
                     }`}
                     aria-hidden="true"
                   >
-                    {isOpen ? <Minus className="h-5 w-5" /> : <Plus className="h-5 w-5" />}
+                    <div className={`relative h-4 w-4 flex items-center justify-center transition-transform duration-300 ${isOpen ? "rotate-90" : ""}`}>
+                      <span className="absolute h-0.5 w-3.5 bg-current rounded-full" />
+                      <span className={`absolute h-3.5 w-0.5 bg-current rounded-full transition-transform duration-300 ${isOpen ? "rotate-90 scale-y-0 opacity-0" : ""}`} />
+                    </div>
                   </span>
                 </button>
 
@@ -85,7 +88,7 @@ export default function FAQSection() {
                   }`}
                 >
                   <div className="overflow-hidden">
-                    <p className="border-t border-blue-100 px-5 pb-7 pt-5 text-base leading-8 text-slate-600 sm:px-8">
+                    <p className="border-t border-slate-200/80 px-5 pb-6 pt-4.5 text-[0.925rem] leading-7 text-slate-600 sm:px-7">
                       {item.answer}
                     </p>
                   </div>
