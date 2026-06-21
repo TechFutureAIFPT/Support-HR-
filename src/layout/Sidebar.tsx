@@ -1,5 +1,20 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { ChevronDown, FileText, FolderOpen, LogOut, Settings, SlidersHorizontal } from 'lucide-react';
+import {
+  BarChart3,
+  Bot,
+  ChevronDown,
+  ClipboardCheck,
+  FileInput,
+  FileText,
+  FolderOpen,
+  History,
+  LayoutDashboard,
+  LogOut,
+  MessageSquareText,
+  Settings,
+  SlidersHorizontal,
+  Upload,
+} from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import type { AppStep } from '@/types';
 import { cvFilterHistoryService } from '@/services/history-cache/analysisHistory';
@@ -25,6 +40,21 @@ interface SidebarProps {
 }
 
 type HistorySession = { timestamp: number; jobPosition?: string };
+
+const workspacePages = [
+  { path: '/workspace', label: 'Tổng quan tuyển dụng', icon: LayoutDashboard },
+  { path: '/jd', label: 'Nhập Job Description', icon: FileInput },
+  { path: '/upload', label: 'Nạp hồ sơ ứng viên', icon: Upload },
+  { path: '/weights', label: 'Tiêu chí chấm điểm', icon: SlidersHorizontal },
+  { path: '/analysis', label: 'Kết quả phân tích', icon: ClipboardCheck },
+  { path: '/detailed-analytics', label: 'Phân tích chi tiết', icon: BarChart3 },
+  { path: '/chatbot', label: 'Trợ lý tuyển dụng AI', icon: Bot },
+  { path: '/feedback', label: 'Phản hồi kết quả AI', icon: MessageSquareText },
+  { path: '/records', label: 'Thư viện CV', icon: FolderOpen },
+  { path: '/jd-standardizer', label: 'Chuẩn hóa JD', icon: FileText },
+  { path: '/jd-templates', label: 'Thư viện mẫu JD', icon: FileText },
+  { path: '/history', label: 'Lịch sử tuyển dụng', icon: History },
+] as const;
 
 const Sidebar: React.FC<SidebarProps> = ({
   onLogout,
@@ -100,47 +130,51 @@ const Sidebar: React.FC<SidebarProps> = ({
           </button>
 
           {sessionsOpen ? (
-            <div className="mt-1 space-y-0.5 pl-5">
-              <button
-                type="button"
-                onClick={() => go('/workspace')}
-                className={`flex h-9 w-full items-center gap-2 rounded-lg px-3 text-left text-[13px] ${location.pathname === '/workspace' ? 'bg-[#dceaff] font-medium text-[#005fbd]' : 'text-[#6e6e73] hover:bg-black/[0.04]'}`}
-              >
-                <span className="h-2 w-2 rounded-full bg-[#007aff]" />
-                Tổng quan tuyển dụng
-              </button>
-              {sessions.map((session, index) => (
-                <button
-                  key={`${session.timestamp}-${index}`}
-                  type="button"
-                  onClick={() => go(`/workspace?session=${session.timestamp}`)}
-                  className="flex h-9 w-full items-center gap-2 rounded-lg px-3 text-left text-[13px] text-[#515154] hover:bg-black/[0.04]"
-                >
-                  <span className={`h-2 w-2 shrink-0 rounded-full ${index === 0 ? 'bg-[#7c5cff]' : 'bg-[#26a7a2]'}`} />
-                  <span className="truncate">{session.jobPosition || 'Phiên tuyển dụng'}</span>
-                </button>
-              ))}
+            <div className="mt-1 pl-5">
+              <p className="px-3 pb-1 pt-2 text-[10px] font-semibold uppercase tracking-[0.08em] text-[#98989d]">
+                Trang làm việc
+              </p>
+              <div className="space-y-0.5">
+                {workspacePages.map(({ path, label, icon: Icon }) => {
+                  const active = location.pathname === path;
+                  return (
+                    <button
+                      key={path}
+                      type="button"
+                      onClick={() => go(path)}
+                      aria-current={active ? 'page' : undefined}
+                      className={`flex min-h-9 w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-[12.5px] transition ${active ? 'bg-[#dceaff] font-medium text-[#005fbd]' : 'text-[#515154] hover:bg-black/[0.04]'}`}
+                    >
+                      <Icon size={15} strokeWidth={1.7} className="shrink-0" />
+                      <span className="truncate">{label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {sessions.length ? (
+                <>
+                  <div className="mx-3 my-2 h-px bg-[#d2d2d7]/70" />
+                  <p className="px-3 pb-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[#98989d]">
+                    Phiên gần đây
+                  </p>
+                  <div className="space-y-0.5">
+                    {sessions.map((session, index) => (
+                      <button
+                        key={`${session.timestamp}-${index}`}
+                        type="button"
+                        onClick={() => go(`/workspace?session=${session.timestamp}`)}
+                        className="flex min-h-9 w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-[12.5px] text-[#515154] hover:bg-black/[0.04]"
+                      >
+                        <span className={`h-2 w-2 shrink-0 rounded-full ${index === 0 ? 'bg-[#7c5cff]' : 'bg-[#26a7a2]'}`} />
+                        <span className="truncate">{session.jobPosition || 'Phiên tuyển dụng'}</span>
+                      </button>
+                    ))}
+                  </div>
+                </>
+              ) : null}
             </div>
           ) : null}
-
-          <div className="my-3 h-px bg-[#d2d2d7]/80" />
-
-          <button
-            type="button"
-            onClick={() => go('/records')}
-            className={`flex h-10 w-full items-center gap-3 rounded-lg px-3 text-[14px] font-medium transition ${location.pathname === '/records' ? 'bg-[#e8f1ff] text-[#0066d6]' : 'text-[#3a3a3c] hover:bg-black/[0.04]'}`}
-          >
-            <FolderOpen size={17} strokeWidth={1.8} />
-            Thư viện CV
-          </button>
-          <button
-            type="button"
-            onClick={() => go('/jd-standardizer')}
-            className={`flex h-10 w-full items-center gap-3 rounded-lg px-3 text-[14px] font-medium transition ${location.pathname === '/jd-standardizer' || location.pathname === '/jd-templates' ? 'bg-[#e8f1ff] text-[#0066d6]' : 'text-[#3a3a3c] hover:bg-black/[0.04]'}`}
-          >
-            <FileText size={17} strokeWidth={1.8} />
-            Cài đặt JD
-          </button>
         </nav>
 
         <div className="border-t border-[#d2d2d7]/80 p-2">
