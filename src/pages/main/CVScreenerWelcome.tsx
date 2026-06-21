@@ -937,7 +937,7 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
         )}
 
         {stage === 'jd' ? (
-          <main className="grid min-h-0 flex-1 gap-6 py-5 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] lg:gap-10 lg:py-6">
+          <main className="grid min-h-max flex-none gap-6 py-5 lg:min-h-0 lg:flex-1 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] lg:gap-10 lg:py-6">
             <section className="flex min-h-0 flex-col">
               <div className="flex flex-row items-start justify-between gap-3">
                 <div className="min-w-0">
@@ -1108,7 +1108,7 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
             </section>
           </main>
         ) : (
-          <main className="grid min-h-0 flex-1 gap-6 py-5 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] lg:gap-10 lg:py-6">
+          <main className="grid min-h-max flex-none gap-6 py-5 lg:min-h-0 lg:flex-1 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] lg:gap-10 lg:py-6">
             <section className="flex min-h-0 flex-col">
               <div className="flex flex-row items-start justify-between gap-3">
                 <div className="min-w-0">

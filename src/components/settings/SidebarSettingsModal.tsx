@@ -4,6 +4,7 @@ import {
   Bell,
   CheckCircle2,
   Database,
+  FileText,
   History,
   Languages,
   LogOut,
@@ -32,6 +33,7 @@ interface SidebarSettingsModalProps {
   onClearWorkflowDraft: () => void;
   onClearLocalCache: () => void;
   onClearLocalHistory: () => void;
+  onClearLocalDocuments: () => Promise<void>;
   onClearSyncedData: () => Promise<void>;
 }
 
@@ -212,6 +214,7 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
   onClearWorkflowDraft,
   onClearLocalCache,
   onClearLocalHistory,
+  onClearLocalDocuments,
   onClearSyncedData,
 }) => {
   const { settings, saveSettings, resetSettings, syncError, syncStatus } = useUserSettings();
@@ -658,6 +661,20 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
               if (!window.confirm('Xóa history cục bộ?')) return;
               onClearLocalHistory();
               setNotice({ tone: 'success', message: 'Đã xóa history cục bộ.' });
+            }}
+          />
+          <DangerButton
+            icon={FileText}
+            title="Xóa file CV cục bộ"
+            description="Xóa các file PDF, DOCX và ảnh CV được lưu trên thiết bị này."
+            onClick={async () => {
+              if (!window.confirm('Xóa toàn bộ file CV cục bộ của tài khoản này?')) return;
+              try {
+                await onClearLocalDocuments();
+                setNotice({ tone: 'success', message: 'Đã xóa file CV cục bộ.' });
+              } catch (error) {
+                setNotice({ tone: 'error', message: error instanceof Error ? error.message : 'Không thể xóa file CV cục bộ.' });
+              }
             }}
           />
           <DangerButton

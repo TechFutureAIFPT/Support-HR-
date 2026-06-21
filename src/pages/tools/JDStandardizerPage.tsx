@@ -351,11 +351,8 @@ const JDStandardizerPage: React.FC<JDStandardizerPageProps> = ({ onUseJD }) => {
       {/* Page Header */}
       <div className="shrink-0 border-b border-blue-100 bg-white px-5 py-4">
         <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="border-l-4 border-blue-500 pl-3">
-            <p className="supporthr-mono text-[10px] font-bold uppercase tracking-[0.2em] text-blue-600">
-              JD Standardizer
-            </p>
-            <h1 className="mt-1 text-2xl font-black text-slate-950">Chuẩn hóa JD</h1>
+          <div>
+            <h1 className="text-2xl font-semibold tracking-[-0.02em] text-[#1d1d1f]">Chuẩn hóa JD</h1>
             <p className="mt-1 text-sm text-slate-600">
               Quy trình từng bước biến mô tả công việc thô thành JD rõ ràng, đủ mục và sẵn sàng cho AI.
             </p>
@@ -366,8 +363,8 @@ const JDStandardizerPage: React.FC<JDStandardizerPageProps> = ({ onUseJD }) => {
       </div>
 
       {/* Main Content */}
-      <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto bg-[#f8fbff] p-5">
-        <div className="space-y-5">
+      <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto bg-white p-5">
+        <div className="mx-auto max-w-6xl space-y-5">
 
           {/* Error */}
           {error && (
@@ -400,7 +397,7 @@ const JDStandardizerPage: React.FC<JDStandardizerPageProps> = ({ onUseJD }) => {
                   value={jdText}
                   onChange={(e) => setJdText(e.target.value)}
                   placeholder="Dán mô tả công việc hiện tại vào đây..."
-                  className="mt-2 min-h-[16rem] w-full resize-y rounded-2xl border border-blue-100 bg-white px-4 py-3 text-sm leading-6 text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-blue-300 focus:ring-4 focus:ring-blue-100"
+                  className="mt-2 min-h-[16rem] w-full resize-y rounded-lg border border-[#d2d2d7] bg-white px-4 py-3 text-sm leading-6 text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-[#007aff] focus:ring-2 focus:ring-[#007aff]/15"
                 />
               </div>
 
@@ -822,7 +819,7 @@ const StageCard = ({
   subtitle: string;
   children: React.ReactNode;
 }) => (
-  <div className="space-y-4 rounded-3xl border border-blue-100 bg-white p-5 shadow-[0_18px_46px_rgba(30,64,175,0.07)]">
+  <section className="space-y-4 border-t border-[#e5e5ea] py-6">
     <div className="flex items-center gap-3">
       <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-blue-100 bg-blue-50 text-blue-600">
         {icon}
@@ -833,7 +830,7 @@ const StageCard = ({
       </div>
     </div>
     {children}
-  </div>
+  </section>
 );
 
 const InputField = ({

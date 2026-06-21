@@ -4,6 +4,7 @@ import CVScreenerWelcome from '@/pages/main/CVScreenerWelcome';
 import { analyzeCVs } from '@/services/screening/frontendScreeningService';
 import { getSafeErrorMessage } from '@/utils/errorMessages';
 import SupportHRLoading from '@/components/common/SupportHRLoading';
+import { findCvDocument, linkCvDocument, storeCvFiles } from '@/services/workspace/cvDocumentStore';
 
 const WeightsConfig = lazy(() => import('@/features/criteria-config/WeightsConfig'));
 const AnalysisResults = lazy(() => import('@/features/cv-management/AnalysisResults'));
@@ -48,11 +49,29 @@ interface ScreenerPageProps {
   markStepAsCompleted: (step: AppStep) => void;
   onWelcomeChange?: (visible: boolean) => void;
   onOpenJdTemplates?: () => void;
+  documentOwner?: string;
+  analysisSessionId?: string;
 }
 
 const ScreenerPage: React.FC<ScreenerPageProps> = (props) => {
   const { activeStep } = props;
   const [intakeNotice, setIntakeNotice] = useState('');
+
+  useEffect(() => {
+    if (!props.cvFiles.length) return;
+    void storeCvFiles(props.documentOwner || 'local', props.cvFiles).catch((error) => {
+      console.warn('Unable to persist CV files locally:', error);
+    });
+  }, [props.cvFiles, props.documentOwner]);
+
+  useEffect(() => {
+    if (!props.analysisResults.length || !props.analysisSessionId) return;
+    const owner = props.documentOwner || 'local';
+    void Promise.all(props.analysisResults.map(async (candidate) => {
+      const document = await findCvDocument(owner, candidate.fileName).catch(() => null);
+      if (document) await linkCvDocument(owner, props.analysisSessionId!, candidate.id, document);
+    })).catch((error) => console.warn('Unable to link local CV documents:', error));
+  }, [props.analysisResults, props.analysisSessionId, props.documentOwner]);
 
   useEffect(() => {
     if (props.jdText.trim().length > 0) setIntakeNotice('');
@@ -206,6 +225,7 @@ const ScreenerPage: React.FC<ScreenerPageProps> = (props) => {
               markStepAsCompleted={props.markStepAsCompleted}
               weights={props.weights}
               hardFilters={props.hardFilters}
+              documentOwner={props.documentOwner}
             />
           </Suspense>
         </div>

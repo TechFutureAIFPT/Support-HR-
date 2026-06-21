@@ -186,9 +186,8 @@ const FilteredCvLibraryPage: React.FC<FilteredCvLibraryPageProps> = ({ userEmail
     <div className="feature-page-shell flex h-full min-h-0 w-full flex-1 flex-col bg-white">
       <div className="shrink-0 border-b border-blue-100 bg-white px-5 py-4">
         <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="border-l-4 border-blue-500 pl-3">
-            <p className="supporthr-mono text-[10px] font-bold uppercase tracking-[0.2em] text-blue-600">Candidate Library</p>
-            <h1 className="mt-1 text-2xl font-black text-slate-950">Thư viện CV đã lọc</h1>
+          <div>
+            <h1 className="text-2xl font-semibold tracking-[-0.02em] text-[#1d1d1f]">Thư viện CV đã lọc</h1>
             <p className="mt-1 text-sm text-slate-600">Tổng hợp hồ sơ đã phân tích từ các phiên tuyển dụng trước.</p>
           </div>
           <div className="flex items-center gap-2">
@@ -212,7 +211,7 @@ const FilteredCvLibraryPage: React.FC<FilteredCvLibraryPageProps> = ({ userEmail
           </div>
         </div>
 
-        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-5 grid border-y border-[#e5e5ea] sm:grid-cols-2 lg:grid-cols-4">
           <StatCard label="Tổng hồ sơ" value={stats.total} icon={<Users className="h-5 w-5" />} />
           <StatCard label="Điểm trung bình" value={stats.avg} icon={<Star className="h-5 w-5" />} />
           <StatCard label="Hạng A" value={stats.rankA} icon={<CheckCheck className="h-5 w-5" />} />
@@ -272,7 +271,7 @@ const FilteredCvLibraryPage: React.FC<FilteredCvLibraryPageProps> = ({ userEmail
               const displayExperience = normalizeVietnameseDisplay(candidate.experienceLevel);
               const stageLabel = getStageDecisionLabel(candidate);
               return (
-                <article key={candidate.id} className="rounded-2xl border border-blue-100 bg-white p-4 shadow-[0_12px_32px_rgba(30,64,175,0.06)] transition hover:border-blue-200 hover:shadow-[0_18px_42px_rgba(30,64,175,0.1)]">
+                <article key={candidate.id} className="border-b border-[#e5e5ea] bg-white px-2 py-4 transition last:border-b-0 hover:bg-[#f8f8fa]">
                   <div className="flex flex-col gap-4 lg:flex-row lg:items-center">
                     <div className="flex min-w-0 flex-1 items-start gap-3">
                       <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-blue-100 bg-blue-50 text-sm font-black text-blue-700">
@@ -388,19 +387,17 @@ const FilteredCvLibraryPage: React.FC<FilteredCvLibraryPageProps> = ({ userEmail
 };
 
 const StatCard = ({ label, value, icon }: { label: string; value: React.ReactNode; icon: React.ReactNode }) => (
-  <div className="rounded-2xl border border-blue-100 bg-white p-4 shadow-sm">
-    <div className="flex items-center justify-between gap-3">
-      <div>
-        <p className="text-[10px] font-black uppercase tracking-[0.14em] text-slate-500">{label}</p>
-        <p className="mt-2 text-2xl font-black text-slate-950">{value}</p>
-      </div>
-      <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-blue-100 bg-blue-50 text-blue-600">{icon}</span>
+  <div className="flex items-center gap-3 border-b border-[#e5e5ea] px-4 py-3 last:border-b-0 sm:border-r lg:border-b-0">
+    <span className="text-[#007aff]">{icon}</span>
+    <div>
+      <p className="text-[10px] font-medium uppercase tracking-[0.1em] text-[#6e6e73]">{label}</p>
+      <p className="mt-0.5 text-xl font-semibold text-[#1d1d1f]">{value}</p>
     </div>
   </div>
 );
 
 const EmptyState = ({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) => (
-  <div className="flex min-h-[42vh] flex-col items-center justify-center rounded-3xl border border-blue-100 bg-[#f8fbff] px-6 py-12 text-center">
+  <div className="flex min-h-[42vh] flex-col items-center justify-center border-y border-[#e5e5ea] bg-white px-6 py-12 text-center">
     {icon}
     <h2 className="mt-4 text-xl font-black text-slate-950">{title}</h2>
     <p className="mt-2 max-w-md text-sm leading-6 text-slate-600">{description}</p>

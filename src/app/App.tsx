@@ -13,7 +13,8 @@ import HomeIntroPage from '@/pages/main/HomeIntroPage';
 import { DataSyncService } from '@/services/data-sync/dataSyncService';
 import { UserProfileService } from '@/services/data-sync/userProfileService';
 import type { AuthUser } from '@/services/auth/authTypes';
-import type { AppStep, Candidate, HardFilters, WeightCriteria, AnalysisRunData, ActiveAnalysisContext } from '@/types';
+import type { AppStep, Candidate, HardFilters, WeightCriteria, AnalysisRunData, ActiveAnalysisContext, HistoryEntry } from '@/types';
+import type { WorkspaceSessionViewModel } from '@/types/workspace';
 import { initialWeights } from '@/config/constants';
 import Sidebar from '@/layout/Sidebar';
 import WorkspaceTopbar from '@/components/workspace/WorkspaceTopbar';
@@ -45,6 +46,7 @@ const BookDemoPage = lazy(() => import('@/pages/info/BookDemoPage'));
 const DeploymentReadyPage = lazy(() => import('@/pages/deployment/DeploymentReadyPage'));
 const LoginPage = lazy(() => import('@/pages/auth/LoginPage'));
 const DetailedAnalyticsPage = lazy(() => import('@/pages/analytics/DetailedAnalyticsPage'));
+const WorkspaceDashboardPage = lazy(() => import('@/pages/main/WorkspaceDashboardPage'));
 const AIFeedbackPage = lazy(() => import('@/pages/main/AIFeedbackPage'));
 const FilteredCvLibraryPage = lazy(() => import('@/pages/tools/FilteredCvLibraryPage'));
 const JDStandardizerPage = lazy(() => import('@/pages/tools/JDStandardizerPage'));
@@ -73,6 +75,7 @@ import {
   writeWorkflowDraft,
 } from '@/services/history-cache/workflowDraft';
 import { analysisCacheService } from '@/services/history-cache/analysisCache';
+import { clearOwnerCvDocuments } from '@/services/workspace/cvDocumentStore';
 
 function usePrevious<T>(value: T): T | undefined {
   const ref = useRef<T | undefined>(undefined);
@@ -192,6 +195,7 @@ function clearExpiredWorkflowSession(): void {
 const MainApp = () => {
   clearExpiredWorkflowSession();
   const location = useLocation();
+  const navigate = useNavigate();
   const initialPath = typeof window !== 'undefined' ? window.location.pathname : '/';
   const shouldBlockInitialRender = !publicMarketingPaths.has(initialPath) && initialPath !== '/welcome';
 
@@ -206,6 +210,7 @@ const MainApp = () => {
     setCurrentUser(user);
     setIsLoggedIn(true);
     setShowLoginModal(false);
+    navigate('/workspace');
   };
 
   const handleFullReset = () => {
@@ -217,7 +222,7 @@ const MainApp = () => {
   };
 
   useEffect(() => {
-    const protectedPaths = ['/jd', '/upload', '/weights', '/analysis', '/dashboard', '/detailed-analytics', '/chatbot', '/feedback', '/records', '/jd-standardizer', '/history', '/jd-templates'];
+    const protectedPaths = ['/workspace', '/jd', '/upload', '/weights', '/analysis', '/dashboard', '/detailed-analytics', '/chatbot', '/feedback', '/records', '/jd-standardizer', '/history', '/jd-templates'];
 
     if (!isInitializing && !isLoggedIn && protectedPaths.includes(location.pathname)) {
       setShowLoginModal(true);
@@ -525,6 +530,59 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
     }
   }, [navigate]);
 
+  const handleExportReport = useCallback(() => {
+    const successfulCandidates = analysisResults.filter((candidate) => candidate.status === 'SUCCESS');
+    if (!successfulCandidates.length) {
+      showAppNotice('Chưa có kết quả ứng viên để xuất báo cáo.', 'error');
+      return;
+    }
+
+    const escapeCell = (value: unknown) => `"${String(value ?? '').replace(/"/g, '""')}"`;
+    const rows = successfulCandidates.map((candidate, index) => [
+      index + 1,
+      candidate.candidateName,
+      candidate.jobTitle || jobPosition,
+      candidate.analysis?.['Tổng điểm'] || 0,
+      candidate.analysis?.['Hạng'] || '',
+      candidate.stageDecision?.label || '',
+      candidate.email || '',
+      candidate.phone || '',
+    ].map(escapeCell).join(','));
+    const csv = ['STT,Họ tên,Vị trí,Điểm AI,Hạng,Đề xuất,Email,Điện thoại', ...rows].join('\n');
+    const blob = new Blob([`\uFEFF${csv}`], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = `supporthr-${(jobPosition || 'bao-cao').replace(/[^a-zA-Z0-9_-]+/g, '-')}.csv`;
+    anchor.click();
+    window.setTimeout(() => URL.revokeObjectURL(url), 500);
+  }, [analysisResults, jobPosition, showAppNotice]);
+
+  const currentWorkspaceRun = useMemo<AnalysisRunData | null>(() => {
+    if (!analysisResults.length) return readLatestAnalysisRun();
+    return {
+      timestamp: activeAnalysisContext?.timestamp || initialStoredRun?.timestamp || Date.now(),
+      job: {
+        position: jobPosition,
+        locationRequirement: hardFilters.location || '',
+      },
+      candidates: analysisResults,
+    };
+  }, [activeAnalysisContext?.timestamp, analysisResults, hardFilters.location, initialStoredRun?.timestamp, jobPosition]);
+
+  const handleOpenWorkspaceSession = useCallback((history: HistoryEntry | null, session: WorkspaceSessionViewModel) => {
+    if (history?.fullPayload) {
+      handleRestore({ ...history.fullPayload, timestamp: history.timestamp });
+      return;
+    }
+    if (session.candidates.length) {
+      setAnalysisResults(session.candidates);
+      setJobPosition(session.title);
+      setCompletedSteps(['jd', 'upload', 'weights', 'analysis']);
+    }
+    navigate(`/analysis?session=${encodeURIComponent(session.id)}`);
+  }, [handleRestore, navigate]);
+
   const prevIsLoading = usePrevious(isLoading);
 
   // Auto-detect industry from JD whenever jdText changes significantly (throttle by length change)
@@ -776,7 +834,8 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
       case '/faq':
       case '/pricing':
         return 'app-docs';
-      case '/': return 'home';
+      case '/':
+      case '/workspace': return 'home';
       case '/jd': return 'jd';
       case '/upload': return 'upload';
       case '/weights': return 'weights';
@@ -818,12 +877,12 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
     localStorage.removeItem('currentRawJD');
     localStorage.removeItem('currentLocation');
     setCompletedSteps([]);
-    navigate('/');
+    navigate('/jd');
   }, [hardFilters, navigate, settings.workflow.newSessionMode, settings.workflow.rememberScoringConfig, weights]);
 
   const setActiveStep = useCallback((step: AppStep) => {
     const pathMap: Partial<Record<AppStep, string>> = {
-      home: '/',
+      home: '/workspace',
       jd: '/jd',
       upload: '/upload',
       weights: '/weights',
@@ -1011,6 +1070,8 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
     loadingMessage, setLoadingMessage,
     activeStep, setActiveStep,
     completedSteps, markStepAsCompleted,
+    documentOwner: currentUser?.uid || userEmail || 'local',
+    analysisSessionId: activeAnalysisContext?.sessionId,
     onOpenJdTemplates: () => {
       setJdTemplateSelectionMode('welcome');
       setJdTemplatesModalOpen(true);
@@ -1018,7 +1079,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
   };
 
   return (
-    <div className={`h-[100dvh] bg-white text-slate-900 flex flex-col overflow-hidden ${shouldShowDesktopAppMenu ? 'supporthr-shell--with-app-menu' : ''} ${className || ''}`}>
+    <div className={`h-[100dvh] bg-white text-slate-900 flex flex-col overflow-hidden ${shouldUseWorkspaceShell ? 'apple-workspace-shell' : ''} ${shouldShowDesktopAppMenu ? 'supporthr-shell--with-app-menu' : ''} ${className || ''}`}>
       {shouldShowDesktopAppMenu && (
         <DesktopAppMenuBar
           sidebarCollapsed={isDesktopSidebarCollapsed}
@@ -1027,7 +1088,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
       )}
 
       {shouldUseWorkspaceShell && !isDesktopSidebarCollapsed && (
-        <div className="hidden lg:block">
+        <div className="hidden md:block">
           <Sidebar
             activeStep={activeStep}
             setActiveStep={setActiveStep}
@@ -1051,7 +1112,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
       )}
 
       {shouldUseWorkspaceShell && (
-        <div className="lg:hidden">
+        <div className="md:hidden">
           <Sidebar
             activeStep={activeStep}
             setActiveStep={setActiveStep}
@@ -1075,50 +1136,8 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
         </div>
       )}
 
-      {/* Mobile Fixed Header — full width, NOT offset by sidebar */}
-      {shouldUseWorkspaceShell && (
-        <header
-          className="fixed top-0 left-0 right-0 z-[45] flex min-h-14 items-center justify-between gap-3 px-3 py-2 lg:hidden"
-          style={{ background: 'rgba(255,255,255,0.94)', borderBottom: '1px solid rgba(55,125,255,0.12)', boxShadow: '0 12px 32px rgba(30,64,175,0.08)' }}
-        >
-          <button
-            type="button"
-            onClick={() => setIsSidebarDrawerOpen(true)}
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-blue-200 bg-white text-slate-700 shadow-sm transition hover:border-blue-300 hover:text-blue-600"
-            aria-label="Mở menu điều hướng"
-          >
-            <i className="fa-solid fa-bars text-sm" />
-          </button>
-
-          <div className="flex min-w-0 flex-1 items-center gap-2">
-            <img src="/images/logos/logo.jpg" alt="Logo" className="w-8 h-8 rounded-lg object-contain shrink-0" />
-            <div className="min-w-0">
-              <span className="block truncate text-sm font-black leading-tight" style={{ color: '#102033' }}>SupportHR</span>
-              <span className="hidden text-[9px] font-semibold uppercase tracking-[0.14em] text-slate-500 sm:block">Trí tuệ tuyển dụng</span>
-            </div>
-          </div>
-          {isLoggedIn ? (
-            <div className="flex items-center gap-2 shrink-0">
-              <img
-                src={userAvatar || '/images/logos/logo.jpg'}
-                alt=""
-                className="h-9 w-9 rounded-full object-cover border border-blue-100 shadow-sm"
-              />
-            </div>
-          ) : (
-            <button
-              type="button"
-              onClick={onLoginRequest}
-              className="shrink-0 rounded-lg border border-blue-200 bg-white px-2.5 py-1.5 text-[11px] font-bold text-blue-700 shadow-sm"
-            >
-              Đăng nhập
-            </button>
-          )}
-        </header>
-      )}
-
       <main
-        className={`main-content supporthr-main pb-0 ${shouldUseWorkspaceShell ? `supporthr-main--with-sidebar supporthr-main--with-app-menu ${isDesktopSidebarCollapsed ? 'supporthr-main--sidebar-collapsed' : ''} mt-14 lg:mt-0` : shouldShowDesktopAppMenu ? 'lg:pt-[34px]' : ''} flex-1 flex flex-col min-h-0 overflow-x-hidden transition-all duration-300 ease-in-out ${!isLandingView
+        className={`main-content supporthr-main pb-0 ${shouldUseWorkspaceShell ? `supporthr-main--with-sidebar ${isDesktopSidebarCollapsed ? 'supporthr-main--sidebar-collapsed' : ''}` : shouldShowDesktopAppMenu ? 'lg:pt-[34px]' : ''} flex-1 flex flex-col min-h-0 overflow-x-hidden transition-all duration-200 ease-in-out ${!isLandingView
             ? 'min-w-0'
             : 'ml-0 w-full'
           }`}
@@ -1132,6 +1151,8 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
             userAvatar={userAvatar}
             userEmail={userEmail}
             onLogout={handleLogout}
+            onExportReport={handleExportReport}
+            onOpenMobileSidebar={() => setIsSidebarDrawerOpen(true)}
             onNewSession={handleNewSession}
             onOpenHistory={() => setHistoryModalOpen(true)}
             sidebarCollapsed={isDesktopSidebarCollapsed}
@@ -1174,12 +1195,19 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
             <Routes>
               <Route path="/welcome" element={<Navigate to="/" replace />} />
               <Route path="/" element={<HomeIntroPage {...homePageProps} />} />
+              <Route path="/workspace" element={isLoggedIn ? (
+                <WorkspaceDashboardPage
+                  userEmail={userEmail}
+                  currentRun={currentWorkspaceRun}
+                  onOpenSession={handleOpenWorkspaceSession}
+                />
+              ) : authFallback} />
               <Route path="/jd" element={isLoggedIn ? <ScreenerPage {...screenerPageProps} /> : authFallback} />
               <Route path="/upload" element={isLoggedIn ? <ScreenerPage {...screenerPageProps} /> : authFallback} />
               <Route path="/weights" element={isLoggedIn ? <ScreenerPage {...screenerPageProps} /> : authFallback} />
               <Route path="/analysis" element={isLoggedIn ? <ScreenerPage {...screenerPageProps} /> : authFallback} />
 
-              <Route path="/dashboard" element={isLoggedIn ? <DetailedAnalyticsPage candidates={analysisResults} jobPosition={jobPosition} onReset={onResetRequest} /> : authFallback} />
+              <Route path="/dashboard" element={isLoggedIn ? <Navigate to="/workspace" replace /> : authFallback} />
               <Route path="/detailed-analytics" element={isLoggedIn ? <DetailedAnalyticsPage candidates={analysisResults} jobPosition={jobPosition} onReset={onResetRequest} /> : authFallback} />
               <Route path="/chatbot" element={isLoggedIn ? <CandidateSuggestions candidates={analysisResults} jobPosition={jobPosition} /> : authFallback} />
               <Route path="/feedback" element={isLoggedIn ? <AIFeedbackPage candidates={analysisResults} jobPosition={jobPosition} weights={weights} hardFilters={hardFilters} analysisContext={activeAnalysisContext} /> : authFallback} />
@@ -1247,6 +1275,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
         onClearWorkflowDraft={handleClearWorkflowDraft}
         onClearLocalCache={handleClearLocalCache}
         onClearLocalHistory={handleClearLocalHistory}
+        onClearLocalDocuments={() => clearOwnerCvDocuments(currentUser?.uid || userEmail || 'local')}
         onClearSyncedData={handleClearSyncedData}
       />
 

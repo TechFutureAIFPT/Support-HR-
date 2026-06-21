@@ -1,19 +1,9 @@
-import React from 'react';
-import {
-  BarChart3,
-  BookOpenText,
-  Brain,
-  FileText,
-  MessageSquare,
-  Plus,
-  Settings,
-  SlidersHorizontal,
-  Sparkles,
-  UploadCloud,
-  WandSparkles,
-} from 'lucide-react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { ChevronDown, FileText, FolderOpen, LogOut, Settings, SlidersHorizontal } from 'lucide-react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import type { AppStep } from '@/types';
-import { useUserSettings } from '@/context/settings/UserSettingsProvider';
+import { cvFilterHistoryService } from '@/services/history-cache/analysisHistory';
+import { TrafficLights } from '@/components/workspace/WorkspacePrimitives';
 
 interface SidebarProps {
   activeStep: AppStep;
@@ -34,255 +24,158 @@ interface SidebarProps {
   onNewSession?: () => void;
 }
 
-type ActionRowProps = {
-  title: string;
-  subtitle?: string;
-  icon: React.ComponentType<{ className?: string; size?: number; strokeWidth?: number }>;
-  onClick: () => void;
-  active?: boolean;
-  disabled?: boolean;
-  compact?: boolean;
-};
-
-type StepItem = {
-  step: AppStep;
-  title: string;
-  subtitle: string;
-  icon: React.ComponentType<{ className?: string; size?: number; strokeWidth?: number }>;
-};
-
-const PROCESS_ITEMS: StepItem[] = [
-  { step: 'jd', title: 'Nạp JD', subtitle: 'Nhập mô tả công việc', icon: FileText },
-  { step: 'upload', title: 'Nạp CV', subtitle: 'Tải hồ sơ ứng viên', icon: UploadCloud },
-  { step: 'weights', title: 'Thiết lập tiêu chí', subtitle: 'Trọng số và bộ lọc', icon: SlidersHorizontal },
-  { step: 'analysis', title: 'Phân tích AI', subtitle: 'Kết quả sàng lọc', icon: Sparkles },
-];
-
-const TOOL_ITEMS: StepItem[] = [
-  { step: 'dashboard', title: 'Thống kê chi tiết', subtitle: 'Bảng điều khiển phân tích', icon: BarChart3 },
-  { step: 'chatbot', title: 'Chatbot tư vấn', subtitle: 'Trợ lý tuyển dụng', icon: MessageSquare },
-  { step: 'feedback', title: 'Đánh giá phần mềm', subtitle: 'Hiệu chỉnh đánh giá', icon: Brain },
-];
-
-function isStepEnabled(step: AppStep, completedSteps: AppStep[]): boolean {
-  if (step === 'home') return true;
-  if (step === 'jd' || step === 'records' || step === 'jd-standardizer') return true;
-  if (step === 'upload') return completedSteps.includes('jd');
-  if (step === 'weights') return completedSteps.includes('jd') && completedSteps.includes('upload');
-  if (step === 'analysis') {
-    return completedSteps.includes('jd') && completedSteps.includes('upload') && completedSteps.includes('weights');
-  }
-  if (step === 'dashboard' || step === 'chatbot' || step === 'feedback') {
-    return completedSteps.includes('analysis');
-  }
-  return true;
-}
-
-function SectionHeader({ title, compact = false }: { title: string; compact?: boolean }) {
-  return (
-    <div className={`flex items-center gap-2 px-1.5 ${compact ? 'pb-1 pt-2' : 'pb-1.5 pt-3'}`}>
-      <span className={`font-medium uppercase tracking-[0.12em] text-slate-500 ${compact ? 'text-[9px]' : 'text-[10px]'}`}>
-        {title}
-      </span>
-    </div>
-  );
-}
-
-function RowButton({
-  title,
-  subtitle,
-  icon: Icon,
-  onClick,
-  active,
-  disabled,
-  compact = false,
-}: ActionRowProps) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={disabled}
-      className={`group flex w-full items-center text-left transition ${
-        compact ? 'gap-2 rounded-lg px-1.5 py-1.5' : 'gap-2.5 rounded-lg px-2 py-2'
-      } ${
-        active
-          ? 'bg-white text-slate-950 shadow-sm ring-1 ring-blue-200'
-          : disabled
-            ? 'cursor-not-allowed text-slate-300'
-            : 'text-slate-800 hover:bg-white hover:text-slate-950'
-      }`}
-    >
-      <span
-        className={`flex shrink-0 items-center justify-center rounded-lg border transition ${
-          compact ? 'h-6 w-6' : 'h-7 w-7'
-        } ${
-          active
-            ? 'border-blue-100 bg-blue-50 text-blue-600'
-            : 'border-slate-200 bg-white text-slate-500 group-hover:text-slate-700'
-        }`}
-      >
-        <Icon size={compact ? 13 : 14} strokeWidth={2} />
-      </span>
-      <span className="min-w-0 flex-1">
-        <span className={`block truncate font-medium ${compact ? 'text-[12px] leading-4' : 'text-[13px] leading-4'}`}>{title}</span>
-        {subtitle ? (
-          <span className={`block truncate text-slate-500 ${compact ? 'text-[10px] leading-4' : 'text-[11px] leading-4'}`}>{subtitle}</span>
-        ) : null}
-      </span>
-    </button>
-  );
-}
-
-function TemplateSection({
-  title,
-  items,
-  activeStep,
-  completedSteps,
-  onStepClick,
-  compact = false,
-}: {
-  title: string;
-  items: StepItem[];
-  activeStep: AppStep;
-  completedSteps: AppStep[];
-  onStepClick: (step: AppStep) => void;
-  compact?: boolean;
-}) {
-  return (
-    <section>
-      {title ? <SectionHeader title={title} compact={compact} /> : null}
-      <div className={compact ? 'space-y-0.5' : 'space-y-1'}>
-        {items.map((item) => (
-          <RowButton
-            key={item.step}
-            title={item.title}
-            subtitle={item.subtitle}
-            icon={item.icon}
-            active={activeStep === item.step}
-            disabled={!isStepEnabled(item.step, completedSteps)}
-            compact={compact}
-            onClick={() => onStepClick(item.step)}
-          />
-        ))}
-      </div>
-    </section>
-  );
-}
+type HistorySession = { timestamp: number; jobPosition?: string };
 
 const Sidebar: React.FC<SidebarProps> = ({
-  activeStep,
-  setActiveStep,
-  completedSteps,
-  onReset,
+  onLogout,
+  userEmail,
+  userAvatar,
+  userName,
   isOpen = true,
   onClose,
-  onShowSettings,
   onOpenSettingsPanel,
-  onNewSession,
 }) => {
-  const { settings } = useUserSettings();
-  const compact = settings.ui.sidebarDensity === 'compact';
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [sessions, setSessions] = useState<HistorySession[]>([]);
+  const [sessionsOpen, setSessionsOpen] = useState(true);
 
-  const handleClick = (step: AppStep) => {
-    if (!isStepEnabled(step, completedSteps)) return;
-    setActiveStep(step);
-    if (window.innerWidth < 1024) onClose?.();
+  useEffect(() => {
+    const refresh = () => setSessions(cvFilterHistoryService.getRecentHistory().slice(0, 5));
+    refresh();
+    window.addEventListener('storage', refresh);
+    window.addEventListener('supporthr:workspace-session-state', refresh as EventListener);
+    return () => {
+      window.removeEventListener('storage', refresh);
+      window.removeEventListener('supporthr:workspace-session-state', refresh as EventListener);
+    };
+  }, []);
+
+  const displayName = useMemo(
+    () => userName?.trim() || userEmail?.split('@')[0] || 'Support HR',
+    [userEmail, userName],
+  );
+
+  const go = (path: string) => {
+    navigate(path);
+    onClose?.();
   };
-
-  const handleNewSession = () => {
-    if (onNewSession) onNewSession();
-    else onReset();
-    if (window.innerWidth < 1024) onClose?.();
-  };
-
-  const quickActions: ActionRowProps[] = [
-    {
-      title: 'Phiên mới',
-      subtitle: 'Bắt đầu lại',
-      icon: Plus,
-      onClick: handleNewSession,
-      compact,
-    },
-    {
-      title: 'Mẫu JD',
-      subtitle: 'Xem template',
-      icon: WandSparkles,
-      onClick: () => {
-        onShowSettings?.();
-        if (window.innerWidth < 1024) onClose?.();
-      },
-      compact,
-    },
-    {
-      title: 'Thư viện CV',
-      subtitle: 'Hồ sơ đã lọc',
-      icon: BookOpenText,
-      onClick: () => handleClick('records'),
-      compact,
-    },
-  ];
 
   return (
     <>
-      {isOpen && onClose && (
-        <div
-          className="fixed inset-0 z-40 bg-slate-950/20 backdrop-blur-[1px] lg:hidden"
+      {isOpen && onClose ? (
+        <button
+          type="button"
+          aria-label="Đóng thanh điều hướng"
+          className="fixed inset-0 z-40 bg-black/15 backdrop-blur-[1px] md:hidden"
           onClick={onClose}
         />
-      )}
+      ) : null}
 
       <aside
         id="cv-sidebar"
-        className={`supporthr-sidebar supporthr-codex-sidebar fixed left-0 top-0 z-50 flex h-screen w-[320px] flex-col border-r border-slate-200 bg-[#f4f4f2] text-slate-900 transition-transform duration-300 ease-out ${
-          isOpen ? 'translate-x-0' : '-translate-x-full'
-        } lg:translate-x-0`}
+        className={`supporthr-sidebar supporthr-codex-sidebar apple-workspace-sidebar fixed left-0 top-0 z-50 flex h-[100dvh] w-[17rem] flex-col border-r border-[#d2d2d7] bg-[rgba(246,246,248,0.88)] text-[#1d1d1f] backdrop-blur-2xl transition-transform duration-200 motion-reduce:transition-none ${isOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}
       >
-        <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto px-0 pb-2 pt-3">
-          <div className="space-y-1">
-            {quickActions.map((item) => (
-              <RowButton key={item.title} {...item} />
-            ))}
-          </div>
-
-          <SectionHeader title="Pinned" compact />
-          <TemplateSection
-            title=""
-            items={PROCESS_ITEMS}
-            activeStep={activeStep}
-            completedSteps={completedSteps}
-            onStepClick={handleClick}
-            compact={compact}
-          />
-
-          <SectionHeader title="Tools" compact />
-          <TemplateSection
-            title=""
-            items={TOOL_ITEMS}
-            activeStep={activeStep}
-            completedSteps={completedSteps}
-            onStepClick={handleClick}
-            compact={compact}
-          />
-        </div>
-
-        <div className="border-t border-slate-200 p-2.5">
+        <div className="flex h-[68px] shrink-0 items-center justify-between border-b border-[#d2d2d7]/80 px-5">
+          <TrafficLights />
           <button
             type="button"
-            onClick={() => {
-              onOpenSettingsPanel?.();
-              if (window.innerWidth < 1024) onClose?.();
-            }}
-            className="flex h-11 w-full items-center justify-between rounded-xl border border-slate-200 bg-white px-3 text-left shadow-sm transition hover:border-slate-300 hover:bg-slate-50"
-            aria-label="Settings"
+            onClick={() => go('/workspace')}
+            className="flex h-8 w-9 items-center justify-center rounded-lg border border-[#d2d2d7] bg-white/80 text-[#6e6e73] hover:bg-white"
+            aria-label="Mở tổng quan Workspace"
           >
-            <span className="flex min-w-0 items-center gap-2">
-              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600">
-                <Settings size={15} />
-              </span>
-              <span className="min-w-0 truncate text-[14px] font-medium text-slate-950">Settings</span>
-            </span>
-            <span className="text-[10px] font-medium text-slate-500">Ctrl+,</span>
+            <SlidersHorizontal size={15} strokeWidth={1.7} />
           </button>
+        </div>
+
+        <nav className="custom-scrollbar min-h-0 flex-1 overflow-y-auto px-2 py-4" aria-label="Điều hướng Workspace">
+          <button
+            type="button"
+            onClick={() => setSessionsOpen((value) => !value)}
+            className={`flex h-10 w-full items-center gap-3 rounded-lg px-3 text-left text-[14px] font-medium transition ${location.pathname === '/workspace' || location.pathname === '/analysis' ? 'bg-[#e8f1ff] text-[#0066d6]' : 'text-[#3a3a3c] hover:bg-black/[0.04]'}`}
+          >
+            <SlidersHorizontal size={17} strokeWidth={1.8} />
+            <span className="flex-1">Phiên lọc</span>
+            <ChevronDown size={14} className={`transition-transform ${sessionsOpen ? '' : '-rotate-90'}`} />
+          </button>
+
+          {sessionsOpen ? (
+            <div className="mt-1 space-y-0.5 pl-5">
+              <button
+                type="button"
+                onClick={() => go('/workspace')}
+                className={`flex h-9 w-full items-center gap-2 rounded-lg px-3 text-left text-[13px] ${location.pathname === '/workspace' ? 'bg-[#dceaff] font-medium text-[#005fbd]' : 'text-[#6e6e73] hover:bg-black/[0.04]'}`}
+              >
+                <span className="h-2 w-2 rounded-full bg-[#007aff]" />
+                Tổng quan tuyển dụng
+              </button>
+              {sessions.map((session, index) => (
+                <button
+                  key={`${session.timestamp}-${index}`}
+                  type="button"
+                  onClick={() => go(`/workspace?session=${session.timestamp}`)}
+                  className="flex h-9 w-full items-center gap-2 rounded-lg px-3 text-left text-[13px] text-[#515154] hover:bg-black/[0.04]"
+                >
+                  <span className={`h-2 w-2 shrink-0 rounded-full ${index === 0 ? 'bg-[#7c5cff]' : 'bg-[#26a7a2]'}`} />
+                  <span className="truncate">{session.jobPosition || 'Phiên tuyển dụng'}</span>
+                </button>
+              ))}
+            </div>
+          ) : null}
+
+          <div className="my-3 h-px bg-[#d2d2d7]/80" />
+
+          <button
+            type="button"
+            onClick={() => go('/records')}
+            className={`flex h-10 w-full items-center gap-3 rounded-lg px-3 text-[14px] font-medium transition ${location.pathname === '/records' ? 'bg-[#e8f1ff] text-[#0066d6]' : 'text-[#3a3a3c] hover:bg-black/[0.04]'}`}
+          >
+            <FolderOpen size={17} strokeWidth={1.8} />
+            Thư viện CV
+          </button>
+          <button
+            type="button"
+            onClick={() => go('/jd-standardizer')}
+            className={`flex h-10 w-full items-center gap-3 rounded-lg px-3 text-[14px] font-medium transition ${location.pathname === '/jd-standardizer' || location.pathname === '/jd-templates' ? 'bg-[#e8f1ff] text-[#0066d6]' : 'text-[#3a3a3c] hover:bg-black/[0.04]'}`}
+          >
+            <FileText size={17} strokeWidth={1.8} />
+            Cài đặt JD
+          </button>
+        </nav>
+
+        <div className="border-t border-[#d2d2d7]/80 p-2">
+          <button
+            type="button"
+            onClick={onOpenSettingsPanel}
+            className="flex h-9 w-full items-center gap-3 rounded-lg px-3 text-[13px] text-[#515154] hover:bg-black/[0.04]"
+          >
+            <Settings size={16} strokeWidth={1.8} />
+            Cài đặt Workspace
+          </button>
+          <div className="mt-1 flex items-center gap-3 rounded-lg px-3 py-2">
+            <div className="relative h-9 w-9 shrink-0">
+              <img
+                src={userAvatar || '/images/logos/logo.jpg'}
+                alt=""
+                className="h-9 w-9 rounded-full border border-[#d2d2d7] object-cover"
+              />
+              <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-[#f6f6f8] bg-[#34c759]" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-[13px] font-medium text-[#1d1d1f]">{displayName}</p>
+              <p className="truncate text-[11px] text-[#86868b]">Recruiter</p>
+            </div>
+            {onLogout ? (
+              <button
+                type="button"
+                onClick={onLogout}
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-[#86868b] hover:bg-black/[0.05] hover:text-[#d70015]"
+                aria-label="Đăng xuất"
+              >
+                <LogOut size={15} />
+              </button>
+            ) : null}
+          </div>
         </div>
       </aside>
     </>

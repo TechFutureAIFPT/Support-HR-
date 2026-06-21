@@ -328,19 +328,14 @@ const DetailedAnalyticsPage: React.FC<DetailedAnalyticsPageProps> = ({ candidate
   ];
 
   return (
-    <div className="flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden bg-[#f6f8fb] text-slate-950">
+    <div className="flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden bg-white text-slate-950">
       <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto">
         <main className="mx-auto grid w-full max-w-[1500px] gap-5 px-4 py-5 sm:px-6">
           <section className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
             <div className="min-w-0">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="rounded-md border border-blue-200 bg-blue-50 px-2 py-1 text-[11px] font-black uppercase tracking-[0.14em] text-blue-700">
-                  Dashboard vận hành
-                </span>
-                <span className="text-xs font-semibold text-slate-500">{new Date().toLocaleDateString('vi-VN')}</span>
-              </div>
-              <h1 className="mt-2 truncate text-2xl font-black tracking-tight text-slate-950 sm:text-3xl">Thống kê chi tiết</h1>
-              <p className="mt-1 truncate text-sm font-semibold text-slate-500">{effectiveJobPosition}</p>
+              <p className="text-xs font-medium text-[#86868b]">{new Date().toLocaleDateString('vi-VN')}</p>
+              <h1 className="mt-1 truncate text-2xl font-semibold tracking-[-0.02em] text-[#1d1d1f] sm:text-3xl">Thống kê chi tiết</h1>
+              <p className="mt-1 truncate text-sm font-medium text-[#6e6e73]">{effectiveJobPosition}</p>
             </div>
             <div className="flex flex-wrap gap-2">
               <button
@@ -354,7 +349,7 @@ const DetailedAnalyticsPage: React.FC<DetailedAnalyticsPageProps> = ({ candidate
               <button
                 type="button"
                 onClick={() => navigate('/chatbot')}
-                className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-slate-950 px-4 text-sm font-bold text-white shadow-sm transition hover:bg-blue-700"
+                className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-[#007aff] px-4 text-sm font-semibold text-white transition hover:bg-[#0066d6]"
               >
                 <Zap className="h-4 w-4" />
                 Gợi ý ứng viên
@@ -362,22 +357,19 @@ const DetailedAnalyticsPage: React.FC<DetailedAnalyticsPageProps> = ({ candidate
             </div>
           </section>
 
-          <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+          <section className="grid border-y border-[#e5e5ea] sm:grid-cols-2 xl:grid-cols-5">
             {kpiCards.map((card) => {
               const Icon = card.icon;
-              const isDark = card.tone.includes('slate-950');
               return (
-                <article key={card.label} className={`rounded-lg border border-slate-200 p-4 shadow-sm ${card.tone}`}>
-                  <div className="flex items-start justify-between gap-3">
+                <article key={card.label} className="border-b border-[#e5e5ea] px-4 py-4 last:border-b-0 sm:border-r xl:border-b-0">
+                  <div className="flex items-start gap-3">
+                    <Icon className="mt-0.5 h-4 w-4 shrink-0 text-[#007aff]" strokeWidth={1.8} />
                     <div className="min-w-0">
-                      <p className={`text-[11px] font-black uppercase tracking-[0.14em] ${isDark ? 'text-slate-300' : 'text-slate-500'}`}>{card.label}</p>
-                      <p className="mt-3 text-3xl font-black tracking-tight">{card.value}</p>
+                      <p className="text-[11px] font-medium uppercase tracking-[0.1em] text-[#6e6e73]">{card.label}</p>
+                      <p className="mt-1 text-2xl font-semibold tracking-tight text-[#1d1d1f]">{card.value}</p>
+                      <p className="mt-1 text-[11px] text-[#86868b]">{card.detail}</p>
                     </div>
-                    <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${isDark ? 'bg-white/10 text-white' : 'bg-blue-50 text-blue-600'}`}>
-                      <Icon className="h-5 w-5" />
-                    </span>
                   </div>
-                  <p className={`mt-3 text-xs font-semibold ${isDark ? 'text-slate-300' : 'text-slate-500'}`}>{card.detail}</p>
                 </article>
               );
             })}
