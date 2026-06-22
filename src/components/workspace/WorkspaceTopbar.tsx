@@ -87,15 +87,7 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
         </button>
       </div>
 
-      <div className="hidden min-w-0 flex-1 justify-center lg:flex">
-        <button
-          type="button"
-          onClick={() => navigate('/workspace')}
-          className="truncate px-4 text-[14px] font-semibold text-[#1d1d1f]"
-        >
-          Support HR
-        </button>
-      </div>
+      <div className="hidden min-w-0 flex-1 lg:flex" />
 
       <div className="flex shrink-0 items-center gap-2">
         <form onSubmit={handleSearch} className="relative hidden xl:block">
