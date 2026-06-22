@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Bell, Download, Menu, PanelLeft, Plus, Search, SlidersHorizontal } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import type { AppStep } from '@/types';
+import NotificationDropdown from '@/components/notifications/NotificationDropdown';
 
 interface WorkspaceTopbarProps {
   activeStep: AppStep;
@@ -34,6 +35,9 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
 }) => {
   const navigate = useNavigate();
   const [query, setQuery] = useState('');
+  const [notifOpen, setNotifOpen] = useState(false);
+  const bellRef = useRef<HTMLButtonElement>(null);
+
   const displayName = userName?.trim() || userEmail?.split('@')[0] || 'HR';
   const initials = displayName.split(/\s+/).map((part) => part[0]).join('').slice(0, 2).toUpperCase();
 
@@ -100,10 +104,32 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
           />
           <kbd className="absolute right-2 top-1/2 -translate-y-1/2 rounded border border-[#d2d2d7] bg-white px-1.5 py-0.5 text-[10px] text-[#86868b]">⌘K</kbd>
         </form>
-        <button type="button" className="apple-toolbar-icon" aria-label="Thông báo">
-          <Bell size={17} strokeWidth={1.7} />
-        </button>
-        <button type="button" onClick={() => navigate('/')} className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-[#e8e8ed] text-[12px] font-medium text-[#515154]" aria-label="Mở tài khoản">
+
+        {/* Bell with dropdown */}
+        <div className="relative">
+          <button
+            ref={bellRef}
+            type="button"
+            onClick={() => setNotifOpen((v) => !v)}
+            className={`apple-toolbar-icon transition ${notifOpen ? 'bg-[#e8e8ed] text-[#1d1d1f]' : ''}`}
+            aria-label="Thông báo"
+            aria-expanded={notifOpen}
+          >
+            <Bell size={17} strokeWidth={1.7} />
+          </button>
+          <NotificationDropdown
+            isOpen={notifOpen}
+            onClose={() => setNotifOpen(false)}
+            anchorRef={bellRef}
+          />
+        </div>
+
+        <button
+          type="button"
+          onClick={() => navigate('/')}
+          className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-[#e8e8ed] text-[12px] font-medium text-[#515154]"
+          aria-label="Mở tài khoản"
+        >
           {userAvatar ? <img src={userAvatar} alt="" className="h-full w-full object-cover" /> : initials}
         </button>
       </div>
