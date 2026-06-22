@@ -103,7 +103,7 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
         <button type="button" className="apple-toolbar-icon" aria-label="Thông báo">
           <Bell size={17} strokeWidth={1.7} />
         </button>
-        <button type="button" onClick={() => navigate('/workspace')} className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-[#e8e8ed] text-[12px] font-medium text-[#515154]" aria-label="Mở tài khoản">
+        <button type="button" onClick={() => navigate('/')} className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-[#e8e8ed] text-[12px] font-medium text-[#515154]" aria-label="Mở tài khoản">
           {userAvatar ? <img src={userAvatar} alt="" className="h-full w-full object-cover" /> : initials}
         </button>
       </div>

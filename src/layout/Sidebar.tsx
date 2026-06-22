@@ -43,7 +43,7 @@ interface SidebarProps {
 type HistorySession = { timestamp: number; jobPosition?: string };
 
 const screeningPages = [
-  { path: '/workspace', label: 'Tổng quan tuyển dụng', icon: LayoutDashboard },
+  { path: '/', label: 'Tổng quan tuyển dụng', icon: LayoutDashboard },
   { path: '/jd', label: 'Nhập Job Description', icon: FileInput },
   { path: '/upload', label: 'Nạp hồ sơ ứng viên', icon: Upload },
   { path: '/weights', label: 'Tiêu chí chấm điểm', icon: SlidersHorizontal },
@@ -72,8 +72,14 @@ const Sidebar: React.FC<SidebarProps> = ({
   const navigate = useNavigate();
   const location = useLocation();
   const [sessions, setSessions] = useState<HistorySession[]>([]);
-  const [sessionsOpen, setSessionsOpen] = useState(true);
-  const [toolsOpen, setToolsOpen] = useState(true);
+  const [openSection, setOpenSection] = useState<'sessions' | 'tools'>('sessions');
+
+  const sessionsOpen = openSection === 'sessions';
+  const toolsOpen = openSection === 'tools';
+
+  const toggleSection = (section: 'sessions' | 'tools') => {
+    setOpenSection(section);
+  };
 
   useEffect(() => {
     const refresh = () => setSessions(cvFilterHistoryService.getRecentHistory().slice(0, 5));
@@ -118,7 +124,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           <TrafficLights />
           <button
             type="button"
-            onClick={() => go('/workspace')}
+            onClick={() => go('/')}
             className="flex h-8 w-9 items-center justify-center rounded-lg border border-[#d2d2d7] bg-white/80 text-[#6e6e73] hover:bg-white"
             aria-label="Mở tổng quan Workspace"
           >
@@ -129,21 +135,79 @@ const Sidebar: React.FC<SidebarProps> = ({
         <nav className="custom-scrollbar min-h-0 flex-1 overflow-y-auto px-2 py-4" aria-label="Điều hướng Workspace">
           <button
             type="button"
-            onClick={() => setSessionsOpen((value) => !value)}
+            onClick={() => toggleSection('sessions')}
             className={`flex h-10 w-full items-center gap-3 rounded-lg px-3 text-left text-[14px] font-medium transition ${screeningActive ? 'bg-[#e8f1ff] text-[#0066d6]' : 'text-[#3a3a3c] hover:bg-black/[0.04]'}`}
           >
             <SlidersHorizontal size={17} strokeWidth={1.8} />
             <span className="flex-1">Phiên lọc</span>
-            <ChevronDown size={14} className={`transition-transform ${sessionsOpen ? '' : '-rotate-90'}`} />
+            <ChevronDown size={14} className={`transition-transform duration-300 ${sessionsOpen ? '' : '-rotate-90'}`} />
           </button>
 
-          {sessionsOpen ? (
-            <div className="mt-1 pl-5">
-              <p className="px-3 pb-1 pt-2 text-[10px] font-semibold uppercase tracking-[0.08em] text-[#98989d]">
-                Trang làm việc
-              </p>
-              <div className="space-y-0.5">
-                {screeningPages.map(({ path, label, icon: Icon }) => {
+          <div className={`grid transition-[grid-template-rows] duration-300 ease-in-out ${sessionsOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
+            <div className="overflow-hidden">
+              <div className="mt-1 pl-5">
+                <p className="px-3 pb-1 pt-2 text-[10px] font-semibold uppercase tracking-[0.08em] text-[#98989d]">
+                  Trang làm việc
+                </p>
+                <div className="space-y-0.5">
+                  {screeningPages.map(({ path, label, icon: Icon }) => {
+                    const active = location.pathname === path;
+                    return (
+                      <button
+                        key={path}
+                        type="button"
+                        onClick={() => go(path)}
+                        aria-current={active ? 'page' : undefined}
+                        className={`flex min-h-9 w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-[12.5px] transition-[background-color,color,opacity] duration-150 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007aff]/30 ${active ? 'bg-[#dceaff] font-medium text-[#005fbd] opacity-100' : 'text-[#6e6e73] opacity-60 hover:bg-black/[0.04] hover:opacity-100'}`}
+                      >
+                        <Icon size={15} strokeWidth={1.7} className="shrink-0" />
+                        <span className="truncate">{label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {sessions.length ? (
+                  <>
+                    <div className="mx-3 my-2 h-px bg-[#d2d2d7]/70" />
+                    <p className="px-3 pb-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[#98989d]">
+                      Phiên gần đây
+                    </p>
+                    <div className="space-y-0.5">
+                      {sessions.map((session, index) => (
+                        <button
+                          key={`${session.timestamp}-${index}`}
+                          type="button"
+                          onClick={() => go(`/?session=${session.timestamp}`)}
+                          className="flex min-h-9 w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-[12.5px] text-[#515154] hover:bg-black/[0.04]"
+                        >
+                          <span className={`h-2 w-2 shrink-0 rounded-full ${index === 0 ? 'bg-[#7c5cff]' : 'bg-[#26a7a2]'}`} />
+                          <span className="truncate">{session.jobPosition || 'Phiên tuyển dụng'}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                ) : null}
+              </div>
+            </div>
+          </div>
+
+          <div className="my-3 h-px bg-[#d2d2d7]/80" />
+
+          <button
+            type="button"
+            onClick={() => toggleSection('tools')}
+            className={`flex h-10 w-full items-center gap-3 rounded-lg px-3 text-left text-[14px] font-medium transition ${toolsActive ? 'bg-[#e8f1ff] text-[#0066d6]' : 'text-[#3a3a3c] hover:bg-black/[0.04]'}`}
+          >
+            <Wrench size={17} strokeWidth={1.8} />
+            <span className="flex-1">Công cụ hỗ trợ</span>
+            <ChevronDown size={14} className={`transition-transform duration-300 ${toolsOpen ? '' : '-rotate-90'}`} />
+          </button>
+
+          <div className={`grid transition-[grid-template-rows] duration-300 ease-in-out ${toolsOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
+            <div className="overflow-hidden">
+              <div className="mt-1 space-y-0.5 pl-5">
+                {supportToolPages.map(({ path, label, icon: Icon }) => {
                   const active = location.pathname === path;
                   return (
                     <button
@@ -159,62 +223,8 @@ const Sidebar: React.FC<SidebarProps> = ({
                   );
                 })}
               </div>
-
-              {sessions.length ? (
-                <>
-                  <div className="mx-3 my-2 h-px bg-[#d2d2d7]/70" />
-                  <p className="px-3 pb-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[#98989d]">
-                    Phiên gần đây
-                  </p>
-                  <div className="space-y-0.5">
-                    {sessions.map((session, index) => (
-                      <button
-                        key={`${session.timestamp}-${index}`}
-                        type="button"
-                        onClick={() => go(`/workspace?session=${session.timestamp}`)}
-                        className="flex min-h-9 w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-[12.5px] text-[#515154] hover:bg-black/[0.04]"
-                      >
-                        <span className={`h-2 w-2 shrink-0 rounded-full ${index === 0 ? 'bg-[#7c5cff]' : 'bg-[#26a7a2]'}`} />
-                        <span className="truncate">{session.jobPosition || 'Phiên tuyển dụng'}</span>
-                      </button>
-                    ))}
-                  </div>
-                </>
-              ) : null}
             </div>
-          ) : null}
-
-          <div className="my-3 h-px bg-[#d2d2d7]/80" />
-
-          <button
-            type="button"
-            onClick={() => setToolsOpen((value) => !value)}
-            className={`flex h-10 w-full items-center gap-3 rounded-lg px-3 text-left text-[14px] font-medium transition ${toolsActive ? 'bg-[#e8f1ff] text-[#0066d6]' : 'text-[#3a3a3c] hover:bg-black/[0.04]'}`}
-          >
-            <Wrench size={17} strokeWidth={1.8} />
-            <span className="flex-1">Công cụ hỗ trợ</span>
-            <ChevronDown size={14} className={`transition-transform ${toolsOpen ? '' : '-rotate-90'}`} />
-          </button>
-
-          {toolsOpen ? (
-            <div className="mt-1 space-y-0.5 pl-5">
-              {supportToolPages.map(({ path, label, icon: Icon }) => {
-                const active = location.pathname === path;
-                return (
-                  <button
-                    key={path}
-                    type="button"
-                    onClick={() => go(path)}
-                    aria-current={active ? 'page' : undefined}
-                    className={`flex min-h-9 w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-[12.5px] transition-[background-color,color,opacity] duration-150 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007aff]/30 ${active ? 'bg-[#dceaff] font-medium text-[#005fbd] opacity-100' : 'text-[#6e6e73] opacity-60 hover:bg-black/[0.04] hover:opacity-100'}`}
-                  >
-                    <Icon size={15} strokeWidth={1.7} className="shrink-0" />
-                    <span className="truncate">{label}</span>
-                  </button>
-                );
-              })}
-            </div>
-          ) : null}
+          </div>
         </nav>
 
         <div className="border-t border-[#d2d2d7]/80 p-2">

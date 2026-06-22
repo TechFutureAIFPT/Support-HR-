@@ -177,6 +177,7 @@ const publicMarketingPaths = new Set([
 const publicDocsPaths = new Set(publicMarketingPaths);
 
 const protectedWorkspacePaths = new Set([
+  '/',
   '/workspace',
   '/jd',
   '/upload',
@@ -224,7 +225,7 @@ const MainApp = () => {
     setCurrentUser(user);
     setIsLoggedIn(true);
     setShowLoginModal(false);
-    navigate('/workspace');
+    navigate('/');
   };
 
   const handleFullReset = () => {
@@ -467,11 +468,11 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
     try {
       await auth.signOut();
       localStorage.removeItem('authEmail');
-      navigate('/workspace');
+      navigate('/');
     } catch (error) {
       console.error('Logout error:', error);
       localStorage.removeItem('authEmail');
-      window.location.href = '/workspace';
+      window.location.href = '/';
     }
   }, [navigate]);
 
@@ -1197,21 +1198,21 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
             )
           }>
             <Routes>
-              <Route path="/welcome" element={<Navigate to="/workspace" replace />} />
-              <Route path="/" element={<Navigate to="/workspace" replace />} />
-              <Route path="/workspace" element={isLoggedIn ? (
+              <Route path="/welcome" element={<Navigate to="/" replace />} />
+              <Route path="/" element={isLoggedIn ? (
                 <WorkspaceDashboardPage
                   userEmail={userEmail}
                   currentRun={currentWorkspaceRun}
                   onOpenSession={handleOpenWorkspaceSession}
                 />
               ) : authFallback} />
+              <Route path="/workspace" element={<Navigate to="/" replace />} />
               <Route path="/jd" element={isLoggedIn ? <ScreenerPage {...screenerPageProps} /> : authFallback} />
               <Route path="/upload" element={isLoggedIn ? <ScreenerPage {...screenerPageProps} /> : authFallback} />
               <Route path="/weights" element={isLoggedIn ? <ScreenerPage {...screenerPageProps} /> : authFallback} />
               <Route path="/analysis" element={isLoggedIn ? <ScreenerPage {...screenerPageProps} /> : authFallback} />
 
-              <Route path="/dashboard" element={isLoggedIn ? <Navigate to="/workspace" replace /> : authFallback} />
+              <Route path="/dashboard" element={isLoggedIn ? <Navigate to="/" replace /> : authFallback} />
               <Route path="/detailed-analytics" element={isLoggedIn ? <DetailedAnalyticsPage candidates={analysisResults} jobPosition={jobPosition} onReset={onResetRequest} /> : authFallback} />
               <Route path="/chatbot" element={isLoggedIn ? <CandidateSuggestions candidates={analysisResults} jobPosition={jobPosition} /> : authFallback} />
               <Route path="/feedback" element={isLoggedIn ? <AIFeedbackPage candidates={analysisResults} jobPosition={jobPosition} weights={weights} hardFilters={hardFilters} analysisContext={activeAnalysisContext} /> : authFallback} />
