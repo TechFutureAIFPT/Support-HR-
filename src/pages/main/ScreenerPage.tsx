@@ -5,6 +5,7 @@ import { analyzeCVs } from '@/services/screening/frontendScreeningService';
 import { getSafeErrorMessage } from '@/utils/errorMessages';
 import SupportHRLoading from '@/components/common/SupportHRLoading';
 import { findCvDocument, linkCvDocument, storeCvFiles } from '@/services/workspace/cvDocumentStore';
+import { broadcastProgress, broadcastSessionDone, broadcastSessionStart, clearSession } from '@/services/desktopSessionService';
 
 const WeightsConfig = lazy(() => import('@/features/criteria-config/WeightsConfig'));
 const AnalysisResults = lazy(() => import('@/features/cv-management/AnalysisResults'));
@@ -130,13 +131,20 @@ const ScreenerPage: React.FC<ScreenerPageProps> = (props) => {
     props.setAnalysisResults([]);
     props.setLoadingMessage('Đang khởi tạo...');
 
+    const totalCvs = props.cvFiles.length;
+    let analyzedCount = 0;
+
+    void broadcastSessionStart(props.jobPosition || 'Sàng lọc CV', totalCvs).catch(() => {});
+
     try {
       const analysisGenerator = analyzeCVs(props.jdText, props.weights, props.hardFilters, props.cvFiles);
       for await (const result of analysisGenerator) {
         if (result.status === 'progress') {
           props.setLoadingMessage(result.message);
         } else {
+          analyzedCount += 1;
           props.setAnalysisResults((prev) => [...prev, result as Candidate]);
+          void broadcastProgress(analyzedCount, totalCvs).catch(() => {});
         }
       }
     } catch (err) {
@@ -163,6 +171,7 @@ const ScreenerPage: React.FC<ScreenerPageProps> = (props) => {
     } finally {
       props.setIsLoading(false);
       props.setLoadingMessage('Hoàn tất phân tích!');
+      void broadcastSessionDone(analyzedCount, totalCvs).catch(() => {});
     }
   };
 
