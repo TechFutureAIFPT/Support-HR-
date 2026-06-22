@@ -316,8 +316,8 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
                 <span className="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">thông minh hơn</span>
               </h1>
 
-              <div className="mt-5 border-l-2 border-blue-500/60 pl-4">
-                <p className="max-w-sm text-[0.94rem] leading-7 text-slate-300">
+              <div className="mt-5 border-l-2 border-blue-400/70 pl-4">
+                <p className="max-w-sm text-[0.94rem] leading-7 text-slate-100">
                   Nền tảng AI hỗ trợ sàng lọc CV, chuẩn hóa JD và ra quyết định tuyển dụng
                   nhanh hơn — trong một không gian làm việc thống nhất.
                 </p>
@@ -327,15 +327,15 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
             <div className="mt-8 flex flex-wrap gap-4">
               <div className="flex items-center gap-2">
                 <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-500/20 text-blue-400"><i className="fa-solid fa-bolt text-xs" /></span>
-                <span className="text-sm text-slate-400">Phân tích tức thì</span>
+                <span className="text-sm font-medium text-slate-200">Phân tích tức thì</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-500/20 text-blue-400"><i className="fa-solid fa-shield-halved text-xs" /></span>
-                <span className="text-sm text-slate-400">Bảo mật dữ liệu</span>
+                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-500/20 text-blue-300"><i className="fa-solid fa-shield-halved text-xs" /></span>
+                <span className="text-sm font-medium text-slate-200">Bảo mật dữ liệu</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-500/20 text-blue-400"><i className="fa-solid fa-ranking-star text-xs" /></span>
-                <span className="text-sm text-slate-400">Xếp hạng AI</span>
+                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-500/20 text-blue-300"><i className="fa-solid fa-ranking-star text-xs" /></span>
+                <span className="text-sm font-medium text-slate-200">Xếp hạng AI</span>
               </div>
             </div>
           </div>
@@ -350,8 +350,8 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
                   <i className={`${signal.icon} text-sm`} />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-[0.82rem] font-semibold text-white">{signal.title}</p>
-                  <p className="mt-0.5 truncate text-[0.75rem] leading-5 text-slate-400">{signal.status}</p>
+                  <p className="text-[0.82rem] font-bold text-white">{signal.title}</p>
+                  <p className="mt-0.5 truncate text-[0.75rem] leading-5 text-slate-300">{signal.status}</p>
                 </div>
                 <span className="ml-auto h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-400/80" />
               </div>
