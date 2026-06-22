@@ -11,6 +11,7 @@ import {
 interface HistoryModalProps {
   isOpen: boolean;
   onClose: () => void;
+  presentation?: 'modal' | 'page';
 }
 
 const EMPTY_STATS: ActivityHistoryStats = {
@@ -30,7 +31,7 @@ const secondaryButtonClass =
 const dangerButtonClass =
   'supporthr-mono rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 text-[11px] font-bold uppercase tracking-[0.18em] text-red-600 transition-colors hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50';
 
-const HistoryModal: React.FC<HistoryModalProps> = ({ isOpen, onClose }) => {
+const HistoryModal: React.FC<HistoryModalProps> = ({ isOpen, onClose, presentation = 'modal' }) => {
   const [cacheStats, setCacheStats] = useState({
     size: 0,
     hitRate: 0,
@@ -75,12 +76,14 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ isOpen, onClose }) => {
 
   if (!isOpen) return null;
 
+  const isPage = presentation === 'page';
+
   return (
     <>
-      <div className="fixed inset-0 z-50 bg-slate-900/22 backdrop-blur-sm" onClick={onClose} />
+      {!isPage ? <div className="fixed inset-0 z-50 bg-slate-900/22 backdrop-blur-sm" onClick={onClose} /> : null}
 
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5">
-        <div className="relative flex max-h-[92dvh] w-full max-w-[58rem] flex-col overflow-hidden rounded-2xl border border-blue-100 bg-white shadow-[0_38px_120px_rgba(30,64,175,0.18)]">
+      <div className={isPage ? 'h-full min-h-0 overflow-y-auto bg-white p-3 sm:p-5' : 'fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5'}>
+        <div className={isPage ? 'relative mx-auto flex min-h-full w-full max-w-[72rem] flex-col overflow-hidden border border-blue-100 bg-white' : 'relative flex max-h-[92dvh] w-full max-w-[58rem] flex-col overflow-hidden rounded-2xl border border-blue-100 bg-white shadow-[0_38px_120px_rgba(30,64,175,0.18)]'}>
           <div className="pointer-events-none absolute inset-0 supporthr-grid-mask opacity-45" />
           <div className="pointer-events-none absolute inset-x-0 top-0 h-44 bg-[radial-gradient(circle_at_top,rgba(35,136,255,0.14),transparent_55%)]" />
 

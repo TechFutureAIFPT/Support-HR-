@@ -45,7 +45,7 @@ export default function DocsStandaloneHeader({ brandContext, auxiliaryLink, sear
     <>
       <nav className="sticky top-0 z-50 border-b border-blue-100 bg-white/95 shadow-[0_12px_36px_rgba(30,64,175,0.07)] backdrop-blur-xl">
         <div className="mx-auto flex min-h-[4.45rem] w-full max-w-[86rem] items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
-          <Link to="/app-docs" className="flex shrink-0 items-center gap-3 transition-opacity hover:opacity-85">
+          <Link to="/" className="flex shrink-0 items-center gap-3 transition-opacity hover:opacity-85">
             <span className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-xl border border-blue-100 bg-white shadow-sm">
               <img src="/images/logos/logo.jpg" alt="Support HR" className="h-full w-full object-cover" />
             </span>
@@ -114,11 +114,12 @@ export default function DocsStandaloneHeader({ brandContext, auxiliaryLink, sear
           <div className="flex shrink-0 items-center gap-2">
             <Link
               to={auxiliaryLink.to}
-              className="hidden h-10 items-center rounded-xl border border-blue-100 bg-white px-4 text-xs font-semibold text-slate-700 hover:border-blue-200 hover:text-blue-700 sm:inline-flex"
+              className="hidden h-10 items-center rounded-xl border border-slate-200 bg-white px-4 text-xs font-semibold text-slate-600 shadow-sm hover:border-blue-200 hover:text-blue-700 sm:inline-flex"
             >
               {auxiliaryLink.label}
             </Link>
-            <Link to="/" className="inline-flex h-10 items-center rounded-xl bg-blue-600 px-4 text-xs font-bold text-white shadow-sm hover:bg-blue-700">
+            <Link to="/" className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-blue-600 px-5 text-xs font-bold text-white shadow-sm transition-colors hover:bg-blue-700">
+              <i className="fa-solid fa-arrow-right-to-bracket text-[10px]" />
               Vào ứng dụng
             </Link>
             <button
@@ -133,20 +134,19 @@ export default function DocsStandaloneHeader({ brandContext, auxiliaryLink, sear
           </div>
         </div>
 
-        <div className="hidden border-t border-blue-100/80 bg-white lg:block">
-          <div className="mx-auto flex w-full max-w-[86rem] items-center gap-1 overflow-x-auto px-6 py-2 lg:px-8">
-            <span className="mr-2 shrink-0 text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400">Danh mục</span>
+        <div className="hidden border-t border-slate-100 bg-slate-50/70 lg:block">
+          <div className="mx-auto flex w-full max-w-[86rem] items-center gap-0.5 overflow-x-auto px-6 py-1.5 lg:px-8">
             {productDocsMenus.flatMap((group) => group.items).map((item) => (
               <Link
                 key={`quick-${item.to}`}
                 to={item.to}
-                className={`inline-flex h-8 shrink-0 items-center gap-2 rounded-lg px-3 text-xs font-semibold transition-colors ${
+                className={`inline-flex h-8 shrink-0 items-center gap-1.5 rounded-lg px-3 text-[11px] font-medium transition-colors ${
                   isActive(item)
-                    ? "bg-blue-50 text-blue-700"
-                    : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+                    ? "bg-blue-100 text-blue-700"
+                    : "text-slate-500 hover:bg-white hover:text-slate-900 hover:shadow-sm"
                 }`}
               >
-                <i className={`fa-solid ${item.icon} text-[10px]`} />
+                <i className={`fa-solid ${item.icon} text-[9px] opacity-70`} />
                 {item.label}
               </Link>
             ))}

@@ -14,6 +14,7 @@ import {
   Settings,
   SlidersHorizontal,
   Upload,
+  Wrench,
 } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import type { AppStep } from '@/types';
@@ -41,13 +42,16 @@ interface SidebarProps {
 
 type HistorySession = { timestamp: number; jobPosition?: string };
 
-const workspacePages = [
+const screeningPages = [
   { path: '/workspace', label: 'Tổng quan tuyển dụng', icon: LayoutDashboard },
   { path: '/jd', label: 'Nhập Job Description', icon: FileInput },
   { path: '/upload', label: 'Nạp hồ sơ ứng viên', icon: Upload },
   { path: '/weights', label: 'Tiêu chí chấm điểm', icon: SlidersHorizontal },
   { path: '/analysis', label: 'Kết quả phân tích', icon: ClipboardCheck },
   { path: '/detailed-analytics', label: 'Phân tích chi tiết', icon: BarChart3 },
+] as const;
+
+const supportToolPages = [
   { path: '/chatbot', label: 'Trợ lý tuyển dụng AI', icon: Bot },
   { path: '/feedback', label: 'Phản hồi kết quả AI', icon: MessageSquareText },
   { path: '/records', label: 'Thư viện CV', icon: FolderOpen },
@@ -69,6 +73,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   const location = useLocation();
   const [sessions, setSessions] = useState<HistorySession[]>([]);
   const [sessionsOpen, setSessionsOpen] = useState(true);
+  const [toolsOpen, setToolsOpen] = useState(true);
 
   useEffect(() => {
     const refresh = () => setSessions(cvFilterHistoryService.getRecentHistory().slice(0, 5));
@@ -90,6 +95,9 @@ const Sidebar: React.FC<SidebarProps> = ({
     navigate(path);
     onClose?.();
   };
+
+  const screeningActive = screeningPages.some(({ path }) => path === location.pathname);
+  const toolsActive = supportToolPages.some(({ path }) => path === location.pathname);
 
   return (
     <>
@@ -122,7 +130,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           <button
             type="button"
             onClick={() => setSessionsOpen((value) => !value)}
-            className={`flex h-10 w-full items-center gap-3 rounded-lg px-3 text-left text-[14px] font-medium transition ${location.pathname === '/workspace' || location.pathname === '/analysis' ? 'bg-[#e8f1ff] text-[#0066d6]' : 'text-[#3a3a3c] hover:bg-black/[0.04]'}`}
+            className={`flex h-10 w-full items-center gap-3 rounded-lg px-3 text-left text-[14px] font-medium transition ${screeningActive ? 'bg-[#e8f1ff] text-[#0066d6]' : 'text-[#3a3a3c] hover:bg-black/[0.04]'}`}
           >
             <SlidersHorizontal size={17} strokeWidth={1.8} />
             <span className="flex-1">Phiên lọc</span>
@@ -135,7 +143,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 Trang làm việc
               </p>
               <div className="space-y-0.5">
-                {workspacePages.map(({ path, label, icon: Icon }) => {
+                {screeningPages.map(({ path, label, icon: Icon }) => {
                   const active = location.pathname === path;
                   return (
                     <button
@@ -143,7 +151,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                       type="button"
                       onClick={() => go(path)}
                       aria-current={active ? 'page' : undefined}
-                      className={`flex min-h-9 w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-[12.5px] transition ${active ? 'bg-[#dceaff] font-medium text-[#005fbd]' : 'text-[#515154] hover:bg-black/[0.04]'}`}
+                      className={`flex min-h-9 w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-[12.5px] transition-[background-color,color,opacity] duration-150 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007aff]/30 ${active ? 'bg-[#dceaff] font-medium text-[#005fbd] opacity-100' : 'text-[#6e6e73] opacity-60 hover:bg-black/[0.04] hover:opacity-100'}`}
                     >
                       <Icon size={15} strokeWidth={1.7} className="shrink-0" />
                       <span className="truncate">{label}</span>
@@ -173,6 +181,38 @@ const Sidebar: React.FC<SidebarProps> = ({
                   </div>
                 </>
               ) : null}
+            </div>
+          ) : null}
+
+          <div className="my-3 h-px bg-[#d2d2d7]/80" />
+
+          <button
+            type="button"
+            onClick={() => setToolsOpen((value) => !value)}
+            className={`flex h-10 w-full items-center gap-3 rounded-lg px-3 text-left text-[14px] font-medium transition ${toolsActive ? 'bg-[#e8f1ff] text-[#0066d6]' : 'text-[#3a3a3c] hover:bg-black/[0.04]'}`}
+          >
+            <Wrench size={17} strokeWidth={1.8} />
+            <span className="flex-1">Công cụ hỗ trợ</span>
+            <ChevronDown size={14} className={`transition-transform ${toolsOpen ? '' : '-rotate-90'}`} />
+          </button>
+
+          {toolsOpen ? (
+            <div className="mt-1 space-y-0.5 pl-5">
+              {supportToolPages.map(({ path, label, icon: Icon }) => {
+                const active = location.pathname === path;
+                return (
+                  <button
+                    key={path}
+                    type="button"
+                    onClick={() => go(path)}
+                    aria-current={active ? 'page' : undefined}
+                    className={`flex min-h-9 w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-[12.5px] transition-[background-color,color,opacity] duration-150 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007aff]/30 ${active ? 'bg-[#dceaff] font-medium text-[#005fbd] opacity-100' : 'text-[#6e6e73] opacity-60 hover:bg-black/[0.04] hover:opacity-100'}`}
+                  >
+                    <Icon size={15} strokeWidth={1.7} className="shrink-0" />
+                    <span className="truncate">{label}</span>
+                  </button>
+                );
+              })}
             </div>
           ) : null}
         </nav>

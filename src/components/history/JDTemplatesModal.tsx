@@ -29,6 +29,7 @@ interface JDTemplatesModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSelectTemplate: (template: JDTemplate) => void;
+  presentation?: 'modal' | 'page';
 }
 
 type TemplateListItem =
@@ -276,7 +277,12 @@ function EmptyState({
   );
 }
 
-const JDTemplatesModal: React.FC<JDTemplatesModalProps> = ({ isOpen, onClose, onSelectTemplate }) => {
+const JDTemplatesModal: React.FC<JDTemplatesModalProps> = ({
+  isOpen,
+  onClose,
+  onSelectTemplate,
+  presentation = 'modal',
+}) => {
   const [activeTab, setActiveTab] = useState<'jd' | 'history'>('jd');
   const [view, setView] = useState<'list' | 'create' | 'edit' | 'confirm-delete'>('list');
   const [templates, setTemplates] = useState<UserJDTemplate[]>([]);
@@ -543,12 +549,14 @@ const JDTemplatesModal: React.FC<JDTemplatesModalProps> = ({ isOpen, onClose, on
 
   if (!isOpen) return null;
 
+  const isPage = presentation === 'page';
+
   return (
     <>
-      <div className="fixed inset-0 z-50 bg-slate-900/22 backdrop-blur-sm" onClick={onClose} />
+      {!isPage ? <div className="fixed inset-0 z-50 bg-slate-900/22 backdrop-blur-sm" onClick={onClose} /> : null}
 
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div className="flex max-h-[90vh] w-full max-w-[88rem] flex-col overflow-hidden rounded-2xl border border-blue-100 bg-white shadow-[0_38px_120px_rgba(30,64,175,0.18)]">
+      <div className={isPage ? 'h-full min-h-0 overflow-y-auto bg-white p-3 sm:p-5' : 'fixed inset-0 z-50 flex items-center justify-center p-4'}>
+        <div className={isPage ? 'mx-auto flex min-h-full w-full max-w-[88rem] flex-col overflow-hidden border border-blue-100 bg-white' : 'flex max-h-[90vh] w-full max-w-[88rem] flex-col overflow-hidden rounded-2xl border border-blue-100 bg-white shadow-[0_38px_120px_rgba(30,64,175,0.18)]'}>
           <div className="flex items-center justify-between border-b border-blue-100 bg-white px-6 py-4">
             <div className="flex items-center gap-3">
               {view !== 'list' && (

@@ -8,7 +8,6 @@ import { Analytics } from '@vercel/analytics/react';
 import WebVitalsReporter from '@/components/charts/WebVitalsReporter';
 import { ThemeProvider } from '@/context/theme/ThemeProvider';
 import { UserSettingsProvider, useUserSettings } from '@/context/settings/UserSettingsProvider';
-import HomeIntroPage from '@/pages/main/HomeIntroPage';
 
 import { DataSyncService } from '@/services/data-sync/dataSyncService';
 import { UserProfileService } from '@/services/data-sync/userProfileService';
@@ -155,7 +154,6 @@ const App = () => {
 };
 
 const publicMarketingPaths = new Set([
-  '/',
   '/app-docs',
   '/process',
   '/contact-ready',
@@ -176,7 +174,23 @@ const publicMarketingPaths = new Set([
   '/book-demo',
 ]);
 
-const publicDocsPaths = new Set([...publicMarketingPaths].filter((path) => path !== '/'));
+const publicDocsPaths = new Set(publicMarketingPaths);
+
+const protectedWorkspacePaths = new Set([
+  '/workspace',
+  '/jd',
+  '/upload',
+  '/weights',
+  '/analysis',
+  '/dashboard',
+  '/detailed-analytics',
+  '/chatbot',
+  '/feedback',
+  '/records',
+  '/jd-standardizer',
+  '/history',
+  '/jd-templates',
+]);
 
 function clearExpiredWorkflowSession(): void {
   if (typeof window === 'undefined' || !isWorkflowSessionExpired()) return;
@@ -222,9 +236,7 @@ const MainApp = () => {
   };
 
   useEffect(() => {
-    const protectedPaths = ['/workspace', '/jd', '/upload', '/weights', '/analysis', '/dashboard', '/detailed-analytics', '/chatbot', '/feedback', '/records', '/jd-standardizer', '/history', '/jd-templates'];
-
-    if (!isInitializing && !isLoggedIn && protectedPaths.includes(location.pathname)) {
+    if (!isInitializing && !isLoggedIn && protectedWorkspacePaths.has(location.pathname)) {
       setShowLoginModal(true);
     }
   }, [isInitializing, isLoggedIn, location.pathname]);
@@ -333,7 +345,10 @@ const MainApp = () => {
       </UserSettingsProvider>
       {showLoginModal && (
         <div className="fixed inset-0 z-50">
-          <LoginPage onLogin={handleLogin} onClose={() => setShowLoginModal(false)} />
+          <LoginPage
+            onLogin={handleLogin}
+            onClose={protectedWorkspacePaths.has(location.pathname) ? undefined : () => setShowLoginModal(false)}
+          />
         </div>
       )}
     </>
@@ -452,11 +467,11 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
     try {
       await auth.signOut();
       localStorage.removeItem('authEmail');
-      navigate('/');
+      navigate('/workspace');
     } catch (error) {
       console.error('Logout error:', error);
       localStorage.removeItem('authEmail');
-      window.location.href = '/';
+      window.location.href = '/workspace';
     }
   }, [navigate]);
 
@@ -942,7 +957,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
     const path = location.pathname;
     const requiresJD = ['/upload', '/weights', '/analysis'];
     if (requiresJD.includes(path) && !completedSteps.includes('jd')) {
-      navigate('/', { replace: true });
+      navigate('/jd', { replace: true });
       return;
     }
     const requiresUpload = ['/weights', '/analysis'];
@@ -1040,21 +1055,10 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
   const handleCloseStandalonePage = useCallback(() => {
     const routeState = location.state as { from?: string } | null;
     const from = routeState?.from;
-    navigate(from && from !== location.pathname ? from : '/');
+    navigate(from && from !== location.pathname ? from : '/workspace');
   }, [location.pathname, location.state, navigate]);
 
-  const homePageProps = {
-    setActiveStep,
-    isLoggedIn,
-    onLoginRequest,
-    completedSteps,
-    userAvatar,
-    userName,
-    userEmail,
-    onLogout: handleLogout,
-  };
-
-  const authFallback = <HomeIntroPage {...homePageProps} />;
+  const authFallback = <div className="h-full min-h-[100dvh] bg-[#f5f5f7]" aria-hidden="true" />;
 
   const appDocumentationPage = <AppDocumentationPage />;
 
@@ -1193,8 +1197,8 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
             )
           }>
             <Routes>
-              <Route path="/welcome" element={<Navigate to="/" replace />} />
-              <Route path="/" element={<HomeIntroPage {...homePageProps} />} />
+              <Route path="/welcome" element={<Navigate to="/workspace" replace />} />
+              <Route path="/" element={<Navigate to="/workspace" replace />} />
               <Route path="/workspace" element={isLoggedIn ? (
                 <WorkspaceDashboardPage
                   userEmail={userEmail}
@@ -1215,13 +1219,14 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
               <Route path="/jd-standardizer" element={isLoggedIn ? <JDStandardizerPage onUseJD={handleUseStandardizedJD} /> : authFallback} />
               <Route path="/history" element={isLoggedIn ? (
                 <div className="min-h-screen bg-white">
-                  <HistoryModal isOpen onClose={handleCloseStandalonePage} />
+                  <HistoryModal isOpen presentation="page" onClose={handleCloseStandalonePage} />
                 </div>
               ) : authFallback} />
               <Route path="/jd-templates" element={isLoggedIn ? (
                 <div className="min-h-screen bg-white">
                   <JDTemplatesModal
                     isOpen
+                    presentation="page"
                     onClose={handleCloseStandalonePage}
                     onSelectTemplate={(template: JDTemplate) => handleSelectJDTemplate(template, 'analysis')}
                   />
