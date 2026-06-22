@@ -376,15 +376,9 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
               </button>
             ) : null}
 
-            <div className="inline-flex items-center gap-3 lg:hidden">
+            <div className="lg:hidden">
               <div className="h-10 w-10 overflow-hidden rounded-xl border border-blue-100 bg-white">
                 <img src="/images/logos/logo.jpg" alt="Support HR" className="h-full w-full object-cover" />
-              </div>
-              <div>
-                <p className="text-sm font-bold text-slate-900">Support HR</p>
-                <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-slate-500">
-                  Access Layer
-                </p>
               </div>
             </div>
           </div>
