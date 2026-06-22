@@ -2,10 +2,12 @@
  * Navbar — light-only legacy navigation
  * Màu sắc đồng bộ từ tokens.ts
  */
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { auth } from '@/services/firebase';
 import { UserProfileService } from '@/services/data-sync/userProfileService';
 import SyncNotification from '@/components/sync/SyncNotification';
+import { onSessionStatusChange, subscribeSessionCommands } from '@/services/desktopSessionService';
+import type { SessionStatus } from '@/services/desktopSessionService';
 
 interface NavbarProps {
   userEmail?: string;
@@ -27,6 +29,19 @@ const Navbar: React.FC<NavbarProps> = ({
     success: false,
     message: ''
   });
+  const [sessionStatus, setSessionStatus] = useState<SessionStatus>('idle');
+  const [pingFlash, setPingFlash] = useState(false);
+
+  useEffect(() => {
+    const unsubStatus = onSessionStatusChange((s) => setSessionStatus(s.status));
+    const unsubCommands = subscribeSessionCommands((cmd) => {
+      if (cmd === 'ping') {
+        setPingFlash(true);
+        setTimeout(() => setPingFlash(false), 1500);
+      }
+    });
+    return () => { unsubStatus(); unsubCommands(); };
+  }, []);
 
   const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -81,6 +96,34 @@ const Navbar: React.FC<NavbarProps> = ({
         </div>
 
         <div className="flex items-center gap-3">
+          {(sessionStatus === 'analyzing' || sessionStatus === 'done') && (
+            <div
+              className={`flex items-center gap-2 rounded-xl border px-3 py-1.5 text-xs font-semibold transition-all duration-300 ${
+                pingFlash
+                  ? 'border-cyan-400/60 bg-cyan-400/20 text-cyan-300'
+                  : sessionStatus === 'analyzing'
+                    ? 'border-amber-400/30 bg-amber-400/10 text-amber-300'
+                    : 'border-emerald-400/30 bg-emerald-400/10 text-emerald-300'
+              }`}
+            >
+              <span
+                className={`inline-block h-2 w-2 rounded-full ${
+                  pingFlash
+                    ? 'bg-cyan-400'
+                    : sessionStatus === 'analyzing'
+                      ? 'animate-pulse bg-amber-400'
+                      : 'bg-emerald-400'
+                }`}
+              />
+              <i className={`fa-solid fa-mobile-screen mr-0.5 text-[11px] ${pingFlash ? 'text-cyan-400' : ''}`} />
+              {pingFlash
+                ? 'Mobile đã ping!'
+                : sessionStatus === 'analyzing'
+                  ? 'Đang phát đến mobile'
+                  : 'Hoàn tất · Mobile nhận được'}
+            </div>
+          )}
+
           {!userEmail && onLoginRequest && (
             <button
               onClick={onLoginRequest}
