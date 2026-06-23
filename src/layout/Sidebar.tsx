@@ -111,10 +111,6 @@ function UserMenu({ displayName, userEmail, userAvatar, onOpenSettings, onLogout
       </div>
 
       {/* Menu items */}
-      <div className="px-1 py-1">
-        <MenuItem icon={Sparkles} label="Nâng cấp gói" onClick={() => onClose()} iconCls="text-amber-500" />
-      </div>
-
       <div className="border-t border-[#f0f0f0] px-1 py-1">
         <MenuItem icon={User}     label="Hồ sơ"              onClick={() => { onOpenSettings(); onClose(); }} />
         <MenuItem icon={Settings} label="Cài đặt"            onClick={() => { onOpenSettings(); onClose(); }} />
@@ -419,10 +415,9 @@ const Sidebar: React.FC<SidebarProps> = ({
                 <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-[#f6f6f8] bg-[#34c759]" />
               </div>
 
-              {/* Name + plan */}
+              {/* Name */}
               <div className="min-w-0 flex-1">
                 <p className="truncate text-[13px] font-semibold text-[#1d1d1f]">{displayName}</p>
-                <p className="truncate text-[11px] text-[#86868b]">Plus</p>
               </div>
             </button>
 

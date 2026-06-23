@@ -20,7 +20,6 @@ import WorkspaceTopbar from '@/components/workspace/WorkspaceTopbar';
 import DesktopAppMenuBar from '@/components/workspace/DesktopAppMenuBar';
 import SidebarSettingsModal from '@/components/settings/SidebarSettingsModal';
 import JDTemplatesModal, { JDTemplate } from '@/components/history/JDTemplatesModal';
-import HistoryModal from '@/components/history/HistoryModal';
 import PageTransition from '@/components/PageTransition';
 import SupportHRLoading from '@/components/common/SupportHRLoading';
 import SeoManager from '@/components/common/SeoManager';
@@ -403,7 +402,6 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
   );
   const [jdTemplatesModalOpen, setJdTemplatesModalOpen] = useState<boolean>(false);
   const [jdTemplateSelectionMode, setJdTemplateSelectionMode] = useState<'analysis' | 'welcome'>('analysis');
-  const [historyModalOpen, setHistoryModalOpen] = useState<boolean>(false);
   const [sidebarSettingsOpen, setSidebarSettingsOpen] = useState<boolean>(false);
   const [userAvatar, setUserAvatar] = useState<string | null>(null);
   const [userName, setUserName] = useState<string>('');
@@ -1110,7 +1108,6 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
               setJdTemplatesModalOpen(true);
             }}
             onOpenSettingsPanel={() => setSidebarSettingsOpen(true)}
-            onShowHistory={() => setHistoryModalOpen(true)}
             onNewSession={handleNewSession}
           />
         </div>
@@ -1135,7 +1132,6 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
               setJdTemplatesModalOpen(true);
             }}
             onOpenSettingsPanel={() => setSidebarSettingsOpen(true)}
-            onShowHistory={() => setHistoryModalOpen(true)}
             onNewSession={handleNewSession}
           />
         </div>
@@ -1159,7 +1155,6 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
             onExportReport={handleExportReport}
             onOpenMobileSidebar={() => setIsSidebarDrawerOpen(true)}
             onNewSession={handleNewSession}
-            onOpenHistory={() => setHistoryModalOpen(true)}
             sidebarCollapsed={isDesktopSidebarCollapsed}
             onToggleSidebar={() => setIsDesktopSidebarCollapsed((value) => !value)}
             onOpenAnalysis={() => {
@@ -1218,11 +1213,6 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
               <Route path="/feedback" element={isLoggedIn ? <AIFeedbackPage candidates={analysisResults} jobPosition={jobPosition} weights={weights} hardFilters={hardFilters} analysisContext={activeAnalysisContext} /> : authFallback} />
               <Route path="/records" element={isLoggedIn ? <FilteredCvLibraryPage userEmail={userEmail} /> : authFallback} />
               <Route path="/jd-standardizer" element={isLoggedIn ? <JDStandardizerPage onUseJD={handleUseStandardizedJD} /> : authFallback} />
-              <Route path="/history" element={isLoggedIn ? (
-                <div className="min-h-screen bg-white">
-                  <HistoryModal isOpen presentation="page" onClose={handleCloseStandalonePage} />
-                </div>
-              ) : authFallback} />
               <Route path="/jd-templates" element={isLoggedIn ? (
                 <div className="min-h-screen bg-white">
                   <JDTemplatesModal
@@ -1261,12 +1251,6 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
         isOpen={jdTemplatesModalOpen}
         onClose={() => setJdTemplatesModalOpen(false)}
         onSelectTemplate={(template: JDTemplate) => handleSelectJDTemplate(template)}
-      />
-
-      {/* History Modal */}
-      <HistoryModal
-        isOpen={historyModalOpen}
-        onClose={() => setHistoryModalOpen(false)}
       />
 
       {/* Sidebar Settings Modal */}
