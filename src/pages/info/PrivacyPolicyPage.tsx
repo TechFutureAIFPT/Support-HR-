@@ -9,12 +9,12 @@ import {
 import { productDocsTabs } from "./docs-header-tabs";
 
 const sections = [
-  { id: "google-data", title: "Google user data", icon: "fa-cloud-arrow-down", tone: "cyan" },
-  { id: "roles", title: "Vai trò xử lý", icon: "fa-sitemap", tone: "cyan" },
-  { id: "scope", title: "Phạm vi dữ liệu", icon: "fa-database", tone: "emerald" },
-  { id: "improvement", title: "Cải thiện dữ liệu", icon: "fa-chart-line", tone: "sky" },
-  { id: "security", title: "Bảo mật và lưu trữ", icon: "fa-shield-halved", tone: "violet" },
-  { id: "rights", title: "Quyền chủ thể", icon: "fa-user-shield", tone: "rose" },
+  { id: "google-data",  title: "Google user data",    icon: "fa-cloud-arrow-down",  tone: "cyan" },
+  { id: "roles",        title: "Vai trò xử lý",        icon: "fa-sitemap",           tone: "cyan" },
+  { id: "scope",        title: "Phạm vi dữ liệu",      icon: "fa-database",          tone: "emerald" },
+  { id: "improvement",  title: "Cải thiện dữ liệu",    icon: "fa-chart-line",        tone: "sky" },
+  { id: "security",     title: "Bảo mật và lưu trữ",   icon: "fa-shield-halved",     tone: "violet" },
+  { id: "rights",       title: "Quyền chủ thể",        icon: "fa-user-shield",       tone: "rose" },
 ] satisfies LegalSectionMeta[];
 
 const PrivacyPolicyPage: React.FC = () => {
@@ -94,7 +94,8 @@ const PrivacyPolicyPage: React.FC = () => {
         return (
           <div className="space-y-4">
             <LegalCallout tone="cyan" icon="fa-scale-balanced" title="Khung xử lý dữ liệu minh bạch">
-              Để đảm bảo tính minh bạch theo <strong className="text-cyan-300">Nghị định 13/2023/NĐ-CP</strong>,
+              Để đảm bảo tính minh bạch theo{" "}
+              <strong className="text-blue-700">Nghị định 13/2023/NĐ-CP</strong>,
               Support HR xác định rõ vai trò của các bên trong toàn bộ quá trình xử lý dữ liệu cá nhân.
             </LegalCallout>
 
@@ -104,7 +105,7 @@ const PrivacyPolicyPage: React.FC = () => {
                   Khách hàng quyết định mục đích và phương tiện xử lý dữ liệu cá nhân của ứng viên trong từng quy trình
                   tuyển dụng.
                 </p>
-                <p className="text-zinc-500">
+                <p className="text-slate-500">
                   Mọi quyết định tuyển chọn cuối cùng, tiêu chí ưu tiên và phạm vi khai thác dữ liệu đều do Khách hàng
                   xác lập.
                 </p>
@@ -115,7 +116,7 @@ const PrivacyPolicyPage: React.FC = () => {
                   Support HR thực hiện các hoạt động thu thập, lưu trữ, chuẩn hóa và phân tích dữ liệu thay mặt cho
                   Khách hàng.
                 </p>
-                <p className="text-zinc-500">
+                <p className="text-slate-500">
                   Toàn bộ xử lý chỉ được thực hiện theo chỉ thị của Khách hàng và trong phạm vi vận hành dịch vụ.
                 </p>
               </LegalCard>
@@ -126,7 +127,7 @@ const PrivacyPolicyPage: React.FC = () => {
       case "scope":
         return (
           <div className="space-y-4">
-            <p className="max-w-3xl text-sm leading-7 text-zinc-400">
+            <p className="max-w-3xl text-sm leading-7 text-slate-500">
               Hệ thống thu thập và xử lý đúng các nhóm dữ liệu cần thiết để vận hành tính năng cốt lõi như trích xuất
               CV, chấm điểm và đối sánh hồ sơ với JD.
             </p>
@@ -162,7 +163,7 @@ const PrivacyPolicyPage: React.FC = () => {
       case "improvement":
         return (
           <div className="space-y-4">
-            <p className="max-w-3xl text-sm leading-7 text-zinc-400">
+            <p className="max-w-3xl text-sm leading-7 text-slate-500">
               Khi được Khách hàng cho phép, Support HR có thể sử dụng dữ liệu đã được xử lý phù hợp để nâng chất
               lượng hệ thống và cải thiện độ chính xác của mô hình.
             </p>
@@ -203,8 +204,8 @@ const PrivacyPolicyPage: React.FC = () => {
                   { title: "Quản lý khóa API", value: "Server-side" },
                   { title: "Kiểm soát rò rỉ", value: "Anti-breach" },
                 ].map((item) => (
-                  <div key={item.title} className="rounded-xl border border-blue-100 bg-slate-50 px-4 py-3">
-                    <p className="supporthr-mono text-[10px] uppercase tracking-[0.18em] text-slate-400">{item.title}</p>
+                  <div key={item.title} className="rounded-xl border border-indigo-100 bg-indigo-50 px-4 py-3">
+                    <p className="supporthr-mono text-[10px] uppercase tracking-[0.18em] text-indigo-500">{item.title}</p>
                     <p className="mt-2 text-base font-semibold text-slate-900">{item.value}</p>
                   </div>
                 ))}
@@ -218,7 +219,7 @@ const PrivacyPolicyPage: React.FC = () => {
               </p>
               <LegalCallout tone="cyan" icon="fa-trash-can" title="Cơ chế xóa dữ liệu khi chấm dứt dịch vụ">
                 Khi Khách hàng chấm dứt hợp đồng hoặc gửi yêu cầu xóa tài khoản, Support HR sẽ tiến hành{" "}
-                <strong className="text-cyan-300">xóa vĩnh viễn toàn bộ dữ liệu trong vòng 30 ngày</strong>, trừ khi
+                <strong className="text-blue-700">xóa vĩnh viễn toàn bộ dữ liệu trong vòng 30 ngày</strong>, trừ khi
                 pháp luật yêu cầu thời hạn lưu trữ dài hơn.
               </LegalCallout>
             </LegalCard>
@@ -230,7 +231,7 @@ const PrivacyPolicyPage: React.FC = () => {
           <div className="space-y-4">
             <LegalCallout tone="rose" icon="fa-scale-balanced" title="Hỗ trợ quyền của chủ thể dữ liệu">
               Support HR cam kết hỗ trợ Khách hàng thực hiện đầy đủ nghĩa vụ đối với chủ thể dữ liệu theo quy định của{" "}
-              <strong className="text-rose-300">Nghị định 13/2023/NĐ-CP</strong>.
+              <strong className="text-rose-700">Nghị định 13/2023/NĐ-CP</strong>.
             </LegalCallout>
 
             <div className="grid gap-4 xl:grid-cols-2">
@@ -249,7 +250,8 @@ const PrivacyPolicyPage: React.FC = () => {
               </LegalCard>
             </div>
 
-            <div className="border border-white/8 bg-white/[0.02] px-4 py-4 text-sm leading-7 text-zinc-300">
+            <div className="rounded-2xl border border-blue-100 bg-blue-50 px-5 py-4 text-sm leading-7 text-slate-600">
+              <i className="fa-solid fa-circle-info mr-2 text-blue-500" />
               Tất cả các quyền này được thực hiện theo quy định về bảo vệ dữ liệu cá nhân và các văn bản pháp luật có
               liên quan, với mục tiêu cân bằng giữa vận hành tuyển dụng và quyền riêng tư của ứng viên.
             </div>
@@ -265,7 +267,7 @@ const PrivacyPolicyPage: React.FC = () => {
     <LegalPageLayout
       pageLabel="Bảo mật"
       title="Chính sách bảo mật và xử lý dữ liệu"
-      subtitle="Support HR trình bày rõ vai trò xử lý, phạm vi khai thác dữ liệu và cơ chế bảo vệ thông tin ứng viên theo cùng ngôn ngữ thiết kế tối giản, kỹ thuật của homepage."
+      subtitle="Support HR trình bày rõ vai trò xử lý, phạm vi khai thác dữ liệu và cơ chế bảo vệ thông tin ứng viên theo từng nhóm mục cụ thể."
       meta="Nghị định 13/2023/NĐ-CP · Cập nhật 2026"
       sections={sections}
       activeSection={activeSection}
