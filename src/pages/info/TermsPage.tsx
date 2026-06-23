@@ -160,9 +160,9 @@ const TermsPage: React.FC = () => {
                   Tổng trách nhiệm pháp lý của Support HR đối với một khiếu nại sẽ không vượt quá số tiền Khách hàng đã
                   thanh toán trong ba tháng gần nhất trước thời điểm phát sinh sự kiện.
                 </p>
-                <div className="border border-white/8 bg-black/45 px-4 py-4 text-center">
-                  <p className="text-3xl font-black text-rose-300">03 THÁNG</p>
-                  <p className="mt-1 text-sm text-zinc-500">Khoảng thời gian tính trần trách nhiệm</p>
+                <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-4 text-center">
+                  <p className="text-3xl font-black text-rose-600">03 THÁNG</p>
+                  <p className="mt-1 text-sm text-rose-500">Khoảng thời gian tính trần trách nhiệm</p>
                 </div>
               </LegalCard>
             </div>
@@ -173,12 +173,12 @@ const TermsPage: React.FC = () => {
         return (
           <div className="space-y-4">
             <LegalCard tone="emerald" icon="fa-signal" title="Mục tiêu sẵn sàng hệ thống" badge="6.1">
-              <div className="flex flex-col gap-3 border border-white/8 bg-black/45 px-4 py-4 sm:flex-row sm:items-end sm:justify-between">
+              <div className="flex flex-col gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-4 sm:flex-row sm:items-end sm:justify-between">
                 <div>
-                  <p className="supporthr-mono text-[10px] uppercase tracking-[0.2em] text-zinc-500">Mục tiêu SLA</p>
-                  <p className="mt-2 text-3xl font-black text-emerald-300">99.0%</p>
+                  <p className="supporthr-mono text-[10px] uppercase tracking-[0.2em] text-emerald-600">Mục tiêu SLA</p>
+                  <p className="mt-2 text-3xl font-black text-emerald-700">99.0%</p>
                 </div>
-                <p className="max-w-xl text-sm leading-7 text-zinc-400">
+                <p className="max-w-xl text-sm leading-7 text-slate-600">
                   Support HR cam kết nỗ lực hợp lý về mặt thương mại để duy trì dịch vụ ổn định, ngoại trừ các khoảng
                   bảo trì định kỳ hoặc sự cố bất khả kháng ngoài phạm vi kiểm soát.
                 </p>
@@ -191,15 +191,15 @@ const TermsPage: React.FC = () => {
                 khả năng chuyển đổi khi cần.
               </p>
               <div className="grid gap-3 xl:grid-cols-2">
-                <div className="border border-white/8 bg-black/45 px-4 py-4">
-                  <p className="text-sm font-semibold text-white">Thông báo thay đổi</p>
-                  <p className="mt-2 text-sm leading-7 text-zinc-400">
+                <div className="rounded-xl border border-blue-100 bg-slate-50 px-4 py-4">
+                  <p className="text-sm font-semibold text-slate-900">Thông báo thay đổi</p>
+                  <p className="mt-2 text-sm leading-7 text-slate-600">
                     Thông báo cho Khách hàng trước ít nhất 30 ngày, trừ trường hợp khẩn cấp hoặc phát sinh ngoài dự đoán.
                   </p>
                 </div>
-                <div className="border border-white/8 bg-black/45 px-4 py-4">
-                  <p className="text-sm font-semibold text-white">Chuyển đổi kỹ thuật</p>
-                  <p className="mt-2 text-sm leading-7 text-zinc-400">
+                <div className="rounded-xl border border-blue-100 bg-slate-50 px-4 py-4">
+                  <p className="text-sm font-semibold text-slate-900">Chuyển đổi kỹ thuật</p>
+                  <p className="mt-2 text-sm leading-7 text-slate-600">
                     Duy trì nỗ lực kỹ thuật hợp lý để chuyển sang giải pháp thay thế tương đương khi cần bảo toàn vận
                     hành.
                   </p>

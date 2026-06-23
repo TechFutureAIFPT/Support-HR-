@@ -430,8 +430,8 @@ export function LegalPageLayout({
   headerTabs = [],
   children,
 }: LegalPageLayoutProps) {
-  const activeMeta = sections.find((section) => section.id === activeSection) ?? sections[0];
-  const activeIndex = sections.findIndex((section) => section.id === activeSection);
+  const activeMeta = sections.find((s) => s.id === activeSection) ?? sections[0];
+  const activeIndex = sections.findIndex((s) => s.id === activeSection);
   const activeTone = LEGAL_TONE_STYLES[activeMeta.tone];
 
   return (
@@ -442,47 +442,59 @@ export function LegalPageLayout({
 
       <div className="relative z-10">
         <DocsTopBar brandContext={brandContext} auxiliaryLink={auxiliaryLink} />
-
         <DocsHeaderTabs tabs={headerTabs} />
 
         <main
-          className={`mx-auto max-w-[96rem] px-4 pb-16 pt-8 transition-all duration-700 sm:px-6 lg:px-8 ${
+          className={`mx-auto max-w-[96rem] px-4 pb-20 pt-8 sm:px-6 lg:px-8 transition-all duration-700 ${
             isVisible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
           }`}
         >
-          <div className="mx-auto max-w-4xl">
-            <aside className="hidden">
-              <div className="sticky top-28 rounded-2xl border border-blue-100 bg-white p-4 shadow-sm">
-                <p className="text-sm font-semibold text-slate-900">Features</p>
-                <p className="mt-5 text-sm text-slate-500">{pageLabel}</p>
-                <div className="mt-3 space-y-1">
-                  {sections.map((section) => {
-                    const isActive = section.id === activeSection;
+          <div className="grid gap-8 xl:grid-cols-[17rem_minmax(0,1fr)_15rem]">
 
+            {/* LEFT SIDEBAR — Section navigator */}
+            <aside className="hidden xl:block">
+              <div className="sticky top-28 overflow-hidden rounded-2xl border border-blue-100 bg-white shadow-sm">
+                <div className="border-b border-blue-100 px-4 py-3">
+                  <p className="supporthr-mono text-[10px] uppercase tracking-[0.22em] text-slate-400">
+                    {pageLabel}
+                  </p>
+                </div>
+                <nav className="p-2">
+                  {sections.map((section, idx) => {
+                    const isActive = section.id === activeSection;
+                    const tone = LEGAL_TONE_STYLES[section.tone];
                     return (
                       <button
                         key={section.id}
                         type="button"
                         onClick={() => onSectionChange(section.id)}
-                        className={`flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm transition-colors ${
+                        className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm transition-colors ${
                           isActive
-                            ? "bg-blue-50 text-blue-700"
+                            ? `${tone.surface} ${tone.label} font-semibold`
                             : "text-slate-500 hover:bg-blue-50 hover:text-blue-700"
                         }`}
                       >
-                        <i className={`fa-solid ${section.icon} text-[11px] ${isActive ? "text-blue-600" : "text-slate-500"}`} />
-                        <span>{section.title}</span>
+                        <i
+                          className={`fa-solid ${section.icon} w-4 shrink-0 text-center text-[11px] ${
+                            isActive ? tone.accent : "text-slate-400"
+                          }`}
+                        />
+                        <span className="flex-1 truncate">{section.title}</span>
+                        <span className="supporthr-mono shrink-0 text-[10px] text-slate-400">
+                          {String(idx + 1).padStart(2, "0")}
+                        </span>
                       </button>
                     );
                   })}
-                </div>
+                </nav>
               </div>
             </aside>
 
+            {/* CENTER — Main content */}
             <article className="min-w-0">
               <header>
                 <p className="text-sm font-semibold text-blue-600">{pageLabel}</p>
-                <h1 className="mt-3 max-w-3xl text-[clamp(2rem,3.2vw,2.85rem)] font-semibold leading-[1.08] tracking-[-0.025em] text-slate-950">
+                <h1 className="mt-3 max-w-3xl text-[clamp(1.9rem,3vw,2.7rem)] font-semibold leading-[1.1] tracking-[-0.025em] text-slate-950">
                   {title}
                 </h1>
                 <p className="mt-4 max-w-2xl text-base leading-8 text-slate-600 sm:text-lg">
@@ -490,102 +502,163 @@ export function LegalPageLayout({
                 </p>
                 <div className="mt-5 flex flex-wrap items-center gap-3">
                   <DocsCopyPageButton />
-                  <span className="supporthr-mono text-[10px] uppercase tracking-[0.2em] text-slate-500">{meta}</span>
+                  <span className="supporthr-mono text-[10px] uppercase tracking-[0.2em] text-slate-400">
+                    {meta}
+                  </span>
                 </div>
               </header>
 
-              <section className="mt-8 rounded-2xl border border-blue-100 bg-white px-4 py-4 shadow-[0_18px_48px_rgba(30,64,175,0.08)] sm:px-5">
-                <div className="flex items-start gap-3">
-                  <span className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-blue-100 bg-blue-50 text-blue-600">
-                    <i className="fa-solid fa-book-open text-xs" />
-                  </span>
-                  <div className="min-w-0">
-                    <h2 className="text-lg font-semibold text-slate-900">Mục lục tài liệu</h2>
-                    <p className="mt-2 text-sm leading-7 text-slate-500">
-                      Chọn mục bên dưới để đi nhanh tới phần tài liệu cần đọc. Cấu trúc này giúp người xem rà soát theo chủ đề thay vì phải đọc một trang marketing dài.
-                    </p>
-                    <div className="mt-4 grid gap-2 sm:grid-cols-2">
-                      {sections.map((section, index) => {
-                        const tone = LEGAL_TONE_STYLES[section.tone];
-                        const isActive = section.id === activeSection;
-
-                        return (
-                          <button
-                            key={section.id}
-                            type="button"
-                            onClick={() => onSectionChange(section.id)}
-                            className={`flex items-center justify-between gap-3 border px-3 py-3 text-left text-sm transition-colors ${
-                              isActive
-                                ? `${tone.border} ${tone.surface} text-blue-700`
-                                : "border-blue-100 bg-white text-slate-500 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
-                            }`}
-                          >
-                            <span className="flex min-w-0 items-center gap-2">
-                              <i className={`fa-solid ${section.icon} text-[11px] ${isActive ? tone.accent : "text-slate-500"}`} />
-                              <span className="truncate">{section.title}</span>
-                            </span>
-                            <span className="supporthr-mono shrink-0 text-[10px] text-slate-500">
-                              {String(index + 1).padStart(2, "0")}
-                            </span>
-                          </button>
-                        );
-                      })}
-                    </div>
+              {/* Mobile / tablet TOC (hidden on xl) */}
+              <section className="mt-6 overflow-hidden rounded-2xl border border-blue-100 bg-white shadow-sm xl:hidden">
+                <div className="border-b border-blue-100 px-4 py-3">
+                  <div className="flex items-center gap-2">
+                    <i className="fa-solid fa-list text-xs text-blue-600" />
+                    <h2 className="text-sm font-semibold text-slate-900">Mục lục</h2>
                   </div>
                 </div>
-              </section>
-
-              <section className="mt-5 border-t border-blue-100 pt-8">
-                <div className="flex flex-col gap-4 pb-6 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="flex items-center gap-4">
-                    <div
-                      className={`flex h-10 w-10 items-center justify-center border ${activeTone.border} ${activeTone.surface} ${activeTone.accent}`}
-                    >
-                      <i className={`fa-solid ${activeMeta.icon} text-sm`} />
-                    </div>
-                    <div>
-                  <p className="supporthr-mono text-[10px] uppercase tracking-[0.22em] text-slate-500">Mục</p>
-                      <h2 className="mt-1 text-2xl font-semibold tracking-[-0.02em] text-slate-900">{activeMeta.title}</h2>
-                    </div>
-                  </div>
-                  <div className="supporthr-mono text-[11px] uppercase tracking-[0.22em] text-slate-500">
-                    /{String(activeIndex + 1).padStart(2, "0")} trên /{String(sections.length).padStart(2, "0")}
-                  </div>
-                </div>
-                <div>{children}</div>
-              </section>
-            </article>
-
-            <aside className="hidden">
-              <div className="sticky top-28 rounded-2xl border border-blue-100 bg-white p-4 shadow-sm">
-                <p className="flex items-center gap-2 text-sm font-semibold text-slate-900">
-                  <i className="fa-solid fa-list-ul text-[11px] text-blue-600" />
-                  Trong trang này
-                </p>
-                <div className="mt-4 space-y-1">
-                  {sections.map((section) => {
-                    const isActive = section.id === activeSection;
+                <div className="grid gap-1.5 p-3 sm:grid-cols-2">
+                  {sections.map((section, idx) => {
                     const tone = LEGAL_TONE_STYLES[section.tone];
-
+                    const isActive = section.id === activeSection;
                     return (
                       <button
                         key={section.id}
                         type="button"
                         onClick={() => onSectionChange(section.id)}
-                        className={`flex w-full items-start gap-2 px-2 py-2 text-left text-sm transition-colors ${
-                          isActive ? "text-blue-700" : "text-slate-500 hover:text-blue-700"
+                        className={`flex items-center justify-between gap-3 rounded-xl border px-3 py-2.5 text-left text-sm transition-colors ${
+                          isActive
+                            ? `${tone.border} ${tone.surface} ${tone.label} font-semibold`
+                            : "border-blue-100 bg-white text-slate-500 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
                         }`}
                       >
-                        <span className={`mt-[0.45rem] h-1.5 w-1.5 shrink-0 rounded-full ${isActive ? tone.dot : "bg-blue-100"}`} />
-                        <span>{section.title}</span>
+                        <span className="flex min-w-0 items-center gap-2">
+                          <i className={`fa-solid ${section.icon} shrink-0 text-[11px] ${isActive ? tone.accent : "text-slate-400"}`} />
+                          <span className="truncate">{section.title}</span>
+                        </span>
+                        <span className="supporthr-mono shrink-0 text-[10px] text-slate-400">
+                          {String(idx + 1).padStart(2, "0")}
+                        </span>
                       </button>
                     );
                   })}
                 </div>
+              </section>
+
+              {/* Active section header */}
+              <div className="mt-6 flex flex-col gap-3 rounded-2xl border border-blue-100 bg-white px-5 py-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex items-center gap-3">
+                  <div
+                    className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border ${activeTone.border} ${activeTone.surface} ${activeTone.accent}`}
+                  >
+                    <i className={`fa-solid ${activeMeta.icon} text-sm`} />
+                  </div>
+                  <div>
+                    <p className="supporthr-mono text-[10px] uppercase tracking-[0.22em] text-slate-400">Đang xem</p>
+                    <h2 className="mt-0.5 text-xl font-semibold tracking-[-0.02em] text-slate-900">
+                      {activeMeta.title}
+                    </h2>
+                  </div>
+                </div>
+                <span className="supporthr-mono shrink-0 text-[11px] uppercase tracking-[0.22em] text-slate-400">
+                  {String(activeIndex + 1).padStart(2, "0")} / {String(sections.length).padStart(2, "0")}
+                </span>
+              </div>
+
+              {/* Section content */}
+              <div className="mt-5">{children}</div>
+
+              {/* Prev / Next navigation */}
+              <nav className="mt-8 grid grid-cols-2 gap-3 border-t border-blue-100 pt-6">
+                {activeIndex > 0 ? (
+                  <button
+                    type="button"
+                    onClick={() => onSectionChange(sections[activeIndex - 1].id)}
+                    className="flex items-center gap-3 rounded-2xl border border-blue-100 bg-white px-4 py-3 text-left shadow-sm transition-colors hover:border-blue-300 hover:bg-blue-50"
+                  >
+                    <i className="fa-solid fa-arrow-left shrink-0 text-xs text-blue-500" />
+                    <div className="min-w-0">
+                      <p className="supporthr-mono text-[10px] uppercase tracking-[0.18em] text-slate-400">Trước</p>
+                      <p className="mt-0.5 truncate text-sm font-semibold text-slate-700">
+                        {sections[activeIndex - 1].title}
+                      </p>
+                    </div>
+                  </button>
+                ) : (
+                  <div />
+                )}
+                {activeIndex < sections.length - 1 ? (
+                  <button
+                    type="button"
+                    onClick={() => onSectionChange(sections[activeIndex + 1].id)}
+                    className="flex items-center justify-end gap-3 rounded-2xl border border-blue-100 bg-white px-4 py-3 text-right shadow-sm transition-colors hover:border-blue-300 hover:bg-blue-50"
+                  >
+                    <div className="min-w-0">
+                      <p className="supporthr-mono text-[10px] uppercase tracking-[0.18em] text-slate-400">Tiếp theo</p>
+                      <p className="mt-0.5 truncate text-sm font-semibold text-slate-700">
+                        {sections[activeIndex + 1].title}
+                      </p>
+                    </div>
+                    <i className="fa-solid fa-arrow-right shrink-0 text-xs text-blue-500" />
+                  </button>
+                ) : (
+                  <div />
+                )}
+              </nav>
+            </article>
+
+            {/* RIGHT SIDEBAR — Page outline */}
+            <aside className="hidden xl:block">
+              <div className="sticky top-28 space-y-4">
+                <div className="overflow-hidden rounded-2xl border border-blue-100 bg-white shadow-sm">
+                  <div className="border-b border-blue-100 px-4 py-3">
+                    <p className="supporthr-mono text-[10px] uppercase tracking-[0.22em] text-slate-400">
+                      Trong trang này
+                    </p>
+                  </div>
+                  <nav className="p-2">
+                    {sections.map((section) => {
+                      const isActive = section.id === activeSection;
+                      const tone = LEGAL_TONE_STYLES[section.tone];
+                      return (
+                        <button
+                          key={section.id}
+                          type="button"
+                          onClick={() => onSectionChange(section.id)}
+                          className={`flex w-full items-start gap-2 rounded-lg px-2 py-1.5 text-left text-sm transition-colors ${
+                            isActive ? "text-blue-700" : "text-slate-500 hover:text-blue-700"
+                          }`}
+                        >
+                          <span
+                            className={`mt-[0.45rem] h-1.5 w-1.5 shrink-0 rounded-full ${
+                              isActive ? tone.dot : "bg-blue-100"
+                            }`}
+                          />
+                          <span className={isActive ? "font-semibold" : ""}>{section.title}</span>
+                        </button>
+                      );
+                    })}
+                  </nav>
+                </div>
+
+                <div className="rounded-2xl border border-blue-100 bg-white p-4 shadow-sm">
+                  <p className="supporthr-mono text-[10px] uppercase tracking-[0.22em] text-slate-400">Liên quan</p>
+                  <div className="mt-3">
+                    <Link
+                      to={auxiliaryLink.to}
+                      className="flex items-center justify-between gap-2 rounded-xl border border-blue-100 bg-blue-50 px-3 py-2.5 text-sm font-semibold text-blue-700 transition-colors hover:bg-blue-100"
+                    >
+                      <span>{auxiliaryLink.label}</span>
+                      <i className="fa-solid fa-arrow-up-right-from-square text-[11px]" />
+                    </Link>
+                  </div>
+                  <p className="mt-4 text-[11px] leading-5 text-slate-400">{meta}</p>
+                </div>
               </div>
             </aside>
+
           </div>
         </main>
+
         <DocsFooter />
       </div>
     </div>

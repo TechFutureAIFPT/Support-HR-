@@ -203,9 +203,9 @@ const PrivacyPolicyPage: React.FC = () => {
                   { title: "Quản lý khóa API", value: "Server-side" },
                   { title: "Kiểm soát rò rỉ", value: "Anti-breach" },
                 ].map((item) => (
-                  <div key={item.title} className="border border-white/8 bg-black/45 px-4 py-3">
-                    <p className="supporthr-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500">{item.title}</p>
-                    <p className="mt-2 text-base font-semibold text-white">{item.value}</p>
+                  <div key={item.title} className="rounded-xl border border-blue-100 bg-slate-50 px-4 py-3">
+                    <p className="supporthr-mono text-[10px] uppercase tracking-[0.18em] text-slate-400">{item.title}</p>
+                    <p className="mt-2 text-base font-semibold text-slate-900">{item.value}</p>
                   </div>
                 ))}
               </div>
