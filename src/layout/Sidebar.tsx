@@ -10,7 +10,6 @@ import {
   FileText,
   FolderOpen,
   HelpCircle,
-  History,
   LayoutDashboard,
   Lock,
   LogOut,
@@ -112,10 +111,8 @@ function UserMenu({ displayName, userEmail, userAvatar, onOpenSettings, onLogout
 
       {/* Menu items */}
       <div className="border-t border-[#f0f0f0] px-1 py-1">
-        <MenuItem icon={User}     label="Hồ sơ"              onClick={() => { onOpenSettings(); onClose(); }} />
         <MenuItem icon={Settings} label="Cài đặt"            onClick={() => { onOpenSettings(); onClose(); }} />
         <MenuItem icon={FileText} label="Thư viện mẫu JD"    onClick={() => go('/jd-templates')} />
-        <MenuItem icon={History}  label="Lịch sử tuyển dụng" onClick={() => go('/history')} />
       </div>
 
       <div className="border-t border-[#f0f0f0] px-1 py-1">
