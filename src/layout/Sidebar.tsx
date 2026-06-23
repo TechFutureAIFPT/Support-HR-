@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   BarChart3,
   Bot,
+  BookOpen,
   ChevronDown,
   ChevronRight,
   ClipboardCheck,
@@ -11,9 +12,13 @@ import {
   HelpCircle,
   History,
   LayoutDashboard,
+  Lock,
   LogOut,
   MessageSquareText,
+  MessageCircleQuestion,
+  ScrollText,
   Settings,
+  ShieldCheck,
   SlidersHorizontal,
   Smartphone,
   Sparkles,
@@ -75,7 +80,16 @@ interface UserMenuProps {
   onClose: () => void;
 }
 
+const helpItems = [
+  { icon: BookOpen,             label: 'Tài liệu & hướng dẫn',   path: '/app-docs' },
+  { icon: MessageCircleQuestion,label: 'Câu hỏi thường gặp',      path: '/faq' },
+  { icon: ShieldCheck,          label: 'Bảo mật & tuân thủ',      path: '/security' },
+  { icon: Lock,                 label: 'Chính sách bảo mật',      path: '/privacy-policy' },
+  { icon: ScrollText,           label: 'Điều khoản sử dụng',      path: '/terms' },
+];
+
 function UserMenu({ displayName, userEmail, userAvatar, onOpenSettings, onLogout, navigate, onClose }: UserMenuProps) {
+  const [helpOpen, setHelpOpen] = useState(false);
   const initials = displayName.split(/\s+/).map((p) => p[0]).join('').slice(0, 2).toUpperCase();
 
   const go = (path: string) => { navigate(path); onClose(); };
@@ -109,7 +123,36 @@ function UserMenu({ displayName, userEmail, userAvatar, onOpenSettings, onLogout
       </div>
 
       <div className="border-t border-[#f0f0f0] px-1 py-1">
-        <MenuItem icon={HelpCircle} label="Trợ giúp" onClick={() => onClose()} suffix={<ChevronRight size={13} className="text-[#c7c7cc]" />} />
+        {/* Help — expandable sub-menu */}
+        <button
+          type="button"
+          onClick={() => setHelpOpen((v) => !v)}
+          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition hover:bg-black/[0.04]"
+        >
+          <HelpCircle size={15} strokeWidth={1.7} className="shrink-0 text-[#6e6e73]" />
+          <span className="flex-1 text-[13px] font-medium text-[#1d1d1f]">Trợ giúp</span>
+          <ChevronDown
+            size={13}
+            className={`shrink-0 text-[#c7c7cc] transition-transform duration-200 ${helpOpen ? 'rotate-180' : ''}`}
+          />
+        </button>
+
+        {helpOpen && (
+          <div className="mb-1 ml-3 mt-0.5 overflow-hidden rounded-lg border border-[#f0f0f0] bg-[#fafafa]">
+            {helpItems.map((item) => (
+              <button
+                key={item.path}
+                type="button"
+                onClick={() => go(item.path)}
+                className="flex w-full items-center gap-3 px-3 py-2 text-left text-[12px] text-[#3c3c43] transition hover:bg-black/[0.04]"
+              >
+                <item.icon size={13} strokeWidth={1.7} className="shrink-0 text-[#6e6e73]" />
+                {item.label}
+              </button>
+            ))}
+          </div>
+        )}
+
         {onLogout && (
           <MenuItem icon={LogOut} label="Đăng xuất" onClick={() => { onLogout(); onClose(); }} iconCls="text-[#86868b]" labelCls="text-[#d70015]" />
         )}

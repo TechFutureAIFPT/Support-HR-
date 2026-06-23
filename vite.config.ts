@@ -11,6 +11,7 @@ export default defineConfig({
   build: {
     sourcemap: false,
     minify: 'esbuild',
+    emptyOutDir: false,
     cssCodeSplit: true,
     // Increase chunk size warning limit since we're splitting properly
     chunkSizeWarningLimit: 600,
