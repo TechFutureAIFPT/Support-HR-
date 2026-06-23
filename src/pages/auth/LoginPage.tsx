@@ -26,22 +26,22 @@ const systemSignals = [
   {
     icon: 'fa-solid fa-brain',
     title: 'Đối sánh ứng viên bằng AI',
-    status: 'Đang xử lý hồ sơ theo ngữ cảnh tuyển dụng',
+    status: 'Phân tích CV theo từng vị trí tuyển dụng',
   },
   {
     icon: 'fa-solid fa-database',
-    title: 'Kho dữ liệu CV tập trung',
-    status: 'Đã kết nối không gian tuyển dụng của đội ngũ',
+    title: 'Kho CV tập trung',
+    status: 'Lưu trữ & tìm kiếm toàn bộ hồ sơ ứng viên',
   },
   {
     icon: 'fa-solid fa-ranking-star',
-    title: 'Bảng xếp hạng danh sách đề cử',
+    title: 'Xếp hạng ứng viên tự động',
     status: 'Điểm phù hợp được cập nhật theo thời gian thực',
   },
   {
     icon: 'fa-solid fa-shield-halved',
-    title: 'Phiên truy cập bảo mật',
-    status: 'Mã hóa xác thực nhiều lớp cho nhà tuyển dụng hiện đại',
+    title: 'Bảo mật nhiều lớp',
+    status: 'Xác thực đa lớp, dữ liệu được mã hóa toàn phần',
   },
 ];
 
@@ -394,10 +394,18 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
 
                 <div className="text-center">
                   <h2 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-[1.75rem]">
-                    {showReset ? 'Khôi phục mật khẩu' : 'Đăng nhập vào Support HR'}
+                    {showReset
+                      ? 'Khôi phục mật khẩu'
+                      : tab === 'signup'
+                        ? 'Tạo tài khoản mới'
+                        : 'Chào mừng trở lại'}
                   </h2>
                   <p className="mt-1.5 text-sm text-slate-500">
-                    {showReset ? 'Nhập email để nhận liên kết đặt lại mật khẩu' : 'Tiếp tục không gian tuyển dụng của bạn'}
+                    {showReset
+                      ? 'Nhập email để nhận liên kết đặt lại mật khẩu'
+                      : tab === 'signup'
+                        ? 'Điền thông tin để bắt đầu sử dụng Support HR'
+                        : 'Đăng nhập để tiếp tục không gian tuyển dụng của bạn'}
                   </p>
                 </div>
 
@@ -468,8 +476,8 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
                       </div>
 
                       <div className="rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-[13px] leading-6 text-slate-600">
-                        Nhập email đã đăng ký. Support HR sẽ gửi liên kết đặt lại mật khẩu để bạn
-                        khôi phục quyền truy cập.
+                        Support HR sẽ gửi liên kết đặt lại mật khẩu đến email của bạn. Kiểm tra cả
+                        hộp thư spam nếu không thấy trong vài phút.
                       </div>
 
                       {resetSent && (
@@ -525,13 +533,13 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
 
                       <div>
                         <label className="mb-1.5 block text-xs font-semibold text-slate-700">
-                          Email công ty
+                          Email
                         </label>
                         <input
                           type="email"
                           value={form.email}
                           onChange={(e) => setField('email', e.target.value)}
-                          placeholder="you@company.com"
+                          placeholder="email@congty.com"
                           className={`${inputBaseClass} ${
                             errors.email ? 'border-red-300' : ''
                           }`}
@@ -579,7 +587,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
                         {loading
                           ? tab === 'signup'
                             ? 'Đang tạo tài khoản...'
-                            : 'Đang xác thực...'
+                            : 'Đang đăng nhập...'
                           : tab === 'signup'
                             ? 'Tạo tài khoản'
                             : 'Đăng nhập'}
