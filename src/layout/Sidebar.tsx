@@ -8,7 +8,6 @@ import {
   ClipboardCheck,
   FileInput,
   FileText,
-  FolderOpen,
   HelpCircle,
   LayoutDashboard,
   Lock,
@@ -63,7 +62,6 @@ const screeningPages = [
 const supportToolPages = [
   { path: '/chatbot', label: 'Trợ lý tuyển dụng AI', icon: Bot },
   { path: '/feedback', label: 'Phản hồi kết quả AI', icon: MessageSquareText },
-  { path: '/records', label: 'Thư viện CV', icon: FolderOpen },
   { path: '/jd-standardizer', label: 'Chuẩn hóa JD', icon: FileText },
 ] as const;
 
@@ -111,8 +109,7 @@ function UserMenu({ displayName, userEmail, userAvatar, onOpenSettings, onLogout
 
       {/* Menu items */}
       <div className="border-t border-[#f0f0f0] px-1 py-1">
-        <MenuItem icon={Settings} label="Cài đặt"            onClick={() => { onOpenSettings(); onClose(); }} />
-        <MenuItem icon={FileText} label="Thư viện mẫu JD"    onClick={() => go('/jd-templates')} />
+        <MenuItem icon={Settings} label="Cài đặt" onClick={() => { onOpenSettings(); onClose(); }} />
       </div>
 
       <div className="border-t border-[#f0f0f0] px-1 py-1">

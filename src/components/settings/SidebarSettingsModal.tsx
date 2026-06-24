@@ -8,6 +8,7 @@ import {
   ChevronDown,
   CloudOff,
   Database,
+  FolderOpen,
   History,
   Loader2,
   LogOut,
@@ -24,6 +25,7 @@ import type { HistoryRetention, NewSessionMode } from '@/types';
 import { useUserSettings } from '@/context/settings/UserSettingsProvider';
 import { JDTemplatesService } from '@/services/data-sync/jdTemplatesService';
 import type { UserJDTemplate } from '@/services/data-sync/jdTemplatesService';
+import FilteredCvLibraryPage from '@/pages/tools/FilteredCvLibraryPage';
 
 interface SidebarSettingsModalProps {
   isOpen: boolean;
@@ -40,7 +42,7 @@ interface SidebarSettingsModalProps {
   onClearSyncedData: () => Promise<void>;
 }
 
-type SettingsTab = 'profile' | 'workspace' | 'notifications' | 'data' | 'jd';
+type SettingsTab = 'profile' | 'workspace' | 'notifications' | 'data' | 'jd' | 'cv';
 
 const TABS: Array<{ id: SettingsTab; label: string; icon: React.ComponentType<{ size?: number; className?: string }> }> = [
   { id: 'profile',       label: 'Hồ sơ',      icon: UserCircle2 },
@@ -48,6 +50,7 @@ const TABS: Array<{ id: SettingsTab; label: string; icon: React.ComponentType<{ 
   { id: 'notifications', label: 'Thông báo',   icon: Bell },
   { id: 'data',          label: 'Dữ liệu',     icon: Database },
   { id: 'jd',            label: 'JD',          icon: BookOpen },
+  { id: 'cv',            label: 'Thư viện CV', icon: FolderOpen },
 ];
 
 // ── Primitives ────────────────────────────────────────────────────────────────
@@ -812,6 +815,7 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
     notifications: notificationsTab,
     data: dataTab,
     jd: jdTab,
+    cv: <FilteredCvLibraryPage userEmail={userEmail} />,
   };
 
   return (
@@ -884,7 +888,7 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
           </aside>
 
           {/* Content */}
-          <main ref={contentRef} className="custom-scrollbar min-h-0 flex-1 overflow-y-auto p-5">
+          <main ref={contentRef} className={`min-h-0 flex-1 ${activeTab === 'cv' ? 'overflow-hidden flex flex-col' : 'custom-scrollbar overflow-y-auto p-5'}`}>
             {tabContent[activeTab]}
           </main>
         </div>
