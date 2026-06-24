@@ -28,7 +28,7 @@ import {
   X,
 } from 'lucide-react';
 import { googleDriveService } from '@/services/file-processing/googleDriveService';
-import type { HistoryRetention, NewSessionMode, UserSettingsLanguage, UserSettingsTheme, WeightCriteria } from '@/types';
+import type { HardFilters, HistoryRetention, NewSessionMode, UserSettingsLanguage, UserSettingsTheme, WeightCriteria } from '@/types';
 import { useUserSettings } from '@/context/settings/UserSettingsProvider';
 import { useTheme } from '@/context/theme/ThemeProvider';
 import { JDTemplatesService } from '@/services/data-sync/jdTemplatesService';
@@ -36,28 +36,18 @@ import type { UserJDTemplate } from '@/services/data-sync/jdTemplatesService';
 import FilteredCvLibraryPage from '@/pages/tools/FilteredCvLibraryPage';
 import { readWorkflowDraft } from '@/services/history-cache/workflowDraft';
 import { initialWeights } from '@/config/constants';
+import WeightTile from '@/components/config/WeightTile';
+import HardFilterPanel from '@/components/config/HardFilterPanel';
 
-const CRITERION_EMOJI: Record<string, string> = {
-  jdFit: '🎯',
-  workExperience: '💼',
-  technicalSkills: '⚙️',
-  achievements: '🏆',
-  education: '🎓',
-  language: '🌐',
-  professionalism: '📄',
-  jobTenure: '⏳',
-  cultureFit: '🤝',
-  videoIntro: '▶️',
+const DEFAULT_HARD_FILTERS: HardFilters = {
+  location: '', minExp: '', seniority: '', education: '', industry: '',
+  language: '', languageLevel: '', certificates: '', workFormat: '', contractType: '',
+  salaryMin: '', salaryMax: '',
+  locationMandatory: false, minExpMandatory: false, seniorityMandatory: false,
+  educationMandatory: false, contactMandatory: false, industryMandatory: false,
+  languageMandatory: false, certificatesMandatory: false, workFormatMandatory: false,
+  contractTypeMandatory: false, salaryMandatory: false,
 };
-
-function buildWeightsWithParents(raw: WeightCriteria): WeightCriteria {
-  return Object.fromEntries(
-    Object.entries(raw).map(([k, c]) => [
-      k,
-      { ...c, weight: c.weight ?? (c.children?.reduce((s, ch) => s + ch.weight, 0) ?? 0) },
-    ])
-  ) as WeightCriteria;
-}
 
 interface SidebarSettingsModalProps {
   isOpen: boolean;
@@ -287,9 +277,13 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
   const [fixedJDText, setFixedJDText] = useState(settings.workflow.fixedJD?.jdText || '');
   const [localWeights, setLocalWeights] = useState<WeightCriteria>(() => {
     const w = settings.workflow.fixedJD?.weights;
-    const base = (w && typeof w === 'object' && !Array.isArray(w)) ? w as WeightCriteria : initialWeights;
-    return buildWeightsWithParents(base);
+    return (w && typeof w === 'object' && !Array.isArray(w)) ? w as WeightCriteria : { ...initialWeights };
   });
+  const [localHardFilters, setLocalHardFilters] = useState<HardFilters>(() => {
+    const hf = settings.workflow.fixedJD?.hardFilters;
+    return (hf && typeof hf === 'object') ? hf as HardFilters : { ...DEFAULT_HARD_FILTERS };
+  });
+  const [expandedCriterion, setExpandedCriterion] = useState<string | null>(null);
   const [fixedJDSaving, setFixedJDSaving] = useState(false);
   const [fixedJDSaved, setFixedJDSaved] = useState(false);
   const [driveImporting, setDriveImporting] = useState(false);
@@ -316,8 +310,10 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
     setFixedJDName(settings.workflow.fixedJD?.name || '');
     setFixedJDText(settings.workflow.fixedJD?.jdText || '');
     const w = settings.workflow.fixedJD?.weights;
-    const base = (w && typeof w === 'object' && !Array.isArray(w)) ? w as WeightCriteria : initialWeights;
-    setLocalWeights(buildWeightsWithParents(base));
+    setLocalWeights((w && typeof w === 'object' && !Array.isArray(w)) ? w as WeightCriteria : { ...initialWeights });
+    const hf = settings.workflow.fixedJD?.hardFilters;
+    setLocalHardFilters((hf && typeof hf === 'object') ? hf as HardFilters : { ...DEFAULT_HARD_FILTERS });
+    setExpandedCriterion(null);
     setActiveTab('general');
     setDangerOpen(false);
     setAddTplOpen(false);
@@ -655,8 +651,10 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
   );
 
   // ── Tab: Set Up Team ──
-  const criteriaEntries = Object.values(localWeights);
-  const totalWeight = criteriaEntries.reduce((sum, c) => sum + (c.weight ?? 0), 0);
+  const criteriaEntries = Object.values(localWeights).filter((c) => c.children);
+  const totalWeight = criteriaEntries.reduce((total, c) => {
+    return total + (c.children?.reduce((s, ch) => s + ch.weight, 0) ?? 0);
+  }, 0);
 
   const jdTab = (
     <div className="space-y-5">
@@ -823,6 +821,18 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
           <>
             <div className="h-px bg-slate-100" />
 
+            {/* Hard Filters Section */}
+            <div>
+              <p className="mb-2.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-400">Bộ lọc cứng</p>
+              <HardFilterPanel
+                hardFilters={localHardFilters}
+                setHardFilters={setLocalHardFilters}
+                jdText={fixedJDText}
+              />
+            </div>
+
+            <div className="h-px bg-slate-100" />
+
             {/* Weights Section */}
             <div>
               <div className="mb-2.5 flex items-center justify-between">
@@ -833,8 +843,9 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
                     try {
                       const draft = readWorkflowDraft();
                       const w = draft?.weights ?? JSON.parse(localStorage.getItem('analysisWeights') || 'null');
-                      const base = (w && typeof w === 'object' && !Array.isArray(w)) ? w as WeightCriteria : initialWeights;
-                      setLocalWeights(buildWeightsWithParents(base));
+                      if (w && typeof w === 'object' && !Array.isArray(w)) {
+                        setLocalWeights(w as WeightCriteria);
+                      }
                     } catch {}
                   }}
                   className="text-[11px] font-semibold text-blue-500 transition hover:text-blue-600"
@@ -843,29 +854,17 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
                 </button>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 {criteriaEntries.map((criterion) => (
-                  <div key={criterion.key} className="rounded-xl border border-slate-100 bg-slate-50 px-3 py-2.5">
-                    <div className="mb-1.5 flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-2 min-w-0">
-                        <span className="shrink-0 text-[14px] leading-none">{CRITERION_EMOJI[criterion.key] ?? '•'}</span>
-                        <span className="truncate text-[12.5px] font-semibold text-slate-800">{criterion.name}</span>
-                      </div>
-                      <span className="shrink-0 text-[12px] font-bold text-slate-700 tabular-nums w-8 text-right">{criterion.weight ?? 0}%</span>
-                    </div>
-                    <input
-                      type="range"
-                      min={0} max={100} step={1}
-                      value={criterion.weight ?? 0}
-                      onChange={(e) => {
-                        const val = Number(e.target.value);
-                        setLocalWeights((prev) => ({ ...prev, [criterion.key]: { ...prev[criterion.key], weight: val } }));
-                      }}
-                      className="w-full h-1.5 cursor-pointer accent-blue-500"
-                    />
-                  </div>
+                  <WeightTile
+                    key={criterion.key}
+                    criterion={criterion}
+                    setWeights={setLocalWeights}
+                    isExpanded={expandedCriterion === criterion.key}
+                    onToggle={() => setExpandedCriterion((prev) => (prev === criterion.key ? null : criterion.key))}
+                  />
                 ))}
-                <p className={`text-right text-[11px] font-semibold ${
+                <p className={`text-right text-[11px] font-semibold pt-1 ${
                   totalWeight === 100 ? 'text-emerald-600' : totalWeight > 100 ? 'text-rose-500' : 'text-amber-600'
                 }`}>
                   Tổng: {totalWeight}%{totalWeight === 100 ? ' ✓' : totalWeight > 100 ? ' — quá 100%' : ' — chưa đủ 100%'}
@@ -903,10 +902,6 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
               if (!fixedJDText.trim()) return;
               setFixedJDSaving(true);
               try {
-                let hardFiltersToSave: import('@/types').HardFilters | undefined;
-                try { hardFiltersToSave = JSON.parse(localStorage.getItem('hardFilters') || 'null') ?? undefined; } catch {}
-                const draft = readWorkflowDraft();
-                if (!hardFiltersToSave && draft?.hardFilters) hardFiltersToSave = draft.hardFilters as import('@/types').HardFilters;
                 await saveSettings({
                   workflow: {
                     ...settings.workflow,
@@ -917,7 +912,7 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
                       savedAt: Date.now(),
                       scoringEnabled: criteriaEntries.length > 0,
                       weights: localWeights,
-                      hardFilters: hardFiltersToSave,
+                      hardFilters: localHardFilters,
                     },
                   },
                 });
