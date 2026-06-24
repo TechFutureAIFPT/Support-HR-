@@ -83,12 +83,6 @@ const ScreenerPage: React.FC<ScreenerPageProps> = (props) => {
   }, [props.onOpenJdTemplates]);
 
   const handleContinueIntake = useCallback(() => {
-    if (props.jdText.trim().length === 0) {
-      setIntakeNotice('Vui lòng nhập hoặc tải JD trước khi tiếp tục.');
-      props.setActiveStep('jd');
-      return;
-    }
-
     props.markStepAsCompleted('jd');
 
     if (props.cvFiles.length === 0) {
@@ -187,7 +181,7 @@ const ScreenerPage: React.FC<ScreenerPageProps> = (props) => {
         {(activeStep === 'jd' || activeStep === 'upload') && (
           <CVScreenerWelcome
             embedded
-            initialStage={activeStep === 'upload' ? 'cv' : 'jd'}
+            initialStage="cv"
             continueLabel="Thiết lập mặc định"
             onGetStarted={handleContinueIntake}
             onUseTemplate={handleUseTemplate}
