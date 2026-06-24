@@ -566,6 +566,126 @@
   background-color: rgba(17, 33, 58, 0.72) !important;
 }
 
+/* ============================================================
+   DARK MODE — class strategy
+   ThemeProvider sets <html class="dark"> and updates --th-*
+   CSS variables. These rules flip light-mode Tailwind classes
+   and hardcoded Apple-palette hex values to dark equivalents.
+   Feature-page-shell is already black; we only flip WHITE/LIGHT
+   surfaces (cards, modals, panels, inputs).
+   ============================================================ */
+
+/* ── Surfaces ───────────────────────────────────────────────── */
+.dark .bg-white                         { background-color: var(--th-surface-card) !important; }
+.dark .bg-slate-50,
+.dark .bg-gray-50                       { background-color: var(--th-bg-secondary) !important; }
+.dark .bg-slate-100,
+.dark .bg-gray-100                      { background-color: var(--th-bg-tertiary) !important; }
+.dark .bg-slate-200,
+.dark .bg-gray-200                      { background-color: var(--th-bg-elevated) !important; }
+
+/* Tinted accent surfaces */
+.dark .bg-blue-50                       { background-color: var(--th-primary-muted) !important; }
+.dark .bg-blue-100                      { background-color: rgba(59,158,255,0.12) !important; }
+
+/* Apple-palette hardcoded backgrounds */
+.dark [class*="bg-[#f5f5f7]"],
+.dark [class*="bg-[#fafafa]"],
+.dark [class*="bg-[#f9f9f9]"]          { background-color: var(--th-bg-secondary) !important; }
+.dark [class*="bg-[#e8e8ed]"],
+.dark [class*="bg-[#ebebeb]"]          { background-color: var(--th-bg-tertiary) !important; }
+.dark [class*="bg-[#f0f0f0]"],
+.dark [class*="bg-[#f2f2f7]"]          { background-color: var(--th-bg-elevated) !important; }
+.dark [class*="bg-[#fff7e8]"],
+.dark [class*="bg-[#fff8ec]"]          { background-color: rgba(251,191,36,0.1) !important; }
+.dark [class*="bg-[#eef5ff]"],
+.dark [class*="bg-[#f0f8ff]"]          { background-color: var(--th-primary-muted) !important; }
+
+/* ── Text ───────────────────────────────────────────────────── */
+.dark .text-slate-900,
+.dark .text-gray-900,
+.dark .text-slate-950                   { color: var(--th-text) !important; }
+.dark .text-slate-800,
+.dark .text-gray-800,
+.dark .text-slate-700,
+.dark .text-gray-700                    { color: var(--th-text-secondary) !important; }
+.dark .text-slate-600,
+.dark .text-gray-600                    { color: var(--th-text-muted) !important; }
+.dark .text-slate-500,
+.dark .text-gray-500                    { color: var(--th-text-muted) !important; }
+.dark .text-slate-400,
+.dark .text-gray-400                    { color: var(--th-text-disabled) !important; }
+
+/* Apple-palette hardcoded text */
+.dark [class*="text-[#1d1d1f]"],
+.dark [class*="text-[#102033]"],
+.dark [class*="text-[#111827]"],
+.dark [class*="text-[#3a3a3c]"]        { color: var(--th-text) !important; }
+.dark [class*="text-[#515154]"],
+.dark [class*="text-[#374151]"],
+.dark [class*="text-[#334155]"]        { color: var(--th-text-secondary) !important; }
+.dark [class*="text-[#6e6e73]"],
+.dark [class*="text-[#6b7280]"],
+.dark [class*="text-[#475569]"],
+.dark [class*="text-[#64748b]"],
+.dark [class*="text-[#a35d00]"]        { color: var(--th-text-muted) !important; }
+.dark [class*="text-[#86868b]"],
+.dark [class*="text-[#9ca3af]"],
+.dark [class*="text-[#94a3b8]"]        { color: var(--th-text-disabled) !important; }
+
+/* ── Borders ────────────────────────────────────────────────── */
+.dark .border-slate-100,
+.dark .border-gray-100,
+.dark .border-slate-200,
+.dark .border-gray-200                  { border-color: var(--th-border-subtle) !important; }
+.dark .border-slate-300,
+.dark .border-gray-300                  { border-color: var(--th-border) !important; }
+.dark .divide-slate-100,
+.dark .divide-slate-200,
+.dark .divide-gray-100,
+.dark .divide-gray-200                  { --tw-divide-opacity: 1; border-color: var(--th-border-subtle) !important; }
+
+/* Apple-palette hardcoded borders */
+.dark [class*="border-[#d2d2d7]"],
+.dark [class*="border-[#e5e7eb]"],
+.dark [class*="border-[#e8e8ed]"],
+.dark [class*="border-[#f0f0f0]"],
+.dark [class*="border-[#f4d6a5]"]      { border-color: var(--th-border-subtle) !important; }
+
+/* ── Inputs & form controls ─────────────────────────────────── */
+.dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+.dark textarea,
+.dark select {
+  background-color: var(--th-bg-elevated) !important;
+  color: var(--th-text) !important;
+  border-color: var(--th-border-subtle) !important;
+}
+.dark input::placeholder,
+.dark textarea::placeholder            { color: var(--th-text-disabled) !important; }
+.dark input:focus,
+.dark textarea:focus,
+.dark select:focus                     { border-color: var(--th-border-focus) !important; }
+
+/* ── Shadows ────────────────────────────────────────────────── */
+.dark .shadow-sm                        { box-shadow: var(--th-shadow-sm) !important; }
+.dark .shadow,
+.dark .shadow-md                        { box-shadow: var(--th-shadow-md) !important; }
+.dark .shadow-lg                        { box-shadow: var(--th-shadow-lg) !important; }
+.dark .shadow-xl                        { box-shadow: var(--th-shadow-xl) !important; }
+
+/* ── Hover interactive surfaces ──────────────────────────────── */
+.dark .hover\:bg-white:hover            { background-color: var(--th-surface-hover) !important; }
+.dark .hover\:bg-slate-50:hover,
+.dark .hover\:bg-gray-50:hover          { background-color: var(--th-surface-hover) !important; }
+.dark .hover\:bg-slate-100:hover,
+.dark .hover\:bg-gray-100:hover         { background-color: var(--th-surface-active) !important; }
+.dark [class*="hover:bg-black/[0.04]"]:hover,
+.dark [class*="hover:bg-black/4"]:hover { background-color: var(--th-surface-hover) !important; }
+
+/* ── Scroll ─────────────────────────────────────────────────── */
+.dark ::-webkit-scrollbar-thumb         { background: var(--th-scrollbar-thumb); }
+.dark ::-webkit-scrollbar-thumb:hover   { background: var(--th-scrollbar-thumb-hover); }
+
 .home-page-shell [class*="bg-[#11213A]"],
 .login-page-shell [class*="bg-[#11213A]"],
 .legal-page-shell [class*="bg-[#11213A]"] {

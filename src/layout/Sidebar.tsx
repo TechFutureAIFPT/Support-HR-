@@ -27,6 +27,8 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import type { AppStep } from '@/types';
 import { cvFilterHistoryService } from '@/services/history-cache/analysisHistory';
 import { TrafficLights } from '@/components/workspace/WorkspacePrimitives';
+import { useTranslation } from '@/i18n/useTranslation';
+import type { TranslationKey } from '@/i18n/translations';
 
 interface SidebarProps {
   activeStep: AppStep;
@@ -50,17 +52,17 @@ interface SidebarProps {
 type HistorySession = { timestamp: number; jobPosition?: string };
 
 const screeningPages = [
-  { path: '/', label: 'Tổng quan tuyển dụng', icon: LayoutDashboard },
-  { path: '/upload', label: 'Nạp hồ sơ ứng viên', icon: Upload },
-  { path: '/analysis', label: 'Kết quả phân tích', icon: ClipboardCheck },
-  { path: '/detailed-analytics', label: 'Phân tích chi tiết', icon: BarChart3 },
-] as const;
+  { path: '/', labelKey: 'nav_overview' as TranslationKey, icon: LayoutDashboard },
+  { path: '/upload', labelKey: 'nav_upload' as TranslationKey, icon: Upload },
+  { path: '/analysis', labelKey: 'nav_results' as TranslationKey, icon: ClipboardCheck },
+  { path: '/detailed-analytics', labelKey: 'nav_analytics' as TranslationKey, icon: BarChart3 },
+];
 
 const supportToolPages = [
-  { path: '/chatbot', label: 'Trợ lý tuyển dụng AI', icon: Bot },
-  { path: '/feedback', label: 'Phản hồi kết quả AI', icon: MessageSquareText },
-  { path: '/jd-standardizer', label: 'Chuẩn hóa JD', icon: FileText },
-] as const;
+  { path: '/chatbot', labelKey: 'nav_chatbot' as TranslationKey, icon: Bot },
+  { path: '/feedback', labelKey: 'nav_feedback' as TranslationKey, icon: MessageSquareText },
+  { path: '/jd-standardizer', labelKey: 'nav_jd_standardizer' as TranslationKey, icon: FileText },
+];
 
 // ── User menu dropdown ────────────────────────────────────────────────────────
 
@@ -75,15 +77,16 @@ interface UserMenuProps {
 }
 
 const helpItems = [
-  { icon: BookOpen,             label: 'Tài liệu & hướng dẫn',   path: '/app-docs' },
-  { icon: MessageCircleQuestion,label: 'Câu hỏi thường gặp',      path: '/faq' },
-  { icon: ShieldCheck,          label: 'Bảo mật & tuân thủ',      path: '/security' },
-  { icon: Lock,                 label: 'Chính sách bảo mật',      path: '/privacy-policy' },
-  { icon: ScrollText,           label: 'Điều khoản sử dụng',      path: '/terms' },
+  { icon: BookOpen,             labelKey: 'user_docs' as TranslationKey,     path: '/app-docs' },
+  { icon: MessageCircleQuestion,labelKey: 'user_faq' as TranslationKey,      path: '/faq' },
+  { icon: ShieldCheck,          labelKey: 'user_security' as TranslationKey, path: '/security' },
+  { icon: Lock,                 labelKey: 'user_privacy' as TranslationKey,  path: '/privacy-policy' },
+  { icon: ScrollText,           labelKey: 'user_terms' as TranslationKey,    path: '/terms' },
 ];
 
 function UserMenu({ displayName, userEmail, userAvatar, onOpenSettings, onLogout, navigate, onClose }: UserMenuProps) {
   const [helpOpen, setHelpOpen] = useState(false);
+  const { t } = useTranslation();
   const initials = displayName.split(/\s+/).map((p) => p[0]).join('').slice(0, 2).toUpperCase();
 
   const go = (path: string) => { navigate(path); onClose(); };
@@ -106,7 +109,7 @@ function UserMenu({ displayName, userEmail, userAvatar, onOpenSettings, onLogout
 
       {/* Menu items */}
       <div className="border-t border-[#f0f0f0] px-1 py-1">
-        <MenuItem icon={Settings} label="Cài đặt" onClick={() => { onOpenSettings(); onClose(); }} />
+        <MenuItem icon={Settings} label={t('nav_settings')} onClick={() => { onOpenSettings(); onClose(); }} />
       </div>
 
       <div className="border-t border-[#f0f0f0] px-1 py-1">
@@ -117,7 +120,7 @@ function UserMenu({ displayName, userEmail, userAvatar, onOpenSettings, onLogout
           className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition hover:bg-black/[0.04]"
         >
           <HelpCircle size={15} strokeWidth={1.7} className="shrink-0 text-[#6e6e73]" />
-          <span className="flex-1 text-[13px] font-medium text-[#1d1d1f]">Trợ giúp</span>
+          <span className="flex-1 text-[13px] font-medium text-[#1d1d1f]">{t('nav_help')}</span>
           <ChevronDown
             size={13}
             className={`shrink-0 text-[#c7c7cc] transition-transform duration-200 ${helpOpen ? 'rotate-180' : ''}`}
@@ -134,14 +137,14 @@ function UserMenu({ displayName, userEmail, userAvatar, onOpenSettings, onLogout
                 className="flex w-full items-center gap-3 px-3 py-2 text-left text-[12px] text-[#3c3c43] transition hover:bg-black/[0.04]"
               >
                 <item.icon size={13} strokeWidth={1.7} className="shrink-0 text-[#6e6e73]" />
-                {item.label}
+                {t(item.labelKey)}
               </button>
             ))}
           </div>
         )}
 
         {onLogout && (
-          <MenuItem icon={LogOut} label="Đăng xuất" onClick={() => { onLogout(); onClose(); }} iconCls="text-[#86868b]" labelCls="text-[#d70015]" />
+          <MenuItem icon={LogOut} label={t('nav_logout')} onClick={() => { onLogout(); onClose(); }} iconCls="text-[#86868b]" labelCls="text-[#d70015]" />
         )}
       </div>
     </div>
@@ -189,6 +192,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useTranslation();
   const [sessions, setSessions] = useState<HistorySession[]>([]);
   const [openSection, setOpenSection] = useState<'sessions' | 'tools'>('sessions');
   const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -290,7 +294,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               <div className="mt-1 pl-5">
                 <p className="px-3 pb-1 pt-2 text-[10px] font-semibold uppercase tracking-[0.08em] text-[#98989d]">Trang làm việc</p>
                 <div className="space-y-0.5">
-                  {screeningPages.map(({ path, label, icon: Icon }) => {
+                  {screeningPages.map(({ path, labelKey, icon: Icon }) => {
                     const active = location.pathname === path;
                     return (
                       <button
@@ -301,7 +305,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                         className={`flex min-h-9 w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-[12.5px] transition-[background-color,color,opacity] duration-150 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007aff]/30 ${active ? 'bg-[#dceaff] font-medium text-[#005fbd] opacity-100' : 'text-[#6e6e73] opacity-60 hover:bg-black/[0.04] hover:opacity-100'}`}
                       >
                         <Icon size={15} strokeWidth={1.7} className="shrink-0" />
-                        <span className="truncate">{label}</span>
+                        <span className="truncate">{t(labelKey)}</span>
                       </button>
                     );
                   })}
@@ -346,7 +350,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           <div className={`grid transition-[grid-template-rows] duration-300 ease-in-out ${toolsOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
             <div className="overflow-hidden">
               <div className="mt-1 space-y-0.5 pl-5">
-                {supportToolPages.map(({ path, label, icon: Icon }) => {
+                {supportToolPages.map(({ path, labelKey, icon: Icon }) => {
                   const active = location.pathname === path;
                   return (
                     <button
@@ -357,7 +361,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                       className={`flex min-h-9 w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-[12.5px] transition-[background-color,color,opacity] duration-150 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007aff]/30 ${active ? 'bg-[#dceaff] font-medium text-[#005fbd] opacity-100' : 'text-[#6e6e73] opacity-60 hover:bg-black/[0.04] hover:opacity-100'}`}
                     >
                       <Icon size={15} strokeWidth={1.7} className="shrink-0" />
-                      <span className="truncate">{label}</span>
+                      <span className="truncate">{t(labelKey)}</span>
                     </button>
                   );
                 })}

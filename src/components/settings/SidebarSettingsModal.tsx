@@ -38,6 +38,7 @@ import { readWorkflowDraft } from '@/services/history-cache/workflowDraft';
 import { initialWeights } from '@/config/constants';
 import WeightTile from '@/components/config/WeightTile';
 import HardFilterPanel from '@/components/config/HardFilterPanel';
+import { useTranslation } from '@/i18n/useTranslation';
 
 const DEFAULT_HARD_FILTERS: HardFilters = {
   location: '', minExp: '', seniority: '', education: '', industry: '',
@@ -67,14 +68,14 @@ interface SidebarSettingsModalProps {
 
 type SettingsTab = 'general' | 'profile' | 'workspace' | 'notifications' | 'data' | 'jd' | 'cv';
 
-const TABS: Array<{ id: SettingsTab; label: string; icon: React.ComponentType<{ size?: number; className?: string }> }> = [
-  { id: 'general',       label: 'Chung',       icon: SlidersHorizontal },
-  { id: 'profile',       label: 'Hồ sơ',       icon: UserCircle2 },
-  { id: 'workspace',     label: 'Quy trình',   icon: Workflow },
-  { id: 'notifications', label: 'Thông báo',   icon: Bell },
-  { id: 'data',          label: 'Dữ liệu',     icon: Database },
-  { id: 'jd',            label: 'Set Up Team', icon: Target },
-  { id: 'cv',            label: 'Thư viện CV', icon: FolderOpen },
+const TAB_DEFS: Array<{ id: SettingsTab; icon: React.ComponentType<{ size?: number; className?: string }> }> = [
+  { id: 'general',       icon: SlidersHorizontal },
+  { id: 'profile',       icon: UserCircle2 },
+  { id: 'workspace',     icon: Workflow },
+  { id: 'notifications', icon: Bell },
+  { id: 'data',          icon: Database },
+  { id: 'jd',            icon: Target },
+  { id: 'cv',            icon: FolderOpen },
 ];
 
 // ── Primitives ────────────────────────────────────────────────────────────────
@@ -259,7 +260,18 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
 }) => {
   const { settings, saveSettings, resetSettings, syncStatus, syncError } = useUserSettings();
   const { themeMode } = useTheme();
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<SettingsTab>('general');
+
+  const TAB_LABELS: Record<SettingsTab, string> = {
+    general:       t('settings_tab_general'),
+    profile:       t('settings_tab_profile'),
+    workspace:     t('settings_tab_workflow'),
+    notifications: t('settings_tab_notif'),
+    data:          t('settings_tab_data'),
+    jd:            t('settings_tab_team'),
+    cv:            t('settings_tab_library'),
+  };
 
   // Profile fields with local state + debounced save
   const [displayName, setDisplayName] = useState(userName || settings.account.displayName || '');
@@ -398,10 +410,10 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
   if (!isOpen) return null;
 
   const syncBadge = (() => {
-    if (syncStatus === 'synced') return { icon: <CheckCircle2 size={12} />, label: 'Đã đồng bộ', cls: 'border-emerald-200 bg-emerald-50 text-emerald-700' };
-    if (syncStatus === 'pending') return { icon: <Loader2 size={12} className="animate-spin" />, label: 'Đang lưu', cls: 'border-amber-200 bg-amber-50 text-amber-700' };
-    if (syncStatus === 'error') return { icon: <AlertTriangle size={12} />, label: 'Lỗi đồng bộ', cls: 'border-rose-200 bg-rose-50 text-rose-700' };
-    return { icon: <CloudOff size={12} />, label: 'Chưa đăng nhập', cls: 'border-slate-200 bg-slate-100 text-slate-500' };
+    if (syncStatus === 'synced') return { icon: <CheckCircle2 size={12} />, label: t('settings_synced'), cls: 'border-emerald-200 bg-emerald-50 text-emerald-700' };
+    if (syncStatus === 'pending') return { icon: <Loader2 size={12} className="animate-spin" />, label: t('settings_saving'), cls: 'border-amber-200 bg-amber-50 text-amber-700' };
+    if (syncStatus === 'error') return { icon: <AlertTriangle size={12} />, label: t('settings_sync_error'), cls: 'border-rose-200 bg-rose-50 text-rose-700' };
+    return { icon: <CloudOff size={12} />, label: t('settings_not_authed'), cls: 'border-slate-200 bg-slate-100 text-slate-500' };
   })();
 
   // ── Tab: Profile ──
@@ -939,15 +951,15 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
   // ── Tab: General ──
   const generalTab = (
     <div className="space-y-5">
-      <Section title="Giao diện">
+      <Section title={t('settings_section_ui')}>
         <div className="rounded-2xl border border-slate-100 bg-white p-4 space-y-3">
           <div>
-            <p className="mb-2 text-[12px] font-semibold text-slate-700">Chủ đề màu sắc</p>
+            <p className="mb-2 text-[12px] font-semibold text-slate-700">{t('settings_theme_label')}</p>
             <div className="flex flex-wrap gap-2">
               {([
-                { value: 'light' as UserSettingsTheme, label: 'Sáng', icon: Sun },
-                { value: 'dark'  as UserSettingsTheme, label: 'Tối',  icon: Moon },
-                { value: 'system' as UserSettingsTheme, label: 'Hệ thống', icon: Monitor },
+                { value: 'light' as UserSettingsTheme, label: t('settings_theme_light'), icon: Sun },
+                { value: 'dark'  as UserSettingsTheme, label: t('settings_theme_dark'),  icon: Moon },
+                { value: 'system' as UserSettingsTheme, label: t('settings_theme_system'), icon: Monitor },
               ] as const).map(({ value, label, icon: Icon }) => {
                 const active = settings.ui.theme === value;
                 return (
@@ -976,26 +988,26 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
         </div>
       </Section>
 
-      <Section title="Ngôn ngữ">
+      <Section title={t('settings_section_language')}>
         <div className="rounded-2xl border border-slate-100 bg-white p-4">
           <p className="mb-3 text-[12px] leading-5 text-slate-500">
-            Ngôn ngữ hiển thị của giao diện. Áp dụng sau khi tải lại trang.
+            {t('settings_language_desc')}
           </p>
           <ChipGroup<UserSettingsLanguage>
             value={settings.ui.language}
             onChange={(v) => void autoSave('language', { ui: { ...settings.ui, language: v } })}
             options={[
-              { value: 'vi-VN', label: 'Tiếng Việt' },
-              { value: 'en-US', label: 'English' },
+              { value: 'vi-VN', label: t('settings_language_vi') },
+              { value: 'en-US', label: t('settings_language_en') },
             ]}
           />
         </div>
       </Section>
 
-<Section title="Trợ năng">
+      <Section title={t('settings_section_accessibility')}>
         <ToggleRow
-          title="Giảm chuyển động"
-          description="Tắt animation và hiệu ứng chuyển tiếp."
+          title={t('settings_reduced_motion')}
+          description={t('settings_reduced_motion_desc')}
           checked={settings.ui.reducedMotion}
           saving={savingKey === 'reducedMotion'}
           onChange={(v) => void autoSave('reducedMotion', { ui: { ...settings.ui, reducedMotion: v } })}
@@ -1022,7 +1034,7 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
         <div className="flex shrink-0 items-center gap-3 border-b border-slate-200 bg-white px-5 py-4">
           <Settings size={17} className="shrink-0 text-slate-400" />
           <div className="min-w-0 flex-1">
-            <h2 className="text-[17px] font-bold text-slate-900">Cài đặt</h2>
+            <h2 className="text-[17px] font-bold text-slate-900">{t('settings_title')}</h2>
           </div>
 
           <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold ${syncBadge.cls}`}>
@@ -1049,7 +1061,8 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
           {/* Sidebar nav */}
           <aside className="w-[200px] shrink-0 border-r border-slate-200 bg-white p-3">
             <nav className="space-y-1">
-              {TABS.map(({ id, label, icon: Icon }) => {
+              {TAB_DEFS.map(({ id, icon: Icon }) => {
+                const label = TAB_LABELS[id];
                 const active = id === activeTab;
                 return (
                   <button
@@ -1092,14 +1105,14 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
         {/* Footer - auto-save hint only */}
         <div className="shrink-0 flex items-center justify-between border-t border-slate-200 bg-white px-5 py-3">
           <p className="text-[11px] text-slate-400">
-            Thay đổi được lưu tự động vào cơ sở dữ liệu.
+            {t('settings_autosave_hint')}
           </p>
           <button
             type="button"
             onClick={onClose}
             className="h-9 rounded-xl border border-slate-200 bg-white px-4 text-[12px] font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
           >
-            Đóng
+            {t('btn_close')}
           </button>
         </div>
       </div>
