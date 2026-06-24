@@ -891,8 +891,15 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
     localStorage.removeItem('currentRawJD');
     localStorage.removeItem('currentLocation');
     setCompletedSteps([]);
+    const fixedJD = settings.workflow.fixedJD;
+    if (fixedJD?.enabled && fixedJD.jdText) {
+      setJdText(fixedJD.jdText);
+      setRawJdText(fixedJD.jdText);
+      setJobPosition(fixedJD.name || '');
+      localStorage.setItem('currentJD', fixedJD.jdText);
+    }
     navigate('/jd');
-  }, [hardFilters, navigate, settings.workflow.newSessionMode, settings.workflow.rememberScoringConfig, weights]);
+  }, [hardFilters, navigate, settings.workflow.fixedJD, settings.workflow.newSessionMode, settings.workflow.rememberScoringConfig, weights]);
 
   const setActiveStep = useCallback((step: AppStep) => {
     const pathMap: Partial<Record<AppStep, string>> = {

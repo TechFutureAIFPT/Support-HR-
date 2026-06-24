@@ -238,6 +238,12 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
   // Per-toggle saving indicator
   const [savingKey, setSavingKey] = useState<string | null>(null);
 
+  // Fixed JD local state
+  const [fixedJDName, setFixedJDName] = useState(settings.workflow.fixedJD?.name || '');
+  const [fixedJDText, setFixedJDText] = useState(settings.workflow.fixedJD?.jdText || '');
+  const [fixedJDSaving, setFixedJDSaving] = useState(false);
+  const [fixedJDSaved, setFixedJDSaved] = useState(false);
+
   // Danger zone
   const [dangerOpen, setDangerOpen] = useState(false);
 
@@ -245,9 +251,11 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
     if (!isOpen) return;
     setDisplayName(userName || settings.account.displayName || '');
     setAvatarPreview(userAvatar || settings.account.avatar || null);
+    setFixedJDName(settings.workflow.fixedJD?.name || '');
+    setFixedJDText(settings.workflow.fixedJD?.jdText || '');
     setActiveTab('profile');
     setDangerOpen(false);
-  }, [isOpen, settings.account.avatar, settings.account.displayName, userAvatar, userName]);
+  }, [isOpen, settings.account.avatar, settings.account.displayName, settings.workflow.fixedJD, userAvatar, userName]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -432,6 +440,87 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
               { value: 'keep-config', label: 'Giữ cấu hình', hint: '— chỉ xóa dữ liệu phiên' },
             ]}
           />
+        </div>
+      </Section>
+
+      <Section title="JD mặc định">
+        <div className="rounded-2xl border border-slate-100 bg-white p-4 space-y-3">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0 flex-1">
+              <p className="text-[13px] font-semibold text-slate-900">Tự động điền JD khi mở phiên mới</p>
+              <p className="mt-0.5 text-[12px] leading-5 text-slate-500">
+                Lưu một JD cố định để tự điền vào bước nhập JD, bạn vẫn có thể chỉnh sửa sau.
+              </p>
+            </div>
+            <Toggle
+              checked={settings.workflow.fixedJD?.enabled ?? false}
+              disabled={!settings.workflow.fixedJD?.jdText}
+              onChange={(v) => void autoSave('fixedJD.enabled', {
+                workflow: { ...settings.workflow, fixedJD: { ...(settings.workflow.fixedJD ?? { name: fixedJDName, jdText: fixedJDText, savedAt: Date.now() }), enabled: v } },
+              })}
+            />
+          </div>
+
+          <div>
+            <label className="mb-1 block text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-400">Tên vị trí</label>
+            <input
+              value={fixedJDName}
+              onChange={(e) => setFixedJDName(e.target.value)}
+              placeholder="VD: Frontend Developer"
+              className="h-9 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-[13px] font-medium text-slate-900 outline-none transition focus:border-blue-400 focus:bg-white"
+            />
+          </div>
+
+          <div>
+            <label className="mb-1 block text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-400">Nội dung JD</label>
+            <textarea
+              value={fixedJDText}
+              onChange={(e) => setFixedJDText(e.target.value)}
+              placeholder="Dán nội dung Job Description vào đây..."
+              rows={6}
+              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-[12.5px] leading-6 text-slate-900 outline-none transition focus:border-blue-400 focus:bg-white resize-none"
+            />
+          </div>
+
+          <div className="flex items-center justify-between">
+            {settings.workflow.fixedJD?.savedAt ? (
+              <p className="text-[11px] text-slate-400">
+                Đã lưu: <span className="font-medium text-slate-600">{settings.workflow.fixedJD.name || 'JD mặc định'}</span>
+                {' · '}
+                {new Date(settings.workflow.fixedJD.savedAt).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+              </p>
+            ) : (
+              <p className="text-[11px] text-slate-400">Chưa có JD nào được lưu.</p>
+            )}
+            <button
+              type="button"
+              disabled={!fixedJDText.trim() || fixedJDSaving}
+              onClick={async () => {
+                if (!fixedJDText.trim()) return;
+                setFixedJDSaving(true);
+                try {
+                  await saveSettings({
+                    workflow: {
+                      ...settings.workflow,
+                      fixedJD: { enabled: settings.workflow.fixedJD?.enabled ?? true, name: fixedJDName.trim(), jdText: fixedJDText.trim(), savedAt: Date.now() },
+                    },
+                  });
+                  setFixedJDSaved(true);
+                  setTimeout(() => setFixedJDSaved(false), 2000);
+                } finally {
+                  setFixedJDSaving(false);
+                }
+              }}
+              className="inline-flex h-8 items-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50 px-3 text-[12px] font-semibold text-blue-700 transition hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              {fixedJDSaving
+                ? <Loader2 size={12} className="animate-spin" />
+                : fixedJDSaved
+                  ? <CheckCircle2 size={12} className="text-emerald-500" />
+                  : null}
+              {fixedJDSaved ? 'Đã lưu' : 'Lưu JD'}
+            </button>
+          </div>
         </div>
       </Section>
     </div>

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo } from 'react';
-import { ArrowLeft, CalendarDays, CheckCircle2, ChevronRight, FileText, Mail, MoreHorizontal, Search, Sparkles, TriangleAlert } from 'lucide-react';
+import { ArrowLeft, CalendarDays, CheckCircle2, ChevronRight, FileText, Mail, MoreHorizontal, PlayCircle, Search, Sparkles, TriangleAlert } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 import type { AppStep, Candidate, HardFilters, WeightCriteria } from '@/types';
 import SupportHRLoading from '@/components/common/SupportHRLoading';
@@ -149,7 +149,15 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({
             const active = candidate.id === selected?.id;
             return (
               <button key={candidate.id} type="button" onClick={() => setParam('candidate', candidate.id)} className={`flex w-full items-center gap-3 border-b border-[#e5e5ea] px-5 py-4 text-left transition ${active ? 'bg-[#eef5ff] shadow-[inset_2px_0_0_#007aff]' : 'hover:bg-[#f8f8fa]'}`}>
-                <div className="min-w-0 flex-1"><p className="truncate text-[14px] font-semibold">{normalizeVietnameseDisplay(candidate.candidateName) || 'Ứng viên chưa xác định'}</p><p className="mt-1 truncate text-[12px] text-[#6e6e73]">{candidateRole(candidate, jobPosition)}</p></div>
+                <div className="min-w-0 flex-1">
+                  <p className="flex items-center gap-1.5 truncate text-[14px] font-semibold">
+                    {normalizeVietnameseDisplay(candidate.candidateName) || 'Ứng viên chưa xác định'}
+                    {(candidate.videoLinks?.length ?? 0) > 0 && (
+                      <span title="Có video giới thiệu"><PlayCircle size={13} className="shrink-0 text-rose-400" /></span>
+                    )}
+                  </p>
+                  <p className="mt-1 truncate text-[12px] text-[#6e6e73]">{candidateRole(candidate, jobPosition)}</p>
+                </div>
                 <ScoreLabel score={score} compact />
                 <ChevronRight size={15} className="text-[#86868b]" />
               </button>
@@ -171,6 +179,9 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({
                 </div>
                 <div className="hidden items-center gap-2 sm:flex">
                   <a href={selected.email ? `mailto:${selected.email}` : undefined} className="apple-toolbar-button !px-2.5" aria-disabled={!selected.email}><Mail size={16} /></a>
+                  {(selected.videoLinks?.length ?? 0) > 0 && (
+                    <a href={selected.videoLinks![0]} target="_blank" rel="noopener noreferrer" className="apple-toolbar-button !px-2.5 !text-rose-500" title="Xem video giới thiệu"><PlayCircle size={16} /></a>
+                  )}
                   <button type="button" className="apple-toolbar-button !px-2.5" aria-label="Lên lịch phỏng vấn"><CalendarDays size={16} /></button>
                   <button type="button" className="apple-toolbar-button !px-2.5" aria-label="Thêm hành động"><MoreHorizontal size={16} /></button>
                 </div>

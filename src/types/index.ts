@@ -169,6 +169,7 @@ export interface Candidate {
   error?: string;
   _rawBatchJson?: string;
   _cvText?: string;
+  videoLinks?: string[];
 }
 
 export interface HardFilters {
@@ -551,12 +552,20 @@ export interface UserSettingsAccount {
   email: string;
 }
 
+export interface FixedJDConfig {
+  enabled: boolean;
+  name: string;
+  jdText: string;
+  savedAt: number;
+}
+
 export interface UserSettingsWorkflow {
   autoSaveDraft: boolean;
   restoreDraft: boolean;
   rememberScoringConfig: boolean;
   autoSaveHistory: boolean;
   newSessionMode: NewSessionMode;
+  fixedJD?: FixedJDConfig;
 }
 
 export interface UserSettingsNotifications {

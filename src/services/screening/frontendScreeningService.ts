@@ -555,6 +555,53 @@ function normalizeAnalysis(rawAnalysis: unknown): CandidateAnalysis | undefined 
   };
 }
 
+function applyVideoIntroScore(candidate: Candidate, weights: WeightCriteria): Candidate {
+  const videoWeight = weights.videoIntro?.children?.[0]?.weight ?? 0;
+  if (videoWeight <= 0 || !candidate.analysis) return candidate;
+  const hasVideo = (candidate.videoLinks?.length ?? 0) > 0;
+  const scoreValue = hasVideo ? 100 : 0;
+  const existingDetails = candidate.analysis['Chi tiết'] ?? [];
+  const alreadyHas = existingDetails.some((d) => d['Tiêu chí'] === 'Video giới thiệu');
+  if (alreadyHas) return candidate;
+  const contribution = (scoreValue * videoWeight) / 100;
+  const newTotal = Math.min(100, (candidate.analysis['Tổng điểm'] ?? 0) + contribution);
+  return {
+    ...candidate,
+    analysis: {
+      ...candidate.analysis,
+      'Tổng điểm': Math.round(newTotal * 10) / 10,
+      'Chi tiết': [
+        ...existingDetails,
+        {
+          'Tiêu chí': 'Video giới thiệu',
+          'Điểm': `${scoreValue}/100`,
+          'Công thức': `${videoWeight}% × ${scoreValue}/100`,
+          'Dẫn chứng': hasVideo ? (candidate.videoLinks?.[0] ?? '') : 'Không tìm thấy link video trong CV',
+          'Giải thích': hasVideo
+            ? `Ứng viên đã nộp video giới thiệu (${candidate.videoLinks?.length} link).`
+            : 'Ứng viên không cung cấp link video giới thiệu.',
+        },
+      ],
+    },
+  };
+}
+
+function extractVideoLinks(text: string): string[] {
+  const patterns = [
+    /https?:\/\/(?:www\.)?youtube\.com\/shorts\/[\w-]+(?:\?[\w=&-]*)?/gi,
+    /https?:\/\/youtu\.be\/[\w-]+(?:\?[\w=&-]*)?/gi,
+    /https?:\/\/(?:www\.)?youtube\.com\/watch\?v=[\w-]+(?:&[\w=&-]*)?/gi,
+    /https?:\/\/(?:www\.)?tiktok\.com\/@[\w.]+\/video\/\d+/gi,
+    /https?:\/\/(?:www\.)?vimeo\.com\/\d+/gi,
+  ];
+  const seen = new Set<string>();
+  return patterns.flatMap((p) => Array.from(text.matchAll(p), (m) => m[0])).filter((url) => {
+    if (seen.has(url)) return false;
+    seen.add(url);
+    return true;
+  });
+}
+
 function normalizeCandidate(rawCandidate: unknown, fallbackFile?: File, cvText?: string): Candidate {
   const candidate = (rawCandidate && typeof rawCandidate === 'object') ? rawCandidate as Record<string, unknown> : {};
   const fileName = String(candidate.fileName || fallbackFile?.name || 'unknown');
@@ -609,6 +656,7 @@ function normalizeCandidate(rawCandidate: unknown, fallbackFile?: File, cvText?:
     error: normalizedStatus === 'FAILED' && candidate.error ? sanitizeApiErrorMessage(String(candidate.error), SAFE_ERROR_MESSAGES.ai) : undefined,
     _rawBatchJson: JSON.stringify(rawPayload),
     _cvText: effectiveCvText,
+    videoLinks: effectiveCvText ? extractVideoLinks(effectiveCvText) : [],
   };
 }
 
@@ -767,13 +815,13 @@ export async function* analyzeCVs(
       message: `Đang dùng kết quả đã lưu cho CV ${index + 1}/${cached.length}: ${item.file.name}`,
     };
 
-    yield normalizeCandidate(
+    yield applyVideoIntroScore(normalizeCandidate(
       item.result,
       item.file,
       typeof (item.result as Record<string, unknown>)?._cvText === 'string'
         ? String((item.result as Record<string, unknown>)._cvText)
         : undefined
-    );
+    ), weights);
   }
 
   const cvEntries: Array<{ file_name: string; text: string }> = [];
@@ -880,11 +928,11 @@ export async function* analyzeCVs(
     const matchedFile =
       pendingFiles.find((file) => file.name === String((rawCandidate as Record<string, unknown>)?.fileName || ''))
       || pendingFiles[index];
-    const normalizedCandidate = normalizeCandidate(
+    const normalizedCandidate = applyVideoIntroScore(normalizeCandidate(
       rawCandidate,
       matchedFile,
       matchedFile ? cvTextMap[matchedFile.name] : undefined
-    );
+    ), weights);
 
     if (matchedFile) {
       try {

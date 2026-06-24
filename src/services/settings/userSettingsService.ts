@@ -173,6 +173,16 @@ export function normalizeUserSettings(raw: unknown, seed: AccountSeed = {}): Use
       rememberScoringConfig: normalizeBoolean(workflow.rememberScoringConfig, defaults.workflow.rememberScoringConfig),
       autoSaveHistory: normalizeBoolean(workflow.autoSaveHistory, defaults.workflow.autoSaveHistory),
       newSessionMode: workflow.newSessionMode === 'keep-config' ? 'keep-config' : 'reset',
+      fixedJD: (() => {
+        const raw = toRecord(workflow.fixedJD);
+        if (!raw || typeof raw.jdText !== 'string' || !raw.jdText.trim()) return undefined;
+        return {
+          enabled: normalizeBoolean(raw.enabled, false),
+          name: String(raw.name || ''),
+          jdText: raw.jdText.trim(),
+          savedAt: typeof raw.savedAt === 'number' ? raw.savedAt : Date.now(),
+        };
+      })(),
     },
     notifications: {
       analysisComplete: normalizeBoolean(notifications.analysisComplete, defaults.notifications.analysisComplete),
