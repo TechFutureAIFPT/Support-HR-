@@ -28,7 +28,7 @@ import {
   X,
 } from 'lucide-react';
 import { googleDriveService } from '@/services/file-processing/googleDriveService';
-import type { HistoryRetention, NewSessionMode, SidebarDensity, UserSettingsLanguage, UserSettingsTheme, WeightCriteria } from '@/types';
+import type { HistoryRetention, NewSessionMode, UserSettingsLanguage, UserSettingsTheme, WeightCriteria } from '@/types';
 import { useUserSettings } from '@/context/settings/UserSettingsProvider';
 import { useTheme } from '@/context/theme/ThemeProvider';
 import { JDTemplatesService } from '@/services/data-sync/jdTemplatesService';
@@ -972,23 +972,7 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
         </div>
       </Section>
 
-      <Section title="Hiển thị">
-        <div className="rounded-2xl border border-slate-100 bg-white p-4 space-y-3">
-          <div>
-            <p className="mb-2 text-[12px] font-semibold text-slate-700">Mật độ sidebar</p>
-            <ChipGroup<SidebarDensity>
-              value={settings.ui.sidebarDensity}
-              onChange={(v) => void autoSave('sidebarDensity', { ui: { ...settings.ui, sidebarDensity: v } })}
-              options={[
-                { value: 'compact', label: 'Thu gọn', hint: '— ít khoảng trắng hơn' },
-                { value: 'cozy',    label: 'Thoáng',  hint: '— khoảng cách rộng hơn' },
-              ]}
-            />
-          </div>
-        </div>
-      </Section>
-
-      <Section title="Trợ năng">
+<Section title="Trợ năng">
         <ToggleRow
           title="Giảm chuyển động"
           description="Tắt animation và hiệu ứng chuyển tiếp."
