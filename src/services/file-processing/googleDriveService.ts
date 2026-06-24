@@ -177,7 +177,7 @@ function escapeHtml(value: string): string {
 function buildRedirectUri(): string {
   const configuredRedirectUri = import.meta.env.VITE_GOOGLE_DRIVE_REDIRECT_URI?.trim();
   if (configuredRedirectUri) return configuredRedirectUri;
-  return `${window.location.origin}/jd`;
+  return window.location.origin;
 }
 
 function getPendingGoogleDriveImport(): PendingGoogleDriveImportRequest | null {

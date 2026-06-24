@@ -6,7 +6,6 @@ import {
   ChevronDown,
   ChevronRight,
   ClipboardCheck,
-  FileInput,
   FileText,
   HelpCircle,
   LayoutDashboard,
@@ -52,9 +51,7 @@ type HistorySession = { timestamp: number; jobPosition?: string };
 
 const screeningPages = [
   { path: '/', label: 'Tổng quan tuyển dụng', icon: LayoutDashboard },
-  { path: '/jd', label: 'Nhập Job Description', icon: FileInput },
   { path: '/upload', label: 'Nạp hồ sơ ứng viên', icon: Upload },
-  { path: '/weights', label: 'Tiêu chí chấm điểm', icon: SlidersHorizontal },
   { path: '/analysis', label: 'Kết quả phân tích', icon: ClipboardCheck },
   { path: '/detailed-analytics', label: 'Phân tích chi tiết', icon: BarChart3 },
 ] as const;

@@ -9,12 +9,14 @@ import {
   CloudOff,
   Database,
   FolderOpen,
+  HardDrive,
   History,
   Loader2,
   LogOut,
   Moon,
   Monitor,
   Plus,
+  Target,
   RefreshCcw,
   Settings,
   SlidersHorizontal,
@@ -25,7 +27,8 @@ import {
   Workflow,
   X,
 } from 'lucide-react';
-import type { HistoryRetention, NewSessionMode, SidebarDensity, UserSettingsLanguage, UserSettingsTheme } from '@/types';
+import { googleDriveService } from '@/services/file-processing/googleDriveService';
+import type { HistoryRetention, NewSessionMode, SidebarDensity, UserSettingsLanguage, UserSettingsTheme, WeightCriteria } from '@/types';
 import { useUserSettings } from '@/context/settings/UserSettingsProvider';
 import { useTheme } from '@/context/theme/ThemeProvider';
 import { JDTemplatesService } from '@/services/data-sync/jdTemplatesService';
@@ -57,7 +60,7 @@ const TABS: Array<{ id: SettingsTab; label: string; icon: React.ComponentType<{ 
   { id: 'workspace',     label: 'Quy trình',   icon: Workflow },
   { id: 'notifications', label: 'Thông báo',   icon: Bell },
   { id: 'data',          label: 'Dữ liệu',     icon: Database },
-  { id: 'jd',            label: 'JD',          icon: BookOpen },
+  { id: 'jd',            label: 'Set Up Team', icon: Target },
   { id: 'cv',            label: 'Thư viện CV', icon: FolderOpen },
 ];
 
@@ -259,9 +262,13 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
   // Fixed JD local state
   const [fixedJDName, setFixedJDName] = useState(settings.workflow.fixedJD?.name || '');
   const [fixedJDText, setFixedJDText] = useState(settings.workflow.fixedJD?.jdText || '');
-  const [fixedJDScoringEnabled, setFixedJDScoringEnabled] = useState(settings.workflow.fixedJD?.scoringEnabled ?? false);
+  const [localWeights, setLocalWeights] = useState<WeightCriteria | null>(() => {
+    const w = settings.workflow.fixedJD?.weights;
+    return (w && typeof w === 'object' && !Array.isArray(w)) ? w as WeightCriteria : null;
+  });
   const [fixedJDSaving, setFixedJDSaving] = useState(false);
   const [fixedJDSaved, setFixedJDSaved] = useState(false);
+  const [driveImporting, setDriveImporting] = useState(false);
 
   // Danger zone
   const [dangerOpen, setDangerOpen] = useState(false);
@@ -284,7 +291,8 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
     setAvatarPreview(userAvatar || settings.account.avatar || null);
     setFixedJDName(settings.workflow.fixedJD?.name || '');
     setFixedJDText(settings.workflow.fixedJD?.jdText || '');
-    setFixedJDScoringEnabled(settings.workflow.fixedJD?.scoringEnabled ?? false);
+    const w = settings.workflow.fixedJD?.weights;
+    setLocalWeights((w && typeof w === 'object' && !Array.isArray(w)) ? w as WeightCriteria : null);
     setActiveTab('general');
     setDangerOpen(false);
     setAddTplOpen(false);
@@ -621,272 +629,290 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
     </div>
   );
 
-  // ── Tab: JD ──
+  // ── Tab: Set Up Team ──
+  const criteriaEntries = localWeights ? Object.values(localWeights) : [];
+  const totalWeight = criteriaEntries.reduce((sum, c) => sum + (c.weight ?? 0), 0);
+
   const jdTab = (
     <div className="space-y-5">
-      <Section title="JD mặc định">
-        <div className="rounded-2xl border border-slate-100 bg-white p-5 space-y-4">
-          <div className="flex items-start justify-between gap-4">
-            <div className="min-w-0 flex-1">
-              <p className="text-[14px] font-semibold text-slate-900">Tự động điền JD khi mở phiên mới</p>
-              <p className="mt-1 text-[12px] leading-5 text-slate-500">
-                Lưu một JD cố định để tự điền vào bước nhập JD, bạn vẫn có thể chỉnh sửa sau.
-              </p>
-            </div>
-            <Toggle
-              checked={settings.workflow.fixedJD?.enabled ?? false}
-              onChange={(v) => void autoSave('fixedJD.enabled', {
-                workflow: { ...settings.workflow, fixedJD: { ...(settings.workflow.fixedJD ?? { name: fixedJDName, jdText: fixedJDText, savedAt: Date.now() }), enabled: v } },
-              })}
-            />
+      <div className="rounded-2xl border border-slate-100 bg-white p-5 space-y-4">
+        {/* Toggle */}
+        <div className="flex items-start justify-between gap-4">
+          <div className="min-w-0 flex-1">
+            <p className="text-[14px] font-semibold text-slate-900">Tự động áp dụng khi mở phiên mới</p>
+            <p className="mt-1 text-[12px] leading-5 text-slate-500">
+              Bật để lưu JD và trọng số chấm điểm. Lần sau chỉ cần thả CV vào là phân tích ngay.
+            </p>
           </div>
+          <Toggle
+            checked={settings.workflow.fixedJD?.enabled ?? false}
+            onChange={(v) => void autoSave('fixedJD.enabled', {
+              workflow: { ...settings.workflow, fixedJD: { ...(settings.workflow.fixedJD ?? { name: fixedJDName, jdText: fixedJDText, savedAt: Date.now() }), enabled: v } },
+            })}
+          />
+        </div>
 
-          <div className="h-px bg-slate-100" />
+        <div className="h-px bg-slate-100" />
 
-          <div>
-            <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-400">Tên vị trí</label>
+        {/* JD Section */}
+        <div>
+          <p className="mb-2.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-400">Job Description</p>
+          <div className="space-y-3">
             <input
               value={fixedJDName}
               onChange={(e) => setFixedJDName(e.target.value)}
-              placeholder="VD: Frontend Developer"
+              placeholder="Tên vị trí (VD: Frontend Developer)"
               className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-[13px] font-medium text-slate-900 outline-none transition focus:border-blue-400 focus:bg-white"
             />
-          </div>
 
-          <div>
-            <div className="mb-1.5 flex items-center justify-between">
-              <label className="text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-400">Nội dung JD</label>
-              <div className="relative" ref={tplDropdownRef}>
+            {/* Nội dung JD + Mẫu dropdown */}
+            <div>
+              <div className="mb-1.5 flex items-center justify-between">
+                <span className="text-[11px] font-medium text-slate-400">Nội dung JD</span>
+                <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  onClick={() => { setTplDropdownOpen((v) => !v); setAddTplOpen(false); }}
-                  className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[11px] font-semibold transition ${
-                    tplDropdownOpen
-                      ? 'border-blue-300 bg-blue-50 text-blue-600'
-                      : 'border-slate-200 bg-white text-slate-600 hover:border-blue-300 hover:text-blue-600'
-                  }`}
+                  disabled={driveImporting}
+                  onClick={async () => {
+                    setDriveImporting(true);
+                    try {
+                      const files = await googleDriveService.openPicker({ redirectUri: window.location.href });
+                      if (files.length > 0) {
+                        const imported = await googleDriveService.importFile(files[0].id, 'jd');
+                        if (imported.__preExtractedText) {
+                          setFixedJDText(imported.__preExtractedText);
+                          if (!fixedJDName.trim()) setFixedJDName(files[0].name.replace(/\.[^.]+$/, ''));
+                        }
+                      }
+                    } catch {
+                      // user cancelled or not connected
+                    } finally {
+                      setDriveImporting(false);
+                    }
+                  }}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-slate-600 transition hover:border-blue-300 hover:text-blue-600 disabled:opacity-40"
                 >
-                  <BookOpen size={11} />
-                  Mẫu JD
-                  <ChevronDown size={10} className={`transition-transform duration-150 ${tplDropdownOpen ? 'rotate-180' : ''}`} />
+                  {driveImporting ? <Loader2 size={11} className="animate-spin" /> : <HardDrive size={11} />}
+                  Google Drive
                 </button>
+                <div className="relative" ref={tplDropdownRef}>
+                  <button
+                    type="button"
+                    onClick={() => { setTplDropdownOpen((v) => !v); setAddTplOpen(false); }}
+                    className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[11px] font-semibold transition ${
+                      tplDropdownOpen
+                        ? 'border-blue-300 bg-blue-50 text-blue-600'
+                        : 'border-slate-200 bg-white text-slate-600 hover:border-blue-300 hover:text-blue-600'
+                    }`}
+                  >
+                    <BookOpen size={11} />
+                    Mẫu JD
+                    <ChevronDown size={10} className={`transition-transform duration-150 ${tplDropdownOpen ? 'rotate-180' : ''}`} />
+                  </button>
 
-                {tplDropdownOpen && (
-                  <div className="absolute right-0 top-full z-50 mt-1.5 w-[300px] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl">
-                    <div className="max-h-[200px] overflow-y-auto custom-scrollbar">
-                      {templatesLoading && templates.length === 0 ? (
-                        <div className="flex items-center gap-2 px-4 py-3 text-[12px] text-slate-400">
-                          <Loader2 size={13} className="animate-spin" /> Đang tải...
+                  {tplDropdownOpen && (
+                    <div className="absolute right-0 top-full z-50 mt-1.5 w-[300px] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl">
+                      <div className="max-h-[200px] overflow-y-auto custom-scrollbar">
+                        {templatesLoading && templates.length === 0 ? (
+                          <div className="flex items-center gap-2 px-4 py-3 text-[12px] text-slate-400">
+                            <Loader2 size={13} className="animate-spin" /> Đang tải...
+                          </div>
+                        ) : templates.length === 0 ? (
+                          <p className="px-4 py-3 text-[12px] text-slate-400">Chưa có mẫu JD nào.</p>
+                        ) : (
+                          <div className="py-1">
+                            {templates.map((tpl) => (
+                              <div key={tpl.id} className="group flex items-center gap-2 px-3 py-2 transition hover:bg-slate-50">
+                                <button
+                                  type="button"
+                                  onClick={() => { setFixedJDName(tpl.jobPosition || tpl.name); setFixedJDText(tpl.jdText); setTplDropdownOpen(false); }}
+                                  className="min-w-0 flex-1 text-left"
+                                >
+                                  <span className="block text-[12.5px] font-semibold text-slate-800 leading-tight">{tpl.name}</span>
+                                  {tpl.jobPosition && <span className="mt-0.5 block text-[11px] text-slate-400">{tpl.jobPosition}</span>}
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={(e) => { e.stopPropagation(); void JDTemplatesService.deleteTemplate(tpl.id).finally(() => setTemplates((prev) => prev.filter((t) => t.id !== tpl.id))); }}
+                                  className="shrink-0 flex h-6 w-6 items-center justify-center rounded-lg text-transparent transition group-hover:bg-rose-50 group-hover:text-rose-400"
+                                >
+                                  <Trash2 size={11} />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      {addTplOpen ? (
+                        <div className="border-t border-slate-100 p-3 space-y-2">
+                          <input autoFocus value={newTplName} onChange={(e) => setNewTplName(e.target.value)} placeholder="Tên mẫu" className="h-8 w-full rounded-lg border border-slate-200 bg-slate-50 px-2.5 text-[12px] font-medium text-slate-900 outline-none focus:border-blue-400 focus:bg-white" />
+                          <input value={newTplPosition} onChange={(e) => setNewTplPosition(e.target.value)} placeholder="Vị trí tuyển dụng" className="h-8 w-full rounded-lg border border-slate-200 bg-slate-50 px-2.5 text-[12px] font-medium text-slate-900 outline-none focus:border-blue-400 focus:bg-white" />
+                          <textarea value={newTplText} onChange={(e) => setNewTplText(e.target.value)} placeholder="Nội dung JD..." rows={4} className="w-full resize-none rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-2 text-[12px] leading-5 text-slate-900 outline-none focus:border-blue-400 focus:bg-white" />
+                          <div className="flex gap-1.5">
+                            <button
+                              type="button"
+                              disabled={!newTplName.trim() || !newTplText.trim() || newTplSaving}
+                              onClick={async () => {
+                                if (!newTplName.trim() || !newTplText.trim()) return;
+                                setNewTplSaving(true);
+                                try {
+                                  const created = await JDTemplatesService.createTemplate({ name: newTplName.trim(), jobPosition: newTplPosition.trim(), jdText: newTplText.trim(), category: '', hardFilters: {} });
+                                  if (created) setTemplates((prev) => [created, ...prev]);
+                                  setAddTplOpen(false); setNewTplName(''); setNewTplPosition(''); setNewTplText('');
+                                } finally { setNewTplSaving(false); }
+                              }}
+                              className="inline-flex h-7 items-center gap-1 rounded-lg border border-blue-200 bg-blue-50 px-2.5 text-[11px] font-semibold text-blue-700 transition hover:bg-blue-100 disabled:opacity-40"
+                            >
+                              {newTplSaving ? <Loader2 size={11} className="animate-spin" /> : null} Lưu
+                            </button>
+                            <button type="button" onClick={() => { setAddTplOpen(false); setNewTplName(''); setNewTplPosition(''); setNewTplText(''); }} className="inline-flex h-7 items-center rounded-lg border border-slate-200 bg-white px-2.5 text-[11px] font-semibold text-slate-600 transition hover:bg-slate-50">
+                              Hủy
+                            </button>
+                          </div>
                         </div>
-                      ) : templates.length === 0 ? (
-                        <p className="px-4 py-3 text-[12px] text-slate-400">Chưa có mẫu JD nào.</p>
                       ) : (
-                        <div className="py-1">
-                          {templates.map((tpl) => (
-                            <div key={tpl.id} className="group flex items-center gap-2 px-3 py-2 transition hover:bg-slate-50">
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setFixedJDName(tpl.jobPosition || tpl.name);
-                                  setFixedJDText(tpl.jdText);
-                                  setTplDropdownOpen(false);
-                                }}
-                                className="min-w-0 flex-1 text-left"
-                              >
-                                <span className="block text-[12.5px] font-semibold text-slate-800 leading-tight">{tpl.name}</span>
-                                {tpl.jobPosition && <span className="mt-0.5 block text-[11px] text-slate-400">{tpl.jobPosition}</span>}
-                              </button>
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  void JDTemplatesService.deleteTemplate(tpl.id).finally(() =>
-                                    setTemplates((prev) => prev.filter((t) => t.id !== tpl.id)),
-                                  );
-                                }}
-                                className="shrink-0 flex h-6 w-6 items-center justify-center rounded-lg text-transparent transition group-hover:bg-rose-50 group-hover:text-rose-400"
-                              >
-                                <Trash2 size={11} />
-                              </button>
-                            </div>
-                          ))}
+                        <div className="border-t border-slate-100">
+                          <button type="button" onClick={() => setAddTplOpen(true)} className="flex w-full items-center gap-2 px-4 py-2.5 text-[12px] font-semibold text-slate-500 transition hover:bg-slate-50 hover:text-blue-600">
+                            <Plus size={12} /> Tạo mẫu mới
+                          </button>
                         </div>
                       )}
                     </div>
-
-                    {addTplOpen ? (
-                      <div className="border-t border-slate-100 p-3 space-y-2">
-                        <input
-                          autoFocus
-                          value={newTplName}
-                          onChange={(e) => setNewTplName(e.target.value)}
-                          placeholder="Tên mẫu"
-                          className="h-8 w-full rounded-lg border border-slate-200 bg-slate-50 px-2.5 text-[12px] font-medium text-slate-900 outline-none focus:border-blue-400 focus:bg-white"
-                        />
-                        <input
-                          value={newTplPosition}
-                          onChange={(e) => setNewTplPosition(e.target.value)}
-                          placeholder="Vị trí tuyển dụng"
-                          className="h-8 w-full rounded-lg border border-slate-200 bg-slate-50 px-2.5 text-[12px] font-medium text-slate-900 outline-none focus:border-blue-400 focus:bg-white"
-                        />
-                        <textarea
-                          value={newTplText}
-                          onChange={(e) => setNewTplText(e.target.value)}
-                          placeholder="Nội dung JD..."
-                          rows={4}
-                          className="w-full resize-none rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-2 text-[12px] leading-5 text-slate-900 outline-none focus:border-blue-400 focus:bg-white"
-                        />
-                        <div className="flex gap-1.5">
-                          <button
-                            type="button"
-                            disabled={!newTplName.trim() || !newTplText.trim() || newTplSaving}
-                            onClick={async () => {
-                              if (!newTplName.trim() || !newTplText.trim()) return;
-                              setNewTplSaving(true);
-                              try {
-                                const created = await JDTemplatesService.createTemplate({
-                                  name: newTplName.trim(),
-                                  jobPosition: newTplPosition.trim(),
-                                  jdText: newTplText.trim(),
-                                  category: '',
-                                  hardFilters: {},
-                                });
-                                if (created) setTemplates((prev) => [created, ...prev]);
-                                setAddTplOpen(false);
-                                setNewTplName(''); setNewTplPosition(''); setNewTplText('');
-                              } finally { setNewTplSaving(false); }
-                            }}
-                            className="inline-flex h-7 items-center gap-1 rounded-lg border border-blue-200 bg-blue-50 px-2.5 text-[11px] font-semibold text-blue-700 transition hover:bg-blue-100 disabled:opacity-40"
-                          >
-                            {newTplSaving ? <Loader2 size={11} className="animate-spin" /> : null}
-                            Lưu
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => { setAddTplOpen(false); setNewTplName(''); setNewTplPosition(''); setNewTplText(''); }}
-                            className="inline-flex h-7 items-center rounded-lg border border-slate-200 bg-white px-2.5 text-[11px] font-semibold text-slate-600 transition hover:bg-slate-50"
-                          >
-                            Hủy
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="border-t border-slate-100">
-                        <button
-                          type="button"
-                          onClick={() => setAddTplOpen(true)}
-                          className="flex w-full items-center gap-2 px-4 py-2.5 text-[12px] font-semibold text-slate-500 transition hover:bg-slate-50 hover:text-blue-600"
-                        >
-                          <Plus size={12} />
-                          Tạo mẫu mới
-                        </button>
-                      </div>
-                    )}
-
-                    <div className="border-t border-slate-100">
-                      <button
-                        type="button"
-                        onClick={() => { setTplDropdownOpen(false); onClose(); onGoToScoring?.(); }}
-                        className="flex w-full items-center justify-between gap-2 px-4 py-2.5 text-[12px] font-semibold text-blue-600 transition hover:bg-blue-50"
-                      >
-                        <span>Sang cài đặt tiêu chí chấm điểm</span>
-                        <span>→</span>
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-            <textarea
-              value={fixedJDText}
-              onChange={(e) => setFixedJDText(e.target.value)}
-              placeholder="Dán nội dung Job Description vào đây..."
-              rows={9}
-              className="w-full resize-none rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-[12.5px] leading-6 text-slate-900 outline-none transition focus:border-blue-400 focus:bg-white"
-            />
-          </div>
-
-          <div className="rounded-xl border border-slate-100 bg-slate-50 px-3 py-2.5 flex items-center justify-between gap-3">
-            <div className="min-w-0 flex-1">
-              <span className="block text-[12.5px] font-semibold text-slate-800">Lưu kèm tiêu chí chấm điểm</span>
-              <span className="mt-0.5 block text-[11px] leading-4 text-slate-400">
-                Khôi phục trọng số và bộ lọc cứng đã lưu khi bắt đầu phiên mới.
-              </span>
-            </div>
-            <Toggle checked={fixedJDScoringEnabled} onChange={setFixedJDScoringEnabled} />
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div className="min-w-0">
-              {settings.workflow.fixedJD?.savedAt ? (
-                <>
-                  <p className="text-[11px] text-slate-400">
-                    Đã lưu: <span className="font-medium text-slate-600">{settings.workflow.fixedJD.name || 'JD mặc định'}</span>
-                    {' · '}
-                    {new Date(settings.workflow.fixedJD.savedAt).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })}
-                  </p>
-                  {settings.workflow.fixedJD.scoringEnabled && settings.workflow.fixedJD.weights && (
-                    <p className="mt-0.5 text-[11px] text-emerald-600">
-                      + {Object.keys(settings.workflow.fixedJD.weights).length} tiêu chí chấm điểm đã lưu
-                    </p>
                   )}
-                </>
-              ) : (
-                <p className="text-[11px] text-slate-400">Chưa có JD nào được lưu.</p>
-              )}
+                </div>
+                </div>
+              </div>
+              <textarea
+                value={fixedJDText}
+                onChange={(e) => setFixedJDText(e.target.value)}
+                placeholder="Dán nội dung Job Description vào đây..."
+                rows={7}
+                className="w-full resize-none rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-[12.5px] leading-6 text-slate-900 outline-none transition focus:border-blue-400 focus:bg-white"
+              />
             </div>
-            <button
-              type="button"
-              disabled={!fixedJDText.trim() || fixedJDSaving}
-              onClick={async () => {
-                if (!fixedJDText.trim()) return;
-                setFixedJDSaving(true);
-                try {
-                  let weightsToSave = undefined;
-                  let hardFiltersToSave = undefined;
-                  if (fixedJDScoringEnabled) {
-                    const draft = readWorkflowDraft();
-                    weightsToSave = draft?.weights ?? undefined;
-                    hardFiltersToSave = draft?.hardFilters ?? undefined;
-                    if (!weightsToSave) {
-                      try { weightsToSave = JSON.parse(localStorage.getItem('analysisWeights') || 'null') ?? undefined; } catch {}
-                    }
-                    if (!hardFiltersToSave) {
-                      try { hardFiltersToSave = JSON.parse(localStorage.getItem('hardFilters') || 'null') ?? undefined; } catch {}
-                    }
-                  }
-                  await saveSettings({
-                    workflow: {
-                      ...settings.workflow,
-                      fixedJD: {
-                        enabled: settings.workflow.fixedJD?.enabled ?? true,
-                        name: fixedJDName.trim(),
-                        jdText: fixedJDText.trim(),
-                        savedAt: Date.now(),
-                        scoringEnabled: fixedJDScoringEnabled,
-                        weights: weightsToSave,
-                        hardFilters: hardFiltersToSave,
-                      },
-                    },
-                  });
-                  setFixedJDSaved(true);
-                  setTimeout(() => setFixedJDSaved(false), 2000);
-                } finally {
-                  setFixedJDSaving(false);
-                }
-              }}
-              className="ml-3 inline-flex shrink-0 h-9 items-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50 px-4 text-[12px] font-semibold text-blue-700 transition hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              {fixedJDSaving
-                ? <Loader2 size={12} className="animate-spin" />
-                : fixedJDSaved
-                  ? <CheckCircle2 size={12} className="text-emerald-500" />
-                  : null}
-              {fixedJDSaved ? 'Đã lưu' : 'Lưu JD'}
-            </button>
           </div>
         </div>
-      </Section>
+
+        <div className="h-px bg-slate-100" />
+
+        {/* Weights Section */}
+        <div>
+          <div className="mb-2.5 flex items-center justify-between">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-400">Trọng số tiêu chí chấm điểm</p>
+            <button
+              type="button"
+              onClick={() => {
+                try {
+                  const draft = readWorkflowDraft();
+                  const w = draft?.weights ?? JSON.parse(localStorage.getItem('analysisWeights') || 'null');
+                  if (w && typeof w === 'object' && !Array.isArray(w)) setLocalWeights(w as WeightCriteria);
+                } catch {}
+              }}
+              className="text-[11px] font-semibold text-blue-500 transition hover:text-blue-600"
+            >
+              Lấy từ phiên hiện tại
+            </button>
+          </div>
+
+          {criteriaEntries.length > 0 ? (
+            <div className="space-y-1.5">
+              {criteriaEntries.map((criterion) => (
+                <div key={criterion.key} className="flex items-center gap-3 rounded-xl border border-slate-100 bg-slate-50 px-3 py-2">
+                  <span className="w-5 shrink-0 text-center text-[15px] leading-none">{criterion.icon}</span>
+                  <span className="flex-1 truncate text-[12.5px] font-semibold text-slate-800">{criterion.name}</span>
+                  <div className="flex shrink-0 items-center gap-1.5">
+                    <input
+                      type="number"
+                      min={0} max={100} step={1}
+                      value={criterion.weight ?? 0}
+                      onChange={(e) => {
+                        const val = Math.max(0, Math.min(100, Number(e.target.value)));
+                        setLocalWeights((prev) => prev ? { ...prev, [criterion.key]: { ...prev[criterion.key], weight: val } } : prev);
+                      }}
+                      className="h-7 w-14 rounded-lg border border-slate-200 bg-white px-2 text-center text-[12px] font-semibold text-slate-800 outline-none focus:border-blue-400"
+                    />
+                    <span className="text-[11px] text-slate-400">%</span>
+                  </div>
+                </div>
+              ))}
+              <p className={`text-right text-[11px] font-semibold ${
+                totalWeight === 100 ? 'text-emerald-600' : totalWeight > 100 ? 'text-rose-500' : 'text-amber-600'
+              }`}>
+                Tổng: {totalWeight}%{totalWeight === 100 ? ' ✓' : totalWeight > 100 ? ' — quá 100%' : ' — chưa đủ 100%'}
+              </p>
+            </div>
+          ) : (
+            <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50/50 py-5 text-center">
+              <p className="text-[12px] font-medium text-slate-500">Chưa có cấu hình trọng số</p>
+              <p className="mt-0.5 text-[11px] text-slate-400">Nhấn "Lấy từ phiên hiện tại" để nhập từ phiên đang chạy</p>
+            </div>
+          )}
+        </div>
+
+        <div className="h-px bg-slate-100" />
+
+        {/* Save row */}
+        <div className="flex items-center justify-between">
+          <div className="min-w-0">
+            {settings.workflow.fixedJD?.savedAt ? (
+              <>
+                <p className="text-[11px] text-slate-400">
+                  Đã lưu: <span className="font-medium text-slate-600">{settings.workflow.fixedJD.name || 'Set Up'}</span>
+                  {' · '}{new Date(settings.workflow.fixedJD.savedAt).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                </p>
+                {settings.workflow.fixedJD.weights && (
+                  <p className="mt-0.5 text-[11px] text-emerald-600">
+                    + {Object.keys(settings.workflow.fixedJD.weights).length} tiêu chí chấm điểm đã lưu
+                  </p>
+                )}
+              </>
+            ) : (
+              <p className="text-[11px] text-slate-400">Chưa có cấu hình nào được lưu.</p>
+            )}
+          </div>
+          <button
+            type="button"
+            disabled={!fixedJDText.trim() || fixedJDSaving}
+            onClick={async () => {
+              if (!fixedJDText.trim()) return;
+              setFixedJDSaving(true);
+              try {
+                let hardFiltersToSave: import('@/types').HardFilters | undefined;
+                try { hardFiltersToSave = JSON.parse(localStorage.getItem('hardFilters') || 'null') ?? undefined; } catch {}
+                const draft = readWorkflowDraft();
+                if (!hardFiltersToSave && draft?.hardFilters) hardFiltersToSave = draft.hardFilters as import('@/types').HardFilters;
+                await saveSettings({
+                  workflow: {
+                    ...settings.workflow,
+                    fixedJD: {
+                      enabled: settings.workflow.fixedJD?.enabled ?? true,
+                      name: fixedJDName.trim(),
+                      jdText: fixedJDText.trim(),
+                      savedAt: Date.now(),
+                      scoringEnabled: criteriaEntries.length > 0,
+                      weights: localWeights ?? undefined,
+                      hardFilters: hardFiltersToSave,
+                    },
+                  },
+                });
+                setFixedJDSaved(true);
+                setTimeout(() => setFixedJDSaved(false), 2000);
+              } finally {
+                setFixedJDSaving(false);
+              }
+            }}
+            className="ml-3 inline-flex shrink-0 h-9 items-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50 px-4 text-[12px] font-semibold text-blue-700 transition hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            {fixedJDSaving
+              ? <Loader2 size={12} className="animate-spin" />
+              : fixedJDSaved
+                ? <CheckCircle2 size={12} className="text-emerald-500" />
+                : null}
+            {fixedJDSaved ? 'Đã lưu' : 'Lưu Set Up'}
+          </button>
+        </div>
+      </div>
     </div>
   );
 
