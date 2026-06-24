@@ -35,6 +35,29 @@ import { JDTemplatesService } from '@/services/data-sync/jdTemplatesService';
 import type { UserJDTemplate } from '@/services/data-sync/jdTemplatesService';
 import FilteredCvLibraryPage from '@/pages/tools/FilteredCvLibraryPage';
 import { readWorkflowDraft } from '@/services/history-cache/workflowDraft';
+import { initialWeights } from '@/config/constants';
+
+const CRITERION_EMOJI: Record<string, string> = {
+  jdFit: '🎯',
+  workExperience: '💼',
+  technicalSkills: '⚙️',
+  achievements: '🏆',
+  education: '🎓',
+  language: '🌐',
+  professionalism: '📄',
+  jobTenure: '⏳',
+  cultureFit: '🤝',
+  videoIntro: '▶️',
+};
+
+function buildWeightsWithParents(raw: WeightCriteria): WeightCriteria {
+  return Object.fromEntries(
+    Object.entries(raw).map(([k, c]) => [
+      k,
+      { ...c, weight: c.weight ?? (c.children?.reduce((s, ch) => s + ch.weight, 0) ?? 0) },
+    ])
+  ) as WeightCriteria;
+}
 
 interface SidebarSettingsModalProps {
   isOpen: boolean;
@@ -262,9 +285,10 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
   // Fixed JD local state
   const [fixedJDName, setFixedJDName] = useState(settings.workflow.fixedJD?.name || '');
   const [fixedJDText, setFixedJDText] = useState(settings.workflow.fixedJD?.jdText || '');
-  const [localWeights, setLocalWeights] = useState<WeightCriteria | null>(() => {
+  const [localWeights, setLocalWeights] = useState<WeightCriteria>(() => {
     const w = settings.workflow.fixedJD?.weights;
-    return (w && typeof w === 'object' && !Array.isArray(w)) ? w as WeightCriteria : null;
+    const base = (w && typeof w === 'object' && !Array.isArray(w)) ? w as WeightCriteria : initialWeights;
+    return buildWeightsWithParents(base);
   });
   const [fixedJDSaving, setFixedJDSaving] = useState(false);
   const [fixedJDSaved, setFixedJDSaved] = useState(false);
@@ -292,7 +316,8 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
     setFixedJDName(settings.workflow.fixedJD?.name || '');
     setFixedJDText(settings.workflow.fixedJD?.jdText || '');
     const w = settings.workflow.fixedJD?.weights;
-    setLocalWeights((w && typeof w === 'object' && !Array.isArray(w)) ? w as WeightCriteria : null);
+    const base = (w && typeof w === 'object' && !Array.isArray(w)) ? w as WeightCriteria : initialWeights;
+    setLocalWeights(buildWeightsWithParents(base));
     setActiveTab('general');
     setDangerOpen(false);
     setAddTplOpen(false);
@@ -630,7 +655,7 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
   );
 
   // ── Tab: Set Up Team ──
-  const criteriaEntries = localWeights ? Object.values(localWeights) : [];
+  const criteriaEntries = Object.values(localWeights);
   const totalWeight = criteriaEntries.reduce((sum, c) => sum + (c.weight ?? 0), 0);
 
   const jdTab = (
@@ -794,61 +819,61 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
           </div>
         </div>
 
-        <div className="h-px bg-slate-100" />
+        {fixedJDText.trim() && (
+          <>
+            <div className="h-px bg-slate-100" />
 
-        {/* Weights Section */}
-        <div>
-          <div className="mb-2.5 flex items-center justify-between">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-400">Trọng số tiêu chí chấm điểm</p>
-            <button
-              type="button"
-              onClick={() => {
-                try {
-                  const draft = readWorkflowDraft();
-                  const w = draft?.weights ?? JSON.parse(localStorage.getItem('analysisWeights') || 'null');
-                  if (w && typeof w === 'object' && !Array.isArray(w)) setLocalWeights(w as WeightCriteria);
-                } catch {}
-              }}
-              className="text-[11px] font-semibold text-blue-500 transition hover:text-blue-600"
-            >
-              Lấy từ phiên hiện tại
-            </button>
-          </div>
+            {/* Weights Section */}
+            <div>
+              <div className="mb-2.5 flex items-center justify-between">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-400">Trọng số tiêu chí chấm điểm</p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    try {
+                      const draft = readWorkflowDraft();
+                      const w = draft?.weights ?? JSON.parse(localStorage.getItem('analysisWeights') || 'null');
+                      const base = (w && typeof w === 'object' && !Array.isArray(w)) ? w as WeightCriteria : initialWeights;
+                      setLocalWeights(buildWeightsWithParents(base));
+                    } catch {}
+                  }}
+                  className="text-[11px] font-semibold text-blue-500 transition hover:text-blue-600"
+                >
+                  Lấy từ phiên hiện tại
+                </button>
+              </div>
 
-          {criteriaEntries.length > 0 ? (
-            <div className="space-y-1.5">
-              {criteriaEntries.map((criterion) => (
-                <div key={criterion.key} className="flex items-center gap-3 rounded-xl border border-slate-100 bg-slate-50 px-3 py-2">
-                  <span className="w-5 shrink-0 text-center text-[15px] leading-none">{criterion.icon}</span>
-                  <span className="flex-1 truncate text-[12.5px] font-semibold text-slate-800">{criterion.name}</span>
-                  <div className="flex shrink-0 items-center gap-1.5">
+              <div className="space-y-2">
+                {criteriaEntries.map((criterion) => (
+                  <div key={criterion.key} className="rounded-xl border border-slate-100 bg-slate-50 px-3 py-2.5">
+                    <div className="mb-1.5 flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="shrink-0 text-[14px] leading-none">{CRITERION_EMOJI[criterion.key] ?? '•'}</span>
+                        <span className="truncate text-[12.5px] font-semibold text-slate-800">{criterion.name}</span>
+                      </div>
+                      <span className="shrink-0 text-[12px] font-bold text-slate-700 tabular-nums w-8 text-right">{criterion.weight ?? 0}%</span>
+                    </div>
                     <input
-                      type="number"
+                      type="range"
                       min={0} max={100} step={1}
                       value={criterion.weight ?? 0}
                       onChange={(e) => {
-                        const val = Math.max(0, Math.min(100, Number(e.target.value)));
-                        setLocalWeights((prev) => prev ? { ...prev, [criterion.key]: { ...prev[criterion.key], weight: val } } : prev);
+                        const val = Number(e.target.value);
+                        setLocalWeights((prev) => ({ ...prev, [criterion.key]: { ...prev[criterion.key], weight: val } }));
                       }}
-                      className="h-7 w-14 rounded-lg border border-slate-200 bg-white px-2 text-center text-[12px] font-semibold text-slate-800 outline-none focus:border-blue-400"
+                      className="w-full h-1.5 cursor-pointer accent-blue-500"
                     />
-                    <span className="text-[11px] text-slate-400">%</span>
                   </div>
-                </div>
-              ))}
-              <p className={`text-right text-[11px] font-semibold ${
-                totalWeight === 100 ? 'text-emerald-600' : totalWeight > 100 ? 'text-rose-500' : 'text-amber-600'
-              }`}>
-                Tổng: {totalWeight}%{totalWeight === 100 ? ' ✓' : totalWeight > 100 ? ' — quá 100%' : ' — chưa đủ 100%'}
-              </p>
+                ))}
+                <p className={`text-right text-[11px] font-semibold ${
+                  totalWeight === 100 ? 'text-emerald-600' : totalWeight > 100 ? 'text-rose-500' : 'text-amber-600'
+                }`}>
+                  Tổng: {totalWeight}%{totalWeight === 100 ? ' ✓' : totalWeight > 100 ? ' — quá 100%' : ' — chưa đủ 100%'}
+                </p>
+              </div>
             </div>
-          ) : (
-            <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50/50 py-5 text-center">
-              <p className="text-[12px] font-medium text-slate-500">Chưa có cấu hình trọng số</p>
-              <p className="mt-0.5 text-[11px] text-slate-400">Nhấn "Lấy từ phiên hiện tại" để nhập từ phiên đang chạy</p>
-            </div>
-          )}
-        </div>
+          </>
+        )}
 
         <div className="h-px bg-slate-100" />
 
@@ -891,7 +916,7 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
                       jdText: fixedJDText.trim(),
                       savedAt: Date.now(),
                       scoringEnabled: criteriaEntries.length > 0,
-                      weights: localWeights ?? undefined,
+                      weights: localWeights,
                       hardFilters: hardFiltersToSave,
                     },
                   },
