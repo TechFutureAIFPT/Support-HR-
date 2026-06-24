@@ -26,6 +26,7 @@ import { useUserSettings } from '@/context/settings/UserSettingsProvider';
 import { JDTemplatesService } from '@/services/data-sync/jdTemplatesService';
 import type { UserJDTemplate } from '@/services/data-sync/jdTemplatesService';
 import FilteredCvLibraryPage from '@/pages/tools/FilteredCvLibraryPage';
+import { readWorkflowDraft } from '@/services/history-cache/workflowDraft';
 
 interface SidebarSettingsModalProps {
   isOpen: boolean;
@@ -249,6 +250,7 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
   // Fixed JD local state
   const [fixedJDName, setFixedJDName] = useState(settings.workflow.fixedJD?.name || '');
   const [fixedJDText, setFixedJDText] = useState(settings.workflow.fixedJD?.jdText || '');
+  const [fixedJDScoringEnabled, setFixedJDScoringEnabled] = useState(settings.workflow.fixedJD?.scoringEnabled ?? false);
   const [fixedJDSaving, setFixedJDSaving] = useState(false);
   const [fixedJDSaved, setFixedJDSaved] = useState(false);
 
@@ -271,6 +273,7 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
     setAvatarPreview(userAvatar || settings.account.avatar || null);
     setFixedJDName(settings.workflow.fixedJD?.name || '');
     setFixedJDText(settings.workflow.fixedJD?.jdText || '');
+    setFixedJDScoringEnabled(settings.workflow.fixedJD?.scoringEnabled ?? false);
     setActiveTab('profile');
     setDangerOpen(false);
     setAddTplOpen(false);
@@ -637,16 +640,35 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
             />
           </div>
 
+          <div className="rounded-xl border border-slate-100 bg-slate-50 px-3 py-2.5 flex items-center justify-between gap-3">
+            <div className="min-w-0 flex-1">
+              <span className="block text-[12.5px] font-semibold text-slate-800">Lưu kèm tiêu chí chấm điểm</span>
+              <span className="mt-0.5 block text-[11px] leading-4 text-slate-400">
+                Khôi phục trọng số và bộ lọc cứng đã lưu khi bắt đầu phiên mới.
+              </span>
+            </div>
+            <Toggle checked={fixedJDScoringEnabled} onChange={setFixedJDScoringEnabled} />
+          </div>
+
           <div className="flex items-center justify-between">
-            {settings.workflow.fixedJD?.savedAt ? (
-              <p className="text-[11px] text-slate-400">
-                Đã lưu: <span className="font-medium text-slate-600">{settings.workflow.fixedJD.name || 'JD mặc định'}</span>
-                {' · '}
-                {new Date(settings.workflow.fixedJD.savedAt).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })}
-              </p>
-            ) : (
-              <p className="text-[11px] text-slate-400">Chưa có JD nào được lưu.</p>
-            )}
+            <div className="min-w-0">
+              {settings.workflow.fixedJD?.savedAt ? (
+                <>
+                  <p className="text-[11px] text-slate-400">
+                    Đã lưu: <span className="font-medium text-slate-600">{settings.workflow.fixedJD.name || 'JD mặc định'}</span>
+                    {' · '}
+                    {new Date(settings.workflow.fixedJD.savedAt).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                  </p>
+                  {settings.workflow.fixedJD.scoringEnabled && settings.workflow.fixedJD.weights && (
+                    <p className="mt-0.5 text-[11px] text-emerald-600">
+                      + {Object.keys(settings.workflow.fixedJD.weights).length} tiêu chí chấm điểm đã lưu
+                    </p>
+                  )}
+                </>
+              ) : (
+                <p className="text-[11px] text-slate-400">Chưa có JD nào được lưu.</p>
+              )}
+            </div>
             <button
               type="button"
               disabled={!fixedJDText.trim() || fixedJDSaving}
@@ -654,10 +676,31 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
                 if (!fixedJDText.trim()) return;
                 setFixedJDSaving(true);
                 try {
+                  let weightsToSave = undefined;
+                  let hardFiltersToSave = undefined;
+                  if (fixedJDScoringEnabled) {
+                    const draft = readWorkflowDraft();
+                    weightsToSave = draft?.weights ?? undefined;
+                    hardFiltersToSave = draft?.hardFilters ?? undefined;
+                    if (!weightsToSave) {
+                      try { weightsToSave = JSON.parse(localStorage.getItem('analysisWeights') || 'null') ?? undefined; } catch {}
+                    }
+                    if (!hardFiltersToSave) {
+                      try { hardFiltersToSave = JSON.parse(localStorage.getItem('hardFilters') || 'null') ?? undefined; } catch {}
+                    }
+                  }
                   await saveSettings({
                     workflow: {
                       ...settings.workflow,
-                      fixedJD: { enabled: settings.workflow.fixedJD?.enabled ?? true, name: fixedJDName.trim(), jdText: fixedJDText.trim(), savedAt: Date.now() },
+                      fixedJD: {
+                        enabled: settings.workflow.fixedJD?.enabled ?? true,
+                        name: fixedJDName.trim(),
+                        jdText: fixedJDText.trim(),
+                        savedAt: Date.now(),
+                        scoringEnabled: fixedJDScoringEnabled,
+                        weights: weightsToSave,
+                        hardFilters: hardFiltersToSave,
+                      },
                     },
                   });
                   setFixedJDSaved(true);
@@ -666,7 +709,7 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
                   setFixedJDSaving(false);
                 }
               }}
-              className="inline-flex h-8 items-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50 px-3 text-[12px] font-semibold text-blue-700 transition hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-40"
+              className="ml-3 inline-flex shrink-0 h-8 items-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50 px-3 text-[12px] font-semibold text-blue-700 transition hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-40"
             >
               {fixedJDSaving
                 ? <Loader2 size={12} className="animate-spin" />

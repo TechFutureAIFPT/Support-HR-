@@ -897,6 +897,10 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
       setRawJdText(fixedJD.jdText);
       setJobPosition(fixedJD.name || '');
       localStorage.setItem('currentJD', fixedJD.jdText);
+      if (fixedJD.scoringEnabled && fixedJD.weights) {
+        setWeights(fixedJD.weights);
+        if (fixedJD.hardFilters) setHardFilters(fixedJD.hardFilters);
+      }
     }
     navigate('/jd');
   }, [hardFilters, navigate, settings.workflow.fixedJD, settings.workflow.newSessionMode, settings.workflow.rememberScoringConfig, weights]);

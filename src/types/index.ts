@@ -557,6 +557,9 @@ export interface FixedJDConfig {
   name: string;
   jdText: string;
   savedAt: number;
+  scoringEnabled?: boolean;
+  weights?: WeightCriteria;
+  hardFilters?: HardFilters;
 }
 
 export interface UserSettingsWorkflow {
