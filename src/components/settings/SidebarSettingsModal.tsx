@@ -933,13 +933,6 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
 
       <Section title="Trợ năng">
         <ToggleRow
-          title="Chế độ tiếp cận"
-          description="Tăng độ tương phản và kích thước chữ để dễ đọc hơn."
-          checked={settings.ui.accessibleMode}
-          saving={savingKey === 'accessibleMode'}
-          onChange={(v) => void autoSave('accessibleMode', { ui: { ...settings.ui, accessibleMode: v } })}
-        />
-        <ToggleRow
           title="Giảm chuyển động"
           description="Tắt animation và hiệu ứng chuyển tiếp."
           checked={settings.ui.reducedMotion}
