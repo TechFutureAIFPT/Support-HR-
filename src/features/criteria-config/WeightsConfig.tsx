@@ -194,132 +194,126 @@ const WeightsConfig: React.FC<WeightsConfigProps> = memo(({ weights, setWeights,
       <div className="weights-config__glow weights-config__glow--bottom" />
       <div className="weights-config__glow weights-config__glow--center" />
 
-      <div className="weights-config__header flex shrink-0 flex-col justify-between gap-3 border-b px-4 py-3 md:flex-row md:items-center" style={{ display: 'none' }}>
-        <div className="flex items-center gap-3">
-          <div className="weights-config__accent shrink-0" />
-          <div className="min-w-0 flex-1">
-            <h1 className="weights-config__heading text-base font-bold leading-tight tracking-tight">
-              Phân bổ trọng số và bộ lọc
-            </h1>
-            <p className="weights-config__subheading mt-0.5 text-[9px] font-semibold uppercase tracking-[0.16em] leading-tight">
-              Weight Configuration and Hard Filters
-            </p>
+      {/* Navigation bar — back | step chips | next */}
+      <div className="relative z-10 shrink-0 border-b border-blue-100 bg-white/95 px-4 py-3 shadow-sm backdrop-blur-sm">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex w-32 shrink-0 items-center">
+            {step === 2 && (
+              <button
+                type="button"
+                onClick={() => setStep(1)}
+                className="weights-config__back-button flex items-center gap-2 rounded-xl px-3 py-2 text-[11px] font-bold transition-all"
+              >
+                <span className="text-sm leading-none">←</span>
+                Bộ lọc cứng
+              </button>
+            )}
           </div>
-        </div>
 
-        <div className="custom-scrollbar flex items-center gap-2 overflow-x-auto pb-1 md:pb-0">
-          {STEPS.map((stepConfig, index) => {
-            const stepState = step === stepConfig.num ? 'active' : step > stepConfig.num ? 'done' : 'idle';
+          <div className="flex items-center gap-2">
+            {STEPS.map((stepConfig, index) => {
+              const stepState = step === stepConfig.num ? 'active' : step > stepConfig.num ? 'done' : 'idle';
+              return (
+                <React.Fragment key={stepConfig.num}>
+                  <button
+                    type="button"
+                    onClick={() => handleStepChange(stepConfig.num)}
+                    data-state={stepState}
+                    className="weights-config__step-button whitespace-nowrap px-4 py-1.5 text-xs font-bold transition-all duration-300"
+                  >
+                    <div className="weights-config__step-index flex h-5 w-5 shrink-0 items-center justify-center text-[9px] font-black">
+                      {step > stepConfig.num ? '✓' : stepConfig.num}
+                    </div>
+                    {stepConfig.label}
+                  </button>
+                  {index < STEPS.length - 1 && (
+                    <div
+                      data-state={step > stepConfig.num ? 'done' : 'idle'}
+                      className="weights-config__step-connector h-px w-8 shrink-0"
+                    />
+                  )}
+                </React.Fragment>
+              );
+            })}
+          </div>
 
-            return (
-              <React.Fragment key={stepConfig.num}>
-                <button
-                  type="button"
-                  onClick={() => handleStepChange(stepConfig.num)}
-                  data-state={stepState}
-                  className="weights-config__step-button whitespace-nowrap px-4 py-1.5 text-xs font-bold transition-all duration-300"
-                >
-                  <div className="weights-config__step-index flex h-5 w-5 shrink-0 items-center justify-center text-[9px] font-black">
-                    {step > stepConfig.num ? '✓' : stepConfig.num}
-                  </div>
-                  {stepConfig.label}
-                </button>
-
-                {index < STEPS.length - 1 && (
-                  <div
-                    data-state={step > stepConfig.num ? 'done' : 'idle'}
-                    className="weights-config__step-connector h-px w-4 shrink-0 md:w-8"
-                  />
-                )}
-              </React.Fragment>
-            );
-          })}
-        </div>
-      </div>
-
-      <div className="relative z-10 flex min-h-0 flex-1 flex-col overflow-hidden">
-        {/* Side panel content moved to top as compact bar */}
-        <div className="shrink-0 border-b border-blue-100 bg-white">
-          {step === 1 ? (
-            <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
-              {/* Progress summary */}
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold uppercase tracking-[0.14em] text-slate-500">Đã bật</span>
-                  <span className="text-2xl font-black text-slate-900">{mandatoryProgress.active}</span>
-                </div>
-                <div className="h-6 w-px bg-blue-100" />
-                <div className="flex items-center gap-2">
-                  <span className="weights-config__metric-label text-xs font-bold uppercase tracking-[0.14em] text-slate-500">Hợp lệ</span>
-                  <span className="weights-config__metric-value text-2xl font-black">{mandatoryProgress.fulfilled}</span>
-                </div>
-                <div className="h-6 w-px bg-blue-100" />
-                <div className="flex min-w-[120px] items-center gap-2">
-                  <div className="weights-config__progress-track relative h-2 flex-1 overflow-hidden rounded-full">
-                    <div className="weights-config__progress-fill h-full transition-all duration-700 ease-out" />
-                  </div>
-                  <span className="weights-config__progress-value text-xs font-bold">{mandatoryProgress.percent}%</span>
-                </div>
-              </div>
+          <div className="flex w-32 shrink-0 justify-end">
+            {step === 1 && (
               <button
                 type="button"
                 onClick={handleFiltersComplete}
-                className="weights-config__primary-cta flex items-center gap-2 px-5 py-2 text-[11px] font-bold text-white transition-all"
+                className="weights-config__primary-cta flex items-center gap-2 px-4 py-2 text-[11px] font-bold text-white transition-all"
               >
-                Tiếp tục phân bổ trọng số
-                <span className="text-[10px] opacity-80">→</span>
+                Trọng số
+                <span className="text-sm leading-none">→</span>
               </button>
-              {validationErrorFilters && (
-                <p className="w-full text-[10px] font-medium text-red-500">{validationErrorFilters}</p>
-              )}
-            </div>
-          ) : (
-            <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold uppercase tracking-[0.14em] text-slate-500">Tổng trọng số</span>
-                  <span className="weights-config__total-value text-2xl font-black tracking-tighter" data-status={weightStatus.state}>
-                    {totalWeight}
-                    <span className="weights-config__total-suffix text-base font-bold">%</span>
-                  </span>
-                </div>
-                <div
-                  className="weights-config__status-pill flex items-center gap-1.5 px-3 py-1 text-[9px] font-bold uppercase tracking-[0.1em]"
-                  data-status={weightStatus.state}
-                >
-                  {weightStatus.label} · {weightStatus.desc}
-                </div>
-                <TotalWeightDisplay totalWeight={totalWeight} />
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setStep(1)}
-                  className="weights-config__back-button flex items-center gap-1.5 px-4 py-2 text-[9px] font-bold uppercase tracking-[0.1em] transition-all"
-                >
-                  <span className="text-[10px]">←</span>
-                  Quay lại
-                </button>
-                <button
-                  type="button"
-                  onClick={handleWeightsComplete}
-                  disabled={totalWeight !== 100}
-                  data-ready={totalWeight === 100}
-                  className="weights-config__finish-cta flex items-center gap-2 px-5 py-2 text-[11px] font-bold transition-all"
-                >
-                  Hoàn tất và phân tích ngay
-                  <span className="text-[10px] opacity-80">→</span>
-                </button>
-              </div>
-              {validationErrorWeights && (
-                <p className="w-full text-[10px] font-medium text-red-500">{validationErrorWeights}</p>
-              )}
-            </div>
-          )}
+            )}
+            {step === 2 && (
+              <button
+                type="button"
+                onClick={handleWeightsComplete}
+                disabled={totalWeight !== 100}
+                data-ready={totalWeight === 100}
+                className="weights-config__finish-cta flex items-center gap-2 px-4 py-2 text-[11px] font-bold transition-all"
+              >
+                Hoàn tất
+                <span className="text-sm leading-none">→</span>
+              </button>
+            )}
+          </div>
         </div>
 
-        {/* Main scrollable content — full width */}
-        <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto">
+        {(validationErrorFilters || validationErrorWeights) && (
+          <p className="mt-2 text-center text-[10px] font-medium text-red-500">
+            {validationErrorFilters || validationErrorWeights}
+          </p>
+        )}
+      </div>
+
+      {/* Stats bar */}
+      <div className="relative z-10 shrink-0 border-b border-blue-50 bg-slate-50/80 px-4 py-2">
+        {step === 1 ? (
+          <div className="flex flex-wrap items-center gap-4">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-500">Đã bật</span>
+              <span className="text-xl font-black text-slate-900">{mandatoryProgress.active}</span>
+            </div>
+            <div className="h-5 w-px bg-blue-100" />
+            <div className="flex items-center gap-2">
+              <span className="weights-config__metric-label text-[10px] font-bold uppercase tracking-[0.14em]">Hợp lệ</span>
+              <span className="weights-config__metric-value text-xl font-black">{mandatoryProgress.fulfilled}</span>
+            </div>
+            <div className="h-5 w-px bg-blue-100" />
+            <div className="flex min-w-[100px] items-center gap-2">
+              <div className="weights-config__progress-track relative h-1.5 flex-1 overflow-hidden rounded-full">
+                <div className="weights-config__progress-fill h-full transition-all duration-700 ease-out" />
+              </div>
+              <span className="weights-config__progress-value text-[10px] font-bold">{mandatoryProgress.percent}%</span>
+            </div>
+          </div>
+        ) : (
+          <div className="flex flex-wrap items-center gap-4">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-500">Tổng trọng số</span>
+              <span className="weights-config__total-value text-xl font-black tracking-tighter" data-status={weightStatus.state}>
+                {totalWeight}
+                <span className="weights-config__total-suffix text-sm font-bold">%</span>
+              </span>
+            </div>
+            <div
+              className="weights-config__status-pill flex items-center gap-1.5 px-3 py-0.5 text-[9px] font-bold uppercase tracking-[0.1em]"
+              data-status={weightStatus.state}
+            >
+              {weightStatus.label} · {weightStatus.desc}
+            </div>
+            <TotalWeightDisplay totalWeight={totalWeight} />
+          </div>
+        )}
+      </div>
+
+      {/* Main scrollable content */}
+      <div className="relative z-10 min-h-0 flex-1 overflow-hidden">
+        <div className="custom-scrollbar h-full overflow-y-auto">
           <div className="w-full p-3 pb-6 md:p-4 md:pb-8 lg:p-5">
             {step === 1 ? (
               <HardFilterPanel hardFilters={hardFilters} setHardFilters={setHardFilters} jdText={jdText} />
@@ -341,7 +335,6 @@ const WeightsConfig: React.FC<WeightsConfigProps> = memo(({ weights, setWeights,
           </div>
         </div>
       </div>
-
     </section>
   );
 });

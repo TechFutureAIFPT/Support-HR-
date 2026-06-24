@@ -360,7 +360,11 @@ const HardFilterPanel: React.FC<HardFilterPanelProps> = ({ hardFilters, setHardF
           <div className="ml-2 h-px flex-1 bg-blue-100" />
         </div>
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
-          {coreFields.map((config) => <FieldCard key={String(config.id)} config={config} />)}
+          {coreFields.map((config) => (
+            <div key={String(config.id)} className={config.id === 'location' ? 'md:col-span-2 xl:col-span-3' : ''}>
+              <FieldCard config={config} />
+            </div>
+          ))}
         </div>
       </section>
 
