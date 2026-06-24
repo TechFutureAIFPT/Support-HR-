@@ -181,7 +181,7 @@ const CvDocumentViewer: React.FC<CvDocumentViewerProps> = ({ ownerKey, candidate
       </div>
 
       <div className="custom-scrollbar min-h-0 flex-1 overflow-auto p-3 sm:p-5">
-        {error ? <div className="mb-3 rounded-lg border border-[#f4d6a5] bg-[#fff7e8] px-3 py-2 text-[12px] text-[#a35d00]">{error}</div> : null}
+        {error ? <div className="mb-3 rounded-xl border border-[#f4d6a5] bg-[#fff7e8] px-3 py-2 text-[12px] text-[#a35d00]">{error}</div> : null}
         {loading ? <p className="py-10 text-center text-[12px] text-[#86868b]">Đang chuẩn bị tài liệu…</p> : null}
         {kind === 'pdf' && document ? <div className="flex min-w-max justify-center"><canvas ref={canvasRef} className="bg-white shadow-[0_2px_12px_rgba(29,29,31,0.12)]" /></div> : null}
         {kind === 'docx' && document ? <div ref={docxRef} className="apple-docx-viewer mx-auto" /> : null}
@@ -194,7 +194,7 @@ const CvDocumentViewer: React.FC<CvDocumentViewerProps> = ({ ownerKey, candidate
             <FileSearch size={32} className="text-[#86868b]" strokeWidth={1.5} />
             <h3 className="mt-4 text-[15px] font-semibold text-[#1d1d1f]">Chưa có file CV gốc trên thiết bị</h3>
             <p className="mt-1 text-[12px] leading-5 text-[#6e6e73]">Phiên cũ chỉ lưu nội dung đã trích xuất. Gắn lại file để xem đúng bố cục tài liệu.</p>
-            <label className="mt-5 inline-flex h-9 cursor-pointer items-center gap-2 rounded-lg border border-[#007aff] bg-white px-3 text-[13px] font-medium text-[#0066d6] hover:bg-[#eef5ff]">
+            <label className="mt-5 inline-flex h-9 cursor-pointer items-center gap-2 rounded-xl border border-[#007aff] bg-white px-3 text-[13px] font-medium text-[#0066d6] hover:bg-[#eef5ff]">
               <Upload size={15} /> Gắn lại file
               <input type="file" accept=".pdf,.docx,.png,.jpg,.jpeg" className="sr-only" onChange={reattach} />
             </label>

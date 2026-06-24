@@ -251,7 +251,7 @@ const HardFilterPanel: React.FC<HardFilterPanelProps> = ({ hardFilters, setHardF
   };
 
   const inputClasses = (isMandatory: boolean, valuePresent: boolean) =>
-    `w-full rounded-lg border bg-white px-3 py-2.5 text-xs text-slate-900 placeholder:text-slate-400 shadow-inner transition-all duration-200 focus:outline-none focus:ring-4 ${
+    `w-full rounded-xl border bg-white px-3 py-2.5 text-xs text-slate-900 placeholder:text-slate-400 shadow-inner transition-all duration-200 focus:outline-none focus:ring-4 ${
       isMandatory && !valuePresent
         ? 'border-red-200 focus:border-red-300 focus:ring-red-100'
         : isMandatory
@@ -338,7 +338,7 @@ const HardFilterPanel: React.FC<HardFilterPanelProps> = ({ hardFilters, setHardF
             type="button"
             onClick={() => void handleAutoFill()}
             disabled={isAutoFilling}
-            className="inline-flex h-9 shrink-0 items-center gap-2 rounded-lg bg-blue-600 px-4 text-[13px] font-bold text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-300"
+            className="inline-flex h-9 shrink-0 items-center gap-2 rounded-xl bg-blue-600 px-4 text-[13px] font-bold text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-300"
           >
             {isAutoFilling
               ? <Loader2 className="h-4 w-4 animate-spin" />

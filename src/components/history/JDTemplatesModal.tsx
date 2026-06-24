@@ -88,8 +88,8 @@ const EMPTY_HARD_FILTERS = {
   contractTypeMandatory: false,
 };
 
-const modalLabelClass = 'supporthr-mono mb-2 block text-[10px] font-medium uppercase tracking-[0.22em] text-zinc-500';
-const modalMetaClass = 'supporthr-mono text-[10px] font-medium uppercase tracking-[0.24em] text-zinc-500';
+const modalLabelClass = 'supporthr-mono mb-2 block text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-400';
+const modalMetaClass = 'supporthr-mono text-[10px] font-semibold uppercase tracking-[0.24em] text-slate-400';
 const modalFieldClass =
   'supporthr-mono w-full rounded-xl border border-blue-100 bg-white px-3.5 py-3 text-[12px] text-slate-900 placeholder:text-slate-400 transition-colors focus:border-blue-300 focus:bg-blue-50/40 focus:outline-none';
 const modalSecondaryButtonClass =
@@ -582,7 +582,7 @@ const JDTemplatesModal: React.FC<JDTemplatesModalProps> = ({
                   {view === 'list' && activeTab === 'jd' && 'Mẫu JD đã dùng'}
                   {view === 'list' && activeTab === 'history' && 'Lịch sử hoạt động'}
                 </h2>
-                <p className="supporthr-mono text-[10px] uppercase tracking-[0.2em] text-zinc-500">
+                <p className="supporthr-mono text-[10px] uppercase tracking-[0.2em] text-slate-400">
                   {view === 'list' && activeTab === 'jd'
                     ? `${combinedTemplates.length} mẫu từ tài khoản và các JD đã từng phân tích`
                     : 'Đồng bộ từ Render API và dữ liệu cục bộ'}

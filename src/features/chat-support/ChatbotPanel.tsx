@@ -352,13 +352,13 @@ const ChatbotPanel: React.FC<ChatbotPanelProps> = ({ analysisData, onClose }) =>
             <i className="fa-solid fa-robot text-sky-500"></i>
           </div>
         )}
-        <div className={`max-w-xs md:max-w-sm lg:max-w-xs px-4 py-2.5 border rounded-lg`} style={{ backgroundColor: isBot ? tc.cardBg : tc.isDark ? 'rgba(14,165,233,0.2)' : 'rgba(14,165,233,0.1)', borderColor: isBot ? tc.borderColor : 'rgba(14,165,233,0.3)', color: tc.textPrimary }}>
+        <div className={`max-w-xs md:max-w-sm lg:max-w-xs px-4 py-2.5 border rounded-xl`} style={{ backgroundColor: isBot ? tc.cardBg : tc.isDark ? 'rgba(14,165,233,0.2)' : 'rgba(14,165,233,0.1)', borderColor: isBot ? tc.borderColor : 'rgba(14,165,233,0.3)', color: tc.textPrimary }}>
           <p className="whitespace-pre-line text-sm leading-relaxed">{displayContent}</p>
           {message.suggestedCandidates && (
             <div className="mt-3 space-y-2 border-t border-blue-100 pt-3">
               <p className="text-xs font-semibold text-slate-400">Ứng viên liên quan:</p>
               {message.suggestedCandidates.map(c => (
-                <div key={c.id} className="rounded-lg border border-blue-100 bg-blue-50/70 p-2 text-xs">
+                <div key={c.id} className="rounded-xl border border-blue-100 bg-blue-50/70 p-2 text-xs">
                   <p className="font-bold text-slate-900">{normalizeVietnameseDisplay(c.candidateName)}</p>
                   <p className="text-slate-600">Hạng: {c.analysis?.['Hạng']} - Điểm: {c.analysis?.['Tổng điểm']}</p>
                 </div>
@@ -439,7 +439,7 @@ const ChatbotPanel: React.FC<ChatbotPanelProps> = ({ analysisData, onClose }) =>
                   });
                 }
               }}
-              className="w-full mb-3 flex items-center justify-center gap-2 bg-sky-600/20 hover:bg-sky-600/40 border border-sky-500/30 text-sky-300 rounded-lg px-3 py-2.5 text-xs font-medium transition-colors"
+              className="w-full mb-3 flex items-center justify-center gap-2 bg-sky-600/20 hover:bg-sky-600/40 border border-sky-500/30 text-sky-300 rounded-xl px-3 py-2.5 text-xs font-medium transition-colors"
             >
               <i className="fa-solid fa-plus"></i>
               Hội thoại mới
@@ -462,7 +462,7 @@ const ChatbotPanel: React.FC<ChatbotPanelProps> = ({ analysisData, onClose }) =>
                   return (
                     <div
                       key={s.id}
-                      className={`relative group rounded-lg border transition-colors`}
+                      className={`relative group rounded-xl border transition-colors`}
                       style={{ 
                         background: isActive ? tc.cardBg : tc.inputBg, 
                         borderColor: isActive ? 'rgba(14,165,233,0.4)' : tc.borderSoft 
@@ -519,7 +519,7 @@ const ChatbotPanel: React.FC<ChatbotPanelProps> = ({ analysisData, onClose }) =>
              <div className="w-8 h-8 rounded-full border flex items-center justify-center flex-shrink-0" style={{ background: tc.cardBg2, borderColor: tc.borderColor }}>
                <i className="fa-solid fa-robot text-sky-500"></i>
              </div>
-             <div className="max-w-xs px-4 py-3 border rounded-lg flex items-center gap-2" style={{ background: tc.cardBg, borderColor: tc.borderColor }}>
+             <div className="max-w-xs px-4 py-3 border rounded-xl flex items-center gap-2" style={{ background: tc.cardBg, borderColor: tc.borderColor }}>
                 <span className="w-2 h-2 rounded-full animate-pulse delay-0" style={{ background: tc.textMuted }}></span>
                 <span className="w-2 h-2 rounded-full animate-pulse delay-150" style={{ background: tc.textMuted }}></span>
                 <span className="w-2 h-2 rounded-full animate-pulse delay-300" style={{ background: tc.textMuted }}></span>
@@ -616,11 +616,11 @@ const ChatbotPanel: React.FC<ChatbotPanelProps> = ({ analysisData, onClose }) =>
             value={userInput}
             onChange={(e) => setUserInput(e.target.value)}
             placeholder="Hỏi AI về ứng viên..."
-            className="flex-1 border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-600 transition-colors disabled:opacity-50"
+            className="flex-1 border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-600 transition-colors disabled:opacity-50"
             style={{ background: tc.inputBg, borderColor: tc.borderColor, color: tc.textPrimary }}
             disabled={isLoading}
           />
-          <button type="submit" disabled={isLoading || !userInput.trim()} className="w-10 h-10 flex items-center justify-center bg-sky-600 text-white rounded-lg hover:bg-sky-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0">
+          <button type="submit" disabled={isLoading || !userInput.trim()} className="w-10 h-10 flex items-center justify-center bg-sky-600 text-white rounded-xl hover:bg-sky-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0">
             {isLoading ? <i className="fa-solid fa-spinner fa-spin"></i> : <i className="fa-solid fa-paper-plane"></i>}
           </button>
         </form>

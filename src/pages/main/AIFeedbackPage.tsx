@@ -361,10 +361,10 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
     return (
       <div className="feature-page-shell flex h-full flex-col items-center justify-center bg-[#f6f9ff] p-8 text-center">
         <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-2xl border border-blue-100 bg-white">
-          <Brain className="h-10 w-10 text-zinc-600" />
+          <Brain className="h-10 w-10 text-slate-500" />
         </div>
         <h2 className="mb-3 text-2xl font-bold text-slate-900">Chưa có dữ liệu ứng viên</h2>
-        <p className="max-w-md text-sm leading-7 text-zinc-400">
+        <p className="max-w-md text-sm leading-7 text-slate-500">
           Không tìm thấy ứng viên nào đã được phân tích. Hãy chạy lại bước phân tích CV trước khi mở màn phản hồi AI.
         </p>
         <button
@@ -406,7 +406,7 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
           </button>
         </div>
 
-        <div className="mt-3 flex flex-wrap items-center gap-2 text-[12px] text-zinc-400">
+        <div className="mt-3 flex flex-wrap items-center gap-2 text-[12px] text-slate-400">
           <span className={badgeClass}>
             {submittedCount}/{validCandidates.length} ứng viên đã phản hồi
           </span>
@@ -532,7 +532,7 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
                 </div>
               </div>
 
-              <p className="mt-4 flex items-start gap-2 text-sm leading-6 text-zinc-400">
+              <p className="mt-4 flex items-start gap-2 text-sm leading-6 text-slate-500">
                 <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-blue-600" />
                 Phản hồi được lưu theo phiên phân tích hiện tại.
               </p>
@@ -554,7 +554,7 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
         ) : (
           <div className="flex h-full flex-col items-center justify-center px-6 text-center text-slate-500">
             <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border border-blue-100 bg-white">
-              <Brain className="h-7 w-7 text-zinc-600" />
+              <Brain className="h-7 w-7 text-slate-500" />
             </div>
             <p className="text-base font-semibold text-slate-600">Không tìm thấy ứng viên đang chọn</p>
             <button

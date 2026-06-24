@@ -62,14 +62,14 @@ const SalaryAnalysisPanel: React.FC<SalaryAnalysisPanelProps> = ({
       const analysisResult = await analyzeSalary({
         jobTitle: manualInput.jobTitle || candidate?.jobTitle || '',
         location: manualInput.location || candidate?.detectedLocation || '',
-        yearsOfExperience: manualInput.yearsOfExperience 
-          ? parseInt(manualInput.yearsOfExperience) 
+        yearsOfExperience: manualInput.yearsOfExperience
+          ? parseInt(manualInput.yearsOfExperience)
           : undefined,
-        currentSalary: manualInput.currentSalary 
-          ? parseFloat(manualInput.currentSalary) * 1_000_000 
+        currentSalary: manualInput.currentSalary
+          ? parseFloat(manualInput.currentSalary) * 1_000_000
           : undefined,
-        cvText: candidate ? 
-          `${candidate.candidateName}\n${candidate.jobTitle}\n${candidate.experienceLevel}\n${candidate.detectedLocation}` 
+        cvText: candidate
+          ? `${candidate.candidateName}\n${candidate.jobTitle}\n${candidate.experienceLevel}\n${candidate.detectedLocation}`
           : undefined,
         jdText: jdText || '',
       });
@@ -94,61 +94,49 @@ const SalaryAnalysisPanel: React.FC<SalaryAnalysisPanelProps> = ({
 
   const getMarketPositionColor = (position?: 'below' | 'reasonable' | 'above') => {
     switch (position) {
-      case 'below':
-        return 'text-orange-600 bg-orange-50';
-      case 'reasonable':
-        return 'text-green-600 bg-green-50';
-      case 'above':
-        return 'text-blue-600 bg-blue-50';
-      default:
-        return 'text-gray-600 bg-gray-50';
+      case 'below':   return 'text-orange-600 bg-orange-50';
+      case 'reasonable': return 'text-green-600 bg-green-50';
+      case 'above':   return 'text-blue-600 bg-blue-50';
+      default:        return 'text-slate-600 bg-slate-50';
     }
   };
 
   const getMarketPositionIcon = (position?: 'below' | 'reasonable' | 'above') => {
     switch (position) {
-      case 'below':
-        return <AlertCircle className="w-5 h-5" />;
-      case 'reasonable':
-        return <CheckCircle className="w-5 h-5" />;
-      case 'above':
-        return <TrendingUp className="w-5 h-5" />;
-      default:
-        return <Info className="w-5 h-5" />;
+      case 'below':       return <AlertCircle className="w-5 h-5" />;
+      case 'reasonable':  return <CheckCircle className="w-5 h-5" />;
+      case 'above':       return <TrendingUp className="w-5 h-5" />;
+      default:            return <Info className="w-5 h-5" />;
     }
   };
 
   const getMarketPositionText = (position?: 'below' | 'reasonable' | 'above') => {
     switch (position) {
-      case 'below':
-        return 'Dưới thị trường';
-      case 'reasonable':
-        return 'Hợp lý';
-      case 'above':
-        return 'Trên thị trường';
-      default:
-        return 'Chưa xác định';
+      case 'below':       return 'Dưới thị trường';
+      case 'reasonable':  return 'Hợp lý';
+      case 'above':       return 'Trên thị trường';
+      default:            return 'Chưa xác định';
     }
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 space-y-6">
+    <div className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5">
       {/* Header */}
-      <div className="flex items-center gap-3 border-b border-gray-200 pb-4">
-        <div className="p-2 bg-green-100 rounded-lg">
-          <DollarSign className="w-6 h-6 text-green-600" />
+      <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-50">
+          <DollarSign className="h-5 w-5 text-green-600" />
         </div>
         <div>
-          <h2 className="text-xl font-bold text-gray-900">Phân Tích Mức Lương</h2>
-          <p className="text-sm text-gray-600">So sánh với thị trường Việt Nam</p>
+          <h2 className="text-[15px] font-semibold text-slate-900">Phân tích mức lương</h2>
+          <p className="text-[12px] text-slate-500">So sánh với thị trường Việt Nam</p>
         </div>
       </div>
 
       {/* Input Form */}
-      <div className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="space-y-3">
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-400">
               Chức danh
             </label>
             <input
@@ -156,12 +144,12 @@ const SalaryAnalysisPanel: React.FC<SalaryAnalysisPanelProps> = ({
               value={manualInput.jobTitle}
               onChange={(e) => setManualInput({ ...manualInput, jobTitle: e.target.value })}
               placeholder={candidate?.jobTitle || 'VD: Senior Backend Developer'}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="w-full rounded-xl border border-slate-200 px-3 py-2 text-[13px] text-slate-900 placeholder:text-slate-400 focus:border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-100"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-400">
               Địa điểm
             </label>
             <input
@@ -169,12 +157,12 @@ const SalaryAnalysisPanel: React.FC<SalaryAnalysisPanelProps> = ({
               value={manualInput.location}
               onChange={(e) => setManualInput({ ...manualInput, location: e.target.value })}
               placeholder={candidate?.detectedLocation || 'VD: Hà Nội'}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="w-full rounded-xl border border-slate-200 px-3 py-2 text-[13px] text-slate-900 placeholder:text-slate-400 focus:border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-100"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-400">
               Số năm kinh nghiệm
             </label>
             <input
@@ -184,13 +172,13 @@ const SalaryAnalysisPanel: React.FC<SalaryAnalysisPanelProps> = ({
               placeholder="VD: 5"
               min="0"
               max="30"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="w-full rounded-xl border border-slate-200 px-3 py-2 text-[13px] text-slate-900 placeholder:text-slate-400 focus:border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-100"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Mức lương hiện tại (triệu VNĐ/tháng)
+            <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-400">
+              Lương hiện tại (triệu VNĐ/tháng)
             </label>
             <input
               type="number"
@@ -199,7 +187,7 @@ const SalaryAnalysisPanel: React.FC<SalaryAnalysisPanelProps> = ({
               placeholder="VD: 25"
               min="0"
               step="0.5"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="w-full rounded-xl border border-slate-200 px-3 py-2 text-[13px] text-slate-900 placeholder:text-slate-400 focus:border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-100"
             />
           </div>
         </div>
@@ -207,16 +195,16 @@ const SalaryAnalysisPanel: React.FC<SalaryAnalysisPanelProps> = ({
         <button
           onClick={handleAnalyze}
           disabled={isAnalyzing}
-          className="w-full py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          className="flex w-full items-center justify-center gap-2 rounded-xl bg-green-600 py-2.5 text-[13px] font-semibold text-white transition-colors hover:bg-green-700 disabled:cursor-not-allowed disabled:bg-slate-300"
         >
           {isAnalyzing ? (
             <>
-              <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
               Đang phân tích...
             </>
           ) : (
             <>
-              <TrendingUp className="w-5 h-5" />
+              <TrendingUp className="h-4 w-4" />
               Phân tích mức lương
             </>
           )}
@@ -225,119 +213,109 @@ const SalaryAnalysisPanel: React.FC<SalaryAnalysisPanelProps> = ({
 
       {/* Results */}
       {result && (
-        <div className="space-y-6 animate-fadeIn">
-          {/* Error Display */}
+        <div className="space-y-4">
           {result.error && (
-            <div className="p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+            <div className="flex items-start gap-3 rounded-xl border border-red-100 bg-red-50 p-4">
+              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-red-600" />
               <div>
-                <p className="font-medium text-red-900">Lỗi phân tích</p>
-                <p className="text-sm text-red-700 mt-1">{result.error}</p>
+                <p className="text-[13px] font-semibold text-red-900">Lỗi phân tích</p>
+                <p className="mt-1 text-[12px] text-red-700">{result.error}</p>
               </div>
             </div>
           )}
 
-          {/* Summary */}
-          <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <div className="flex items-start gap-3">
-              <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-              <div>
-                <p className="font-medium text-blue-900">Tóm tắt</p>
-                <p className="text-sm text-blue-800 mt-1">{result.summary}</p>
-              </div>
+          <div className="flex items-start gap-3 rounded-xl border border-blue-100 bg-blue-50 p-4">
+            <Info className="mt-0.5 h-4 w-4 shrink-0 text-blue-600" />
+            <div>
+              <p className="text-[13px] font-semibold text-blue-900">Tóm tắt</p>
+              <p className="mt-1 text-[12px] text-blue-800">{result.summary}</p>
             </div>
           </div>
 
-          {/* Market Salary Range */}
           {result.marketSalary && (
-            <div className="border border-gray-200 rounded-lg p-5">
-              <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <Target className="w-5 h-5 text-green-600" />
+            <div className="rounded-xl border border-slate-200 p-4">
+              <h3 className="mb-3 flex items-center gap-2 text-[13px] font-semibold text-slate-900">
+                <Target className="h-4 w-4 text-green-600" />
                 Khoảng lương thị trường
               </h3>
-              <div className="grid grid-cols-3 gap-4">
-                <div className="text-center p-3 bg-gray-50 rounded-lg">
-                  <p className="text-xs text-gray-600 mb-1">P25 (Thấp)</p>
-                  <p className="text-lg font-bold text-gray-900">
+              <div className="grid grid-cols-3 gap-3">
+                <div className="rounded-xl bg-slate-50 p-3 text-center">
+                  <p className="text-[11px] font-semibold text-slate-500">P25 (Thấp)</p>
+                  <p className="mt-1 text-[15px] font-semibold text-slate-900">
                     {formatVND(result.marketSalary.p25)}
                   </p>
                 </div>
-                <div className="text-center p-3 bg-green-50 rounded-lg border-2 border-green-300">
-                  <p className="text-xs text-green-700 mb-1">Median (Trung vị)</p>
-                  <p className="text-lg font-bold text-green-700">
+                <div className="rounded-xl border-2 border-green-200 bg-green-50 p-3 text-center">
+                  <p className="text-[11px] font-semibold text-green-700">Median</p>
+                  <p className="mt-1 text-[15px] font-semibold text-green-700">
                     {formatVND(result.marketSalary.median)}
                   </p>
                 </div>
-                <div className="text-center p-3 bg-gray-50 rounded-lg">
-                  <p className="text-xs text-gray-600 mb-1">P75 (Cao)</p>
-                  <p className="text-lg font-bold text-gray-900">
+                <div className="rounded-xl bg-slate-50 p-3 text-center">
+                  <p className="text-[11px] font-semibold text-slate-500">P75 (Cao)</p>
+                  <p className="mt-1 text-[15px] font-semibold text-slate-900">
                     {formatVND(result.marketSalary.p75)}
                   </p>
                 </div>
               </div>
-              <p className="text-xs text-gray-500 mt-3 text-center">
+              <p className="mt-3 text-center text-[11px] text-slate-400">
                 {result.marketSalary.currency} / {result.marketSalary.period === 'MONTHLY' ? 'Tháng' : 'Năm'}
               </p>
             </div>
           )}
 
-          {/* Comparison (if current salary provided) */}
           {result.comparison && (
-            <div className="border border-gray-200 rounded-lg p-5">
-              <h3 className="font-semibold text-gray-900 mb-4">So sánh với thị trường</h3>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <span className="text-sm text-gray-700">Lương hiện tại</span>
-                  <span className="font-bold text-gray-900">
+            <div className="rounded-xl border border-slate-200 p-4">
+              <h3 className="mb-3 text-[13px] font-semibold text-slate-900">So sánh với thị trường</h3>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between rounded-xl bg-slate-50 p-3">
+                  <span className="text-[13px] text-slate-600">Lương hiện tại</span>
+                  <span className="text-[13px] font-semibold text-slate-900">
                     {formatVND(result.comparison.currentSalary)} VNĐ/tháng
                   </span>
                 </div>
-                
-                <div className={`flex items-center justify-between p-3 rounded-lg ${getMarketPositionColor(result.comparison.marketPosition)}`}>
+
+                <div className={`flex items-center justify-between rounded-xl p-3 ${getMarketPositionColor(result.comparison.marketPosition)}`}>
                   <div className="flex items-center gap-2">
                     {getMarketPositionIcon(result.comparison.marketPosition)}
-                    <span className="text-sm font-medium">
+                    <span className="text-[13px] font-semibold">
                       {getMarketPositionText(result.comparison.marketPosition)}
                     </span>
                   </div>
-                  <span className="font-bold">
+                  <span className="text-[13px] font-semibold">
                     {result.comparison.differencePercent > 0 ? '+' : ''}
                     {result.comparison.differencePercent}%
                   </span>
                 </div>
 
                 {result.comparison.difference !== 0 && (
-                  <p className="text-sm text-gray-600 text-center">
+                  <p className="text-center text-[12px] text-slate-500">
                     {result.comparison.difference > 0 ? 'Cao hơn' : 'Thấp hơn'} median{' '}
-                    <span className="font-semibold">{formatVND(Math.abs(result.comparison.difference))}</span>
+                    <span className="font-semibold text-slate-700">{formatVND(Math.abs(result.comparison.difference))}</span>
                   </p>
                 )}
               </div>
             </div>
           )}
 
-          {/* Recommendation */}
-          <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-            <div className="flex items-start gap-3">
-              <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-              <div>
-                <p className="font-medium text-green-900">Đề xuất</p>
-                <p className="text-sm text-green-800 mt-1">{result.recommendation}</p>
-              </div>
+          <div className="flex items-start gap-3 rounded-xl border border-green-100 bg-green-50 p-4">
+            <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-green-600" />
+            <div>
+              <p className="text-[13px] font-semibold text-green-900">Đề xuất</p>
+              <p className="mt-1 text-[12px] text-green-800">{result.recommendation}</p>
             </div>
           </div>
 
-          {/* Negotiation Tips */}
           {result.negotiationTips.length > 0 && (
-            <div className="border border-gray-200 rounded-lg p-5">
-              <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <Lightbulb className="w-5 h-5 text-yellow-600" />
+            <div className="rounded-xl border border-slate-200 p-4">
+              <h3 className="mb-3 flex items-center gap-2 text-[13px] font-semibold text-slate-900">
+                <Lightbulb className="h-4 w-4 text-yellow-600" />
                 Gợi ý thương lượng
               </h3>
               <ul className="space-y-2">
                 {result.negotiationTips.map((tip, index) => (
-                  <li key={index} className="flex items-start gap-2 text-sm text-gray-700">
-                    <span className="text-yellow-600 flex-shrink-0 mt-1">•</span>
+                  <li key={index} className="flex items-start gap-2 text-[13px] text-slate-700">
+                    <span className="mt-1 shrink-0 text-yellow-600">•</span>
                     <span>{tip}</span>
                   </li>
                 ))}
@@ -345,10 +323,9 @@ const SalaryAnalysisPanel: React.FC<SalaryAnalysisPanelProps> = ({
             </div>
           )}
 
-          {/* Source */}
-          <div className="text-xs text-gray-500 text-center border-t border-gray-200 pt-4">
-            <p>📊 {result.source}</p>
-          </div>
+          <p className="border-t border-slate-100 pt-3 text-center text-[11px] text-slate-400">
+            {result.source}
+          </p>
         </div>
       )}
     </div>

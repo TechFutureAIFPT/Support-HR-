@@ -78,9 +78,9 @@ const LIBRARY_TEXT_FIELDS = [
 const accent = '#2388ff';
 const modalPanelClass = 'rounded-2xl border border-blue-100 bg-white shadow-[0_24px_80px_rgba(30,64,175,0.14)]';
 const secondaryButtonClass =
-  'inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-blue-100 bg-white px-3 text-xs font-semibold text-slate-600 transition-colors hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-45 sm:h-10 sm:px-3';
+  'inline-flex h-9 items-center justify-center gap-2 rounded-xl border border-blue-100 bg-white px-3 text-xs font-semibold text-slate-600 transition-colors hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-45 sm:h-10 sm:px-3';
 const primaryButtonClass =
-  'inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 text-sm font-bold text-white shadow-[0_14px_34px_rgba(35,136,255,0.24)] transition-colors hover:bg-blue-500 disabled:cursor-not-allowed disabled:border disabled:border-blue-200 disabled:bg-blue-100 disabled:text-blue-700 disabled:shadow-none disabled:opacity-100 sm:h-11 sm:px-5';
+  'inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 text-sm font-bold text-white shadow-[0_14px_34px_rgba(35,136,255,0.24)] transition-colors hover:bg-blue-500 disabled:cursor-not-allowed disabled:border disabled:border-blue-200 disabled:bg-blue-100 disabled:text-blue-700 disabled:shadow-none disabled:opacity-100 sm:h-11 sm:px-5';
 
 const getRecordString = (record: Record<string, unknown> | undefined, keys: string[]) => {
   if (!record) return '';
@@ -204,7 +204,7 @@ const StepButton = ({
     </span>
     <span className="min-w-0">
       <span className="block text-sm font-semibold leading-5">{label}</span>
-      <span className="mt-0.5 hidden truncate text-[11px] text-zinc-600 sm:block">{description}</span>
+      <span className="mt-0.5 hidden truncate text-[11px] text-slate-500 sm:block">{description}</span>
     </span>
     <span
       className={`absolute inset-x-0 -bottom-px h-px transition-colors ${
@@ -222,8 +222,8 @@ const ProcessingModal = ({
   <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/25 px-4 backdrop-blur-sm">
     <div className={`${modalPanelClass} w-full max-w-sm p-5 sm:p-6`}>
       <div className="flex items-center gap-4">
-        <div className="relative flex h-14 w-14 shrink-0 items-center justify-center border border-[#2388ff]/35 bg-[#2388ff]/10 text-[#2388ff]">
-          <div className="absolute inset-2 animate-ping border border-[#2388ff]/20" />
+        <div className="relative flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-[#2388ff]/35 bg-[#2388ff]/10 text-[#2388ff]">
+          <div className="absolute inset-2 animate-ping rounded-xl border border-[#2388ff]/20" />
           <div className="h-7 w-7 animate-spin rounded-full border-2 border-[#2388ff] border-t-transparent" />
         </div>
         <div className="min-w-0">
@@ -243,7 +243,7 @@ const ProcessingModal = ({
           return (
             <div
               key={item}
-              className={`flex items-center gap-3 border px-3 py-2.5 text-sm transition-all ${
+              className={`flex items-center gap-3 rounded-xl border px-3 py-2.5 text-sm transition-all ${
                 isCurrent
                   ? 'border-[#2388ff]/40 bg-[#2388ff]/10 text-[#2388ff]'
                   : isDone
@@ -966,12 +966,12 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
               />
 
               <div
-                className="mt-5 flex min-h-[240px] flex-col justify-between border border-dashed border-blue-100 bg-white p-4 transition-colors hover:border-blue-200 hover:bg-white sm:p-6 lg:min-h-[360px]"
+                className="mt-5 flex min-h-[240px] flex-col justify-between rounded-2xl border border-dashed border-blue-100 bg-white p-4 transition-colors hover:border-blue-200 hover:bg-white sm:p-6 lg:min-h-[360px]"
                 onDragOver={handleDragOver}
                 onDrop={handleDropJdFile}
               >
                 <div className="flex flex-1 flex-col items-center justify-center text-center">
-                  <div className="flex h-16 w-16 shrink-0 items-center justify-center border border-[#2388ff]/24 bg-[#2388ff]/8 text-[#2388ff] sm:h-20 sm:w-20">
+                  <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border border-[#2388ff]/24 bg-[#2388ff]/8 text-[#2388ff] sm:h-20 sm:w-20">
                     {isProcessing ? (
                       <Loader2 className="h-8 w-8 animate-spin sm:h-9 sm:w-9" />
                     ) : jdReady ? (
@@ -1163,12 +1163,12 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
               />
 
               <div
-                className="mt-5 flex min-h-[240px] flex-col justify-between border border-dashed border-blue-100 bg-white p-4 transition-colors hover:border-blue-200 hover:bg-white sm:p-6 lg:min-h-[360px]"
+                className="mt-5 flex min-h-[240px] flex-col justify-between rounded-2xl border border-dashed border-blue-100 bg-white p-4 transition-colors hover:border-blue-200 hover:bg-white sm:p-6 lg:min-h-[360px]"
                 onDragOver={handleDragOver}
                 onDrop={handleDropCvFiles}
               >
                 <div className="flex flex-1 flex-col items-center justify-center text-center">
-                  <div className="flex h-16 w-16 shrink-0 items-center justify-center border border-[#2388ff]/24 bg-[#2388ff]/8 text-[#2388ff] sm:h-20 sm:w-20">
+                  <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border border-[#2388ff]/24 bg-[#2388ff]/8 text-[#2388ff] sm:h-20 sm:w-20">
                     <UploadCloud className="h-8 w-8 sm:h-9 sm:w-9" />
                   </div>
                   <p className="mt-5 text-xl font-semibold tracking-tight text-slate-900 sm:text-2xl">Kéo thả CV</p>
@@ -1277,7 +1277,7 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
               <div className="custom-scrollbar mt-5 min-h-0 flex-1 overflow-y-auto rounded-2xl border border-blue-100 bg-white p-2">
                 {cvFiles.length === 0 ? (
                   <div className="flex h-full min-h-[220px] flex-col items-center justify-center px-4 text-center sm:min-h-[360px]">
-                    <FileText className="h-10 w-10 text-zinc-700 sm:h-12 sm:w-12" />
+                    <FileText className="h-10 w-10 text-slate-400 sm:h-12 sm:w-12" />
                     <p className="mt-4 text-base font-semibold text-slate-900">Chưa có CV</p>
                     <p className="mt-2 max-w-xs text-sm leading-6 text-slate-500">
                       File đã nạp sẽ hiện tại đây.

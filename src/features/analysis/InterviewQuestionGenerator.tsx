@@ -187,15 +187,15 @@ const InterviewQuestionGenerator: React.FC<InterviewQuestionGeneratorProps> = ({
             Tổng quan dữ liệu lọc CV
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-            <div className="bg-white rounded-lg p-3 border border-blue-100">
+            <div className="bg-white rounded-xl p-3 border border-blue-100">
               <div className="text-slate-500">Vị trí tuyển dụng</div>
               <div className="text-slate-900 font-semibold">{analysisStats.jobPosition}</div>
             </div>
-            <div className="bg-white rounded-lg p-3 border border-blue-100">
+            <div className="bg-white rounded-xl p-3 border border-blue-100">
               <div className="text-slate-500">Tổng ứng viên</div>
               <div className="text-slate-900 font-semibold">{analysisStats.totalCandidates}</div>
             </div>
-            <div className="bg-white rounded-lg p-3 border border-blue-100">
+            <div className="bg-white rounded-xl p-3 border border-blue-100">
               <div className="text-slate-500">Ứng viên hạng A</div>
               <div className="text-slate-900 font-semibold">{analysisStats.topCandidates.length}</div>
             </div>
@@ -267,7 +267,7 @@ const InterviewQuestionGenerator: React.FC<InterviewQuestionGeneratorProps> = ({
             <select
               value={selectedCandidate}
               onChange={(e) => setSelectedCandidate(e.target.value)}
-              className="w-full bg-white border border-blue-100 rounded-lg px-4 py-2 text-slate-900 focus:border-blue-400 focus:outline-none"
+              className="w-full bg-white border border-blue-100 rounded-xl px-4 py-2 text-slate-900 focus:border-blue-400 focus:outline-none"
             >
               <option value="">-- Chọn ứng viên --</option>
               {candidateOptions.map(candidate => (
@@ -333,7 +333,7 @@ const InterviewQuestionGenerator: React.FC<InterviewQuestionGeneratorProps> = ({
                 <div className="p-4">
                   <div className="space-y-3">
                     {set.questions.map((question, qIndex) => (
-                      <div key={qIndex} className="flex items-start gap-3 p-3 bg-blue-50/60 rounded-lg hover:bg-blue-50 transition-colors border border-blue-100">
+                      <div key={qIndex} className="flex items-start gap-3 p-3 bg-blue-50/60 rounded-xl hover:bg-blue-50 transition-colors border border-blue-100">
                         <div className={`w-6 h-6 rounded-full ${set.color.replace('text-', 'bg-').replace('400', '500')} flex items-center justify-center text-white text-xs font-bold flex-shrink-0 mt-0.5`}>
                           {qIndex + 1}
                         </div>
@@ -361,7 +361,7 @@ const InterviewQuestionGenerator: React.FC<InterviewQuestionGeneratorProps> = ({
                   ).join('\n\n');
                   navigator.clipboard.writeText(allQuestions);
                 }}
-                className="bg-white hover:bg-blue-50 text-blue-700 px-6 py-2 rounded-lg transition-colors border border-blue-200"
+                className="bg-white hover:bg-blue-50 text-blue-700 px-6 py-2 rounded-xl transition-colors border border-blue-200"
               >
                 <i className="fa-solid fa-copy mr-2"></i>
                 Copy tất cả câu hỏi
