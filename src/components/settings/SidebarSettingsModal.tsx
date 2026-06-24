@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   AlertTriangle,
   Bell,
+  BookOpen,
   Check,
   CheckCircle2,
   ChevronDown,
@@ -10,6 +11,7 @@ import {
   History,
   Loader2,
   LogOut,
+  Plus,
   RefreshCcw,
   Settings,
   Trash2,
@@ -20,6 +22,8 @@ import {
 } from 'lucide-react';
 import type { HistoryRetention, NewSessionMode } from '@/types';
 import { useUserSettings } from '@/context/settings/UserSettingsProvider';
+import { JDTemplatesService } from '@/services/data-sync/jdTemplatesService';
+import type { UserJDTemplate } from '@/services/data-sync/jdTemplatesService';
 
 interface SidebarSettingsModalProps {
   isOpen: boolean;
@@ -36,13 +40,14 @@ interface SidebarSettingsModalProps {
   onClearSyncedData: () => Promise<void>;
 }
 
-type SettingsTab = 'profile' | 'workspace' | 'notifications' | 'data';
+type SettingsTab = 'profile' | 'workspace' | 'notifications' | 'data' | 'jd';
 
 const TABS: Array<{ id: SettingsTab; label: string; icon: React.ComponentType<{ size?: number; className?: string }> }> = [
   { id: 'profile',       label: 'Hồ sơ',      icon: UserCircle2 },
   { id: 'workspace',     label: 'Quy trình',   icon: Workflow },
   { id: 'notifications', label: 'Thông báo',   icon: Bell },
   { id: 'data',          label: 'Dữ liệu',     icon: Database },
+  { id: 'jd',            label: 'JD',          icon: BookOpen },
 ];
 
 // ── Primitives ────────────────────────────────────────────────────────────────
@@ -247,6 +252,16 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
   // Danger zone
   const [dangerOpen, setDangerOpen] = useState(false);
 
+  // JD templates
+  const [templates, setTemplates] = useState<UserJDTemplate[]>([]);
+  const [templatesLoading, setTemplatesLoading] = useState(false);
+  const [addTplOpen, setAddTplOpen] = useState(false);
+  const [newTplName, setNewTplName] = useState('');
+  const [newTplPosition, setNewTplPosition] = useState('');
+  const [newTplText, setNewTplText] = useState('');
+  const [newTplSaving, setNewTplSaving] = useState(false);
+  const contentRef = useRef<HTMLElement | null>(null);
+
   useEffect(() => {
     if (!isOpen) return;
     setDisplayName(userName || settings.account.displayName || '');
@@ -255,6 +270,10 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
     setFixedJDText(settings.workflow.fixedJD?.jdText || '');
     setActiveTab('profile');
     setDangerOpen(false);
+    setAddTplOpen(false);
+    setNewTplName('');
+    setNewTplPosition('');
+    setNewTplText('');
   }, [isOpen, settings.account.avatar, settings.account.displayName, settings.workflow.fixedJD, userAvatar, userName]);
 
   useEffect(() => {
@@ -263,6 +282,16 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
     document.addEventListener('keydown', handler);
     return () => document.removeEventListener('keydown', handler);
   }, [isOpen, onClose]);
+
+  useEffect(() => {
+    if (activeTab !== 'jd') return;
+    setTemplatesLoading(true);
+    setTemplates(JDTemplatesService.getCachedUserTemplates());
+    void JDTemplatesService.getUserTemplates()
+      .then(setTemplates)
+      .catch(() => {})
+      .finally(() => setTemplatesLoading(false));
+  }, [activeTab]);
 
   // Auto-save toggle helper
   const autoSave = useCallback(async (key: string, patch: Parameters<typeof saveSettings>[0]) => {
@@ -443,86 +472,6 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
         </div>
       </Section>
 
-      <Section title="JD mặc định">
-        <div className="rounded-2xl border border-slate-100 bg-white p-4 space-y-3">
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0 flex-1">
-              <p className="text-[13px] font-semibold text-slate-900">Tự động điền JD khi mở phiên mới</p>
-              <p className="mt-0.5 text-[12px] leading-5 text-slate-500">
-                Lưu một JD cố định để tự điền vào bước nhập JD, bạn vẫn có thể chỉnh sửa sau.
-              </p>
-            </div>
-            <Toggle
-              checked={settings.workflow.fixedJD?.enabled ?? false}
-              disabled={!settings.workflow.fixedJD?.jdText}
-              onChange={(v) => void autoSave('fixedJD.enabled', {
-                workflow: { ...settings.workflow, fixedJD: { ...(settings.workflow.fixedJD ?? { name: fixedJDName, jdText: fixedJDText, savedAt: Date.now() }), enabled: v } },
-              })}
-            />
-          </div>
-
-          <div>
-            <label className="mb-1 block text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-400">Tên vị trí</label>
-            <input
-              value={fixedJDName}
-              onChange={(e) => setFixedJDName(e.target.value)}
-              placeholder="VD: Frontend Developer"
-              className="h-9 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-[13px] font-medium text-slate-900 outline-none transition focus:border-blue-400 focus:bg-white"
-            />
-          </div>
-
-          <div>
-            <label className="mb-1 block text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-400">Nội dung JD</label>
-            <textarea
-              value={fixedJDText}
-              onChange={(e) => setFixedJDText(e.target.value)}
-              placeholder="Dán nội dung Job Description vào đây..."
-              rows={6}
-              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-[12.5px] leading-6 text-slate-900 outline-none transition focus:border-blue-400 focus:bg-white resize-none"
-            />
-          </div>
-
-          <div className="flex items-center justify-between">
-            {settings.workflow.fixedJD?.savedAt ? (
-              <p className="text-[11px] text-slate-400">
-                Đã lưu: <span className="font-medium text-slate-600">{settings.workflow.fixedJD.name || 'JD mặc định'}</span>
-                {' · '}
-                {new Date(settings.workflow.fixedJD.savedAt).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })}
-              </p>
-            ) : (
-              <p className="text-[11px] text-slate-400">Chưa có JD nào được lưu.</p>
-            )}
-            <button
-              type="button"
-              disabled={!fixedJDText.trim() || fixedJDSaving}
-              onClick={async () => {
-                if (!fixedJDText.trim()) return;
-                setFixedJDSaving(true);
-                try {
-                  await saveSettings({
-                    workflow: {
-                      ...settings.workflow,
-                      fixedJD: { enabled: settings.workflow.fixedJD?.enabled ?? true, name: fixedJDName.trim(), jdText: fixedJDText.trim(), savedAt: Date.now() },
-                    },
-                  });
-                  setFixedJDSaved(true);
-                  setTimeout(() => setFixedJDSaved(false), 2000);
-                } finally {
-                  setFixedJDSaving(false);
-                }
-              }}
-              className="inline-flex h-8 items-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50 px-3 text-[12px] font-semibold text-blue-700 transition hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              {fixedJDSaving
-                ? <Loader2 size={12} className="animate-spin" />
-                : fixedJDSaved
-                  ? <CheckCircle2 size={12} className="text-emerald-500" />
-                  : null}
-              {fixedJDSaved ? 'Đã lưu' : 'Lưu JD'}
-            </button>
-          </div>
-        </div>
-      </Section>
     </div>
   );
 
@@ -643,11 +592,226 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
     </div>
   );
 
+  // ── Tab: JD ──
+  const jdTab = (
+    <div className="space-y-5">
+      <Section title="JD mặc định">
+        <div className="rounded-2xl border border-slate-100 bg-white p-4 space-y-3">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0 flex-1">
+              <p className="text-[13px] font-semibold text-slate-900">Tự động điền JD khi mở phiên mới</p>
+              <p className="mt-0.5 text-[12px] leading-5 text-slate-500">
+                Lưu một JD cố định để tự điền vào bước nhập JD, bạn vẫn có thể chỉnh sửa sau.
+              </p>
+            </div>
+            <Toggle
+              checked={settings.workflow.fixedJD?.enabled ?? false}
+              disabled={!settings.workflow.fixedJD?.jdText}
+              onChange={(v) => void autoSave('fixedJD.enabled', {
+                workflow: { ...settings.workflow, fixedJD: { ...(settings.workflow.fixedJD ?? { name: fixedJDName, jdText: fixedJDText, savedAt: Date.now() }), enabled: v } },
+              })}
+            />
+          </div>
+
+          <div>
+            <label className="mb-1 block text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-400">Tên vị trí</label>
+            <input
+              value={fixedJDName}
+              onChange={(e) => setFixedJDName(e.target.value)}
+              placeholder="VD: Frontend Developer"
+              className="h-9 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-[13px] font-medium text-slate-900 outline-none transition focus:border-blue-400 focus:bg-white"
+            />
+          </div>
+
+          <div>
+            <label className="mb-1 block text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-400">Nội dung JD</label>
+            <textarea
+              value={fixedJDText}
+              onChange={(e) => setFixedJDText(e.target.value)}
+              placeholder="Dán nội dung Job Description vào đây..."
+              rows={5}
+              className="w-full resize-none rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-[12.5px] leading-6 text-slate-900 outline-none transition focus:border-blue-400 focus:bg-white"
+            />
+          </div>
+
+          <div className="flex items-center justify-between">
+            {settings.workflow.fixedJD?.savedAt ? (
+              <p className="text-[11px] text-slate-400">
+                Đã lưu: <span className="font-medium text-slate-600">{settings.workflow.fixedJD.name || 'JD mặc định'}</span>
+                {' · '}
+                {new Date(settings.workflow.fixedJD.savedAt).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+              </p>
+            ) : (
+              <p className="text-[11px] text-slate-400">Chưa có JD nào được lưu.</p>
+            )}
+            <button
+              type="button"
+              disabled={!fixedJDText.trim() || fixedJDSaving}
+              onClick={async () => {
+                if (!fixedJDText.trim()) return;
+                setFixedJDSaving(true);
+                try {
+                  await saveSettings({
+                    workflow: {
+                      ...settings.workflow,
+                      fixedJD: { enabled: settings.workflow.fixedJD?.enabled ?? true, name: fixedJDName.trim(), jdText: fixedJDText.trim(), savedAt: Date.now() },
+                    },
+                  });
+                  setFixedJDSaved(true);
+                  setTimeout(() => setFixedJDSaved(false), 2000);
+                } finally {
+                  setFixedJDSaving(false);
+                }
+              }}
+              className="inline-flex h-8 items-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50 px-3 text-[12px] font-semibold text-blue-700 transition hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              {fixedJDSaving
+                ? <Loader2 size={12} className="animate-spin" />
+                : fixedJDSaved
+                  ? <CheckCircle2 size={12} className="text-emerald-500" />
+                  : null}
+              {fixedJDSaved ? 'Đã lưu' : 'Lưu JD'}
+            </button>
+          </div>
+        </div>
+      </Section>
+
+      <Section title="Mẫu JD">
+        <div className="rounded-2xl border border-slate-100 bg-white p-4 space-y-2.5">
+          {templatesLoading && templates.length === 0 ? (
+            <div className="flex items-center gap-2 py-1 text-[12px] text-slate-400">
+              <Loader2 size={13} className="animate-spin" />
+              Đang tải mẫu...
+            </div>
+          ) : templates.length === 0 && !addTplOpen ? (
+            <p className="py-1 text-[12px] text-slate-400">Chưa có mẫu JD nào. Nhấn bên dưới để thêm.</p>
+          ) : (
+            <div className="space-y-1.5">
+              {templates.map((tpl) => (
+                <div
+                  key={tpl.id}
+                  className="group flex items-center gap-2.5 rounded-xl border border-slate-100 bg-slate-50 px-3 py-2.5 transition hover:border-blue-100 hover:bg-blue-50/40"
+                >
+                  <button
+                    type="button"
+                    title="Áp dụng làm JD mặc định"
+                    onClick={() => {
+                      setFixedJDName(tpl.jobPosition || tpl.name);
+                      setFixedJDText(tpl.jdText);
+                      contentRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                    className="min-w-0 flex-1 text-left"
+                  >
+                    <span className="block text-[13px] font-semibold text-slate-800 leading-tight">{tpl.name}</span>
+                    {tpl.jobPosition && (
+                      <span className="mt-0.5 block text-[11px] text-slate-400">{tpl.jobPosition}</span>
+                    )}
+                  </button>
+                  {tpl.category && (
+                    <span className="shrink-0 rounded-lg border border-slate-200 bg-white px-2 py-0.5 text-[10px] font-semibold text-slate-500">
+                      {tpl.category}
+                    </span>
+                  )}
+                  <button
+                    type="button"
+                    title="Xóa mẫu"
+                    onClick={async () => {
+                      try {
+                        await JDTemplatesService.deleteTemplate(tpl.id);
+                      } finally {
+                        setTemplates((prev) => prev.filter((t) => t.id !== tpl.id));
+                      }
+                    }}
+                    className="shrink-0 flex h-7 w-7 items-center justify-center rounded-lg border border-transparent text-slate-300 opacity-0 transition group-hover:border-rose-200 group-hover:bg-rose-50 group-hover:text-rose-500 group-hover:opacity-100"
+                  >
+                    <Trash2 size={12} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {addTplOpen ? (
+            <div className="space-y-2 rounded-xl border border-blue-100 bg-blue-50/50 p-3">
+              <input
+                autoFocus
+                value={newTplName}
+                onChange={(e) => setNewTplName(e.target.value)}
+                placeholder="Tên mẫu (VD: Senior Frontend)"
+                className="h-9 w-full rounded-xl border border-slate-200 bg-white px-3 text-[13px] font-medium text-slate-900 outline-none transition focus:border-blue-400"
+              />
+              <input
+                value={newTplPosition}
+                onChange={(e) => setNewTplPosition(e.target.value)}
+                placeholder="Vị trí tuyển dụng"
+                className="h-9 w-full rounded-xl border border-slate-200 bg-white px-3 text-[13px] font-medium text-slate-900 outline-none transition focus:border-blue-400"
+              />
+              <textarea
+                value={newTplText}
+                onChange={(e) => setNewTplText(e.target.value)}
+                placeholder="Dán nội dung JD vào đây..."
+                rows={5}
+                className="w-full resize-none rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-[12.5px] leading-6 text-slate-900 outline-none transition focus:border-blue-400"
+              />
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  disabled={!newTplName.trim() || !newTplText.trim() || newTplSaving}
+                  onClick={async () => {
+                    if (!newTplName.trim() || !newTplText.trim()) return;
+                    setNewTplSaving(true);
+                    try {
+                      const created = await JDTemplatesService.createTemplate({
+                        name: newTplName.trim(),
+                        jobPosition: newTplPosition.trim(),
+                        jdText: newTplText.trim(),
+                        category: '',
+                        hardFilters: {},
+                      });
+                      if (created) setTemplates((prev) => [created, ...prev]);
+                      setAddTplOpen(false);
+                      setNewTplName('');
+                      setNewTplPosition('');
+                      setNewTplText('');
+                    } finally {
+                      setNewTplSaving(false);
+                    }
+                  }}
+                  className="inline-flex h-8 items-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50 px-3 text-[12px] font-semibold text-blue-700 transition hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  {newTplSaving ? <Loader2 size={12} className="animate-spin" /> : null}
+                  Lưu mẫu
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setAddTplOpen(false); setNewTplName(''); setNewTplPosition(''); setNewTplText(''); }}
+                  className="inline-flex h-8 items-center rounded-xl border border-slate-200 bg-white px-3 text-[12px] font-semibold text-slate-600 transition hover:bg-slate-50"
+                >
+                  Hủy
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setAddTplOpen(true)}
+              className="flex w-full items-center gap-2 rounded-xl border border-dashed border-slate-200 bg-white px-3 py-2 text-[12px] font-semibold text-slate-400 transition hover:border-blue-300 hover:text-blue-500"
+            >
+              <Plus size={13} />
+              Thêm mẫu JD
+            </button>
+          )}
+        </div>
+      </Section>
+    </div>
+  );
+
   const tabContent: Record<SettingsTab, React.ReactNode> = {
     profile: profileTab,
     workspace: workspaceTab,
     notifications: notificationsTab,
     data: dataTab,
+    jd: jdTab,
   };
 
   return (
@@ -720,7 +884,7 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
           </aside>
 
           {/* Content */}
-          <main className="custom-scrollbar min-h-0 flex-1 overflow-y-auto p-5">
+          <main ref={contentRef} className="custom-scrollbar min-h-0 flex-1 overflow-y-auto p-5">
             {tabContent[activeTab]}
           </main>
         </div>
