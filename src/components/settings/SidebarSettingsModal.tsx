@@ -46,6 +46,7 @@ interface SidebarSettingsModalProps {
   onClearLocalHistory: () => void;
   onClearLocalDocuments: () => Promise<void>;
   onClearSyncedData: () => Promise<void>;
+  onGoToScoring?: () => void;
 }
 
 type SettingsTab = 'general' | 'profile' | 'workspace' | 'notifications' | 'data' | 'jd' | 'cv';
@@ -238,6 +239,7 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
   onClearLocalHistory,
   onClearLocalDocuments,
   onClearSyncedData,
+  onGoToScoring,
 }) => {
   const { settings, saveSettings, resetSettings, syncStatus, syncError } = useUserSettings();
   const { themeMode } = useTheme();
@@ -272,7 +274,9 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
   const [newTplPosition, setNewTplPosition] = useState('');
   const [newTplText, setNewTplText] = useState('');
   const [newTplSaving, setNewTplSaving] = useState(false);
+  const [tplDropdownOpen, setTplDropdownOpen] = useState(false);
   const contentRef = useRef<HTMLElement | null>(null);
+  const tplDropdownRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -284,6 +288,7 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
     setActiveTab('general');
     setDangerOpen(false);
     setAddTplOpen(false);
+    setTplDropdownOpen(false);
     setNewTplName('');
     setNewTplPosition('');
     setNewTplText('');
@@ -297,14 +302,25 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
   }, [isOpen, onClose]);
 
   useEffect(() => {
-    if (activeTab !== 'jd') return;
+    if (activeTab !== 'jd' && !tplDropdownOpen) return;
     setTemplatesLoading(true);
     setTemplates(JDTemplatesService.getCachedUserTemplates());
     void JDTemplatesService.getUserTemplates()
       .then(setTemplates)
       .catch(() => {})
       .finally(() => setTemplatesLoading(false));
-  }, [activeTab]);
+  }, [activeTab, tplDropdownOpen]);
+
+  useEffect(() => {
+    if (!tplDropdownOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (tplDropdownRef.current && !tplDropdownRef.current.contains(e.target as Node)) {
+        setTplDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [tplDropdownOpen]);
 
   // Auto-save toggle helper
   const autoSave = useCallback(async (key: string, patch: Parameters<typeof saveSettings>[0]) => {
@@ -609,40 +625,183 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
   const jdTab = (
     <div className="space-y-5">
       <Section title="JD mặc định">
-        <div className="rounded-2xl border border-slate-100 bg-white p-4 space-y-3">
-          <div className="flex items-start justify-between gap-3">
+        <div className="rounded-2xl border border-slate-100 bg-white p-5 space-y-4">
+          <div className="flex items-start justify-between gap-4">
             <div className="min-w-0 flex-1">
-              <p className="text-[13px] font-semibold text-slate-900">Tự động điền JD khi mở phiên mới</p>
-              <p className="mt-0.5 text-[12px] leading-5 text-slate-500">
+              <p className="text-[14px] font-semibold text-slate-900">Tự động điền JD khi mở phiên mới</p>
+              <p className="mt-1 text-[12px] leading-5 text-slate-500">
                 Lưu một JD cố định để tự điền vào bước nhập JD, bạn vẫn có thể chỉnh sửa sau.
               </p>
             </div>
             <Toggle
               checked={settings.workflow.fixedJD?.enabled ?? false}
-              disabled={!settings.workflow.fixedJD?.jdText}
               onChange={(v) => void autoSave('fixedJD.enabled', {
                 workflow: { ...settings.workflow, fixedJD: { ...(settings.workflow.fixedJD ?? { name: fixedJDName, jdText: fixedJDText, savedAt: Date.now() }), enabled: v } },
               })}
             />
           </div>
 
+          <div className="h-px bg-slate-100" />
+
           <div>
-            <label className="mb-1 block text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-400">Tên vị trí</label>
+            <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-400">Tên vị trí</label>
             <input
               value={fixedJDName}
               onChange={(e) => setFixedJDName(e.target.value)}
               placeholder="VD: Frontend Developer"
-              className="h-9 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-[13px] font-medium text-slate-900 outline-none transition focus:border-blue-400 focus:bg-white"
+              className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-[13px] font-medium text-slate-900 outline-none transition focus:border-blue-400 focus:bg-white"
             />
           </div>
 
           <div>
-            <label className="mb-1 block text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-400">Nội dung JD</label>
+            <div className="mb-1.5 flex items-center justify-between">
+              <label className="text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-400">Nội dung JD</label>
+              <div className="relative" ref={tplDropdownRef}>
+                <button
+                  type="button"
+                  onClick={() => { setTplDropdownOpen((v) => !v); setAddTplOpen(false); }}
+                  className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[11px] font-semibold transition ${
+                    tplDropdownOpen
+                      ? 'border-blue-300 bg-blue-50 text-blue-600'
+                      : 'border-slate-200 bg-white text-slate-600 hover:border-blue-300 hover:text-blue-600'
+                  }`}
+                >
+                  <BookOpen size={11} />
+                  Mẫu JD
+                  <ChevronDown size={10} className={`transition-transform duration-150 ${tplDropdownOpen ? 'rotate-180' : ''}`} />
+                </button>
+
+                {tplDropdownOpen && (
+                  <div className="absolute right-0 top-full z-50 mt-1.5 w-[300px] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl">
+                    <div className="max-h-[200px] overflow-y-auto custom-scrollbar">
+                      {templatesLoading && templates.length === 0 ? (
+                        <div className="flex items-center gap-2 px-4 py-3 text-[12px] text-slate-400">
+                          <Loader2 size={13} className="animate-spin" /> Đang tải...
+                        </div>
+                      ) : templates.length === 0 ? (
+                        <p className="px-4 py-3 text-[12px] text-slate-400">Chưa có mẫu JD nào.</p>
+                      ) : (
+                        <div className="py-1">
+                          {templates.map((tpl) => (
+                            <div key={tpl.id} className="group flex items-center gap-2 px-3 py-2 transition hover:bg-slate-50">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setFixedJDName(tpl.jobPosition || tpl.name);
+                                  setFixedJDText(tpl.jdText);
+                                  setTplDropdownOpen(false);
+                                }}
+                                className="min-w-0 flex-1 text-left"
+                              >
+                                <span className="block text-[12.5px] font-semibold text-slate-800 leading-tight">{tpl.name}</span>
+                                {tpl.jobPosition && <span className="mt-0.5 block text-[11px] text-slate-400">{tpl.jobPosition}</span>}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  void JDTemplatesService.deleteTemplate(tpl.id).finally(() =>
+                                    setTemplates((prev) => prev.filter((t) => t.id !== tpl.id)),
+                                  );
+                                }}
+                                className="shrink-0 flex h-6 w-6 items-center justify-center rounded-lg text-transparent transition group-hover:bg-rose-50 group-hover:text-rose-400"
+                              >
+                                <Trash2 size={11} />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {addTplOpen ? (
+                      <div className="border-t border-slate-100 p-3 space-y-2">
+                        <input
+                          autoFocus
+                          value={newTplName}
+                          onChange={(e) => setNewTplName(e.target.value)}
+                          placeholder="Tên mẫu"
+                          className="h-8 w-full rounded-lg border border-slate-200 bg-slate-50 px-2.5 text-[12px] font-medium text-slate-900 outline-none focus:border-blue-400 focus:bg-white"
+                        />
+                        <input
+                          value={newTplPosition}
+                          onChange={(e) => setNewTplPosition(e.target.value)}
+                          placeholder="Vị trí tuyển dụng"
+                          className="h-8 w-full rounded-lg border border-slate-200 bg-slate-50 px-2.5 text-[12px] font-medium text-slate-900 outline-none focus:border-blue-400 focus:bg-white"
+                        />
+                        <textarea
+                          value={newTplText}
+                          onChange={(e) => setNewTplText(e.target.value)}
+                          placeholder="Nội dung JD..."
+                          rows={4}
+                          className="w-full resize-none rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-2 text-[12px] leading-5 text-slate-900 outline-none focus:border-blue-400 focus:bg-white"
+                        />
+                        <div className="flex gap-1.5">
+                          <button
+                            type="button"
+                            disabled={!newTplName.trim() || !newTplText.trim() || newTplSaving}
+                            onClick={async () => {
+                              if (!newTplName.trim() || !newTplText.trim()) return;
+                              setNewTplSaving(true);
+                              try {
+                                const created = await JDTemplatesService.createTemplate({
+                                  name: newTplName.trim(),
+                                  jobPosition: newTplPosition.trim(),
+                                  jdText: newTplText.trim(),
+                                  category: '',
+                                  hardFilters: {},
+                                });
+                                if (created) setTemplates((prev) => [created, ...prev]);
+                                setAddTplOpen(false);
+                                setNewTplName(''); setNewTplPosition(''); setNewTplText('');
+                              } finally { setNewTplSaving(false); }
+                            }}
+                            className="inline-flex h-7 items-center gap-1 rounded-lg border border-blue-200 bg-blue-50 px-2.5 text-[11px] font-semibold text-blue-700 transition hover:bg-blue-100 disabled:opacity-40"
+                          >
+                            {newTplSaving ? <Loader2 size={11} className="animate-spin" /> : null}
+                            Lưu
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => { setAddTplOpen(false); setNewTplName(''); setNewTplPosition(''); setNewTplText(''); }}
+                            className="inline-flex h-7 items-center rounded-lg border border-slate-200 bg-white px-2.5 text-[11px] font-semibold text-slate-600 transition hover:bg-slate-50"
+                          >
+                            Hủy
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="border-t border-slate-100">
+                        <button
+                          type="button"
+                          onClick={() => setAddTplOpen(true)}
+                          className="flex w-full items-center gap-2 px-4 py-2.5 text-[12px] font-semibold text-slate-500 transition hover:bg-slate-50 hover:text-blue-600"
+                        >
+                          <Plus size={12} />
+                          Tạo mẫu mới
+                        </button>
+                      </div>
+                    )}
+
+                    <div className="border-t border-slate-100">
+                      <button
+                        type="button"
+                        onClick={() => { setTplDropdownOpen(false); onClose(); onGoToScoring?.(); }}
+                        className="flex w-full items-center justify-between gap-2 px-4 py-2.5 text-[12px] font-semibold text-blue-600 transition hover:bg-blue-50"
+                      >
+                        <span>Sang cài đặt tiêu chí chấm điểm</span>
+                        <span>→</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
             <textarea
               value={fixedJDText}
               onChange={(e) => setFixedJDText(e.target.value)}
               placeholder="Dán nội dung Job Description vào đây..."
-              rows={5}
+              rows={9}
               className="w-full resize-none rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-[12.5px] leading-6 text-slate-900 outline-none transition focus:border-blue-400 focus:bg-white"
             />
           </div>
@@ -716,7 +875,7 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
                   setFixedJDSaving(false);
                 }
               }}
-              className="ml-3 inline-flex shrink-0 h-8 items-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50 px-3 text-[12px] font-semibold text-blue-700 transition hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-40"
+              className="ml-3 inline-flex shrink-0 h-9 items-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50 px-4 text-[12px] font-semibold text-blue-700 transition hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-40"
             >
               {fixedJDSaving
                 ? <Loader2 size={12} className="animate-spin" />
@@ -726,134 +885,6 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
               {fixedJDSaved ? 'Đã lưu' : 'Lưu JD'}
             </button>
           </div>
-        </div>
-      </Section>
-
-      <Section title="Mẫu JD">
-        <div className="rounded-2xl border border-slate-100 bg-white p-4 space-y-2.5">
-          {templatesLoading && templates.length === 0 ? (
-            <div className="flex items-center gap-2 py-1 text-[12px] text-slate-400">
-              <Loader2 size={13} className="animate-spin" />
-              Đang tải mẫu...
-            </div>
-          ) : templates.length === 0 && !addTplOpen ? (
-            <p className="py-1 text-[12px] text-slate-400">Chưa có mẫu JD nào. Nhấn bên dưới để thêm.</p>
-          ) : (
-            <div className="space-y-1.5">
-              {templates.map((tpl) => (
-                <div
-                  key={tpl.id}
-                  className="group flex items-center gap-2.5 rounded-xl border border-slate-100 bg-slate-50 px-3 py-2.5 transition hover:border-blue-100 hover:bg-blue-50/40"
-                >
-                  <button
-                    type="button"
-                    title="Áp dụng làm JD mặc định"
-                    onClick={() => {
-                      setFixedJDName(tpl.jobPosition || tpl.name);
-                      setFixedJDText(tpl.jdText);
-                      contentRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
-                    }}
-                    className="min-w-0 flex-1 text-left"
-                  >
-                    <span className="block text-[13px] font-semibold text-slate-800 leading-tight">{tpl.name}</span>
-                    {tpl.jobPosition && (
-                      <span className="mt-0.5 block text-[11px] text-slate-400">{tpl.jobPosition}</span>
-                    )}
-                  </button>
-                  {tpl.category && (
-                    <span className="shrink-0 rounded-lg border border-slate-200 bg-white px-2 py-0.5 text-[10px] font-semibold text-slate-500">
-                      {tpl.category}
-                    </span>
-                  )}
-                  <button
-                    type="button"
-                    title="Xóa mẫu"
-                    onClick={async () => {
-                      try {
-                        await JDTemplatesService.deleteTemplate(tpl.id);
-                      } finally {
-                        setTemplates((prev) => prev.filter((t) => t.id !== tpl.id));
-                      }
-                    }}
-                    className="shrink-0 flex h-7 w-7 items-center justify-center rounded-lg border border-transparent text-slate-300 opacity-0 transition group-hover:border-rose-200 group-hover:bg-rose-50 group-hover:text-rose-500 group-hover:opacity-100"
-                  >
-                    <Trash2 size={12} />
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {addTplOpen ? (
-            <div className="space-y-2 rounded-xl border border-blue-100 bg-blue-50/50 p-3">
-              <input
-                autoFocus
-                value={newTplName}
-                onChange={(e) => setNewTplName(e.target.value)}
-                placeholder="Tên mẫu (VD: Senior Frontend)"
-                className="h-9 w-full rounded-xl border border-slate-200 bg-white px-3 text-[13px] font-medium text-slate-900 outline-none transition focus:border-blue-400"
-              />
-              <input
-                value={newTplPosition}
-                onChange={(e) => setNewTplPosition(e.target.value)}
-                placeholder="Vị trí tuyển dụng"
-                className="h-9 w-full rounded-xl border border-slate-200 bg-white px-3 text-[13px] font-medium text-slate-900 outline-none transition focus:border-blue-400"
-              />
-              <textarea
-                value={newTplText}
-                onChange={(e) => setNewTplText(e.target.value)}
-                placeholder="Dán nội dung JD vào đây..."
-                rows={5}
-                className="w-full resize-none rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-[12.5px] leading-6 text-slate-900 outline-none transition focus:border-blue-400"
-              />
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  disabled={!newTplName.trim() || !newTplText.trim() || newTplSaving}
-                  onClick={async () => {
-                    if (!newTplName.trim() || !newTplText.trim()) return;
-                    setNewTplSaving(true);
-                    try {
-                      const created = await JDTemplatesService.createTemplate({
-                        name: newTplName.trim(),
-                        jobPosition: newTplPosition.trim(),
-                        jdText: newTplText.trim(),
-                        category: '',
-                        hardFilters: {},
-                      });
-                      if (created) setTemplates((prev) => [created, ...prev]);
-                      setAddTplOpen(false);
-                      setNewTplName('');
-                      setNewTplPosition('');
-                      setNewTplText('');
-                    } finally {
-                      setNewTplSaving(false);
-                    }
-                  }}
-                  className="inline-flex h-8 items-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50 px-3 text-[12px] font-semibold text-blue-700 transition hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-40"
-                >
-                  {newTplSaving ? <Loader2 size={12} className="animate-spin" /> : null}
-                  Lưu mẫu
-                </button>
-                <button
-                  type="button"
-                  onClick={() => { setAddTplOpen(false); setNewTplName(''); setNewTplPosition(''); setNewTplText(''); }}
-                  className="inline-flex h-8 items-center rounded-xl border border-slate-200 bg-white px-3 text-[12px] font-semibold text-slate-600 transition hover:bg-slate-50"
-                >
-                  Hủy
-                </button>
-              </div>
-            </div>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setAddTplOpen(true)}
-              className="flex w-full items-center gap-2 rounded-xl border border-dashed border-slate-200 bg-white px-3 py-2 text-[12px] font-semibold text-slate-400 transition hover:border-blue-300 hover:text-blue-500"
-            >
-              <Plus size={13} />
-              Thêm mẫu JD
-            </button>
-          )}
         </div>
       </Section>
     </div>
