@@ -50,7 +50,7 @@ export const UserSettingsProvider: React.FC<{
   fallbackDisplayName,
   fallbackAvatar,
 }) => {
-  const { setAccessibleMode, setReducedMotion } = useTheme();
+  const { setAccessibleMode, setReducedMotion, setTheme } = useTheme();
   const seed = useMemo(
     () => buildSeed(currentUser, fallbackEmail, fallbackDisplayName, fallbackAvatar),
     [currentUser, fallbackAvatar, fallbackDisplayName, fallbackEmail],
@@ -71,7 +71,8 @@ export const UserSettingsProvider: React.FC<{
   useEffect(() => {
     setAccessibleMode(settings.ui.accessibleMode);
     setReducedMotion(settings.ui.reducedMotion);
-  }, [setAccessibleMode, setReducedMotion, settings.ui.accessibleMode, settings.ui.reducedMotion]);
+    setTheme(settings.ui.theme as 'light' | 'dark' | 'system');
+  }, [setAccessibleMode, setReducedMotion, setTheme, settings.ui.accessibleMode, settings.ui.reducedMotion, settings.ui.theme]);
 
   useEffect(() => {
     const handleExternalUpdate = (event: Event) => {

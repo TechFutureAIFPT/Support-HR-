@@ -12,17 +12,22 @@ import {
   History,
   Loader2,
   LogOut,
+  Moon,
+  Monitor,
   Plus,
   RefreshCcw,
   Settings,
+  SlidersHorizontal,
+  Sun,
   Trash2,
   Upload,
   UserCircle2,
   Workflow,
   X,
 } from 'lucide-react';
-import type { HistoryRetention, NewSessionMode } from '@/types';
+import type { HistoryRetention, NewSessionMode, SidebarDensity, UserSettingsLanguage, UserSettingsTheme } from '@/types';
 import { useUserSettings } from '@/context/settings/UserSettingsProvider';
+import { useTheme } from '@/context/theme/ThemeProvider';
 import { JDTemplatesService } from '@/services/data-sync/jdTemplatesService';
 import type { UserJDTemplate } from '@/services/data-sync/jdTemplatesService';
 import FilteredCvLibraryPage from '@/pages/tools/FilteredCvLibraryPage';
@@ -43,10 +48,11 @@ interface SidebarSettingsModalProps {
   onClearSyncedData: () => Promise<void>;
 }
 
-type SettingsTab = 'profile' | 'workspace' | 'notifications' | 'data' | 'jd' | 'cv';
+type SettingsTab = 'general' | 'profile' | 'workspace' | 'notifications' | 'data' | 'jd' | 'cv';
 
 const TABS: Array<{ id: SettingsTab; label: string; icon: React.ComponentType<{ size?: number; className?: string }> }> = [
-  { id: 'profile',       label: 'Hồ sơ',      icon: UserCircle2 },
+  { id: 'general',       label: 'Chung',       icon: SlidersHorizontal },
+  { id: 'profile',       label: 'Hồ sơ',       icon: UserCircle2 },
   { id: 'workspace',     label: 'Quy trình',   icon: Workflow },
   { id: 'notifications', label: 'Thông báo',   icon: Bell },
   { id: 'data',          label: 'Dữ liệu',     icon: Database },
@@ -234,7 +240,8 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
   onClearSyncedData,
 }) => {
   const { settings, saveSettings, resetSettings, syncStatus, syncError } = useUserSettings();
-  const [activeTab, setActiveTab] = useState<SettingsTab>('profile');
+  const { themeMode } = useTheme();
+  const [activeTab, setActiveTab] = useState<SettingsTab>('general');
 
   // Profile fields with local state + debounced save
   const [displayName, setDisplayName] = useState(userName || settings.account.displayName || '');
@@ -274,7 +281,7 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
     setFixedJDName(settings.workflow.fixedJD?.name || '');
     setFixedJDText(settings.workflow.fixedJD?.jdText || '');
     setFixedJDScoringEnabled(settings.workflow.fixedJD?.scoringEnabled ?? false);
-    setActiveTab('profile');
+    setActiveTab('general');
     setDangerOpen(false);
     setAddTplOpen(false);
     setNewTplName('');
@@ -852,7 +859,99 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
     </div>
   );
 
+  // ── Tab: General ──
+  const generalTab = (
+    <div className="space-y-5">
+      <Section title="Giao diện">
+        <div className="rounded-2xl border border-slate-100 bg-white p-4 space-y-3">
+          <div>
+            <p className="mb-2 text-[12px] font-semibold text-slate-700">Chủ đề màu sắc</p>
+            <div className="flex flex-wrap gap-2">
+              {([
+                { value: 'light' as UserSettingsTheme, label: 'Sáng', icon: Sun },
+                { value: 'dark'  as UserSettingsTheme, label: 'Tối',  icon: Moon },
+                { value: 'system' as UserSettingsTheme, label: 'Hệ thống', icon: Monitor },
+              ] as const).map(({ value, label, icon: Icon }) => {
+                const active = settings.ui.theme === value;
+                return (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() => void autoSave('theme', { ui: { ...settings.ui, theme: value } })}
+                    className={`inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-[13px] font-semibold transition ${
+                      active
+                        ? 'border-blue-500 bg-blue-50 text-blue-700'
+                        : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50'
+                    }`}
+                  >
+                    <Icon size={14} className={active ? 'text-blue-500' : 'text-slate-400'} />
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+            {themeMode === 'system' && settings.ui.theme === 'system' && (
+              <p className="mt-2 text-[11px] text-slate-400">
+                Đang dùng chủ đề của hệ điều hành.
+              </p>
+            )}
+          </div>
+        </div>
+      </Section>
+
+      <Section title="Ngôn ngữ">
+        <div className="rounded-2xl border border-slate-100 bg-white p-4">
+          <p className="mb-3 text-[12px] leading-5 text-slate-500">
+            Ngôn ngữ hiển thị của giao diện. Áp dụng sau khi tải lại trang.
+          </p>
+          <ChipGroup<UserSettingsLanguage>
+            value={settings.ui.language}
+            onChange={(v) => void autoSave('language', { ui: { ...settings.ui, language: v } })}
+            options={[
+              { value: 'vi-VN', label: 'Tiếng Việt' },
+              { value: 'en-US', label: 'English' },
+            ]}
+          />
+        </div>
+      </Section>
+
+      <Section title="Hiển thị">
+        <div className="rounded-2xl border border-slate-100 bg-white p-4 space-y-3">
+          <div>
+            <p className="mb-2 text-[12px] font-semibold text-slate-700">Mật độ sidebar</p>
+            <ChipGroup<SidebarDensity>
+              value={settings.ui.sidebarDensity}
+              onChange={(v) => void autoSave('sidebarDensity', { ui: { ...settings.ui, sidebarDensity: v } })}
+              options={[
+                { value: 'compact', label: 'Thu gọn', hint: '— ít khoảng trắng hơn' },
+                { value: 'cozy',    label: 'Thoáng',  hint: '— khoảng cách rộng hơn' },
+              ]}
+            />
+          </div>
+        </div>
+      </Section>
+
+      <Section title="Trợ năng">
+        <ToggleRow
+          title="Chế độ tiếp cận"
+          description="Tăng độ tương phản và kích thước chữ để dễ đọc hơn."
+          checked={settings.ui.accessibleMode}
+          saving={savingKey === 'accessibleMode'}
+          onChange={(v) => void autoSave('accessibleMode', { ui: { ...settings.ui, accessibleMode: v } })}
+        />
+        <ToggleRow
+          title="Giảm chuyển động"
+          description="Tắt animation và hiệu ứng chuyển tiếp."
+          checked={settings.ui.reducedMotion}
+          saving={savingKey === 'reducedMotion'}
+          onChange={(v) => void autoSave('reducedMotion', { ui: { ...settings.ui, reducedMotion: v } })}
+        />
+      </Section>
+    </div>
+  );
+
   const tabContent: Record<SettingsTab, React.ReactNode> = {
+    general: generalTab,
     profile: profileTab,
     workspace: workspaceTab,
     notifications: notificationsTab,

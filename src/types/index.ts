@@ -533,8 +533,8 @@ export interface ChatbotSession {
 }
 
 export type SidebarDensity = 'compact' | 'cozy';
-export type UserSettingsTheme = 'light';
-export type UserSettingsLanguage = 'vi-VN';
+export type UserSettingsTheme = 'light' | 'dark' | 'system';
+export type UserSettingsLanguage = 'vi-VN' | 'en-US';
 export type NewSessionMode = 'reset' | 'keep-config';
 export type HistoryRetention = 50 | 100 | 200;
 

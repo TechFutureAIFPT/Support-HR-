@@ -1,10 +1,4 @@
-/**
- * Light-only design tokens for the Support HR frontend.
- * The ThemeMode union is kept to avoid breaking existing imports, but runtime
- * code always applies the light palette.
- */
-
-export type ThemeMode = 'dark' | 'light';
+export type ThemeMode = 'light' | 'dark' | 'system';
 
 const lightTokens = {
   bgPrimary: '#f6f9ff',
@@ -60,9 +54,63 @@ const lightTokens = {
   sidebarHeaderGradient: 'linear-gradient(135deg, #ffffff, #edf6ff)',
 } as const;
 
+const darkTokens = {
+  bgPrimary: '#0f1523',
+  bgSecondary: '#141b2d',
+  bgTertiary: '#1a2235',
+  bgElevated: '#1e2a3d',
+  bgGlass: 'rgba(15, 21, 35, 0.88)',
+  bgOverlay: 'rgba(0, 0, 0, 0.5)',
+  surfaceCard: '#1e2a3d',
+  surfaceHover: '#243044',
+  surfaceActive: '#2a3750',
+  surfaceBorder: 'rgba(100, 150, 255, 0.16)',
+  surfaceBorderHover: 'rgba(100, 150, 255, 0.28)',
+  textPrimary: '#e2e8f4',
+  textSecondary: '#94a3c4',
+  textMuted: '#64748b',
+  textDisabled: '#475569',
+  textInverse: '#0f1523',
+  primary: '#3b9eff',
+  primaryHover: '#5badff',
+  primaryActive: '#2388ff',
+  primaryMuted: 'rgba(59, 158, 255, 0.15)',
+  accent: '#2dd4bf',
+  accentHover: '#14b8a6',
+  accentMuted: 'rgba(45, 212, 191, 0.15)',
+  success: '#34d399',
+  successMuted: 'rgba(52, 211, 153, 0.15)',
+  warning: '#fbbf24',
+  warningMuted: 'rgba(251, 191, 36, 0.15)',
+  error: '#fb7185',
+  errorMuted: 'rgba(251, 113, 133, 0.15)',
+  info: '#60a5fa',
+  infoMuted: 'rgba(96, 165, 250, 0.15)',
+  borderSubtle: 'rgba(255, 255, 255, 0.05)',
+  borderDefault: 'rgba(255, 255, 255, 0.09)',
+  borderStrong: 'rgba(255, 255, 255, 0.15)',
+  borderFocus: 'rgba(59, 158, 255, 0.50)',
+  shadowSm: '0 1px 2px rgba(0, 0, 0, 0.4)',
+  shadowMd: '0 10px 28px rgba(0, 0, 0, 0.5)',
+  shadowLg: '0 18px 48px rgba(0, 0, 0, 0.6)',
+  shadowXl: '0 26px 70px rgba(0, 0, 0, 0.7)',
+  shadowGlow: '0 18px 52px rgba(59, 158, 255, 0.22)',
+  shadowGlowAccent: '0 18px 52px rgba(45, 212, 191, 0.22)',
+  gradientPrimary: 'linear-gradient(135deg, #3b9eff 0%, #2dd4bf 100%)',
+  gradientSurface: 'linear-gradient(180deg, #1e2a3d 0%, #192435 100%)',
+  gradientCard: 'linear-gradient(180deg, #1e2a3d 0%, #1a2437 100%)',
+  gradientHero: 'linear-gradient(135deg, #0f1523 0%, #141b2d 58%, #1a2235 100%)',
+  gradientHeader: 'linear-gradient(180deg, rgba(30,42,61,0.96) 0%, rgba(20,27,45,0.94) 100%)',
+  scrollbarThumb: 'rgba(59, 158, 255, 0.28)',
+  scrollbarThumbHover: 'rgba(59, 158, 255, 0.44)',
+  auroraOpacity: 0.12,
+  gridOpacity: 0.06,
+  sidebarHeaderGradient: 'linear-gradient(135deg, #1e2a3d, #162235)',
+} as const;
+
 export const tokens = {
   light: lightTokens,
-  dark: lightTokens,
+  dark: darkTokens,
 } as const;
 
 export type TokenKey = keyof typeof lightTokens;

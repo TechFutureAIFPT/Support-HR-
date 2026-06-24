@@ -20,6 +20,16 @@ function normalizeSidebarDensity(value: unknown): SidebarDensity {
   return value === 'cozy' ? 'cozy' : 'compact';
 }
 
+function normalizeTheme(value: unknown): import('@/types').UserSettingsTheme {
+  if (value === 'dark' || value === 'system') return value;
+  return 'light';
+}
+
+function normalizeLanguage(value: unknown): import('@/types').UserSettingsLanguage {
+  if (value === 'en-US') return value;
+  return 'vi-VN';
+}
+
 function normalizeHistoryRetention(value: unknown): HistoryRetention {
   if (value === 100 || value === 200) return value;
   return 50;
@@ -111,8 +121,6 @@ export function mergeUserSettings(base: UserSettings, patch?: UserSettingsPatch 
     ui: {
       ...base.ui,
       ...(patch.ui || {}),
-      language: 'vi-VN',
-      theme: 'light',
     },
     account: {
       ...base.account,
@@ -159,8 +167,8 @@ export function normalizeUserSettings(raw: unknown, seed: AccountSeed = {}): Use
       sidebarDensity: normalizeSidebarDensity(ui.sidebarDensity ?? defaults.ui.sidebarDensity),
       accessibleMode: normalizeBoolean(ui.accessibleMode, defaults.ui.accessibleMode),
       reducedMotion: normalizeBoolean(ui.reducedMotion, defaults.ui.reducedMotion),
-      language: 'vi-VN',
-      theme: 'light',
+      language: normalizeLanguage(ui.language ?? defaults.ui.language),
+      theme: normalizeTheme(ui.theme ?? defaults.ui.theme),
     },
     account: {
       displayName: String(account.displayName ?? seed.displayName ?? defaults.account.displayName),
@@ -181,7 +189,10 @@ export function normalizeUserSettings(raw: unknown, seed: AccountSeed = {}): Use
           name: String(raw.name || ''),
           jdText: raw.jdText.trim(),
           savedAt: typeof raw.savedAt === 'number' ? raw.savedAt : Date.now(),
-        };
+          scoringEnabled: normalizeBoolean(raw.scoringEnabled, false),
+          weights: raw.weights && typeof raw.weights === 'object' ? raw.weights as Record<string, unknown> : undefined,
+          hardFilters: raw.hardFilters && typeof raw.hardFilters === 'object' ? raw.hardFilters as Record<string, unknown> : undefined,
+        } as unknown as import('@/types').FixedJDConfig;
       })(),
     },
     notifications: {

@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useEffect, useCallback, useState } from 'react';
-import { tokens, ThemeMode } from '@/context/theme/tokens.ts';
+import { tokens, type ThemeMode } from '@/context/theme/tokens.ts';
 import { readLocalUserSettings, USER_SETTINGS_EVENT } from '@/services/settings/userSettingsService';
+
+const THEME_STORAGE_KEY = 'supporthr.ui.theme';
 
 interface ThemeContextType {
   isDarkMode: boolean;
@@ -26,13 +28,21 @@ const ThemeContext = createContext<ThemeContextType>({
   setReducedMotion: () => {},
 });
 
-function applyThemeVariables() {
-  const root = document.documentElement;
-  const t = tokens.light;
+function resolveEffectiveMode(mode: ThemeMode): 'light' | 'dark' {
+  if (mode === 'system') {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+  return mode;
+}
 
-  root.classList.remove('dark');
-  root.classList.add('light');
-  root.style.colorScheme = 'light';
+function applyThemeVariables(mode: ThemeMode) {
+  const effective = resolveEffectiveMode(mode);
+  const t = tokens[effective];
+  const root = document.documentElement;
+
+  root.classList.remove('dark', 'light');
+  root.classList.add(effective);
+  root.style.colorScheme = effective;
 
   root.style.setProperty('--th-bg', t.bgPrimary);
   root.style.setProperty('--th-bg-secondary', t.bgSecondary);
@@ -91,24 +101,39 @@ function applyThemeVariables() {
   root.style.setProperty('--th-scrollbar-thumb-hover', t.scrollbarThumbHover);
 }
 
+function readStoredTheme(): ThemeMode {
+  try {
+    const raw = localStorage.getItem(THEME_STORAGE_KEY);
+    if (raw === 'dark' || raw === 'system') return raw;
+  } catch {}
+  return 'light';
+}
+
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const localSettings = readLocalUserSettings();
-  const [isAccessibleMode, setIsAccessibleMode] = useState<boolean>(() => {
-    return localSettings.ui.accessibleMode;
-  });
+  const [themeMode, setThemeModeState] = useState<ThemeMode>(() => readStoredTheme());
+  const [isAccessibleMode, setIsAccessibleMode] = useState<boolean>(() => localSettings.ui.accessibleMode);
   const [reducedMotion, setReducedMotionState] = useState<boolean>(() => localSettings.ui.reducedMotion);
 
+  const isDarkMode = resolveEffectiveMode(themeMode) === 'dark';
+
   useEffect(() => {
-    applyThemeVariables();
-  }, []);
+    applyThemeVariables(themeMode);
+  }, [themeMode]);
+
+  // Re-resolve when OS preference changes (for 'system' mode)
+  useEffect(() => {
+    if (themeMode !== 'system') return;
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    const handler = () => applyThemeVariables('system');
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, [themeMode]);
 
   useEffect(() => {
     const root = document.documentElement;
-    if (isAccessibleMode) {
-      root.classList.add('supporthr-accessible');
-    } else {
-      root.classList.remove('supporthr-accessible');
-    }
+    if (isAccessibleMode) root.classList.add('supporthr-accessible');
+    else root.classList.remove('supporthr-accessible');
   }, [isAccessibleMode]);
 
   useEffect(() => {
@@ -127,21 +152,22 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       const next = readLocalUserSettings();
       setIsAccessibleMode(next.ui.accessibleMode);
       setReducedMotionState(next.ui.reducedMotion);
+      const nextTheme = next.ui.theme as ThemeMode;
+      setThemeModeState(nextTheme);
     };
 
     window.addEventListener(USER_SETTINGS_EVENT, syncFromSettings as EventListener);
-    return () => {
-      window.removeEventListener(USER_SETTINGS_EVENT, syncFromSettings as EventListener);
-    };
+    return () => window.removeEventListener(USER_SETTINGS_EVENT, syncFromSettings as EventListener);
   }, []);
 
-  const setTheme = useCallback((_mode: ThemeMode) => {
-    applyThemeVariables();
+  const setTheme = useCallback((mode: ThemeMode) => {
+    try { localStorage.setItem(THEME_STORAGE_KEY, mode); } catch {}
+    setThemeModeState(mode);
   }, []);
 
   const toggleTheme = useCallback(() => {
-    applyThemeVariables();
-  }, []);
+    setTheme(resolveEffectiveMode(themeMode) === 'dark' ? 'light' : 'dark');
+  }, [setTheme, themeMode]);
 
   const setAccessibleMode = useCallback((enabled: boolean) => {
     localStorage.setItem('accessibleMode', String(enabled));
@@ -162,19 +188,17 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }, []);
 
   return (
-    <ThemeContext.Provider
-      value={{
-        isDarkMode: false,
-        themeMode: 'light',
-        toggleTheme,
-        setTheme,
-        isAccessibleMode,
-        setAccessibleMode,
-        toggleAccessibleMode,
-        reducedMotion,
-        setReducedMotion,
-      }}
-    >
+    <ThemeContext.Provider value={{
+      isDarkMode,
+      themeMode,
+      toggleTheme,
+      setTheme,
+      isAccessibleMode,
+      setAccessibleMode,
+      toggleAccessibleMode,
+      reducedMotion,
+      setReducedMotion,
+    }}>
       {children}
     </ThemeContext.Provider>
   );
