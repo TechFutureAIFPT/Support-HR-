@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { Bell, Download, Menu, PanelLeft, Plus, Search, SlidersHorizontal } from 'lucide-react';
+import { Bell, Menu, PanelLeft, Search, Users } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import type { AppStep } from '@/types';
 import NotificationDropdown from '@/components/notifications/NotificationDropdown';
@@ -15,6 +15,7 @@ interface WorkspaceTopbarProps {
   onOpenCandidateSuggestions?: () => void;
   onExportReport?: () => void;
   onOpenMobileSidebar?: () => void;
+  onOpenSettings?: () => void;
   userName?: string;
   userAvatar?: string | null;
   userEmail?: string;
@@ -24,9 +25,8 @@ interface WorkspaceTopbarProps {
 }
 
 const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
-  completedSteps,
-  onExportReport,
   onOpenMobileSidebar,
+  onOpenSettings,
   userName,
   userAvatar,
   userEmail,
@@ -40,14 +40,6 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
 
   const displayName = userName?.trim() || userEmail?.split('@')[0] || 'HR';
   const initials = displayName.split(/\s+/).map((part) => part[0]).join('').slice(0, 2).toUpperCase();
-
-  const handleNewCv = () => {
-    navigate(completedSteps.includes('jd') ? '/upload' : '/jd');
-  };
-
-  const handleCriteria = () => {
-    navigate(completedSteps.includes('upload') ? '/weights' : '/jd');
-  };
 
   const handleSearch = (event: React.FormEvent) => {
     event.preventDefault();
@@ -72,22 +64,9 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
             <PanelLeft size={16} />
           </button>
         ) : null}
-        <button type="button" onClick={handleNewCv} className="apple-toolbar-button apple-toolbar-button--primary">
-          <Plus size={17} strokeWidth={1.9} />
-          <span className="hidden sm:inline">Nạp CV mới</span>
-        </button>
-        <button
-          type="button"
-          onClick={onExportReport}
-          disabled={!completedSteps.includes('analysis')}
-          className="apple-toolbar-button"
-        >
-          <Download size={16} strokeWidth={1.8} />
-          <span className="hidden lg:inline">Xuất báo cáo</span>
-        </button>
-        <button type="button" onClick={handleCriteria} className="apple-toolbar-button">
-          <SlidersHorizontal size={16} strokeWidth={1.8} />
-          <span className="hidden xl:inline">Cài đặt tiêu chí lọc</span>
+        <button type="button" onClick={onOpenSettings} className="apple-toolbar-button apple-toolbar-button--primary">
+          <Users size={16} strokeWidth={1.9} />
+          <span className="hidden sm:inline">Set Up Team</span>
         </button>
       </div>
 

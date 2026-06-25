@@ -1166,6 +1166,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
             onExportReport={handleExportReport}
             onOpenMobileSidebar={() => setIsSidebarDrawerOpen(true)}
             onNewSession={handleNewSession}
+            onOpenSettings={() => setSidebarSettingsOpen(true)}
             sidebarCollapsed={isDesktopSidebarCollapsed}
             onToggleSidebar={() => setIsDesktopSidebarCollapsed((value) => !value)}
             onOpenAnalysis={() => {
