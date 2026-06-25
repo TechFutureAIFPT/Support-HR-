@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '@/context/theme/ThemeProvider';
+import { useThemeColors } from '@/hooks/useThemeColors';
 import {
   AlertCircle,
   ArrowLeft,
@@ -9,6 +10,8 @@ import {
   ChevronRight,
   FileText,
   MessageSquareText,
+  TrendingUp,
+  Users,
 } from 'lucide-react';
 import type {
   ActiveAnalysisContext,
@@ -44,35 +47,14 @@ interface AIFeedbackPageProps {
   analysisContext?: ActiveAnalysisContext | null;
 }
 
-const ACTION_META: Record<AnalysisFeedbackAction, { label: string; className: string }> = {
-  like: {
-    label: 'Đánh giá tốt',
-    className: 'border-emerald-200 bg-emerald-50 text-emerald-700',
-  },
-  dislike: {
-    label: 'Cần xem lại',
-    className: 'border-amber-200 bg-amber-50 text-amber-700',
-  },
-  shortlist: {
-    label: 'Đề cử',
-    className: 'border-blue-200 bg-blue-50 text-blue-700',
-  },
-  reject: {
-    label: 'Từ chối',
-    className: 'border-rose-200 bg-rose-50 text-rose-700',
-  },
-  interview: {
-    label: 'Phỏng vấn',
-    className: 'border-sky-200 bg-sky-50 text-sky-700',
-  },
-  hire: {
-    label: 'Đề xuất',
-    className: 'border-violet-200 bg-violet-50 text-violet-700',
-  },
-  neutral: {
-    label: 'Trung lập',
-    className: 'border-blue-100 bg-white text-slate-700',
-  },
+const ACTION_META: Record<AnalysisFeedbackAction, { label: string; colorClass: string; dotClass: string }> = {
+  like:      { label: 'Đánh giá tốt', colorClass: 'border-emerald-200 bg-emerald-50 text-emerald-700', dotClass: 'bg-emerald-500' },
+  dislike:   { label: 'Cần xem lại',  colorClass: 'border-amber-200 bg-amber-50 text-amber-700',      dotClass: 'bg-amber-500' },
+  shortlist: { label: 'Đề cử',        colorClass: 'border-blue-200 bg-blue-50 text-blue-700',         dotClass: 'bg-blue-500' },
+  reject:    { label: 'Từ chối',      colorClass: 'border-rose-200 bg-rose-50 text-rose-700',         dotClass: 'bg-rose-500' },
+  interview: { label: 'Phỏng vấn',   colorClass: 'border-sky-200 bg-sky-50 text-sky-700',            dotClass: 'bg-sky-500' },
+  hire:      { label: 'Đề xuất',      colorClass: 'border-violet-200 bg-violet-50 text-violet-700',  dotClass: 'bg-violet-500' },
+  neutral:   { label: 'Trung lập',    colorClass: 'border-slate-200 bg-white text-slate-600',         dotClass: 'bg-slate-400' },
 };
 
 function getStoredAnalysisRun(): AnalysisRunData | null {
@@ -85,11 +67,9 @@ function buildEffectiveContext(
   fallbackJobPosition?: string
 ): ActiveAnalysisContext | null {
   if (directContext) return directContext;
-
   const cachedContext = getActiveAnalysisContext();
   if (cachedContext) return cachedContext;
   if (!storedRun) return null;
-
   return {
     sessionId: buildAnalysisSessionId(storedRun.timestamp),
     timestamp: storedRun.timestamp,
@@ -100,11 +80,9 @@ function buildEffectiveContext(
 function readAnalysisValue<T>(candidate: Candidate, keys: string[]): T | undefined {
   const analysis = candidate.analysis as Record<string, unknown> | undefined;
   if (!analysis) return undefined;
-
   for (const key of keys) {
     if (key in analysis) return analysis[key] as T;
   }
-
   return undefined;
 }
 
@@ -138,14 +116,10 @@ function hydrateFeedbackAdjusted(
   return candidates.map((candidate) => {
     const entry = feedbackMap[candidate.id] || feedbackMap[candidate.fileName] || feedbackMap[candidate.candidateName];
     if (!entry || typeof entry.finalScore !== 'number') return candidate;
-
     return {
       ...candidate,
       analysis: candidate.analysis
-        ? {
-            ...candidate.analysis,
-            feedbackAdjusted: entry.finalScore,
-          }
+        ? { ...candidate.analysis, feedbackAdjusted: entry.finalScore }
         : candidate.analysis,
     };
   });
@@ -153,40 +127,40 @@ function hydrateFeedbackAdjusted(
 
 function persistLatestRunFeedback(candidateId: string, finalScore: number): void {
   if (typeof window === 'undefined') return;
-
   try {
     const stored = getStoredAnalysisRun();
     if (!stored) return;
-
     const nextRun: AnalysisRunData = {
       ...stored,
       candidates: stored.candidates.map((candidate) => (
         candidate.id === candidateId
-          ? {
-              ...candidate,
-              analysis: candidate.analysis
-                ? {
-                    ...candidate.analysis,
-                    feedbackAdjusted: finalScore,
-                  }
-                : candidate.analysis,
-            }
+          ? { ...candidate, analysis: candidate.analysis ? { ...candidate.analysis, feedbackAdjusted: finalScore } : candidate.analysis }
           : candidate
       )),
     };
-
     window.localStorage.setItem('cvAnalysis.latest', JSON.stringify(nextRun));
   } catch {
     // Local cache only.
   }
 }
 
-function getActionPresentation(action?: AnalysisFeedbackAction | null): { label: string; className: string } | null {
+function getActionPresentation(action?: AnalysisFeedbackAction | null) {
   if (!action) return null;
   return ACTION_META[action] || ACTION_META.neutral;
 }
 
-const badgeClass = 'rounded-2xl border border-blue-100 bg-white px-3 py-1.5 text-sm text-slate-600';
+function getInitials(name: string): string {
+  const parts = name.trim().split(' ');
+  return parts.length >= 2
+    ? (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase()
+    : name.charAt(0).toUpperCase();
+}
+
+function getRankColors(rank?: string): string {
+  if (rank === 'A') return 'bg-emerald-50 text-emerald-700 border border-emerald-200';
+  if (rank === 'B') return 'bg-blue-50 text-blue-700 border border-blue-200';
+  return 'bg-slate-50 text-slate-600 border border-slate-200';
+}
 
 const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
   candidates,
@@ -195,6 +169,7 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
 }) => {
   const navigate = useNavigate();
   const { isDarkMode } = useTheme();
+  const tc = useThemeColors();
   const storedRun = useMemo(() => getStoredAnalysisRun(), []);
   const [activeView, setActiveView] = useState<FeedbackView>('overview');
   const [selectedCandidateId, setSelectedCandidateId] = useState<string | null>(null);
@@ -248,8 +223,8 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
   const effectiveJobPosition = jobPosition || effectiveContext?.jobPosition || storedRun?.job.position || '';
   const submittedCount = feedbackEntries.length;
   const latestFeedbackLabel = feedbackStats?.latestFeedbackAt
-    ? new Date(feedbackStats.latestFeedbackAt).toLocaleString('vi-VN')
-    : 'Chưa có phản hồi';
+    ? new Date(feedbackStats.latestFeedbackAt).toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
+    : null;
 
   const reloadFeedback = useCallback(async () => {
     if (!effectiveContext?.sessionId && !effectiveContext?.historyId && !effectiveContext?.syncHistoryId) {
@@ -257,7 +232,6 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
       setFeedbackStats(null);
       return;
     }
-
     setIsLoadingFeedback(true);
     try {
       const filters = {
@@ -266,12 +240,10 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
         syncHistoryId: effectiveContext?.syncHistoryId,
         limitCount: 200,
       };
-
       const [entries, stats] = await Promise.all([
         listAnalysisFeedback(filters),
         getAnalysisFeedbackStats(filters),
       ]);
-
       setFeedbackByCandidate(getFeedbackMap(entries));
       setFeedbackStats(stats);
     } catch (error) {
@@ -287,9 +259,7 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
     }
   }, [validCandidates, selectedCandidateId]);
 
-  useEffect(() => {
-    void reloadFeedback();
-  }, [reloadFeedback]);
+  useEffect(() => { void reloadFeedback(); }, [reloadFeedback]);
 
   const handleOpenCandidate = useCallback((candidateId: string) => {
     setSelectedCandidateId(candidateId);
@@ -305,16 +275,13 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
 
   const handleSubmit = useCallback(async (draft: AnalysisFeedbackDraft) => {
     if (!selectedCandidate) return;
-
     const scope = effectiveContext || buildEffectiveContext(null, storedRun, effectiveJobPosition);
     if (!scope?.sessionId && !scope?.historyId && !scope?.syncHistoryId && !scope?.jdHash) {
       setSubmitError('Frontend chưa có context của phiên phân tích. Bạn hãy chạy lại một lần để gắn phản hồi đúng scope.');
       return;
     }
-
     setIsSubmitting(true);
     setSubmitError(null);
-
     try {
       const saved = await saveAnalysisFeedback({
         sessionId: scope?.sessionId,
@@ -340,7 +307,6 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
           source: 'ui-feedback-page',
         },
       });
-
       setFeedbackByCandidate((previous) => ({
         ...previous,
         [selectedCandidate.id]: saved,
@@ -359,19 +325,29 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
     }
   }, [effectiveContext, effectiveJobPosition, reloadFeedback, selectedCandidate, storedRun]);
 
+  /* ── Empty state ────────────────────────────────────────── */
   if (validCandidates.length === 0) {
     return (
-      <div className="feature-page-shell flex h-full flex-col items-center justify-center bg-[#f6f9ff] p-8 text-center" style={{ background: isDarkMode ? '#0f1523' : '#f6f9ff', color: isDarkMode ? '#e2e8f4' : '#0f172a' }}>
-        <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-2xl border border-blue-100 bg-white">
-          <Brain className="h-10 w-10 text-slate-500" />
+      <div
+        className="feature-page-shell flex h-full flex-col items-center justify-center p-8 text-center"
+        style={{ background: tc.pageBg, color: tc.textPrimary }}
+      >
+        <div
+          className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl border"
+          style={{ background: tc.cardBg, borderColor: tc.borderSoft }}
+        >
+          <Brain className="h-8 w-8 text-slate-400" />
         </div>
-        <h2 className="mb-3 text-2xl font-bold text-slate-900">Chưa có dữ liệu ứng viên</h2>
-        <p className="max-w-md text-sm leading-7 text-slate-500">
+        <h2 className="mb-2 text-[18px] font-bold" style={{ color: tc.textPrimary }}>
+          Chưa có dữ liệu ứng viên
+        </h2>
+        <p className="max-w-sm text-[13px] leading-relaxed" style={{ color: tc.textMuted }}>
           Không tìm thấy ứng viên nào đã được phân tích. Hãy chạy lại bước phân tích CV trước khi mở màn phản hồi AI.
         </p>
         <button
           onClick={() => navigate('/analysis')}
-          className="mt-6 inline-flex items-center gap-2 rounded-xl border border-blue-100 bg-white px-4 py-2 text-sm font-semibold text-slate-600 transition-colors hover:bg-blue-50 hover:text-blue-700"
+          className="mt-6 inline-flex items-center gap-2 rounded-xl border px-4 py-2.5 text-[13px] font-semibold transition-colors hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200"
+          style={{ background: tc.cardBg, borderColor: tc.borderSoft, color: tc.textSecondary }}
         >
           <ArrowLeft className="h-4 w-4" />
           Quay về kết quả phân tích
@@ -381,164 +357,217 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
   }
 
   return (
-    <div className="feature-page-shell relative flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden bg-[#f6f9ff] text-slate-900" style={{ background: isDarkMode ? '#0f1523' : '#f6f9ff', color: isDarkMode ? '#e2e8f4' : '#0f172a' }}>
-      <div className="pointer-events-none absolute inset-0 supporthr-grid-mask opacity-[0.16]" />
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-56 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.04),transparent_42%)]" />
+    <div
+      className="feature-page-shell relative flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden"
+      style={{ background: tc.pageBg, color: tc.textPrimary }}
+    >
+      {/* Subtle grid texture */}
+      <div className="pointer-events-none absolute inset-0 supporthr-grid-mask opacity-[0.12]" />
 
-      <header className="relative z-10 shrink-0 border-b border-blue-100 bg-white/95 px-4 py-3 md:px-5" style={{ display: 'none' }}>
-        <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
-          <div className="flex min-w-0 items-center gap-3">
-            <div className="h-9 w-px shrink-0 bg-blue-500" />
-            <div className="min-w-0">
-              <p className="supporthr-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-blue-600">
-                Quy trình phản hồi
-              </p>
-              <h1 className="truncate text-xl font-bold tracking-tight text-slate-900 md:text-2xl">
-                {effectiveJobPosition || 'Phiên phân tích hiện tại'}
-              </h1>
-            </div>
-          </div>
+      {/* Hidden compat header */}
+      <header style={{ display: 'none' }} />
 
-          <button
-            onClick={() => navigate('/analysis')}
-            className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-blue-100 bg-white px-4 text-sm font-semibold text-slate-600 transition-colors hover:bg-blue-50 hover:text-blue-700"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Kết quả phân tích
-          </button>
-        </div>
-
-        <div className="mt-3 flex flex-wrap items-center gap-2 text-[12px] text-slate-400">
-          <span className={badgeClass}>
-            {submittedCount}/{validCandidates.length} ứng viên đã phản hồi
-          </span>
-          <span className={badgeClass}>
-            Tổng bản ghi: {feedbackStats?.totalFeedback ?? submittedCount}
-          </span>
-          <span className={`${badgeClass} inline-flex items-center gap-1.5`}>
-            <CheckCircle2 className="h-3.5 w-3.5 text-blue-600" />
-            {isLoadingFeedback ? 'Đang đồng bộ...' : 'Sẵn sàng'}
-          </span>
-          <span className={badgeClass}>
-            Mới nhất: {latestFeedbackLabel}
-          </span>
-        </div>
-      </header>
-
-      <main className="relative z-10 min-h-0 flex-1 overflow-y-auto bg-[#f6f9ff]">
+      <main className="relative z-10 min-h-0 flex-1 overflow-y-auto">
         {activeView === 'overview' ? (
-          <div className="mx-auto flex w-full max-w-7xl flex-col gap-4 px-4 py-5 md:px-5">
-            <section className="rounded-2xl border border-blue-100 bg-white shadow-[0_18px_48px_rgba(30,64,175,0.08)] p-4">
-              <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-                <div>
-                  <p className="supporthr-mono text-[10px] uppercase tracking-[0.2em] text-blue-600">
-                    Overview
-                  </p>
-                  <h2 className="mt-2 text-2xl font-bold text-slate-900">Chọn ứng viên để phản hồi</h2>
+          <div className="mx-auto w-full max-w-6xl px-4 py-5 md:px-6">
+
+            {/* ── Page header ─────────────────────────────── */}
+            <div className="mb-5">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-blue-700 shadow-sm shadow-blue-500/20">
+                    <Brain className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-blue-600">Phản hồi kết quả AI</p>
+                    <h1 className="text-[17px] font-bold leading-tight" style={{ color: tc.textPrimary }}>
+                      {effectiveJobPosition || 'Phiên phân tích hiện tại'}
+                    </h1>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-slate-500">
-                  <MessageSquareText className="h-4 w-4 text-blue-600" />
-                  <span>4 bước gọn cho mỗi ứng viên</span>
-                </div>
+
+                <button
+                  onClick={() => navigate('/analysis')}
+                  className="inline-flex h-9 items-center gap-2 rounded-xl border px-4 text-[13px] font-semibold transition-colors hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 sm:self-start"
+                  style={{ background: tc.cardBg, borderColor: tc.borderSoft, color: tc.textSecondary }}
+                >
+                  <ArrowLeft className="h-3.5 w-3.5" />
+                  Kết quả phân tích
+                </button>
               </div>
 
-              {overviewNotice ? (
-                <div className="mt-4 flex items-start gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
-                  <CheckCircle2 className="mt-0.5 h-4.5 w-4.5 shrink-0" />
-                  <span>{overviewNotice}</span>
+              {/* Stats chips row */}
+              <div className="mt-4 flex flex-wrap gap-2">
+                <div
+                  className="flex items-center gap-2 rounded-full border px-3 py-1.5 text-[12px] font-medium"
+                  style={{ background: tc.cardBg, borderColor: tc.borderSoft, color: tc.textSecondary }}
+                >
+                  <Users className="h-3.5 w-3.5 text-blue-500" />
+                  <span><span className="font-bold" style={{ color: tc.textPrimary }}>{submittedCount}</span> / {validCandidates.length} đã phản hồi</span>
                 </div>
-              ) : null}
-            </section>
+                <div
+                  className="flex items-center gap-2 rounded-full border px-3 py-1.5 text-[12px] font-medium"
+                  style={{ background: tc.cardBg, borderColor: tc.borderSoft, color: tc.textSecondary }}
+                >
+                  <TrendingUp className="h-3.5 w-3.5 text-blue-500" />
+                  <span><span className="font-bold" style={{ color: tc.textPrimary }}>{feedbackStats?.totalFeedback ?? submittedCount}</span> bản ghi</span>
+                </div>
+                <div
+                  className="flex items-center gap-2 rounded-full border px-3 py-1.5 text-[12px] font-medium"
+                  style={{ background: tc.cardBg, borderColor: tc.borderSoft, color: tc.textSecondary }}
+                >
+                  <CheckCircle2 className={`h-3.5 w-3.5 ${isLoadingFeedback ? 'text-amber-500' : 'text-emerald-500'}`} />
+                  <span>{isLoadingFeedback ? 'Đang đồng bộ…' : 'Đã đồng bộ'}</span>
+                </div>
+                {latestFeedbackLabel && (
+                  <div
+                    className="flex items-center gap-2 rounded-full border px-3 py-1.5 text-[12px] font-medium"
+                    style={{ background: tc.cardBg, borderColor: tc.borderSoft, color: tc.textMuted }}
+                  >
+                    <span>Mới nhất: {latestFeedbackLabel}</span>
+                  </div>
+                )}
+              </div>
+            </div>
 
-            <section className="grid gap-3 xl:grid-cols-2">
+            {/* Success notice */}
+            {overviewNotice && (
+              <div className="mb-4 flex items-start gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-[13px] text-emerald-700">
+                <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />
+                <span>{overviewNotice}</span>
+              </div>
+            )}
+
+            {/* ── Candidate grid ─────────────────────────── */}
+            <div className="grid gap-3 xl:grid-cols-2">
               {validCandidates.map((candidate) => {
                 const entry = feedbackByCandidate[candidate.id]
                   || feedbackByCandidate[candidate.fileName]
                   || feedbackByCandidate[candidate.candidateName]
                   || null;
-                const actionPresentation = getActionPresentation(entry?.action);
+                const actionPres = getActionPresentation(entry?.action);
+                const rank = getCandidateRank(candidate);
+                const score = getDisplayedScore(candidate);
+                const initials = getInitials(normalizeVietnameseDisplay(candidate.candidateName));
 
                 return (
                   <article
                     key={candidate.id}
-                    className="rounded-2xl border border-blue-100 bg-white shadow-[0_18px_48px_rgba(30,64,175,0.08)] p-4"
+                    className="rounded-2xl border p-4 transition-all hover:shadow-md"
+                    style={{
+                      background: tc.cardBg,
+                      borderColor: tc.borderSoft,
+                      boxShadow: '0 2px 12px rgba(30,64,175,0.05)',
+                    }}
                   >
-                    <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                      <div className="min-w-0">
-                        <p className="supporthr-mono text-[10px] uppercase tracking-[0.18em] text-slate-500">
-                          Ứng viên
-                        </p>
-                        <h3 className="mt-2 truncate text-xl font-bold text-slate-900">{normalizeVietnameseDisplay(candidate.candidateName)}</h3>
-                        <div className="mt-3 flex flex-wrap gap-2">
-                          <span className={`${badgeClass} inline-flex items-center gap-1.5`}>
-                            <FileText className="h-4 w-4 text-slate-500" />
+                    <div className="flex items-start gap-3">
+                      {/* Avatar */}
+                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-[13px] font-black text-blue-600">
+                        {initials}
+                      </div>
+
+                      {/* Info */}
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center gap-2 mb-0.5">
+                          <h3 className="text-[15px] font-bold leading-tight truncate" style={{ color: tc.textPrimary }}>
+                            {normalizeVietnameseDisplay(candidate.candidateName)}
+                          </h3>
+                          {rank && (
+                            <span className={`rounded-lg px-2 py-0.5 text-[10px] font-bold ${getRankColors(rank)}`}>
+                              Hạng {rank}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px]" style={{ color: tc.textMuted }}>
+                          <span className="flex items-center gap-1">
+                            <FileText className="h-3 w-3" />
                             {normalizeVietnameseDisplay(candidate.fileName)}
                           </span>
-                          <span className={badgeClass}>
-                            Điểm: <strong className="ml-1 text-slate-900">{getDisplayedScore(candidate).toFixed(1)}</strong>
-                          </span>
-                          <span className={badgeClass}>
-                            Hạng: <strong className="ml-1 text-slate-900">{getCandidateRank(candidate) || 'C'}</strong>
-                          </span>
+                          <span>Điểm: <span className="font-bold" style={{ color: tc.textPrimary }}>{score.toFixed(1)}</span></span>
                         </div>
                       </div>
 
-                      {actionPresentation ? (
-                        <span className={`w-fit border px-3 py-1.5 text-sm font-semibold ${actionPresentation.className}`}>
-                          {actionPresentation.label}
+                      {/* Action badge */}
+                      {actionPres ? (
+                        <span className={`flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold ${actionPres.colorClass}`}>
+                          <span className={`h-1.5 w-1.5 rounded-full ${actionPres.dotClass}`} />
+                          {actionPres.label}
                         </span>
                       ) : (
-                        <span className="w-fit rounded-2xl border border-blue-100 bg-white px-3 py-1.5 text-sm font-semibold text-slate-500">
+                        <span
+                          className="flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium"
+                          style={{ borderColor: tc.borderSoft, color: tc.textMuted, background: tc.pageBg }}
+                        >
+                          <span className="h-1.5 w-1.5 rounded-full bg-slate-300" />
                           Chưa phản hồi
                         </span>
                       )}
                     </div>
 
-                    <div className="mt-4 flex items-center justify-between gap-3 border-t border-blue-100 pt-4">
-                      <div className="text-sm text-slate-500">
+                    {/* Footer */}
+                    <div
+                      className="mt-4 flex items-center justify-between border-t pt-3"
+                      style={{ borderColor: tc.borderSoft }}
+                    >
+                      <p className="text-[11px]" style={{ color: tc.textMuted }}>
                         {entry?.updatedAt
-                          ? `Cập nhật: ${new Date(entry.updatedAt).toLocaleString('vi-VN')}`
+                          ? `Cập nhật: ${new Date(entry.updatedAt).toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}`
                           : 'Chưa có bản ghi phản hồi'}
-                      </div>
+                      </p>
                       <button
                         type="button"
                         onClick={() => handleOpenCandidate(candidate.id)}
-                        className="inline-flex items-center gap-2 rounded-xl border border-blue-500/20 bg-gradient-to-r from-blue-600 to-teal-500 px-4 py-2.5 text-sm font-semibold text-white shadow-[0_14px_34px_rgba(35,136,255,0.16)] transition-all hover:brightness-105"
+                        className="inline-flex items-center gap-1.5 rounded-xl bg-blue-600 px-4 py-2 text-[12px] font-semibold text-white shadow-sm shadow-blue-600/20 transition-all hover:bg-blue-700"
                       >
                         {entry ? 'Chỉnh sửa' : 'Phản hồi'}
-                        <ChevronRight className="h-4 w-4" />
+                        <ChevronRight className="h-3.5 w-3.5" />
                       </button>
                     </div>
                   </article>
                 );
               })}
-            </section>
+            </div>
           </div>
+
         ) : selectedCandidate ? (
-          <div className="mx-auto flex w-full max-w-7xl flex-col gap-4 px-4 py-5 md:px-5">
-            <section className="rounded-2xl border border-blue-100 bg-white shadow-[0_18px_48px_rgba(30,64,175,0.08)] p-4">
-              <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-                <div>
-                  <p className="supporthr-mono text-[10px] uppercase tracking-[0.2em] text-blue-600">
-                    Ứng viên đang phản hồi
-                  </p>
-                  <h2 className="mt-2 text-2xl font-bold text-slate-900">{normalizeVietnameseDisplay(selectedCandidate.candidateName)}</h2>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  <span className={badgeClass}>
-                    Điểm AI: <strong className="ml-1 text-slate-900">{getCandidateScore(selectedCandidate).toFixed(1)}</strong>
+          <div className="mx-auto w-full max-w-3xl px-4 py-5 md:px-6">
+            {/* Decision view header */}
+            <div
+              className="mb-4 flex items-start gap-3 rounded-2xl border p-4"
+              style={{ background: tc.cardBg, borderColor: tc.borderSoft }}
+            >
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-[13px] font-black text-blue-600">
+                {getInitials(normalizeVietnameseDisplay(selectedCandidate.candidateName))}
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-blue-600 mb-0.5">Ứng viên đang phản hồi</p>
+                <h2 className="text-[16px] font-bold" style={{ color: tc.textPrimary }}>
+                  {normalizeVietnameseDisplay(selectedCandidate.candidateName)}
+                </h2>
+                <div className="mt-1.5 flex flex-wrap gap-2">
+                  <span
+                    className="rounded-full border px-2.5 py-0.5 text-[11px] font-medium"
+                    style={{ background: tc.pageBg, borderColor: tc.borderSoft, color: tc.textSecondary }}
+                  >
+                    Điểm AI: <strong style={{ color: tc.textPrimary }}>{getCandidateScore(selectedCandidate).toFixed(1)}</strong>
                   </span>
-                  <span className={badgeClass}>
-                    Hạng: <strong className="ml-1 text-slate-900">{getCandidateRank(selectedCandidate) || 'C'}</strong>
-                  </span>
+                  {getCandidateRank(selectedCandidate) && (
+                    <span className={`rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${getRankColors(getCandidateRank(selectedCandidate))}`}>
+                      Hạng {getCandidateRank(selectedCandidate)}
+                    </span>
+                  )}
                 </div>
               </div>
-
-              <p className="mt-4 flex items-start gap-2 text-sm leading-6 text-slate-500">
-                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-blue-600" />
-                Phản hồi được lưu theo phiên phân tích hiện tại.
-              </p>
-            </section>
+              <button
+                type="button"
+                onClick={handleBackToOverview}
+                className="inline-flex items-center gap-1.5 rounded-xl border px-3 py-2 text-[12px] font-semibold transition-colors hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200"
+                style={{ background: tc.pageBg, borderColor: tc.borderSoft, color: tc.textSecondary }}
+              >
+                <ArrowLeft className="h-3.5 w-3.5" />
+                Quay lại
+              </button>
+            </div>
 
             <AIFeedbackForm
               candidateId={selectedCandidate.id}
@@ -553,16 +582,24 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
               onCancel={handleBackToOverview}
             />
           </div>
+
         ) : (
-          <div className="flex h-full flex-col items-center justify-center px-6 text-center text-slate-500">
-            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border border-blue-100 bg-white">
-              <Brain className="h-7 w-7 text-slate-500" />
+          <div
+            className="flex h-full flex-col items-center justify-center px-6 py-12 text-center"
+            style={{ color: tc.textMuted }}
+          >
+            <div
+              className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border"
+              style={{ background: tc.cardBg, borderColor: tc.borderSoft }}
+            >
+              <Brain className="h-6 w-6 text-slate-400" />
             </div>
-            <p className="text-base font-semibold text-slate-600">Không tìm thấy ứng viên đang chọn</p>
+            <p className="text-[14px] font-semibold" style={{ color: tc.textSecondary }}>Không tìm thấy ứng viên đang chọn</p>
             <button
               type="button"
               onClick={() => setActiveView('overview')}
-              className="mt-4 inline-flex items-center gap-2 rounded-xl border border-blue-100 bg-white px-4 py-2 text-sm font-semibold text-slate-600 transition-colors hover:bg-blue-50 hover:text-blue-700"
+              className="mt-4 inline-flex items-center gap-2 rounded-xl border px-4 py-2 text-[13px] font-semibold transition-colors hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200"
+              style={{ background: tc.cardBg, borderColor: tc.borderSoft, color: tc.textSecondary }}
             >
               Về overview
             </button>

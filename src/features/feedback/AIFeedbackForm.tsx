@@ -8,6 +8,7 @@ import {
   ClipboardList,
   Lightbulb,
   MessageSquareText,
+  RotateCcw,
   Save,
   ShieldAlert,
   Sparkles,
@@ -57,61 +58,67 @@ const ACTION_OPTIONS: Array<{
   value: AnalysisFeedbackAction;
   label: string;
   shortLabel: string;
-  tone: string;
+  activeClass: string;
+  iconBg: string;
   icon: React.ComponentType<{ className?: string }>;
 }> = [
   {
     value: 'shortlist',
     label: 'Đưa vào danh sách đề cử',
     shortLabel: 'Đề cử',
-    tone: 'border-blue-200 bg-blue-50 text-blue-700',
+    activeClass: 'border-blue-300 bg-blue-50',
+    iconBg: 'bg-blue-100 text-blue-700',
     icon: ClipboardList,
   },
   {
     value: 'interview',
     label: 'Mời phỏng vấn',
     shortLabel: 'Phỏng vấn',
-    tone: 'border-sky-200 bg-sky-50 text-sky-700',
+    activeClass: 'border-sky-300 bg-sky-50',
+    iconBg: 'bg-sky-100 text-sky-700',
     icon: MessageSquareText,
   },
   {
     value: 'hire',
     label: 'Đề xuất tuyển',
     shortLabel: 'Đề xuất',
-    tone: 'border-violet-200 bg-violet-50 text-violet-700',
+    activeClass: 'border-violet-300 bg-violet-50',
+    iconBg: 'bg-violet-100 text-violet-700',
     icon: Trophy,
   },
   {
     value: 'reject',
     label: 'Từ chối',
     shortLabel: 'Từ chối',
-    tone: 'border-rose-200 bg-rose-50 text-rose-700',
+    activeClass: 'border-rose-300 bg-rose-50',
+    iconBg: 'bg-rose-100 text-rose-700',
     icon: CircleOff,
   },
 ];
 
 const REUSE_OPTIONS = [
-  { value: false, title: 'Chỉ CV này' },
-  { value: true, title: 'Dùng lại cho CV tương tự' },
+  {
+    value: false,
+    title: 'Chỉ CV này',
+    description: 'Phản hồi chỉ áp dụng cho ứng viên này',
+    icon: Sparkles,
+  },
+  {
+    value: true,
+    title: 'Dùng lại cho CV tương tự',
+    description: 'AI học từ phản hồi này cho các phiên sau',
+    icon: RotateCcw,
+  },
 ];
-
-const panelClass = 'rounded-2xl border border-blue-100 bg-white shadow-[0_18px_48px_rgba(30,64,175,0.08)]';
-const insetClass = 'rounded-xl border border-blue-100 bg-[#f6f9ff]';
 
 function readSelectedCriteria(initialFeedback?: AnalysisFeedbackRecord | null): string[] {
   const raw = initialFeedback?.metadata?.selectedCriteria;
   if (!Array.isArray(raw)) return [];
-
-  return raw
-    .map((item) => String(item || '').trim())
-    .filter(Boolean);
+  return raw.map((item) => String(item || '').trim()).filter(Boolean);
 }
 
 function readIsReusableGuidance(initialFeedback?: AnalysisFeedbackRecord | null): boolean {
-  if (typeof initialFeedback?.isReusableGuidance === 'boolean') {
-    return initialFeedback.isReusableGuidance;
-  }
-
+  if (typeof initialFeedback?.isReusableGuidance === 'boolean') return initialFeedback.isReusableGuidance;
   const raw = initialFeedback?.metadata?.isReusableGuidance;
   if (typeof raw === 'boolean') return raw;
   if (typeof raw === 'string') {
@@ -119,7 +126,6 @@ function readIsReusableGuidance(initialFeedback?: AnalysisFeedbackRecord | null)
     if (normalized === 'true') return true;
     if (normalized === 'false') return false;
   }
-
   return initialFeedback?.metadata?.feedbackScope === 'reusable-guidance';
 }
 
@@ -130,28 +136,10 @@ function deriveSeverity(scoreDifference: number): AnalysisFeedbackSeverity {
   return 'low';
 }
 
-function getSeverityMeta(severity: AnalysisFeedbackSeverity): {
-  label: string;
-  className: string;
-} {
-  if (severity === 'high') {
-    return {
-      label: 'Mức cao',
-      className: 'border-rose-200 bg-rose-50 text-rose-700',
-    };
-  }
-
-  if (severity === 'medium') {
-    return {
-      label: 'Mức trung bình',
-      className: 'border-amber-200 bg-amber-50 text-amber-700',
-    };
-  }
-
-  return {
-    label: 'Mức nhẹ',
-    className: 'border-blue-200 bg-blue-50 text-blue-700',
-  };
+function getSeverityMeta(severity: AnalysisFeedbackSeverity) {
+  if (severity === 'high') return { label: 'Lệch cao', className: 'border-rose-200 bg-rose-50 text-rose-700' };
+  if (severity === 'medium') return { label: 'Lệch trung bình', className: 'border-amber-200 bg-amber-50 text-amber-700' };
+  return { label: 'Lệch nhẹ', className: 'border-blue-200 bg-blue-50 text-blue-700' };
 }
 
 export default function AIFeedbackForm({
@@ -214,22 +202,17 @@ export default function AIFeedbackForm({
   };
 
   const handleBack = () => {
-    if (currentStep === 'decision') {
-      onCancel();
-      return;
-    }
+    if (currentStep === 'decision') { onCancel(); return; }
     setCurrentStep(FEEDBACK_STEPS[stepIndex - 1].key);
   };
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-
     if (!action) {
       setFormNotice('Vui lòng chọn quyết định cho ứng viên trước khi lưu phản hồi.');
       setCurrentStep('decision');
       return;
     }
-
     const feedback: AnalysisFeedbackDraft = {
       candidateId,
       finalScore,
@@ -240,45 +223,45 @@ export default function AIFeedbackForm({
       reason: derivedReason,
       isReusableGuidance,
     };
-
     await onSubmit(feedback);
   };
 
+  /* ── Step content ────────────────────────────────────────── */
   const renderStepContent = () => {
+    /* Step 1 — Decision */
     if (currentStep === 'decision') {
       return (
-        <div className="grid gap-3 md:grid-cols-2">
+        <div className="grid gap-2.5 md:grid-cols-2">
           {ACTION_OPTIONS.map((option) => {
             const isActive = action === option.value;
             const Icon = option.icon;
-
             return (
               <button
                 key={option.value}
                 type="button"
-                onClick={() => {
-                  setAction(option.value);
-                  setFormNotice(null);
-                }}
-                className={`border p-4 text-left transition-all duration-200 ${
+                onClick={() => { setAction(option.value); setFormNotice(null); }}
+                className={`flex items-center gap-3 rounded-2xl border p-4 text-left transition-all duration-150 hover:shadow-sm ${
                   isActive
-                    ? option.tone
-                    : 'border-blue-100 bg-white text-slate-700 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700'
+                    ? option.activeClass
+                    : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50'
                 }`}
               >
-                <div className="flex items-center gap-3">
-                  <div className={`flex h-10 w-10 items-center justify-center border ${
-                    isActive
-                      ? 'border-current/25 bg-white/65'
-                      : 'border-blue-100 bg-[#f6f9ff] text-slate-500'
-                  }`}>
-                    <Icon className="h-4.5 w-4.5" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-bold">{option.label}</p>
-                    <p className="mt-1 text-xs uppercase tracking-[0.16em] opacity-65">{option.shortLabel}</p>
-                  </div>
+                <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-colors ${
+                  isActive ? option.iconBg : 'bg-slate-100 text-slate-500'
+                }`}>
+                  <Icon className="h-4.5 w-4.5" />
                 </div>
+                <div className="min-w-0">
+                  <p className={`text-[13px] font-bold leading-tight ${isActive ? '' : 'text-slate-800'}`}>
+                    {option.label}
+                  </p>
+                  <p className={`mt-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] ${isActive ? 'opacity-60' : 'text-slate-400'}`}>
+                    {option.shortLabel}
+                  </p>
+                </div>
+                {isActive && (
+                  <CheckCircle2 className="ml-auto h-4.5 w-4.5 shrink-0 text-blue-600" />
+                )}
               </button>
             );
           })}
@@ -286,177 +269,210 @@ export default function AIFeedbackForm({
       );
     }
 
+    /* Step 2 — Score */
     if (currentStep === 'score') {
+      const sliderPct = Math.round(finalScore);
       return (
-        <div className="space-y-4">
-          <div className="grid gap-4 lg:grid-cols-[1fr_auto]">
-            <div className={`${panelClass} p-4`}>
-              <p className="supporthr-mono text-[10px] uppercase tracking-[0.18em] text-blue-600">Điểm chốt</p>
-              <h3 className="mt-3 text-[2.5rem] font-bold leading-none text-slate-900">{finalScore}</h3>
+        <div className="space-y-3">
+          <div className="grid gap-3 md:grid-cols-[1fr_140px]">
+            {/* Score card */}
+            <div className="rounded-2xl border border-slate-200 bg-white p-5">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-blue-600 mb-3">Điểm chốt của bạn</p>
+              <div className="flex items-baseline gap-2 mb-5">
+                <span className="text-[3rem] font-black leading-none tabular-nums text-slate-900">{finalScore}</span>
+                <span className="text-[16px] font-bold text-slate-400">/ 100</span>
+              </div>
 
-              <div className={`${insetClass} mt-5 px-4 py-4`}>
-                <input
-                  type="range"
-                  min="0"
-                  max="100"
-                  step="1"
-                  value={finalScore}
-                  onChange={(event) => setFinalScore(Number(event.target.value))}
-                  className="w-full accent-blue-600"
-                />
+              <input
+                type="range"
+                min="0"
+                max="100"
+                step="1"
+                value={finalScore}
+                onChange={(event) => setFinalScore(Number(event.target.value))}
+                className="w-full h-2 cursor-pointer appearance-none rounded-full focus:outline-none focus:ring-2 focus:ring-blue-200"
+                style={{
+                  background: `linear-gradient(90deg, #2563eb ${sliderPct}%, #e2e8f0 ${sliderPct}%)`,
+                }}
+              />
 
-                <div className="mt-4 flex flex-wrap gap-2">
-                  <span className={`${insetClass} px-3 py-1.5 text-sm text-slate-600`}>
-                    AI: <strong className="text-slate-900">{aiScore.toFixed(1)}</strong>
-                  </span>
-                  <span className={`${insetClass} px-3 py-1.5 text-sm text-slate-600`}>
-                    Recruiter: <strong className="text-slate-900">{finalScore}</strong>
-                  </span>
-                  <span className={`${insetClass} px-3 py-1.5 text-sm font-semibold ${scoreDifference > 0 ? 'text-emerald-700' : scoreDifference < 0 ? 'text-rose-700' : 'text-slate-700'}`}>
-                    Độ lệch: {scoreDifference > 0 ? '+' : ''}{scoreDifference.toFixed(1)}
-                  </span>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <div className="rounded-xl border border-slate-100 bg-slate-50 px-3 py-2 text-[12px] text-slate-600">
+                  Điểm AI: <strong className="text-slate-900">{aiScore.toFixed(1)}</strong>
+                </div>
+                <div className="rounded-xl border border-slate-100 bg-slate-50 px-3 py-2 text-[12px] text-slate-600">
+                  Recruiter: <strong className="text-slate-900">{finalScore}</strong>
+                </div>
+                <div className={`rounded-xl border px-3 py-2 text-[12px] font-semibold ${
+                  scoreDifference > 0 ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                  : scoreDifference < 0 ? 'border-rose-200 bg-rose-50 text-rose-700'
+                  : 'border-slate-100 bg-slate-50 text-slate-700'
+                }`}>
+                  Lệch: {scoreDifference > 0 ? '+' : ''}{scoreDifference.toFixed(1)}
                 </div>
               </div>
             </div>
 
-            <div className={`${panelClass} flex min-w-[160px] flex-col justify-center px-5 py-4 text-right`}>
-              <p className="supporthr-mono text-[10px] uppercase tracking-[0.18em] text-slate-500">Hạng hiện tại</p>
-              <p className="mt-2 text-3xl font-bold text-slate-900">{candidateRank || 'C'}</p>
+            {/* Rank card */}
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 flex flex-col items-center justify-center text-center">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400 mb-2">Hạng</p>
+              <p className="text-[2.8rem] font-black leading-none text-slate-900">{candidateRank || 'C'}</p>
             </div>
           </div>
 
-          <div className={`border px-4 py-3 ${severityMeta.className}`}>
-            <div className="flex items-center gap-2">
-              <ShieldAlert className="h-4.5 w-4.5" />
-              <span className="text-sm font-semibold">{severityMeta.label}</span>
-            </div>
+          {/* Severity badge */}
+          <div className={`flex items-center gap-2.5 rounded-2xl border px-4 py-3 text-[13px] font-semibold ${severityMeta.className}`}>
+            <ShieldAlert className="h-4 w-4 shrink-0" />
+            {severityMeta.label}
           </div>
         </div>
       );
     }
 
+    /* Step 3 — Scope */
     if (currentStep === 'scope') {
       return (
         <div className="space-y-4">
-          <div className="grid gap-3 md:grid-cols-2">
+          {/* Reuse options */}
+          <div className="grid gap-2.5 md:grid-cols-2">
             {REUSE_OPTIONS.map((option) => {
               const isActive = isReusableGuidance === option.value;
-
+              const Icon = option.icon;
               return (
                 <button
                   key={option.title}
                   type="button"
                   onClick={() => setIsReusableGuidance(option.value)}
-                  className={`border px-4 py-4 text-left transition-all duration-200 ${
+                  className={`flex items-start gap-3 rounded-2xl border p-4 text-left transition-all duration-150 ${
                     isActive
-                      ? 'border-blue-200 bg-blue-50 text-blue-700'
-                      : 'border-blue-100 bg-white text-slate-700 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700'
+                      ? 'border-blue-300 bg-blue-50'
+                      : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50'
                   }`}
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-blue-100 bg-[#f6f9ff] text-blue-600">
-                      <Lightbulb className="h-4.5 w-4.5" />
-                    </div>
-                    <p className="text-sm font-semibold">{option.title}</p>
+                  <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-colors ${
+                    isActive ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-500'
+                  }`}>
+                    <Icon className="h-4 w-4" />
                   </div>
+                  <div className="min-w-0">
+                    <p className={`text-[13px] font-bold leading-tight ${isActive ? 'text-blue-800' : 'text-slate-800'}`}>
+                      {option.title}
+                    </p>
+                    <p className="mt-0.5 text-[11px] leading-relaxed text-slate-500">{option.description}</p>
+                  </div>
+                  {isActive && <CheckCircle2 className="ml-auto mt-0.5 h-4 w-4 shrink-0 text-blue-600" />}
                 </button>
               );
             })}
           </div>
 
-          <div className="grid grid-cols-1 gap-2.5 md:grid-cols-2">
-            {FEEDBACK_CRITERIA.map((criterion) => (
-              <label
-                key={criterion}
-                className={`flex cursor-pointer items-start gap-3 border p-3 transition-all ${
-                  selectedCriteria.includes(criterion)
-                    ? 'border-blue-200 bg-blue-50'
-                    : 'border-blue-100 bg-white hover:border-blue-200 hover:bg-blue-50'
-                }`}
-              >
-                <input
-                  type="checkbox"
-                  className="mt-0.5 rounded border-blue-200 bg-white accent-blue-600"
-                  checked={selectedCriteria.includes(criterion)}
-                  onChange={() => handleCriteriaChange(criterion)}
-                />
-                <span className="text-sm leading-6 text-slate-700">{criterion}</span>
-              </label>
-            ))}
+          {/* Criteria checkboxes */}
+          <div>
+            <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">
+              Tiêu chí liên quan (tuỳ chọn)
+            </p>
+            <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+              {FEEDBACK_CRITERIA.map((criterion) => {
+                const isChecked = selectedCriteria.includes(criterion);
+                return (
+                  <label
+                    key={criterion}
+                    className={`flex cursor-pointer items-center gap-3 rounded-xl border p-3 transition-all ${
+                      isChecked
+                        ? 'border-blue-200 bg-blue-50'
+                        : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50'
+                    }`}
+                  >
+                    <div className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md border transition-colors ${
+                      isChecked ? 'border-blue-500 bg-blue-600' : 'border-slate-300 bg-white'
+                    }`}>
+                      {isChecked && <CheckCircle2 className="h-3 w-3 text-white" />}
+                    </div>
+                    <input
+                      type="checkbox"
+                      className="sr-only"
+                      checked={isChecked}
+                      onChange={() => handleCriteriaChange(criterion)}
+                    />
+                    <span className={`text-[13px] leading-none ${isChecked ? 'font-semibold text-blue-800' : 'text-slate-700'}`}>
+                      {criterion}
+                    </span>
+                  </label>
+                );
+              })}
+            </div>
           </div>
         </div>
       );
     }
 
+    /* Step 4 — Note */
     return (
-      <div className="space-y-4">
-        <div className={`${panelClass} p-4`}>
-          <div className="flex flex-wrap gap-2">
-            {selectedActionOption ? (
-              <span className={`border px-3 py-1.5 text-sm font-semibold ${selectedActionOption.tone}`}>
-                {selectedActionOption.label}
-              </span>
-            ) : null}
-            <span className={`${insetClass} px-3 py-1.5 text-sm text-slate-600`}>
-              Điểm: <strong className="text-slate-900">{finalScore}</strong>
+      <div className="space-y-3">
+        {/* Summary chips */}
+        <div className="flex flex-wrap gap-2">
+          {selectedActionOption && (
+            <span className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[12px] font-semibold ${
+              selectedActionOption.activeClass
+            }`}>
+              <selectedActionOption.icon className="h-3 w-3" />
+              {selectedActionOption.label}
             </span>
-            <span className={`${insetClass} px-3 py-1.5 text-sm text-slate-600`}>
-              Phạm vi: <strong className="text-slate-900">{isReusableGuidance ? 'Dùng lại' : 'Riêng CV này'}</strong>
+          )}
+          <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-[12px] text-slate-600">
+            Điểm chốt: <strong className="text-slate-900">{finalScore}</strong>
+          </span>
+          <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-[12px] text-slate-600">
+            {isReusableGuidance ? 'Dùng lại' : 'Riêng CV này'}
+          </span>
+          {selectedCriteria.length > 0 && (
+            <span className="rounded-full border border-blue-200 bg-blue-50 px-3 py-1.5 text-[12px] text-blue-700">
+              {selectedCriteria.length} tiêu chí
             </span>
-          </div>
-
-          <textarea
-            className="mt-4 min-h-[140px] w-full rounded-xl border border-blue-100 bg-[#f6f9ff] p-4 text-sm leading-6 text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-blue-300 focus:ring-2 focus:ring-blue-100"
-            placeholder="Ghi chú ngắn về lý do chốt kết quả này"
-            value={notes}
-            onChange={(event) => setNotes(event.target.value)}
-          />
+          )}
         </div>
 
-        {formNotice ? (
-          <div className="flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-            <AlertCircle className="mt-0.5 h-4.5 w-4.5 shrink-0" />
+        {/* Notes textarea */}
+        <textarea
+          className="min-h-[130px] w-full rounded-2xl border border-slate-200 bg-white p-4 text-[14px] leading-relaxed text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-blue-300 focus:ring-2 focus:ring-blue-100 resize-none"
+          placeholder="Ghi chú ngắn về lý do chốt kết quả này (tuỳ chọn)"
+          value={notes}
+          onChange={(event) => setNotes(event.target.value)}
+        />
+
+        {/* Notices */}
+        {formNotice && (
+          <div className="flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-[13px] text-amber-800">
+            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
             <span>{formNotice}</span>
           </div>
-        ) : null}
-
-        {submitError ? (
-          <div className="flex items-start gap-3 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-            <AlertCircle className="mt-0.5 h-4.5 w-4.5 shrink-0" />
+        )}
+        {submitError && (
+          <div className="flex items-start gap-3 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-[13px] text-rose-700">
+            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
             <span>{submitError}</span>
           </div>
-        ) : null}
+        )}
       </div>
     );
   };
 
   return (
-    <form onSubmit={handleSubmit} className={`${panelClass} p-4 md:p-5`}>
-      <div className="flex flex-col gap-4 border-b border-blue-100 pb-4 lg:flex-row lg:items-start lg:justify-between">
-        <div className="min-w-0">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-blue-100 bg-blue-50 text-blue-600">
-              <Sparkles className="h-4.5 w-4.5" />
-            </div>
-            <div>
-              <p className="supporthr-mono text-[10px] uppercase tracking-[0.2em] text-blue-600">
-                Phản hồi quy trình
-              </p>
-              <h2 className="text-lg font-bold text-slate-900">{displayCandidateName}</h2>
-            </div>
+    <form onSubmit={handleSubmit} className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+      {/* Form header + step navigation */}
+      <div className="flex flex-col gap-4 border-b border-slate-100 px-5 py-4 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+            <Sparkles className="h-4 w-4" />
           </div>
-          <div className="mt-3 flex flex-wrap gap-2">
-            <span className={`${insetClass} px-3 py-1.5 text-sm text-slate-600`}>{displayFileName}</span>
-            <span className={`${insetClass} px-3 py-1.5 text-sm text-slate-600`}>
-              AI: <strong className="text-slate-900">{aiScore.toFixed(1)}</strong>
-            </span>
-            <span className={`${insetClass} px-3 py-1.5 text-sm text-slate-600`}>
-              Hạng: <strong className="text-slate-900">{candidateRank || 'C'}</strong>
-            </span>
+          <div className="min-w-0">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-blue-600">Phản hồi quy trình</p>
+            <h2 className="text-[15px] font-bold text-slate-900 truncate">{displayCandidateName}</h2>
           </div>
         </div>
 
-        <div className="flex flex-wrap gap-2">
+        {/* Step pills */}
+        <div className="flex items-center gap-1.5 flex-wrap">
           {FEEDBACK_STEPS.map((step, index) => {
             const isActive = step.key === currentStep;
             const isDone = index < stepIndex;
@@ -469,15 +485,21 @@ export default function AIFeedbackForm({
                     setCurrentStep(step.key);
                   }
                 }}
-                className={`supporthr-mono inline-flex items-center gap-2 border px-3 py-2 text-[10px] uppercase tracking-[0.16em] transition-colors ${
+                className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11px] font-semibold transition-colors ${
                   isActive
-                    ? 'border-blue-200 bg-blue-50 text-blue-700'
+                    ? 'border-blue-300 bg-blue-600 text-white shadow-sm shadow-blue-600/20'
                     : isDone
                       ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
-                      : 'border-blue-100 bg-white text-slate-500'
+                      : 'border-slate-200 bg-white text-slate-500'
                 }`}
               >
-                <span className="text-slate-500">{index + 1}</span>
+                {isDone ? (
+                  <CheckCircle2 className="h-3 w-3" />
+                ) : (
+                  <span className="h-4 w-4 flex items-center justify-center rounded-full text-[9px] font-black bg-white/20">
+                    {index + 1}
+                  </span>
+                )}
                 {step.label}
               </button>
             );
@@ -485,13 +507,15 @@ export default function AIFeedbackForm({
         </div>
       </div>
 
-      <div className="py-4">{renderStepContent()}</div>
+      {/* Step content */}
+      <div className="px-5 py-5">{renderStepContent()}</div>
 
-      <div className="flex flex-col justify-between gap-3 border-t border-blue-100 pt-4 md:flex-row md:items-center">
+      {/* Navigation */}
+      <div className="flex flex-col justify-between gap-3 border-t border-slate-100 px-5 py-4 md:flex-row md:items-center">
         <button
           type="button"
           onClick={handleBack}
-          className="inline-flex items-center justify-center gap-2 rounded-xl border border-blue-100 bg-white px-5 py-2.5 text-sm font-semibold text-slate-600 transition-colors hover:bg-blue-50 hover:text-blue-700"
+          className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-[13px] font-semibold text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900"
         >
           <ChevronLeft className="h-4 w-4" />
           {currentStep === 'decision' ? 'Về overview' : 'Quay lại'}
@@ -502,7 +526,7 @@ export default function AIFeedbackForm({
             type="button"
             onClick={handleNext}
             disabled={currentStep === 'decision' && !action}
-            className="inline-flex items-center justify-center gap-2 rounded-xl border border-blue-500/20 bg-gradient-to-r from-blue-600 to-teal-500 px-5 py-2.5 text-sm font-semibold text-white shadow-[0_14px_34px_rgba(35,136,255,0.18)] transition-all hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-[13px] font-semibold text-white shadow-sm shadow-blue-600/20 transition-all hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
             Tiếp tục
             <ChevronRight className="h-4 w-4" />
@@ -511,10 +535,10 @@ export default function AIFeedbackForm({
           <button
             type="submit"
             disabled={isSubmitting || !action}
-            className="inline-flex items-center justify-center gap-2 rounded-xl border border-blue-500/20 bg-gradient-to-r from-blue-600 to-teal-500 px-5 py-2.5 text-sm font-semibold text-white shadow-[0_14px_34px_rgba(35,136,255,0.18)] transition-all hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-[13px] font-semibold text-white shadow-sm shadow-blue-600/20 transition-all hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Save className="h-4 w-4" />
-            {isSubmitting ? 'Đang lưu...' : initialFeedback ? 'Cập nhật phản hồi' : 'Lưu phản hồi'}
+            {isSubmitting ? 'Đang lưu…' : initialFeedback ? 'Cập nhật phản hồi' : 'Lưu phản hồi'}
           </button>
         )}
       </div>
