@@ -709,6 +709,63 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
 
       {setupSubPage === 'workflow' && (
         <div className="space-y-5">
+
+          {/* Toggle: Tự động áp dụng */}
+          <div className="rounded-2xl border border-slate-100 bg-white p-4 space-y-3">
+            <div className="flex items-start justify-between gap-4">
+              <div className="min-w-0 flex-1">
+                <p className="text-[14px] font-semibold text-slate-900">Tự động áp dụng khi mở phiên mới</p>
+                <p className="mt-1 text-[12px] leading-5 text-slate-500">
+                  Bật để lưu JD và trọng số chấm điểm. Lần sau chỉ cần thả CV vào là phân tích ngay.
+                </p>
+                {!settings.workflow.fixedJD?.jdText && (
+                  <p className="mt-1.5 text-[11px] font-medium text-amber-600">Nhập và lưu JD trước ở tab Job Description để bật tùy chọn này.</p>
+                )}
+              </div>
+              <Toggle
+                checked={settings.workflow.fixedJD?.enabled ?? false}
+                disabled={!settings.workflow.fixedJD?.jdText}
+                onChange={(v) => void autoSave('fixedJD.enabled', {
+                  workflow: { ...settings.workflow, fixedJD: { ...(settings.workflow.fixedJD ?? { name: fixedJDName, jdText: fixedJDText, savedAt: Date.now() }), enabled: v } },
+                })}
+              />
+            </div>
+
+            {/* Summary card when enabled */}
+            {settings.workflow.fixedJD?.enabled && settings.workflow.fixedJD?.jdText && (
+              <div className="rounded-xl border border-emerald-100 bg-emerald-50/60 p-3.5 space-y-2.5">
+                <div className="flex items-start gap-3">
+                  <CheckCircle2 size={15} className="mt-0.5 shrink-0 text-emerald-500" />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[13px] font-semibold text-slate-900">
+                      {settings.workflow.fixedJD.name || 'JD không tên'}
+                    </p>
+                    <p className="mt-0.5 text-[11px] text-slate-500">
+                      Lưu lúc {new Date(settings.workflow.fixedJD.savedAt).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                      {settings.workflow.fixedJD.hardFilters && Object.values(settings.workflow.fixedJD.hardFilters).some((v) => v && v !== '' && v !== false)
+                        ? ' · có bộ lọc cứng'
+                        : ''}
+                      {settings.workflow.fixedJD.weights
+                        ? ` · ${Object.keys(settings.workflow.fixedJD.weights).length} tiêu chí trọng số`
+                        : ''}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  {(['jd', 'filters', 'weights'] as const).map((page) => {
+                    const labels = { jd: 'Job Description', filters: 'Bộ lọc cứng', weights: 'Trọng số' } as const;
+                    return (
+                      <button key={page} type="button" onClick={() => setSetupSubPage(page)}
+                        className="inline-flex h-7 items-center rounded-lg border border-slate-200 bg-white px-2.5 text-[11px] font-semibold text-slate-600 transition hover:border-blue-300 hover:text-blue-600">
+                        {labels[page]}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+
           <Section title="Tự lưu và khôi phục">
             <ToggleRow
               title="Tự lưu phiên làm việc"
@@ -766,28 +823,6 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
 
       {setupSubPage === 'jd' && (
       <div className="rounded-2xl border border-slate-100 bg-white p-5 space-y-4">
-        {/* Toggle */}
-        <div className="flex items-start justify-between gap-4">
-          <div className="min-w-0 flex-1">
-            <p className="text-[14px] font-semibold text-slate-900">Tự động áp dụng khi mở phiên mới</p>
-            <p className="mt-1 text-[12px] leading-5 text-slate-500">
-              Bật để lưu JD và trọng số chấm điểm. Lần sau chỉ cần thả CV vào là phân tích ngay.
-            </p>
-            {!settings.workflow.fixedJD?.jdText && (
-              <p className="mt-1.5 text-[11px] font-medium text-amber-600">Nhập và lưu JD trước để bật tùy chọn này.</p>
-            )}
-          </div>
-          <Toggle
-            checked={settings.workflow.fixedJD?.enabled ?? false}
-            disabled={!settings.workflow.fixedJD?.jdText}
-            onChange={(v) => void autoSave('fixedJD.enabled', {
-              workflow: { ...settings.workflow, fixedJD: { ...(settings.workflow.fixedJD ?? { name: fixedJDName, jdText: fixedJDText, savedAt: Date.now() }), enabled: v } },
-            })}
-          />
-        </div>
-
-        <div className="h-px bg-slate-100" />
-
         {/* JD Section */}
         <div>
           <p className="mb-2.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-400">Job Description</p>
