@@ -197,9 +197,9 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ isOpen, onClose, presentati
                   </div>
 
                   {loading ? (
-                    <div className="flex flex-col items-center justify-center gap-4 border border-[#2388ff]/12 bg-white py-10">
-                      <div className="h-10 w-10 animate-spin border-[3px] border-[#2388ff]/15 border-t-[#2388ff]" />
-                      <p className="text-sm text-slate-500">Đang tải lịch sử...</p>
+                    <div className="flex items-center justify-center gap-2.5 py-8 text-slate-400">
+                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-slate-300 border-t-[#2388ff]" />
+                      <span className="text-[13px]">Đang tải...</span>
                     </div>
                   ) : recentHistory.length > 0 ? (
                     <div className="max-h-72 space-y-3 overflow-y-auto pr-1">

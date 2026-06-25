@@ -717,9 +717,9 @@ const JDTemplatesModal: React.FC<JDTemplatesModalProps> = ({
 
                 <div className="flex-1 p-5">
                   {loadingTemplates ? (
-                    <div className="flex flex-col items-center justify-center gap-4 py-16">
-                      <div className="h-10 w-10 animate-spin rounded-xl border-[3px] border-[#2388ff]/15 border-t-[#2388ff]" />
-                      <p className="text-sm text-slate-500">Đang tải mẫu JD và dữ liệu đã dùng gần đây...</p>
+                    <div className="flex items-center justify-center gap-2.5 py-10 text-slate-400">
+                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-slate-300 border-t-[#2388ff]" />
+                      <span className="text-[13px]">Đang tải...</span>
                     </div>
                   ) : !isLoggedIn ? (
                     <EmptyState
@@ -917,9 +917,9 @@ const JDTemplatesModal: React.FC<JDTemplatesModalProps> = ({
 
                 <div className="flex-1 p-5">
                   {historyLoading ? (
-                    <div className="flex flex-col items-center justify-center gap-4 py-16">
-                      <div className="h-10 w-10 animate-spin rounded-xl border-[3px] border-[#2388ff]/15 border-t-[#2388ff]" />
-                      <p className="text-sm text-slate-500">Đang tải lịch sử hoạt động...</p>
+                    <div className="flex items-center justify-center gap-2.5 py-10 text-slate-400">
+                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-slate-300 border-t-[#2388ff]" />
+                      <span className="text-[13px]">Đang tải...</span>
                     </div>
                   ) : filteredHistory.length === 0 ? (
                     <EmptyState

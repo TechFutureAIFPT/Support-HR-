@@ -584,6 +584,8 @@
 /* ── Root & page-level backgrounds ─────────────────────────── */
 /* The root App wrapper uses bg-white; every page-level shell below */
 .dark .bg-white                         { background-color: var(--th-surface-card) !important; }
+/* Semi-transparent white overlays (bg-white/55, bg-white/95, bg-white/[0.02], etc.) */
+.dark [class*="bg-white/"]              { background-color: var(--th-bg-elevated) !important; }
 .dark .bg-slate-50,
 .dark .bg-gray-50                       { background-color: var(--th-bg-secondary) !important; }
 .dark .bg-slate-100,
