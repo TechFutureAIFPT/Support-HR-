@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import { useTheme } from '@/context/theme/ThemeProvider';
 
 interface StepInfo {
   message: string;
@@ -75,6 +76,7 @@ const PageTransition: React.FC = () => {
     }
   };
 
+  const { isDarkMode } = useTheme();
   const stepInfo = getStepInfo(location.pathname);
   const tone = toneMap[stepInfo.tone];
 
@@ -129,32 +131,46 @@ const PageTransition: React.FC = () => {
 
   if (!shouldRender) return null;
 
+  const overlayBg = isDarkMode ? 'rgba(15,21,35,0.82)' : 'rgba(255,255,255,0.76)';
+  const cardBg = isDarkMode ? '#1e2a3d' : '#ffffff';
+  const cardBorder = isDarkMode ? 'rgba(255,255,255,0.09)' : undefined;
+  const trackBg = isDarkMode ? 'rgba(255,255,255,0.1)' : '#f1f5f9';
+  const textMain = isDarkMode ? '#e2e8f4' : '#1e293b';
+  const textMeta = isDarkMode ? '#475569' : '#94a3b8';
+  const innerBorder = isDarkMode ? 'rgba(255,255,255,0.12)' : '#ffffff';
+
   return (
     <div
       className={`
         fixed inset-0 z-[9999] flex items-center justify-center
-        bg-white/76 backdrop-blur-md transition-all duration-300
+        backdrop-blur-md transition-all duration-300
         ${isTransitioning ? 'opacity-100' : 'pointer-events-none opacity-0'}
       `}
+      style={{ background: overlayBg }}
     >
       <div className="pointer-events-none absolute inset-0 supporthr-grid-mask opacity-40" />
       <div className="pointer-events-none absolute left-[10%] top-[12%] h-44 w-44 rounded-full bg-blue-100/70 blur-3xl" />
       <div className="pointer-events-none absolute bottom-[16%] right-[12%] h-48 w-48 rounded-full bg-emerald-100/80 blur-3xl" />
 
-      <div className={`relative w-[min(92vw,34rem)] overflow-hidden rounded-2xl border ${tone.border} bg-white px-6 py-7 shadow-[0_28px_90px_rgba(30,64,175,0.16)]`}>
+      <div
+        className={`relative w-[min(92vw,34rem)] overflow-hidden rounded-2xl border px-6 py-7 shadow-[0_28px_90px_rgba(30,64,175,0.16)] ${tone.border}`}
+        style={{ background: cardBg, ...(cardBorder ? { borderColor: cardBorder } : {}) }}
+      >
         <div className={`absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent ${tone.rule} to-transparent`} />
 
-        <div className="supporthr-mono text-[10px] uppercase tracking-[0.28em] text-slate-400">
+        <div className="supporthr-mono text-[10px] uppercase tracking-[0.28em]" style={{ color: textMeta }}>
           {stepInfo.label}
         </div>
 
         <div className="mt-5 flex items-center gap-5">
-          <div className={`relative flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border ${tone.border} ${tone.surface}`}>
+          <div className={`relative flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border ${tone.border} ${isDarkMode ? '' : tone.surface}`}
+            style={isDarkMode ? { background: 'rgba(35,136,255,0.08)' } : undefined}
+          >
             <div
               className={`absolute inset-[-1px] rounded-2xl border-[3px] border-transparent border-r-current border-t-current ${tone.accent} animate-spin opacity-90`}
               style={{ animationDuration: '1.05s' }}
             />
-            <div className="absolute inset-[10px] rounded-xl border border-white" />
+            <div className="absolute inset-[10px] rounded-xl border" style={{ borderColor: innerBorder }} />
             <div
               className={`absolute inset-[11px] rounded-xl border-[3px] border-transparent border-b-current border-l-current ${tone.accent} animate-spin opacity-35`}
               style={{ animationDuration: '1.45s', animationDirection: 'reverse' }}
@@ -163,16 +179,16 @@ const PageTransition: React.FC = () => {
           </div>
 
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-semibold tracking-wide text-slate-800">
+            <p className="text-sm font-semibold tracking-wide" style={{ color: textMain }}>
               {stepInfo.message}
             </p>
-            <div className="mt-4 h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
+            <div className="mt-4 h-1.5 w-full overflow-hidden rounded-full" style={{ background: trackBg }}>
               <div
                 className={`h-full ${tone.progress} transition-all duration-150 ease-out`}
                 style={{ width: `${Math.min(progress, 100)}%` }}
               />
             </div>
-            <div className="mt-3 flex items-center justify-between supporthr-mono text-[10px] uppercase tracking-[0.2em] text-slate-400">
+            <div className="mt-3 flex items-center justify-between supporthr-mono text-[10px] uppercase tracking-[0.2em]" style={{ color: textMeta }}>
               <span>Đang chuyển trang</span>
               <span>{Math.round(Math.min(progress, 100))}%</span>
             </div>
@@ -184,8 +200,9 @@ const PageTransition: React.FC = () => {
             <div
               key={index}
               className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${
-                index <= Math.floor(progress / 34) ? tone.progress : 'bg-slate-100'
+                index <= Math.floor(progress / 34) ? tone.progress : ''
               }`}
+              style={index > Math.floor(progress / 34) ? { background: trackBg } : undefined}
             />
           ))}
         </div>
