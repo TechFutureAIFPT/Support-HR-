@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import {
   Award,
   Building,
@@ -250,220 +250,181 @@ const HardFilterPanel: React.FC<HardFilterPanelProps> = ({ hardFilters, setHardF
     return Boolean(value);
   };
 
-  const inputClasses = (isMandatory: boolean, valuePresent: boolean) =>
-    `w-full rounded-xl border bg-white px-3 py-2.5 text-xs text-slate-900 placeholder:text-slate-400 shadow-inner transition-all duration-200 focus:outline-none focus:ring-4 ${
+  const rowInputClasses = (isMandatory: boolean, valuePresent: boolean) =>
+    `w-full rounded-lg border bg-white px-3 py-2 text-xs text-slate-900 placeholder:text-slate-400 transition-all duration-150 focus:outline-none focus:ring-2 ${
       isMandatory && !valuePresent
-        ? 'border-red-200 focus:border-red-300 focus:ring-red-100'
+        ? 'border-rose-300 focus:border-rose-400 focus:ring-rose-100'
         : isMandatory
           ? 'border-blue-200 focus:border-blue-300 focus:ring-blue-100'
-          : 'border-blue-100 hover:border-blue-200 focus:border-blue-300 focus:ring-blue-100'
+          : 'border-slate-200 hover:border-slate-300 focus:border-blue-300 focus:ring-blue-100'
     }`;
 
-  const Toggle = ({ id, checked }: { id: MandatoryKey; checked: boolean }) => (
-    <label className="inline-flex cursor-pointer items-center gap-2">
-      <span className={`supporthr-mono text-[9px] font-bold uppercase tracking-[0.14em] ${checked ? 'text-blue-600' : 'text-slate-400'}`}>
+  const MandatoryToggle = ({ id, checked }: { id: MandatoryKey; checked: boolean }) => (
+    <label className="flex shrink-0 cursor-pointer items-center gap-1.5">
+      <span className={`text-[10px] font-bold uppercase tracking-[0.12em] ${checked ? 'text-blue-600' : 'text-slate-400'}`}>
         Bắt buộc
       </span>
       <input id={id} type="checkbox" checked={checked} onChange={handleMandatoryChange} className="sr-only" />
-      <span className={`relative h-5 w-10 rounded-full border transition ${checked ? 'border-blue-300 bg-blue-500' : 'border-blue-100 bg-slate-100'}`}>
-        <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition ${checked ? 'left-5' : 'left-0.5'}`} />
+      <span className={`relative h-5 w-9 rounded-full border transition ${checked ? 'border-blue-300 bg-blue-500' : 'border-slate-200 bg-slate-100'}`}>
+        <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-all ${checked ? 'left-[18px]' : 'left-0.5'}`} />
       </span>
     </label>
   );
 
-  const FieldCard = ({ config }: { config: FieldConfig }) => {
+  const FieldRow = ({ config }: { config: FieldConfig }) => {
     const isMandatory = Boolean(hardFilters[config.mandatoryKey]);
     const hasCurrentValue = hasValue(hardFilters[config.id]);
     const Icon = config.icon;
     const tone = toneClass[config.tone];
 
     return (
-      <div className={`relative overflow-hidden rounded-xl border bg-white p-3.5 shadow-[0_10px_26px_rgba(30,64,175,0.055)] transition ${
-        isMandatory ? 'border-blue-200' : 'border-blue-100 hover:border-blue-200'
-      }`}>
-        {isMandatory && <div className={`absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r ${tone.strip}`} />}
-        <div className="mb-2.5 flex items-center justify-between gap-3">
-          <label htmlFor={config.id} className="flex min-w-0 items-center gap-2.5">
-            <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border ${tone.icon}`}>
-              <Icon className="h-4 w-4" />
-            </span>
-            <span className="min-w-0">
-              <span className="block truncate text-sm font-bold text-slate-900">{config.label}</span>
-              <span className="block truncate text-[11px] text-slate-500">{isMandatory ? 'Đang bật điều kiện bắt buộc' : 'Điều kiện tùy chọn'}</span>
-            </span>
-          </label>
-          <Toggle id={config.mandatoryKey} checked={isMandatory} />
+      <div className={`flex items-center gap-3 px-4 py-2.5 transition-colors ${isMandatory ? 'bg-blue-50/30' : 'hover:bg-slate-50/40'}`}>
+        <label htmlFor={config.id} className="flex w-[180px] shrink-0 items-center gap-2">
+          <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md border ${tone.icon}`}>
+            <Icon className="h-3.5 w-3.5" />
+          </span>
+          <span className="truncate text-xs font-semibold text-slate-700">{config.label}</span>
+        </label>
+
+        <div className="flex-1">
+          {config.type === 'select' ? (
+            <select
+              id={config.id}
+              value={String(hardFilters[config.id] ?? '')}
+              onChange={handleChange}
+              className={rowInputClasses(isMandatory, hasCurrentValue)}
+            >
+              {(config.options || []).map((option) => (
+                <option key={option.value || option.label} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <input
+              id={config.id}
+              type="text"
+              value={String(hardFilters[config.id] ?? '')}
+              onChange={handleChange}
+              placeholder={config.placeholder}
+              className={rowInputClasses(isMandatory, hasCurrentValue)}
+              autoComplete="off"
+            />
+          )}
         </div>
 
-        {config.type === 'select' ? (
-          <select
-            id={config.id}
-            value={String(hardFilters[config.id] ?? '')}
-            onChange={handleChange}
-            className={inputClasses(isMandatory, hasCurrentValue)}
-          >
-            {(config.options || []).map((option) => (
-              <option key={option.value || option.label} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        ) : (
-          <input
-            id={config.id}
-            type="text"
-            value={String(hardFilters[config.id] ?? '')}
-            onChange={handleChange}
-            placeholder={config.placeholder}
-            className={inputClasses(isMandatory, hasCurrentValue)}
-            autoComplete="off"
-          />
-        )}
+        <MandatoryToggle id={config.mandatoryKey} checked={isMandatory} />
       </div>
     );
   };
 
+  const sectionCardClass = 'rounded-2xl border border-slate-100 bg-white overflow-hidden';
+  const sectionHeaderClass = 'border-b bg-slate-50/60 px-4 py-3 flex items-center gap-2.5';
+
   return (
     <div className="w-full animate-fade-in space-y-4 pb-4">
-      {/* Auto-fill from JD */}
-      {jdText && jdText.trim().length >= 20 && (
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-blue-100 bg-blue-50 px-4 py-3">
-          <div className="min-w-0">
-            <p className="text-[13px] font-bold text-slate-900">Tự động điền từ JD</p>
-            <p className="mt-0.5 text-[11px] text-slate-500">
-              {autoFillNotice || 'AI sẽ phân tích nội dung JD và điền các trường phù hợp.'}
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={() => void handleAutoFill()}
-            disabled={isAutoFilling}
-            className="inline-flex h-9 shrink-0 items-center gap-2 rounded-xl bg-blue-600 px-4 text-[13px] font-bold text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-300"
-          >
-            {isAutoFilling
-              ? <Loader2 className="h-4 w-4 animate-spin" />
-              : <Wand2 className="h-4 w-4" />}
-            {isAutoFilling ? 'Đang phân tích...' : 'Tự động điền'}
-          </button>
-        </div>
+      {/* Auto-fill status notice (auto-fill is triggered from JD sub-page) */}
+      {autoFillNotice && (
+        <p className="text-[12px] font-medium text-emerald-600">{autoFillNotice}</p>
       )}
 
-      <section>
-        <div className="mb-3 flex items-center gap-3">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg border border-blue-100 bg-blue-50 text-blue-600">
-            <ShieldCheck className="h-4 w-4" />
+      {/* Section 1 - Dieu kien co ban */}
+      <div className={sectionCardClass}>
+        <div className={sectionHeaderClass}>
+          <span className="flex h-6 w-6 items-center justify-center rounded-md border border-blue-100 bg-blue-50 text-blue-600">
+            <ShieldCheck className="h-3.5 w-3.5" />
           </span>
-          <div>
-            <h5 className="text-xs font-bold uppercase tracking-[0.15em] text-slate-900">Điều kiện cơ bản</h5>
-            <p className="mt-0.5 text-[11px] text-slate-500">Thông tin tuyển dụng cơ bản</p>
-          </div>
-          <div className="ml-2 h-px flex-1 bg-blue-100" />
+          <span className="text-xs font-bold uppercase tracking-[0.15em] text-slate-700">Điều kiện cơ bản</span>
         </div>
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
+        <div className="divide-y divide-slate-100/80">
           {coreFields.map((config) => (
-            <div key={String(config.id)} className={config.id === 'location' ? 'md:col-span-2 xl:col-span-3' : ''}>
-              <FieldCard config={config} />
-            </div>
+            <FieldRow key={String(config.id)} config={config} />
           ))}
         </div>
-      </section>
+      </div>
 
-      <section>
-        <div className="mb-3 flex items-center gap-3">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg border border-emerald-100 bg-emerald-50 text-emerald-600">
-            <Award className="h-4 w-4" />
+      {/* Section 2 - Chuyen mon & yeu cau */}
+      <div className={sectionCardClass}>
+        <div className={sectionHeaderClass}>
+          <span className="flex h-6 w-6 items-center justify-center rounded-md border border-emerald-100 bg-emerald-50 text-emerald-600">
+            <Award className="h-3.5 w-3.5" />
           </span>
-          <div>
-            <h5 className="text-xs font-bold uppercase tracking-[0.15em] text-slate-900">Chuyên môn & yêu cầu</h5>
-            <p className="mt-0.5 text-[11px] text-slate-500">Kỹ năng, bằng cấp và chứng chỉ</p>
-          </div>
-          <div className="ml-2 h-px flex-1 bg-blue-100" />
+          <span className="text-xs font-bold uppercase tracking-[0.15em] text-slate-700">Chuyên môn &amp; yêu cầu</span>
         </div>
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
-          {detailFields.map((config) => <FieldCard key={String(config.id)} config={config} />)}
+        <div className="divide-y divide-slate-100/80">
+          {detailFields.map((config) => (
+            <FieldRow key={String(config.id)} config={config} />
+          ))}
 
-          <div className={`relative overflow-hidden rounded-xl border bg-white p-3.5 shadow-[0_10px_26px_rgba(30,64,175,0.055)] transition ${
-            hardFilters.ageMandatory ? 'border-blue-200' : 'border-blue-100 hover:border-blue-200'
-          }`}>
-            {hardFilters.ageMandatory && <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-blue-500 to-emerald-300" />}
-            <div className="mb-2.5 flex items-center justify-between gap-3">
-              <label className="flex min-w-0 items-center gap-2.5">
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-blue-100 bg-blue-50 text-blue-600">
-                  <Clock className="h-4 w-4" />
-                </span>
-                <span className="min-w-0">
-                  <span className="block truncate text-sm font-bold text-slate-900">Độ tuổi</span>
-                  <span className="block truncate text-[11px] text-slate-500">Khoảng tuổi chấp nhận</span>
-                </span>
-              </label>
-              <Toggle id="ageMandatory" checked={Boolean(hardFilters.ageMandatory)} />
+          {/* Do tuoi - 2 number inputs side by side */}
+          <div className={`flex items-center gap-3 px-4 py-2.5 transition-colors ${hardFilters.ageMandatory ? 'bg-blue-50/30' : 'hover:bg-slate-50/40'}`}>
+            <div className="flex w-[180px] shrink-0 items-center gap-2">
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-blue-100 bg-blue-50 text-blue-600">
+                <Clock className="h-3.5 w-3.5" />
+              </span>
+              <span className="truncate text-xs font-semibold text-slate-700">Độ tuổi</span>
             </div>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="flex flex-1 items-center gap-2">
               <input
                 type="number"
                 value={hardFilters.age?.min ?? ''}
                 onChange={(event) => handleAgeChange('min', event.target.value)}
-                placeholder="Tuổi tối thiểu"
-                className={inputClasses(Boolean(hardFilters.ageMandatory), hasValue(hardFilters.age?.min))}
+                placeholder="Từ"
+                className={rowInputClasses(Boolean(hardFilters.ageMandatory), hasValue(hardFilters.age?.min))}
               />
+              <span className="shrink-0 text-xs text-slate-400">—</span>
               <input
                 type="number"
                 value={hardFilters.age?.max ?? ''}
                 onChange={(event) => handleAgeChange('max', event.target.value)}
-                placeholder="Tuổi tối đa"
-                className={inputClasses(Boolean(hardFilters.ageMandatory), hasValue(hardFilters.age?.max))}
+                placeholder="Đến"
+                className={rowInputClasses(Boolean(hardFilters.ageMandatory), hasValue(hardFilters.age?.max))}
               />
             </div>
+            <MandatoryToggle id="ageMandatory" checked={Boolean(hardFilters.ageMandatory)} />
           </div>
 
-          <div className={`relative overflow-hidden rounded-xl border bg-white p-3.5 shadow-[0_10px_26px_rgba(30,64,175,0.055)] transition md:col-span-2 xl:col-span-2 ${
-            hardFilters.majorMandatory ? 'border-blue-200' : 'border-blue-100 hover:border-blue-200'
-          }`}>
-            {hardFilters.majorMandatory && <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-blue-500 to-emerald-300" />}
-            <div className="mb-2.5 flex items-center justify-between gap-3">
-              <label className="flex min-w-0 items-center gap-2.5">
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-orange-100 bg-orange-50 text-orange-500">
-                  <Tags className="h-4 w-4" />
+          {/* Nhom chuyen nganh - tag input */}
+          <div className={`px-4 py-2.5 transition-colors ${hardFilters.majorMandatory ? 'bg-blue-50/30' : 'hover:bg-slate-50/40'}`}>
+            <div className="flex items-center gap-3">
+              <div className="flex w-[180px] shrink-0 items-center gap-2">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-orange-100 bg-orange-50 text-orange-500">
+                  <Tags className="h-3.5 w-3.5" />
                 </span>
-                <span className="min-w-0">
-                  <span className="block truncate text-sm font-bold text-slate-900">Nhóm chuyên ngành</span>
-                  <span className="block truncate text-[11px] text-slate-500">Ví dụ: business-administration, accounting-finance</span>
-                </span>
-              </label>
-              <Toggle id="majorMandatory" checked={Boolean(hardFilters.majorMandatory)} />
+                <span className="truncate text-xs font-semibold text-slate-700">Nhóm chuyên ngành</span>
+              </div>
+              <div className="flex flex-1 items-center gap-2">
+                <input
+                  type="text"
+                  value={majorInput}
+                  onChange={(event) => setMajorInput(event.target.value)}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter') {
+                      event.preventDefault();
+                      addMajorGroup();
+                    }
+                  }}
+                  placeholder="Nhập nhóm ngành rồi Enter"
+                  className={rowInputClasses(Boolean(hardFilters.majorMandatory), (hardFilters.majorGroups || []).length > 0)}
+                />
+                <button
+                  type="button"
+                  onClick={addMajorGroup}
+                  className="inline-flex h-[34px] shrink-0 items-center gap-1 rounded-lg border border-blue-200 bg-blue-50 px-3 text-xs font-bold text-blue-600 transition hover:border-blue-300 hover:bg-blue-100"
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                  Thêm
+                </button>
+              </div>
+              <MandatoryToggle id="majorMandatory" checked={Boolean(hardFilters.majorMandatory)} />
             </div>
-
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={majorInput}
-                onChange={(event) => setMajorInput(event.target.value)}
-                onKeyDown={(event) => {
-                  if (event.key === 'Enter') {
-                    event.preventDefault();
-                    addMajorGroup();
-                  }
-                }}
-                placeholder="Nhập nhóm ngành rồi Enter"
-                className={inputClasses(Boolean(hardFilters.majorMandatory), (hardFilters.majorGroups || []).length > 0)}
-              />
-              <button
-                type="button"
-                onClick={addMajorGroup}
-                className="inline-flex h-[42px] shrink-0 items-center gap-1 rounded-lg border border-blue-200 bg-blue-50 px-3 text-xs font-bold text-blue-600 transition hover:border-blue-300 hover:bg-blue-100"
-              >
-                <Plus className="h-4 w-4" />
-                Thêm
-              </button>
-            </div>
-
             {(hardFilters.majorGroups || []).length > 0 && (
-              <div className="mt-3 flex flex-wrap gap-2">
+              <div className="mt-2 ml-[192px] flex flex-wrap gap-1.5">
                 {(hardFilters.majorGroups || []).map((group) => (
-                  <span key={group} className="inline-flex items-center gap-1 rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-[11px] font-semibold text-blue-700">
+                  <span key={group} className="inline-flex items-center gap-1 rounded-full border border-blue-100 bg-blue-50 px-2.5 py-0.5 text-[11px] font-semibold text-blue-700">
                     {group}
-                    <button type="button" onClick={() => removeMajorGroup(group)} className="text-blue-500 hover:text-blue-700">
-                      <X className="h-3.5 w-3.5" />
+                    <button type="button" onClick={() => removeMajorGroup(group)} className="text-blue-400 hover:text-blue-700">
+                      <X className="h-3 w-3" />
                     </button>
                   </span>
                 ))}
@@ -471,36 +432,28 @@ const HardFilterPanel: React.FC<HardFilterPanelProps> = ({ hardFilters, setHardF
             )}
           </div>
 
-          <div className={`relative overflow-hidden rounded-xl border bg-white p-3.5 shadow-[0_10px_26px_rgba(30,64,175,0.055)] transition ${
-            hardFilters.languageMandatory ? 'border-blue-200' : 'border-blue-100 hover:border-blue-200'
-          }`}>
-            {hardFilters.languageMandatory && <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-blue-500 to-emerald-300" />}
-            <div className="mb-2.5 flex items-center justify-between gap-3">
-              <label htmlFor="language" className="flex min-w-0 items-center gap-2.5">
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-blue-100 bg-blue-50 text-blue-600">
-                  <Languages className="h-4 w-4" />
-                </span>
-                <span className="min-w-0">
-                  <span className="block truncate text-sm font-bold text-slate-900">Ngôn ngữ</span>
-                  <span className="block truncate text-[11px] text-slate-500">Tên ngôn ngữ và cấp độ</span>
-                </span>
-              </label>
-              <Toggle id="languageMandatory" checked={Boolean(hardFilters.languageMandatory)} />
-            </div>
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-[1fr_5.5rem]">
+          {/* Ngon ngu - name input + level select */}
+          <div className={`flex items-center gap-3 px-4 py-2.5 transition-colors ${hardFilters.languageMandatory ? 'bg-blue-50/30' : 'hover:bg-slate-50/40'}`}>
+            <label htmlFor="language" className="flex w-[180px] shrink-0 items-center gap-2">
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-blue-100 bg-blue-50 text-blue-600">
+                <Languages className="h-3.5 w-3.5" />
+              </span>
+              <span className="truncate text-xs font-semibold text-slate-700">Ngôn ngữ</span>
+            </label>
+            <div className="flex flex-1 items-center gap-2">
               <input
                 id="language"
                 type="text"
                 value={hardFilters.language}
                 onChange={handleChange}
                 placeholder="Tên ngôn ngữ"
-                className={inputClasses(Boolean(hardFilters.languageMandatory), hasValue(hardFilters.language))}
+                className={rowInputClasses(Boolean(hardFilters.languageMandatory), hasValue(hardFilters.language))}
               />
               <select
                 id="languageLevel"
                 value={hardFilters.languageLevel}
                 onChange={handleChange}
-                className={inputClasses(false, hasValue(hardFilters.languageLevel))}
+                className="w-20 shrink-0 rounded-lg border border-slate-200 bg-white px-2 py-2 text-xs text-slate-900 transition-all duration-150 hover:border-slate-300 focus:border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-100"
               >
                 {selectOptions.languageLevel.map((option) => (
                   <option key={option.value || option.label} value={option.value}>
@@ -509,71 +462,56 @@ const HardFilterPanel: React.FC<HardFilterPanelProps> = ({ hardFilters, setHardF
                 ))}
               </select>
             </div>
+            <MandatoryToggle id="languageMandatory" checked={Boolean(hardFilters.languageMandatory)} />
           </div>
         </div>
-      </section>
+      </div>
 
-      <section>
-        <div className="mb-3 flex items-center gap-3">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg border border-blue-100 bg-blue-50 text-blue-600">
-            <Coins className="h-4 w-4" />
+      {/* Section 3 - Muc luong ky vong */}
+      <div className={sectionCardClass}>
+        <div className={sectionHeaderClass}>
+          <span className="flex h-6 w-6 items-center justify-center rounded-md border border-blue-100 bg-blue-50 text-blue-600">
+            <Coins className="h-3.5 w-3.5" />
           </span>
-          <div>
-            <h5 className="text-xs font-bold uppercase tracking-[0.15em] text-slate-900">Mức lương kỳ vọng</h5>
-            <p className="mt-0.5 text-[11px] text-slate-500">Khoảng lương mong muốn của ứng viên</p>
-          </div>
-          <div className="ml-2 h-px flex-1 bg-blue-100" />
+          <span className="text-xs font-bold uppercase tracking-[0.15em] text-slate-700">Mức lương kỳ vọng</span>
         </div>
-
-        <div className={`relative overflow-hidden rounded-xl border bg-white p-3.5 shadow-[0_10px_26px_rgba(30,64,175,0.055)] transition ${
-          hardFilters.salaryMandatory ? 'border-blue-200' : 'border-blue-100 hover:border-blue-200'
-        }`}>
-          {hardFilters.salaryMandatory && <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-blue-500 to-emerald-300" />}
-          <div className="grid gap-3 xl:grid-cols-[minmax(16rem,1fr)_minmax(12rem,0.9fr)_minmax(12rem,0.9fr)] xl:items-end">
-            <div className="flex items-center justify-between gap-3 xl:items-center">
-              <label className="flex min-w-0 items-center gap-2.5">
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-blue-100 bg-blue-50 text-blue-600">
-                  <Coins className="h-4 w-4" />
-                </span>
-                <span>
-                  <span className="block text-sm font-bold text-slate-900">Khoảng lương (VNĐ)</span>
-                  <span className="block text-[11px] text-slate-500">Có thể bỏ trống một đầu khoảng</span>
-                </span>
-              </label>
-              <div className="xl:hidden">
-                <Toggle id="salaryMandatory" checked={Boolean(hardFilters.salaryMandatory)} />
+        <div className="divide-y divide-slate-100/80">
+          <div className={`flex items-center gap-3 px-4 py-2.5 transition-colors ${hardFilters.salaryMandatory ? 'bg-blue-50/30' : 'hover:bg-slate-50/40'}`}>
+            <div className="flex w-[180px] shrink-0 items-center gap-2">
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-blue-100 bg-blue-50 text-blue-600">
+                <Coins className="h-3.5 w-3.5" />
+              </span>
+              <span className="truncate text-xs font-semibold text-slate-700">Khoảng lương (VNĐ)</span>
+            </div>
+            <div className="flex flex-1 items-center gap-2">
+              <div className="flex flex-1 items-center gap-2">
+                <span className="shrink-0 text-[10px] font-bold uppercase tracking-[0.15em] text-slate-400">Từ</span>
+                <input
+                  type="number"
+                  id="salaryMin"
+                  value={hardFilters.salaryMin || ''}
+                  onChange={handleChange}
+                  placeholder="0"
+                  className={rowInputClasses(Boolean(hardFilters.salaryMandatory), hasValue(hardFilters.salaryMin))}
+                />
               </div>
-            </div>
-            <div className="space-y-1.5">
-              <span className="ml-1 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">Từ</span>
-              <input
-                type="number"
-                id="salaryMin"
-                value={hardFilters.salaryMin || ''}
-                onChange={handleChange}
-                placeholder="0"
-                className={inputClasses(Boolean(hardFilters.salaryMandatory), hasValue(hardFilters.salaryMin))}
-              />
-            </div>
-            <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
-              <div className="space-y-1.5">
-                <span className="ml-1 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">Đến</span>
+              <span className="shrink-0 text-xs text-slate-400">—</span>
+              <div className="flex flex-1 items-center gap-2">
+                <span className="shrink-0 text-[10px] font-bold uppercase tracking-[0.15em] text-slate-400">Đến</span>
                 <input
                   type="number"
                   id="salaryMax"
                   value={hardFilters.salaryMax || ''}
                   onChange={handleChange}
                   placeholder="Không giới hạn"
-                  className={inputClasses(Boolean(hardFilters.salaryMandatory), hasValue(hardFilters.salaryMax))}
+                  className={rowInputClasses(Boolean(hardFilters.salaryMandatory), hasValue(hardFilters.salaryMax))}
                 />
               </div>
-              <div className="hidden pb-1 xl:block">
-                <Toggle id="salaryMandatory" checked={Boolean(hardFilters.salaryMandatory)} />
-              </div>
             </div>
+            <MandatoryToggle id="salaryMandatory" checked={Boolean(hardFilters.salaryMandatory)} />
           </div>
         </div>
-      </section>
+      </div>
     </div>
   );
 };

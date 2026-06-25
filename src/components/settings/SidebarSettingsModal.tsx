@@ -22,9 +22,11 @@ import {
   Trash2,
   Upload,
   UserCircle2,
+  Wand2,
   X,
 } from 'lucide-react';
 import { googleDriveService } from '@/services/file-processing/googleDriveService';
+import { extractHardFiltersFromJD } from '@/services/screening/frontendScreeningService';
 import type { HardFilters, HistoryRetention, NewSessionMode, UserSettingsLanguage, UserSettingsTheme, WeightCriteria } from '@/types';
 import { useUserSettings } from '@/context/settings/UserSettingsProvider';
 import { useTheme } from '@/context/theme/ThemeProvider';
@@ -284,7 +286,7 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
   const TAB_LABELS: Record<SettingsTab, string> = {
     account:       'Tài khoản',
     library:       'Dữ liệu & Thư viện',
-    setup:         'Bộ lọc & Quy trình',
+    setup:         'Cài đặt bộ lọc',
     notifications: t('settings_tab_notif'),
   };
 
@@ -314,6 +316,8 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
   const [fixedJDSaving, setFixedJDSaving] = useState(false);
   const [fixedJDSaved, setFixedJDSaved] = useState(false);
   const [driveImporting, setDriveImporting] = useState(false);
+  const [autoFilling, setAutoFilling] = useState(false);
+  const [autoFillNotice, setAutoFillNotice] = useState('');
 
   // Danger zone
   const [dangerOpen, setDangerOpen] = useState(false);
@@ -390,6 +394,58 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
       setSavingKey(null);
     }
   }, [saveSettings]);
+
+  // Shared save for all 3 setup steps (JD + filters + weights together)
+  const saveAllFixedJD = useCallback(async () => {
+    if (!fixedJDText.trim()) return;
+    setFixedJDSaving(true);
+    try {
+      await saveSettings({
+        workflow: {
+          ...settings.workflow,
+          fixedJD: {
+            enabled: settings.workflow.fixedJD?.enabled ?? false,
+            name: fixedJDName.trim(),
+            jdText: fixedJDText.trim(),
+            savedAt: Date.now(),
+            scoringEnabled: Object.values(localWeights).filter((c) => c.children).length > 0,
+            weights: localWeights,
+            hardFilters: localHardFilters,
+          },
+        },
+      });
+      setFixedJDSaved(true);
+      setTimeout(() => setFixedJDSaved(false), 2500);
+    } finally {
+      setFixedJDSaving(false);
+    }
+  }, [fixedJDText, fixedJDName, localWeights, localHardFilters, settings.workflow, saveSettings]);
+
+  // Auto-fill hard filters from JD text
+  const autoFillFilters = useCallback(async () => {
+    if (!fixedJDText.trim() || fixedJDText.trim().length < 20) {
+      setAutoFillNotice('Nhập nội dung JD trước (ít nhất 20 ký tự).');
+      return;
+    }
+    setAutoFilling(true);
+    setAutoFillNotice('');
+    try {
+      const extracted = await extractHardFiltersFromJD(fixedJDText);
+      setLocalHardFilters((prev) => ({
+        ...prev,
+        ...Object.fromEntries(
+          Object.entries(extracted).filter(([, v]) => v !== '' && v !== null && v !== undefined),
+        ),
+      }));
+      setAutoFillNotice('Đã điền tự động — kiểm tra lại ở trang Bộ lọc cứng.');
+      setTimeout(() => setAutoFillNotice(''), 4000);
+    } catch {
+      setAutoFillNotice('Không thể phân tích JD lúc này.');
+      setTimeout(() => setAutoFillNotice(''), 3000);
+    } finally {
+      setAutoFilling(false);
+    }
+  }, [fixedJDText]);
 
   // Debounced profile save
   const scheduleProfileSave = useCallback((name: string, avatar: string | null) => {
@@ -694,16 +750,61 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
     return total + (c.children?.reduce((s, ch) => s + ch.weight, 0) ?? 0);
   }, 0);
 
+  // Step completion indicators for the setup wizard
+  const hasAnyHardFilter = Object.entries(localHardFilters).some(([key, v]) => {
+    if (key.endsWith('Mandatory')) return false;
+    return v !== '' && v !== null && v !== undefined && v !== false;
+  });
+
   const setupTab = (
     <div className="flex flex-col h-full">
       {/* Sticky sub-nav */}
-      <div className="shrink-0 border-b border-slate-100 bg-white px-5 py-3.5">
+      <div className="shrink-0 border-b border-slate-100 bg-white px-5 pt-3.5 pb-3 space-y-2.5">
         <SubNav
           pages={['workflow', 'jd', 'filters', 'weights'] as unknown as string[]}
-          labels={{ workflow: 'Quy trình', jd: 'Job Description', filters: 'Bộ lọc cứng', weights: 'Trọng số' }}
+          labels={{ workflow: 'Cài đặt bộ lọc', jd: 'Job Description', filters: 'Bộ lọc cứng', weights: 'Trọng số' }}
           current={setupSubPage}
           onChange={(p) => setSetupSubPage(p as typeof setupSubPage)}
         />
+        {/* Step progress — only show in wizard pages */}
+        {setupSubPage !== 'workflow' && (
+          <div className="flex items-center gap-1">
+            {([
+              { key: 'jd' as const,      label: 'JD',       done: !!fixedJDText.trim() },
+              { key: 'filters' as const, label: 'Bộ lọc',   done: hasAnyHardFilter },
+              { key: 'weights' as const, label: 'Trọng số',  done: totalWeight === 100 },
+            ] as const).map(({ key, label, done }, i) => (
+              <React.Fragment key={key}>
+                <button
+                  type="button"
+                  onClick={() => setSetupSubPage(key)}
+                  className={`flex items-center gap-1.5 rounded-lg px-2 py-1 text-[11px] font-semibold transition ${
+                    setupSubPage === key ? 'text-slate-900' : 'text-slate-400 hover:text-slate-600'
+                  }`}
+                >
+                  <span className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[9px] font-bold ${
+                    done
+                      ? 'bg-emerald-500 text-white'
+                      : setupSubPage === key
+                        ? 'bg-blue-500 text-white'
+                        : 'bg-slate-200 text-slate-500'
+                  }`}>
+                    {done ? '✓' : i + 1}
+                  </span>
+                  {label}
+                </button>
+                {i < 2 && <span className="text-[10px] text-slate-300 select-none">→</span>}
+              </React.Fragment>
+            ))}
+            {/* Quick save shortcut when all done */}
+            {!!fixedJDText.trim() && settings.workflow.fixedJD?.savedAt && (
+              <span className="ml-auto flex items-center gap-1 text-[10px] font-medium text-emerald-600">
+                <CheckCircle2 size={11} />
+                Đã lưu {new Date(settings.workflow.fixedJD.savedAt).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' })}
+              </span>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="custom-scrollbar flex-1 overflow-y-auto p-5 space-y-4">
@@ -720,7 +821,7 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
                   Bật để lưu JD và trọng số chấm điểm. Lần sau chỉ cần thả CV vào là phân tích ngay.
                 </p>
                 {!settings.workflow.fixedJD?.jdText && (
-                  <p className="mt-1.5 text-[11px] font-medium text-amber-600">Nhập và lưu JD trước ở tab Job Description để bật tùy chọn này.</p>
+                  <p className="mt-1.5 text-[11px] font-medium text-amber-600">Hoàn tất 3 bước (JD → Bộ lọc → Trọng số) và nhấn "Lưu cấu hình" để bật.</p>
                 )}
               </div>
               <Toggle
@@ -966,60 +1067,33 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
 
         <div className="h-px bg-slate-100" />
 
-        {/* Save row */}
-        <div className="flex items-center justify-between">
-          <div className="min-w-0">
-            {settings.workflow.fixedJD?.savedAt ? (
-              <>
-                <p className="text-[11px] text-slate-400">
-                  Đã lưu: <span className="font-medium text-slate-600">{settings.workflow.fixedJD.name || 'Set Up'}</span>
-                  {' · '}{new Date(settings.workflow.fixedJD.savedAt).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })}
-                </p>
-                {settings.workflow.fixedJD.weights && (
-                  <p className="mt-0.5 text-[11px] text-emerald-600">
-                    + {Object.keys(settings.workflow.fixedJD.weights).length} tiêu chí chấm điểm đã lưu
-                  </p>
-                )}
-              </>
-            ) : (
-              <p className="text-[11px] text-slate-400">Chưa có cấu hình nào được lưu.</p>
-            )}
-          </div>
+        {/* Auto-fill notice */}
+        {autoFillNotice && (
+          <p className={`text-[12px] font-medium ${autoFillNotice.startsWith('Đã') ? 'text-emerald-600' : 'text-amber-600'}`}>
+            {autoFillNotice}
+          </p>
+        )}
+
+        {/* Navigation row — JD → Filters */}
+        <div className="flex items-center justify-between gap-2">
           <button
             type="button"
-            disabled={!fixedJDText.trim() || fixedJDSaving}
-            onClick={async () => {
-              if (!fixedJDText.trim()) return;
-              setFixedJDSaving(true);
-              try {
-                await saveSettings({
-                  workflow: {
-                    ...settings.workflow,
-                    fixedJD: {
-                      enabled: settings.workflow.fixedJD?.enabled ?? true,
-                      name: fixedJDName.trim(),
-                      jdText: fixedJDText.trim(),
-                      savedAt: Date.now(),
-                      scoringEnabled: criteriaEntries.length > 0,
-                      weights: localWeights,
-                      hardFilters: localHardFilters,
-                    },
-                  },
-                });
-                setFixedJDSaved(true);
-                setTimeout(() => setFixedJDSaved(false), 2000);
-              } finally {
-                setFixedJDSaving(false);
-              }
-            }}
-            className="ml-3 inline-flex shrink-0 h-9 items-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50 px-4 text-[12px] font-semibold text-blue-700 transition hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-40"
+            disabled={!fixedJDText.trim() || autoFilling}
+            onClick={() => void autoFillFilters()}
+            className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 text-[12px] font-semibold text-slate-600 transition hover:border-blue-300 hover:text-blue-600 disabled:cursor-not-allowed disabled:opacity-40"
           >
-            {fixedJDSaving
-              ? <Loader2 size={12} className="animate-spin" />
-              : fixedJDSaved
-                ? <CheckCircle2 size={12} className="text-emerald-500" />
-                : null}
-            {fixedJDSaved ? 'Đã lưu' : 'Lưu Set Up'}
+            {autoFilling
+              ? <Loader2 size={13} className="animate-spin" />
+              : <Wand2 size={13} />}
+            Tự động điền bộ lọc
+          </button>
+          <button
+            type="button"
+            disabled={!fixedJDText.trim()}
+            onClick={() => setSetupSubPage('filters')}
+            className="inline-flex shrink-0 h-9 items-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50 px-4 text-[12px] font-semibold text-blue-700 transition hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            Tiếp: Bộ lọc cứng →
           </button>
         </div>
       </div>
@@ -1056,49 +1130,25 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
           jdText={fixedJDText}
         />
 
-        {/* Save row */}
+        {/* Navigation row — Filters → Weights */}
         <div className="flex items-center justify-between border-t border-slate-100 pt-4">
-          <div className="min-w-0">
-            {settings.workflow.fixedJD?.savedAt ? (
-              <p className="text-[11px] text-slate-400">
-                Lưu cùng JD: <span className="font-medium text-slate-600">{settings.workflow.fixedJD.name || 'Set Up'}</span>
-              </p>
-            ) : (
-              <p className="text-[11px] text-slate-400">Chưa có JD nào được lưu — nhập JD trước để lưu bộ lọc.</p>
-            )}
-          </div>
           <button
             type="button"
-            disabled={!fixedJDText.trim() || fixedJDSaving}
-            onClick={async () => {
-              if (!fixedJDText.trim()) return;
-              setFixedJDSaving(true);
-              try {
-                await saveSettings({
-                  workflow: {
-                    ...settings.workflow,
-                    fixedJD: {
-                      enabled: settings.workflow.fixedJD?.enabled ?? true,
-                      name: fixedJDName.trim(),
-                      jdText: fixedJDText.trim(),
-                      savedAt: Date.now(),
-                      scoringEnabled: criteriaEntries.length > 0,
-                      weights: localWeights,
-                      hardFilters: localHardFilters,
-                    },
-                  },
-                });
-                setFixedJDSaved(true);
-                setTimeout(() => setFixedJDSaved(false), 2000);
-              } finally {
-                setFixedJDSaving(false);
-              }
-            }}
-            className="ml-4 inline-flex shrink-0 h-9 items-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50 px-4 text-[12px] font-semibold text-blue-700 transition hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-40"
+            onClick={() => setSetupSubPage('jd')}
+            className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 text-[12px] font-semibold text-slate-600 transition hover:border-slate-300 hover:bg-slate-50"
           >
-            {fixedJDSaving ? <Loader2 size={12} className="animate-spin" /> : fixedJDSaved ? <CheckCircle2 size={12} className="text-emerald-500" /> : null}
-            {fixedJDSaved ? 'Đã lưu' : 'Lưu bộ lọc'}
+            ← JD
           </button>
+          <div className="flex items-center gap-2">
+            <p className="text-[12px] text-slate-400">Bước 2/3</p>
+            <button
+              type="button"
+              onClick={() => setSetupSubPage('weights')}
+              className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50 px-4 text-[12px] font-semibold text-blue-700 transition hover:bg-blue-100"
+            >
+              Tiếp: Trọng số →
+            </button>
+          </div>
         </div>
       </div>
       )}
@@ -1145,51 +1195,33 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
         <div className="h-px bg-slate-100" />
 
         <div className="flex items-center justify-between">
-          <div className="min-w-0">
-            {settings.workflow.fixedJD?.savedAt ? (
-              <p className="text-[11px] text-slate-400">
-                Đã lưu: <span className="font-medium text-slate-600">{settings.workflow.fixedJD.name || 'Set Up'}</span>
-              </p>
-            ) : (
-              <p className="text-[11px] text-slate-400">Chưa có cấu hình nào được lưu.</p>
-            )}
-          </div>
           <button
             type="button"
-            disabled={!fixedJDText.trim() || fixedJDSaving}
-            onClick={async () => {
-              if (!fixedJDText.trim()) return;
-              setFixedJDSaving(true);
-              try {
-                await saveSettings({
-                  workflow: {
-                    ...settings.workflow,
-                    fixedJD: {
-                      enabled: settings.workflow.fixedJD?.enabled ?? true,
-                      name: fixedJDName.trim(),
-                      jdText: fixedJDText.trim(),
-                      savedAt: Date.now(),
-                      scoringEnabled: criteriaEntries.length > 0,
-                      weights: localWeights,
-                      hardFilters: localHardFilters,
-                    },
-                  },
-                });
-                setFixedJDSaved(true);
-                setTimeout(() => setFixedJDSaved(false), 2000);
-              } finally {
-                setFixedJDSaving(false);
-              }
-            }}
-            className="ml-3 inline-flex shrink-0 h-9 items-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50 px-4 text-[12px] font-semibold text-blue-700 transition hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-40"
+            onClick={() => setSetupSubPage('filters')}
+            className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 text-[12px] font-semibold text-slate-600 transition hover:border-slate-300 hover:bg-slate-50"
           >
-            {fixedJDSaving
-              ? <Loader2 size={12} className="animate-spin" />
-              : fixedJDSaved
-                ? <CheckCircle2 size={12} className="text-emerald-500" />
-                : null}
-            {fixedJDSaved ? 'Đã lưu' : 'Lưu trọng số'}
+            ← Bộ lọc
           </button>
+          <div className="flex items-center gap-2.5">
+            {settings.workflow.fixedJD?.savedAt && !fixedJDSaving && !fixedJDSaved && (
+              <p className="text-[11px] text-slate-400">
+                Lần cuối {new Date(settings.workflow.fixedJD.savedAt).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' })}
+              </p>
+            )}
+            <button
+              type="button"
+              disabled={!fixedJDText.trim() || fixedJDSaving}
+              onClick={() => void saveAllFixedJD()}
+              className="inline-flex shrink-0 h-9 items-center gap-1.5 rounded-xl bg-blue-600 px-5 text-[12px] font-bold text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              {fixedJDSaving
+                ? <Loader2 size={12} className="animate-spin" />
+                : fixedJDSaved
+                  ? <CheckCircle2 size={12} />
+                  : null}
+              {fixedJDSaved ? 'Đã lưu cấu hình ✓' : 'Lưu cấu hình'}
+            </button>
+          </div>
         </div>
       </div>
       )}

@@ -21,6 +21,7 @@ import type { WorkspaceSessionViewModel } from '@/types/workspace';
 import { initialWeights } from '@/config/constants';
 import Sidebar from '@/layout/Sidebar';
 import WorkspaceTopbar from '@/components/workspace/WorkspaceTopbar';
+import ActiveFilterBanner from '@/components/workspace/ActiveFilterBanner';
 import DesktopAppMenuBar from '@/components/workspace/DesktopAppMenuBar';
 import SidebarSettingsModal from '@/components/settings/SidebarSettingsModal';
 import JDTemplatesModal, { JDTemplate } from '@/components/history/JDTemplatesModal';
@@ -1188,6 +1189,9 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
               navigate('/chatbot');
             }}
           />
+        )}
+        {isWorkflowView && (
+          <ActiveFilterBanner onOpenSettings={() => setSidebarSettingsOpen(true)} />
         )}
         <div className={`flex h-full min-h-0 w-full flex-1 flex-col ${isWorkflowView ? 'overflow-hidden' : isLandingView || isStandaloneToolRoute ? 'overflow-y-auto custom-scrollbar' : 'max-w-7xl px-4 sm:px-6 lg:px-8 mx-auto py-4 overflow-y-auto custom-scrollbar'}`}>
           <Suspense fallback={
