@@ -1078,7 +1078,7 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
                   workflow: {
                     ...settings.workflow,
                     fixedJD: {
-                      enabled: settings.workflow.fixedJD?.enabled ?? false,
+                      enabled: settings.workflow.fixedJD?.enabled ?? true,
                       name: fixedJDName.trim(),
                       jdText: fixedJDText.trim(),
                       savedAt: Date.now(),
