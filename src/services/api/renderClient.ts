@@ -27,6 +27,29 @@ function resolveApiUrl(): string {
 
 export const RENDER_API_URL = resolveApiUrl();
 
+// Fire a lightweight GET to /health immediately so Render.com wakes up before auth resolves.
+// Also keeps the connection alive every 13 minutes to prevent sleep on the free tier.
+let _keepAliveTimer: ReturnType<typeof setInterval> | null = null;
+
+export function warmUpServer(): void {
+  const target = RENDER_API_URL === LOCAL_API_URL ? null : RENDER_API_URL;
+  if (!target) return;
+
+  const ping = () => fetch(`${target}/health`, { method: 'GET', keepalive: true }).catch(() => {});
+
+  ping();
+  if (!_keepAliveTimer) {
+    _keepAliveTimer = setInterval(ping, 13 * 60 * 1000);
+  }
+}
+
+export function stopServerWarmUp(): void {
+  if (_keepAliveTimer) {
+    clearInterval(_keepAliveTimer);
+    _keepAliveTimer = null;
+  }
+}
+
 function getRemoteFallbackUrl(): string | null {
   return RENDER_API_URL === LOCAL_API_URL ? REMOTE_API_URL : null;
 }

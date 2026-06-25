@@ -11,6 +11,10 @@ import { UserSettingsProvider, useUserSettings } from '@/context/settings/UserSe
 
 import { DataSyncService } from '@/services/data-sync/dataSyncService';
 import { UserProfileService } from '@/services/data-sync/userProfileService';
+import { warmUpServer } from '@/services/api/renderClient';
+
+// Wake up the server before Firebase auth resolves so the first real request hits a warm server.
+warmUpServer();
 import type { AuthUser } from '@/services/auth/authTypes';
 import type { AppStep, Candidate, HardFilters, WeightCriteria, AnalysisRunData, ActiveAnalysisContext, HistoryEntry } from '@/types';
 import type { WorkspaceSessionViewModel } from '@/types/workspace';
