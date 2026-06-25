@@ -90,13 +90,4 @@ export const initialWeights: WeightCriteria = {
       { key: 'valueAlignment', name: 'Giá trị cá nhân', weight: 7 },
     ],
   },
-  videoIntro: {
-    key: 'videoIntro',
-    name: 'Video giới thiệu',
-    icon: 'fa-solid fa-circle-play',
-    color: 'text-rose-400',
-    children: [
-      { key: 'hasVideo', name: 'Có video giới thiệu', weight: 0 },
-    ],
-  },
 };

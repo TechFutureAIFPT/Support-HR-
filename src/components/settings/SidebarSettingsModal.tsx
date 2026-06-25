@@ -1112,27 +1112,42 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
 
       {/* Weights sub-page */}
       {setupSubPage === 'weights' && (
-      <div className="rounded-2xl border border-slate-100 bg-white p-5 space-y-4">
+      <div className="space-y-4">
+        {/* Header row */}
         <div className="flex items-center justify-between">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-400">Trọng số tiêu chí chấm điểm</p>
-          <button
-            type="button"
-            onClick={() => {
-              try {
-                const draft = readWorkflowDraft();
-                const w = draft?.weights ?? JSON.parse(localStorage.getItem('analysisWeights') || 'null');
-                if (w && typeof w === 'object' && !Array.isArray(w)) {
-                  setLocalWeights(w as WeightCriteria);
-                }
-              } catch {}
-            }}
-            className="text-[11px] font-semibold text-blue-500 transition hover:text-blue-600"
-          >
-            Lấy từ phiên hiện tại
-          </button>
+          <div>
+            <p className="text-[13px] font-bold text-slate-900">Trọng số chấm điểm</p>
+            <p className="mt-0.5 text-[11px] text-slate-400">Click vào tiêu chí để điều chỉnh từng hạng mục</p>
+          </div>
+          <div className="flex items-center gap-3">
+            {/* Total weight badge */}
+            <span className={`inline-flex h-7 items-center rounded-lg px-2.5 text-[11px] font-bold ${
+              totalWeight === 100
+                ? 'bg-emerald-50 text-emerald-600 border border-emerald-100'
+                : totalWeight > 100
+                  ? 'bg-rose-50 text-rose-600 border border-rose-100'
+                  : 'bg-amber-50 text-amber-600 border border-amber-100'
+            }`}>
+              {totalWeight}% / 100{totalWeight === 100 ? ' ✓' : ''}
+            </span>
+            <button
+              type="button"
+              onClick={() => {
+                try {
+                  const draft = readWorkflowDraft();
+                  const w = draft?.weights ?? JSON.parse(localStorage.getItem('analysisWeights') || 'null');
+                  if (w && typeof w === 'object' && !Array.isArray(w)) setLocalWeights(w as WeightCriteria);
+                } catch {}
+              }}
+              className="h-7 rounded-lg border border-slate-200 bg-white px-2.5 text-[11px] font-semibold text-slate-600 transition hover:border-blue-200 hover:text-blue-600"
+            >
+              Lấy từ phiên hiện tại
+            </button>
+          </div>
         </div>
 
-        <div className="space-y-1.5">
+        {/* Weight tiles */}
+        <div className="space-y-2">
           {criteriaEntries.map((criterion) => (
             <WeightTile
               key={criterion.key}
@@ -1142,11 +1157,6 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
               onToggle={() => setExpandedCriterion((prev) => (prev === criterion.key ? null : criterion.key))}
             />
           ))}
-          <p className={`text-right text-[11px] font-semibold pt-1 ${
-            totalWeight === 100 ? 'text-emerald-600' : totalWeight > 100 ? 'text-rose-500' : 'text-amber-600'
-          }`}>
-            Tổng: {totalWeight}%{totalWeight === 100 ? ' ✓' : totalWeight > 100 ? ' — quá 100%' : ' — chưa đủ 100%'}
-          </p>
         </div>
 
         <div className="h-px bg-slate-100" />

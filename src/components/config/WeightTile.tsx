@@ -1,6 +1,5 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import type { MainCriterion, WeightCriteria } from '@/types';
-import { useTheme } from '@/context/theme/ThemeProvider';
 
 interface WeightTileProps {
   criterion: MainCriterion;
@@ -12,198 +11,154 @@ interface WeightTileProps {
 const clampWeight = (value: number) => Math.max(0, Math.min(100, Number.isNaN(value) ? 0 : value));
 
 const WeightTile: React.FC<WeightTileProps> = ({ criterion, setWeights, isExpanded, onToggle }) => {
-  const { isDarkMode } = useTheme();
   const [measuredHeight, setMeasuredHeight] = useState(0);
   const contentRef = useRef<HTMLDivElement>(null);
 
-  const total = useMemo(() => {
-    return criterion.children?.reduce((sum, child) => sum + child.weight, 0) || 0;
+  const total = criterion.children?.reduce((sum, child) => sum + child.weight, 0) || 0;
+
+  useEffect(() => {
+    if (contentRef.current) setMeasuredHeight(contentRef.current.scrollHeight);
   }, [criterion.children]);
 
   useEffect(() => {
-    if (contentRef.current) {
-      setMeasuredHeight(contentRef.current.scrollHeight);
-    }
-  }, [criterion.children]);
-
-  useEffect(() => {
-    if (isExpanded && contentRef.current) {
-      setMeasuredHeight(contentRef.current.scrollHeight);
-    }
+    if (isExpanded && contentRef.current) setMeasuredHeight(contentRef.current.scrollHeight);
   }, [isExpanded]);
 
   const handleSubChange = (childKey: string, newValue: number) => {
     const safeValue = clampWeight(newValue);
     setWeights((prev) => {
-      const newCriterion = { ...prev[criterion.key] };
-      if (newCriterion.children) {
-        newCriterion.children = newCriterion.children.map((child) =>
+      const updated = { ...prev[criterion.key] };
+      if (updated.children) {
+        updated.children = updated.children.map((child) =>
           child.key === childKey ? { ...child, weight: safeValue } : child
         );
       }
-      return { ...prev, [criterion.key]: newCriterion };
+      return { ...prev, [criterion.key]: updated };
     });
   };
 
-  const progressClass = total >= 35
-    ? 'from-blue-500 to-emerald-400'
-    : total >= 15
-      ? 'from-blue-400 to-cyan-400'
-      : 'from-orange-300 to-blue-300';
+  const totalColor =
+    total === 0 ? 'text-slate-300' : total > 40 ? 'text-blue-600' : total > 20 ? 'text-sky-500' : 'text-amber-500';
 
-  const d = {
-    tileBg: isDarkMode ? 'var(--th-bg-elevated)' : '#ffffff',
-    tileBorderExpanded: isDarkMode ? 'rgba(99,153,255,0.35)' : 'rgb(147,197,253)',
-    tileBorderCollapsed: isDarkMode ? 'rgba(255,255,255,0.09)' : 'rgb(219,234,254)',
-    iconBg: isDarkMode ? 'var(--th-bg-secondary)' : '#ffffff',
-    iconBorderExpanded: isDarkMode ? 'rgba(99,153,255,0.3)' : 'rgb(191,219,254)',
-    iconBorderCollapsed: isDarkMode ? 'rgba(255,255,255,0.09)' : 'rgb(219,234,254)',
-    iconColorExpanded: isDarkMode ? '#60a5fa' : '#2563eb',
-    iconColorCollapsed: isDarkMode ? '#94a3b8' : '#475569',
-    nameColor: isDarkMode ? 'var(--th-text)' : '#020617',
-    trackBg: isDarkMode ? 'rgba(99,153,255,0.18)' : 'rgb(219,234,254)',
-    metaColor: isDarkMode ? 'var(--th-text-muted)' : '#64748b',
-    totalColor: (v: number) => v > 0 ? (isDarkMode ? '#60a5fa' : '#2563eb') : (isDarkMode ? '#475569' : '#94a3b8'),
-    chevronBg: isDarkMode ? 'transparent' : '#ffffff',
-    chevronColorExpanded: isDarkMode ? '#60a5fa' : '#2563eb',
-    chevronColorCollapsed: isDarkMode ? '#94a3b8' : '#475569',
-    contentBorder: isDarkMode ? 'rgba(255,255,255,0.07)' : 'rgb(219,234,254)',
-    contentBg: isDarkMode ? 'var(--th-bg-elevated)' : '#ffffff',
-    subItemBg: isDarkMode ? 'var(--th-bg-elevated)' : '#ffffff',
-    subItemHoverBorder: isDarkMode ? 'rgba(99,153,255,0.25)' : 'rgb(219,234,254)',
-    childNameColor: isDarkMode ? 'var(--th-text-secondary)' : '#1e293b',
-    childPctColor: isDarkMode ? '#60a5fa' : '#2563eb',
-    inputBg: isDarkMode ? 'var(--th-bg-secondary)' : '#ffffff',
-    inputBorder: isDarkMode ? 'rgba(99,153,255,0.25)' : 'rgb(219,234,254)',
-    inputText: isDarkMode ? 'var(--th-text)' : '#0f172a',
-    pctSuffix: isDarkMode ? 'var(--th-text-muted)' : '#64748b',
-    sliderTrack: isDarkMode ? 'rgba(99,153,255,0.18)' : 'rgba(55,125,255,0.14)',
-  };
+  const progressColor =
+    total >= 35 ? 'from-blue-500 to-emerald-400' : total >= 15 ? 'from-blue-400 to-sky-400' : 'from-amber-300 to-orange-300';
 
   return (
-    <div
-      className="rounded-lg border transition-all duration-300"
-      style={{
-        background: d.tileBg,
-        borderColor: isExpanded ? d.tileBorderExpanded : d.tileBorderCollapsed,
-        boxShadow: isExpanded
-          ? isDarkMode ? '0 8px 24px rgba(0,0,0,0.3)' : '0 12px 30px rgba(30,64,175,0.08)'
-          : isDarkMode ? 'none' : '0 6px 18px rgba(30,64,175,0.035)',
-      }}
-    >
+    <div className={`overflow-hidden rounded-2xl border transition-all duration-200 ${
+      isExpanded
+        ? 'border-blue-200 shadow-sm shadow-blue-50'
+        : 'border-slate-100 shadow-none hover:border-slate-200'
+    } bg-white`}>
+
+      {/* Header */}
       <button
         type="button"
-        className="flex min-h-[58px] w-full items-center gap-3 px-3 py-2 text-left sm:px-4"
         onClick={onToggle}
         aria-expanded={isExpanded}
+        className="flex h-[56px] w-full items-center gap-3 px-4 text-left"
       >
-        <div className="flex min-w-0 flex-1 items-center gap-3">
-          <div
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border text-sm"
-            style={{
-              background: d.iconBg,
-              borderColor: isExpanded ? d.iconBorderExpanded : d.iconBorderCollapsed,
-              color: isExpanded ? d.iconColorExpanded : d.iconColorCollapsed,
-            }}
-          >
-            <i className={criterion.icon} />
-          </div>
-          <div className="min-w-[9rem] max-w-[16rem] flex-1">
-            <p className="truncate text-sm font-bold tracking-wide" style={{ color: d.nameColor }}>
-              {criterion.name}
-            </p>
-          </div>
-          <div className="hidden min-w-0 flex-[1.4] items-center gap-3 sm:flex">
-            <div className="h-1.5 min-w-0 flex-1 overflow-hidden rounded-full" style={{ background: d.trackBg }}>
-              <div
-                className={`h-full rounded-full bg-gradient-to-r ${progressClass}`}
-                style={{ width: `${Math.min(total, 100)}%` }}
-              />
-            </div>
-            <span className="whitespace-nowrap text-[10px] font-bold uppercase tracking-wider" style={{ color: d.metaColor }}>
-              Tổng {total}%
-            </span>
-          </div>
-        </div>
+        {/* FontAwesome icon from config */}
+        <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border text-[13px] transition-colors duration-150 ${
+          isExpanded
+            ? 'border-blue-200 bg-blue-50 text-blue-600'
+            : 'border-slate-200 bg-slate-50 text-slate-400'
+        }`}>
+          <i className={criterion.icon} />
+        </span>
 
-        <div className="flex shrink-0 items-center gap-3">
-          <div className="flex items-baseline gap-0.5 whitespace-nowrap text-right">
-            <span className="text-xl font-black leading-none tracking-tighter" style={{ color: d.totalColor(total) }}>
-              {total}
-            </span>
-            <span className="text-[10px] font-bold" style={{ color: d.metaColor }}>%</span>
-          </div>
-          <div
-            className="flex h-7 w-7 items-center justify-center rounded-md transition-colors"
-            style={{ background: d.chevronBg, color: isExpanded ? d.chevronColorExpanded : d.chevronColorCollapsed }}
-          >
-            <i className={`fa-solid fa-chevron-down text-[10px] transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`} />
-          </div>
-        </div>
-      </button>
+        {/* Name */}
+        <span className={`w-[148px] shrink-0 truncate text-[12.5px] font-bold tracking-[0.01em] transition-colors ${
+          isExpanded ? 'text-slate-900' : 'text-slate-700'
+        }`}>
+          {criterion.name}
+        </span>
 
-      <div className="px-3 pb-2 sm:hidden">
-        <div className="flex items-center gap-2">
-          <div className="h-1.5 min-w-0 flex-1 overflow-hidden rounded-full" style={{ background: d.trackBg }}>
+        {/* Progress bar */}
+        <div className="hidden flex-1 items-center gap-2.5 sm:flex">
+          <div className="flex-1 overflow-hidden rounded-full bg-slate-100" style={{ height: '5px' }}>
             <div
-              className={`h-full rounded-full bg-gradient-to-r ${progressClass}`}
+              className={`h-full rounded-full bg-gradient-to-r transition-all duration-300 ${progressColor}`}
               style={{ width: `${Math.min(total, 100)}%` }}
             />
           </div>
-          <span className="whitespace-nowrap text-[9px] font-bold uppercase tracking-wider" style={{ color: d.metaColor }}>
-            Tổng {total}%
+          <span className="w-[52px] shrink-0 text-right text-[10.5px] font-semibold text-slate-400">
+            {total > 0 ? `${total}% / 100` : '0%'}
           </span>
+        </div>
+
+        {/* Total badge */}
+        <div className={`flex shrink-0 items-baseline gap-[2px] ${totalColor}`}>
+          <span className="text-[18px] font-black leading-none tabular-nums">{total}</span>
+          <span className="text-[10px] font-bold text-slate-400">%</span>
+        </div>
+
+        {/* Chevron */}
+        <span className={`flex h-6 w-6 shrink-0 items-center justify-center text-[10px] transition-all duration-200 ${
+          isExpanded ? 'rotate-180 text-blue-400' : 'text-slate-300'
+        }`}>
+          <i className="fa-solid fa-chevron-down" />
+        </span>
+      </button>
+
+      {/* Mobile progress bar */}
+      <div className="px-4 pb-2.5 sm:hidden">
+        <div className="flex items-center gap-2">
+          <div className="flex-1 overflow-hidden rounded-full bg-slate-100" style={{ height: '4px' }}>
+            <div
+              className={`h-full rounded-full bg-gradient-to-r ${progressColor}`}
+              style={{ width: `${Math.min(total, 100)}%` }}
+            />
+          </div>
+          <span className="text-[10px] font-semibold text-slate-400">{total}%</span>
         </div>
       </div>
 
+      {/* Expanded content */}
       <div
-        className="overflow-hidden transition-[height,opacity] duration-300 ease-in-out"
+        className="overflow-hidden transition-[height,opacity] duration-200 ease-in-out"
         style={{ height: isExpanded ? measuredHeight : 0, opacity: isExpanded ? 1 : 0 }}
       >
-        <div
-          ref={contentRef}
-          className="space-y-2 border-t p-2.5"
-          style={{ borderColor: d.contentBorder, background: d.contentBg }}
-        >
+        <div ref={contentRef} className="border-t border-slate-100 divide-y divide-slate-100/80">
           {criterion.children?.map((child) => {
             const sliderMax = Math.max(60, child.weight);
-            const sliderPercent = (child.weight / sliderMax) * 100;
+            const sliderPct = Math.round((child.weight / sliderMax) * 100);
+
             return (
               <div
                 key={child.key}
-                className="flex flex-col gap-2 rounded-lg border border-transparent p-2 transition-all sm:flex-row sm:items-center sm:gap-3"
-                style={{ background: d.subItemBg }}
-                onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.borderColor = d.subItemHoverBorder; }}
-                onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.borderColor = 'transparent'; }}
+                className="flex items-center gap-3 px-4 py-2.5 transition-colors hover:bg-slate-50/60"
               >
-                <div className="min-w-0 flex-1">
-                  <div className="mb-1.5 flex items-center justify-between">
-                    <p className="truncate text-[11px] font-bold tracking-wide" style={{ color: d.childNameColor }}>{child.name}</p>
-                    <span className="text-[10px] font-semibold" style={{ color: d.childPctColor }}>{child.weight}%</span>
-                  </div>
+                {/* Sub-criteria name */}
+                <span className="w-[148px] shrink-0 truncate text-[11.5px] font-semibold text-slate-700">
+                  {child.name}
+                </span>
+
+                {/* Slider */}
+                <div className="flex-1 min-w-0">
                   <input
                     type="range"
                     min={0}
                     max={sliderMax}
                     value={child.weight}
-                    onChange={(event) => handleSubChange(child.key, parseInt(event.target.value, 10))}
-                    className="relative z-10 h-1.5 w-full cursor-pointer appearance-none rounded-full bg-transparent transition-all focus:outline-none focus:ring-2 focus:ring-blue-200"
+                    onChange={(e) => handleSubChange(child.key, parseInt(e.target.value, 10))}
+                    className="h-1.5 w-full cursor-pointer appearance-none rounded-full focus:outline-none focus:ring-2 focus:ring-blue-200"
                     style={{
-                      background: `linear-gradient(90deg, #2388ff ${sliderPercent}%, ${d.sliderTrack} ${sliderPercent}%)`,
+                      background: `linear-gradient(90deg, #3b82f6 ${sliderPct}%, #e2e8f0 ${sliderPct}%)`,
                     }}
                   />
                 </div>
-                <div className="relative w-full sm:w-auto">
+
+                {/* Number input */}
+                <div className="relative w-16 shrink-0">
                   <input
                     type="number"
                     min={0}
                     max={100}
                     value={child.weight}
-                    onChange={(event) => handleSubChange(child.key, parseInt(event.target.value, 10))}
-                    className="w-full appearance-none rounded-lg border py-1.5 pl-2 pr-4 text-center text-xs font-bold transition-all focus:outline-none focus:ring-2 focus:ring-blue-200 sm:w-16"
-                    style={{ background: d.inputBg, borderColor: d.inputBorder, color: d.inputText }}
+                    onChange={(e) => handleSubChange(child.key, parseInt(e.target.value, 10))}
+                    className="h-8 w-full rounded-xl border border-slate-200 bg-white pl-2 pr-5 text-center text-[12px] font-bold text-blue-600 transition focus:border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-100"
                   />
-                  <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-bold" style={{ color: d.pctSuffix }}>
+                  <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-400">
                     %
                   </span>
                 </div>
