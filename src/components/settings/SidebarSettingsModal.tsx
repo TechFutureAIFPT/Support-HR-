@@ -8,7 +8,6 @@ import {
   ChevronDown,
   CloudOff,
   Database,
-  FolderOpen,
   HardDrive,
   History,
   Loader2,
@@ -16,7 +15,6 @@ import {
   Moon,
   Monitor,
   Plus,
-  Target,
   RefreshCcw,
   Settings,
   SlidersHorizontal,
@@ -24,7 +22,6 @@ import {
   Trash2,
   Upload,
   UserCircle2,
-  Workflow,
   X,
 } from 'lucide-react';
 import { googleDriveService } from '@/services/file-processing/googleDriveService';
@@ -163,6 +160,28 @@ function Section({ title, children }: { title?: string; children: React.ReactNod
       )}
       <div className="space-y-1.5">{children}</div>
     </section>
+  );
+}
+
+function SubNav<T extends string>({
+  pages, labels, current, onChange,
+}: {
+  pages: T[];
+  labels: Partial<Record<T, string>>;
+  current: T;
+  onChange: (p: T) => void;
+}) {
+  return (
+    <div className="flex gap-1 rounded-xl bg-slate-100 p-1">
+      {pages.map((page) => (
+        <button key={page} type="button" onClick={() => onChange(page)}
+          className={`flex-1 rounded-lg py-2 px-3 text-[12px] font-semibold transition-all duration-150 ${
+            current === page ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+          }`}>
+          {labels[page] ?? page}
+        </button>
+      ))}
+    </div>
   );
 }
 
@@ -417,76 +436,71 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
   // ── Tab: Tài khoản (merged: Chung + Hồ sơ) ──
   const accountTab = (
     <div className="space-y-5">
-      <Section title="Thông tin cá nhân">
-        <div className="rounded-2xl border border-slate-100 bg-white p-4">
-          <div className="flex items-center gap-4">
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              className="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl border-2 border-slate-200 bg-slate-50 transition hover:border-blue-300"
-            >
-              {avatarPreview
-                ? <img src={avatarPreview} alt="" className="h-full w-full object-cover" />
-                : <UserCircle2 size={28} className="absolute inset-0 m-auto text-slate-400" />
-              }
-              <span className="absolute inset-0 flex items-end justify-center bg-black/0 pb-1 opacity-0 transition hover:bg-black/20 hover:opacity-100">
-                <Upload size={13} className="text-white" />
-              </span>
-            </button>
-            <input ref={fileInputRef} type="file" accept="image/*" onChange={handleAvatarInput} className="hidden" />
+      {/* Gradient profile card */}
+      <div className="rounded-2xl border border-blue-100/60 bg-gradient-to-br from-blue-50 via-indigo-50/60 to-slate-50 p-5">
+        <div className="flex items-center gap-4">
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className="group relative h-[72px] w-[72px] shrink-0 overflow-hidden rounded-2xl border-2 border-white bg-white shadow-md transition hover:shadow-lg"
+          >
+            {avatarPreview
+              ? <img src={avatarPreview} alt="" className="h-full w-full object-cover" />
+              : <UserCircle2 size={30} className="absolute inset-0 m-auto text-slate-300" />
+            }
+            <span className="absolute inset-0 flex items-end justify-center bg-black/0 pb-1.5 opacity-0 transition group-hover:bg-black/25 group-hover:opacity-100">
+              <Upload size={13} className="text-white" />
+            </span>
+          </button>
+          <input ref={fileInputRef} type="file" accept="image/*" onChange={handleAvatarInput} className="hidden" />
 
-            <div className="min-w-0 flex-1 space-y-2.5">
-              <div>
-                <label className="mb-1 block text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-400">Tên hiển thị</label>
-                <div className="relative">
-                  <input
-                    value={displayName}
-                    onChange={(e) => handleDisplayNameChange(e.target.value)}
-                    placeholder="Nhập tên của bạn"
-                    className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 pr-9 text-[13px] font-medium text-slate-900 outline-none transition focus:border-blue-400 focus:bg-white"
-                  />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2">
-                    {profileSaving
-                      ? <Loader2 size={13} className="animate-spin text-blue-400" />
-                      : profileSaved
-                        ? <CheckCircle2 size={13} className="text-emerald-500" />
-                        : null}
-                  </span>
-                </div>
+          <div className="min-w-0 flex-1 space-y-2.5">
+            <div>
+              <label className="mb-1 block text-[11px] font-semibold uppercase tracking-[0.1em] text-blue-400/80">Tên hiển thị</label>
+              <div className="relative">
+                <input
+                  value={displayName}
+                  onChange={(e) => handleDisplayNameChange(e.target.value)}
+                  placeholder="Nhập tên của bạn"
+                  className="h-10 w-full rounded-xl border border-blue-100 bg-white/70 px-3 pr-9 text-[13px] font-medium text-slate-900 outline-none backdrop-blur-sm transition focus:border-blue-400 focus:bg-white"
+                />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2">
+                  {profileSaving
+                    ? <Loader2 size={13} className="animate-spin text-blue-400" />
+                    : profileSaved
+                      ? <CheckCircle2 size={13} className="text-emerald-500" />
+                      : null}
+                </span>
               </div>
-
-              <div className="rounded-xl border border-slate-100 bg-slate-50 px-3 py-2">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-slate-400">Email</p>
-                <p className="mt-0.5 text-[13px] font-medium text-slate-800">{userEmail || 'Chưa đăng nhập'}</p>
-              </div>
+            </div>
+            <div className="rounded-xl border border-blue-100/60 bg-white/50 px-3 py-2">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-blue-400/70">Email</p>
+              <p className="mt-0.5 text-[13px] font-medium text-slate-800">{userEmail || 'Chưa đăng nhập'}</p>
             </div>
           </div>
         </div>
-      </Section>
 
-      <Section title="Phiên đăng nhập">
-        <div className="rounded-2xl border border-slate-100 bg-white px-4 py-3">
-          <p className="text-[12px] leading-5 text-slate-500">
-            Đăng xuất khỏi tài khoản hiện tại trên thiết bị này. Dữ liệu đã đồng bộ được giữ nguyên trên server.
-          </p>
-          {onLogout && (
+        {onLogout && (
+          <div className="mt-4 flex items-center justify-between border-t border-blue-100/60 pt-4">
+            <p className="text-[12px] text-slate-500">Đăng xuất khỏi thiết bị này. Dữ liệu giữ nguyên trên server.</p>
             <button
               type="button"
               onClick={onLogout}
-              className="mt-3 inline-flex h-9 items-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-3.5 text-[12px] font-semibold text-rose-700 transition hover:bg-rose-100"
+              className="ml-4 inline-flex shrink-0 h-8 items-center gap-1.5 rounded-xl border border-rose-200 bg-white px-3 text-[12px] font-semibold text-rose-600 transition hover:bg-rose-50"
             >
-              <LogOut size={13} />
+              <LogOut size={12} />
               Đăng xuất
             </button>
-          )}
-        </div>
-      </Section>
+          </div>
+        )}
+      </div>
 
+      {/* Theme */}
       <Section title={t('settings_section_ui')}>
-        <div className="rounded-2xl border border-slate-100 bg-white p-4 space-y-3">
+        <div className="rounded-2xl border border-slate-100 bg-white p-4 space-y-4">
           <div>
-            <p className="mb-2 text-[12px] font-semibold text-slate-700">{t('settings_theme_label')}</p>
-            <div className="flex flex-wrap gap-2">
+            <p className="mb-3 text-[12px] font-semibold text-slate-700">{t('settings_theme_label')}</p>
+            <div className="grid grid-cols-3 gap-2">
               {([
                 { value: 'light' as UserSettingsTheme, label: t('settings_theme_light'), icon: Sun },
                 { value: 'dark'  as UserSettingsTheme, label: t('settings_theme_dark'),  icon: Moon },
@@ -498,14 +512,19 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
                     key={value}
                     type="button"
                     onClick={() => void autoSave('theme', { ui: { ...settings.ui, theme: value } })}
-                    className={`inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-[13px] font-semibold transition ${
+                    className={`flex flex-col items-center gap-2 rounded-2xl border py-4 text-[12px] font-semibold transition ${
                       active
-                        ? 'border-blue-500 bg-blue-50 text-blue-700'
-                        : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50'
+                        ? 'border-blue-400 bg-blue-50 text-blue-700 shadow-sm shadow-blue-100'
+                        : 'border-slate-200 bg-slate-50 text-slate-600 hover:border-slate-300 hover:bg-white'
                     }`}
                   >
-                    <Icon size={14} className={active ? 'text-blue-500' : 'text-slate-400'} />
+                    <span className={`flex h-9 w-9 items-center justify-center rounded-xl border ${
+                      active ? 'border-blue-200 bg-blue-100' : 'border-slate-200 bg-white'
+                    }`}>
+                      <Icon size={16} className={active ? 'text-blue-500' : 'text-slate-400'} />
+                    </span>
                     {label}
+                    {active && <Check size={10} className="text-blue-500" />}
                   </button>
                 );
               })}
@@ -547,180 +566,122 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
   const notificationsTab = (
     <div className="space-y-5">
       <Section title="Thông báo trong app">
-        <ToggleRow
-          title="Phân tích hoàn tất"
-          description="Hiển thị thông báo khi AI xử lý xong toàn bộ CV trong phiên."
-          checked={settings.notifications.analysisComplete}
-          saving={savingKey === 'analysisComplete'}
-          onChange={(v) => void autoSave('analysisComplete', { notifications: { ...settings.notifications, analysisComplete: v } })}
-        />
-        <ToggleRow
-          title="Lỗi đồng bộ"
-          description="Nhắc khi lưu cài đặt hoặc dữ liệu lên server thất bại."
-          checked={settings.notifications.syncErrors}
-          saving={savingKey === 'syncErrors'}
-          onChange={(v) => void autoSave('syncErrors', { notifications: { ...settings.notifications, syncErrors: v } })}
-        />
-        <ToggleRow
-          title="Lưu history thành công"
-          description="Hiển thị xác nhận sau khi lưu phiên phân tích vào lịch sử."
-          checked={settings.notifications.historySaved}
-          saving={savingKey === 'historySaved'}
-          onChange={(v) => void autoSave('historySaved', { notifications: { ...settings.notifications, historySaved: v } })}
-        />
-        <ToggleRow
-          title="Badge ở sidebar"
-          description="Bật hoặc tắt chấm đỏ nhắc việc trong menu bên trái."
-          checked={settings.notifications.sidebarBadge}
-          saving={savingKey === 'sidebarBadge'}
-          onChange={(v) => void autoSave('sidebarBadge', { notifications: { ...settings.notifications, sidebarBadge: v } })}
-        />
+        <div className="divide-y divide-slate-100 rounded-2xl border border-slate-100 bg-white overflow-hidden">
+          {([
+            { key: 'analysisComplete', title: 'Phân tích hoàn tất', description: 'Hiển thị thông báo khi AI xử lý xong toàn bộ CV trong phiên.', value: settings.notifications.analysisComplete, onChange: (v: boolean) => void autoSave('analysisComplete', { notifications: { ...settings.notifications, analysisComplete: v } }) },
+            { key: 'syncErrors',       title: 'Lỗi đồng bộ',        description: 'Nhắc khi lưu cài đặt hoặc dữ liệu lên server thất bại.',        value: settings.notifications.syncErrors,        onChange: (v: boolean) => void autoSave('syncErrors',       { notifications: { ...settings.notifications, syncErrors: v } }) },
+            { key: 'historySaved',     title: 'Lưu history thành công', description: 'Hiển thị xác nhận sau khi lưu phiên phân tích vào lịch sử.', value: settings.notifications.historySaved,     onChange: (v: boolean) => void autoSave('historySaved',     { notifications: { ...settings.notifications, historySaved: v } }) },
+            { key: 'sidebarBadge',     title: 'Badge ở sidebar',     description: 'Bật hoặc tắt chấm đỏ nhắc việc trong menu bên trái.',           value: settings.notifications.sidebarBadge,     onChange: (v: boolean) => void autoSave('sidebarBadge',     { notifications: { ...settings.notifications, sidebarBadge: v } }) },
+          ]).map(({ key, title, description, value, onChange }) => (
+            <div key={key} className="flex items-center gap-4 px-4 py-3.5">
+              <span className="min-w-0 flex-1">
+                <span className="flex items-center gap-2">
+                  <span className="block text-[13px] font-semibold text-slate-900">{title}</span>
+                  {savingKey === key && <Loader2 size={12} className="animate-spin text-blue-400" />}
+                </span>
+                <span className="mt-0.5 block text-[12px] leading-5 text-slate-500">{description}</span>
+              </span>
+              <Toggle checked={value} onChange={onChange} />
+            </div>
+          ))}
+        </div>
       </Section>
     </div>
   );
 
   // ── Tab: Dữ liệu & Thư viện ──
-  const libraryTab = librarySubPage === 'cv' ? (
+  const libraryTab = (
     <div className="flex flex-col h-full">
-      <div className="shrink-0 flex gap-1 rounded-xl border border-slate-200 bg-slate-50 p-1 m-4 mb-2">
-        {(['data', 'history', 'cv'] as const).map((page) => {
-          const labels = { data: 'Dữ liệu', history: 'Lịch sử lọc', cv: 'Thư viện CV' } as const;
-          return (
-            <button key={page} type="button" onClick={() => setLibrarySubPage(page)}
-              className={`flex-1 rounded-lg px-3 py-2 text-[12px] font-semibold transition-all ${
-                librarySubPage === page ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'
-              }`}>
-              {labels[page]}
-            </button>
-          );
-        })}
-      </div>
-      <div className="min-h-0 flex-1 overflow-hidden">
-        <FilteredCvLibraryPage userEmail={userEmail} />
-      </div>
-    </div>
-  ) : (
-    <div className="space-y-5">
-      <div className="flex gap-1 rounded-xl border border-slate-200 bg-slate-50 p-1">
-        {(['data', 'history', 'cv'] as const).map((page) => {
-          const labels = { data: 'Dữ liệu', history: 'Lịch sử lọc', cv: 'Thư viện CV' } as const;
-          return (
-            <button key={page} type="button" onClick={() => setLibrarySubPage(page)}
-              className={`flex-1 rounded-lg px-3 py-2 text-[12px] font-semibold transition-all ${
-                librarySubPage === page ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'
-              }`}>
-              {labels[page]}
-            </button>
-          );
-        })}
+      {/* Sticky sub-nav */}
+      <div className="shrink-0 border-b border-slate-100 bg-white px-5 py-3.5">
+        <SubNav
+          pages={['data', 'history', 'cv'] as unknown as string[]}
+          labels={{ data: 'Dữ liệu', history: 'Lịch sử lọc', cv: 'Thư viện CV' }}
+          current={librarySubPage}
+          onChange={(p) => setLibrarySubPage(p as typeof librarySubPage)}
+        />
       </div>
 
-      {librarySubPage === 'data' && (
-        <Section title="Đồng bộ dữ liệu">
-          <ToggleRow
-            title="Tự đồng bộ khi đã đăng nhập"
-            description="Tự đồng bộ cache và dữ liệu phân tích giữa các thiết bị."
-            checked={settings.sync.autoSync}
-            saving={savingKey === 'autoSync'}
-            onChange={(v) => void autoSave('autoSync', { sync: { ...settings.sync, autoSync: v } })}
-          />
-          <div className="rounded-2xl border border-slate-100 bg-white p-4">
-            <p className="mb-2 text-[12px] font-semibold text-slate-700">Số phiên lịch sử giữ lại</p>
-            <p className="mb-3 text-[12px] leading-5 text-slate-500">Số phiên phân tích được lưu trên server. Phiên cũ hơn sẽ tự xóa.</p>
-            <ChipGroup<HistoryRetention>
-              value={settings.sync.historyRetention}
-              onChange={(v) => void autoSave('historyRetention', { sync: { ...settings.sync, historyRetention: v } })}
-              options={[
-                { value: 50,  label: '50 phiên' },
-                { value: 100, label: '100 phiên' },
-                { value: 200, label: '200 phiên' },
-              ]}
-            />
-          </div>
-        </Section>
-      )}
+      {/* Content */}
+      {librarySubPage === 'cv' ? (
+        <div className="min-h-0 flex-1 overflow-hidden">
+          <FilteredCvLibraryPage userEmail={userEmail} />
+        </div>
+      ) : (
+        <div className="custom-scrollbar flex-1 overflow-y-auto p-5 space-y-5">
+          {librarySubPage === 'data' && (
+            <>
+              <Section title="Đồng bộ dữ liệu">
+                <ToggleRow
+                  title="Tự đồng bộ khi đã đăng nhập"
+                  description="Tự đồng bộ cache và dữ liệu phân tích giữa các thiết bị."
+                  checked={settings.sync.autoSync}
+                  saving={savingKey === 'autoSync'}
+                  onChange={(v) => void autoSave('autoSync', { sync: { ...settings.sync, autoSync: v } })}
+                />
+                <div className="rounded-2xl border border-slate-100 bg-white p-4">
+                  <p className="mb-2 text-[12px] font-semibold text-slate-700">Số phiên lịch sử giữ lại</p>
+                  <p className="mb-3 text-[12px] leading-5 text-slate-500">Số phiên phân tích được lưu trên server. Phiên cũ hơn sẽ tự xóa.</p>
+                  <ChipGroup<HistoryRetention>
+                    value={settings.sync.historyRetention}
+                    onChange={(v) => void autoSave('historyRetention', { sync: { ...settings.sync, historyRetention: v } })}
+                    options={[
+                      { value: 50,  label: '50 phiên' },
+                      { value: 100, label: '100 phiên' },
+                      { value: 200, label: '200 phiên' },
+                    ]}
+                  />
+                </div>
+              </Section>
 
-      {librarySubPage === 'data' && (
-        <Section>
-          <button
-            type="button"
-            onClick={() => setDangerOpen((v) => !v)}
-            className="flex w-full items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-left text-[13px] font-semibold text-slate-700 transition hover:bg-slate-50"
-          >
-            <AlertTriangle size={14} className="text-rose-400" />
-            <span className="flex-1">Khu vực nguy hiểm</span>
-            <ChevronDown size={14} className={`text-slate-400 transition-transform duration-200 ${dangerOpen ? 'rotate-180' : ''}`} />
-          </button>
+              <Section>
+                <button
+                  type="button"
+                  onClick={() => setDangerOpen((v) => !v)}
+                  className="flex w-full items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-left text-[13px] font-semibold text-slate-700 transition hover:bg-slate-50"
+                >
+                  <AlertTriangle size={14} className="text-rose-400" />
+                  <span className="flex-1">Khu vực nguy hiểm</span>
+                  <ChevronDown size={14} className={`text-slate-400 transition-transform duration-200 ${dangerOpen ? 'rotate-180' : ''}`} />
+                </button>
 
-          {dangerOpen && (
-            <div className="space-y-1.5 pt-1">
-              <InlineConfirmButton
-                label="Xóa workflow draft cục bộ"
-                description="Xóa phiên làm việc đang lưu trên máy này."
-                onConfirm={() => onClearWorkflowDraft()}
-              />
-              <InlineConfirmButton
-                label="Xóa cache phân tích cục bộ"
-                description="Xóa kết quả cache đang lưu trên thiết bị này."
-                onConfirm={() => onClearLocalCache()}
-              />
-              <InlineConfirmButton
-                icon={History}
-                label="Xóa lịch sử cục bộ"
-                description="Xóa history phân tích đang lưu trên máy này."
-                onConfirm={() => onClearLocalHistory()}
-              />
-              <InlineConfirmButton
-                label="Xóa file CV cục bộ"
-                description="Xóa PDF, DOCX và ảnh CV được lưu trên thiết bị."
-                onConfirm={async () => onClearLocalDocuments()}
-              />
-              <InlineConfirmButton
-                tone="danger"
-                label="Xóa dữ liệu đã sync trên server"
-                confirmLabel="Xác nhận — dữ liệu sẽ không thể khôi phục"
-                description="Xóa toàn bộ cache và history đã đồng bộ của tài khoản."
-                onConfirm={async () => onClearSyncedData()}
-              />
-              <InlineConfirmButton
-                icon={RefreshCcw}
-                tone="danger"
-                label="Reset toàn bộ cài đặt về mặc định"
-                confirmLabel="Xác nhận reset — không thể hoàn tác"
-                description="Đưa tất cả cài đặt về mặc định, giữ thông tin tài khoản."
-                onConfirm={async () => { await resetSettings(); }}
-              />
-            </div>
+                {dangerOpen && (
+                  <div className="space-y-1.5 pt-1">
+                    <InlineConfirmButton label="Xóa workflow draft cục bộ" description="Xóa phiên làm việc đang lưu trên máy này." onConfirm={() => onClearWorkflowDraft()} />
+                    <InlineConfirmButton label="Xóa cache phân tích cục bộ" description="Xóa kết quả cache đang lưu trên thiết bị này." onConfirm={() => onClearLocalCache()} />
+                    <InlineConfirmButton icon={History} label="Xóa lịch sử cục bộ" description="Xóa history phân tích đang lưu trên máy này." onConfirm={() => onClearLocalHistory()} />
+                    <InlineConfirmButton label="Xóa file CV cục bộ" description="Xóa PDF, DOCX và ảnh CV được lưu trên thiết bị." onConfirm={async () => onClearLocalDocuments()} />
+                    <InlineConfirmButton tone="danger" label="Xóa dữ liệu đã sync trên server" confirmLabel="Xác nhận — dữ liệu sẽ không thể khôi phục" description="Xóa toàn bộ cache và history đã đồng bộ của tài khoản." onConfirm={async () => onClearSyncedData()} />
+                    <InlineConfirmButton icon={RefreshCcw} tone="danger" label="Reset toàn bộ cài đặt về mặc định" confirmLabel="Xác nhận reset — không thể hoàn tác" description="Đưa tất cả cài đặt về mặc định, giữ thông tin tài khoản." onConfirm={async () => { await resetSettings(); }} />
+                  </div>
+                )}
+              </Section>
+            </>
           )}
-        </Section>
-      )}
 
-      {librarySubPage === 'history' && (
-        <div className="space-y-5">
-          <Section title="Lịch sử bộ lọc">
-            <div className="rounded-2xl border border-slate-100 bg-white p-4">
-              <p className="mb-3 text-[12px] leading-5 text-slate-500">
-                Lịch sử các bộ lọc cứng và tiêu chí chấm điểm đã sử dụng trong các phiên sàng lọc của tài khoản này.
-              </p>
-              <ChipGroup<HistoryRetention>
-                value={settings.sync.historyRetention}
-                onChange={(v) => void autoSave('historyRetention', { sync: { ...settings.sync, historyRetention: v } })}
-                options={[
-                  { value: 50,  label: '50 phiên' },
-                  { value: 100, label: '100 phiên' },
-                  { value: 200, label: '200 phiên' },
-                ]}
-              />
-            </div>
-          </Section>
-          <Section>
-            <InlineConfirmButton
-              icon={History}
-              label="Xóa lịch sử lọc"
-              description="Xóa toàn bộ lịch sử bộ lọc và tiêu chí đã dùng trên máy này."
-              onConfirm={() => onClearLocalHistory()}
-            />
-          </Section>
+          {librarySubPage === 'history' && (
+            <>
+              <Section title="Lịch sử bộ lọc">
+                <div className="rounded-2xl border border-slate-100 bg-white p-4">
+                  <p className="mb-3 text-[12px] leading-5 text-slate-500">
+                    Lịch sử các bộ lọc cứng và tiêu chí chấm điểm đã sử dụng trong các phiên sàng lọc của tài khoản này.
+                  </p>
+                  <ChipGroup<HistoryRetention>
+                    value={settings.sync.historyRetention}
+                    onChange={(v) => void autoSave('historyRetention', { sync: { ...settings.sync, historyRetention: v } })}
+                    options={[
+                      { value: 50,  label: '50 phiên' },
+                      { value: 100, label: '100 phiên' },
+                      { value: 200, label: '200 phiên' },
+                    ]}
+                  />
+                </div>
+              </Section>
+              <Section>
+                <InlineConfirmButton icon={History} label="Xóa lịch sử lọc" description="Xóa toàn bộ lịch sử bộ lọc và tiêu chí đã dùng trên máy này." onConfirm={() => onClearLocalHistory()} />
+              </Section>
+            </>
+          )}
         </div>
       )}
     </div>
@@ -733,21 +694,18 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
   }, 0);
 
   const setupTab = (
-    <div className="space-y-4">
-      {/* Sub-page nav */}
-      <div className="flex gap-1 rounded-xl border border-slate-200 bg-slate-50 p-1">
-        {(['workflow', 'jd', 'weights'] as const).map((page) => {
-          const labels = { workflow: 'Quy trình', jd: 'JD & Bộ lọc', weights: 'Trọng số' } as const;
-          return (
-            <button key={page} type="button" onClick={() => setSetupSubPage(page)}
-              className={`flex-1 rounded-lg px-3 py-2 text-[12px] font-semibold transition-all ${
-                setupSubPage === page ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'
-              }`}>
-              {labels[page]}
-            </button>
-          );
-        })}
+    <div className="flex flex-col h-full">
+      {/* Sticky sub-nav */}
+      <div className="shrink-0 border-b border-slate-100 bg-white px-5 py-3.5">
+        <SubNav
+          pages={['workflow', 'jd', 'weights'] as unknown as string[]}
+          labels={{ workflow: 'Quy trình', jd: 'JD & Bộ lọc', weights: 'Trọng số' }}
+          current={setupSubPage}
+          onChange={(p) => setSetupSubPage(p as typeof setupSubPage)}
+        />
       </div>
+
+      <div className="custom-scrollbar flex-1 overflow-y-auto p-5 space-y-4">
 
       {setupSubPage === 'workflow' && (
         <div className="space-y-5">
@@ -1133,6 +1091,8 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
         </div>
       </div>
       )}
+
+      </div>{/* end overflow-y-auto */}
     </div>
   );
 
@@ -1144,14 +1104,17 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[80] flex items-center justify-center bg-slate-950/30 px-3 py-4 backdrop-blur-sm sm:px-4 sm:py-6">
-      <div className="flex h-[min(92vh,820px)] w-full max-w-[900px] flex-col overflow-hidden rounded-[24px] border border-slate-200 bg-[#f7f7f5] shadow-[0_28px_72px_rgba(15,23,42,0.16)]">
+    <div className="fixed inset-0 z-[80] flex items-center justify-center bg-slate-950/40 px-3 py-4 backdrop-blur-sm sm:px-4 sm:py-6">
+      <div className="flex h-[min(92vh,840px)] w-full max-w-[960px] flex-col overflow-hidden rounded-[28px] border border-slate-200/80 bg-white shadow-[0_32px_80px_rgba(15,23,42,0.18)]">
 
         {/* Header */}
-        <div className="flex shrink-0 items-center gap-3 border-b border-slate-200 bg-white px-5 py-4">
-          <Settings size={17} className="shrink-0 text-slate-400" />
+        <div className="flex shrink-0 items-center gap-3 border-b border-slate-100 bg-white px-6 py-4">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-100">
+            <Settings size={16} className="text-slate-500" />
+          </span>
           <div className="min-w-0 flex-1">
-            <h2 className="text-[17px] font-bold text-slate-900">{t('settings_title')}</h2>
+            <h2 className="text-[16px] font-bold text-slate-900">{t('settings_title')}</h2>
+            <p className="text-[11px] font-medium text-slate-400">{TAB_LABELS[activeTab]}</p>
           </div>
 
           <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold ${syncBadge.cls}`}>
@@ -1162,7 +1125,7 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-400 transition hover:bg-slate-50 hover:text-slate-900"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-slate-400 transition hover:bg-slate-100 hover:text-slate-900"
           >
             <X size={14} />
           </button>
@@ -1176,8 +1139,8 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
 
         <div className="flex min-h-0 flex-1">
           {/* Sidebar nav */}
-          <aside className="w-[200px] shrink-0 border-r border-slate-200 bg-white p-3">
-            <nav className="space-y-1">
+          <aside className="w-[215px] shrink-0 border-r border-slate-100 bg-slate-50/40 p-3">
+            <nav className="space-y-0.5">
               {TAB_DEFS.map(({ id, icon: Icon }) => {
                 const label = TAB_LABELS[id];
                 const active = id === activeTab;
@@ -1186,13 +1149,20 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
                     key={id}
                     type="button"
                     onClick={() => setActiveTab(id)}
-                    className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-[13px] font-semibold transition ${
+                    className={`relative flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-[13px] font-semibold transition ${
                       active
-                        ? 'bg-blue-50 text-blue-700'
-                        : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                        ? 'bg-white text-blue-700 shadow-sm'
+                        : 'text-slate-600 hover:bg-white/60 hover:text-slate-900'
                     }`}
                   >
-                    <Icon size={15} className={active ? 'text-blue-500' : 'text-slate-400'} />
+                    {active && (
+                      <span className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-[3px] rounded-r-full bg-blue-500" />
+                    )}
+                    <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border transition ${
+                      active ? 'border-blue-200 bg-blue-50 text-blue-500' : 'border-slate-200 bg-white text-slate-400'
+                    }`}>
+                      <Icon size={14} />
+                    </span>
                     {label}
                   </button>
                 );
@@ -1214,7 +1184,11 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
           </aside>
 
           {/* Content */}
-          <main ref={contentRef} className={`min-h-0 flex-1 ${(activeTab === 'library' && librarySubPage === 'cv') ? 'overflow-hidden flex flex-col' : 'custom-scrollbar overflow-y-auto p-5'}`}>
+          <main ref={contentRef} className={`min-h-0 flex-1 ${
+            activeTab === 'library' || activeTab === 'setup'
+              ? 'flex flex-col overflow-hidden'
+              : 'custom-scrollbar overflow-y-auto p-6'
+          }`}>
             {tabContent[activeTab]}
           </main>
         </div>
