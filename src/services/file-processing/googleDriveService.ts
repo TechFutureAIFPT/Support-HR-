@@ -284,41 +284,52 @@ function createDriveSelectionModal(options: {
     overlay.style.justifyContent = 'center';
     overlay.style.padding = '24px';
 
+    const isDark = document.documentElement.classList.contains('dark');
+    const dk = isDark ? {
+      bg: '#1e2a3d', bg2: '#141b2d', bg3: '#0f1523',
+      border: 'rgba(255,255,255,0.07)', text: '#e2e8f4', muted: '#64748b',
+      input: '#243044', btnBorder: 'rgba(255,255,255,0.09)',
+    } : {
+      bg: '#ffffff', bg2: '#f8fbff', bg3: '#f8fbff',
+      border: 'rgba(191,219,254,0.95)', text: '#0f172a', muted: '#475569',
+      input: '#f8fbff', btnBorder: '#bfdbfe',
+    };
+
     const panel = document.createElement('div');
     panel.style.width = 'min(980px, 100%)';
     panel.style.maxHeight = '84vh';
-    panel.style.background = '#ffffff';
-    panel.style.border = '1px solid rgba(191, 219, 254, 0.95)';
+    panel.style.background = dk.bg;
+    panel.style.border = `1px solid ${dk.border}`;
     panel.style.borderRadius = '18px';
     panel.style.overflow = 'hidden';
     panel.style.display = 'flex';
     panel.style.flexDirection = 'column';
-    panel.style.boxShadow = '0 24px 80px rgba(35, 136, 255, 0.16)';
+    panel.style.boxShadow = isDark ? '0 24px 80px rgba(0,0,0,0.6)' : '0 24px 80px rgba(35,136,255,0.16)';
 
     const header = document.createElement('div');
     header.style.padding = '18px 20px';
-    header.style.borderBottom = '1px solid rgba(191, 219, 254, 0.9)';
-    header.style.background = 'linear-gradient(180deg, #ffffff 0%, #f7fbff 100%)';
+    header.style.borderBottom = `1px solid ${dk.border}`;
+    header.style.background = isDark ? dk.bg : 'linear-gradient(180deg, #ffffff 0%, #f7fbff 100%)';
     header.innerHTML = `
       <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;">
         <div style="min-width:0;">
           <div style="font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:#2388ff;font-weight:800;">Google Drive</div>
-          <div style="margin-top:6px;font-size:20px;line-height:1.2;color:#0f172a;font-weight:800;">Chọn tệp từ Drive</div>
+          <div style="margin-top:6px;font-size:20px;line-height:1.2;color:${dk.text};font-weight:800;">Chọn tệp từ Drive</div>
         </div>
-        <button data-role="cancel" style="height:36px;padding:0 14px;border-radius:10px;border:1px solid #bfdbfe;background:#f8fbff;color:#1e3a8a;cursor:pointer;font:inherit;font-weight:700;">Đóng</button>
+        <button data-role="cancel" style="height:36px;padding:0 14px;border-radius:10px;border:1px solid ${dk.btnBorder};background:${dk.bg2};color:${isDark ? dk.text : '#1e3a8a'};cursor:pointer;font:inherit;font-weight:700;">Đóng</button>
       </div>
     `;
 
     const toolbar = document.createElement('div');
     toolbar.style.padding = '14px 20px';
-    toolbar.style.borderBottom = '1px solid rgba(191, 219, 254, 0.85)';
-    toolbar.style.background = '#ffffff';
+    toolbar.style.borderBottom = `1px solid ${dk.border}`;
+    toolbar.style.background = dk.bg;
     toolbar.innerHTML = `
       <div style="display:grid;gap:12px;">
         <div data-role="breadcrumbs" style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;"></div>
         <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
-          <input data-role="search" placeholder="Tìm tệp hoặc thư mục..." style="flex:1;min-width:240px;height:42px;padding:0 12px;border-radius:12px;border:1px solid #bfdbfe;background:#f8fbff;color:#0f172a;outline:none;font:inherit;" />
-          <div data-role="stats" style="font-size:12px;color:#475569;white-space:nowrap;"></div>
+          <input data-role="search" placeholder="Tìm tệp hoặc thư mục..." style="flex:1;min-width:240px;height:42px;padding:0 12px;border-radius:12px;border:1px solid ${dk.btnBorder};background:${dk.input};color:${dk.text};outline:none;font:inherit;" />
+          <div data-role="stats" style="font-size:12px;color:${dk.muted};white-space:nowrap;"></div>
         </div>
       </div>
     `;
@@ -328,22 +339,22 @@ function createDriveSelectionModal(options: {
     list.style.overflow = 'auto';
     list.style.display = 'grid';
     list.style.gap = '8px';
-    list.style.background = '#f8fbff';
+    list.style.background = dk.bg3;
 
     const footer = document.createElement('div');
     footer.style.padding = '14px 20px';
-    footer.style.borderTop = '1px solid rgba(191, 219, 254, 0.85)';
+    footer.style.borderTop = `1px solid ${dk.border}`;
     footer.style.display = 'flex';
     footer.style.justifyContent = 'space-between';
     footer.style.alignItems = 'center';
     footer.style.gap = '14px';
     footer.style.flexWrap = 'wrap';
-    footer.style.background = '#ffffff';
+    footer.style.background = dk.bg;
     footer.innerHTML = `
-      <div data-role="summary" style="font-size:12px;color:#475569;">Chưa chọn tệp nào</div>
+      <div data-role="summary" style="font-size:12px;color:${dk.muted};">Chưa chọn tệp nào</div>
       <div style="display:flex;gap:10px;flex-wrap:wrap;">
-        <button data-role="load-more" style="height:40px;padding:0 16px;border-radius:10px;border:1px solid #bfdbfe;background:#f8fbff;color:#1e3a8a;cursor:pointer;font:inherit;display:none;">Tải thêm</button>
-        <button data-role="cancel" style="height:40px;padding:0 16px;border-radius:10px;border:1px solid #bfdbfe;background:#ffffff;color:#475569;cursor:pointer;font:inherit;">Hủy</button>
+        <button data-role="load-more" style="height:40px;padding:0 16px;border-radius:10px;border:1px solid ${dk.btnBorder};background:${dk.bg2};color:${isDark ? dk.text : '#1e3a8a'};cursor:pointer;font:inherit;display:none;">Tải thêm</button>
+        <button data-role="cancel" style="height:40px;padding:0 16px;border-radius:10px;border:1px solid ${dk.btnBorder};background:${dk.bg2};color:${dk.muted};cursor:pointer;font:inherit;">Hủy</button>
         <button data-role="confirm" style="height:40px;padding:0 18px;border-radius:10px;border:1px solid #2388ff;background:#2388ff;color:#ffffff;cursor:pointer;font-weight:800;font-family:inherit;">Sử dụng tệp đã chọn</button>
       </div>
     `;
@@ -482,8 +493,8 @@ function createDriveSelectionModal(options: {
         row.style.gap = '12px';
         row.style.padding = '12px 14px';
         row.style.borderRadius = '12px';
-        row.style.border = selected ? '1px solid rgba(35,136,255,.7)' : '1px solid rgba(191,219,254,.95)';
-        row.style.background = selected ? '#e8f3ff' : '#ffffff';
+        row.style.border = selected ? '1px solid rgba(35,136,255,.7)' : `1px solid ${dk.border}`;
+        row.style.background = selected ? (isDark ? 'rgba(35,136,255,0.15)' : '#e8f3ff') : dk.bg;
         row.style.cursor = selectable || folder ? 'pointer' : 'default';
         row.style.opacity = selectable || folder ? '1' : '0.58';
         row.style.font = 'inherit';
@@ -497,10 +508,10 @@ function createDriveSelectionModal(options: {
 
         row.innerHTML = `
           <div style="min-width:0;display:flex;align-items:center;gap:10px;">
-            <span style="width:42px;height:24px;display:inline-flex;align-items:center;justify-content:center;border:1px solid #bfdbfe;border-radius:8px;background:${folder ? '#ecfdf5' : '#eff6ff'};color:${folder ? '#047857' : '#2388ff'};font-size:10px;font-weight:800;letter-spacing:.08em;flex:0 0 auto;">${folder ? 'MỤC' : 'TỆP'}</span>
+            <span style="width:42px;height:24px;display:inline-flex;align-items:center;justify-content:center;border:1px solid ${dk.btnBorder};border-radius:8px;background:${folder ? (isDark ? 'rgba(52,211,153,0.12)' : '#ecfdf5') : (isDark ? 'rgba(59,158,255,0.1)' : '#eff6ff')};color:${folder ? (isDark ? '#34d399' : '#047857') : '#2388ff'};font-size:10px;font-weight:800;letter-spacing:.08em;flex:0 0 auto;">${folder ? 'MỤC' : 'TỆP'}</span>
             <div style="min-width:0;">
-              <div style="font-size:14px;font-weight:750;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(file.name)}</div>
-              <div style="margin-top:4px;font-size:11px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(meta)}</div>
+              <div style="font-size:14px;font-weight:750;color:${dk.text};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(file.name)}</div>
+              <div style="margin-top:4px;font-size:11px;color:${dk.muted};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(meta)}</div>
             </div>
           </div>
           <div style="flex-shrink:0;font-size:11px;font-weight:800;color:${selected ? '#2388ff' : '#64748b'};">

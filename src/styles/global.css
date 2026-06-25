@@ -582,10 +582,15 @@
    ══════════════════════════════════════════════════════════════ */
 
 /* ── Root & page-level backgrounds ─────────────────────────── */
-/* The root App wrapper uses bg-white; every page-level shell below */
-.dark .bg-white                         { background-color: var(--th-surface-card) !important; }
-/* Semi-transparent white overlays (bg-white/55, bg-white/95, bg-white/[0.02], etc.) */
-.dark [class*="bg-white/"]              { background-color: var(--th-bg-elevated) !important; }
+/* Single rule covers: bg-white, !bg-white, bg-white/55, bg-white/[0.02], etc.
+   !important here beats Tailwind's own !important (we have higher specificity 0-2-0 vs 0-1-0)
+   and also beats inline style="background:#ffffff" (author !important > normal author including inline) */
+.dark [class*="bg-white"]               { background-color: var(--th-surface-card) !important; }
+/* Hardcoded hex whites */
+.dark [class*="bg-[#fff]"],
+.dark [class*="bg-[#ffffff]"],
+.dark [class*="bg-[#FFF]"],
+.dark [class*="bg-[#FFFFFF]"]           { background-color: var(--th-surface-card) !important; }
 .dark .bg-slate-50,
 .dark .bg-gray-50                       { background-color: var(--th-bg-secondary) !important; }
 .dark .bg-slate-100,
@@ -738,7 +743,9 @@
 .dark [class*="shadow-[0_8px_32px"]    { box-shadow: 0 8px 32px rgba(0,0,0,0.5) !important; }
 
 /* ── Hover interactive surfaces ──────────────────────────────── */
-.dark .hover\:bg-white:hover            { background-color: var(--th-surface-hover) !important; }
+/* hover:bg-white — higher specificity (0-3-0) than [class*="bg-white"] (0-2-0),
+   so this correctly restores hover feedback even though bg-white is always dark */
+.dark [class*="hover:bg-white"]:hover   { background-color: var(--th-surface-hover) !important; }
 .dark .hover\:bg-slate-50:hover,
 .dark .hover\:bg-gray-50:hover          { background-color: var(--th-surface-hover) !important; }
 .dark .hover\:bg-slate-100:hover,

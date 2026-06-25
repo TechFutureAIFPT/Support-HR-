@@ -102,7 +102,7 @@ const JDInput: React.FC<JDInputProps> = ({
           <textarea
             className="custom-scrollbar min-h-0 h-full w-full resize-none border-none bg-white px-7 py-6 text-[14px] leading-[1.85] text-slate-900 outline-none placeholder:text-slate-400 focus:ring-0 font-mono"
             rows={12}
-            style={{ background: '#ffffff' }}
+
             placeholder={
               'Nhập nội dung phiếu tuyển dụng / mô tả công việc tại đây...\n\nNên bao gồm: vị trí, trách nhiệm, kỹ năng bắt buộc, kinh nghiệm, địa điểm và các điều kiện ưu tiên.'
             }
