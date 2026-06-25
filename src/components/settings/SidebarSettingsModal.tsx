@@ -773,9 +773,13 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
             <p className="mt-1 text-[12px] leading-5 text-slate-500">
               Bật để lưu JD và trọng số chấm điểm. Lần sau chỉ cần thả CV vào là phân tích ngay.
             </p>
+            {!settings.workflow.fixedJD?.jdText && (
+              <p className="mt-1.5 text-[11px] font-medium text-amber-600">Nhập và lưu JD trước để bật tùy chọn này.</p>
+            )}
           </div>
           <Toggle
             checked={settings.workflow.fixedJD?.enabled ?? false}
+            disabled={!settings.workflow.fixedJD?.jdText}
             onChange={(v) => void autoSave('fixedJD.enabled', {
               workflow: { ...settings.workflow, fixedJD: { ...(settings.workflow.fixedJD ?? { name: fixedJDName, jdText: fixedJDText, savedAt: Date.now() }), enabled: v } },
             })}
