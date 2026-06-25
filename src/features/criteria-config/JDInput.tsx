@@ -1,5 +1,6 @@
 import React from 'react';
 import type { HardFilters } from '@/types';
+import { useTheme } from '@/context/theme/ThemeProvider';
 
 interface JDInputProps {
   jdText: string;
@@ -13,13 +14,6 @@ interface JDInputProps {
   hideToolbar?: boolean;
 }
 
-const toolbarFieldStyle = {
-  background: '#ffffff',
-  border: '1px solid rgba(55,125,255,0.16)',
-  boxShadow: '0 8px 22px rgba(30,64,175,0.06)',
-  '--tw-ring-color': 'rgba(35,136,255,0.45)',
-} as React.CSSProperties;
-
 const JDInput: React.FC<JDInputProps> = ({
   jdText,
   setJdText,
@@ -31,8 +25,19 @@ const JDInput: React.FC<JDInputProps> = ({
   onBackToWelcome,
   hideToolbar = false,
 }) => {
+  const { isDarkMode } = useTheme();
   const isCompleteEnabled = jdText.trim().length > 50 && jobPosition.trim().length > 3;
   const characterCount = jdText.length;
+
+  const toolbarFieldStyle: React.CSSProperties = {
+    background: isDarkMode ? 'var(--th-bg-elevated)' : '#ffffff',
+    border: '1px solid rgba(55,125,255,0.16)',
+    boxShadow: isDarkMode ? 'none' : '0 8px 22px rgba(30,64,175,0.06)',
+    '--tw-ring-color': 'rgba(35,136,255,0.45)',
+  } as React.CSSProperties;
+
+  const inputTextColor = isDarkMode ? 'var(--th-text)' : '#102033';
+  const toolbarBg = isDarkMode ? 'var(--th-bg-secondary)' : 'rgba(247,251,255,0.92)';
 
   if (hideToolbar) {
     return (
@@ -123,7 +128,7 @@ const JDInput: React.FC<JDInputProps> = ({
     >
       <div
         className="flex shrink-0 items-center gap-2 px-5 py-3"
-        style={{ borderBottom: '1px solid rgba(55,125,255,0.12)', background: 'rgba(247,251,255,0.92)' }}
+        style={{ borderBottom: '1px solid rgba(55,125,255,0.12)', background: toolbarBg }}
       >
         <div
           className="group flex min-w-[150px] flex-1 items-center px-3 py-2 transition-all focus-within:ring-1"
@@ -136,7 +141,7 @@ const JDInput: React.FC<JDInputProps> = ({
             value={jobPosition}
             onChange={(e) => setJobPosition(e.target.value)}
             className="ml-2 w-full border-none bg-transparent text-[11px] font-medium outline-none placeholder:text-slate-600"
-            style={{ color: '#102033' }}
+            style={{ color: inputTextColor }}
           />
         </div>
 
@@ -149,7 +154,7 @@ const JDInput: React.FC<JDInputProps> = ({
             type="text"
             placeholder="Công ty..."
             className="ml-2 w-full border-none bg-transparent text-[11px] font-medium outline-none placeholder:text-slate-600"
-            style={{ color: '#102033' }}
+            style={{ color: inputTextColor }}
           />
         </div>
 
@@ -170,7 +175,7 @@ const JDInput: React.FC<JDInputProps> = ({
               }))
             }
             className="ml-2 w-full border-none bg-transparent text-[11px] font-medium outline-none placeholder:text-slate-600"
-            style={{ color: '#102033' }}
+            style={{ color: inputTextColor }}
           />
         </div>
 
@@ -185,7 +190,7 @@ const JDInput: React.FC<JDInputProps> = ({
             value={hardFilters.salaryMin}
             onChange={(e) => setHardFilters((prev) => ({ ...prev, salaryMin: e.target.value }))}
             className="ml-2 w-full border-none bg-transparent text-[11px] font-medium outline-none placeholder:text-slate-600"
-            style={{ color: '#102033' }}
+            style={{ color: inputTextColor }}
           />
         </div>
 
