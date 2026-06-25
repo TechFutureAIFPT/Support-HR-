@@ -116,7 +116,7 @@ export default function SupportHRLoading({
   const d = {
     rootBg: isDarkMode ? "#0f1523" : "#f6f9ff",
     gradientBg: isDarkMode
-      ? "radial-gradient(circle at top,rgba(35,136,255,0.08),transparent 34%),linear-gradient(180deg,#0f1523 0%,#141b2d 56%,#1e2a3d 100%)"
+      ? "radial-gradient(circle at top,rgba(35,136,255,0.07),transparent 30%)"
       : "radial-gradient(circle at top,rgba(35,136,255,0.13),transparent 34%),linear-gradient(180deg,#f6f9ff 0%,#eef5ff 56%,#ffffff 100%)",
     cardBorder: isDarkMode ? "rgba(255,255,255,0.09)" : "rgba(219,234,254,1)",
     cardBg: isDarkMode ? "#1e2a3d" : "#ffffff",
@@ -142,8 +142,8 @@ export default function SupportHRLoading({
       <div className="pointer-events-none absolute inset-0 supporthr-grid-mask opacity-30" />
       <div className="pointer-events-none absolute inset-y-0 left-[-16%] w-[28%] bg-gradient-to-r from-transparent via-blue-300/20 to-transparent blur-3xl" style={{ animation: "home-hero-scan 7.4s linear infinite" }} />
       <div className="pointer-events-none absolute inset-y-0 right-[-16%] w-[28%] bg-gradient-to-r from-transparent via-emerald-300/20 to-transparent blur-3xl" style={{ animation: "home-hero-scan 9.2s linear infinite", animationDelay: "1.2s" }} />
-      <div className="pointer-events-none absolute bottom-[-10%] left-[10%] h-48 w-48 bg-orange-200/30 blur-3xl" />
-      <div className="pointer-events-none absolute right-[8%] top-[14%] h-56 w-56 bg-blue-200/40 blur-3xl" />
+      {!isDarkMode && <div className="pointer-events-none absolute bottom-[-10%] left-[10%] h-48 w-48 bg-orange-200/30 blur-3xl" />}
+      <div className={`pointer-events-none absolute right-[8%] top-[14%] h-56 w-56 blur-3xl ${isDarkMode ? "bg-blue-900/20" : "bg-blue-200/40"}`} />
 
       <div className="relative z-10 mx-auto flex h-full w-full max-w-5xl items-center justify-center px-4 py-8 sm:px-6 lg:px-8">
         <div className={`flex w-full flex-col items-center text-center ${isCompact ? "gap-5" : "gap-8"}`}>

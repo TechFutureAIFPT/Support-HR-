@@ -4293,90 +4293,93 @@ button[style*="linear-gradient"],
 
 /* ══════════════════════════════════════════════════════════════
    DARK MODE — WORKSPACE SHELL FORCED-WHITE OVERRIDES
-   These MUST appear after .supporthr-main--with-sidebar and
-   .apple-workspace-shell rules (lines 3020, 3273, 4154) so
-   they win by source order when specificity is tied.
-   Each rule adds .dark prefix (+1 class specificity) to win.
+   Using html.dark prefix (element + class) gives specificity
+   0-N-1 which beats any class-only !important rule (0-N-0),
+   regardless of Tailwind v4 Vite CSS injection order.
+   Colors are hardcoded (not var()) as extra safety against
+   late CSS variable resolution.
    ══════════════════════════════════════════════════════════════ */
 
 /* ── Global page-shell backgrounds (overrides lines 3020–3032) ── */
-.dark .feature-page-shell,
-.dark .module-pane,
-.dark .chatbot-page-shell,
-.dark .supporthr-dashboard-light,
-.dark .weights-config {
-  background: var(--th-bg) !important;
-  color: var(--th-text) !important;
+html.dark .feature-page-shell,
+html.dark .module-pane,
+html.dark .chatbot-page-shell,
+html.dark .supporthr-dashboard-light,
+html.dark .weights-config {
+  background: #0f1523 !important;
+  background-image: none !important;
+  color: #e2e8f4 !important;
 }
 
 /* ── Dark Tailwind colors forced white by :where() (lines 3042–3050) ── */
-.dark .bg-slate-950,
-.dark .bg-slate-900,
-.dark .bg-zinc-950,
-.dark .bg-zinc-900,
-.dark .bg-gray-950,
-.dark .bg-gray-900,
-.dark .bg-black {
-  background-color: var(--th-bg-secondary) !important;
+html.dark .bg-slate-950,
+html.dark .bg-slate-900,
+html.dark .bg-zinc-950,
+html.dark .bg-zinc-900,
+html.dark .bg-gray-950,
+html.dark .bg-gray-900,
+html.dark .bg-black {
+  background-color: #141b2d !important;
 }
 
 /* ── supporthr-main--with-sidebar page shells (lines 3273–3284) ── */
-.dark .supporthr-main--with-sidebar .feature-page-shell,
-.dark .supporthr-main--with-sidebar .module-pane,
-.dark .supporthr-main--with-sidebar .chatbot-page-shell,
-.dark .supporthr-main--with-sidebar .supporthr-dashboard-light,
-.dark .supporthr-main--with-sidebar .weights-config,
-.dark .supporthr-main--with-sidebar #module-jd,
-.dark .supporthr-main--with-sidebar #module-analysis {
-  background: var(--th-bg) !important;
-  color: var(--th-text) !important;
+html.dark .supporthr-main--with-sidebar .feature-page-shell,
+html.dark .supporthr-main--with-sidebar .module-pane,
+html.dark .supporthr-main--with-sidebar .chatbot-page-shell,
+html.dark .supporthr-main--with-sidebar .supporthr-dashboard-light,
+html.dark .supporthr-main--with-sidebar .weights-config,
+html.dark .supporthr-main--with-sidebar #module-jd,
+html.dark .supporthr-main--with-sidebar #module-analysis {
+  background: #0f1523 !important;
+  background-image: none !important;
+  color: #e2e8f4 !important;
 }
 
 /* ── supporthr-main--with-sidebar near-white backgrounds (lines 3286–3294) ── */
-.dark .supporthr-main--with-sidebar [class*="bg-[#f6f9ff]"],
-.dark .supporthr-main--with-sidebar [class*="bg-[#f6f8fb]"],
-.dark .supporthr-main--with-sidebar [class*="bg-[#f6f8fc]"],
-.dark .supporthr-main--with-sidebar [class*="bg-[#f6f8fd]"],
-.dark .supporthr-main--with-sidebar [class*="bg-[#f7f9fc]"],
-.dark .supporthr-main--with-sidebar [class*="bg-[#f7fbff]"],
-.dark .supporthr-main--with-sidebar [class*="bg-[#eef5ff]"] {
-  background: var(--th-bg) !important;
+html.dark .supporthr-main--with-sidebar [class*="bg-[#f6f9ff]"],
+html.dark .supporthr-main--with-sidebar [class*="bg-[#f6f8fb]"],
+html.dark .supporthr-main--with-sidebar [class*="bg-[#f6f8fc]"],
+html.dark .supporthr-main--with-sidebar [class*="bg-[#f6f8fd]"],
+html.dark .supporthr-main--with-sidebar [class*="bg-[#f7f9fc]"],
+html.dark .supporthr-main--with-sidebar [class*="bg-[#f7fbff]"],
+html.dark .supporthr-main--with-sidebar [class*="bg-[#eef5ff]"] {
+  background: #0f1523 !important;
 }
 
 /* ── apple-workspace-shell page shells (lines 4154–4164) ── */
-.dark .apple-workspace-shell .feature-page-shell,
-.dark .apple-workspace-shell .module-pane,
-.dark .apple-workspace-shell .chatbot-page-shell,
-.dark .apple-workspace-shell .supporthr-dashboard-light,
-.dark .apple-workspace-shell .weights-config,
-.dark .apple-workspace-shell #module-jd,
-.dark .apple-workspace-shell #module-analysis {
-  background: var(--th-bg) !important;
-  color: var(--th-text) !important;
+html.dark .apple-workspace-shell .feature-page-shell,
+html.dark .apple-workspace-shell .module-pane,
+html.dark .apple-workspace-shell .chatbot-page-shell,
+html.dark .apple-workspace-shell .supporthr-dashboard-light,
+html.dark .apple-workspace-shell .weights-config,
+html.dark .apple-workspace-shell #module-jd,
+html.dark .apple-workspace-shell #module-analysis {
+  background: #0f1523 !important;
+  background-image: none !important;
+  color: #e2e8f4 !important;
 }
 
 /* ── Dark classes forced white inside feature-page-shell (lines 4188–4191) ── */
-.dark .apple-workspace-shell .feature-page-shell :is([class*="bg-slate-950"], [class*="bg-slate-900"], [class*="bg-zinc-950"], [class*="bg-black"]),
-.dark .apple-workspace-shell .module-pane :is([class*="bg-slate-950"], [class*="bg-slate-900"], [class*="bg-zinc-950"], [class*="bg-black"]) {
-  background: var(--th-bg-secondary) !important;
+html.dark .apple-workspace-shell .feature-page-shell :is([class*="bg-slate-950"], [class*="bg-slate-900"], [class*="bg-zinc-950"], [class*="bg-black"]),
+html.dark .apple-workspace-shell .module-pane :is([class*="bg-slate-950"], [class*="bg-slate-900"], [class*="bg-zinc-950"], [class*="bg-black"]) {
+  background: #141b2d !important;
 }
 
 /* ── Chatbot page shell (lines 4198–4202) ── */
-.dark .apple-workspace-shell .chatbot-page-shell {
-  background: var(--th-bg) !important;
+html.dark .apple-workspace-shell .chatbot-page-shell {
+  background: #0f1523 !important;
+  background-image: none !important;
 }
 
-/* ── Re-apply bg-white → surface-card for elements inside workspace shells ──
-   (The global .dark [class*="bg-white"] rule at line ~588 wins over Tailwind,
-    but we re-state it scoped to workspace to beat any future ordering issues) ── */
-.dark .supporthr-main--with-sidebar [class*="bg-white"],
-.dark .apple-workspace-shell .feature-page-shell [class*="bg-white"],
-.dark .apple-workspace-shell .module-pane [class*="bg-white"] {
-  background-color: var(--th-surface-card) !important;
+/* ── Re-apply bg-white → surface-card for elements inside workspace shells ── */
+html.dark .supporthr-main--with-sidebar [class*="bg-white"],
+html.dark .apple-workspace-shell .feature-page-shell [class*="bg-white"],
+html.dark .apple-workspace-shell .module-pane [class*="bg-white"] {
+  background-color: #1e2a3d !important;
 }
 
 /* ── Near-white section backgrounds inside workspace content ── */
-.dark .supporthr-main--with-sidebar [class*="bg-[#f7f7f5]"],
-.dark .apple-workspace-shell .feature-page-shell [class*="bg-[#f7f7f5]"] {
-  background-color: var(--th-bg-secondary) !important;
+html.dark .supporthr-main--with-sidebar [class*="bg-[#f7f7f5]"],
+html.dark .apple-workspace-shell .feature-page-shell [class*="bg-[#f7f7f5]"] {
+  background-color: #141b2d !important;
 }

@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTheme } from '@/context/theme/ThemeProvider';
 import {
   AlertCircle,
   ArrowLeft,
@@ -193,6 +194,7 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
   analysisContext,
 }) => {
   const navigate = useNavigate();
+  const { isDarkMode } = useTheme();
   const storedRun = useMemo(() => getStoredAnalysisRun(), []);
   const [activeView, setActiveView] = useState<FeedbackView>('overview');
   const [selectedCandidateId, setSelectedCandidateId] = useState<string | null>(null);
@@ -359,7 +361,7 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
 
   if (validCandidates.length === 0) {
     return (
-      <div className="feature-page-shell flex h-full flex-col items-center justify-center bg-[#f6f9ff] p-8 text-center">
+      <div className="feature-page-shell flex h-full flex-col items-center justify-center bg-[#f6f9ff] p-8 text-center" style={{ background: isDarkMode ? '#0f1523' : '#f6f9ff', color: isDarkMode ? '#e2e8f4' : '#0f172a' }}>
         <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-2xl border border-blue-100 bg-white">
           <Brain className="h-10 w-10 text-slate-500" />
         </div>
@@ -379,7 +381,7 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
   }
 
   return (
-    <div className="feature-page-shell relative flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden bg-[#f6f9ff] text-slate-900">
+    <div className="feature-page-shell relative flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden bg-[#f6f9ff] text-slate-900" style={{ background: isDarkMode ? '#0f1523' : '#f6f9ff', color: isDarkMode ? '#e2e8f4' : '#0f172a' }}>
       <div className="pointer-events-none absolute inset-0 supporthr-grid-mask opacity-[0.16]" />
       <div className="pointer-events-none absolute inset-x-0 top-0 h-56 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.04),transparent_42%)]" />
 
