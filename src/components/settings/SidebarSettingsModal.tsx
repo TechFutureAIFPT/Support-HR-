@@ -350,7 +350,8 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
     setNewTplName('');
     setNewTplPosition('');
     setNewTplText('');
-  }, [isOpen, settings.account.avatar, settings.account.displayName, settings.workflow.fixedJD, userAvatar, userName]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen]); // Chỉ chạy khi modal mở — không re-run khi settings thay đổi trong session để tránh reset tab
 
   useEffect(() => {
     if (!isOpen) return;
