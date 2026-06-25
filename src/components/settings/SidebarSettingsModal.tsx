@@ -66,16 +66,13 @@ interface SidebarSettingsModalProps {
   onGoToScoring?: () => void;
 }
 
-type SettingsTab = 'general' | 'profile' | 'workspace' | 'notifications' | 'data' | 'jd' | 'cv';
+type SettingsTab = 'account' | 'library' | 'setup' | 'notifications';
 
 const TAB_DEFS: Array<{ id: SettingsTab; icon: React.ComponentType<{ size?: number; className?: string }> }> = [
-  { id: 'general',       icon: SlidersHorizontal },
-  { id: 'profile',       icon: UserCircle2 },
-  { id: 'workspace',     icon: Workflow },
+  { id: 'account',       icon: UserCircle2 },
+  { id: 'library',       icon: Database },
+  { id: 'setup',         icon: SlidersHorizontal },
   { id: 'notifications', icon: Bell },
-  { id: 'data',          icon: Database },
-  { id: 'jd',            icon: Target },
-  { id: 'cv',            icon: FolderOpen },
 ];
 
 // ── Primitives ────────────────────────────────────────────────────────────────
@@ -261,17 +258,15 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
   const { settings, saveSettings, resetSettings, syncStatus, syncError } = useUserSettings();
   const { themeMode } = useTheme();
   const { t } = useTranslation();
-  const [activeTab, setActiveTab] = useState<SettingsTab>('general');
-  const [jdSubPage, setJdSubPage] = useState<'setup' | 'weights'>('setup');
+  const [activeTab, setActiveTab] = useState<SettingsTab>('account');
+  const [librarySubPage, setLibrarySubPage] = useState<'data' | 'history' | 'cv'>('data');
+  const [setupSubPage, setSetupSubPage] = useState<'workflow' | 'jd' | 'weights'>('workflow');
 
   const TAB_LABELS: Record<SettingsTab, string> = {
-    general:       t('settings_tab_general'),
-    profile:       t('settings_tab_profile'),
-    workspace:     t('settings_tab_workflow'),
+    account:       'Tài khoản',
+    library:       'Dữ liệu & Thư viện',
+    setup:         'Bộ lọc & Quy trình',
     notifications: t('settings_tab_notif'),
-    data:          t('settings_tab_data'),
-    jd:            t('settings_tab_team'),
-    cv:            t('settings_tab_library'),
   };
 
   // Profile fields with local state + debounced save
@@ -327,7 +322,9 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
     const hf = settings.workflow.fixedJD?.hardFilters;
     setLocalHardFilters((hf && typeof hf === 'object') ? hf as HardFilters : { ...DEFAULT_HARD_FILTERS });
     setExpandedCriterion(null);
-    setActiveTab('general');
+    setActiveTab('account');
+    setLibrarySubPage('data');
+    setSetupSubPage('workflow');
     setDangerOpen(false);
     setAddTplOpen(false);
     setTplDropdownOpen(false);
@@ -344,7 +341,7 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
   }, [isOpen, onClose]);
 
   useEffect(() => {
-    if (activeTab !== 'jd' && !tplDropdownOpen) return;
+    if (activeTab !== 'setup' && !tplDropdownOpen) return;
     setTemplatesLoading(true);
     setTemplates(JDTemplatesService.getCachedUserTemplates());
     void JDTemplatesService.getUserTemplates()
@@ -417,8 +414,8 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
     return { icon: <CloudOff size={12} />, label: t('settings_not_authed'), cls: 'border-slate-200 bg-slate-100 text-slate-500' };
   })();
 
-  // ── Tab: Profile ──
-  const profileTab = (
+  // ── Tab: Tài khoản (merged: Chung + Hồ sơ) ──
+  const accountTab = (
     <div className="space-y-5">
       <Section title="Thông tin cá nhân">
         <div className="rounded-2xl border border-slate-100 bg-white p-4">
@@ -484,69 +481,69 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
           )}
         </div>
       </Section>
-    </div>
-  );
 
-  // ── Tab: Workspace ──
-  const workspaceTab = (
-    <div className="space-y-5">
-      <Section title="Tự lưu và khôi phục">
-        <ToggleRow
-          title="Tự lưu phiên làm việc"
-          description="Lưu JD, bộ lọc và trạng thái hiện tại để tiếp tục sau."
-          checked={settings.workflow.autoSaveDraft}
-          saving={savingKey === 'autoSaveDraft'}
-          onChange={(v) => void autoSave('autoSaveDraft', { workflow: { ...settings.workflow, autoSaveDraft: v } })}
-        />
-        <ToggleRow
-          title="Khôi phục phiên dang dở"
-          description="Tự mở lại phiên chưa hoàn tất khi quay lại app."
-          checked={settings.workflow.restoreDraft}
-          saving={savingKey === 'restoreDraft'}
-          onChange={(v) => void autoSave('restoreDraft', { workflow: { ...settings.workflow, restoreDraft: v } })}
-        />
-        <ToggleRow
-          title="Tự lưu lịch sử phân tích"
-          description="Lưu kết quả vào history sau khi phân tích hoàn tất."
-          checked={settings.workflow.autoSaveHistory}
-          saving={savingKey === 'autoSaveHistory'}
-          onChange={(v) => void autoSave('autoSaveHistory', { workflow: { ...settings.workflow, autoSaveHistory: v } })}
-        />
-        <ToggleRow
-          title="Ghi nhớ tiêu chí chấm điểm"
-          description="Giữ weights và bộ lọc cứng cho phiên sàng lọc tiếp theo."
-          checked={settings.workflow.rememberScoringConfig}
-          saving={savingKey === 'rememberScoringConfig'}
-          onChange={(v) => void autoSave('rememberScoringConfig', {
-            workflow: {
-              ...settings.workflow,
-              rememberScoringConfig: v,
-              newSessionMode: v ? settings.workflow.newSessionMode : 'reset',
-            },
-          })}
-        />
+      <Section title={t('settings_section_ui')}>
+        <div className="rounded-2xl border border-slate-100 bg-white p-4 space-y-3">
+          <div>
+            <p className="mb-2 text-[12px] font-semibold text-slate-700">{t('settings_theme_label')}</p>
+            <div className="flex flex-wrap gap-2">
+              {([
+                { value: 'light' as UserSettingsTheme, label: t('settings_theme_light'), icon: Sun },
+                { value: 'dark'  as UserSettingsTheme, label: t('settings_theme_dark'),  icon: Moon },
+                { value: 'system' as UserSettingsTheme, label: t('settings_theme_system'), icon: Monitor },
+              ] as const).map(({ value, label, icon: Icon }) => {
+                const active = settings.ui.theme === value;
+                return (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() => void autoSave('theme', { ui: { ...settings.ui, theme: value } })}
+                    className={`inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-[13px] font-semibold transition ${
+                      active
+                        ? 'border-blue-500 bg-blue-50 text-blue-700'
+                        : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50'
+                    }`}
+                  >
+                    <Icon size={14} className={active ? 'text-blue-500' : 'text-slate-400'} />
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+            {themeMode === 'system' && settings.ui.theme === 'system' && (
+              <p className="mt-2 text-[11px] text-slate-400">Đang dùng chủ đề của hệ điều hành.</p>
+            )}
+          </div>
+        </div>
       </Section>
 
-      <Section title="Khi bắt đầu phiên mới">
+      <Section title={t('settings_section_language')}>
         <div className="rounded-2xl border border-slate-100 bg-white p-4">
-          <p className="mb-3 text-[12px] leading-5 text-slate-500">
-            Chọn app nên reset toàn bộ hay giữ lại cấu hình sàng lọc khi bạn bắt đầu phiên mới.
-          </p>
-          <ChipGroup<NewSessionMode>
-            value={settings.workflow.newSessionMode}
-            onChange={(v) => void autoSave('newSessionMode', { workflow: { ...settings.workflow, newSessionMode: v } })}
+          <p className="mb-3 text-[12px] leading-5 text-slate-500">{t('settings_language_desc')}</p>
+          <ChipGroup<UserSettingsLanguage>
+            value={settings.ui.language}
+            onChange={(v) => void autoSave('language', { ui: { ...settings.ui, language: v } })}
             options={[
-              { value: 'reset', label: 'Reset trắng', hint: '— xóa JD và cấu hình' },
-              { value: 'keep-config', label: 'Giữ cấu hình', hint: '— chỉ xóa dữ liệu phiên' },
+              { value: 'vi-VN', label: t('settings_language_vi') },
+              { value: 'en-US', label: t('settings_language_en') },
             ]}
           />
         </div>
       </Section>
 
+      <Section title={t('settings_section_accessibility')}>
+        <ToggleRow
+          title={t('settings_reduced_motion')}
+          description={t('settings_reduced_motion_desc')}
+          checked={settings.ui.reducedMotion}
+          saving={savingKey === 'reducedMotion'}
+          onChange={(v) => void autoSave('reducedMotion', { ui: { ...settings.ui, reducedMotion: v } })}
+        />
+      </Section>
     </div>
   );
 
-  // ── Tab: Notifications ──
+  // ── Tab: Thông báo ──
   const notificationsTab = (
     <div className="space-y-5">
       <Section title="Thông báo trong app">
@@ -582,122 +579,234 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
     </div>
   );
 
-  // ── Tab: Data ──
-  const dataTab = (
+  // ── Tab: Dữ liệu & Thư viện ──
+  const libraryTab = librarySubPage === 'cv' ? (
+    <div className="flex flex-col h-full">
+      <div className="shrink-0 flex gap-1 rounded-xl border border-slate-200 bg-slate-50 p-1 m-4 mb-2">
+        {(['data', 'history', 'cv'] as const).map((page) => {
+          const labels = { data: 'Dữ liệu', history: 'Lịch sử lọc', cv: 'Thư viện CV' } as const;
+          return (
+            <button key={page} type="button" onClick={() => setLibrarySubPage(page)}
+              className={`flex-1 rounded-lg px-3 py-2 text-[12px] font-semibold transition-all ${
+                librarySubPage === page ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+              }`}>
+              {labels[page]}
+            </button>
+          );
+        })}
+      </div>
+      <div className="min-h-0 flex-1 overflow-hidden">
+        <FilteredCvLibraryPage userEmail={userEmail} />
+      </div>
+    </div>
+  ) : (
     <div className="space-y-5">
-      <Section title="Đồng bộ dữ liệu">
-        <ToggleRow
-          title="Tự đồng bộ khi đã đăng nhập"
-          description="Tự đồng bộ cache và dữ liệu phân tích giữa các thiết bị."
-          checked={settings.sync.autoSync}
-          saving={savingKey === 'autoSync'}
-          onChange={(v) => void autoSave('autoSync', { sync: { ...settings.sync, autoSync: v } })}
-        />
-        <div className="rounded-2xl border border-slate-100 bg-white p-4">
-          <p className="mb-2 text-[12px] font-semibold text-slate-700">Số phiên lịch sử giữ lại</p>
-          <p className="mb-3 text-[12px] leading-5 text-slate-500">Số phiên phân tích được lưu trên server. Phiên cũ hơn sẽ tự xóa.</p>
-          <ChipGroup<HistoryRetention>
-            value={settings.sync.historyRetention}
-            onChange={(v) => void autoSave('historyRetention', { sync: { ...settings.sync, historyRetention: v } })}
-            options={[
-              { value: 50,  label: '50 phiên' },
-              { value: 100, label: '100 phiên' },
-              { value: 200, label: '200 phiên' },
-            ]}
+      <div className="flex gap-1 rounded-xl border border-slate-200 bg-slate-50 p-1">
+        {(['data', 'history', 'cv'] as const).map((page) => {
+          const labels = { data: 'Dữ liệu', history: 'Lịch sử lọc', cv: 'Thư viện CV' } as const;
+          return (
+            <button key={page} type="button" onClick={() => setLibrarySubPage(page)}
+              className={`flex-1 rounded-lg px-3 py-2 text-[12px] font-semibold transition-all ${
+                librarySubPage === page ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+              }`}>
+              {labels[page]}
+            </button>
+          );
+        })}
+      </div>
+
+      {librarySubPage === 'data' && (
+        <Section title="Đồng bộ dữ liệu">
+          <ToggleRow
+            title="Tự đồng bộ khi đã đăng nhập"
+            description="Tự đồng bộ cache và dữ liệu phân tích giữa các thiết bị."
+            checked={settings.sync.autoSync}
+            saving={savingKey === 'autoSync'}
+            onChange={(v) => void autoSave('autoSync', { sync: { ...settings.sync, autoSync: v } })}
           />
-        </div>
-      </Section>
-
-      <Section>
-        <button
-          type="button"
-          onClick={() => setDangerOpen((v) => !v)}
-          className="flex w-full items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-left text-[13px] font-semibold text-slate-700 transition hover:bg-slate-50"
-        >
-          <AlertTriangle size={14} className="text-rose-400" />
-          <span className="flex-1">Khu vực nguy hiểm</span>
-          <ChevronDown size={14} className={`text-slate-400 transition-transform duration-200 ${dangerOpen ? 'rotate-180' : ''}`} />
-        </button>
-
-        {dangerOpen && (
-          <div className="space-y-1.5 pt-1">
-            <InlineConfirmButton
-              label="Xóa workflow draft cục bộ"
-              description="Xóa phiên làm việc đang lưu trên máy này."
-              onConfirm={() => onClearWorkflowDraft()}
-            />
-            <InlineConfirmButton
-              label="Xóa cache phân tích cục bộ"
-              description="Xóa kết quả cache đang lưu trên thiết bị này."
-              onConfirm={() => onClearLocalCache()}
-            />
-            <InlineConfirmButton
-              icon={History}
-              label="Xóa lịch sử cục bộ"
-              description="Xóa history phân tích đang lưu trên máy này."
-              onConfirm={() => onClearLocalHistory()}
-            />
-            <InlineConfirmButton
-              label="Xóa file CV cục bộ"
-              description="Xóa PDF, DOCX và ảnh CV được lưu trên thiết bị."
-              onConfirm={async () => onClearLocalDocuments()}
-            />
-            <InlineConfirmButton
-              tone="danger"
-              label="Xóa dữ liệu đã sync trên server"
-              confirmLabel="Xác nhận — dữ liệu sẽ không thể khôi phục"
-              description="Xóa toàn bộ cache và history đã đồng bộ của tài khoản."
-              onConfirm={async () => onClearSyncedData()}
-            />
-            <InlineConfirmButton
-              icon={RefreshCcw}
-              tone="danger"
-              label="Reset toàn bộ cài đặt về mặc định"
-              confirmLabel="Xác nhận reset — không thể hoàn tác"
-              description="Đưa tất cả cài đặt về mặc định, giữ thông tin tài khoản."
-              onConfirm={async () => { await resetSettings(); }}
+          <div className="rounded-2xl border border-slate-100 bg-white p-4">
+            <p className="mb-2 text-[12px] font-semibold text-slate-700">Số phiên lịch sử giữ lại</p>
+            <p className="mb-3 text-[12px] leading-5 text-slate-500">Số phiên phân tích được lưu trên server. Phiên cũ hơn sẽ tự xóa.</p>
+            <ChipGroup<HistoryRetention>
+              value={settings.sync.historyRetention}
+              onChange={(v) => void autoSave('historyRetention', { sync: { ...settings.sync, historyRetention: v } })}
+              options={[
+                { value: 50,  label: '50 phiên' },
+                { value: 100, label: '100 phiên' },
+                { value: 200, label: '200 phiên' },
+              ]}
             />
           </div>
-        )}
-      </Section>
+        </Section>
+      )}
+
+      {librarySubPage === 'data' && (
+        <Section>
+          <button
+            type="button"
+            onClick={() => setDangerOpen((v) => !v)}
+            className="flex w-full items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-left text-[13px] font-semibold text-slate-700 transition hover:bg-slate-50"
+          >
+            <AlertTriangle size={14} className="text-rose-400" />
+            <span className="flex-1">Khu vực nguy hiểm</span>
+            <ChevronDown size={14} className={`text-slate-400 transition-transform duration-200 ${dangerOpen ? 'rotate-180' : ''}`} />
+          </button>
+
+          {dangerOpen && (
+            <div className="space-y-1.5 pt-1">
+              <InlineConfirmButton
+                label="Xóa workflow draft cục bộ"
+                description="Xóa phiên làm việc đang lưu trên máy này."
+                onConfirm={() => onClearWorkflowDraft()}
+              />
+              <InlineConfirmButton
+                label="Xóa cache phân tích cục bộ"
+                description="Xóa kết quả cache đang lưu trên thiết bị này."
+                onConfirm={() => onClearLocalCache()}
+              />
+              <InlineConfirmButton
+                icon={History}
+                label="Xóa lịch sử cục bộ"
+                description="Xóa history phân tích đang lưu trên máy này."
+                onConfirm={() => onClearLocalHistory()}
+              />
+              <InlineConfirmButton
+                label="Xóa file CV cục bộ"
+                description="Xóa PDF, DOCX và ảnh CV được lưu trên thiết bị."
+                onConfirm={async () => onClearLocalDocuments()}
+              />
+              <InlineConfirmButton
+                tone="danger"
+                label="Xóa dữ liệu đã sync trên server"
+                confirmLabel="Xác nhận — dữ liệu sẽ không thể khôi phục"
+                description="Xóa toàn bộ cache và history đã đồng bộ của tài khoản."
+                onConfirm={async () => onClearSyncedData()}
+              />
+              <InlineConfirmButton
+                icon={RefreshCcw}
+                tone="danger"
+                label="Reset toàn bộ cài đặt về mặc định"
+                confirmLabel="Xác nhận reset — không thể hoàn tác"
+                description="Đưa tất cả cài đặt về mặc định, giữ thông tin tài khoản."
+                onConfirm={async () => { await resetSettings(); }}
+              />
+            </div>
+          )}
+        </Section>
+      )}
+
+      {librarySubPage === 'history' && (
+        <div className="space-y-5">
+          <Section title="Lịch sử bộ lọc">
+            <div className="rounded-2xl border border-slate-100 bg-white p-4">
+              <p className="mb-3 text-[12px] leading-5 text-slate-500">
+                Lịch sử các bộ lọc cứng và tiêu chí chấm điểm đã sử dụng trong các phiên sàng lọc của tài khoản này.
+              </p>
+              <ChipGroup<HistoryRetention>
+                value={settings.sync.historyRetention}
+                onChange={(v) => void autoSave('historyRetention', { sync: { ...settings.sync, historyRetention: v } })}
+                options={[
+                  { value: 50,  label: '50 phiên' },
+                  { value: 100, label: '100 phiên' },
+                  { value: 200, label: '200 phiên' },
+                ]}
+              />
+            </div>
+          </Section>
+          <Section>
+            <InlineConfirmButton
+              icon={History}
+              label="Xóa lịch sử lọc"
+              description="Xóa toàn bộ lịch sử bộ lọc và tiêu chí đã dùng trên máy này."
+              onConfirm={() => onClearLocalHistory()}
+            />
+          </Section>
+        </div>
+      )}
     </div>
   );
 
-  // ── Tab: Set Up Team ──
+  // ── Tab: Bộ lọc & Quy trình ──
   const criteriaEntries = Object.values(localWeights).filter((c) => c.children);
   const totalWeight = criteriaEntries.reduce((total, c) => {
     return total + (c.children?.reduce((s, ch) => s + ch.weight, 0) ?? 0);
   }, 0);
 
-  const jdTab = (
+  const setupTab = (
     <div className="space-y-4">
-      {/* Sub-page navigator */}
+      {/* Sub-page nav */}
       <div className="flex gap-1 rounded-xl border border-slate-200 bg-slate-50 p-1">
-        <button
-          type="button"
-          onClick={() => setJdSubPage('setup')}
-          className={`flex-1 rounded-lg px-3 py-2 text-[12px] font-semibold transition-all ${
-            jdSubPage === 'setup'
-              ? 'bg-white text-blue-700 shadow-sm'
-              : 'text-slate-500 hover:text-slate-700'
-          }`}
-        >
-          JD &amp; Bộ lọc cứng
-        </button>
-        <button
-          type="button"
-          onClick={() => setJdSubPage('weights')}
-          className={`flex-1 rounded-lg px-3 py-2 text-[12px] font-semibold transition-all ${
-            jdSubPage === 'weights'
-              ? 'bg-white text-blue-700 shadow-sm'
-              : 'text-slate-500 hover:text-slate-700'
-          }`}
-        >
-          Trọng số tiêu chí
-        </button>
+        {(['workflow', 'jd', 'weights'] as const).map((page) => {
+          const labels = { workflow: 'Quy trình', jd: 'JD & Bộ lọc', weights: 'Trọng số' } as const;
+          return (
+            <button key={page} type="button" onClick={() => setSetupSubPage(page)}
+              className={`flex-1 rounded-lg px-3 py-2 text-[12px] font-semibold transition-all ${
+                setupSubPage === page ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+              }`}>
+              {labels[page]}
+            </button>
+          );
+        })}
       </div>
 
-      {jdSubPage === 'setup' && (
+      {setupSubPage === 'workflow' && (
+        <div className="space-y-5">
+          <Section title="Tự lưu và khôi phục">
+            <ToggleRow
+              title="Tự lưu phiên làm việc"
+              description="Lưu JD, bộ lọc và trạng thái hiện tại để tiếp tục sau."
+              checked={settings.workflow.autoSaveDraft}
+              saving={savingKey === 'autoSaveDraft'}
+              onChange={(v) => void autoSave('autoSaveDraft', { workflow: { ...settings.workflow, autoSaveDraft: v } })}
+            />
+            <ToggleRow
+              title="Khôi phục phiên dang dở"
+              description="Tự mở lại phiên chưa hoàn tất khi quay lại app."
+              checked={settings.workflow.restoreDraft}
+              saving={savingKey === 'restoreDraft'}
+              onChange={(v) => void autoSave('restoreDraft', { workflow: { ...settings.workflow, restoreDraft: v } })}
+            />
+            <ToggleRow
+              title="Tự lưu lịch sử phân tích"
+              description="Lưu kết quả vào history sau khi phân tích hoàn tất."
+              checked={settings.workflow.autoSaveHistory}
+              saving={savingKey === 'autoSaveHistory'}
+              onChange={(v) => void autoSave('autoSaveHistory', { workflow: { ...settings.workflow, autoSaveHistory: v } })}
+            />
+            <ToggleRow
+              title="Ghi nhớ tiêu chí chấm điểm"
+              description="Giữ weights và bộ lọc cứng cho phiên sàng lọc tiếp theo."
+              checked={settings.workflow.rememberScoringConfig}
+              saving={savingKey === 'rememberScoringConfig'}
+              onChange={(v) => void autoSave('rememberScoringConfig', {
+                workflow: {
+                  ...settings.workflow,
+                  rememberScoringConfig: v,
+                  newSessionMode: v ? settings.workflow.newSessionMode : 'reset',
+                },
+              })}
+            />
+          </Section>
+
+          <Section title="Khi bắt đầu phiên mới">
+            <div className="rounded-2xl border border-slate-100 bg-white p-4">
+              <p className="mb-3 text-[12px] leading-5 text-slate-500">
+                Chọn app nên reset toàn bộ hay giữ lại cấu hình sàng lọc khi bạn bắt đầu phiên mới.
+              </p>
+              <ChipGroup<NewSessionMode>
+                value={settings.workflow.newSessionMode}
+                onChange={(v) => void autoSave('newSessionMode', { workflow: { ...settings.workflow, newSessionMode: v } })}
+                options={[
+                  { value: 'reset', label: 'Reset trắng', hint: '— xóa JD và cấu hình' },
+                  { value: 'keep-config', label: 'Giữ cấu hình', hint: '— chỉ xóa dữ liệu phiên' },
+                ]}
+              />
+            </div>
+          </Section>
+        </div>
+      )}
+
+      {setupSubPage === 'jd' && (
       <div className="rounded-2xl border border-slate-100 bg-white p-5 space-y-4">
         {/* Toggle */}
         <div className="flex items-start justify-between gap-4">
@@ -935,7 +1044,7 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
       )}
 
       {/* Weights sub-page */}
-      {jdSubPage === 'weights' && (
+      {setupSubPage === 'weights' && (
       <div className="rounded-2xl border border-slate-100 bg-white p-5 space-y-4">
         <div className="flex items-center justify-between">
           <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-400">Trọng số tiêu chí chấm điểm</p>
@@ -1027,82 +1136,11 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
     </div>
   );
 
-  // ── Tab: General ──
-  const generalTab = (
-    <div className="space-y-5">
-      <Section title={t('settings_section_ui')}>
-        <div className="rounded-2xl border border-slate-100 bg-white p-4 space-y-3">
-          <div>
-            <p className="mb-2 text-[12px] font-semibold text-slate-700">{t('settings_theme_label')}</p>
-            <div className="flex flex-wrap gap-2">
-              {([
-                { value: 'light' as UserSettingsTheme, label: t('settings_theme_light'), icon: Sun },
-                { value: 'dark'  as UserSettingsTheme, label: t('settings_theme_dark'),  icon: Moon },
-                { value: 'system' as UserSettingsTheme, label: t('settings_theme_system'), icon: Monitor },
-              ] as const).map(({ value, label, icon: Icon }) => {
-                const active = settings.ui.theme === value;
-                return (
-                  <button
-                    key={value}
-                    type="button"
-                    onClick={() => void autoSave('theme', { ui: { ...settings.ui, theme: value } })}
-                    className={`inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-[13px] font-semibold transition ${
-                      active
-                        ? 'border-blue-500 bg-blue-50 text-blue-700'
-                        : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50'
-                    }`}
-                  >
-                    <Icon size={14} className={active ? 'text-blue-500' : 'text-slate-400'} />
-                    {label}
-                  </button>
-                );
-              })}
-            </div>
-            {themeMode === 'system' && settings.ui.theme === 'system' && (
-              <p className="mt-2 text-[11px] text-slate-400">
-                Đang dùng chủ đề của hệ điều hành.
-              </p>
-            )}
-          </div>
-        </div>
-      </Section>
-
-      <Section title={t('settings_section_language')}>
-        <div className="rounded-2xl border border-slate-100 bg-white p-4">
-          <p className="mb-3 text-[12px] leading-5 text-slate-500">
-            {t('settings_language_desc')}
-          </p>
-          <ChipGroup<UserSettingsLanguage>
-            value={settings.ui.language}
-            onChange={(v) => void autoSave('language', { ui: { ...settings.ui, language: v } })}
-            options={[
-              { value: 'vi-VN', label: t('settings_language_vi') },
-              { value: 'en-US', label: t('settings_language_en') },
-            ]}
-          />
-        </div>
-      </Section>
-
-      <Section title={t('settings_section_accessibility')}>
-        <ToggleRow
-          title={t('settings_reduced_motion')}
-          description={t('settings_reduced_motion_desc')}
-          checked={settings.ui.reducedMotion}
-          saving={savingKey === 'reducedMotion'}
-          onChange={(v) => void autoSave('reducedMotion', { ui: { ...settings.ui, reducedMotion: v } })}
-        />
-      </Section>
-    </div>
-  );
-
   const tabContent: Record<SettingsTab, React.ReactNode> = {
-    general: generalTab,
-    profile: profileTab,
-    workspace: workspaceTab,
+    account:       accountTab,
+    library:       libraryTab,
+    setup:         setupTab,
     notifications: notificationsTab,
-    data: dataTab,
-    jd: jdTab,
-    cv: <FilteredCvLibraryPage userEmail={userEmail} />,
   };
 
   return (
@@ -1176,7 +1214,7 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
           </aside>
 
           {/* Content */}
-          <main ref={contentRef} className={`min-h-0 flex-1 ${activeTab === 'cv' ? 'overflow-hidden flex flex-col' : 'custom-scrollbar overflow-y-auto p-5'}`}>
+          <main ref={contentRef} className={`min-h-0 flex-1 ${(activeTab === 'library' && librarySubPage === 'cv') ? 'overflow-hidden flex flex-col' : 'custom-scrollbar overflow-y-auto p-5'}`}>
             {tabContent[activeTab]}
           </main>
         </div>
