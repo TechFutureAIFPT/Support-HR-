@@ -575,7 +575,14 @@
    surfaces (cards, modals, panels, inputs).
    ============================================================ */
 
-/* ── Surfaces ───────────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════
+   DARK MODE — COMPREHENSIVE OVERRIDES
+   Covers all Tailwind utilities + every hardcoded hex/rgba value
+   found across pages/, features/, components/, and layout/
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── Root & page-level backgrounds ─────────────────────────── */
+/* The root App wrapper uses bg-white; every page-level shell below */
 .dark .bg-white                         { background-color: var(--th-surface-card) !important; }
 .dark .bg-slate-50,
 .dark .bg-gray-50                       { background-color: var(--th-bg-secondary) !important; }
@@ -584,11 +591,23 @@
 .dark .bg-slate-200,
 .dark .bg-gray-200                      { background-color: var(--th-bg-elevated) !important; }
 
-/* Tinted accent surfaces */
-.dark .bg-blue-50                       { background-color: var(--th-primary-muted) !important; }
-.dark .bg-blue-100                      { background-color: rgba(59,158,255,0.12) !important; }
+/* All light-blue / near-white page backgrounds → dark primary */
+.dark [class*="bg-[#f7f7f5]"],
+.dark [class*="bg-[#f6f9ff]"],
+.dark [class*="bg-[#f7fbff]"],
+.dark [class*="bg-[#f7f9fc]"],
+.dark [class*="bg-[#f6f8fb]"],
+.dark [class*="bg-[#f6f8fc]"],
+.dark [class*="bg-[#f8fbff]"],
+.dark [class*="bg-[#f8f8fa]"],
+.dark [class*="bg-[#f4f4f2]"],
+.dark [class*="bg-[#f2f2f5]"],
+.dark [class*="bg-[#fbfbfd]"]           { background-color: var(--th-bg) !important; }
 
-/* Apple-palette hardcoded backgrounds */
+/* Frosted-glass sidebar (rgba value) */
+.dark [class*="bg-[rgba(246,246,248"]   { background-color: var(--th-bg-glass) !important; }
+
+/* Near-white card surfaces */
 .dark [class*="bg-[#f5f5f7]"],
 .dark [class*="bg-[#fafafa]"],
 .dark [class*="bg-[#f9f9f9]"]          { background-color: var(--th-bg-secondary) !important; }
@@ -596,10 +615,35 @@
 .dark [class*="bg-[#ebebeb]"]          { background-color: var(--th-bg-tertiary) !important; }
 .dark [class*="bg-[#f0f0f0]"],
 .dark [class*="bg-[#f2f2f7]"]          { background-color: var(--th-bg-elevated) !important; }
-.dark [class*="bg-[#fff7e8]"],
-.dark [class*="bg-[#fff8ec]"]          { background-color: rgba(251,191,36,0.1) !important; }
+
+/* Blue-tinted active/selected surfaces */
+.dark .bg-blue-50,
+.dark .bg-blue-100,
 .dark [class*="bg-[#eef5ff]"],
+.dark [class*="bg-[#e8f1ff]"],
+.dark [class*="bg-[#dceaff]"],
+.dark [class*="bg-[#e8f3ff]"],
 .dark [class*="bg-[#f0f8ff]"]          { background-color: var(--th-primary-muted) !important; }
+
+/* Success green tints */
+.dark .bg-emerald-50,
+.dark .bg-green-50,
+.dark [class*="bg-[#eefaf2]"],
+.dark [class*="bg-[#d1fae5]"]          { background-color: var(--th-success-muted) !important; }
+
+/* Warning amber tints */
+.dark .bg-amber-50,
+.dark .bg-yellow-50,
+.dark [class*="bg-[#fff7e8]"],
+.dark [class*="bg-[#fff8ec]"],
+.dark [class*="bg-[#fff1e5]"],
+.dark [class*="bg-[#f5d6bb]"]          { background-color: var(--th-warning-muted) !important; }
+
+/* Error red tints */
+.dark .bg-rose-50,
+.dark .bg-red-50,
+.dark [class*="bg-[#fff1f0]"],
+.dark [class*="bg-[#fef2f2]"]          { background-color: var(--th-error-muted) !important; }
 
 /* ── Text ───────────────────────────────────────────────────── */
 .dark .text-slate-900,
@@ -616,22 +660,31 @@
 .dark .text-slate-400,
 .dark .text-gray-400                    { color: var(--th-text-disabled) !important; }
 
-/* Apple-palette hardcoded text */
+/* Apple-palette & hardcoded text — primary */
 .dark [class*="text-[#1d1d1f]"],
 .dark [class*="text-[#102033]"],
 .dark [class*="text-[#111827]"],
-.dark [class*="text-[#3a3a3c]"]        { color: var(--th-text) !important; }
+.dark [class*="text-[#3a3a3c]"],
+.dark [class*="text-[#3c3c43]"]        { color: var(--th-text) !important; }
+
+/* Secondary text */
 .dark [class*="text-[#515154]"],
 .dark [class*="text-[#374151]"],
 .dark [class*="text-[#334155]"]        { color: var(--th-text-secondary) !important; }
+
+/* Muted text */
 .dark [class*="text-[#6e6e73]"],
 .dark [class*="text-[#6b7280]"],
 .dark [class*="text-[#475569]"],
 .dark [class*="text-[#64748b]"],
 .dark [class*="text-[#a35d00]"]        { color: var(--th-text-muted) !important; }
+
+/* Disabled / placeholder text */
 .dark [class*="text-[#86868b]"],
 .dark [class*="text-[#9ca3af]"],
-.dark [class*="text-[#94a3b8]"]        { color: var(--th-text-disabled) !important; }
+.dark [class*="text-[#94a3b8]"],
+.dark [class*="text-[#98989d]"],
+.dark [class*="text-[#c7c7cc]"]        { color: var(--th-text-disabled) !important; }
 
 /* ── Borders ────────────────────────────────────────────────── */
 .dark .border-slate-100,
@@ -640,17 +693,23 @@
 .dark .border-gray-200                  { border-color: var(--th-border-subtle) !important; }
 .dark .border-slate-300,
 .dark .border-gray-300                  { border-color: var(--th-border) !important; }
+.dark .border-blue-100,
+.dark .border-blue-200                  { border-color: var(--th-border-subtle) !important; }
 .dark .divide-slate-100,
 .dark .divide-slate-200,
 .dark .divide-gray-100,
 .dark .divide-gray-200                  { --tw-divide-opacity: 1; border-color: var(--th-border-subtle) !important; }
 
-/* Apple-palette hardcoded borders */
+/* Hardcoded border colors — all light → subtle */
 .dark [class*="border-[#d2d2d7]"],
 .dark [class*="border-[#e5e7eb]"],
 .dark [class*="border-[#e8e8ed]"],
+.dark [class*="border-[#e5e5ea]"],
 .dark [class*="border-[#f0f0f0]"],
-.dark [class*="border-[#f4d6a5]"]      { border-color: var(--th-border-subtle) !important; }
+.dark [class*="border-[#f4d6a5]"],
+.dark [class*="border-[#f6f6f8]"],
+.dark [class*="border-[#bde8c8]"],
+.dark [class*="border-[#c8dcf8]"]      { border-color: var(--th-border-subtle) !important; }
 
 /* ── Inputs & form controls ─────────────────────────────────── */
 .dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
@@ -672,6 +731,9 @@
 .dark .shadow-md                        { box-shadow: var(--th-shadow-md) !important; }
 .dark .shadow-lg                        { box-shadow: var(--th-shadow-lg) !important; }
 .dark .shadow-xl                        { box-shadow: var(--th-shadow-xl) !important; }
+/* Modal shadows — light RGBA → dark */
+.dark [class*="shadow-[0_28px"]        { box-shadow: 0 28px 72px rgba(0,0,0,0.6) !important; }
+.dark [class*="shadow-[0_8px_32px"]    { box-shadow: 0 8px 32px rgba(0,0,0,0.5) !important; }
 
 /* ── Hover interactive surfaces ──────────────────────────────── */
 .dark .hover\:bg-white:hover            { background-color: var(--th-surface-hover) !important; }
@@ -679,12 +741,30 @@
 .dark .hover\:bg-gray-50:hover          { background-color: var(--th-surface-hover) !important; }
 .dark .hover\:bg-slate-100:hover,
 .dark .hover\:bg-gray-100:hover         { background-color: var(--th-surface-active) !important; }
+.dark .hover\:bg-blue-50:hover,
+.dark .hover\:bg-blue-100:hover         { background-color: var(--th-primary-muted) !important; }
 .dark [class*="hover:bg-black/[0.04]"]:hover,
 .dark [class*="hover:bg-black/4"]:hover { background-color: var(--th-surface-hover) !important; }
+/* Page-background hover targets */
+.dark [class*="hover:bg-[#f8f8fa]"]:hover,
+.dark [class*="hover:bg-[#f7f9fc]"]:hover,
+.dark [class*="hover:bg-[#f6f9ff]"]:hover { background-color: var(--th-surface-hover) !important; }
+/* Focus-tinted targets */
+.dark [class*="focus:bg-[#eef5ff]"]:focus { background-color: var(--th-primary-muted) !important; }
 
 /* ── Scroll ─────────────────────────────────────────────────── */
 .dark ::-webkit-scrollbar-thumb         { background: var(--th-scrollbar-thumb); }
 .dark ::-webkit-scrollbar-thumb:hover   { background: var(--th-scrollbar-thumb-hover); }
+
+/* ── Backdrop / overlay ─────────────────────────────────────── */
+.dark .backdrop-blur-2xl,
+.dark .backdrop-blur-xl                 { backdrop-filter: blur(20px) saturate(180%) !important; }
+
+/* ── Gradient surfaces → flat dark ──────────────────────────── */
+.dark [class*="from-white"],
+.dark [class*="from-[#f"],
+.dark [class*="to-[#f"]                 { --tw-gradient-from: var(--th-bg-secondary) !important;
+                                          --tw-gradient-to: var(--th-bg) !important; }
 
 .home-page-shell [class*="bg-[#11213A]"],
 .login-page-shell [class*="bg-[#11213A]"],
