@@ -759,52 +759,13 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
   const setupTab = (
     <div className="flex flex-col h-full">
       {/* Sticky sub-nav */}
-      <div className="shrink-0 border-b border-slate-100 bg-white px-5 pt-3.5 pb-3 space-y-2.5">
+      <div className="shrink-0 border-b border-slate-100 bg-white px-5 py-3.5">
         <SubNav
           pages={['workflow', 'jd', 'filters', 'weights'] as unknown as string[]}
           labels={{ workflow: 'Cài đặt bộ lọc', jd: 'Job Description', filters: 'Bộ lọc cứng', weights: 'Trọng số' }}
           current={setupSubPage}
           onChange={(p) => setSetupSubPage(p as typeof setupSubPage)}
         />
-        {/* Step progress — only show in wizard pages */}
-        {setupSubPage !== 'workflow' && (
-          <div className="flex items-center gap-1">
-            {([
-              { key: 'jd' as const,      label: 'JD',       done: !!fixedJDText.trim() },
-              { key: 'filters' as const, label: 'Bộ lọc',   done: hasAnyHardFilter },
-              { key: 'weights' as const, label: 'Trọng số',  done: totalWeight === 100 },
-            ] as const).map(({ key, label, done }, i) => (
-              <React.Fragment key={key}>
-                <button
-                  type="button"
-                  onClick={() => setSetupSubPage(key)}
-                  className={`flex items-center gap-1.5 rounded-lg px-2 py-1 text-[11px] font-semibold transition ${
-                    setupSubPage === key ? 'text-slate-900' : 'text-slate-400 hover:text-slate-600'
-                  }`}
-                >
-                  <span className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[9px] font-bold ${
-                    done
-                      ? 'bg-emerald-500 text-white'
-                      : setupSubPage === key
-                        ? 'bg-blue-500 text-white'
-                        : 'bg-slate-200 text-slate-500'
-                  }`}>
-                    {done ? '✓' : i + 1}
-                  </span>
-                  {label}
-                </button>
-                {i < 2 && <span className="text-[10px] text-slate-300 select-none">→</span>}
-              </React.Fragment>
-            ))}
-            {/* Quick save shortcut when all done */}
-            {!!fixedJDText.trim() && settings.workflow.fixedJD?.savedAt && (
-              <span className="ml-auto flex items-center gap-1 text-[10px] font-medium text-emerald-600">
-                <CheckCircle2 size={11} />
-                Đã lưu {new Date(settings.workflow.fixedJD.savedAt).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' })}
-              </span>
-            )}
-          </div>
-        )}
       </div>
 
       <div className="custom-scrollbar flex-1 overflow-y-auto p-5 space-y-4">
@@ -820,13 +781,9 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
                 <p className="mt-1 text-[12px] leading-5 text-slate-500">
                   Bật để lưu JD và trọng số chấm điểm. Lần sau chỉ cần thả CV vào là phân tích ngay.
                 </p>
-                {!settings.workflow.fixedJD?.jdText && (
-                  <p className="mt-1.5 text-[11px] font-medium text-amber-600">Hoàn tất 3 bước (JD → Bộ lọc → Trọng số) và nhấn "Lưu cấu hình" để bật.</p>
-                )}
               </div>
               <Toggle
                 checked={settings.workflow.fixedJD?.enabled ?? false}
-                disabled={!settings.workflow.fixedJD?.jdText}
                 onChange={(v) => void autoSave('fixedJD.enabled', {
                   workflow: { ...settings.workflow, fixedJD: { ...(settings.workflow.fixedJD ?? { name: fixedJDName, jdText: fixedJDText, savedAt: Date.now() }), enabled: v } },
                 })}
