@@ -262,6 +262,7 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
   const { themeMode } = useTheme();
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<SettingsTab>('general');
+  const [jdSubPage, setJdSubPage] = useState<'setup' | 'weights'>('setup');
 
   const TAB_LABELS: Record<SettingsTab, string> = {
     general:       t('settings_tab_general'),
@@ -669,7 +670,34 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
   }, 0);
 
   const jdTab = (
-    <div className="space-y-5">
+    <div className="space-y-4">
+      {/* Sub-page navigator */}
+      <div className="flex gap-1 rounded-xl border border-slate-200 bg-slate-50 p-1">
+        <button
+          type="button"
+          onClick={() => setJdSubPage('setup')}
+          className={`flex-1 rounded-lg px-3 py-2 text-[12px] font-semibold transition-all ${
+            jdSubPage === 'setup'
+              ? 'bg-white text-blue-700 shadow-sm'
+              : 'text-slate-500 hover:text-slate-700'
+          }`}
+        >
+          JD &amp; Bộ lọc cứng
+        </button>
+        <button
+          type="button"
+          onClick={() => setJdSubPage('weights')}
+          className={`flex-1 rounded-lg px-3 py-2 text-[12px] font-semibold transition-all ${
+            jdSubPage === 'weights'
+              ? 'bg-white text-blue-700 shadow-sm'
+              : 'text-slate-500 hover:text-slate-700'
+          }`}
+        >
+          Trọng số tiêu chí
+        </button>
+      </div>
+
+      {jdSubPage === 'setup' && (
       <div className="rounded-2xl border border-slate-100 bg-white p-5 space-y-4">
         {/* Toggle */}
         <div className="flex items-start justify-between gap-4">
@@ -842,47 +870,6 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
                 jdText={fixedJDText}
               />
             </div>
-
-            <div className="h-px bg-slate-100" />
-
-            {/* Weights Section */}
-            <div>
-              <div className="mb-2.5 flex items-center justify-between">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-400">Trọng số tiêu chí chấm điểm</p>
-                <button
-                  type="button"
-                  onClick={() => {
-                    try {
-                      const draft = readWorkflowDraft();
-                      const w = draft?.weights ?? JSON.parse(localStorage.getItem('analysisWeights') || 'null');
-                      if (w && typeof w === 'object' && !Array.isArray(w)) {
-                        setLocalWeights(w as WeightCriteria);
-                      }
-                    } catch {}
-                  }}
-                  className="text-[11px] font-semibold text-blue-500 transition hover:text-blue-600"
-                >
-                  Lấy từ phiên hiện tại
-                </button>
-              </div>
-
-              <div className="space-y-1.5">
-                {criteriaEntries.map((criterion) => (
-                  <WeightTile
-                    key={criterion.key}
-                    criterion={criterion}
-                    setWeights={setLocalWeights}
-                    isExpanded={expandedCriterion === criterion.key}
-                    onToggle={() => setExpandedCriterion((prev) => (prev === criterion.key ? null : criterion.key))}
-                  />
-                ))}
-                <p className={`text-right text-[11px] font-semibold pt-1 ${
-                  totalWeight === 100 ? 'text-emerald-600' : totalWeight > 100 ? 'text-rose-500' : 'text-amber-600'
-                }`}>
-                  Tổng: {totalWeight}%{totalWeight === 100 ? ' ✓' : totalWeight > 100 ? ' — quá 100%' : ' — chưa đủ 100%'}
-                </p>
-              </div>
-            </div>
           </>
         )}
 
@@ -945,6 +932,98 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
           </button>
         </div>
       </div>
+      )}
+
+      {/* Weights sub-page */}
+      {jdSubPage === 'weights' && (
+      <div className="rounded-2xl border border-slate-100 bg-white p-5 space-y-4">
+        <div className="flex items-center justify-between">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-400">Trọng số tiêu chí chấm điểm</p>
+          <button
+            type="button"
+            onClick={() => {
+              try {
+                const draft = readWorkflowDraft();
+                const w = draft?.weights ?? JSON.parse(localStorage.getItem('analysisWeights') || 'null');
+                if (w && typeof w === 'object' && !Array.isArray(w)) {
+                  setLocalWeights(w as WeightCriteria);
+                }
+              } catch {}
+            }}
+            className="text-[11px] font-semibold text-blue-500 transition hover:text-blue-600"
+          >
+            Lấy từ phiên hiện tại
+          </button>
+        </div>
+
+        <div className="space-y-1.5">
+          {criteriaEntries.map((criterion) => (
+            <WeightTile
+              key={criterion.key}
+              criterion={criterion}
+              setWeights={setLocalWeights}
+              isExpanded={expandedCriterion === criterion.key}
+              onToggle={() => setExpandedCriterion((prev) => (prev === criterion.key ? null : criterion.key))}
+            />
+          ))}
+          <p className={`text-right text-[11px] font-semibold pt-1 ${
+            totalWeight === 100 ? 'text-emerald-600' : totalWeight > 100 ? 'text-rose-500' : 'text-amber-600'
+          }`}>
+            Tổng: {totalWeight}%{totalWeight === 100 ? ' ✓' : totalWeight > 100 ? ' — quá 100%' : ' — chưa đủ 100%'}
+          </p>
+        </div>
+
+        <div className="h-px bg-slate-100" />
+
+        <div className="flex items-center justify-between">
+          <div className="min-w-0">
+            {settings.workflow.fixedJD?.savedAt ? (
+              <p className="text-[11px] text-slate-400">
+                Đã lưu: <span className="font-medium text-slate-600">{settings.workflow.fixedJD.name || 'Set Up'}</span>
+              </p>
+            ) : (
+              <p className="text-[11px] text-slate-400">Chưa có cấu hình nào được lưu.</p>
+            )}
+          </div>
+          <button
+            type="button"
+            disabled={!fixedJDText.trim() || fixedJDSaving}
+            onClick={async () => {
+              if (!fixedJDText.trim()) return;
+              setFixedJDSaving(true);
+              try {
+                await saveSettings({
+                  workflow: {
+                    ...settings.workflow,
+                    fixedJD: {
+                      enabled: settings.workflow.fixedJD?.enabled ?? true,
+                      name: fixedJDName.trim(),
+                      jdText: fixedJDText.trim(),
+                      savedAt: Date.now(),
+                      scoringEnabled: criteriaEntries.length > 0,
+                      weights: localWeights,
+                      hardFilters: localHardFilters,
+                    },
+                  },
+                });
+                setFixedJDSaved(true);
+                setTimeout(() => setFixedJDSaved(false), 2000);
+              } finally {
+                setFixedJDSaving(false);
+              }
+            }}
+            className="ml-3 inline-flex shrink-0 h-9 items-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50 px-4 text-[12px] font-semibold text-blue-700 transition hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            {fixedJDSaving
+              ? <Loader2 size={12} className="animate-spin" />
+              : fixedJDSaved
+                ? <CheckCircle2 size={12} className="text-emerald-500" />
+                : null}
+            {fixedJDSaved ? 'Đã lưu' : 'Lưu trọng số'}
+          </button>
+        </div>
+      </div>
+      )}
     </div>
   );
 
