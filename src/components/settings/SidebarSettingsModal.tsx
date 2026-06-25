@@ -279,7 +279,7 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<SettingsTab>('account');
   const [librarySubPage, setLibrarySubPage] = useState<'data' | 'history' | 'cv'>('data');
-  const [setupSubPage, setSetupSubPage] = useState<'workflow' | 'jd' | 'weights'>('workflow');
+  const [setupSubPage, setSetupSubPage] = useState<'workflow' | 'jd' | 'filters' | 'weights'>('workflow');
 
   const TAB_LABELS: Record<SettingsTab, string> = {
     account:       'Tài khoản',
@@ -698,8 +698,8 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
       {/* Sticky sub-nav */}
       <div className="shrink-0 border-b border-slate-100 bg-white px-5 py-3.5">
         <SubNav
-          pages={['workflow', 'jd', 'weights'] as unknown as string[]}
-          labels={{ workflow: 'Quy trình', jd: 'JD & Bộ lọc', weights: 'Trọng số' }}
+          pages={['workflow', 'jd', 'filters', 'weights'] as unknown as string[]}
+          labels={{ workflow: 'Quy trình', jd: 'Job Description', filters: 'Bộ lọc cứng', weights: 'Trọng số' }}
           current={setupSubPage}
           onChange={(p) => setSetupSubPage(p as typeof setupSubPage)}
         />
@@ -928,22 +928,6 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
           </div>
         </div>
 
-        {fixedJDText.trim() && (
-          <>
-            <div className="h-px bg-slate-100" />
-
-            {/* Hard Filters Section */}
-            <div>
-              <p className="mb-2.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-400">Bộ lọc cứng</p>
-              <HardFilterPanel
-                hardFilters={localHardFilters}
-                setHardFilters={setLocalHardFilters}
-                jdText={fixedJDText}
-              />
-            </div>
-          </>
-        )}
-
         <div className="h-px bg-slate-100" />
 
         {/* Save row */}
@@ -1000,6 +984,84 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
                 ? <CheckCircle2 size={12} className="text-emerald-500" />
                 : null}
             {fixedJDSaved ? 'Đã lưu' : 'Lưu Set Up'}
+          </button>
+        </div>
+      </div>
+      )}
+
+      {/* Filters sub-page */}
+      {setupSubPage === 'filters' && (
+      <div className="space-y-5">
+        {/* Intro card */}
+        <div className="rounded-2xl border border-blue-100/70 bg-gradient-to-br from-blue-50/60 to-slate-50 p-5">
+          <div className="flex items-start gap-4">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-blue-100 bg-white shadow-sm">
+              <SlidersHorizontal size={18} className="text-blue-500" />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="text-[15px] font-bold text-slate-900">Bộ lọc cứng</p>
+              <p className="mt-1 text-[12px] leading-5 text-slate-600">
+                Điều kiện loại ứng viên <span className="font-semibold text-slate-800">trước khi AI chấm điểm</span>. Ứng viên không đáp ứng sẽ bị loại hoàn toàn khỏi kết quả, bất kể năng lực thực tế.
+              </p>
+              {!settings.workflow.fixedJD?.jdText && (
+                <p className="mt-2 inline-flex items-center gap-1.5 text-[11px] font-medium text-amber-600">
+                  <AlertTriangle size={11} />
+                  Tính năng tự động điền từ JD yêu cầu lưu JD trước ở tab Job Description.
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Panel */}
+        <HardFilterPanel
+          hardFilters={localHardFilters}
+          setHardFilters={setLocalHardFilters}
+          jdText={fixedJDText}
+        />
+
+        {/* Save row */}
+        <div className="flex items-center justify-between border-t border-slate-100 pt-4">
+          <div className="min-w-0">
+            {settings.workflow.fixedJD?.savedAt ? (
+              <p className="text-[11px] text-slate-400">
+                Lưu cùng JD: <span className="font-medium text-slate-600">{settings.workflow.fixedJD.name || 'Set Up'}</span>
+              </p>
+            ) : (
+              <p className="text-[11px] text-slate-400">Chưa có JD nào được lưu — nhập JD trước để lưu bộ lọc.</p>
+            )}
+          </div>
+          <button
+            type="button"
+            disabled={!fixedJDText.trim() || fixedJDSaving}
+            onClick={async () => {
+              if (!fixedJDText.trim()) return;
+              setFixedJDSaving(true);
+              try {
+                await saveSettings({
+                  workflow: {
+                    ...settings.workflow,
+                    fixedJD: {
+                      enabled: settings.workflow.fixedJD?.enabled ?? false,
+                      name: fixedJDName.trim(),
+                      jdText: fixedJDText.trim(),
+                      savedAt: Date.now(),
+                      scoringEnabled: criteriaEntries.length > 0,
+                      weights: localWeights,
+                      hardFilters: localHardFilters,
+                    },
+                  },
+                });
+                setFixedJDSaved(true);
+                setTimeout(() => setFixedJDSaved(false), 2000);
+              } finally {
+                setFixedJDSaving(false);
+              }
+            }}
+            className="ml-4 inline-flex shrink-0 h-9 items-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50 px-4 text-[12px] font-semibold text-blue-700 transition hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            {fixedJDSaving ? <Loader2 size={12} className="animate-spin" /> : fixedJDSaved ? <CheckCircle2 size={12} className="text-emerald-500" /> : null}
+            {fixedJDSaved ? 'Đã lưu' : 'Lưu bộ lọc'}
           </button>
         </div>
       </div>
