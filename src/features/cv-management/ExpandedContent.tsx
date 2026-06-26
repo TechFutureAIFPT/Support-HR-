@@ -2120,7 +2120,7 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
   const locationWarning = candidate.softFilterWarnings?.find((warning) =>
     normalizeAscii(warning).includes('dia diem')
   );
-  const showAggregateSections = mode === 'full';
+  const showAggregateSections = mode !== 'full';
   const showTechnicalSummary = mode !== 'full';
 
   return (

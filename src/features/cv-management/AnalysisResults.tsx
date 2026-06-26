@@ -1,10 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { ArrowLeft, CalendarDays, CheckCircle2, ChevronRight, Mail, MoreHorizontal, PanelRightClose, PanelRightOpen, PlayCircle, Sparkles, TriangleAlert, Zap } from 'lucide-react';
+import { ArrowLeft, CalendarDays, CheckCircle2, ChevronRight, Mail, MoreHorizontal, PanelRightClose, PanelRightOpen, PlayCircle, TriangleAlert, Zap } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 import type { AnalysisFeedbackRecord, AppStep, Candidate, HardFilters, WeightCriteria } from '@/types';
 import SupportHRLoading from '@/components/common/SupportHRLoading';
 import CvDocumentViewer from '@/features/cv-management/CvDocumentViewer';
-import { ScoreLabel, WorkspaceDivider, WorkspaceEmpty, WorkspaceSearch, WorkspaceSection } from '@/components/workspace/WorkspacePrimitives';
+import { ScoreLabel, WorkspaceEmpty, WorkspaceSearch } from '@/components/workspace/WorkspacePrimitives';
 import { normalizeVietnameseDisplay } from '@/utils/textDisplay';
 import ExpandedContent from '@/features/cv-management/ExpandedContent';
 import CandidateEmailNotifier from '@/features/email/CandidateEmailNotifier';
@@ -85,50 +85,92 @@ const CandidateAnalysisPane: React.FC<{ candidate: Candidate; scrollable?: boole
   const risks = buildVerificationRisks(candidate);
   const action = buildSuggestedNextAction(score, risks.length);
 
+  const jdMatchPct = candidate.jdCvMatchInsights
+    ? Math.round(candidate.jdCvMatchInsights.similarity * 1000) / 10
+    : null;
+  const hasLocationRisk = candidate.locationMatch === false;
+  const detectedLocation = candidate.detectedLocation?.trim() || null;
+  const scoreColor = score >= 75 ? '#34c759' : score >= 60 ? '#007aff' : score >= 40 ? '#ff9f0a' : '#ff3b30';
+
   return (
-    <div className={scrollable ? 'custom-scrollbar h-full overflow-y-auto px-5 py-5 sm:px-6' : 'px-5 py-5 sm:px-6'}>
-      <WorkspaceSection title="Kết luận nhanh" icon={<Sparkles size={17} className="text-[#007aff]" />}>
-        <p className="text-[13px] leading-6 font-medium text-[#1d1d1f]">{verdict}</p>
-      </WorkspaceSection>
-      <WorkspaceDivider />
+    <div className={scrollable ? 'custom-scrollbar h-full overflow-y-auto p-4 sm:p-5' : 'p-4 sm:p-5'}>
+      {/* ── Verdict card ─────────────────────────────────── */}
+      <div className="overflow-hidden rounded-2xl border border-[#d2d2d7] bg-white shadow-sm">
+        <div className="px-5 pt-5 pb-3">
+          <p className="mb-1.5 text-[10.5px] font-bold uppercase tracking-[0.13em] text-[#007aff]">Kết luận nhanh</p>
+          <p className="text-[14.5px] font-semibold leading-[1.55] text-[#1d1d1f]">{verdict}</p>
+        </div>
 
-      <WorkspaceSection title="Vì sao nên cân nhắc" icon={<CheckCircle2 size={17} className="text-[#34c759]" />} tone="success">
-        {reasons.length > 0 ? (
-          <ul className="space-y-2.5">
-            {reasons.map((item, i) => (
-              <li key={i} className="flex gap-2.5 text-[13px] leading-5 text-[#3a3a3c]">
-                <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#34c759]" />
-                {item}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="text-[13px] text-[#86868b]">Chưa có điểm nổi bật từ hồ sơ.</p>
-        )}
-      </WorkspaceSection>
-      <WorkspaceDivider />
+        {/* Stats strip + action badge */}
+        <div className="flex flex-wrap items-center gap-2 border-t border-[#f2f2f7] px-5 py-3">
+          <span className="inline-flex items-baseline gap-0.5 rounded-lg bg-[#f2f2f7] px-3 py-1.5">
+            <span className="text-[17px] font-black tabular-nums leading-none" style={{ color: scoreColor }}>{score.toFixed(1)}</span>
+            <span className="text-[10px] font-bold text-[#86868b]">/100</span>
+          </span>
 
-      <WorkspaceSection title="Điểm cần xác minh" icon={<TriangleAlert size={17} className="text-[#ff9f0a]" />} tone="warning">
-        {risks.length > 0 ? (
-          <ul className="space-y-2.5">
-            {risks.map((item, i) => (
-              <li key={i} className="flex gap-2.5 text-[13px] leading-5 text-[#3a3a3c]">
-                <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#ff9f0a]" />
-                {item}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="text-[13px] text-[#86868b]">Không có cảnh báo cần xử lý.</p>
-        )}
-      </WorkspaceSection>
-      <WorkspaceDivider />
+          {jdMatchPct !== null && (
+            <span className="inline-flex items-baseline gap-1 rounded-lg bg-[#f2f2f7] px-3 py-1.5">
+              <span className="text-[10.5px] font-semibold text-[#86868b]">JD</span>
+              <span className="text-[15px] font-black tabular-nums leading-none text-[#007aff]">{jdMatchPct.toFixed(0)}%</span>
+            </span>
+          )}
 
-      <WorkspaceSection title="Hành động gợi ý" icon={<Zap size={17} className="text-[#007aff]" />}>
-        <span className={`inline-flex items-center rounded-lg border px-3.5 py-1.5 text-[12px] font-semibold ${action.bgClass} ${action.colorClass}`}>
-          {action.label}
-        </span>
-      </WorkspaceSection>
+          {hasLocationRisk && detectedLocation && (
+            <span className="inline-flex items-center gap-1.5 rounded-lg border border-[#ff3b30]/20 bg-[#fff5f5] px-2.5 py-1.5">
+              <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#ff3b30]" />
+              <span className="text-[11px] font-semibold text-[#ff3b30]">{detectedLocation}</span>
+            </span>
+          )}
+
+          <div className="flex-1" />
+
+          <span className={`inline-flex items-center gap-1.5 rounded-lg border px-3.5 py-1.5 text-[12px] font-bold ${action.bgClass} ${action.colorClass}`}>
+            <Zap size={12} />
+            {action.label}
+          </span>
+        </div>
+      </div>
+
+      {/* ── Evidence 2-column grid ────────────────────────── */}
+      <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div className="rounded-2xl border border-[#d2d2d7] bg-white px-4 py-4">
+          <p className="mb-3 flex items-center gap-1.5 text-[10.5px] font-bold uppercase tracking-[0.1em] text-[#34c759]">
+            <CheckCircle2 size={13} />
+            Vì sao nên cân nhắc
+          </p>
+          {reasons.length > 0 ? (
+            <ul className="space-y-2.5">
+              {reasons.map((item, i) => (
+                <li key={i} className="flex gap-2.5 text-[13px] leading-[1.45] text-[#3a3a3c]">
+                  <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[#34c759]" />
+                  {item}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-[13px] text-[#86868b]">Chưa có điểm nổi bật từ hồ sơ.</p>
+          )}
+        </div>
+
+        <div className="rounded-2xl border border-[#d2d2d7] bg-white px-4 py-4">
+          <p className="mb-3 flex items-center gap-1.5 text-[10.5px] font-bold uppercase tracking-[0.1em] text-[#ff9f0a]">
+            <TriangleAlert size={13} />
+            Điểm cần xác minh
+          </p>
+          {risks.length > 0 ? (
+            <ul className="space-y-2.5">
+              {risks.map((item, i) => (
+                <li key={i} className="flex gap-2.5 text-[13px] leading-[1.45] text-[#3a3a3c]">
+                  <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[#ff9f0a]" />
+                  {item}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-[13px] text-[#86868b]">Không có cảnh báo cần xử lý.</p>
+          )}
+        </div>
+      </div>
     </div>
   );
 };
@@ -282,9 +324,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({
               ) : (
                 <div className={`grid h-full min-h-0 ${showCvPanel ? 'xl:grid-cols-[minmax(340px,48%)_minmax(0,52%)]' : ''}`}>
                   <div className={`custom-scrollbar min-h-0 overflow-y-auto ${showCvPanel ? 'border-r border-[#d2d2d7]' : ''}`}>
-                    <div className="border-b border-[#d2d2d7] bg-white">
-                      <CandidateAnalysisPane candidate={selected} scrollable={false} />
-                    </div>
+                    <CandidateAnalysisPane candidate={selected} scrollable={false} />
                     <ExpandedContent
                       candidate={selected}
                       expandedCriteria={expandedCriteria}
