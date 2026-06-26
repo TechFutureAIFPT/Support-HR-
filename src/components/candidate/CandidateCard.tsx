@@ -1,7 +1,33 @@
-  
 import React, { useState, useMemo } from 'react';
 import type { Candidate, DetailedScore } from '@/types';
 import { normalizeVietnameseDisplay } from '@/utils/textDisplay';
+
+function isTechnicalScoringNote(value: string): boolean {
+  const text = value.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  return (
+    /expecting|json|parse|delimiter|line \d+|column \d+|fallback|vector|keyword match|ai generation/.test(text) ||
+    /cham diem tam thoi|khop noi dung|khong noi dung|noi dung jd|khong trich xuat/.test(text)
+  );
+}
+
+function extractKeywords(criterion: string): string[] {
+  return criterion
+    .replace(/[()]/g, ' ')
+    .split(/[\s/,]+/)
+    .filter((kw) => kw.length >= 3);
+}
+
+function highlightKeywords(text: string, keywords: string[]): React.ReactNode[] {
+  if (!keywords.length) return [text];
+  const escaped = keywords.map((kw) => kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
+  const regex = new RegExp(`(${escaped})`, 'gi');
+  const parts = text.split(regex);
+  return parts.map((part, i) =>
+    i % 2 === 1
+      ? <mark key={i} className="bg-yellow-400/20 text-yellow-200 rounded px-0.5 font-semibold not-italic">{part}</mark>
+      : part
+  );
+}
 
 // --- Constants for the new UI ---
 const CRITERIA_ORDER = [
@@ -101,23 +127,19 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
   const [copied, setCopied] = useState(false);
 
   const meta = CRITERIA_META[item['Tiêu chí']] || { icon: 'fa-solid fa-circle-question', color: 'text-slate-400' };
-  
-  // Parse score details
+  const keywords = useMemo(() => extractKeywords(item['Tiêu chí']), [item]);
+
   const parsedData = useMemo(() => {
-    const scoreStr = item['Điểm']; // e.g. "85/100"
+    const scoreStr = item['Điểm'];
     const score = parseInt(scoreStr.split('/')[0], 10);
-    
-    // Try to extract subscore and weight from explanation if available
-    // This is a heuristic based on typical explanation format
     const subscoreMatch = item['Giải thích'].match(/subscore\s*(\d+)/i);
     const weightMatch = item['Giải thích'].match(/trọng số\s*(\d+)%/i);
-    
     return {
       score,
       subscore: subscoreMatch ? subscoreMatch[1] : null,
       weight: weightMatch ? weightMatch[1] : null,
-      formulaResult: (subscoreMatch && weightMatch) 
-        ? Math.round(parseInt(subscoreMatch[1]) * parseInt(weightMatch[1]) / 100) 
+      formulaResult: (subscoreMatch && weightMatch)
+        ? Math.round(parseInt(subscoreMatch[1]) * parseInt(weightMatch[1]) / 100)
         : score
     };
   }, [item]);
@@ -161,11 +183,17 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
         </div>
 
         <div className="flex items-center gap-3 md:gap-4">
-          <div className={`flex flex-col items-end`}>
-             <span className={`text-base md:text-lg font-black ${getScoreColorClasses(parsedData.score).split(' ')[1]}`}>
-                {parsedData.score}
-             </span>
-             <span className="text-[9px] md:text-[10px] text-slate-500 font-medium uppercase tracking-wider">Điểm số</span>
+          <div className="flex flex-col items-end gap-1">
+            <span className={`text-base md:text-lg font-black ${getScoreColorClasses(parsedData.score).split(' ')[1]}`}>
+              {parsedData.score}
+              <span className="text-[10px] text-slate-500 font-normal ml-0.5">/100</span>
+            </span>
+            <div className="w-16 h-1.5 rounded-full bg-slate-800 overflow-hidden">
+              <div
+                className={`h-full rounded-full transition-all duration-700 ${parsedData.score >= 80 ? 'bg-emerald-500' : parsedData.score >= 60 ? 'bg-yellow-500' : 'bg-red-500'}`}
+                style={{ width: `${parsedData.score}%` }}
+              />
+            </div>
           </div>
           <div className={`w-7 h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center bg-slate-900 border border-slate-800 transition-transform duration-300 ${isExpanded ? 'rotate-180 bg-slate-800 text-cyan-400' : 'text-slate-500'}`}>
             <i className="fa-solid fa-chevron-down text-[10px] md:text-xs"></i>
@@ -200,10 +228,9 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
                       </div>
                    ) : (
                       <blockquote className="text-xs md:text-sm text-slate-300 leading-relaxed whitespace-pre-line font-medium">
-                        "{item['Dẫn chứng']}"
+                        "{highlightKeywords(item['Dẫn chứng'], keywords)}"
                       </blockquote>
                    )}
-                   {/* Decorative quote mark */}
                    <i className="fa-solid fa-quote-right absolute bottom-3 right-3 text-2xl md:text-4xl text-slate-800/50 -z-10"></i>
                 </div>
               </div>
@@ -273,7 +300,10 @@ const CandidateCard: React.FC<CandidateCardProps> = ({ candidate, rank }) => {
   const grade = analysis?.["Hạng"] || 'C';
   const overallScore = analysis?.["Tổng điểm"] || 0;
   const strengths = analysis?.['Điểm mạnh CV'];
-  const weaknesses = analysis?.['Điểm yếu CV'];
+  const weaknesses = useMemo(
+    () => (analysis?.['Điểm yếu CV'] || []).filter((w) => w.trim() && !isTechnicalScoringNote(w)),
+    [analysis]
+  );
 
   // Enhanced Grade Colors
   const gradeColor = failed ? 'from-slate-600 to-slate-700' : (grade === 'A' ? 'from-emerald-500 to-teal-600' : grade === 'B' ? 'from-blue-500 to-indigo-600' : 'from-red-500 to-rose-600');
@@ -387,24 +417,35 @@ const CandidateCard: React.FC<CandidateCardProps> = ({ candidate, rank }) => {
             </div>
           </div>
 
-          {/* Header Bottom Row: Contact & Status */}
-          <div className="flex flex-wrap items-center justify-between gap-3 md:gap-4 pt-2 border-t border-slate-800/50 w-full">
-             
-             {failed ? (
-                <span className="text-[10px] md:text-xs font-bold text-red-400 flex items-center gap-1.5 bg-red-500/10 px-2.5 py-0.5 md:px-3 md:py-1 rounded-full">
-                  <i className="fa-solid fa-circle-exclamation"></i> {error || 'Lỗi phân tích'}
+          {/* Header Bottom Row: Quick-scan tags */}
+          <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-800/50 w-full">
+            {failed ? (
+              <span className="text-[10px] md:text-xs font-bold text-red-400 flex items-center gap-1.5 bg-red-500/10 px-2.5 py-1 rounded-full border border-red-500/20">
+                <i className="fa-solid fa-circle-exclamation"></i> {error || 'Lỗi phân tích'}
+              </span>
+            ) : (
+              <>
+                <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-bold md:text-xs ${stageDecisionClasses}`}>
+                  <i className={`fa-solid ${stageDecisionIcon}`}></i>
+                  {stageDecisionLabel}
                 </span>
-             ) : (
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-[10px] md:text-xs font-medium text-slate-500 flex items-center gap-1.5">
-                    <i className="fa-regular fa-file-lines"></i> {fileName}
+                {candidate.detectedLocation && (
+                  <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-bold ${candidate.locationMatch === false ? 'border-rose-500/30 bg-rose-500/10 text-rose-400' : 'border-slate-700 bg-slate-900/50 text-slate-400'}`}>
+                    <i className="fa-solid fa-location-dot"></i>
+                    {candidate.detectedLocation}
+                    {candidate.locationMatch === false && <span className="ml-0.5 opacity-70">· Lệch</span>}
                   </span>
-                  <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-bold md:text-xs ${stageDecisionClasses}`}>
-                    <i className={`fa-solid ${stageDecisionIcon}`}></i>
-                    {stageDecisionLabel}
+                )}
+                {hardFilterFailureReason && (
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-red-500/30 bg-red-500/10 px-2.5 py-1 text-[10px] font-bold text-red-400">
+                    <i className="fa-solid fa-ban"></i> Loại bộ lọc cứng
                   </span>
-                </div>
-             )}
+                )}
+                <span className="text-[10px] md:text-xs font-medium text-slate-600 flex items-center gap-1.5 ml-auto">
+                  <i className="fa-regular fa-file-lines"></i> {fileName}
+                </span>
+              </>
+            )}
           </div>
         </button>
       
@@ -436,20 +477,19 @@ const CandidateCard: React.FC<CandidateCardProps> = ({ candidate, rank }) => {
                   </div>
                 )}
 
-                {/* Weaknesses */}
-                {weaknesses && weaknesses.length > 0 && (
+                {weaknesses.length > 0 && (
                   <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-red-900/20 to-rose-900/20 border border-red-500/20 p-5">
                     <div className="absolute top-0 right-0 p-3 opacity-10">
                       <i className="fa-solid fa-shield-halved text-6xl text-red-400"></i>
                     </div>
                     <h4 className="relative text-sm font-bold text-red-400 uppercase tracking-wider mb-3 flex items-center gap-2">
-                      <i className="fa-solid fa-triangle-exclamation"></i> Điểm cần cải thiện
+                      <i className="fa-solid fa-triangle-exclamation"></i> Cần xác minh thêm
                     </h4>
                     <ul className="relative space-y-2">
-                      {weaknesses.map((item, index) => (
+                      {weaknesses.map((weaknessItem, index) => (
                         <li key={index} className="flex items-start gap-2 text-sm text-slate-300">
                           <span className="mt-1.5 w-1 h-1 rounded-full bg-red-500 flex-shrink-0"></span>
-                          <span className="leading-relaxed">{item}</span>
+                          <span className="leading-relaxed">{weaknessItem}</span>
                         </li>
                       ))}
                     </ul>
