@@ -183,11 +183,12 @@ export function normalizeUserSettings(raw: unknown, seed: AccountSeed = {}): Use
       newSessionMode: workflow.newSessionMode === 'keep-config' ? 'keep-config' : 'reset',
       fixedJD: (() => {
         const raw = toRecord(workflow.fixedJD);
-        if (!raw || typeof raw.jdText !== 'string' || !raw.jdText.trim()) return undefined;
+        if (!raw) return undefined;
+        const jdText = typeof raw.jdText === 'string' ? raw.jdText.trim() : '';
         return {
           enabled: normalizeBoolean(raw.enabled, false),
           name: String(raw.name || ''),
-          jdText: raw.jdText.trim(),
+          jdText,
           savedAt: typeof raw.savedAt === 'number' ? raw.savedAt : Date.now(),
           scoringEnabled: normalizeBoolean(raw.scoringEnabled, false),
           weights: raw.weights && typeof raw.weights === 'object' ? raw.weights as Record<string, unknown> : undefined,

@@ -790,11 +790,13 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
               <Toggle
                 checked={settings.workflow.fixedJD?.enabled ?? false}
                 onChange={(v) => {
-                  if (!settings.workflow.fixedJD?.jdText) return;
+                  const existing = settings.workflow.fixedJD;
                   void autoSave('fixedJD.enabled', {
                     workflow: {
                       ...settings.workflow,
-                      fixedJD: { ...settings.workflow.fixedJD, enabled: v },
+                      fixedJD: existing
+                        ? { ...existing, enabled: v }
+                        : { name: fixedJDName.trim(), jdText: fixedJDText.trim(), savedAt: Date.now(), enabled: v },
                     },
                   });
                 }}
