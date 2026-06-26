@@ -1,11 +1,14 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import {
   AlertCircle,
+  Calendar,
   CheckCircle2,
   Edit3,
   Eye,
   Mail,
+  MapPin,
   Send,
+  Video,
   X,
 } from 'lucide-react';
 import { useThemeColors } from '@/hooks/useThemeColors';
@@ -24,17 +27,6 @@ const ACTION_LABEL: Partial<Record<AnalysisFeedbackAction, string>> = {
   reject: 'Từ chối',
 };
 
-const PASS_TEMPLATE = `Kính gửi {{name}},
-
-Cảm ơn bạn đã ứng tuyển vị trí {{position}} tại công ty chúng tôi.
-
-Sau khi xem xét kỹ hồ sơ, chúng tôi vui mừng thông báo bạn đã VƯỢT QUA vòng sơ tuyển và được mời tham gia phỏng vấn vòng 2.
-
-Chúng tôi sẽ liên hệ trong thời gian sớm nhất để sắp xếp lịch phỏng vấn.
-
-Trân trọng,
-Bộ phận Tuyển dụng`;
-
 const FAIL_TEMPLATE = `Kính gửi {{name}},
 
 Cảm ơn bạn đã quan tâm và dành thời gian ứng tuyển vị trí {{position}} tại công ty chúng tôi.
@@ -48,6 +40,15 @@ Bộ phận Tuyển dụng`;
 
 type TabType = 'pass' | 'fail';
 type SendState = 'idle' | 'sending' | 'sent';
+type InterviewFormat = 'offline' | 'online' | 'hybrid';
+
+interface InterviewDetails {
+  date: string;
+  time: string;
+  format: InterviewFormat;
+  location: string;
+  meetLink: string;
+}
 
 interface EmailItem {
   candidate: Candidate;
@@ -62,6 +63,12 @@ export interface CandidateEmailNotifierProps {
   jobPosition: string;
   onClose: () => void;
 }
+
+const FORMAT_OPTIONS: { value: InterviewFormat; label: string }[] = [
+  { value: 'offline', label: 'Trực tiếp' },
+  { value: 'online', label: 'Online' },
+  { value: 'hybrid', label: 'Kết hợp' },
+];
 
 function getInitials(name: string): string {
   const parts = name.trim().split(' ');
@@ -83,6 +90,41 @@ function applyTemplate(template: string, name: string, position: string): string
     .replace(/\{\{position\}\}/g, position);
 }
 
+function generatePassBody(details: InterviewDetails, name: string, position: string): string {
+  const { date, time, format, location, meetLink } = details;
+
+  const timeDisplay = date && time
+    ? `${date} lúc ${time}`
+    : date || (time ? `lúc ${time}` : '(sẽ được thông báo sau)');
+
+  const lines: string[] = [
+    `Kính gửi ${name},`,
+    '',
+    `Cảm ơn bạn đã ứng tuyển vị trí ${position} tại công ty chúng tôi.`,
+    '',
+    'Sau khi xem xét kỹ hồ sơ, chúng tôi vui mừng thông báo bạn đã VƯỢT QUA vòng sơ tuyển và được mời tham gia phỏng vấn vòng 2.',
+    '',
+    `📅 Thời gian: ${timeDisplay}`,
+  ];
+
+  if (format === 'offline' || format === 'hybrid') {
+    lines.push(`📍 Địa điểm: ${location || '(sẽ được cập nhật)'}`);
+  }
+  if (format === 'online' || format === 'hybrid') {
+    lines.push(`🔗 Google Meet: ${meetLink || '(sẽ được cập nhật)'}`);
+  }
+
+  lines.push(
+    '',
+    'Kính nhờ bạn xác nhận tham dự hoặc liên hệ lại nếu cần điều chỉnh lịch.',
+    '',
+    'Trân trọng,',
+    'Bộ phận Tuyển dụng',
+  );
+
+  return lines.join('\n');
+}
+
 const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
   candidates,
   feedbackByCandidate,
@@ -93,9 +135,15 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
   const [activeTab, setActiveTab] = useState<TabType>('pass');
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [emailOverrides, setEmailOverrides] = useState<Record<string, string>>({});
-  const [passTemplate, setPassTemplate] = useState(PASS_TEMPLATE);
+  const [interviewDetails, setInterviewDetails] = useState<InterviewDetails>({
+    date: '',
+    time: '',
+    format: 'offline',
+    location: '',
+    meetLink: '',
+  });
   const [failTemplate, setFailTemplate] = useState(FAIL_TEMPLATE);
-  const [showPreview, setShowPreview] = useState(false);
+  const [showFailPreview, setShowFailPreview] = useState(false);
   const [sendState, setSendState] = useState<SendState>('idle');
   const [sentCount, setSentCount] = useState(0);
 
@@ -139,13 +187,8 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
   );
 
   const activeItems = activeTab === 'pass' ? passItems : failItems;
-  const activeTemplate = activeTab === 'pass' ? passTemplate : failTemplate;
-  const setActiveTemplate = activeTab === 'pass' ? setPassTemplate : setFailTemplate;
-
   const selectedItems = activeItems.filter((item) => selectedIds.has(item.candidate.id));
-  const canSend =
-    selectedItems.length > 0 &&
-    selectedItems.every((item) => item.email.includes('@'));
+  const canSend = selectedItems.length > 0 && selectedItems.every((item) => item.email.includes('@'));
 
   const toggleSelect = useCallback((id: string) => {
     setSelectedIds((prev) => {
@@ -168,6 +211,10 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
     setEmailOverrides((prev) => ({ ...prev, [id]: value }));
   }, []);
 
+  const updateInterview = useCallback((patch: Partial<InterviewDetails>) => {
+    setInterviewDetails((prev) => ({ ...prev, ...patch }));
+  }, []);
+
   const handleSend = useCallback(async () => {
     if (!canSend) return;
     setSendState('sending');
@@ -183,15 +230,13 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
       ? `Thông báo kết quả sơ tuyển – ${jobPosition}`
       : `Kết quả ứng tuyển – ${jobPosition}`;
 
-    const emails = selectedItems.map((item) => ({
-      to: item.email,
-      subject,
-      body: applyTemplate(
-        activeTemplate,
-        normalizeVietnameseDisplay(item.candidate.candidateName),
-        jobPosition,
-      ),
-    }));
+    const emails = selectedItems.map((item) => {
+      const name = normalizeVietnameseDisplay(item.candidate.candidateName);
+      const body = activeTab === 'pass'
+        ? generatePassBody(interviewDetails, name, jobPosition)
+        : applyTemplate(failTemplate, name, jobPosition);
+      return { to: item.email, subject, body };
+    });
 
     try {
       const res = await apiPost<{ sent: number; failed: number }>(
@@ -204,16 +249,18 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
       setSentCount(0);
     }
     setSendState('sent');
-  }, [activeTab, activeTemplate, canSend, jobPosition, selectedItems]);
+  }, [activeTab, canSend, failTemplate, interviewDetails, jobPosition, selectedItems]);
 
   const previewItem = selectedItems[0] ?? activeItems[0] ?? null;
-  const previewBody = previewItem
-    ? applyTemplate(
-        activeTemplate,
-        normalizeVietnameseDisplay(previewItem.candidate.candidateName),
-        jobPosition
-      )
-    : applyTemplate(activeTemplate, 'Ứng viên', jobPosition);
+  const previewName = previewItem
+    ? normalizeVietnameseDisplay(previewItem.candidate.candidateName)
+    : 'Ứng viên';
+  const previewBody = activeTab === 'pass'
+    ? generatePassBody(interviewDetails, previewName, jobPosition)
+    : applyTemplate(failTemplate, previewName, jobPosition);
+
+  const inputCls = 'w-full rounded-lg border px-3 py-2 text-[13px] outline-none transition-colors focus:border-blue-400 focus:ring-1 focus:ring-blue-100';
+  const inputStyle = { background: tc.pageBg, borderColor: tc.borderSoft, color: tc.textPrimary };
 
   return (
     <div
@@ -226,7 +273,7 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
         style={{
           background: tc.cardBg,
           border: `1px solid ${tc.borderSoft}`,
-          height: 'min(90vh, 720px)',
+          height: 'min(92vh, 760px)',
         }}
       >
         {/* ── Header ──────────────────────────────────── */}
@@ -239,7 +286,7 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
               <Mail className="h-4 w-4 text-white" />
             </div>
             <div>
-              <h2 className="text-[16px] font-bold leading-tight" style={{ color: tc.textPrimary }}>
+              <h2 className="text-[15px] font-bold leading-tight" style={{ color: tc.textPrimary }}>
                 Gửi thông báo kết quả
               </h2>
               <p className="text-[12px]" style={{ color: tc.textMuted }}>
@@ -261,7 +308,7 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
 
           {/* Left — candidate list */}
           <div
-            className="flex w-[55%] min-h-0 flex-col border-r"
+            className="flex w-[50%] min-h-0 flex-col border-r"
             style={{ borderColor: tc.borderSoft }}
           >
             {/* Tabs */}
@@ -269,30 +316,22 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
               className="flex shrink-0 items-center gap-2 border-b px-4 py-3"
               style={{ borderColor: tc.borderSoft }}
             >
-              <button
-                onClick={() => { setActiveTab('pass'); setSelectedIds(new Set()); }}
-                className={`flex items-center gap-2 rounded-full border px-4 py-1.5 text-[12px] font-semibold transition-all ${
-                  activeTab === 'pass'
-                    ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
-                    : 'hover:bg-slate-50'
-                }`}
-                style={activeTab !== 'pass' ? { borderColor: tc.borderSoft, color: tc.textSecondary } : {}}
-              >
-                <span className="h-2 w-2 rounded-full bg-emerald-500" />
-                Vượt vòng ({passItems.length})
-              </button>
-              <button
-                onClick={() => { setActiveTab('fail'); setSelectedIds(new Set()); }}
-                className={`flex items-center gap-2 rounded-full border px-4 py-1.5 text-[12px] font-semibold transition-all ${
-                  activeTab === 'fail'
-                    ? 'border-rose-200 bg-rose-50 text-rose-700'
-                    : 'hover:bg-slate-50'
-                }`}
-                style={activeTab !== 'fail' ? { borderColor: tc.borderSoft, color: tc.textSecondary } : {}}
-              >
-                <span className="h-2 w-2 rounded-full bg-rose-500" />
-                Không phù hợp ({failItems.length})
-              </button>
+              {([
+                { tab: 'pass' as TabType, label: 'Vượt vòng', count: passItems.length, dot: 'bg-emerald-500', active: 'border-emerald-200 bg-emerald-50 text-emerald-700' },
+                { tab: 'fail' as TabType, label: 'Không phù hợp', count: failItems.length, dot: 'bg-rose-500', active: 'border-rose-200 bg-rose-50 text-rose-700' },
+              ]).map(({ tab, label, count, dot, active }) => (
+                <button
+                  key={tab}
+                  onClick={() => { setActiveTab(tab); setSelectedIds(new Set()); }}
+                  className={`flex items-center gap-2 rounded-full border px-4 py-1.5 text-[12px] font-semibold transition-all ${
+                    activeTab === tab ? active : 'hover:bg-slate-50'
+                  }`}
+                  style={activeTab !== tab ? { borderColor: tc.borderSoft, color: tc.textSecondary } : {}}
+                >
+                  <span className={`h-2 w-2 rounded-full ${dot}`} />
+                  {label} ({count})
+                </button>
+              ))}
             </div>
 
             {/* Select-all bar */}
@@ -340,15 +379,16 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
                   return (
                     <div
                       key={item.candidate.id}
-                      className={`rounded-xl border p-3 transition-all ${
+                      className={`rounded-xl border transition-all ${
                         isSelected
                           ? 'border-blue-300 bg-blue-50 shadow-sm'
-                          : 'hover:border-slate-300 hover:shadow-sm cursor-pointer'
+                          : 'cursor-pointer hover:border-slate-300 hover:shadow-sm'
                       }`}
                       style={!isSelected ? { borderColor: tc.borderSoft, background: tc.pageBg } : {}}
                       onClick={() => toggleSelect(item.candidate.id)}
                     >
-                      <div className="flex items-center gap-3">
+                      {/* Candidate info row */}
+                      <div className="flex items-center gap-3 p-3">
                         <input
                           type="checkbox"
                           checked={isSelected}
@@ -358,18 +398,13 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
                         />
                         <div
                           className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-[12px] font-black ${
-                            isPass
-                              ? 'bg-emerald-100 text-emerald-700'
-                              : 'bg-rose-100 text-rose-700'
+                            isPass ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'
                           }`}
                         >
                           {getInitials(normalizeVietnameseDisplay(item.candidate.candidateName))}
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p
-                            className="truncate text-[13px] font-semibold"
-                            style={{ color: tc.textPrimary }}
-                          >
+                          <p className="truncate text-[13px] font-semibold" style={{ color: tc.textPrimary }}>
                             {normalizeVietnameseDisplay(item.candidate.candidateName)}
                           </p>
                           <p className="text-[11px]" style={{ color: tc.textMuted }}>
@@ -386,21 +421,30 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
                             </span>
                           </p>
                         </div>
-                        {hasEmail ? (
-                          <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-500" />
-                        ) : (
-                          <AlertCircle className="h-4 w-4 shrink-0 text-amber-500" />
-                        )}
+                        {hasEmail
+                          ? <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-500" />
+                          : <AlertCircle className="h-4 w-4 shrink-0 text-amber-500" />
+                        }
                       </div>
 
-                      {/* Email row */}
+                      {/* Email row — always visible, prominent */}
                       <div
-                        className="mt-2.5 flex items-center gap-2"
+                        className="flex items-center gap-2 rounded-b-xl border-t px-3 py-2"
+                        style={{
+                          borderColor: isSelected ? '#bfdbfe' : tc.borderSoft,
+                          background: isSelected ? 'rgba(219,234,254,0.4)' : 'transparent',
+                        }}
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <Mail className="h-3 w-3 shrink-0" style={{ color: tc.textMuted }} />
+                        <Mail
+                          className="h-3 w-3 shrink-0"
+                          style={{ color: hasEmail ? '#3b82f6' : tc.textMuted }}
+                        />
                         {item.hasOriginalEmail ? (
-                          <span className="truncate text-[12px]" style={{ color: tc.textSecondary }}>
+                          <span
+                            className="truncate text-[12px] font-semibold"
+                            style={{ color: hasEmail ? '#1d4ed8' : '#d97706' }}
+                          >
                             {item.email}
                           </span>
                         ) : (
@@ -421,9 +465,10 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
             </div>
           </div>
 
-          {/* Right — template editor / preview */}
-          <div className="flex w-[45%] min-h-0 flex-col">
-            {/* Template toolbar */}
+          {/* Right — interview form (pass) or template editor (fail) */}
+          <div className="flex w-[50%] min-h-0 flex-col">
+
+            {/* Panel toolbar */}
             <div
               className="flex shrink-0 items-center justify-between border-b px-4 py-3"
               style={{ borderColor: tc.borderSoft }}
@@ -432,97 +477,255 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
                 className="text-[11px] font-semibold uppercase tracking-[0.15em]"
                 style={{ color: tc.textMuted }}
               >
-                Mẫu email &middot; {activeTab === 'pass' ? 'Vượt vòng' : 'Không phù hợp'}
+                {activeTab === 'pass' ? 'Thông tin phỏng vấn' : 'Mẫu email · Không phù hợp'}
               </p>
-              <div className="flex gap-1">
-                <button
-                  onClick={() => setShowPreview(false)}
-                  className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[11px] font-semibold transition-colors ${
-                    !showPreview ? 'bg-blue-600 text-white' : 'hover:bg-slate-100'
-                  }`}
-                  style={showPreview ? { color: tc.textSecondary } : {}}
-                >
-                  <Edit3 className="h-3 w-3" />
-                  Soạn
-                </button>
-                <button
-                  onClick={() => setShowPreview(true)}
-                  className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[11px] font-semibold transition-colors ${
-                    showPreview ? 'bg-blue-600 text-white' : 'hover:bg-slate-100'
-                  }`}
-                  style={showPreview ? {} : { color: tc.textSecondary }}
-                >
-                  <Eye className="h-3 w-3" />
-                  Preview
-                </button>
-              </div>
+              {activeTab === 'fail' && (
+                <div className="flex gap-1">
+                  <button
+                    onClick={() => setShowFailPreview(false)}
+                    className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[11px] font-semibold transition-colors ${
+                      !showFailPreview ? 'bg-blue-600 text-white' : 'hover:bg-slate-100'
+                    }`}
+                    style={showFailPreview ? { color: tc.textSecondary } : {}}
+                  >
+                    <Edit3 className="h-3 w-3" />
+                    Soạn
+                  </button>
+                  <button
+                    onClick={() => setShowFailPreview(true)}
+                    className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[11px] font-semibold transition-colors ${
+                      showFailPreview ? 'bg-blue-600 text-white' : 'hover:bg-slate-100'
+                    }`}
+                    style={showFailPreview ? {} : { color: tc.textSecondary }}
+                  >
+                    <Eye className="h-3 w-3" />
+                    Preview
+                  </button>
+                </div>
+              )}
             </div>
 
-            {/* Editor or preview pane */}
-            <div className="flex-1 overflow-y-auto p-4">
-              {!showPreview ? (
-                <div className="flex h-full flex-col gap-2">
-                  <p className="text-[11px]" style={{ color: tc.textMuted }}>
-                    Biến:{' '}
-                    <code className="rounded bg-slate-100 px-1 py-0.5 text-[10px] font-mono">{`{{name}}`}</code>
-                    {' '}
-                    <code className="rounded bg-slate-100 px-1 py-0.5 text-[10px] font-mono">{`{{position}}`}</code>
-                  </p>
-                  <textarea
-                    value={activeTemplate}
-                    onChange={(e) => setActiveTemplate(e.target.value)}
-                    rows={14}
-                    className="flex-1 w-full resize-none rounded-xl border p-3.5 text-[13px] leading-relaxed outline-none transition-colors focus:border-blue-400 focus:ring-2 focus:ring-blue-50"
-                    style={{
-                      background: tc.pageBg,
-                      borderColor: tc.borderSoft,
-                      color: tc.textPrimary,
-                    }}
-                  />
-                </div>
-              ) : (
-                <div
-                  className="rounded-xl border"
-                  style={{ background: tc.pageBg, borderColor: tc.borderSoft }}
-                >
-                  {/* Email meta header */}
-                  <div
-                    className="space-y-1.5 border-b px-4 py-3"
-                    style={{ borderColor: tc.borderSoft }}
-                  >
-                    {[
-                      {
-                        label: 'To',
-                        value: previewItem
-                          ? (previewItem.email || '(chưa có email)')
-                          : '(chưa chọn ứng viên)',
-                        warn: previewItem ? !previewItem.email.includes('@') : true,
-                      },
-                      { label: 'Từ', value: 'hr@company.com', warn: false },
-                      { label: 'V/v', value: `Kết quả ứng tuyển — ${jobPosition}`, warn: false },
-                    ].map(({ label, value, warn }) => (
-                      <div key={label} className="flex gap-3 text-[12px]">
-                        <span
-                          className="w-6 shrink-0 font-semibold"
+            {/* Panel content */}
+            <div className="flex-1 overflow-y-auto">
+
+              {/* ── PASS TAB: Interview form + auto preview ── */}
+              {activeTab === 'pass' && (
+                <div className="flex flex-col">
+                  {/* Form fields */}
+                  <div className="space-y-4 p-4">
+
+                    {/* Date + Time */}
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="flex flex-col gap-1.5">
+                        <label
+                          className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide"
                           style={{ color: tc.textMuted }}
                         >
-                          {label}:
-                        </span>
-                        <span style={{ color: warn ? '#d97706' : tc.textSecondary }}>{value}</span>
+                          <Calendar className="h-3 w-3" />
+                          Ngày phỏng vấn
+                        </label>
+                        <input
+                          type="date"
+                          value={interviewDetails.date}
+                          onChange={(e) => updateInterview({ date: e.target.value })}
+                          className={inputCls}
+                          style={inputStyle}
+                        />
                       </div>
-                    ))}
+                      <div className="flex flex-col gap-1.5">
+                        <label
+                          className="text-[11px] font-semibold uppercase tracking-wide"
+                          style={{ color: tc.textMuted }}
+                        >
+                          Giờ bắt đầu
+                        </label>
+                        <input
+                          type="time"
+                          value={interviewDetails.time}
+                          onChange={(e) => updateInterview({ time: e.target.value })}
+                          className={inputCls}
+                          style={inputStyle}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Format selector */}
+                    <div className="flex flex-col gap-1.5">
+                      <label
+                        className="text-[11px] font-semibold uppercase tracking-wide"
+                        style={{ color: tc.textMuted }}
+                      >
+                        Hình thức phỏng vấn
+                      </label>
+                      <div className="flex gap-2">
+                        {FORMAT_OPTIONS.map(({ value, label }) => (
+                          <button
+                            key={value}
+                            onClick={() => updateInterview({ format: value })}
+                            className={`flex-1 rounded-lg border py-2 text-[12px] font-semibold transition-all ${
+                              interviewDetails.format === value
+                                ? 'border-blue-300 bg-blue-50 text-blue-700'
+                                : 'hover:bg-slate-50'
+                            }`}
+                            style={interviewDetails.format !== value
+                              ? { borderColor: tc.borderSoft, color: tc.textSecondary }
+                              : {}
+                            }
+                          >
+                            {label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Location (offline / hybrid) */}
+                    {(interviewDetails.format === 'offline' || interviewDetails.format === 'hybrid') && (
+                      <div className="flex flex-col gap-1.5">
+                        <label
+                          className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide"
+                          style={{ color: tc.textMuted }}
+                        >
+                          <MapPin className="h-3 w-3" />
+                          Địa điểm phỏng vấn
+                        </label>
+                        <input
+                          type="text"
+                          value={interviewDetails.location}
+                          onChange={(e) => updateInterview({ location: e.target.value })}
+                          placeholder="VD: Tầng 5, Tòa nhà ABC, 123 Nguyễn Huệ, Q.1"
+                          className={inputCls}
+                          style={inputStyle}
+                        />
+                      </div>
+                    )}
+
+                    {/* Google Meet link (online / hybrid) */}
+                    {(interviewDetails.format === 'online' || interviewDetails.format === 'hybrid') && (
+                      <div className="flex flex-col gap-1.5">
+                        <label
+                          className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide"
+                          style={{ color: tc.textMuted }}
+                        >
+                          <Video className="h-3 w-3" />
+                          Link Google Meet
+                        </label>
+                        <input
+                          type="url"
+                          value={interviewDetails.meetLink}
+                          onChange={(e) => updateInterview({ meetLink: e.target.value })}
+                          placeholder="https://meet.google.com/xxx-xxxx-xxx"
+                          className={inputCls}
+                          style={inputStyle}
+                        />
+                      </div>
+                    )}
                   </div>
-                  {/* Email body */}
-                  <div className="px-4 py-4">
-                    <p
-                      className="whitespace-pre-wrap text-[13px] leading-relaxed"
-                      style={{ color: tc.textPrimary }}
-                    >
-                      {previewBody}
-                    </p>
+
+                  {/* Auto-generated email preview */}
+                  <div className="border-t" style={{ borderColor: tc.borderSoft }}>
+                    <div className="px-4 py-3">
+                      <p
+                        className="mb-2.5 text-[11px] font-semibold uppercase tracking-[0.15em]"
+                        style={{ color: tc.textMuted }}
+                      >
+                        Nội dung email · tự động tạo
+                      </p>
+                      <div
+                        className="overflow-hidden rounded-xl border"
+                        style={{ background: tc.pageBg, borderColor: tc.borderSoft }}
+                      >
+                        {/* Email meta */}
+                        <div
+                          className="space-y-1 border-b px-4 py-2.5"
+                          style={{ borderColor: tc.borderSoft }}
+                        >
+                          <div className="flex gap-3 text-[12px]">
+                            <span className="w-6 shrink-0 font-semibold" style={{ color: tc.textMuted }}>To:</span>
+                            <span style={{ color: previewItem?.email.includes('@') ? '#1d4ed8' : '#d97706' }}>
+                              {previewItem
+                                ? (previewItem.email || '(chưa có email)')
+                                : '(chọn ứng viên để xem)'}
+                            </span>
+                          </div>
+                          <div className="flex gap-3 text-[12px]">
+                            <span className="w-6 shrink-0 font-semibold" style={{ color: tc.textMuted }}>V/v:</span>
+                            <span style={{ color: tc.textSecondary }}>
+                              Thông báo kết quả sơ tuyển – {jobPosition}
+                            </span>
+                          </div>
+                        </div>
+                        {/* Email body */}
+                        <div className="px-4 py-3">
+                          <p
+                            className="whitespace-pre-wrap text-[13px] leading-relaxed"
+                            style={{ color: tc.textPrimary }}
+                          >
+                            {previewBody}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}
+
+              {/* ── FAIL TAB: Template editor / preview ── */}
+              {activeTab === 'fail' && (
+                <div className="flex h-full flex-col p-4">
+                  {!showFailPreview ? (
+                    <div className="flex h-full flex-col gap-2">
+                      <p className="shrink-0 text-[11px]" style={{ color: tc.textMuted }}>
+                        Biến:{' '}
+                        <code className="rounded bg-slate-100 px-1 py-0.5 text-[10px] font-mono">{`{{name}}`}</code>
+                        {' '}
+                        <code className="rounded bg-slate-100 px-1 py-0.5 text-[10px] font-mono">{`{{position}}`}</code>
+                      </p>
+                      <textarea
+                        value={failTemplate}
+                        onChange={(e) => setFailTemplate(e.target.value)}
+                        className="min-h-[320px] flex-1 w-full resize-none rounded-xl border p-3.5 text-[13px] leading-relaxed outline-none transition-colors focus:border-blue-400 focus:ring-2 focus:ring-blue-50"
+                        style={{
+                          background: tc.pageBg,
+                          borderColor: tc.borderSoft,
+                          color: tc.textPrimary,
+                        }}
+                      />
+                    </div>
+                  ) : (
+                    <div
+                      className="overflow-hidden rounded-xl border"
+                      style={{ background: tc.pageBg, borderColor: tc.borderSoft }}
+                    >
+                      <div
+                        className="space-y-1 border-b px-4 py-2.5"
+                        style={{ borderColor: tc.borderSoft }}
+                      >
+                        <div className="flex gap-3 text-[12px]">
+                          <span className="w-6 shrink-0 font-semibold" style={{ color: tc.textMuted }}>To:</span>
+                          <span style={{ color: previewItem?.email.includes('@') ? '#1d4ed8' : '#d97706' }}>
+                            {previewItem
+                              ? (previewItem.email || '(chưa có email)')
+                              : '(chưa chọn ứng viên)'}
+                          </span>
+                        </div>
+                        <div className="flex gap-3 text-[12px]">
+                          <span className="w-6 shrink-0 font-semibold" style={{ color: tc.textMuted }}>V/v:</span>
+                          <span style={{ color: tc.textSecondary }}>Kết quả ứng tuyển – {jobPosition}</span>
+                        </div>
+                      </div>
+                      <div className="px-4 py-4">
+                        <p
+                          className="whitespace-pre-wrap text-[13px] leading-relaxed"
+                          style={{ color: tc.textPrimary }}
+                        >
+                          {previewBody}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
             </div>
           </div>
         </div>
@@ -532,7 +735,6 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
           className="flex shrink-0 items-center justify-between border-t px-6 py-4"
           style={{ borderColor: tc.borderSoft, background: tc.cardBg }}
         >
-          {/* Status */}
           <div>
             {sendState === 'sent' ? (
               <div className="flex items-center gap-2 text-emerald-600">
@@ -562,7 +764,6 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
             )}
           </div>
 
-          {/* Actions */}
           <div className="flex items-center gap-3">
             <button
               onClick={onClose}
