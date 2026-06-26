@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Area,
@@ -20,22 +20,13 @@ import {
   YAxis,
 } from 'recharts';
 import {
-  Activity,
   AlertTriangle,
   ArrowLeft,
   ArrowRight,
-  Award,
-  BarChart3,
-  BriefcaseBusiness,
   CheckCircle2,
   Clock3,
   FileSearch,
   Gauge,
-  ListChecks,
-  PieChart as PieChartIcon,
-  Radar as RadarIcon,
-  Target,
-  TrendingUp,
   Users,
   Zap,
 } from 'lucide-react';
@@ -49,642 +40,527 @@ interface DetailedAnalyticsPageProps {
   onReset: () => void;
 }
 
-type ChartKey = 'grade' | 'score' | 'radar' | 'trend';
-
-const DETAILED_ANALYTICS_VIEW_KEY = 'supporthr.view.detailedAnalytics';
-
-const gradeMeta = {
-  A: { label: 'Hạng A', color: '#16a34a', bg: '#ecfdf3', border: '#bbf7d0' },
+const GRADE_META = {
+  A: { label: 'Hạng A', color: '#16a34a', bg: '#f0fdf4', border: '#bbf7d0' },
   B: { label: 'Hạng B', color: '#2563eb', bg: '#eff6ff', border: '#bfdbfe' },
   C: { label: 'Hạng C', color: '#dc2626', bg: '#fef2f2', border: '#fecaca' },
 } as const;
 
-const chartTabs = [
-  { key: 'grade' as const, label: 'Phân hạng', icon: PieChartIcon },
-  { key: 'score' as const, label: 'Phân bố điểm', icon: BarChart3 },
-  { key: 'radar' as const, label: 'Tiêu chí', icon: RadarIcon },
-  { key: 'trend' as const, label: 'Xu hướng', icon: Activity },
-];
+const TOOLTIP = {
+  backgroundColor: '#fff',
+  border: '1px solid #dbeafe',
+  borderRadius: 8,
+  color: '#0f172a',
+  boxShadow: '0 8px 24px rgba(30,64,175,0.10)',
+  fontSize: 12,
+};
 
-const formatPercent = (value: number) => `${Math.round(value)}%`;
-
-const parseScore = (scoreText?: string) => {
-  if (!scoreText) return 0;
-
-  const normalized = String(scoreText).replace(',', '.').trim();
-  const fraction = normalized.match(/(-?\d+(?:\.\d+)?)\s*\/\s*(-?\d+(?:\.\d+)?)/);
-
-  if (fraction) {
-    const earned = Number(fraction[1]);
-    const max = Number(fraction[2]);
-    if (Number.isFinite(earned) && Number.isFinite(max) && max > 0) {
-      return Math.round((earned / max) * 100);
-    }
+const parseScore = (text?: string): number => {
+  if (!text) return 0;
+  const s = String(text).replace(',', '.').trim();
+  const frac = s.match(/(-?\d+(?:\.\d+)?)\s*\/\s*(-?\d+(?:\.\d+)?)/);
+  if (frac) {
+    const n = Number(frac[1]), d = Number(frac[2]);
+    if (isFinite(n) && isFinite(d) && d > 0) return Math.round((n / d) * 100);
   }
-
-  const number = Number(normalized.replace('%', '').match(/-?\d+(?:\.\d+)?/)?.[0] || 0);
-  return Number.isFinite(number) ? Math.max(0, Math.min(100, Math.round(number))) : 0;
+  const n = Number(s.replace('%', '').match(/-?\d+(?:\.\d+)?/)?.[0] ?? 0);
+  return isFinite(n) ? Math.max(0, Math.min(100, Math.round(n))) : 0;
 };
 
-const getCandidateScore = (candidate: Candidate) => candidate.analysis?.['Tổng điểm'] ?? 0;
-
-const getCandidateGrade = (candidate: Candidate) => candidate.analysis?.['Hạng'] || 'C';
-
-const getCandidateStatus = (candidate: Candidate) => {
-  const score = getCandidateScore(candidate);
-  const grade = getCandidateGrade(candidate);
-
-  if (grade === 'A' || score >= 80) return 'Nên phỏng vấn';
-  if (grade === 'B' || score >= 60) return 'Cần xem kỹ';
-  return 'Rủi ro cao';
-};
-
-const getCandidateReason = (candidate: Candidate) => {
-  const strengths = candidate.analysis?.['Điểm mạnh CV'] || [];
-  const warnings = candidate.softFilterWarnings || [];
-
-  if (strengths.length > 0) return strengths[0];
-  if (warnings.length > 0) return warnings[0];
-  if (candidate.stageDecision?.reason) return candidate.stageDecision.reason;
-  return candidate.analysis?.['Chi tiết']?.[0]?.['Giải thích'] || 'Chưa có ghi chú nổi bật.';
-};
-
-const median = (values: number[]) => {
-  if (values.length === 0) return 0;
-  const sorted = [...values].sort((a, b) => a - b);
-  const middle = Math.floor(sorted.length / 2);
-  return sorted.length % 2 === 0 ? Math.round((sorted[middle - 1] + sorted[middle]) / 2) : sorted[middle];
+const getScore  = (c: Candidate) => (c.analysis?.['Tổng điểm'] as number) ?? 0;
+const getGrade  = (c: Candidate): 'A' | 'B' | 'C' => (c.analysis?.['Hạng'] as 'A' | 'B' | 'C') || 'C';
+const getMedian = (arr: number[]) => {
+  if (!arr.length) return 0;
+  const s = [...arr].sort((a, b) => a - b);
+  const m = Math.floor(s.length / 2);
+  return s.length % 2 === 0 ? Math.round((s[m - 1] + s[m]) / 2) : s[m];
 };
 
 const DetailedAnalyticsPage: React.FC<DetailedAnalyticsPageProps> = ({ candidates, jobPosition }) => {
-  const [activeChart, setActiveChart] = useState<ChartKey>(() => {
-    if (typeof window === 'undefined') return 'grade';
-
-    const saved = window.localStorage.getItem(DETAILED_ANALYTICS_VIEW_KEY);
-    return chartTabs.some((tab) => tab.key === saved) ? (saved as ChartKey) : 'grade';
-  });
   const navigate = useNavigate();
-  const storedRun = useMemo(() => readLatestAnalysisRun(), []);
-  const effectiveCandidates = useMemo(
-    () => candidates.length > 0 ? candidates : storedRun?.candidates || [],
-    [candidates, storedRun],
+  const stored   = useMemo(() => readLatestAnalysisRun(), []);
+
+  const allCandidates = useMemo(
+    () => (candidates.length > 0 ? candidates : stored?.candidates ?? []),
+    [candidates, stored]
   );
-  const effectiveJobPosition = jobPosition || storedRun?.job.position || 'Phiên tuyển dụng hiện tại';
+  const position = jobPosition || stored?.job.position || 'Phiên tuyển dụng';
 
-  useEffect(() => {
-    window.localStorage.setItem(DETAILED_ANALYTICS_VIEW_KEY, activeChart);
-  }, [activeChart]);
+  const data = useMemo(() => {
+    const ok = allCandidates.filter((c) => c.status === 'SUCCESS' && c.analysis);
+    if (!ok.length) return null;
 
-  const analyticsData = useMemo(() => {
-    const successfulCandidates = effectiveCandidates.filter((candidate) => candidate.status === 'SUCCESS' && candidate.analysis);
-    if (successfulCandidates.length === 0) return null;
-
-    const scores = successfulCandidates.map(getCandidateScore);
-    const gradeStats = {
-      A: successfulCandidates.filter((candidate) => getCandidateGrade(candidate) === 'A').length,
-      B: successfulCandidates.filter((candidate) => getCandidateGrade(candidate) === 'B').length,
-      C: successfulCandidates.filter((candidate) => getCandidateGrade(candidate) === 'C').length,
+    const scores = ok.map(getScore);
+    const gradeCount = {
+      A: ok.filter((c) => getGrade(c) === 'A').length,
+      B: ok.filter((c) => getGrade(c) === 'B').length,
+      C: ok.filter((c) => getGrade(c) === 'C').length,
     };
 
-    const criteriaStats: Record<string, { total: number; count: number; scores: number[] }> = {};
-    successfulCandidates.forEach((candidate) => {
-      candidate.analysis?.['Chi tiết']?.forEach((detail) => {
-        const criterion = detail['Tiêu chí'] || 'Tiêu chí chưa đặt tên';
-        const score = parseScore(detail['Điểm']);
-
-        if (!criteriaStats[criterion]) {
-          criteriaStats[criterion] = { total: 0, count: 0, scores: [] };
-        }
-
-        criteriaStats[criterion].total += score;
-        criteriaStats[criterion].count += 1;
-        criteriaStats[criterion].scores.push(score);
-      });
-    });
-
-    const criteriaAverages = Object.entries(criteriaStats)
-      .map(([criterion, stats]) => {
-        const average = Math.round(stats.total / Math.max(1, stats.count));
+    // Criteria
+    const cMap: Record<string, { total: number; n: number; vals: number[] }> = {};
+    ok.forEach((c) =>
+      c.analysis?.['Chi tiết']?.forEach((d) => {
+        const key = d['Tiêu chí'] || 'Khác';
+        const s   = parseScore(d['Điểm']);
+        if (!cMap[key]) cMap[key] = { total: 0, n: 0, vals: [] };
+        cMap[key].total += s;
+        cMap[key].n += 1;
+        cMap[key].vals.push(s);
+      })
+    );
+    const criteriaRanked = Object.entries(cMap)
+      .map(([name, s]) => {
+        const avg = Math.round(s.total / Math.max(1, s.n));
         return {
-          criterion: criterion.length > 24 ? `${criterion.slice(0, 24)}...` : criterion,
-          fullCriterion: criterion,
-          average,
-          count: stats.count,
-          min: Math.min(...stats.scores),
-          max: Math.max(...stats.scores),
-          stdDev: Math.sqrt(stats.scores.reduce((sum, score) => sum + Math.pow(score - average, 2), 0) / Math.max(1, stats.count)),
+          label  : name.length > 22 ? `${name.slice(0, 22)}…` : name,
+          fullName: name,
+          avg,
+          n      : s.n,
+          min    : Math.min(...s.vals),
+          max    : Math.max(...s.vals),
+          stdDev : Math.sqrt(s.vals.reduce((a, x) => a + (x - avg) ** 2, 0) / Math.max(1, s.n)),
         };
       })
-      .sort((a, b) => b.average - a.average);
+      .sort((a, b) => b.avg - a.avg);
 
-    const scoreDistribution = [
-      { range: '0-49', min: 0, max: 49, fill: '#dc2626' },
-      { range: '50-59', min: 50, max: 59, fill: '#f97316' },
-      { range: '60-69', min: 60, max: 69, fill: '#f59e0b' },
-      { range: '70-79', min: 70, max: 79, fill: '#2563eb' },
-      { range: '80-89', min: 80, max: 89, fill: '#0891b2' },
-      { range: '90-100', min: 90, max: 100, fill: '#16a34a' },
-    ].map((bucket) => ({
-      ...bucket,
-      count: successfulCandidates.filter((candidate) => {
-        const score = getCandidateScore(candidate);
-        return score >= bucket.min && score <= bucket.max;
-      }).length,
-    }));
+    const histogram = [
+      { range: '0–49',   min: 0,  max: 49,  fill: '#ef4444' },
+      { range: '50–59',  min: 50, max: 59,  fill: '#f97316' },
+      { range: '60–69',  min: 60, max: 69,  fill: '#f59e0b' },
+      { range: '70–79',  min: 70, max: 79,  fill: '#3b82f6' },
+      { range: '80–89',  min: 80, max: 89,  fill: '#06b6d4' },
+      { range: '90–100', min: 90, max: 100, fill: '#16a34a' },
+    ].map((b) => ({ ...b, n: ok.filter((c) => { const s = getScore(c); return s >= b.min && s <= b.max; }).length }));
 
-    const topPerformers = [...successfulCandidates]
-      .sort((a, b) => getCandidateScore(b) - getCandidateScore(a))
-      .slice(0, 6);
-
-    const topCriteria = criteriaAverages.slice(0, 7).map((criterion) => ({
-      subject: criterion.criterion,
-      fullName: criterion.fullCriterion,
-      score: criterion.average,
+    const radarData = criteriaRanked.slice(0, 7).map((c) => ({
+      subject : c.label,
+      fullName: c.fullName,
+      score   : c.avg,
       fullMark: 100,
     }));
 
-    const timeStats = successfulCandidates.map((candidate, index) => {
-      const jdFit = candidate.analysis?.['Chi tiết']?.find((detail) => detail['Tiêu chí']?.toLowerCase().includes('jd'));
+    const trend = ok.map((c, i) => {
+      const jdFit = c.analysis?.['Chi tiết']?.find((d) => d['Tiêu chí']?.toLowerCase().includes('jd'));
       return {
-        order: index + 1,
-        name: normalizeVietnameseDisplay(candidate.candidateName).split(' ').slice(-1)[0] || `CV${index + 1}`,
-        score: getCandidateScore(candidate),
-        jdFit: parseScore(jdFit?.['Điểm']),
+        name  : normalizeVietnameseDisplay(c.candidateName).split(' ').pop() ?? `CV${i + 1}`,
+        score : getScore(c),
+        jdFit : parseScore(jdFit?.['Điểm']),
       };
     });
 
-    const totalCandidates = effectiveCandidates.length;
-    const failedCount = totalCandidates - successfulCandidates.length;
-    const avgScore = Math.round(scores.reduce((sum, score) => sum + score, 0) / scores.length);
-    const topScore = Math.max(...scores);
-    const lowScore = Math.min(...scores);
-    const interviewReady = successfulCandidates.filter((candidate) => getCandidateGrade(candidate) === 'A' || getCandidateScore(candidate) >= 80);
-    const reviewNeeded = successfulCandidates.filter((candidate) => !interviewReady.includes(candidate) && (getCandidateGrade(candidate) === 'B' || getCandidateScore(candidate) >= 60));
-    const riskCandidates = successfulCandidates.filter((candidate) => getCandidateGrade(candidate) === 'C' || getCandidateScore(candidate) < 60);
+    const top5          = [...ok].sort((a, b) => getScore(b) - getScore(a)).slice(0, 5);
+    const avg           = Math.round(scores.reduce((a, x) => a + x, 0) / scores.length);
+    const failed        = allCandidates.length - ok.length;
+    const interviewOk   = ok.filter((c) => getGrade(c) === 'A' || getScore(c) >= 80);
+    const reviewNeeded  = ok.filter((c) => !interviewOk.includes(c) && (getGrade(c) === 'B' || getScore(c) >= 60));
+    const riskCount     = ok.filter((c) => getGrade(c) === 'C' || getScore(c) < 60).length;
 
     return {
-      totalCandidates,
-      failedCount,
-      gradeStats,
-      gradePercentages: {
-        A: (gradeStats.A / successfulCandidates.length) * 100,
-        B: (gradeStats.B / successfulCandidates.length) * 100,
-        C: (gradeStats.C / successfulCandidates.length) * 100,
+      total: allCandidates.length, failed,
+      successRate: Math.round((ok.length / Math.max(1, allCandidates.length)) * 100),
+      gradeCount, gradePct: {
+        A: (gradeCount.A / ok.length) * 100,
+        B: (gradeCount.B / ok.length) * 100,
+        C: (gradeCount.C / ok.length) * 100,
       },
-      criteriaAverages,
-      scoreDistribution,
-      topCriteria,
-      timeStats,
-      topPerformers,
-      avgScore,
-      topScore,
-      medianScore: median(scores),
-      scoreSpread: topScore - lowScore,
-      successRate: Math.round((successfulCandidates.length / Math.max(1, totalCandidates)) * 100),
-      interviewReadyCount: interviewReady.length,
-      reviewNeededCount: reviewNeeded.length,
-      riskCount: riskCandidates.length,
-      strongestCriterion: criteriaAverages[0],
-      weakestCriterion: criteriaAverages[criteriaAverages.length - 1],
+      criteriaRanked, histogram, radarData, trend, top5,
+      avg, median: getMedian(scores),
+      spread: Math.max(...scores) - Math.min(...scores),
+      interviewCount: interviewOk.length,
+      reviewCount   : reviewNeeded.length,
+      riskCount,
     };
-  }, [effectiveCandidates]);
+  }, [allCandidates]);
 
-  const tooltipStyle = {
-    backgroundColor: '#ffffff',
-    border: '1px solid #dbeafe',
-    borderRadius: 8,
-    color: '#102033',
-    boxShadow: '0 18px 45px rgba(30,64,175,0.14)',
-    fontSize: 12,
-  };
-
-  if (!analyticsData) {
+  /* ── Empty state ─────────────────────────────── */
+  if (!data) {
     return (
-      <div className="flex h-full min-h-0 w-full flex-1 items-center justify-center bg-[#f6f8fb] px-4 py-10">
-        <section className="w-full max-w-xl rounded-lg border border-slate-200 bg-white p-8 text-center shadow-[0_18px_45px_rgba(15,23,42,0.08)]">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-lg border border-blue-100 bg-blue-50 text-blue-600">
-            <FileSearch className="h-8 w-8" />
+      <div className="flex h-full items-center justify-center bg-[#f6f8fb] p-10">
+        <section className="w-full max-w-sm rounded-xl border border-slate-200 bg-white p-8 text-center shadow-sm">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+            <FileSearch className="h-7 w-7" />
           </div>
-          <h1 className="mt-6 text-2xl font-black tracking-tight text-slate-950">Chưa có dữ liệu dashboard</h1>
-          <p className="mt-3 text-sm font-semibold leading-7 text-slate-500">
-            Hãy chạy phân tích CV trước để hệ thống tạo shortlist, biểu đồ điểm và insight tuyển dụng cho phiên này.
-          </p>
+          <h1 className="mt-5 text-xl font-bold text-slate-950">Chưa có dữ liệu</h1>
+          <p className="mt-2 text-[13px] text-slate-500">Chạy phân tích CV để xem dashboard tuyển dụng.</p>
           <button
-            type="button"
             onClick={() => navigate('/jd')}
-            className="mt-6 inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-slate-950 px-5 text-sm font-bold text-white transition hover:bg-blue-700"
+            className="mt-5 inline-flex h-10 items-center gap-2 rounded-xl bg-slate-950 px-4 text-[13px] font-semibold text-white transition hover:bg-blue-700"
           >
-            Bắt đầu phân tích
-            <ArrowRight className="h-4 w-4" />
+            Bắt đầu <ArrowRight className="h-4 w-4" />
           </button>
         </section>
       </div>
     );
   }
 
-  const gradeData = (['A', 'B', 'C'] as const).map((grade) => ({
-    name: gradeMeta[grade].label,
-    value: analyticsData.gradeStats[grade],
-    color: gradeMeta[grade].color,
-    pct: analyticsData.gradePercentages[grade],
+  const gradeRows = (['A', 'B', 'C'] as const).map((g) => ({
+    name : GRADE_META[g].label,
+    value: data.gradeCount[g],
+    color: GRADE_META[g].color,
+    pct  : data.gradePct[g],
   }));
 
-  const kpiCards = [
-    {
-      label: 'Tổng CV',
-      value: analyticsData.totalCandidates,
-      detail: `${analyticsData.successRate}% phân tích thành công`,
-      icon: Users,
-      tone: 'bg-slate-950 text-white',
-    },
-    {
-      label: 'Điểm trung bình',
-      value: analyticsData.avgScore,
-      detail: `Median ${analyticsData.medianScore} | Biên độ ${analyticsData.scoreSpread}`,
-      icon: Gauge,
-      tone: 'bg-white text-slate-950',
-    },
-    {
-      label: 'Nên phỏng vấn',
-      value: analyticsData.interviewReadyCount,
-      detail: 'Hạng A hoặc điểm từ 80',
-      icon: CheckCircle2,
-      tone: 'bg-white text-slate-950',
-    },
-    {
-      label: 'Cần xem lại',
-      value: analyticsData.reviewNeededCount,
-      detail: 'Có tín hiệu tốt nhưng cần xác nhận',
-      icon: Clock3,
-      tone: 'bg-white text-slate-950',
-    },
-    {
-      label: 'CV lỗi/chưa đạt',
-      value: analyticsData.failedCount + analyticsData.riskCount,
-      detail: `${analyticsData.failedCount} lỗi phân tích`,
-      icon: AlertTriangle,
-      tone: 'bg-white text-slate-950',
-    },
+  const kpis = [
+    { label: 'Tổng CV',    value: data.total,          sub: `${data.successRate}% thành công`,   icon: Users,        accent: '#2563eb' },
+    { label: 'Điểm TB',    value: data.avg,             sub: `Trung vị ${data.median}`,           icon: Gauge,        accent: '#7c3aed' },
+    { label: 'Phỏng vấn',  value: data.interviewCount,  sub: 'Hạng A hoặc ≥ 80đ',               icon: CheckCircle2, accent: '#16a34a' },
+    { label: 'Xem lại',    value: data.reviewCount,     sub: 'Tín hiệu tốt, cần xác nhận',       icon: Clock3,       accent: '#d97706' },
+    { label: 'Rủi ro',     value: data.riskCount + data.failed, sub: `${data.failed} lỗi phân tích`, icon: AlertTriangle, accent: '#dc2626' },
   ];
 
   return (
-    <div className="flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden bg-white text-slate-950">
+    <div className="flex h-full min-h-0 flex-col overflow-hidden bg-[#f0f4fa] text-slate-950">
       <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto">
-        <main className="mx-auto grid w-full max-w-[1500px] gap-5 px-4 py-5 sm:px-6">
-          <section className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+        <main className="mx-auto grid w-full max-w-[1600px] gap-4 px-4 py-4 sm:px-6">
+
+          {/* ── Header ──────────────────────────── */}
+          <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0">
-              <p className="text-xs font-medium text-[#86868b]">{new Date().toLocaleDateString('vi-VN')}</p>
-              <h1 className="mt-1 truncate text-2xl font-semibold tracking-[-0.02em] text-[#1d1d1f] sm:text-3xl">Thống kê chi tiết</h1>
-              <p className="mt-1 truncate text-sm font-medium text-[#6e6e73]">{effectiveJobPosition}</p>
+              <p className="text-[11px] font-medium text-slate-400">{new Date().toLocaleDateString('vi-VN')}</p>
+              <h1 className="mt-0.5 truncate text-[22px] font-bold tracking-tight text-slate-950">
+                Thống kê chi tiết
+              </h1>
+              <p className="mt-0.5 truncate text-[13px] font-medium text-slate-500">{position}</p>
             </div>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex shrink-0 gap-2">
               <button
-                type="button"
                 onClick={() => navigate('/analysis')}
-                className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 text-sm font-bold text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50"
+                className="inline-flex h-9 items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-[13px] font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
               >
-                <ArrowLeft className="h-4 w-4" />
-                Kết quả
+                <ArrowLeft className="h-3.5 w-3.5" /> Kết quả
               </button>
               <button
-                type="button"
                 onClick={() => navigate('/chatbot')}
-                className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-[#007aff] px-4 text-sm font-semibold text-white transition hover:bg-[#0066d6]"
+                className="inline-flex h-9 items-center gap-2 rounded-xl bg-blue-600 px-4 text-[13px] font-semibold text-white shadow-sm transition hover:bg-blue-700"
               >
-                <Zap className="h-4 w-4" />
-                Gợi ý ứng viên
+                <Zap className="h-3.5 w-3.5" /> Gợi ý ứng viên
               </button>
             </div>
-          </section>
+          </header>
 
-          <section className="grid border-y border-[#e5e5ea] sm:grid-cols-2 xl:grid-cols-5">
-            {kpiCards.map((card) => {
-              const Icon = card.icon;
-              return (
-                <article key={card.label} className="border-b border-[#e5e5ea] px-4 py-4 last:border-b-0 sm:border-r xl:border-b-0">
-                  <div className="flex items-start gap-3">
-                    <Icon className="mt-0.5 h-4 w-4 shrink-0 text-[#007aff]" strokeWidth={1.8} />
-                    <div className="min-w-0">
-                      <p className="text-[11px] font-medium uppercase tracking-[0.1em] text-[#6e6e73]">{card.label}</p>
-                      <p className="mt-1 text-2xl font-semibold tracking-tight text-[#1d1d1f]">{card.value}</p>
-                      <p className="mt-1 text-[11px] text-[#86868b]">{card.detail}</p>
-                    </div>
+          {/* ── KPI Strip ───────────────────────── */}
+          <section className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-5">
+            {kpis.map(({ label, value, sub, icon: Icon, accent }) => (
+              <article key={label} className="rounded-xl bg-white p-4 shadow-sm">
+                <div className="flex items-center justify-between gap-2">
+                  <div
+                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
+                    style={{ background: `${accent}18` }}
+                  >
+                    <Icon className="h-4 w-4" style={{ color: accent }} />
                   </div>
-                </article>
-              );
-            })}
+                  <span className="text-right text-[10px] font-medium leading-tight text-slate-400">{sub}</span>
+                </div>
+                <p className="mt-3 text-[34px] font-black leading-none tracking-tight" style={{ color: accent }}>
+                  {value}
+                </p>
+                <p className="mt-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">
+                  {label}
+                </p>
+              </article>
+            ))}
           </section>
 
-          <section className="grid gap-5 xl:grid-cols-[minmax(0,1.45fr)_minmax(340px,0.75fr)]">
-            <article className="rounded-lg border border-slate-200 bg-white shadow-sm">
-              <div className="flex flex-col gap-3 border-b border-slate-200 p-4 sm:flex-row sm:items-center sm:justify-between">
+          {/* ── Main charts row ──────────────────── */}
+          <section className="grid gap-4 xl:grid-cols-[240px_minmax(0,1fr)_260px]">
+
+            {/* Grade donut */}
+            <article className="rounded-xl bg-white p-4 shadow-sm">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-blue-600">Phân hạng</p>
+              <h2 className="mt-1 text-[15px] font-bold text-slate-950">Phân loại CV</h2>
+              <ResponsiveContainer width="100%" height={168}>
+                <PieChart>
+                  <Pie
+                    data={gradeRows.filter((g) => g.value > 0)}
+                    dataKey="value"
+                    innerRadius={50}
+                    outerRadius={76}
+                    paddingAngle={3}
+                  >
+                    {gradeRows.map((g) => (
+                      <Cell key={g.name} fill={g.color} stroke="#fff" strokeWidth={3} />
+                    ))}
+                  </Pie>
+                  <Tooltip contentStyle={TOOLTIP} formatter={(v, n) => [`${v} CV`, n]} />
+                </PieChart>
+              </ResponsiveContainer>
+              <div className="mt-1 space-y-2">
+                {gradeRows.map((g) => (
+                  <div key={g.name} className="flex items-center gap-2.5">
+                    <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: g.color }} />
+                    <span className="flex-1 text-[12px] font-semibold text-slate-600">{g.name}</span>
+                    <span className="text-[12px] font-black" style={{ color: g.color }}>{g.value}</span>
+                    <span className="w-8 text-right text-[11px] text-slate-400">{Math.round(g.pct)}%</span>
+                  </div>
+                ))}
+              </div>
+            </article>
+
+            {/* Score histogram + stat strip */}
+            <article className="rounded-xl bg-white p-4 shadow-sm">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-blue-600">Phân bố điểm</p>
+              <h2 className="mt-1 text-[15px] font-bold text-slate-950">Phân bố điểm số ứng viên</h2>
+              <ResponsiveContainer width="100%" height={200}>
+                <BarChart data={data.histogram} margin={{ top: 10, right: 4, bottom: 0, left: -22 }}>
+                  <CartesianGrid stroke="#f1f5f9" vertical={false} />
+                  <XAxis
+                    dataKey="range"
+                    tick={{ fontSize: 10, fill: '#94a3b8' }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    allowDecimals={false}
+                    tick={{ fontSize: 10, fill: '#94a3b8' }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <Tooltip
+                    cursor={{ fill: '#f8fafc' }}
+                    contentStyle={TOOLTIP}
+                    formatter={(v) => [`${v} CV`, 'Số lượng']}
+                  />
+                  <Bar dataKey="n" radius={[5, 5, 0, 0]} maxBarSize={48}>
+                    {data.histogram.map((b) => (
+                      <Cell key={b.range} fill={b.fill} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+              <div className="mt-3 grid grid-cols-3 divide-x divide-slate-100 border-t border-slate-100 pt-3">
+                {[
+                  { label: 'Trung bình', value: data.avg },
+                  { label: 'Trung vị',   value: data.median },
+                  { label: 'Biên độ',    value: data.spread },
+                ].map(({ label, value }) => (
+                  <div key={label} className="px-3 text-center first:pl-0 last:pr-0">
+                    <p className="text-[22px] font-black tracking-tight text-slate-950">{value}</p>
+                    <p className="mt-0.5 text-[10px] font-medium text-slate-400">{label}</p>
+                  </div>
+                ))}
+              </div>
+            </article>
+
+            {/* Top 5 candidates */}
+            <article className="rounded-xl bg-white p-4 shadow-sm">
+              <div className="flex items-center justify-between gap-2">
                 <div>
-                  <p className="text-[11px] font-black uppercase tracking-[0.14em] text-blue-700">Shortlist ưu tiên</p>
-                  <h2 className="mt-1 text-lg font-black text-slate-950">Ứng viên nổi bật nhất</h2>
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-blue-600">Shortlist</p>
+                  <h2 className="mt-1 text-[15px] font-bold text-slate-950">Top ứng viên</h2>
                 </div>
                 <button
-                  type="button"
                   onClick={() => navigate('/chatbot')}
-                  className="inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-3 text-xs font-black text-blue-700 transition hover:bg-blue-100"
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600 transition hover:bg-blue-100"
                 >
-                  Phân tích sâu
-                  <ArrowRight className="h-3.5 w-3.5" />
+                  <ArrowRight className="h-4 w-4" />
                 </button>
               </div>
-
-              <div className="divide-y divide-slate-100">
-                {analyticsData.topPerformers.map((candidate, index) => {
-                  const grade = getCandidateGrade(candidate);
-                  const meta = gradeMeta[grade];
-                  const score = getCandidateScore(candidate);
-
+              <div className="mt-4 space-y-3.5">
+                {data.top5.map((c, i) => {
+                  const g    = getGrade(c);
+                  const meta = GRADE_META[g];
+                  const sc   = getScore(c);
                   return (
-                    <div key={candidate.id} className="grid gap-3 p-4 md:grid-cols-[auto_minmax(0,1fr)_auto] md:items-center">
-                      <div className="flex items-center gap-3">
-                        <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100 text-sm font-black text-slate-700">#{index + 1}</span>
-                        <div className="min-w-0 md:hidden">
-                          <p className="truncate text-sm font-black text-slate-950">{normalizeVietnameseDisplay(candidate.candidateName)}</p>
-                          <p className="truncate text-xs font-semibold text-slate-500">{normalizeVietnameseDisplay(candidate.jobTitle) || 'Chưa rõ vị trí'}</p>
+                    <div key={c.id} className="flex items-center gap-2.5">
+                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-[11px] font-black text-slate-500">
+                        #{i + 1}
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-[12px] font-bold text-slate-900">
+                          {normalizeVietnameseDisplay(c.candidateName)}
+                        </p>
+                        <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
+                          <div
+                            className="h-full rounded-full"
+                            style={{ width: `${Math.min(100, sc)}%`, background: meta.color }}
+                          />
                         </div>
                       </div>
-                      <div className="hidden min-w-0 md:block">
-                        <div className="flex min-w-0 flex-wrap items-center gap-2">
-                          <p className="truncate text-sm font-black text-slate-950">{normalizeVietnameseDisplay(candidate.candidateName)}</p>
-                          <span className="rounded-md border px-2 py-0.5 text-[10px] font-black" style={{ color: meta.color, background: meta.bg, borderColor: meta.border }}>
-                            {meta.label}
-                          </span>
-                        </div>
-                        <p className="mt-1 truncate text-xs font-semibold text-slate-500">{normalizeVietnameseDisplay(candidate.jobTitle) || 'Chưa rõ vị trí'}</p>
-                        <p className="mt-2 line-clamp-2 text-xs leading-5 text-slate-600">{getCandidateReason(candidate)}</p>
-                      </div>
-                      <div className="min-w-[150px]">
-                        <div className="flex items-center justify-between gap-3">
-                          <span className="text-xs font-bold text-slate-500">{getCandidateStatus(candidate)}</span>
-                          <span className="text-2xl font-black tracking-tight text-slate-950">{score}</span>
-                        </div>
-                        <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100">
-                          <div className="h-full rounded-full" style={{ width: `${Math.max(4, Math.min(100, score))}%`, background: meta.color }} />
-                        </div>
+                      <div className="flex shrink-0 flex-col items-end gap-0.5">
+                        <span className="text-[16px] font-black" style={{ color: meta.color }}>{sc}</span>
+                        <span
+                          className="rounded border px-1.5 py-px text-[9px] font-black"
+                          style={{ color: meta.color, background: meta.bg, borderColor: meta.border }}
+                        >
+                          {g}
+                        </span>
                       </div>
                     </div>
                   );
                 })}
               </div>
             </article>
-
-            <aside className="grid gap-5">
-              <article className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <p className="text-[11px] font-black uppercase tracking-[0.14em] text-blue-700">Insight nhanh</p>
-                    <h2 className="mt-1 text-lg font-black text-slate-950">Việc cần xử lý</h2>
-                  </div>
-                  <ListChecks className="h-5 w-5 text-blue-600" />
-                </div>
-                <div className="mt-4 grid gap-3">
-                  <InsightRow
-                    icon={TrendingUp}
-                    label="Tiêu chí mạnh nhất"
-                    value={analyticsData.strongestCriterion ? `${analyticsData.strongestCriterion.fullCriterion} (${analyticsData.strongestCriterion.average})` : 'Chưa có dữ liệu'}
-                  />
-                  <InsightRow
-                    icon={Target}
-                    label="Tiêu chí yếu nhất"
-                    value={analyticsData.weakestCriterion ? `${analyticsData.weakestCriterion.fullCriterion} (${analyticsData.weakestCriterion.average})` : 'Chưa có dữ liệu'}
-                  />
-                  <InsightRow
-                    icon={AlertTriangle}
-                    label="Nhóm rủi ro"
-                    value={`${analyticsData.riskCount} ứng viên hạng C hoặc điểm thấp`}
-                  />
-                  <InsightRow
-                    icon={BriefcaseBusiness}
-                    label="Bước tiếp theo"
-                    value={analyticsData.interviewReadyCount > 0 ? 'Mở Gợi ý ứng viên để tạo câu hỏi phỏng vấn.' : 'Rà lại tiêu chí và shortlist nhóm hạng B.'}
-                  />
-                </div>
-              </article>
-
-              <article className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-                <p className="text-[11px] font-black uppercase tracking-[0.14em] text-blue-700">Phân hạng</p>
-                <div className="mt-4 grid gap-3">
-                  {gradeData.map((grade) => (
-                    <div key={grade.name}>
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="font-black text-slate-800">{grade.name}</span>
-                        <span className="font-black" style={{ color: grade.color }}>{formatPercent(grade.pct)}</span>
-                      </div>
-                      <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100">
-                        <div className="h-full rounded-full" style={{ width: `${grade.pct}%`, background: grade.color }} />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </article>
-            </aside>
           </section>
 
-          <section className="rounded-lg border border-slate-200 bg-white shadow-sm">
-            <div className="flex flex-col gap-3 border-b border-slate-200 p-4 lg:flex-row lg:items-center lg:justify-between">
-              <div>
-                <p className="text-[11px] font-black uppercase tracking-[0.14em] text-blue-700">Biểu đồ phân tích</p>
-                <h2 className="mt-1 text-lg font-black text-slate-950">Trực quan hóa phiên tuyển dụng</h2>
-              </div>
-              <div className="custom-scrollbar flex max-w-full gap-1 overflow-x-auto rounded-lg border border-slate-200 bg-slate-50 p-1">
-                {chartTabs.map((tab) => {
-                  const Icon = tab.icon;
-                  const active = activeChart === tab.key;
-                  return (
-                    <button
-                      key={tab.key}
-                      type="button"
-                      onClick={() => setActiveChart(tab.key)}
-                      className={`flex h-9 shrink-0 items-center gap-2 rounded-md px-3 text-xs font-black transition ${
-                        active ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-500 hover:bg-white hover:text-slate-900'
-                      }`}
-                    >
-                      <Icon className="h-4 w-4" />
-                      {tab.label}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
+          {/* ── Analysis row: Radar | Criteria bars ── */}
+          <section className="grid gap-4 xl:grid-cols-2">
 
-            <div className="p-4">
-              {activeChart === 'grade' && (
-                <div className="grid gap-5 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
-                  <ResponsiveContainer width="100%" height={310}>
-                    <PieChart>
-                      <Pie data={gradeData.filter((grade) => grade.value > 0)} dataKey="value" innerRadius={66} outerRadius={112} paddingAngle={4}>
-                        {gradeData.map((entry) => (
-                          <Cell key={entry.name} fill={entry.color} stroke="#ffffff" strokeWidth={4} />
-                        ))}
-                      </Pie>
-                      <Tooltip contentStyle={tooltipStyle} />
-                    </PieChart>
-                  </ResponsiveContainer>
-                  <div className="grid content-center gap-3">
-                    {gradeData.map((grade) => (
-                      <div key={grade.name} className="rounded-lg border border-slate-200 bg-slate-50 p-3">
-                        <div className="flex items-center justify-between gap-3">
-                          <span className="font-black text-slate-950">{grade.name}</span>
-                          <span className="text-lg font-black" style={{ color: grade.color }}>{grade.value}</span>
-                        </div>
-                        <p className="mt-1 text-xs font-semibold text-slate-500">{formatPercent(grade.pct)} tổng ứng viên đã phân tích</p>
-                      </div>
-                    ))}
-                  </div>
+            {/* Radar */}
+            <article className="rounded-xl bg-white p-4 shadow-sm">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-blue-600">Radar tiêu chí</p>
+              <h2 className="mt-1 text-[15px] font-bold text-slate-950">Điểm trung bình theo tiêu chí</h2>
+              {data.radarData.length > 0 ? (
+                <ResponsiveContainer width="100%" height={295}>
+                  <RadarChart data={data.radarData} outerRadius={108}>
+                    <PolarGrid stroke="#dbeafe" />
+                    <PolarAngleAxis dataKey="subject" tick={{ fill: '#475569', fontSize: 10 }} />
+                    <PolarRadiusAxis
+                      angle={30}
+                      domain={[0, 100]}
+                      tick={{ fill: '#94a3b8', fontSize: 9 }}
+                      axisLine={false}
+                    />
+                    <Radar dataKey="score" stroke="#2563eb" fill="#2563eb" fillOpacity={0.14} strokeWidth={2} />
+                    <Tooltip
+                      contentStyle={TOOLTIP}
+                      labelFormatter={(l) =>
+                        data.radarData.find((r) => r.subject === l)?.fullName ?? l
+                      }
+                    />
+                  </RadarChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="flex h-[295px] items-center justify-center text-[13px] text-slate-400">
+                  Chưa đủ dữ liệu tiêu chí
                 </div>
               )}
+            </article>
 
-              {activeChart === 'score' && (
-                <ResponsiveContainer width="100%" height={330}>
-                  <BarChart data={analyticsData.scoreDistribution}>
-                    <CartesianGrid stroke="#e2e8f0" vertical={false} />
-                    <XAxis dataKey="range" tick={{ fontSize: 12, fill: '#64748b' }} axisLine={false} tickLine={false} />
-                    <YAxis allowDecimals={false} tick={{ fontSize: 12, fill: '#64748b' }} axisLine={false} tickLine={false} />
-                    <Tooltip cursor={{ fill: '#f1f5f9' }} contentStyle={tooltipStyle} />
-                    <Bar dataKey="count" radius={[6, 6, 0, 0]} maxBarSize={58}>
-                      {analyticsData.scoreDistribution.map((entry) => (
-                        <Cell key={entry.range} fill={entry.fill} />
+            {/* Criteria horizontal bars */}
+            <article className="rounded-xl bg-white p-4 shadow-sm">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-blue-600">Xếp hạng tiêu chí</p>
+              <h2 className="mt-1 text-[15px] font-bold text-slate-950">Điểm mạnh &amp; điểm yếu</h2>
+              {data.criteriaRanked.length > 0 ? (
+                <ResponsiveContainer width="100%" height={315}>
+                  <BarChart
+                    data={data.criteriaRanked.slice(0, 8)}
+                    layout="vertical"
+                    margin={{ top: 10, right: 32, bottom: 0, left: 0 }}
+                  >
+                    <CartesianGrid stroke="#f1f5f9" horizontal={false} />
+                    <XAxis
+                      type="number"
+                      domain={[0, 100]}
+                      tick={{ fontSize: 10, fill: '#94a3b8' }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <YAxis
+                      type="category"
+                      dataKey="label"
+                      width={116}
+                      tick={{ fontSize: 10, fill: '#475569' }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <Tooltip
+                      contentStyle={TOOLTIP}
+                      formatter={(v) => [`${v}đ`, 'Điểm TB']}
+                      labelFormatter={(l) =>
+                        data.criteriaRanked.find((c) => c.label === l)?.fullName ?? l
+                      }
+                    />
+                    <Bar dataKey="avg" radius={[0, 4, 4, 0]} maxBarSize={15}>
+                      {data.criteriaRanked.slice(0, 8).map((entry) => (
+                        <Cell
+                          key={entry.label}
+                          fill={entry.avg >= 80 ? '#16a34a' : entry.avg >= 60 ? '#2563eb' : '#ef4444'}
+                        />
                       ))}
                     </Bar>
                   </BarChart>
                 </ResponsiveContainer>
-              )}
-
-              {activeChart === 'radar' && (
-                analyticsData.topCriteria.length > 0 ? (
-                  <ResponsiveContainer width="100%" height={340}>
-                    <RadarChart data={analyticsData.topCriteria} outerRadius={115}>
-                      <PolarGrid stroke="#dbeafe" />
-                      <PolarAngleAxis dataKey="subject" tick={{ fill: '#475569', fontSize: 11 }} />
-                      <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fill: '#94a3b8', fontSize: 10 }} axisLine={false} />
-                      <Radar dataKey="score" stroke="#2563eb" fill="#2563eb" fillOpacity={0.18} strokeWidth={2.5} />
-                      <Tooltip contentStyle={tooltipStyle} labelFormatter={(label) => analyticsData.topCriteria.find((item) => item.subject === label)?.fullName || label} />
-                    </RadarChart>
-                  </ResponsiveContainer>
-                ) : (
-                  <EmptyPanel message="Chưa có tiêu chí đủ dữ liệu để vẽ radar." />
-                )
-              )}
-
-              {activeChart === 'trend' && (
-                <ResponsiveContainer width="100%" height={330}>
-                  <AreaChart data={analyticsData.timeStats}>
-                    <defs>
-                      <linearGradient id="dashboardScore" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#2563eb" stopOpacity={0.32} />
-                        <stop offset="95%" stopColor="#2563eb" stopOpacity={0} />
-                      </linearGradient>
-                      <linearGradient id="dashboardFit" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#16a34a" stopOpacity={0.28} />
-                        <stop offset="95%" stopColor="#16a34a" stopOpacity={0} />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid stroke="#e2e8f0" vertical={false} />
-                    <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#64748b' }} axisLine={false} tickLine={false} />
-                    <YAxis domain={[0, 100]} tick={{ fontSize: 12, fill: '#64748b' }} axisLine={false} tickLine={false} />
-                    <Tooltip contentStyle={tooltipStyle} />
-                    <Area type="monotone" dataKey="score" name="Tổng điểm" stroke="#2563eb" fill="url(#dashboardScore)" strokeWidth={2.5} />
-                    <Area type="monotone" dataKey="jdFit" name="Phù hợp JD" stroke="#16a34a" fill="url(#dashboardFit)" strokeWidth={2.5} />
-                  </AreaChart>
-                </ResponsiveContainer>
-              )}
-            </div>
-          </section>
-
-          <section className="rounded-lg border border-slate-200 bg-white shadow-sm">
-            <div className="border-b border-slate-200 p-4">
-              <p className="text-[11px] font-black uppercase tracking-[0.14em] text-blue-700">Chi tiết tiêu chí</p>
-              <h2 className="mt-1 text-lg font-black text-slate-950">Điểm mạnh, điểm yếu và độ lệch</h2>
-            </div>
-            <div className="custom-scrollbar max-h-[520px] overflow-auto">
-              {analyticsData.criteriaAverages.length > 0 ? (
-                <table className="w-full min-w-[920px] text-left">
-                  <thead className="sticky top-0 z-10 border-b border-slate-200 bg-slate-50">
-                    <tr>
-                      {['Tiêu chí', 'Điểm TB', 'Độ lệch', 'Thấp nhất', 'Cao nhất', 'Số CV', 'Đánh giá'].map((header) => (
-                        <th key={header} className="px-4 py-3 text-[11px] font-black uppercase tracking-[0.12em] text-slate-500">{header}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    {analyticsData.criteriaAverages.map((criterion, index) => {
-                      const tone = criterion.average >= 80 ? 'good' : criterion.average >= 60 ? 'ok' : 'risk';
-                      const toneClass = tone === 'good'
-                        ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
-                        : tone === 'ok'
-                          ? 'border-blue-200 bg-blue-50 text-blue-700'
-                          : 'border-rose-200 bg-rose-50 text-rose-700';
-                      const label = tone === 'good' ? 'Tốt' : tone === 'ok' ? 'Khá' : 'Cần cải thiện';
-
-                      return (
-                        <tr key={criterion.fullCriterion} className="hover:bg-slate-50">
-                          <td className="max-w-[360px] px-4 py-3">
-                            <div className="flex items-start gap-3">
-                              <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-slate-100 text-[11px] font-black text-slate-600">{index + 1}</span>
-                              <span className="break-words text-sm font-bold leading-6 text-slate-800">{criterion.fullCriterion}</span>
-                            </div>
-                          </td>
-                          <td className="px-4 py-3">
-                            <div className="flex min-w-[130px] items-center gap-2">
-                              <span className="w-8 text-sm font-black text-slate-950">{criterion.average}</span>
-                              <div className="h-2 flex-1 overflow-hidden rounded-full bg-slate-100">
-                                <div className="h-full rounded-full bg-blue-600" style={{ width: `${criterion.average}%` }} />
-                              </div>
-                            </div>
-                          </td>
-                          <td className="px-4 py-3 text-sm font-semibold text-slate-600">{criterion.stdDev.toFixed(1)}</td>
-                          <td className="px-4 py-3 text-sm font-semibold text-slate-600">{criterion.min}</td>
-                          <td className="px-4 py-3 text-sm font-semibold text-slate-600">{criterion.max}</td>
-                          <td className="px-4 py-3 text-sm font-semibold text-slate-600">{criterion.count}</td>
-                          <td className="px-4 py-3">
-                            <span className={`inline-flex rounded-md border px-2.5 py-1 text-xs font-black ${toneClass}`}>{label}</span>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
               ) : (
-                <EmptyPanel message="Chưa có dữ liệu chi tiết theo tiêu chí." />
+                <div className="flex h-[315px] items-center justify-center text-[13px] text-slate-400">
+                  Chưa đủ dữ liệu tiêu chí
+                </div>
               )}
-            </div>
+              {/* Legend */}
+              <div className="mt-1 flex items-center gap-4">
+                {[
+                  { color: '#16a34a', label: '≥ 80' },
+                  { color: '#2563eb', label: '60–79' },
+                  { color: '#ef4444', label: '< 60' },
+                ].map(({ color, label }) => (
+                  <div key={label} className="flex items-center gap-1.5">
+                    <span className="h-2 w-2 rounded-full" style={{ background: color }} />
+                    <span className="text-[11px] font-medium text-slate-500">{label}</span>
+                  </div>
+                ))}
+              </div>
+            </article>
           </section>
+
+          {/* ── Trend: full width ────────────────── */}
+          <section>
+            <article className="rounded-xl bg-white p-4 shadow-sm">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-blue-600">Xu hướng</p>
+              <h2 className="mt-1 text-[15px] font-bold text-slate-950">Điểm số theo thứ tự CV</h2>
+              <ResponsiveContainer width="100%" height={200}>
+                <AreaChart data={data.trend} margin={{ top: 10, right: 4, bottom: 0, left: -22 }}>
+                  <defs>
+                    <linearGradient id="gScore" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%"  stopColor="#2563eb" stopOpacity={0.28} />
+                      <stop offset="95%" stopColor="#2563eb" stopOpacity={0} />
+                    </linearGradient>
+                    <linearGradient id="gFit" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%"  stopColor="#16a34a" stopOpacity={0.22} />
+                      <stop offset="95%" stopColor="#16a34a" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid stroke="#f1f5f9" vertical={false} />
+                  <XAxis
+                    dataKey="name"
+                    tick={{ fontSize: 11, fill: '#94a3b8' }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    domain={[0, 100]}
+                    tick={{ fontSize: 11, fill: '#94a3b8' }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <Tooltip contentStyle={TOOLTIP} />
+                  <Area
+                    type="monotone"
+                    dataKey="score"
+                    name="Tổng điểm"
+                    stroke="#2563eb"
+                    fill="url(#gScore)"
+                    strokeWidth={2}
+                    dot={{ r: 3, fill: '#2563eb', strokeWidth: 0 }}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="jdFit"
+                    name="Phù hợp JD"
+                    stroke="#16a34a"
+                    fill="url(#gFit)"
+                    strokeWidth={2}
+                    dot={{ r: 3, fill: '#16a34a', strokeWidth: 0 }}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+              <div className="mt-2 flex items-center justify-center gap-6">
+                {[
+                  { color: '#2563eb', label: 'Tổng điểm' },
+                  { color: '#16a34a', label: 'Phù hợp JD' },
+                ].map(({ color, label }) => (
+                  <div key={label} className="flex items-center gap-2">
+                    <span className="h-2.5 w-2.5 rounded-full" style={{ background: color }} />
+                    <span className="text-[12px] font-semibold text-slate-500">{label}</span>
+                  </div>
+                ))}
+              </div>
+            </article>
+          </section>
+
         </main>
       </div>
     </div>
   );
 };
-
-const InsightRow = ({
-  icon: Icon,
-  label,
-  value,
-}: {
-  icon: React.ComponentType<{ className?: string }>;
-  label: string;
-  value: string;
-}) => (
-  <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
-    <div className="flex items-start gap-3">
-      <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-white text-blue-600 shadow-sm">
-        <Icon className="h-4 w-4" />
-      </span>
-      <div className="min-w-0">
-        <p className="text-xs font-black uppercase tracking-[0.12em] text-slate-500">{label}</p>
-        <p className="mt-1 break-words text-sm font-bold leading-6 text-slate-900">{value}</p>
-      </div>
-    </div>
-  </div>
-);
-
-const EmptyPanel = ({ message }: { message: string }) => (
-  <div className="flex min-h-[220px] items-center justify-center rounded-lg border border-dashed border-slate-200 bg-slate-50 p-8 text-center text-sm font-semibold text-slate-500">
-    {message}
-  </div>
-);
 
 export default DetailedAnalyticsPage;

@@ -585,7 +585,7 @@ const JDTemplatesModal: React.FC<JDTemplatesModalProps> = ({
                 <p className="supporthr-mono text-[10px] uppercase tracking-[0.2em] text-slate-400">
                   {view === 'list' && activeTab === 'jd'
                     ? `${combinedTemplates.length} mẫu từ tài khoản và các JD đã từng phân tích`
-                    : 'Đồng bộ từ Render API và dữ liệu cục bộ'}
+                    : 'Đồng bộ từ máy chủ và dữ liệu cục bộ'}
                 </p>
               </div>
             </div>
@@ -829,7 +829,7 @@ const JDTemplatesModal: React.FC<JDTemplatesModalProps> = ({
                       Tuần này: <span className="font-bold text-slate-900">{historyStats.thisWeekCount}</span>
                     </div>
                     <div className="supporthr-mono rounded-xl border border-blue-100 bg-white/55 px-3 py-2 text-[10px] uppercase tracking-[0.18em] text-slate-500">
-                      Nguồn: {historySource === 'render' ? 'Render API' : historySource === 'local' ? 'Cục bộ' : 'Chưa có dữ liệu'}
+                      Nguồn: {historySource === 'render' ? 'Máy chủ' : historySource === 'local' ? 'Cục bộ' : 'Chưa có dữ liệu'}
                     </div>
                   </div>
 
@@ -968,7 +968,7 @@ const JDTemplatesModal: React.FC<JDTemplatesModalProps> = ({
 
                           <div className="supporthr-mono mt-4 flex items-center justify-between border-t border-blue-100 pt-4 text-[10px] uppercase tracking-[0.16em] text-slate-500">
                             <span>{entry.totalCandidates > 0 ? `${entry.totalCandidates} ứng viên` : 'Đã hoàn thành'}</span>
-                            <span className="font-medium text-slate-500">{entry.source === 'render' ? 'Render API' : 'Cục bộ'}</span>
+                            <span className="font-medium text-slate-500">{entry.source === 'render' ? 'Máy chủ' : 'Cục bộ'}</span>
                           </div>
                         </div>
                       ))}

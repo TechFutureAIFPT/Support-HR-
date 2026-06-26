@@ -881,7 +881,7 @@ export async function* analyzeCVs(
 
   yield {
     status: 'progress',
-    message: `Đang phân tích ${cvEntries.length} CV qua Render API...`,
+    message: `Đang phân tích ${cvEntries.length} CV...`,
   };
 
   let coreResponse: CoreAnalysisResponse;

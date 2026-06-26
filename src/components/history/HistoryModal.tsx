@@ -181,7 +181,7 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ isOpen, onClose, presentati
                   <div className="border border-[#2388ff]/12 bg-white/65 px-3 py-3">
                     <p className={metaClass}>Nguồn dữ liệu</p>
                     <p className="mt-2 text-sm font-semibold text-slate-900">
-                      {historySource === 'render' ? 'Render API' : historySource === 'local' ? 'Cục bộ' : 'Chưa có dữ liệu'}
+                      {historySource === 'render' ? 'Máy chủ' : historySource === 'local' ? 'Cục bộ' : 'Chưa có dữ liệu'}
                     </p>
                   </div>
                   <div className="border border-[#2388ff]/12 bg-white/65 px-3 py-3">
