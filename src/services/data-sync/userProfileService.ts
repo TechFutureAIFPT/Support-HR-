@@ -1,10 +1,12 @@
 import { apiGet, apiPatch, apiPost, apiPut, pickArray, pickObject } from '@/services/api/renderClient';
+import type { RecruiterInfo } from '@/types';
 
 export interface UserProfile {
   uid: string;
   email: string;
   displayName?: string;
   avatar?: string;
+  recruiterInfo?: RecruiterInfo;
   createdAt: any;
   updatedAt: any;
 }
@@ -58,7 +60,7 @@ function normalizeUserCVHistory(raw: unknown): UserCVHistory {
 }
 
 export class UserProfileService {
-  static async saveUserProfile(uid: string, email: string, displayName?: string, avatar?: string): Promise<void> {
+  static async saveUserProfile(uid: string, email: string, displayName?: string, avatar?: string, recruiterInfo?: RecruiterInfo): Promise<void> {
     await apiPut(
       '/api/account/profile',
       {
@@ -66,6 +68,13 @@ export class UserProfileService {
         displayName,
         avatar,
         provider: 'firebase-auth',
+        ...(recruiterInfo ? {
+          recruiterTitle: recruiterInfo.title,
+          recruiterCompany: recruiterInfo.company,
+          recruiterDepartment: recruiterInfo.department,
+          recruiterPhone: recruiterInfo.phone,
+          emailSignature: recruiterInfo.emailSignature,
+        } : {}),
       },
       { authRequired: true }
     );

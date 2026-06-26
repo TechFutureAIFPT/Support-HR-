@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowLeft, Bot, CalendarDays, CheckCircle2, ChevronRight, Mail, MessageSquareText, MoreHorizontal, PanelRightClose, PanelRightOpen, PlayCircle, Send, Star, TriangleAlert, Zap } from 'lucide-react';
+import { ArrowLeft, Bot, CalendarDays, CheckCircle2, ChevronRight, Clipboard, Mail, MessageSquareText, MoreHorizontal, PanelRightClose, PanelRightOpen, PlayCircle, Send, Star, TriangleAlert, Zap } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
-import type { AnalysisFeedbackDraft, AnalysisFeedbackRecord, AppStep, Candidate, HardFilters, WeightCriteria } from '@/types';
+import type { AnalysisFeedbackDraft, AnalysisFeedbackRecord, AppStep, Candidate, HardFilters, RecruiterInfo, WeightCriteria } from '@/types';
 import SupportHRLoading from '@/components/common/SupportHRLoading';
 import CvDocumentViewer from '@/features/cv-management/CvDocumentViewer';
 import { ScoreLabel, WorkspaceEmpty, WorkspaceSearch } from '@/components/workspace/WorkspacePrimitives';
@@ -9,6 +9,7 @@ import { normalizeVietnameseDisplay } from '@/utils/textDisplay';
 import ExpandedContent from '@/features/cv-management/ExpandedContent';
 import CandidateEmailNotifier from '@/features/email/CandidateEmailNotifier';
 import AIFeedbackForm from '@/features/feedback/AIFeedbackForm';
+import { useUserSettings } from '@/context/settings/UserSettingsProvider';
 
 interface AnalysisResultsProps {
   isLoading: boolean;
@@ -197,7 +198,7 @@ const INTERVIEW_TYPES = [
   { value: 'onsite', label: 'Trực tiếp' },
 ];
 
-const SchedulePane: React.FC<{ candidate: Candidate }> = ({ candidate }) => {
+const SchedulePane: React.FC<{ candidate: Candidate; recruiterInfo?: RecruiterInfo; jobPosition: string }> = ({ candidate, recruiterInfo, jobPosition }) => {
   const storageKey = `schedule:${candidate.id}`;
   const [date, setDate] = useState('');
   const [time, setTime] = useState('09:00');
@@ -205,6 +206,10 @@ const SchedulePane: React.FC<{ candidate: Candidate }> = ({ candidate }) => {
   const [note, setNote] = useState('');
   const [saved, setSaved] = useState<ScheduledInterview[]>([]);
   const [justSaved, setJustSaved] = useState(false);
+  const [emailDraft, setEmailDraft] = useState('');
+  const [emailLoading, setEmailLoading] = useState(false);
+  const [emailCopied, setEmailCopied] = useState(false);
+  const [draftForScheduleId, setDraftForScheduleId] = useState<string | null>(null);
 
   useEffect(() => {
     try {
@@ -228,7 +233,59 @@ const SchedulePane: React.FC<{ candidate: Candidate }> = ({ candidate }) => {
     setTimeout(() => setJustSaved(false), 2000);
   };
 
-  const handleDelete = (id: string) => persist(saved.filter((item) => item.id !== id));
+  const handleDelete = (id: string) => {
+    persist(saved.filter((item) => item.id !== id));
+    if (draftForScheduleId === id) { setEmailDraft(''); setDraftForScheduleId(null); }
+  };
+
+  const handleDraftEmail = async (item: ScheduledInterview) => {
+    setEmailLoading(true);
+    setEmailDraft('');
+    setDraftForScheduleId(item.id);
+    const dateFormatted = new Intl.DateTimeFormat('vi-VN', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' }).format(new Date(item.date));
+    const typeLabel = INTERVIEW_TYPES.find((t) => t.value === item.type)?.label || item.type;
+    const senderName = recruiterInfo?.title && recruiterInfo?.company
+      ? `${recruiterInfo.title} tại ${recruiterInfo.company}`
+      : 'bộ phận tuyển dụng';
+    const sig = recruiterInfo?.emailSignature || [
+      recruiterInfo?.title, recruiterInfo?.company, recruiterInfo?.phone,
+    ].filter(Boolean).join(' | ');
+    const prompt = [
+      `Soạn email mời phỏng vấn bằng tiếng Việt, lịch sự và chuyên nghiệp.`,
+      `Người gửi: ${senderName}${recruiterInfo?.phone ? ', SĐT: ' + recruiterInfo.phone : ''}.`,
+      `Ứng viên: ${candidate.candidateName}, ứng tuyển vị trí ${jobPosition}.`,
+      `Lịch phỏng vấn: ${dateFormatted}, lúc ${item.time}, hình thức ${typeLabel}.`,
+      item.note ? `Ghi chú thêm: ${item.note}.` : '',
+      sig ? `Chữ ký người gửi:\n${sig}` : '',
+      `Chỉ trả về nội dung email hoàn chỉnh (subject + body), không giải thích thêm.`,
+    ].filter(Boolean).join('\n');
+    try {
+      const { apiPost } = await import('@/services/api/renderClient');
+      const response = await (apiPost as (path: string, body: unknown) => Promise<{ text?: string; responseText?: string }>)(
+        '/api/gemini-chat',
+        { contents: prompt, config: { temperature: 0.4, maxOutputTokens: 800 } }
+      );
+      setEmailDraft(response.text || response.responseText || '');
+    } catch {
+      setEmailDraft('Không thể kết nối AI. Vui lòng thử lại.');
+    } finally {
+      setEmailLoading(false);
+    }
+  };
+
+  const handleCopy = () => {
+    void navigator.clipboard.writeText(emailDraft);
+    setEmailCopied(true);
+    setTimeout(() => setEmailCopied(false), 2000);
+  };
+
+  const handleMailto = () => {
+    const lines = emailDraft.split('\n');
+    const subjectLine = lines.find((l) => l.toLowerCase().startsWith('subject:') || l.toLowerCase().startsWith('tiêu đề:'));
+    const subject = subjectLine ? subjectLine.replace(/^(subject|tiêu đề):\s*/i, '') : `Mời phỏng vấn — ${jobPosition}`;
+    const body = emailDraft;
+    window.open(`mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`);
+  };
 
   const inputCls = 'w-full rounded-xl border border-[#d2d2d7] bg-white px-3 py-2 text-[13px] outline-none focus:border-[#007aff] focus:ring-2 focus:ring-[#007aff]/15';
 
@@ -271,18 +328,71 @@ const SchedulePane: React.FC<{ candidate: Candidate }> = ({ candidate }) => {
       {saved.length > 0 && (
         <div className="rounded-2xl border border-[#d2d2d7] bg-white px-5 py-4">
           <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.14em] text-[#6e6e73]">Lịch đã đặt</p>
-          <div className="space-y-2.5">
+          <div className="space-y-3">
             {saved.map((item) => (
-              <div key={item.id} className="flex items-start justify-between gap-3 rounded-xl border border-[#f2f2f7] bg-[#f8f8fa] px-4 py-3">
-                <div>
-                  <p className="text-[13px] font-semibold text-[#1d1d1f]">
-                    {new Intl.DateTimeFormat('vi-VN', { weekday: 'short', day: '2-digit', month: '2-digit', year: 'numeric' }).format(new Date(item.date))}
-                    {' · '}{item.time}
-                    {' · '}<span className="text-[#007aff]">{INTERVIEW_TYPES.find((t) => t.value === item.type)?.label}</span>
-                  </p>
-                  {item.note && <p className="mt-0.5 text-[12px] text-[#6e6e73]">{item.note}</p>}
+              <div key={item.id}>
+                <div className="flex items-start justify-between gap-3 rounded-xl border border-[#f2f2f7] bg-[#f8f8fa] px-4 py-3">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[13px] font-semibold text-[#1d1d1f]">
+                      {new Intl.DateTimeFormat('vi-VN', { weekday: 'short', day: '2-digit', month: '2-digit', year: 'numeric' }).format(new Date(item.date))}
+                      {' · '}{item.time}
+                      {' · '}<span className="text-[#007aff]">{INTERVIEW_TYPES.find((t) => t.value === item.type)?.label}</span>
+                    </p>
+                    {item.note && <p className="mt-0.5 text-[12px] text-[#6e6e73]">{item.note}</p>}
+                  </div>
+                  <div className="flex shrink-0 items-center gap-2">
+                    <button
+                      onClick={() => void handleDraftEmail(item)}
+                      disabled={emailLoading && draftForScheduleId === item.id}
+                      className="flex items-center gap-1 rounded-lg border border-[#007aff]/30 bg-[#eef5ff] px-2.5 py-1 text-[11px] font-semibold text-[#007aff] transition hover:bg-[#dceaff] disabled:opacity-50"
+                    >
+                      <Bot size={11} />
+                      {emailLoading && draftForScheduleId === item.id ? 'Đang soạn…' : 'Soạn email'}
+                    </button>
+                    <button onClick={() => handleDelete(item.id)} className="text-[11px] text-[#ff3b30] hover:underline">Xoá</button>
+                  </div>
                 </div>
-                <button onClick={() => handleDelete(item.id)} className="text-[11px] text-[#ff3b30] hover:underline">Xoá</button>
+
+                {draftForScheduleId === item.id && (emailDraft || emailLoading) && (
+                  <div className="mt-2 rounded-xl border border-[#d2d2d7] bg-white px-4 py-3">
+                    <p className="mb-2 flex items-center gap-1.5 text-[10.5px] font-bold uppercase tracking-[0.1em] text-[#6e6e73]">
+                      <Bot size={11} className="text-[#007aff]" /> Email do AI soạn
+                    </p>
+                    {emailLoading ? (
+                      <div className="flex items-center gap-2 py-3 text-[13px] text-[#6e6e73]">
+                        <span className="flex gap-1">
+                          {[0,1,2].map((i) => <span key={i} className="h-1.5 w-1.5 animate-bounce rounded-full bg-[#007aff]" style={{ animationDelay: `${i * 0.15}s` }} />)}
+                        </span>
+                        Đang soạn email…
+                      </div>
+                    ) : (
+                      <>
+                        <textarea
+                          value={emailDraft}
+                          onChange={(e) => setEmailDraft(e.target.value)}
+                          rows={10}
+                          className="w-full resize-none rounded-xl border border-[#e5e5ea] bg-[#f8f8fa] px-3 py-2.5 text-[12.5px] leading-[1.6] text-[#1d1d1f] outline-none focus:border-[#007aff] focus:bg-white"
+                        />
+                        <div className="mt-2 flex gap-2">
+                          <button
+                            onClick={handleCopy}
+                            className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-[#d2d2d7] bg-white py-2 text-[12px] font-semibold text-[#1d1d1f] transition hover:bg-[#f8f8fa]"
+                          >
+                            <Clipboard size={12} />
+                            {emailCopied ? '✓ Đã sao chép' : 'Sao chép'}
+                          </button>
+                          <button
+                            onClick={handleMailto}
+                            className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-[#007aff]/30 bg-[#eef5ff] py-2 text-[12px] font-semibold text-[#007aff] transition hover:bg-[#dceaff]"
+                          >
+                            <Mail size={12} />
+                            Mở trong Mail
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -302,7 +412,7 @@ const CHAT_SUGGESTIONS = [
   'So sánh ứng viên này với tiêu chuẩn vị trí',
 ];
 
-const ChatPane: React.FC<{ candidate: Candidate; jobPosition: string; jdText?: string }> = ({ candidate, jobPosition, jdText }) => {
+const ChatPane: React.FC<{ candidate: Candidate; jobPosition: string; jdText?: string; recruiterInfo?: RecruiterInfo }> = ({ candidate, jobPosition, jdText, recruiterInfo }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -337,11 +447,14 @@ const ChatPane: React.FC<{ candidate: Candidate; jobPosition: string; jdText?: s
 
     try {
       const context = buildContext();
+      const recruiterCtx = recruiterInfo?.title && recruiterInfo?.company
+        ? `Bạn đang hỗ trợ ${recruiterInfo.title} tại ${recruiterInfo.company}${recruiterInfo.department ? `, phòng ${recruiterInfo.department}` : ''}. `
+        : '';
       const { apiPost } = await import('@/services/api/renderClient');
       const response = await (apiPost as (path: string, body: unknown) => Promise<{ text?: string; responseText?: string }>)(
         '/api/gemini-chat',
         {
-          contents: `Bạn là trợ lý tuyển dụng chuyên sâu. Trả lời ngắn gọn bằng tiếng Việt.\n\nThông tin ứng viên:\n${context}\n\nCâu hỏi: ${text}`,
+          contents: `Bạn là trợ lý tuyển dụng AI chuyên sâu. ${recruiterCtx}Trả lời ngắn gọn bằng tiếng Việt.\n\nThông tin ứng viên:\n${context}\n\nCâu hỏi: ${text}`,
           config: { temperature: 0.4, maxOutputTokens: 600 },
         }
       );
@@ -580,6 +693,8 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({
   documentOwner = 'local',
   feedbackByCandidate: externalFeedback,
 }) => {
+  const { settings } = useUserSettings();
+  const recruiterInfo = settings.account.recruiterInfo;
   const [params, setParams] = useSearchParams();
   const search = params.get('q') || '';
   const sort = params.get('sort') === 'name' ? 'name' : 'score';
@@ -707,9 +822,9 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({
               {tab === 'stats' ? (
                 <StatsPane candidate={selected} />
               ) : tab === 'schedule' ? (
-                <SchedulePane candidate={selected} />
+                <SchedulePane candidate={selected} recruiterInfo={recruiterInfo} jobPosition={jobPosition} />
               ) : tab === 'chat' ? (
-                <ChatPane candidate={selected} jobPosition={jobPosition} jdText={jdText} />
+                <ChatPane candidate={selected} jobPosition={jobPosition} jdText={jdText} recruiterInfo={recruiterInfo} />
               ) : tab === 'feedback' ? (
                 <FeedbackPane candidate={selected} />
               ) : (

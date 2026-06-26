@@ -16,7 +16,7 @@ import { warmUpServer } from '@/services/api/renderClient';
 // Wake up the server before Firebase auth resolves so the first real request hits a warm server.
 warmUpServer();
 import type { AuthUser } from '@/services/auth/authTypes';
-import type { AppStep, Candidate, HardFilters, WeightCriteria, AnalysisRunData, ActiveAnalysisContext, HistoryEntry } from '@/types';
+import type { AppStep, Candidate, HardFilters, RecruiterInfo, WeightCriteria, AnalysisRunData, ActiveAnalysisContext, HistoryEntry } from '@/types';
 import type { WorkspaceSessionViewModel } from '@/types/workspace';
 import { initialWeights } from '@/config/constants';
 import Sidebar from '@/layout/Sidebar';
@@ -1011,7 +1011,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
     setActiveStep('jd');
   }, [markStepAsCompleted, setActiveStep]);
 
-  const handleSaveAccountProfile = useCallback(async (payload: { displayName: string; avatar: string | null }) => {
+  const handleSaveAccountProfile = useCallback(async (payload: { displayName: string; avatar: string | null; recruiterInfo?: RecruiterInfo }) => {
     const nextDisplayName = payload.displayName.trim() || (userEmail ? userEmail.split('@')[0] : 'Support HR');
     const nextAvatar = payload.avatar;
 
@@ -1024,6 +1024,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
         currentUser.email,
         nextDisplayName,
         nextAvatar || undefined,
+        payload.recruiterInfo,
       );
 
       if (nextAvatar) {
@@ -1037,6 +1038,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
       displayName: nextDisplayName,
       avatar: nextAvatar,
       email: currentUser?.email || userEmail,
+      ...(payload.recruiterInfo ? { recruiterInfo: payload.recruiterInfo } : {}),
     });
   }, [currentUser, updateAccountSnapshot, userEmail]);
 

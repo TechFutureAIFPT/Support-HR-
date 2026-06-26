@@ -546,10 +546,19 @@ export interface UserSettingsUI {
   theme: UserSettingsTheme;
 }
 
+export interface RecruiterInfo {
+  title: string;
+  company: string;
+  department: string;
+  phone: string;
+  emailSignature: string;
+}
+
 export interface UserSettingsAccount {
   displayName: string;
   avatar: string | null;
   email: string;
+  recruiterInfo?: RecruiterInfo;
 }
 
 export interface FixedJDConfig {
