@@ -9,6 +9,7 @@ import {
   CheckCircle2,
   ChevronRight,
   FileText,
+  Mail,
   MessageSquareText,
   TrendingUp,
   Users,
@@ -24,6 +25,7 @@ import type {
   WeightCriteria,
 } from '@/types';
 import AIFeedbackForm from '@/features/feedback/AIFeedbackForm';
+import CandidateEmailNotifier from '@/features/email/CandidateEmailNotifier';
 import {
   getAnalysisFeedbackStats,
   listAnalysisFeedback,
@@ -172,6 +174,7 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
   const tc = useThemeColors();
   const storedRun = useMemo(() => getStoredAnalysisRun(), []);
   const [activeView, setActiveView] = useState<FeedbackView>('overview');
+  const [showEmailNotifier, setShowEmailNotifier] = useState(false);
   const [selectedCandidateId, setSelectedCandidateId] = useState<string | null>(null);
   const [feedbackByCandidate, setFeedbackByCandidate] = useState<Record<string, AnalysisFeedbackRecord>>({});
   const [feedbackStats, setFeedbackStats] = useState<AnalysisFeedbackStats | null>(null);
@@ -386,14 +389,24 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
                   </div>
                 </div>
 
-                <button
-                  onClick={() => navigate('/analysis')}
-                  className="inline-flex h-9 items-center gap-2 rounded-xl border px-4 text-[13px] font-semibold transition-colors hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 sm:self-start"
-                  style={{ background: tc.cardBg, borderColor: tc.borderSoft, color: tc.textSecondary }}
-                >
-                  <ArrowLeft className="h-3.5 w-3.5" />
-                  Kết quả phân tích
-                </button>
+                <div className="flex items-center gap-2 sm:self-start">
+                  <button
+                    onClick={() => setShowEmailNotifier(true)}
+                    className="inline-flex h-9 items-center gap-2 rounded-xl border px-4 text-[13px] font-semibold transition-colors hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200"
+                    style={{ background: tc.cardBg, borderColor: tc.borderSoft, color: tc.textSecondary }}
+                  >
+                    <Mail className="h-3.5 w-3.5" />
+                    Gửi thông báo
+                  </button>
+                  <button
+                    onClick={() => navigate('/analysis')}
+                    className="inline-flex h-9 items-center gap-2 rounded-xl border px-4 text-[13px] font-semibold transition-colors hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200"
+                    style={{ background: tc.cardBg, borderColor: tc.borderSoft, color: tc.textSecondary }}
+                  >
+                    <ArrowLeft className="h-3.5 w-3.5" />
+                    Kết quả phân tích
+                  </button>
+                </div>
               </div>
 
               {/* Stats chips row */}
@@ -606,6 +619,15 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
           </div>
         )}
       </main>
+
+      {showEmailNotifier && (
+        <CandidateEmailNotifier
+          candidates={validCandidates}
+          feedbackByCandidate={feedbackByCandidate}
+          jobPosition={effectiveJobPosition}
+          onClose={() => setShowEmailNotifier(false)}
+        />
+      )}
     </div>
   );
 };
