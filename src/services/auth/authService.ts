@@ -85,6 +85,12 @@ function queueUserProfileSync(
   void syncUserProfileSafely(user, provider, displayName);
 }
 
+let _googleAccessToken: string | null = null;
+
+export function getGoogleAccessToken(): string | null {
+  return _googleAccessToken;
+}
+
 function extractGoogleAccessToken(source: unknown): string | null {
   if (!source || typeof source !== 'object') return null;
   const accessToken = (source as { accessToken?: unknown }).accessToken;
@@ -92,6 +98,7 @@ function extractGoogleAccessToken(source: unknown): string | null {
 }
 
 function bootstrapGoogleDriveSession(accessToken: string | null): void {
+  _googleAccessToken = accessToken;
   if (!accessToken) return;
 
   void googleDriveService.connectWithGoogleSession(accessToken, {
@@ -133,6 +140,7 @@ export async function signInWithEmail(data: SignInData): Promise<AuthUser> {
 export async function signInWithGoogle(): Promise<AuthUser> {
   const provider = new GoogleAuthProvider();
   provider.addScope('https://www.googleapis.com/auth/drive.readonly');
+  provider.addScope('https://www.googleapis.com/auth/gmail.send');
 
   try {
     const result = await signInWithPopup(auth, provider);
@@ -172,6 +180,7 @@ export async function linkGoogleAfterPasswordSignIn(
 export async function linkGoogleAccount(): Promise<AuthUser> {
   const provider = new GoogleAuthProvider();
   provider.addScope('https://www.googleapis.com/auth/drive.readonly');
+  provider.addScope('https://www.googleapis.com/auth/gmail.send');
   const result = await linkWithPopup(auth.currentUser!, provider);
   bootstrapGoogleDriveSession(extractGoogleAccessToken(GoogleAuthProvider.credentialFromResult(result)));
   queueUserProfileSync(result.user, 'google');

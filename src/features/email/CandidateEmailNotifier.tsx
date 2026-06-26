@@ -11,6 +11,8 @@ import {
 import { useThemeColors } from '@/hooks/useThemeColors';
 import type { AnalysisFeedbackAction, AnalysisFeedbackRecord, Candidate } from '@/types';
 import { normalizeVietnameseDisplay } from '@/utils/textDisplay';
+import { apiPost } from '@/services/api/renderClient';
+import { getGoogleAccessToken } from '@/services/auth/authService';
 
 const PASS_ACTIONS = new Set<AnalysisFeedbackAction>(['interview', 'shortlist', 'hire']);
 const FAIL_ACTIONS = new Set<AnalysisFeedbackAction>(['reject']);
@@ -169,20 +171,38 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
   const handleSend = useCallback(async () => {
     if (!canSend) return;
     setSendState('sending');
-    const payload = selectedItems.map((item) => ({
+
+    const googleToken = getGoogleAccessToken();
+    if (!googleToken) {
+      alert('Chưa có quyền gửi email. Vui lòng đăng xuất và đăng nhập lại bằng Google.');
+      setSendState('idle');
+      return;
+    }
+
+    const subject = activeTab === 'pass'
+      ? `Thông báo kết quả sơ tuyển – ${jobPosition}`
+      : `Kết quả ứng tuyển – ${jobPosition}`;
+
+    const emails = selectedItems.map((item) => ({
       to: item.email,
-      candidateName: item.candidate.candidateName,
-      jobPosition,
-      template: activeTab,
+      subject,
       body: applyTemplate(
         activeTemplate,
         normalizeVietnameseDisplay(item.candidate.candidateName),
-        jobPosition
+        jobPosition,
       ),
     }));
-    console.log('[Email] Mock send payload:', payload);
-    await new Promise<void>((resolve) => setTimeout(resolve, 1500));
-    setSentCount(selectedItems.length);
+
+    try {
+      const res = await apiPost<{ sent: number; failed: number }>(
+        '/api/account/email/send',
+        { emails },
+        { authRequired: true, headers: { 'X-Google-Access-Token': googleToken } },
+      );
+      setSentCount(res.sent);
+    } catch {
+      setSentCount(0);
+    }
     setSendState('sent');
   }, [activeTab, activeTemplate, canSend, jobPosition, selectedItems]);
 
