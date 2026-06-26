@@ -69,6 +69,7 @@ export function createDefaultUserSettings(seed: AccountSeed = {}): UserSettings 
       restoreDraft: true,
       rememberScoringConfig: true,
       autoSaveHistory: true,
+      autoFillHardFiltersOnContinue: false,
       newSessionMode: 'reset',
     },
     notifications: {
@@ -180,6 +181,10 @@ export function normalizeUserSettings(raw: unknown, seed: AccountSeed = {}): Use
       restoreDraft: normalizeBoolean(workflow.restoreDraft, defaults.workflow.restoreDraft),
       rememberScoringConfig: normalizeBoolean(workflow.rememberScoringConfig, defaults.workflow.rememberScoringConfig),
       autoSaveHistory: normalizeBoolean(workflow.autoSaveHistory, defaults.workflow.autoSaveHistory),
+      autoFillHardFiltersOnContinue: normalizeBoolean(
+        workflow.autoFillHardFiltersOnContinue,
+        defaults.workflow.autoFillHardFiltersOnContinue,
+      ),
       newSessionMode: workflow.newSessionMode === 'keep-config' ? 'keep-config' : 'reset',
       fixedJD: (() => {
         const raw = toRecord(workflow.fixedJD);

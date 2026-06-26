@@ -425,10 +425,10 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
   }, [fixedJDText, fixedJDName, localWeights, localHardFilters, settings.workflow, saveSettings]);
 
   // Auto-fill hard filters from JD text
-  const autoFillFilters = useCallback(async () => {
+  const autoFillFilters = useCallback(async (): Promise<boolean> => {
     if (!fixedJDText.trim() || fixedJDText.trim().length < 20) {
       setAutoFillNotice('Nhập nội dung JD trước (ít nhất 20 ký tự).');
-      return;
+      return false;
     }
     setAutoFilling(true);
     setAutoFillNotice('');
@@ -442,13 +442,23 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
       }));
       setAutoFillNotice('Đã điền tự động — kiểm tra lại ở trang Bộ lọc cứng.');
       setTimeout(() => setAutoFillNotice(''), 4000);
+      return true;
     } catch {
       setAutoFillNotice('Không thể phân tích JD lúc này.');
       setTimeout(() => setAutoFillNotice(''), 3000);
+      return false;
     } finally {
       setAutoFilling(false);
     }
   }, [fixedJDText]);
+
+  const handleContinueToFilters = useCallback(async () => {
+    if (!fixedJDText.trim()) return;
+    if (settings.workflow.autoFillHardFiltersOnContinue) {
+      await autoFillFilters();
+    }
+    setSetupSubPage('filters');
+  }, [autoFillFilters, fixedJDText, settings.workflow.autoFillHardFiltersOnContinue]);
 
   // Debounced profile save
   const scheduleProfileSave = useCallback((name: string, avatar: string | null) => {
@@ -856,6 +866,19 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
             )}
           </div>
 
+          <ToggleRow
+            title="Tự động điền bộ lọc cứng khi bấm tiếp tục"
+            description="Khi bật, nút chuyển từ tab Job Description sang Bộ lọc cứng sẽ tự phân tích JD và điền sẵn các trường."
+            checked={settings.workflow.autoFillHardFiltersOnContinue}
+            saving={savingKey === 'autoFillHardFiltersOnContinue'}
+            onChange={(v) => void autoSave('autoFillHardFiltersOnContinue', {
+              workflow: {
+                ...settings.workflow,
+                autoFillHardFiltersOnContinue: v,
+              },
+            })}
+          />
+
           <Section title="Tự lưu và khôi phục">
             <ToggleRow
               title="Tự lưu phiên làm việc"
@@ -1077,8 +1100,8 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
           </button>
           <button
             type="button"
-            disabled={!fixedJDText.trim()}
-            onClick={() => setSetupSubPage('filters')}
+            disabled={!fixedJDText.trim() || autoFilling}
+            onClick={() => void handleContinueToFilters()}
             className="inline-flex shrink-0 h-9 items-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50 px-4 text-[12px] font-semibold text-blue-700 transition hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-40"
           >
             Tiếp: Bộ lọc cứng →
