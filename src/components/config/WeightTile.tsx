@@ -1,6 +1,45 @@
 import React, { useEffect, useRef, useState } from 'react';
 import type { MainCriterion, WeightCriteria } from '@/types';
 
+const CRITERION_TIERS: Record<string, { label: string; color: string }> = {
+  jdFit:          { label: 'Quyết định chính', color: 'bg-blue-100 text-blue-600' },
+  workExperience: { label: 'Quyết định chính', color: 'bg-blue-100 text-blue-600' },
+  technicalSkills:{ label: 'Quyết định chính', color: 'bg-blue-100 text-blue-600' },
+  achievements:   { label: 'Nhóm hỗ trợ', color: 'bg-violet-100 text-violet-600' },
+  education:      { label: 'Nhóm hỗ trợ', color: 'bg-violet-100 text-violet-600' },
+  language:       { label: 'Nhóm hỗ trợ', color: 'bg-violet-100 text-violet-600' },
+  professionalism:{ label: 'Nhóm cộng thêm', color: 'bg-slate-100 text-slate-500' },
+  jobTenure:      { label: 'Nhóm cộng thêm', color: 'bg-slate-100 text-slate-500' },
+  cultureFit:     { label: 'Nhóm cộng thêm', color: 'bg-slate-100 text-slate-500' },
+};
+
+const CHILD_HINTS: Record<string, string> = {
+  overallFit:            'Mức độ phù hợp tổng thể với yêu cầu JD',
+  totalYears:            'Tổng số năm kinh nghiệm làm việc',
+  relevantExperience:    'Kinh nghiệm trực tiếp trong lĩnh vực',
+  hardSkills:            'Kỹ năng kỹ thuật, công cụ, phần mềm',
+  softSkills:            'Giao tiếp, nhóm, lãnh đạo, tư duy',
+  quantifiableKPI:       'KPI và chỉ số định lượng được từ CV',
+  awardsAndCertificates: 'Giải thưởng và chứng chỉ nghề nghiệp',
+  degree:                'Bằng cấp và trình độ học vấn',
+  grade:                 'Loại bằng (Giỏi, Khá, Trung bình...)',
+  certificates:          'Chứng chỉ chuyên môn và kỹ năng',
+  proficiency:           'Mức độ thành thạo ngôn ngữ (IELTS, TOEIC...)',
+  format:                'Bố cục và cấu trúc trình bày CV',
+  clarity:               'Mức độ rõ ràng, dễ đọc của CV',
+  grammar:               'Ngữ pháp, chính tả, văn phong',
+  averageTenure:         'Thời gian trung bình tại mỗi công ty',
+  jobHoppingRate:        'Tần suất nhảy việc trong lịch sử',
+  valueAlignment:        'Giá trị cá nhân phù hợp văn hoá tổ chức',
+};
+
+function getWeightFeedback(weight: number): { label: string; color: string } {
+  if (weight >= 15) return { label: 'Tác động cao', color: 'text-blue-500' };
+  if (weight >= 6)  return { label: 'Cân bằng', color: 'text-emerald-500' };
+  if (weight > 0)   return { label: 'Tác động thấp', color: 'text-slate-400' };
+  return { label: 'Bỏ qua', color: 'text-slate-300' };
+}
+
 interface WeightTileProps {
   criterion: MainCriterion;
   setWeights: React.Dispatch<React.SetStateAction<WeightCriteria>>;
@@ -73,6 +112,13 @@ const WeightTile: React.FC<WeightTileProps> = ({ criterion, setWeights, isExpand
           {criterion.name}
         </span>
 
+        {/* Tier badge */}
+        {CRITERION_TIERS[criterion.key] && (
+          <span className={`hidden sm:inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.07em] ${CRITERION_TIERS[criterion.key].color}`}>
+            {CRITERION_TIERS[criterion.key].label}
+          </span>
+        )}
+
         {/* Progress bar */}
         <div className="hidden flex-1 items-center gap-2.5 sm:flex">
           <div className="flex-1 overflow-hidden rounded-full bg-slate-100" style={{ height: '5px' }}>
@@ -126,12 +172,15 @@ const WeightTile: React.FC<WeightTileProps> = ({ criterion, setWeights, isExpand
             return (
               <div
                 key={child.key}
-                className="flex items-center gap-3 px-4 py-2.5 transition-colors hover:bg-slate-50/60"
+                className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-slate-50/60"
               >
-                {/* Sub-criteria name */}
-                <span className="w-[148px] shrink-0 truncate text-[11.5px] font-semibold text-slate-700">
-                  {child.name}
-                </span>
+                {/* Sub-criteria name + hint */}
+                <div className="w-[148px] shrink-0">
+                  <span className="block text-[11.5px] font-semibold text-slate-700">{child.name}</span>
+                  {CHILD_HINTS[child.key] && (
+                    <span className="mt-0.5 block text-[10px] leading-[14px] text-slate-400">{CHILD_HINTS[child.key]}</span>
+                  )}
+                </div>
 
                 {/* Slider */}
                 <div className="flex-1 min-w-0">
@@ -162,6 +211,11 @@ const WeightTile: React.FC<WeightTileProps> = ({ criterion, setWeights, isExpand
                     %
                   </span>
                 </div>
+
+                {/* Micro-feedback */}
+                <span className={`hidden sm:block w-[72px] shrink-0 text-right text-[10px] font-medium ${getWeightFeedback(child.weight).color}`}>
+                  {getWeightFeedback(child.weight).label}
+                </span>
               </div>
             );
           })}

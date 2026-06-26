@@ -2121,7 +2121,7 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
     normalizeAscii(warning).includes('dia diem')
   );
   const showAggregateSections = mode === 'full';
-  const showTechnicalSummary = mode === 'full';
+  const showTechnicalSummary = mode !== 'full';
 
   return (
     <div className="supporthr-detail-content space-y-4 p-2 md:p-4">

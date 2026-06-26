@@ -46,6 +46,50 @@ const STEPS = [
   { num: 2 as const, label: 'Phân bổ trọng số' },
 ];
 
+interface ScoringTier {
+  key: string;
+  label: string;
+  emoji: string;
+  desc: string;
+  criteriaKeys: string[];
+  accentClass: string;
+  labelClass: string;
+  valueClass: string;
+}
+
+const SCORING_TIERS: ScoringTier[] = [
+  {
+    key: 'core',
+    label: 'Quyết định chính',
+    emoji: '🏆',
+    desc: 'Tác động trực tiếp đến quyết định shortlist',
+    criteriaKeys: ['jdFit', 'workExperience', 'technicalSkills'],
+    accentClass: 'border-blue-100 bg-blue-50/70',
+    labelClass: 'text-blue-700',
+    valueClass: 'text-blue-600',
+  },
+  {
+    key: 'support',
+    label: 'Nhóm hỗ trợ',
+    emoji: '📌',
+    desc: 'Tăng độ tự tin, không đủ đứng độc lập',
+    criteriaKeys: ['achievements', 'education', 'language'],
+    accentClass: 'border-violet-100 bg-violet-50/70',
+    labelClass: 'text-violet-700',
+    valueClass: 'text-violet-600',
+  },
+  {
+    key: 'bonus',
+    label: 'Nhóm cộng thêm',
+    emoji: '➕',
+    desc: 'Điểm cộng khi các ứng viên ngang nhau',
+    criteriaKeys: ['professionalism', 'jobTenure', 'cultureFit'],
+    accentClass: 'border-slate-200 bg-slate-50',
+    labelClass: 'text-slate-600',
+    valueClass: 'text-slate-500',
+  },
+];
+
 type WeightStatusState = 'balanced' | 'over' | 'under';
 type SummaryTone = 'high' | 'medium' | 'low';
 
@@ -113,6 +157,19 @@ const WeightsConfig: React.FC<WeightsConfigProps> = memo(({ weights, setWeights,
   const primaryCriteria = useMemo(() => {
     return Object.values(weights).filter((criterion: MainCriterion) => criterion.children) as MainCriterion[];
   }, [weights]);
+
+  const tierWeights = useMemo(
+    () => SCORING_TIERS.map((tier) => ({
+      ...tier,
+      total: tier.criteriaKeys.reduce((sum, key) => {
+        const criterion = weights[key];
+        if (!criterion) return sum;
+        if (criterion.children) return sum + criterion.children.reduce((s, c) => s + c.weight, 0);
+        return sum + (criterion.weight || 0);
+      }, 0),
+    })),
+    [weights]
+  );
 
   const validateFilters = useCallback((): boolean => {
     setValidationErrorFilters(null);
@@ -319,6 +376,27 @@ const WeightsConfig: React.FC<WeightsConfigProps> = memo(({ weights, setWeights,
               <HardFilterPanel hardFilters={hardFilters} setHardFilters={setHardFilters} jdText={jdText} />
             ) : (
               <div className="grid grid-cols-1 gap-2">
+                {/* Chiến lược chấm điểm */}
+                <div className="mb-1 rounded-2xl border border-blue-100 bg-white p-4 shadow-sm">
+                  <div className="mb-3 flex items-center gap-2">
+                    <span className="text-[12px] font-black text-slate-800">Chiến lược chấm điểm</span>
+                    <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-blue-500">3 nhóm ưu tiên</span>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2">
+                    {tierWeights.map((tier) => (
+                      <div key={tier.key} className={`rounded-xl border p-3 ${tier.accentClass}`}>
+                        <div className={`text-[10px] font-bold uppercase tracking-[0.06em] ${tier.labelClass}`}>
+                          {tier.emoji} {tier.label}
+                        </div>
+                        <div className={`mt-1 text-[22px] font-black tabular-nums leading-none ${tier.valueClass}`}>
+                          {tier.total}<span className="text-[11px] font-bold text-slate-400">%</span>
+                        </div>
+                        <p className="mt-1.5 text-[9.5px] leading-4 text-slate-500">{tier.desc}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
                 {primaryCriteria.map((criterion) => (
                   <WeightTile
                     key={criterion.key}

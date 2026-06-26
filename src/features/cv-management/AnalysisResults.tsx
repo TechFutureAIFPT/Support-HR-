@@ -1,10 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { ArrowLeft, CalendarDays, CheckCircle2, ChevronRight, FileText, Mail, MoreHorizontal, PanelRightClose, PanelRightOpen, PlayCircle, Search, Sparkles, TriangleAlert } from 'lucide-react';
+import { ArrowLeft, CalendarDays, CheckCircle2, ChevronRight, Mail, MoreHorizontal, PanelRightClose, PanelRightOpen, PlayCircle, Sparkles, TriangleAlert, Zap } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 import type { AnalysisFeedbackRecord, AppStep, Candidate, HardFilters, WeightCriteria } from '@/types';
 import SupportHRLoading from '@/components/common/SupportHRLoading';
 import CvDocumentViewer from '@/features/cv-management/CvDocumentViewer';
-import { ScoreLabel, WorkspaceDivider, WorkspaceEmpty, WorkspaceSearch, WorkspaceSection, workspaceScoreTone } from '@/components/workspace/WorkspacePrimitives';
+import { ScoreLabel, WorkspaceDivider, WorkspaceEmpty, WorkspaceSearch, WorkspaceSection } from '@/components/workspace/WorkspacePrimitives';
 import { normalizeVietnameseDisplay } from '@/utils/textDisplay';
 import ExpandedContent from '@/features/cv-management/ExpandedContent';
 import CandidateEmailNotifier from '@/features/email/CandidateEmailNotifier';
@@ -34,51 +34,100 @@ function candidateRole(candidate: Candidate, fallback: string): string {
   return normalizeVietnameseDisplay(candidate.jobTitle) || normalizeVietnameseDisplay(fallback) || 'Vị trí chưa xác định';
 }
 
-function candidateSummary(candidate: Candidate): string {
-  return normalizeVietnameseDisplay(
-    candidate.hrSummary?.nhan_xet_tong_quan
-    || candidate.stageDecision?.reason
-    || candidate.analysis?.['Chi tiết']?.[0]?.['Giải thích']
-    || 'AI đã tổng hợp hồ sơ theo tiêu chí của phiên tuyển dụng.',
-  );
+function buildHeadlineVerdict(candidate: Candidate): string {
+  if (candidate.hrSummary?.nhan_xet_tong_quan) return normalizeVietnameseDisplay(candidate.hrSummary.nhan_xet_tong_quan);
+  if (candidate.stageDecision?.reason) return normalizeVietnameseDisplay(candidate.stageDecision.reason);
+  const score = candidateScore(candidate);
+  if (score >= 75) return 'Hồ sơ phù hợp tốt với vị trí — đề xuất ưu tiên đưa vào shortlist.';
+  if (score >= 60) return 'Ứng viên đáp ứng phần lớn yêu cầu — nên xem xét mời phỏng vấn.';
+  if (score >= 40) return 'Ứng viên có tiềm năng, còn một số điểm cần xác nhận thêm.';
+  return 'Hồ sơ chưa đáp ứng đủ tiêu chí cốt lõi — cân nhắc trước khi đưa vào shortlist.';
+}
+
+function buildTopReasons(candidate: Candidate): string[] {
+  const strengths = (candidate.analysis?.['Điểm mạnh CV'] || []).slice(0, 3);
+  const matched = (candidate.jdCvMatchInsights?.matchedSkills || []).slice(0, 2);
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const item of [...strengths, ...matched]) {
+    const key = normalizeVietnameseDisplay(item).toLowerCase().substring(0, 40);
+    if (!seen.has(key)) { seen.add(key); out.push(normalizeVietnameseDisplay(item)); }
+    if (out.length >= 3) break;
+  }
+  return out;
+}
+
+function buildVerificationRisks(candidate: Candidate): string[] {
+  const weaknesses = (candidate.analysis?.['Điểm yếu CV'] || []).slice(0, 2);
+  const warnings = (candidate.softFilterWarnings || []).slice(0, 2);
+  const missing = (candidate.jdCvMatchInsights?.missingRequirements || []).slice(0, 2);
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const item of [...weaknesses, ...warnings, ...missing]) {
+    const key = normalizeVietnameseDisplay(item).toLowerCase().substring(0, 40);
+    if (!seen.has(key)) { seen.add(key); out.push(normalizeVietnameseDisplay(item)); }
+    if (out.length >= 3) break;
+  }
+  return out;
+}
+
+type ActionResult = { label: string; colorClass: string; bgClass: string };
+function buildSuggestedNextAction(score: number, riskCount: number): ActionResult {
+  if (score >= 75 && riskCount === 0) return { label: 'Mời phỏng vấn', colorClass: 'text-[#34c759]', bgClass: 'bg-[#f0fff4] border-[#34c759]/30' };
+  if (score >= 60 || riskCount <= 1) return { label: 'Phỏng vấn xác minh', colorClass: 'text-[#ff9f0a]', bgClass: 'bg-[#fff8ec] border-[#ff9f0a]/30' };
+  return { label: 'Chưa ưu tiên shortlist', colorClass: 'text-[#86868b]', bgClass: 'bg-[#f5f5f7] border-[#d2d2d7]' };
 }
 
 const CandidateAnalysisPane: React.FC<{ candidate: Candidate; scrollable?: boolean }> = ({ candidate, scrollable = true }) => {
-  const strengths = candidate.analysis?.['Điểm mạnh CV'] || [];
-  const weaknesses = candidate.analysis?.['Điểm yếu CV'] || [];
-  const details = candidate.analysis?.['Chi tiết'] || [];
+  const score = candidateScore(candidate);
+  const verdict = buildHeadlineVerdict(candidate);
+  const reasons = buildTopReasons(candidate);
+  const risks = buildVerificationRisks(candidate);
+  const action = buildSuggestedNextAction(score, risks.length);
 
   return (
     <div className={scrollable ? 'custom-scrollbar h-full overflow-y-auto px-5 py-5 sm:px-6' : 'px-5 py-5 sm:px-6'}>
-      <WorkspaceSection title="Nhận định AI" icon={<Sparkles size={17} className="text-[#007aff]" />}>
-        <p className="text-[13px] leading-6 text-[#3a3a3c]">{candidateSummary(candidate)}</p>
+      <WorkspaceSection title="Kết luận nhanh" icon={<Sparkles size={17} className="text-[#007aff]" />}>
+        <p className="text-[13px] leading-6 font-medium text-[#1d1d1f]">{verdict}</p>
       </WorkspaceSection>
       <WorkspaceDivider />
 
-      <WorkspaceSection title="Điểm mạnh" icon={<CheckCircle2 size={17} className="text-[#34c759]" />} tone="success">
-        {strengths.length ? <ul className="space-y-2.5">{strengths.slice(0, 5).map((item) => <li key={item} className="flex gap-2.5 text-[13px] leading-5 text-[#3a3a3c]"><span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#34c759]" />{normalizeVietnameseDisplay(item)}</li>)}</ul> : <p className="text-[13px] text-[#86868b]">Chưa có nhận định nổi bật.</p>}
-      </WorkspaceSection>
-      <WorkspaceDivider />
-
-      <WorkspaceSection title="Cần xác minh" icon={<TriangleAlert size={17} className="text-[#ff9f0a]" />} tone="warning">
-        {weaknesses.length || candidate.softFilterWarnings?.length ? (
+      <WorkspaceSection title="Vì sao nên cân nhắc" icon={<CheckCircle2 size={17} className="text-[#34c759]" />} tone="success">
+        {reasons.length > 0 ? (
           <ul className="space-y-2.5">
-            {[...weaknesses, ...(candidate.softFilterWarnings || [])].slice(0, 4).map((item) => <li key={item} className="flex gap-2.5 text-[13px] leading-5 text-[#3a3a3c]"><span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#ff9f0a]" />{normalizeVietnameseDisplay(item)}</li>)}
+            {reasons.map((item, i) => (
+              <li key={i} className="flex gap-2.5 text-[13px] leading-5 text-[#3a3a3c]">
+                <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#34c759]" />
+                {item}
+              </li>
+            ))}
           </ul>
-        ) : <p className="text-[13px] text-[#86868b]">Không có cảnh báo cần xử lý ngay.</p>}
+        ) : (
+          <p className="text-[13px] text-[#86868b]">Chưa có điểm nổi bật từ hồ sơ.</p>
+        )}
       </WorkspaceSection>
       <WorkspaceDivider />
 
-      <WorkspaceSection title="Bằng chứng đối chiếu" icon={<FileText size={17} className="text-[#007aff]" />}>
-        <div className="divide-y divide-[#e5e5ea]">
-          {details.slice(0, 5).map((detail, index) => (
-            <div key={`${detail['Tiêu chí']}-${index}`} className="grid grid-cols-[minmax(0,1fr)_auto] gap-4 py-3 first:pt-0">
-              <div className="min-w-0"><p className="text-[13px] font-medium text-[#1d1d1f]">{normalizeVietnameseDisplay(detail['Tiêu chí'])}</p><p className="mt-1 line-clamp-2 text-[12px] leading-5 text-[#6e6e73]">{normalizeVietnameseDisplay(detail['Dẫn chứng'] || detail['Giải thích'])}</p></div>
-              <span className="text-[12px] font-medium text-[#86868b]">{detail['Điểm']}</span>
-            </div>
-          ))}
-          {!details.length ? <p className="text-[13px] text-[#86868b]">Chưa có bằng chứng chi tiết.</p> : null}
-        </div>
+      <WorkspaceSection title="Điểm cần xác minh" icon={<TriangleAlert size={17} className="text-[#ff9f0a]" />} tone="warning">
+        {risks.length > 0 ? (
+          <ul className="space-y-2.5">
+            {risks.map((item, i) => (
+              <li key={i} className="flex gap-2.5 text-[13px] leading-5 text-[#3a3a3c]">
+                <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#ff9f0a]" />
+                {item}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-[13px] text-[#86868b]">Không có cảnh báo cần xử lý.</p>
+        )}
+      </WorkspaceSection>
+      <WorkspaceDivider />
+
+      <WorkspaceSection title="Hành động gợi ý" icon={<Zap size={17} className="text-[#007aff]" />}>
+        <span className={`inline-flex items-center rounded-lg border px-3.5 py-1.5 text-[12px] font-semibold ${action.bgClass} ${action.colorClass}`}>
+          {action.label}
+        </span>
       </WorkspaceSection>
     </div>
   );
