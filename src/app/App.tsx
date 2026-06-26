@@ -12,7 +12,7 @@ import { UserSettingsProvider, useUserSettings } from '@/context/settings/UserSe
 import { DataSyncService } from '@/services/data-sync/dataSyncService';
 import { UserProfileService } from '@/services/data-sync/userProfileService';
 import { warmUpServer } from '@/services/api/renderClient';
-
+  
 // Wake up the server before Firebase auth resolves so the first real request hits a warm server.
 warmUpServer();
 import type { AuthUser } from '@/services/auth/authTypes';
@@ -415,7 +415,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
   const [appNotice, setAppNotice] = useState<{ tone: 'success' | 'error'; message: string } | null>(null);
   const noticeTimeoutRef = useRef<number | null>(null);
 
-  // Load avatar and user name for mobile navbar
+  // Load avatar, username and recruiter profile from Firestore on login
   useEffect(() => {
     const loadUserData = async () => {
       if (currentUser) {
@@ -425,18 +425,24 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
           setUserName(currentUser.email.split('@')[0]);
         }
 
-        if (currentUser.photoURL) {
-          setUserAvatar(currentUser.photoURL);
-        } else {
-          try {
-            const profile = await UserProfileService.getUserProfile(currentUser.uid);
-            if (profile?.avatar) {
-              setUserAvatar(profile.avatar);
-            } else if (currentUser.email) {
-              setUserAvatar(localStorage.getItem(`avatar_${currentUser.email}`));
-            }
-          } catch {
-            if (currentUser.email) setUserAvatar(localStorage.getItem(`avatar_${currentUser.email}`));
+        try {
+          const profile = await UserProfileService.getUserProfile(currentUser.uid);
+          if (profile?.avatar) {
+            setUserAvatar(profile.avatar);
+          } else if (currentUser.photoURL) {
+            setUserAvatar(currentUser.photoURL);
+          } else if (currentUser.email) {
+            setUserAvatar(localStorage.getItem(`avatar_${currentUser.email}`));
+          }
+          // Merge recruiterInfo from Firestore into settings if not already set
+          if (profile?.recruiterInfo && !settings.account.recruiterInfo?.title) {
+            updateAccountSnapshot({ recruiterInfo: profile.recruiterInfo });
+          }
+        } catch {
+          if (currentUser.photoURL) {
+            setUserAvatar(currentUser.photoURL);
+          } else if (currentUser.email) {
+            setUserAvatar(localStorage.getItem(`avatar_${currentUser.email}`));
           }
         }
       } else if (userEmail) {
@@ -445,6 +451,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
       }
     };
     loadUserData();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentUser, userEmail]);
 
   const location = useLocation();
@@ -807,8 +814,8 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
   }, [currentUser, settings.sync.historyRetention]);
 
   useEffect(() => {
-    if (!settings.workflow.autoSaveDraft) {
       clearWorkflowActivity();
+    if (!settings.workflow.autoSaveDraft) {
       return;
     }
 

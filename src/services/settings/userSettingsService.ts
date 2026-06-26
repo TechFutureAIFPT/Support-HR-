@@ -1,6 +1,7 @@
 import { apiGet, apiPatch, apiPost } from '@/services/api/renderClient';
 import type {
   HistoryRetention,
+  RecruiterInfo,
   SidebarDensity,
   UserSettings,
   UserSettingsPatch,
@@ -175,6 +176,20 @@ export function normalizeUserSettings(raw: unknown, seed: AccountSeed = {}): Use
       displayName: String(account.displayName ?? seed.displayName ?? defaults.account.displayName),
       avatar: account.avatar === null ? null : String(account.avatar ?? seed.avatar ?? defaults.account.avatar ?? '') || null,
       email: String(account.email ?? seed.email ?? defaults.account.email),
+      ...((() => {
+        const ri = account.recruiterInfo && typeof account.recruiterInfo === 'object'
+          ? account.recruiterInfo as Record<string, unknown>
+          : null;
+        if (!ri) return {};
+        const info: RecruiterInfo = {
+          title:          String(ri.title          ?? ''),
+          company:        String(ri.company        ?? ''),
+          department:     String(ri.department     ?? ''),
+          phone:          String(ri.phone          ?? ''),
+          emailSignature: String(ri.emailSignature ?? ''),
+        };
+        return { recruiterInfo: info };
+      })()),
     },
     workflow: {
       autoSaveDraft: normalizeBoolean(workflow.autoSaveDraft, defaults.workflow.autoSaveDraft),

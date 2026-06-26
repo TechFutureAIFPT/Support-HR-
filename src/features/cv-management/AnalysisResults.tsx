@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowLeft, Bot, CalendarDays, CheckCircle2, ChevronRight, Clipboard, Mail, MessageSquareText, MoreHorizontal, PanelRightClose, PanelRightOpen, PlayCircle, Send, Star, TriangleAlert, Zap } from 'lucide-react';
+import { ArrowLeft, Bot, CalendarDays, CheckCircle2, ChevronRight, Clipboard, Mail, MessageSquareText, PanelRightClose, PanelRightOpen, PlayCircle, Send, Star, TriangleAlert, Zap } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 import type { AnalysisFeedbackDraft, AnalysisFeedbackRecord, AppStep, Candidate, HardFilters, RecruiterInfo, WeightCriteria } from '@/types';
 import SupportHRLoading from '@/components/common/SupportHRLoading';
@@ -10,6 +10,8 @@ import ExpandedContent from '@/features/cv-management/ExpandedContent';
 import CandidateEmailNotifier from '@/features/email/CandidateEmailNotifier';
 import AIFeedbackForm from '@/features/feedback/AIFeedbackForm';
 import { useUserSettings } from '@/context/settings/UserSettingsProvider';
+import { auth, db } from '@/services/firebase';
+import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore';
 
 interface AnalysisResultsProps {
   isLoading: boolean;
@@ -200,6 +202,7 @@ const INTERVIEW_TYPES = [
 
 const SchedulePane: React.FC<{ candidate: Candidate; recruiterInfo?: RecruiterInfo; jobPosition: string }> = ({ candidate, recruiterInfo, jobPosition }) => {
   const storageKey = `schedule:${candidate.id}`;
+  const firestoreDocId = `${auth.currentUser?.uid ?? 'anon'}_${candidate.id}`;
   const [date, setDate] = useState('');
   const [time, setTime] = useState('09:00');
   const [type, setType] = useState('video');
@@ -212,30 +215,37 @@ const SchedulePane: React.FC<{ candidate: Candidate; recruiterInfo?: RecruiterIn
   const [draftForScheduleId, setDraftForScheduleId] = useState<string | null>(null);
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(storageKey);
-      if (raw) setSaved(JSON.parse(raw) as ScheduledInterview[]);
-    } catch { /* ignore */ }
-  }, [storageKey]);
+    const load = async () => {
+      // Load from Firestore if logged in, else localStorage
+      const uid = auth.currentUser?.uid;
+      if (uid) {
+        try {
+          const snap = await getDoc(doc(db, 'candidateSchedules', firestoreDocId));
+          if (snap.exists()) {
+            setSaved((snap.data().schedules as ScheduledInterview[]) || []);
+            return;
+          }
+        } catch { /* fall through to localStorage */ }
+      }
+      try {
+        const raw = localStorage.getItem(storageKey);
+        if (raw) setSaved(JSON.parse(raw) as ScheduledInterview[]);
+      } catch { /* ignore */ }
+    };
+    void load();
+  }, [storageKey, firestoreDocId]);
 
   const persist = (list: ScheduledInterview[]) => {
     setSaved(list);
     localStorage.setItem(storageKey, JSON.stringify(list));
-  };
-
-  const handleSave = () => {
-    if (!date) return;
-    const entry: ScheduledInterview = { id: `${Date.now()}`, date, time, type, note, createdAt: Date.now() };
-    persist([entry, ...saved]);
-    setDate('');
-    setNote('');
-    setJustSaved(true);
-    setTimeout(() => setJustSaved(false), 2000);
-  };
-
-  const handleDelete = (id: string) => {
-    persist(saved.filter((item) => item.id !== id));
-    if (draftForScheduleId === id) { setEmailDraft(''); setDraftForScheduleId(null); }
+    const uid = auth.currentUser?.uid;
+    if (uid) {
+      void setDoc(
+        doc(db, 'candidateSchedules', firestoreDocId),
+        { uid, candidateId: candidate.id, candidateName: candidate.candidateName, schedules: list, updatedAt: serverTimestamp() },
+        { merge: true }
+      );
+    }
   };
 
   const handleDraftEmail = async (item: ScheduledInterview) => {
@@ -263,7 +273,7 @@ const SchedulePane: React.FC<{ candidate: Candidate; recruiterInfo?: RecruiterIn
       const { apiPost } = await import('@/services/api/renderClient');
       const response = await (apiPost as (path: string, body: unknown) => Promise<{ text?: string; responseText?: string }>)(
         '/api/gemini-chat',
-        { contents: prompt, config: { temperature: 0.4, maxOutputTokens: 800 } }
+        { model: 'gemini-2.0-flash', contents: prompt, config: { temperature: 0.4, maxOutputTokens: 800 } }
       );
       setEmailDraft(response.text || response.responseText || '');
     } catch {
@@ -271,6 +281,24 @@ const SchedulePane: React.FC<{ candidate: Candidate; recruiterInfo?: RecruiterIn
     } finally {
       setEmailLoading(false);
     }
+  };
+
+  const handleSave = () => {
+    if (!date) return;
+    const entry: ScheduledInterview = { id: `${Date.now()}`, date, time, type, note, createdAt: Date.now() };
+    const newList = [entry, ...saved];
+    persist(newList);
+    setDate('');
+    setNote('');
+    setJustSaved(true);
+    setTimeout(() => setJustSaved(false), 2000);
+    // Đồng thời soạn email mời phỏng vấn
+    void handleDraftEmail(entry);
+  };
+
+  const handleDelete = (id: string) => {
+    persist(saved.filter((item) => item.id !== id));
+    if (draftForScheduleId === id) { setEmailDraft(''); setDraftForScheduleId(null); }
   };
 
   const handleCopy = () => {
@@ -321,7 +349,7 @@ const SchedulePane: React.FC<{ candidate: Candidate; recruiterInfo?: RecruiterIn
           className="mt-4 w-full rounded-xl py-2.5 text-[13px] font-semibold text-white transition disabled:opacity-40"
           style={{ backgroundColor: date ? '#007aff' : '#86868b' }}
         >
-          {justSaved ? '✓ Đã lưu lịch' : 'Lưu lịch phỏng vấn'}
+          {justSaved ? '✓ Đã lưu — đang soạn email…' : 'Lưu lịch & Soạn email mời'}
         </button>
       </div>
 
@@ -454,6 +482,7 @@ const ChatPane: React.FC<{ candidate: Candidate; jobPosition: string; jdText?: s
       const response = await (apiPost as (path: string, body: unknown) => Promise<{ text?: string; responseText?: string }>)(
         '/api/gemini-chat',
         {
+          model: 'gemini-2.0-flash',
           contents: `Bạn là trợ lý tuyển dụng AI chuyên sâu. ${recruiterCtx}Trả lời ngắn gọn bằng tiếng Việt.\n\nThông tin ứng viên:\n${context}\n\nCâu hỏi: ${text}`,
           config: { temperature: 0.4, maxOutputTokens: 600 },
         }
@@ -796,17 +825,14 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({
                   <div className="min-w-0"><h2 className="truncate text-[24px] font-semibold tracking-[-0.02em]">{normalizeVietnameseDisplay(selected.candidateName)}</h2><p className="mt-1 truncate text-[13px] text-[#6e6e73]">{candidateRole(selected, jobPosition)}</p><div className="mt-1"><ScoreLabel score={candidateScore(selected)} /></div></div>
                 </div>
                 <div className="hidden items-center gap-2 sm:flex">
-                  <a href={selected.email ? `mailto:${selected.email}` : undefined} className="apple-toolbar-button !px-2.5" aria-disabled={!selected.email}><Mail size={16} /></a>
                   {(selected.videoLinks?.length ?? 0) > 0 && (
                     <a href={selected.videoLinks![0]} target="_blank" rel="noopener noreferrer" className="apple-toolbar-button !px-2.5 !text-rose-500" title="Xem video giới thiệu"><PlayCircle size={16} /></a>
                   )}
-                  <button type="button" className="apple-toolbar-button !px-2.5" aria-label="Lên lịch phỏng vấn"><CalendarDays size={16} /></button>
                   {tab === 'overview' && (
                     <button type="button" onClick={() => setShowCvPanel(v => !v)} className="apple-toolbar-button !px-2.5" title={showCvPanel ? 'Ẩn CV' : 'Hiện CV'}>
                       {showCvPanel ? <PanelRightClose size={16} /> : <PanelRightOpen size={16} />}
                     </button>
                   )}
-                  <button type="button" className="apple-toolbar-button !px-2.5" aria-label="Thêm hành động"><MoreHorizontal size={16} /></button>
                 </div>
               </div>
               <nav className="flex gap-5 overflow-x-auto px-4 text-[13px] sm:px-6" aria-label="Chi tiết ứng viên">
