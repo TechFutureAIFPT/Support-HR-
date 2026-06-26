@@ -1,13 +1,14 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { ArrowLeft, CalendarDays, CheckCircle2, ChevronRight, Mail, MoreHorizontal, PanelRightClose, PanelRightOpen, PlayCircle, TriangleAlert, Zap } from 'lucide-react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { ArrowLeft, Bot, CalendarDays, CheckCircle2, ChevronRight, Mail, MessageSquareText, MoreHorizontal, PanelRightClose, PanelRightOpen, PlayCircle, Send, Star, TriangleAlert, Zap } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
-import type { AnalysisFeedbackRecord, AppStep, Candidate, HardFilters, WeightCriteria } from '@/types';
+import type { AnalysisFeedbackDraft, AnalysisFeedbackRecord, AppStep, Candidate, HardFilters, WeightCriteria } from '@/types';
 import SupportHRLoading from '@/components/common/SupportHRLoading';
 import CvDocumentViewer from '@/features/cv-management/CvDocumentViewer';
 import { ScoreLabel, WorkspaceEmpty, WorkspaceSearch } from '@/components/workspace/WorkspacePrimitives';
 import { normalizeVietnameseDisplay } from '@/utils/textDisplay';
 import ExpandedContent from '@/features/cv-management/ExpandedContent';
 import CandidateEmailNotifier from '@/features/email/CandidateEmailNotifier';
+import AIFeedbackForm from '@/features/feedback/AIFeedbackForm';
 
 interface AnalysisResultsProps {
   isLoading: boolean;
@@ -24,7 +25,15 @@ interface AnalysisResultsProps {
   feedbackByCandidate?: Record<string, AnalysisFeedbackRecord>;
 }
 
-type DetailTab = 'overview' | 'ai' | 'cv';
+type DetailTab = 'overview' | 'stats' | 'schedule' | 'chat' | 'feedback';
+
+const DETAIL_TABS: Array<{ key: DetailTab; label: string }> = [
+  { key: 'overview', label: 'Tổng quan' },
+  { key: 'stats', label: 'Thống kê' },
+  { key: 'schedule', label: 'Lên lịch' },
+  { key: 'chat', label: 'Tư vấn AI' },
+  { key: 'feedback', label: 'Phản hồi điểm' },
+];
 
 function candidateScore(candidate: Candidate): number {
   return candidate.status === 'SUCCESS' ? candidate.analysis?.['Tổng điểm'] || 0 : 0;
@@ -77,6 +86,392 @@ function buildSuggestedNextAction(score: number, riskCount: number): ActionResul
   if (score >= 60 || riskCount <= 1) return { label: 'Phỏng vấn xác minh', colorClass: 'text-[#ff9f0a]', bgClass: 'bg-[#fff8ec] border-[#ff9f0a]/30' };
   return { label: 'Chưa ưu tiên shortlist', colorClass: 'text-[#86868b]', bgClass: 'bg-[#f5f5f7] border-[#d2d2d7]' };
 }
+
+// ── StatsPane ────────────────────────────────────────────────────────────────
+const CRITERIA_COLOR: Record<string, string> = {
+  'Phù hợp JD (Job Fit)': '#007aff',
+  'Kinh nghiệm': '#34c759',
+  'Kỹ năng': '#af52de',
+  'Thành tựu/KPI': '#ff9f0a',
+  'Học vấn': '#5ac8fa',
+  'Ngôn ngữ': '#ff6b35',
+  'Chuyên nghiệp': '#30b0c7',
+  'Gắn bó & Lịch sử CV': '#a2845e',
+  'Phù hợp văn hoá': '#ff2d55',
+};
+
+const StatsPane: React.FC<{ candidate: Candidate }> = ({ candidate }) => {
+  const score = candidateScore(candidate);
+  const grade = candidate.analysis?.['Hạng'] || 'C';
+  const criteria = useMemo(() => {
+    const raw = candidate.analysis?.['Chi tiết'] || [];
+    return raw.map((item) => ({
+      name: item['Tiêu chí'],
+      score: parseInt(item['Điểm'].split('/')[0], 10) || 0,
+      color: CRITERIA_COLOR[item['Tiêu chí']] || '#6e6e73',
+    }));
+  }, [candidate.analysis]);
+
+  const jdMatchPct = candidate.jdCvMatchInsights
+    ? Math.round(candidate.jdCvMatchInsights.similarity * 1000) / 10
+    : null;
+  const gradeColor = grade === 'A' ? '#34c759' : grade === 'B' ? '#007aff' : '#ff3b30';
+  const scoreColor = score >= 75 ? '#34c759' : score >= 60 ? '#007aff' : score >= 40 ? '#ff9f0a' : '#ff3b30';
+
+  return (
+    <div className="custom-scrollbar h-full overflow-y-auto p-4 sm:p-5 space-y-4">
+      {/* Top widgets */}
+      <div className="grid grid-cols-3 gap-3">
+        <div className="rounded-2xl border border-[#d2d2d7] bg-white p-4 text-center">
+          <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#6e6e73] mb-1">Tổng điểm</p>
+          <p className="text-[28px] font-black tabular-nums leading-none" style={{ color: scoreColor }}>{score.toFixed(0)}</p>
+          <p className="text-[10px] text-[#86868b] mt-0.5">/100</p>
+        </div>
+        <div className="rounded-2xl border border-[#d2d2d7] bg-white p-4 text-center">
+          <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#6e6e73] mb-1">Hạng</p>
+          <p className="text-[28px] font-black leading-none" style={{ color: gradeColor }}>{grade}</p>
+          <p className="text-[10px] text-[#86868b] mt-0.5">{grade === 'A' ? 'Xuất sắc' : grade === 'B' ? 'Khá' : 'Cần xem xét'}</p>
+        </div>
+        <div className="rounded-2xl border border-[#d2d2d7] bg-white p-4 text-center">
+          <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#6e6e73] mb-1">JD Match</p>
+          <p className="text-[28px] font-black tabular-nums leading-none text-[#007aff]">
+            {jdMatchPct !== null ? `${jdMatchPct.toFixed(0)}%` : '--'}
+          </p>
+          <p className="text-[10px] text-[#86868b] mt-0.5">Semantic</p>
+        </div>
+      </div>
+
+      {/* Criteria progress bars */}
+      {criteria.length > 0 && (
+        <div className="rounded-2xl border border-[#d2d2d7] bg-white px-5 py-4">
+          <p className="mb-4 text-[11px] font-bold uppercase tracking-[0.14em] text-[#6e6e73]">Phân tích từng tiêu chí</p>
+          <div className="space-y-3.5">
+            {criteria.map((criterion) => (
+              <div key={criterion.name}>
+                <div className="mb-1.5 flex items-center justify-between">
+                  <span className="text-[12.5px] font-medium text-[#1d1d1f]">{criterion.name}</span>
+                  <span className="text-[12px] font-bold tabular-nums" style={{ color: criterion.color }}>{criterion.score}</span>
+                </div>
+                <div className="h-2 w-full overflow-hidden rounded-full bg-[#f2f2f7]">
+                  <div
+                    className="h-full rounded-full transition-all duration-700"
+                    style={{ width: `${criterion.score}%`, backgroundColor: criterion.color }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Strengths chips */}
+      {(candidate.analysis?.['Điểm mạnh CV'] || []).length > 0 && (
+        <div className="rounded-2xl border border-[#d2d2d7] bg-white px-5 py-4">
+          <p className="mb-3 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-[#34c759]">
+            <Star size={12} /> Điểm nổi bật
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {(candidate.analysis?.['Điểm mạnh CV'] || []).map((item, i) => (
+              <span key={i} className="rounded-full border border-[#d1f5d3] bg-[#f0fff1] px-3 py-1 text-[12px] font-medium text-[#1a7f37]">{item}</span>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ── SchedulePane ─────────────────────────────────────────────────────────────
+interface ScheduledInterview {
+  id: string;
+  date: string;
+  time: string;
+  type: string;
+  note: string;
+  createdAt: number;
+}
+
+const INTERVIEW_TYPES = [
+  { value: 'video', label: 'Video call' },
+  { value: 'phone', label: 'Điện thoại' },
+  { value: 'onsite', label: 'Trực tiếp' },
+];
+
+const SchedulePane: React.FC<{ candidate: Candidate }> = ({ candidate }) => {
+  const storageKey = `schedule:${candidate.id}`;
+  const [date, setDate] = useState('');
+  const [time, setTime] = useState('09:00');
+  const [type, setType] = useState('video');
+  const [note, setNote] = useState('');
+  const [saved, setSaved] = useState<ScheduledInterview[]>([]);
+  const [justSaved, setJustSaved] = useState(false);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(storageKey);
+      if (raw) setSaved(JSON.parse(raw) as ScheduledInterview[]);
+    } catch { /* ignore */ }
+  }, [storageKey]);
+
+  const persist = (list: ScheduledInterview[]) => {
+    setSaved(list);
+    localStorage.setItem(storageKey, JSON.stringify(list));
+  };
+
+  const handleSave = () => {
+    if (!date) return;
+    const entry: ScheduledInterview = { id: `${Date.now()}`, date, time, type, note, createdAt: Date.now() };
+    persist([entry, ...saved]);
+    setDate('');
+    setNote('');
+    setJustSaved(true);
+    setTimeout(() => setJustSaved(false), 2000);
+  };
+
+  const handleDelete = (id: string) => persist(saved.filter((item) => item.id !== id));
+
+  const inputCls = 'w-full rounded-xl border border-[#d2d2d7] bg-white px-3 py-2 text-[13px] outline-none focus:border-[#007aff] focus:ring-2 focus:ring-[#007aff]/15';
+
+  return (
+    <div className="custom-scrollbar h-full overflow-y-auto p-4 sm:p-5 space-y-4">
+      <div className="rounded-2xl border border-[#d2d2d7] bg-white px-5 py-4">
+        <p className="mb-4 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.14em] text-[#6e6e73]">
+          <CalendarDays size={13} /> Đặt lịch phỏng vấn
+        </p>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div>
+            <label className="mb-1.5 block text-[11px] font-semibold text-[#6e6e73]">Ngày</label>
+            <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className={inputCls} />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-[11px] font-semibold text-[#6e6e73]">Giờ</label>
+            <input type="time" value={time} onChange={(e) => setTime(e.target.value)} className={inputCls} />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-[11px] font-semibold text-[#6e6e73]">Hình thức</label>
+            <select value={type} onChange={(e) => setType(e.target.value)} className={inputCls}>
+              {INTERVIEW_TYPES.map((opt) => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="mb-1.5 block text-[11px] font-semibold text-[#6e6e73]">Ghi chú</label>
+            <input type="text" value={note} onChange={(e) => setNote(e.target.value)} placeholder="Phòng họp, link Zoom..." className={inputCls} />
+          </div>
+        </div>
+        <button
+          onClick={handleSave}
+          disabled={!date}
+          className="mt-4 w-full rounded-xl py-2.5 text-[13px] font-semibold text-white transition disabled:opacity-40"
+          style={{ backgroundColor: date ? '#007aff' : '#86868b' }}
+        >
+          {justSaved ? '✓ Đã lưu lịch' : 'Lưu lịch phỏng vấn'}
+        </button>
+      </div>
+
+      {saved.length > 0 && (
+        <div className="rounded-2xl border border-[#d2d2d7] bg-white px-5 py-4">
+          <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.14em] text-[#6e6e73]">Lịch đã đặt</p>
+          <div className="space-y-2.5">
+            {saved.map((item) => (
+              <div key={item.id} className="flex items-start justify-between gap-3 rounded-xl border border-[#f2f2f7] bg-[#f8f8fa] px-4 py-3">
+                <div>
+                  <p className="text-[13px] font-semibold text-[#1d1d1f]">
+                    {new Intl.DateTimeFormat('vi-VN', { weekday: 'short', day: '2-digit', month: '2-digit', year: 'numeric' }).format(new Date(item.date))}
+                    {' · '}{item.time}
+                    {' · '}<span className="text-[#007aff]">{INTERVIEW_TYPES.find((t) => t.value === item.type)?.label}</span>
+                  </p>
+                  {item.note && <p className="mt-0.5 text-[12px] text-[#6e6e73]">{item.note}</p>}
+                </div>
+                <button onClick={() => handleDelete(item.id)} className="text-[11px] text-[#ff3b30] hover:underline">Xoá</button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ── ChatPane ─────────────────────────────────────────────────────────────────
+interface ChatMessage { role: 'user' | 'ai'; text: string; }
+
+const CHAT_SUGGESTIONS = [
+  'Tạo 5 câu hỏi phỏng vấn phù hợp ứng viên này',
+  'Điểm mạnh nào cần khai thác sâu hơn?',
+  'Những rủi ro cần xác minh trực tiếp là gì?',
+  'So sánh ứng viên này với tiêu chuẩn vị trí',
+];
+
+const ChatPane: React.FC<{ candidate: Candidate; jobPosition: string; jdText?: string }> = ({ candidate, jobPosition, jdText }) => {
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [input, setInput] = useState('');
+  const [loading, setLoading] = useState(false);
+  const bottomRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  const buildContext = () => {
+    const details = (candidate.analysis?.['Chi tiết'] || []).slice(0, 6).map(
+      (item) => `  - ${item['Tiêu chí']}: ${item['Điểm']} — ${item['Dẫn chứng'].slice(0, 100)}`
+    ).join('\n');
+    return [
+      `Ứng viên: ${candidate.candidateName}`,
+      `Vị trí ứng tuyển: ${jobPosition}`,
+      `Chức danh hiện tại: ${candidate.jobTitle || 'Chưa rõ'}`,
+      `Tổng điểm: ${candidate.analysis?.['Tổng điểm'] || 0}/100 — Hạng ${candidate.analysis?.['Hạng'] || 'C'}`,
+      `Điểm mạnh: ${(candidate.analysis?.['Điểm mạnh CV'] || []).slice(0, 3).join('; ')}`,
+      `Điểm cần lưu ý: ${(candidate.analysis?.['Điểm yếu CV'] || []).slice(0, 2).join('; ')}`,
+      details ? `Chi tiết tiêu chí:\n${details}` : '',
+      jdText ? `Mô tả công việc (trích): ${jdText.slice(0, 300)}` : '',
+    ].filter(Boolean).join('\n');
+  };
+
+  const send = async (text: string) => {
+    if (!text.trim() || loading) return;
+    const userMsg: ChatMessage = { role: 'user', text };
+    setMessages((prev) => [...prev, userMsg]);
+    setInput('');
+    setLoading(true);
+
+    try {
+      const context = buildContext();
+      const { apiPost } = await import('@/services/api/renderClient');
+      const response = await (apiPost as (path: string, body: unknown) => Promise<{ text?: string; responseText?: string }>)(
+        '/api/gemini-chat',
+        {
+          contents: `Bạn là trợ lý tuyển dụng chuyên sâu. Trả lời ngắn gọn bằng tiếng Việt.\n\nThông tin ứng viên:\n${context}\n\nCâu hỏi: ${text}`,
+          config: { temperature: 0.4, maxOutputTokens: 600 },
+        }
+      );
+      const aiText = response.text || response.responseText || 'Không có phản hồi từ AI.';
+      setMessages((prev) => [...prev, { role: 'ai', text: aiText }]);
+    } catch {
+      setMessages((prev) => [...prev, { role: 'ai', text: 'Không thể kết nối AI. Vui lòng thử lại.' }]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="flex h-full min-h-0 flex-col">
+      <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto p-4 sm:p-5 space-y-3">
+        {messages.length === 0 && (
+          <div>
+            <div className="mb-4 flex items-center gap-2.5 rounded-2xl border border-[#d2d2d7] bg-[#f8f8fa] px-4 py-3">
+              <Bot size={16} className="text-[#007aff]" />
+              <div>
+                <p className="text-[13px] font-semibold text-[#1d1d1f]">Tư vấn AI về {normalizeVietnameseDisplay(candidate.candidateName)}</p>
+                <p className="text-[11.5px] text-[#6e6e73]">Hỏi bất kỳ điều gì liên quan đến hồ sơ ứng viên này</p>
+              </div>
+            </div>
+            <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.1em] text-[#86868b]">Gợi ý câu hỏi</p>
+            <div className="space-y-2">
+              {CHAT_SUGGESTIONS.map((suggestion) => (
+                <button key={suggestion} onClick={() => send(suggestion)} className="w-full rounded-xl border border-[#d2d2d7] bg-white px-4 py-2.5 text-left text-[13px] text-[#1d1d1f] transition hover:border-[#007aff] hover:bg-[#eef5ff]">
+                  {suggestion}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+        {messages.map((msg, i) => (
+          <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+            <div className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-[13px] leading-[1.55] ${msg.role === 'user' ? 'bg-[#007aff] text-white' : 'border border-[#d2d2d7] bg-white text-[#1d1d1f]'}`}>
+              {msg.text}
+            </div>
+          </div>
+        ))}
+        {loading && (
+          <div className="flex justify-start">
+            <div className="rounded-2xl border border-[#d2d2d7] bg-white px-4 py-2.5">
+              <div className="flex items-center gap-1.5">
+                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[#86868b]" style={{ animationDelay: '0ms' }} />
+                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[#86868b]" style={{ animationDelay: '150ms' }} />
+                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[#86868b]" style={{ animationDelay: '300ms' }} />
+              </div>
+            </div>
+          </div>
+        )}
+        <div ref={bottomRef} />
+      </div>
+
+      <div className="shrink-0 border-t border-[#d2d2d7] bg-white px-4 py-3">
+        <div className="flex items-center gap-2.5">
+          <input
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); void send(input); } }}
+            placeholder="Hỏi về ứng viên này..."
+            className="flex-1 rounded-xl border border-[#d2d2d7] bg-[#f8f8fa] px-3.5 py-2 text-[13px] outline-none focus:border-[#007aff] focus:ring-2 focus:ring-[#007aff]/15"
+            disabled={loading}
+          />
+          <button
+            onClick={() => void send(input)}
+            disabled={!input.trim() || loading}
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#007aff] text-white transition disabled:opacity-40"
+          >
+            <Send size={15} />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ── FeedbackPane ──────────────────────────────────────────────────────────────
+const FeedbackPane: React.FC<{ candidate: Candidate }> = ({ candidate }) => {
+  const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (draft: AnalysisFeedbackDraft) => {
+    setIsSubmitting(true);
+    try {
+      const key = `feedback:${candidate.id}`;
+      localStorage.setItem(key, JSON.stringify({ ...draft, savedAt: Date.now() }));
+      setSubmitted(true);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  if (submitted) {
+    return (
+      <div className="flex h-full items-center justify-center p-6 text-center">
+        <div>
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-[#f0fff4]">
+            <CheckCircle2 size={28} className="text-[#34c759]" />
+          </div>
+          <p className="text-[15px] font-semibold text-[#1d1d1f]">Đã lưu phản hồi</p>
+          <p className="mt-1 text-[13px] text-[#6e6e73]">Phản hồi của bạn giúp cải thiện độ chính xác chấm điểm AI.</p>
+          <button onClick={() => setSubmitted(false)} className="mt-4 text-[13px] text-[#007aff] hover:underline">Gửi phản hồi khác</button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="custom-scrollbar h-full overflow-y-auto p-4 sm:p-5">
+      <div className="mb-4 flex items-center gap-2.5">
+        <MessageSquareText size={15} className="text-[#007aff]" />
+        <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#6e6e73]">Phản hồi về chấm điểm AI</p>
+      </div>
+      <AIFeedbackForm
+        candidateId={candidate.id}
+        candidateName={normalizeVietnameseDisplay(candidate.candidateName)}
+        fileName={candidate.fileName}
+        aiScore={candidateScore(candidate)}
+        candidateRank={candidate.analysis?.['Hạng']}
+        isSubmitting={isSubmitting}
+        onSubmit={handleSubmit}
+        onCancel={() => { /* noop */ }}
+      />
+    </div>
+  );
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
 
 const CandidateAnalysisPane: React.FC<{ candidate: Candidate; scrollable?: boolean }> = ({ candidate, scrollable = true }) => {
   const score = candidateScore(candidate);
@@ -189,7 +584,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({
   const search = params.get('q') || '';
   const sort = params.get('sort') === 'name' ? 'name' : 'score';
   const selectedId = params.get('candidate');
-  const tab = (['overview', 'ai', 'cv'].includes(params.get('tab') || '') ? params.get('tab') : 'overview') as DetailTab;
+  const tab = (DETAIL_TABS.some((t) => t.key === params.get('tab')) ? params.get('tab') : 'overview') as DetailTab;
 
   const setParam = (key: string, value: string | null) => {
     const next = new URLSearchParams(params);
@@ -291,7 +686,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({
                     <a href={selected.videoLinks![0]} target="_blank" rel="noopener noreferrer" className="apple-toolbar-button !px-2.5 !text-rose-500" title="Xem video giới thiệu"><PlayCircle size={16} /></a>
                   )}
                   <button type="button" className="apple-toolbar-button !px-2.5" aria-label="Lên lịch phỏng vấn"><CalendarDays size={16} /></button>
-                  {tab !== 'cv' && (
+                  {tab === 'overview' && (
                     <button type="button" onClick={() => setShowCvPanel(v => !v)} className="apple-toolbar-button !px-2.5" title={showCvPanel ? 'Ẩn CV' : 'Hiện CV'}>
                       {showCvPanel ? <PanelRightClose size={16} /> : <PanelRightOpen size={16} />}
                     </button>
@@ -299,29 +694,26 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({
                   <button type="button" className="apple-toolbar-button !px-2.5" aria-label="Thêm hành động"><MoreHorizontal size={16} /></button>
                 </div>
               </div>
-              <nav className="flex gap-6 overflow-x-auto px-4 text-[13px] sm:px-6" aria-label="Chi tiết ứng viên">
-                {[{ key: 'overview', label: 'Tổng quan' }, { key: 'ai', label: 'Phân tích AI' }, { key: 'cv', label: 'CV' }].map((item) => <button key={item.key} type="button" onClick={() => setParam('tab', item.key)} className={`h-11 shrink-0 border-b-2 px-1 ${tab === item.key ? 'border-[#007aff] font-medium text-[#007aff]' : 'border-transparent text-[#515154] hover:text-[#1d1d1f]'}`}>{item.label}</button>)}
+              <nav className="flex gap-5 overflow-x-auto px-4 text-[13px] sm:px-6" aria-label="Chi tiết ứng viên">
+                {DETAIL_TABS.map((item) => (
+                  <button key={item.key} type="button" onClick={() => setParam('tab', item.key)} className={`h-11 shrink-0 border-b-2 px-1 ${tab === item.key ? 'border-[#007aff] font-medium text-[#007aff]' : 'border-transparent text-[#515154] hover:text-[#1d1d1f]'}`}>
+                    {item.label}
+                  </button>
+                ))}
               </nav>
             </header>
 
             <div className="min-h-0 flex-1">
-              {tab === 'cv' ? (
-                <CvDocumentViewer ownerKey={documentOwner} candidate={selected} />
-              ) : tab === 'ai' ? (
-                <div className={`grid h-full min-h-0 ${showCvPanel ? 'xl:grid-cols-[minmax(340px,48%)_minmax(0,52%)]' : ''}`}>
-                  <div className="custom-scrollbar min-h-0 overflow-y-auto border-r border-[#d2d2d7]">
-                    <ExpandedContent
-                      candidate={selected}
-                      expandedCriteria={expandedCriteria}
-                      onToggleCriterion={handleToggleCriterion}
-                      jdText={jdText}
-                      weights={weights}
-                      mode="technical"
-                    />
-                  </div>
-                  {showCvPanel && <div className="hidden min-h-0 xl:block"><CvDocumentViewer ownerKey={documentOwner} candidate={selected} /></div>}
-                </div>
+              {tab === 'stats' ? (
+                <StatsPane candidate={selected} />
+              ) : tab === 'schedule' ? (
+                <SchedulePane candidate={selected} />
+              ) : tab === 'chat' ? (
+                <ChatPane candidate={selected} jobPosition={jobPosition} jdText={jdText} />
+              ) : tab === 'feedback' ? (
+                <FeedbackPane candidate={selected} />
               ) : (
+                /* overview */
                 <div className={`grid h-full min-h-0 ${showCvPanel ? 'xl:grid-cols-[minmax(340px,48%)_minmax(0,52%)]' : ''}`}>
                   <div className={`custom-scrollbar min-h-0 overflow-y-auto ${showCvPanel ? 'border-r border-[#d2d2d7]' : ''}`}>
                     <CandidateAnalysisPane candidate={selected} scrollable={false} />

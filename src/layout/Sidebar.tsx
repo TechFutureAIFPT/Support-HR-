@@ -60,7 +60,6 @@ const screeningPages = [
 
 const supportToolPages = [
   { path: '/chatbot', labelKey: 'nav_chatbot' as TranslationKey, icon: Bot },
-  { path: '/feedback', labelKey: 'nav_feedback' as TranslationKey, icon: MessageSquareText },
   { path: '/jd-standardizer', labelKey: 'nav_jd_standardizer' as TranslationKey, icon: FileText },
 ];
 
