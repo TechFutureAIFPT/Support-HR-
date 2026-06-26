@@ -1922,9 +1922,10 @@ interface ExpandedContentProps {
   onToggleCriterion: (candidateId: string, criterion: string) => void;
   jdText: string;
   weights?: WeightCriteria;
+  mode?: 'full' | 'technical';
 }
 
-const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCriteria, onToggleCriterion, jdText, weights }) => {
+const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCriteria, onToggleCriterion, jdText, weights, mode = 'full' }) => {
   const tc = useThemeColors();
   const analysisRecord = candidate.analysis as Record<string, unknown> | undefined;
   const coreCriteriaConfig = useMemo(() => buildConfiguredCoreCriteria(weights), [weights]);
@@ -2119,11 +2120,14 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
   const locationWarning = candidate.softFilterWarnings?.find((warning) =>
     normalizeAscii(warning).includes('dia diem')
   );
+  const showAggregateSections = mode === 'full';
+  const showTechnicalSummary = mode === 'full';
 
   return (
     <div className="supporthr-detail-content space-y-4 p-2 md:p-4">
 
       {/* ── Tổng hợp đánh giá ─────────────────────────────── */}
+      {showAggregateSections && (
       <div className="rounded-none border border-zinc-800/80 bg-zinc-950/60 p-6 backdrop-blur-md relative overflow-hidden shadow-2xl">
         <div className="w-1 absolute left-0 top-0 bottom-0 bg-cyan-500" />
         <div className="flex flex-col items-start justify-between gap-4 md:flex-row pl-2">
@@ -2202,8 +2206,10 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
             </div>
           )}
         </div>
+      </div>
+      )}
 
-        {candidate.jdCvMatchInsights && (
+      {candidate.jdCvMatchInsights && (
           <div className="mt-4 rounded-none border border-emerald-500/25 bg-emerald-950/10 px-5 py-4 text-xs pl-2">
             {candidate.jdCvMatchInsights.roleKey && candidate.jdCvMatchInsights.roleKey !== 'generic' ? (
               <>
@@ -2371,6 +2377,7 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
           </div>
         )}
 
+        {showTechnicalSummary && (
         <div className="mt-4 rounded-none border border-zinc-800 bg-zinc-950/80 px-5 py-4 text-xs relative overflow-hidden pl-2">
           <div className="w-1 absolute left-0 top-0 bottom-0 bg-gradient-to-b from-indigo-500 to-cyan-500" />
           <div className="pl-2">
@@ -2378,8 +2385,8 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
             <span className="text-zinc-200 italic leading-relaxed">"{normalizeVietnameseDisplay(recommendation)}"</span>
           </div>
         </div>
-      </div>
-
+        )}
+      {showTechnicalSummary && (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {candidate.analysis?.['Điểm mạnh CV'] && (
           <div className="p-5 bg-zinc-950/50 border border-emerald-500/20 rounded-none relative overflow-hidden">
@@ -2414,9 +2421,10 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
           </div>
         )}
       </div>
+      )}
 
       {/* ── Cảnh báo AI Debiasing ────────────────────────────── */}
-      {candidate.debiasingWarnings && candidate.debiasingWarnings.length > 0 && (
+      {showTechnicalSummary && candidate.debiasingWarnings && candidate.debiasingWarnings.length > 0 && (
         <div className="rounded-none border border-amber-500/20 bg-zinc-950/50 p-5 relative overflow-hidden">
           <div className="w-1 absolute left-0 top-0 bottom-0 bg-amber-500" />
           <h4 className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.14em] text-amber-400">
@@ -2434,7 +2442,7 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
       )}
 
       {/* ── Education Validation ─────────────────────────────── */}
-      {educationValidation && (
+      {showTechnicalSummary && educationValidation && (
         <div className="rounded-none border border-zinc-800 bg-zinc-950/50 p-5 relative overflow-hidden">
           <div className="w-1 absolute left-0 top-0 bottom-0 bg-indigo-500" />
           <h4 className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.14em] text-indigo-400">

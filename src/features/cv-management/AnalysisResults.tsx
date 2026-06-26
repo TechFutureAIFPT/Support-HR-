@@ -43,13 +43,13 @@ function candidateSummary(candidate: Candidate): string {
   );
 }
 
-const CandidateAnalysisPane: React.FC<{ candidate: Candidate }> = ({ candidate }) => {
+const CandidateAnalysisPane: React.FC<{ candidate: Candidate; scrollable?: boolean }> = ({ candidate, scrollable = true }) => {
   const strengths = candidate.analysis?.['Điểm mạnh CV'] || [];
   const weaknesses = candidate.analysis?.['Điểm yếu CV'] || [];
   const details = candidate.analysis?.['Chi tiết'] || [];
 
   return (
-    <div className="custom-scrollbar h-full overflow-y-auto px-5 py-5 sm:px-6">
+    <div className={scrollable ? 'custom-scrollbar h-full overflow-y-auto px-5 py-5 sm:px-6' : 'px-5 py-5 sm:px-6'}>
       <WorkspaceSection title="Nhận định AI" icon={<Sparkles size={17} className="text-[#007aff]" />}>
         <p className="text-[13px] leading-6 text-[#3a3a3c]">{candidateSummary(candidate)}</p>
       </WorkspaceSection>
@@ -225,13 +225,26 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({
                       onToggleCriterion={handleToggleCriterion}
                       jdText={jdText}
                       weights={weights}
+                      mode="technical"
                     />
                   </div>
                   {showCvPanel && <div className="hidden min-h-0 xl:block"><CvDocumentViewer ownerKey={documentOwner} candidate={selected} /></div>}
                 </div>
               ) : (
-                <div className={`grid h-full min-h-0 ${showCvPanel ? 'xl:grid-cols-[minmax(300px,44%)_minmax(0,56%)]' : ''}`}>
-                  <div className="min-h-0 border-r border-[#d2d2d7]"><CandidateAnalysisPane candidate={selected} /></div>
+                <div className={`grid h-full min-h-0 ${showCvPanel ? 'xl:grid-cols-[minmax(340px,48%)_minmax(0,52%)]' : ''}`}>
+                  <div className={`custom-scrollbar min-h-0 overflow-y-auto ${showCvPanel ? 'border-r border-[#d2d2d7]' : ''}`}>
+                    <div className="border-b border-[#d2d2d7] bg-white">
+                      <CandidateAnalysisPane candidate={selected} scrollable={false} />
+                    </div>
+                    <ExpandedContent
+                      candidate={selected}
+                      expandedCriteria={expandedCriteria}
+                      onToggleCriterion={handleToggleCriterion}
+                      jdText={jdText}
+                      weights={weights}
+                      mode="full"
+                    />
+                  </div>
                   {showCvPanel && <div className="hidden min-h-0 xl:block"><CvDocumentViewer ownerKey={documentOwner} candidate={selected} /></div>}
                 </div>
               )}
