@@ -48,6 +48,7 @@ interface ScreenerPageProps {
   setActiveStep: (step: AppStep) => void;
   completedSteps: AppStep[];
   markStepAsCompleted: (step: AppStep) => void;
+  canAutoStartFromUpload?: boolean;
   onWelcomeChange?: (visible: boolean) => void;
   onOpenJdTemplates?: () => void;
   documentOwner?: string;
@@ -99,8 +100,13 @@ const ScreenerPage: React.FC<ScreenerPageProps> = (props) => {
 
     props.markStepAsCompleted('jd');
     props.markStepAsCompleted('upload');
+    if (props.canAutoStartFromUpload) {
+      props.markStepAsCompleted('weights');
+      void handleStartAnalysis();
+      return;
+    }
     props.setActiveStep('weights');
-  }, [props]);
+  }, [handleStartAnalysis, props]);
 
   const handleJdProcessed = useCallback((data: {
     jdText: string;
@@ -119,7 +125,7 @@ const ScreenerPage: React.FC<ScreenerPageProps> = (props) => {
     props.setActiveStep('upload');
   }, [props]);
 
-  const handleStartAnalysis = async () => {
+  async function handleStartAnalysis() {
     props.setActiveStep('analysis');
     props.setIsLoading(true);
     props.setAnalysisResults([]);
@@ -167,7 +173,7 @@ const ScreenerPage: React.FC<ScreenerPageProps> = (props) => {
       props.setLoadingMessage('Hoàn tất phân tích!');
       void broadcastSessionDone(analyzedCount, totalCvs).catch(() => {});
     }
-  };
+  }
 
   return (
     <div className="feature-page-shell flex h-full flex-1 flex-col overflow-hidden bg-white">

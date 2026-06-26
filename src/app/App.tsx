@@ -897,17 +897,23 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
     localStorage.removeItem('currentLocation');
     setCompletedSteps([]);
     const fixedJD = settings.workflow.fixedJD;
-    if (fixedJD?.enabled && fixedJD.jdText) {
+    const hasFixedJD = Boolean(fixedJD?.enabled && fixedJD.jdText?.trim());
+    if (hasFixedJD && fixedJD) {
       setJdText(fixedJD.jdText);
       setRawJdText(fixedJD.jdText);
       setJobPosition(fixedJD.name || '');
       localStorage.setItem('currentJD', fixedJD.jdText);
-      if (fixedJD.scoringEnabled && fixedJD.weights) {
+      localStorage.setItem('currentRawJD', fixedJD.jdText);
+      if (fixedJD.weights) {
         setWeights(fixedJD.weights);
-        if (fixedJD.hardFilters) setHardFilters(fixedJD.hardFilters);
       }
+      if (fixedJD.hardFilters) {
+        setHardFilters(fixedJD.hardFilters);
+        localStorage.setItem('currentLocation', fixedJD.hardFilters.location || '');
+      }
+      setCompletedSteps(['jd']);
     }
-    navigate('/jd');
+    navigate(hasFixedJD ? '/upload' : '/jd');
   }, [hardFilters, navigate, settings.workflow.fixedJD, settings.workflow.newSessionMode, settings.workflow.rememberScoringConfig, weights]);
 
   const setActiveStep = useCallback((step: AppStep) => {
@@ -1089,6 +1095,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
     loadingMessage, setLoadingMessage,
     activeStep, setActiveStep,
     completedSteps, markStepAsCompleted,
+    canAutoStartFromUpload: Boolean(settings.workflow.fixedJD?.enabled && settings.workflow.fixedJD?.jdText?.trim()),
     documentOwner: currentUser?.uid || userEmail || 'local',
     analysisSessionId: activeAnalysisContext?.sessionId,
     onOpenJdTemplates: () => {

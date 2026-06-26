@@ -333,6 +333,9 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
   const [tplDropdownOpen, setTplDropdownOpen] = useState(false);
   const contentRef = useRef<HTMLElement | null>(null);
   const tplDropdownRef = useRef<HTMLDivElement | null>(null);
+  const hasDraftFixedJD = fixedJDText.trim().length > 0;
+  const hasSavedFixedJD = (settings.workflow.fixedJD?.jdText || '').trim().length > 0;
+  const canToggleFixedJD = hasDraftFixedJD || hasSavedFixedJD;
 
   useEffect(() => {
     if (!isOpen) return;
@@ -781,22 +784,37 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
                 <p className="mt-1 text-[12px] leading-5 text-slate-500">
                   Bật để lưu JD và trọng số chấm điểm. Lần sau chỉ cần thả CV vào là phân tích ngay.
                 </p>
-                {!settings.workflow.fixedJD?.jdText && (
+                {!canToggleFixedJD && (
                   <p className="mt-1.5 text-[11px] text-slate-400">
                     Vào tab "Nhập JD" để nhập và lưu nội dung JD trước khi bật.
+                  </p>
+                )}
+                {hasDraftFixedJD && !hasSavedFixedJD && (
+                  <p className="mt-1.5 text-[11px] text-blue-500">
+                    JD đang nhập sẽ được lưu luôn khi bạn bật công tắc này.
                   </p>
                 )}
               </div>
               <Toggle
                 checked={settings.workflow.fixedJD?.enabled ?? false}
+                disabled={!canToggleFixedJD || fixedJDSaving || savingKey === 'fixedJD.enabled'}
                 onChange={(v) => {
                   const existing = settings.workflow.fixedJD;
+                  const jdTextToSave = fixedJDText.trim() || existing?.jdText || '';
+                  if (!jdTextToSave) return;
                   void autoSave('fixedJD.enabled', {
                     workflow: {
                       ...settings.workflow,
-                      fixedJD: existing
-                        ? { ...existing, enabled: v }
-                        : { name: fixedJDName.trim(), jdText: fixedJDText.trim(), savedAt: Date.now(), enabled: v },
+                      fixedJD: {
+                        ...existing,
+                        enabled: v,
+                        name: fixedJDName.trim() || existing?.name || '',
+                        jdText: jdTextToSave,
+                        savedAt: Date.now(),
+                        scoringEnabled: Object.values(localWeights).some((criterion) => criterion.children.length > 0),
+                        weights: localWeights,
+                        hardFilters: localHardFilters,
+                      },
                     },
                   });
                 }}
