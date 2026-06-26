@@ -1560,356 +1560,213 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
     return compareEvidence(criterionName, thisRequirement.keywords, detailEvidence);
   }, [backendRequirementComparison, criterionName, detailEvidence, hasRealEvidence, isExperience, thisRequirement]);
 
-  let experienceBlock: React.ReactNode = null;
   let matchMeta: ReturnType<typeof analyzeExperience> | null = null;
   if (isExperience && hasRealEvidence) {
     matchMeta = analyzeExperience(jdText, detailEvidence || '');
-    experienceBlock = (
-      <div className="space-y-3 rounded-xl border border-slate-800/60 bg-[#080f1e] p-5">
-        <h5 className="mb-1 text-base font-bold text-slate-100">Phân tích nhanh</h5>
-        {matchMeta.matchPercent === 'N/A' ? (
-          <p className="text-xs text-slate-500 italic">JD chưa có mức yêu cầu kinh nghiệm rõ ràng</p>
-        ) : (
-          <>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-xs text-slate-400">
-                <span>Mức độ phù hợp JD</span>
-                <span className="font-semibold text-cyan-400">{matchMeta.matchPercent}%</span>
-              </div>
-              <div className="h-2 w-full overflow-hidden rounded bg-slate-800">
-                <div
-                  className={`h-full ${typeof matchMeta.matchPercent === 'number' && matchMeta.matchPercent >= 80 ? 'bg-emerald-500' : typeof matchMeta.matchPercent === 'number' && matchMeta.matchPercent >= 65 ? 'bg-yellow-500' : typeof matchMeta.matchPercent === 'number' && matchMeta.matchPercent >= 50 ? 'bg-orange-500' : 'bg-red-500'}`}
-                  style={{ width: `${typeof matchMeta.matchPercent === 'number' ? Math.min(100, Math.max(0, matchMeta.matchPercent)) : 0}%` }}
-                />
-              </div>
-            </div>
-            <div className="flex flex-wrap gap-1 pt-1">
-              {matchMeta.matched.slice(0, 5).map(k => <span key={k} className="px-2 py-0.5 rounded-full bg-emerald-600/30 text-emerald-300 text-[10px] border border-emerald-500/40">{k}</span>)}
-              {matchMeta.missing.slice(0, 5).map(k => <span key={k} className="px-2 py-0.5 rounded-full bg-yellow-600/30 text-yellow-300 text-[10px] border border-yellow-500/40">{k}</span>)}
-            </div>
-          </>
-        )}
-      </div>
-    );
   }
 
+  const progressColor = parsedData.achievedPct >= 80 ? 'bg-emerald-500' : parsedData.achievedPct >= 60 ? 'bg-amber-400' : 'bg-red-500';
+  const progressTextColor = parsedData.achievedPct >= 80 ? 'text-emerald-400' : parsedData.achievedPct >= 60 ? 'text-amber-400' : 'text-red-400';
+
   return (
-    <div className="rounded-none border border-zinc-800 bg-zinc-950/40 transition-all duration-200 hover:border-cyan-500/30 hover:bg-zinc-950/60">
-      <button className="flex min-h-[50px] w-full items-center justify-between p-3.5 text-left" onClick={onToggle} aria-expanded={isExpanded}>
-        <div className="flex min-w-0 items-center gap-3">
-          <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-none border border-zinc-800 bg-zinc-900 ${meta.color}`}>
-            <MetaIcon className="h-4 w-4" strokeWidth={2.2} />
-          </span>
-          <span className="truncate text-xs font-bold uppercase tracking-[0.12em] text-zinc-200">{criterionName}</span>
-          <span className="ml-1 rounded-none border border-zinc-800 bg-zinc-900 px-2 py-0.5 text-[9px] font-bold tracking-wider text-zinc-500 uppercase">{proficiency}</span>
-        </div>
-        <div className="flex shrink-0 items-center gap-3">
-          <span className={`rounded-none border px-2.5 py-1 text-xs font-mono font-bold hover:bg-opacity-25 transition-colors ${scoreBadgeClass}`}>
-            {parsedData.scoreLabel}
-          </span>
-          <ChevronDown className={`h-4 w-4 text-zinc-500 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`} />
-        </div>
+    <div className="overflow-hidden rounded-xl border border-zinc-800/50 bg-zinc-900/30 transition-colors duration-150 hover:border-zinc-700/60">
+      {/* ── Header row ─────────────────────────────────────── */}
+      <button
+        className="flex min-h-[46px] w-full items-center gap-3 px-4 py-2.5 text-left"
+        onClick={onToggle}
+        aria-expanded={isExpanded}
+      >
+        <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-zinc-800/70 ${meta.color}`}>
+          <MetaIcon className="h-3.5 w-3.5" strokeWidth={2.2} />
+        </span>
+        <span className="flex-1 min-w-0 truncate text-[12.5px] font-semibold text-zinc-200">{criterionName}</span>
+        <span className="hidden sm:inline text-[10px] font-medium text-zinc-600">{proficiency}</span>
+        <span className={`rounded-lg border px-2.5 py-0.5 text-[11px] font-bold font-mono ${scoreBadgeClass}`}>
+          {parsedData.scoreLabel}
+        </span>
+        <ChevronDown className={`h-4 w-4 text-zinc-600 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`} />
       </button>
 
       {isExpanded && (
-        <div className="border-t border-zinc-800 bg-zinc-950/60 px-4 pb-4 pt-3.5">
-          <div className={`grid grid-cols-1 ${isExperience || requirementComparison ? 'xl:grid-cols-3' : 'xl:grid-cols-2'} gap-4`}>
-            <div className="rounded-none border border-zinc-800 bg-zinc-950 p-4 relative">
-              <div className="mb-3 flex items-center justify-between">
-                <h5 className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-400">Dẫn chứng (trích từ CV)</h5>
-                <button type="button" onClick={(e) => { e.stopPropagation(); handleCopy(); }} className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-zinc-500 transition-colors hover:text-cyan-400">
-                  {copied ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
-                  {copied ? 'Đã chép' : 'Chép'}
-                </button>
-              </div>
-              {canShowRawEvidence ? (
-                <blockquote className="border-l-2 border-cyan-500/60 pl-3 text-xs leading-relaxed text-zinc-300 italic" dangerouslySetInnerHTML={{
-                  __html: highlightedEvidenceHtml
-                }} />
-              ) : (
-                <blockquote className="border-l-2 border-cyan-500/60 pl-3 text-xs leading-relaxed text-zinc-300 italic" dangerouslySetInnerHTML={{
-                  __html: '<span class="not-italic rounded-none border border-amber-500/35 bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold text-amber-300 uppercase tracking-wider">Chưa tìm thấy trong CV</span>'
-                }} />
-              )}
+        <div className="divide-y divide-zinc-800/40 border-t border-zinc-800/50">
+
+          {/* ── Evidence ─────────────────────────────────────── */}
+          <div className="px-4 py-3">
+            <div className="mb-1.5 flex items-center justify-between">
+              <span className="text-[9.5px] font-bold uppercase tracking-[0.13em] text-zinc-500">Dẫn chứng CV</span>
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); handleCopy(); }}
+                className="flex items-center gap-1 text-[9.5px] font-medium text-zinc-600 transition-colors hover:text-cyan-400"
+              >
+                {copied ? <Check className="h-3 w-3 text-emerald-400" /> : <Copy className="h-3 w-3" />}
+                {copied ? 'Đã chép' : 'Chép'}
+              </button>
             </div>
-
-            {isExperience && experienceBlock && (
-              <div className="space-y-3 rounded-none border border-zinc-800 bg-zinc-950 p-4">
-                <h5 className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-200">Phân tích nhanh</h5>
-                {matchMeta?.matchPercent === 'N/A' ? (
-                  <p className="text-[11px] text-zinc-500 italic">JD chưa có mức yêu cầu kinh nghiệm rõ ràng</p>
-                ) : (
-                  <>
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between text-[11px] text-zinc-400">
-                        <span>Mức độ phù hợp JD</span>
-                        <span className="font-semibold text-cyan-400 font-mono">{matchMeta?.matchPercent}%</span>
-                      </div>
-                      <div className="h-1.5 w-full overflow-hidden rounded-none bg-zinc-900">
-                        <div
-                          className={`h-full ${typeof matchMeta?.matchPercent === 'number' && matchMeta.matchPercent >= 80 ? 'bg-emerald-500' : typeof matchMeta?.matchPercent === 'number' && matchMeta.matchPercent >= 65 ? 'bg-yellow-500' : typeof matchMeta?.matchPercent === 'number' && matchMeta.matchPercent >= 50 ? 'bg-orange-500' : 'bg-red-500'}`}
-                          style={{ width: `${typeof matchMeta?.matchPercent === 'number' ? Math.min(100, Math.max(0, matchMeta.matchPercent)) : 0}%` }}
-                        />
-                      </div>
-                    </div>
-                    <div className="flex flex-wrap gap-1.5 pt-1">
-                      {matchMeta?.matched.slice(0, 5).map(k => <span key={k} className="px-2 py-0.5 rounded-none bg-emerald-950/30 text-emerald-300 text-[10px] border border-emerald-500/20">{k}</span>)}
-                      {matchMeta?.missing.slice(0, 5).map(k => <span key={k} className="px-2 py-0.5 rounded-none bg-yellow-950/30 text-yellow-300 text-[10px] border border-yellow-500/20">{k}</span>)}
-                    </div>
-                  </>
-                )}
-              </div>
+            {canShowRawEvidence ? (
+              <blockquote
+                className="border-l-2 border-cyan-500/50 pl-3 text-[11.5px] italic leading-[1.7] text-zinc-300"
+                dangerouslySetInnerHTML={{ __html: highlightedEvidenceHtml }}
+              />
+            ) : (
+              <span className="inline-flex rounded-lg border border-amber-500/30 bg-amber-500/10 px-2.5 py-1 text-[10px] font-semibold text-amber-300">
+                Chưa tìm thấy trong CV
+              </span>
             )}
-            {!isExperience && requirementComparison && (
-              <div className="space-y-3 rounded-none border border-zinc-800 bg-zinc-950 p-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <h5 className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-200">Phân tích nhanh</h5>
-                    <p className="text-[10px] text-zinc-500 mt-0.5 leading-normal">Khớp từ khóa bắt buộc từ JD, có chặn phủ định và alias Việt/Anh.</p>
-                  </div>
-                  <span className="rounded-none border border-cyan-400/25 bg-cyan-400/10 px-2 py-0.5 text-[9px] font-bold text-cyan-200 font-mono">
-                    {requirementComparison.matched.length + requirementComparison.semanticMatched.length}/{requirementComparison.jdKeywords.length}
-                  </span>
-                </div>
-
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div>
-                    <div className="mb-1.5 text-[9px] font-bold uppercase tracking-[0.12em] text-zinc-500">Đã khớp</div>
-                    <div className="flex flex-wrap gap-1.5">
-                      {requirementComparison.matched.length > 0
-                        ? requirementComparison.matched.slice(0, 6).map(k => <span key={k} className="px-2 py-0.5 rounded-none bg-emerald-950/40 text-emerald-300 text-[10px] border border-emerald-500/20 font-medium">{k}</span>)
-                        : requirementComparison.semanticMatched.length === 0
-                          ? <span className="text-[11px] text-zinc-500 italic">(Không)</span>
-                          : null}
-                      {requirementComparison.semanticMatched.slice(0, 4).map((item) => (
-                        <span key={item.keyword} className="rounded-none border border-cyan-400/20 bg-cyan-950/40 px-2 py-0.5 text-[10px] font-semibold text-cyan-300">
-                          {normalizeVietnameseDisplay(item.keyword)} · {Math.round(item.score * 100)}%
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className="mb-1.5 text-[9px] font-bold uppercase tracking-[0.12em] text-zinc-500">Còn thiếu</div>
-                    <div className="flex flex-wrap gap-1.5">
-                      {requirementComparison.missing.length > 0
-                        ? requirementComparison.missing.slice(0, 5).map(k => <span key={k} className="px-2 py-0.5 rounded-none bg-rose-950/40 text-rose-300 text-[10px] border border-rose-500/20 font-medium">{k}</span>)
-                        : <span className="text-[11px] text-zinc-500 italic">(Không)</span>}
-                    </div>
-                  </div>
-                </div>
-
-                {requirementComparison.semanticMatched.length > 0 && (
-                  <div className="rounded-none border border-cyan-500/20 bg-cyan-950/20 p-3">
-                    <div className="mb-2 flex items-center gap-2 text-[9px] font-bold uppercase tracking-[0.14em] text-cyan-400">
-                      <Target className="h-3 w-3" />
-                      Semantic fallback
-                    </div>
-                    <div className="space-y-1.5">
-                      {requirementComparison.semanticMatched.slice(0, 2).map((item) => (
-                        <p key={`${item.keyword}-reason`} className="text-[11px] leading-5 text-zinc-300">
-                          <span className="font-semibold text-cyan-200">{normalizeVietnameseDisplay(item.keyword)}:</span> {normalizeVietnameseDisplay(item.reason)}
-                        </p>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-
-            <div className="rounded-none border border-zinc-800 bg-zinc-950 p-4">
-              <h5 className="mb-3 text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-200">Giải thích & Công thức</h5>
-
-              <div className="mb-3 space-y-3">
-                <div className="rounded-none border border-cyan-500/20 bg-cyan-950/20 p-3">
-                  <p className="mb-1 text-[9px] font-bold uppercase tracking-[0.15em] text-cyan-400/80">Phương trình điểm</p>
-                  <p className="font-mono text-xs leading-relaxed text-zinc-200">
-                    {advancedBreakdown?.mathematical_formula || detailFormula || 'Chưa có phương trình chi tiết từ AI.'}
-                  </p>
-                </div>
-
-                <div className="grid gap-2.5 md:grid-cols-3">
-                  <div className="rounded-none border border-zinc-800 bg-zinc-950 p-2.5">
-                    <p className="text-[9px] font-semibold uppercase tracking-[0.12em] text-zinc-500">Điểm tối đa</p>
-                    <p className="mt-1 font-mono text-sm font-bold text-violet-300">
-                      {advancedBreakdown?.max_possible_score ?? parsedData.maxScore ?? 0}
-                    </p>
-                  </div>
-                  <div className="rounded-none border border-zinc-800 bg-zinc-950 p-2.5">
-                    <p className="text-[9px] font-semibold uppercase tracking-[0.12em] text-zinc-500">Điểm đạt</p>
-                    <p className="mt-1 font-mono text-sm font-bold text-cyan-300">
-                      {advancedBreakdown?.raw_score_earned ?? parsedData.score ?? 0}
-                    </p>
-                  </div>
-                  <div className="rounded-none border border-zinc-800 bg-zinc-950 p-2.5">
-                    <p className="text-[9px] font-semibold uppercase tracking-[0.12em] text-zinc-500">Keyword match</p>
-                    <p className="mt-1 font-mono text-sm font-bold text-emerald-300">
-                      {keywordMetrics ? `${keywordMetrics.match_percentage.toFixed(1)}%` : '0%'}
-                    </p>
-                  </div>
-                </div>
-
-                {detailExplanation && detailExplanation !== '...' && (
-                  <div className="rounded-none border border-cyan-500/25 bg-cyan-500/[0.06] p-3">
-                    <p className="mb-1.5 text-[9px] font-bold uppercase tracking-[0.15em] text-cyan-300">Nhận xét dành cho HR</p>
-                    <p className="text-xs leading-6 text-zinc-200">{normalizeVietnameseDisplay(hrFriendlyExplanation)}</p>
-                    {includesTechnicalModelSignals(detailExplanation) && (
-                      <p className="mt-2 border-t border-cyan-500/15 pt-2 text-[10px] leading-5 text-zinc-500">
-                        Dữ liệu kỹ thuật đã được diễn giải lại để HR dễ ra quyết định, thay vì hiện trực tiếp classifier/vector.
-                      </p>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              <div className="space-y-3">
-                <div className="text-[9px] font-bold uppercase tracking-[0.15em] text-zinc-500">Công thức tính điểm</div>
-
-                {parsedData.hasScore ? (
-                  <>
-                    <div className="rounded-none border border-zinc-800 bg-zinc-950/50 p-2.5">
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="text-[9px] font-bold uppercase tracking-[0.15em] text-zinc-500">Đánh giá thực tế</span>
-                        <span className="font-mono font-semibold text-cyan-400">{parsedData.scoreLabel}</span>
-                      </div>
-                    </div>
-
-                    <div className="rounded-none border border-zinc-800 bg-zinc-950/50 p-2.5">
-                      <div className="mb-1 text-[9px] font-bold uppercase tracking-[0.15em] text-zinc-500">Công thức subscore</div>
-                      <div className="font-mono text-[11px]">
-                        {parsedData.maxScore !== null ? (
-                          <span>
-                            <span className="text-sky-400">{formatScoreValue(parsedData.score || 0)}</span>
-                            {' / '}
-                            <span className="text-violet-400">{formatScoreValue(parsedData.maxScore)}</span>
-                            {' = '}
-                            <span className="font-bold text-amber-400">{parsedData.contributionPct}%</span>
-                            {parsedData.weight > 0 && (
-                              <span className="text-slate-500"> ({parsedData.weight}% trọng số)</span>
-                            )}
-                          </span>
-                        ) : (
-                          <span>
-                            <span className="text-sky-400">{parsedData.scoreLabel}</span>
-                            {parsedData.weight > 0 && (
-                              <span className="text-slate-500"> ({parsedData.weight}% trọng số)</span>
-                            )}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="rounded-none border border-zinc-800 bg-zinc-950/50 p-2.5">
-                      <div className="mb-1 text-[9px] font-bold uppercase tracking-[0.15em] text-zinc-500">Đóng góp vào điểm tổng</div>
-                      <div className="space-y-1.5">
-                        <div className="flex items-center gap-2">
-                          <div className="flex-1 h-1.5 rounded-none bg-zinc-900 overflow-hidden">
-                            <div
-                              className={`h-full rounded-none transition-all duration-500 ${parsedData.achievedPct >= 80 ? 'bg-emerald-500' : parsedData.achievedPct >= 60 ? 'bg-amber-400' : 'bg-red-500'}`}
-                              style={{ width: `${Math.min(100, parsedData.achievedPct)}%` }}
-                            />
-                          </div>
-                          <span className={`text-[10px] font-bold font-mono ${parsedData.achievedPct >= 80 ? 'text-emerald-400' : parsedData.achievedPct >= 60 ? 'text-amber-400' : 'text-red-400'}`}>{parsedData.achievedPct}%</span>
-                        </div>
-                        <div className="text-[11px] text-zinc-400 leading-normal">
-                          Tiêu chí này đóng góp{' '}
-                          <span className="font-bold text-amber-400 font-mono">{parsedData.score !== null ? formatScoreValue(parsedData.score) : '0'}</span>
-                          {parsedData.maxScore !== null && (
-                            <>
-                              {' / '}
-                              <span className="text-zinc-500 font-mono">{formatScoreValue(parsedData.maxScore)}</span> điểm
-                            </>
-                          )}
-                          {parsedData.maxScore === null && ' điểm'}
-                        </div>
-                      </div>
-                    </div>
-                  </>
-                ) : (
-                  <div className="rounded-none border border-zinc-800 bg-zinc-950/50 p-3 text-xs text-zinc-500">
-                    Chưa có dữ liệu điểm chi tiết cho tiêu chí này trong kết quả AI hiện tại.
-                  </div>
-                )}
-              </div>
-
-              {advancedBreakdown && (
-                <div className="mt-4 space-y-3">
-                  <div className="rounded-none border border-rose-500/20 bg-rose-500/[0.04] p-3">
-                    <div className="mb-2 flex items-center justify-between gap-2">
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-rose-300/80">Lý do trừ điểm</p>
-                      <span className="rounded-none border border-rose-400/25 bg-black/20 px-2 py-0.5 text-[10px] font-semibold text-rose-200 font-mono">
-                        {advancedBreakdown.deductions.reduce((sum, item) => sum + Number(item.points_lost || 0), 0)}đ
-                      </span>
-                    </div>
-                    {advancedBreakdown.deductions.length > 0 ? (
-                      <ul className="space-y-1.5">
-                        {advancedBreakdown.deductions.slice(0, 6).map((item, index) => (
-                          <li key={`${item.reason}-${index}`} className="flex items-start justify-between gap-3 text-xs text-rose-100/85">
-                            <span className="leading-5">{normalizeVietnameseDisplay(item.reason)}</span>
-                            <span className="shrink-0 font-mono font-bold text-rose-300">-{item.points_lost}đ</span>
-                          </li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <p className="text-xs text-zinc-500 italic">Không có điểm trừ rõ ràng ở tiêu chí này.</p>
-                    )}
-                  </div>
-
-                  {advancedBreakdown.bonuses_earned.length > 0 && (
-                    <div className="rounded-none border border-emerald-500/20 bg-emerald-500/[0.04] p-3">
-                      <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-emerald-300/80">Điểm cộng</p>
-                      <ul className="space-y-1.5">
-                        {advancedBreakdown.bonuses_earned.slice(0, 4).map((bonus, index) => (
-                          <li key={`${bonus}-${index}`} className="flex items-start gap-2 text-xs leading-5 text-emerald-100/85">
-                            <Check className="mt-0.5 h-3 w-3 shrink-0 text-emerald-300" />
-                            {bonus}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-
-                  {keywordMetrics && keywordMetrics.total_required_keywords > 0 && (
-                    <div className="rounded-none border border-cyan-500/20 bg-cyan-500/[0.04] p-3">
-                      <div className="mb-2 flex items-center justify-between gap-2">
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-cyan-300/80">Keywords Matching</p>
-                        <span className="font-mono text-xs font-bold text-cyan-200">
-                          {keywordMetrics.matched_keywords_count}/{keywordMetrics.total_required_keywords}
-                        </span>
-                      </div>
-                      <div className="mb-3 h-1.5 overflow-hidden rounded-none bg-zinc-900 border border-zinc-800/40">
-                        <div
-                          className={`h-full rounded-none ${keywordMetrics.match_percentage >= 75 ? 'bg-emerald-500' : keywordMetrics.match_percentage >= 50 ? 'bg-amber-400' : 'bg-rose-500'}`}
-                          style={{ width: `${Math.min(100, Math.max(0, keywordMetrics.match_percentage))}%` }}
-                        />
-                      </div>
-                      <div className="flex flex-wrap gap-1.5">
-                        {matchedKeywordRows.slice(0, 8).map((item) => (
-                          <span key={`matched-${item.keyword}`} className="rounded-none border border-emerald-400/35 bg-emerald-400/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-200 underline decoration-emerald-300/60 underline-offset-4">
-                            {normalizeVietnameseDisplay(item.keyword)}
-                          </span>
-                        ))}
-                        {missingKeywordRows.slice(0, 8).map((item) => (
-                          <span key={`missing-${item.keyword}`} className="rounded-none border border-amber-400/35 bg-amber-400/10 px-2 py-0.5 text-[10px] font-semibold text-amber-200">
-                            {normalizeVietnameseDisplay(item.keyword)}
-                          </span>
-                        ))}
-                      </div>
-                      {matchedKeywordRows.some((item) => item.context_sentence) && (
-                        <div className="mt-3 space-y-1.5">
-                          {matchedKeywordRows.filter((item) => item.context_sentence).slice(0, 2).map((item) => (
-                            <p key={`ctx-${item.keyword}`} className="rounded-none border border-zinc-800 bg-zinc-950 p-2.5 text-[11px] leading-5 text-zinc-300">
-                              <span className="font-semibold text-emerald-200">{normalizeVietnameseDisplay(item.keyword)}:</span> {normalizeVietnameseDisplay(item.context_sentence)}
-                            </p>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
           </div>
+
+          {/* ── Score strip ──────────────────────────────────── */}
+          {parsedData.hasScore && (
+            <div className="flex flex-wrap items-center gap-3 px-4 py-3">
+              <div className="flex items-baseline gap-1">
+                <span className="text-[16px] font-black font-mono leading-none text-cyan-300">
+                  {parsedData.score !== null ? formatScoreValue(parsedData.score) : '—'}
+                </span>
+                {parsedData.maxScore !== null && (
+                  <span className="text-[11px] font-mono text-zinc-500">/{formatScoreValue(parsedData.maxScore)}</span>
+                )}
+              </div>
+              <div className="flex flex-1 items-center gap-2 min-w-[60px]">
+                <div className="h-1 flex-1 rounded-full bg-zinc-800 overflow-hidden">
+                  <div className={`h-full rounded-full transition-all duration-500 ${progressColor}`} style={{ width: `${Math.min(100, parsedData.achievedPct)}%` }} />
+                </div>
+                <span className={`text-[11px] font-bold font-mono ${progressTextColor}`}>{parsedData.achievedPct}%</span>
+              </div>
+              {parsedData.weight > 0 && (
+                <span className="text-[10px] text-zinc-600">trọng số {parsedData.weight}%</span>
+              )}
+              {keywordMetrics && (
+                <span className="text-[10px] font-mono text-zinc-600">KW {keywordMetrics.match_percentage.toFixed(0)}%</span>
+              )}
+            </div>
+          )}
+
+          {/* ── HR Commentary ────────────────────────────────── */}
+          {detailExplanation && detailExplanation !== '...' && (
+            <div className="px-4 py-3">
+              <span className="mb-1.5 block text-[9.5px] font-bold uppercase tracking-[0.13em] text-zinc-500">Nhận xét HR</span>
+              <p className="text-[11.5px] leading-[1.65] text-zinc-300">
+                {normalizeVietnameseDisplay(hrFriendlyExplanation)}
+              </p>
+            </div>
+          )}
+
+          {/* ── Experience JD match ──────────────────────────── */}
+          {isExperience && matchMeta && matchMeta.matchPercent !== 'N/A' && (
+            <div className="px-4 py-3">
+              <div className="mb-2 flex items-center justify-between">
+                <span className="text-[9.5px] font-bold uppercase tracking-[0.13em] text-zinc-500">Phù hợp JD</span>
+                <span className="font-mono text-[11px] font-bold text-cyan-400">{matchMeta.matchPercent}%</span>
+              </div>
+              <div className="h-1 overflow-hidden rounded-full bg-zinc-800">
+                <div
+                  className={`h-full rounded-full ${typeof matchMeta.matchPercent === 'number' && matchMeta.matchPercent >= 80 ? 'bg-emerald-500' : 'bg-amber-400'}`}
+                  style={{ width: `${typeof matchMeta.matchPercent === 'number' ? Math.min(100, matchMeta.matchPercent) : 0}%` }}
+                />
+              </div>
+              {(matchMeta.matched.length > 0 || matchMeta.missing.length > 0) && (
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {matchMeta.matched.slice(0, 5).map(k => (
+                    <span key={k} className="rounded-full border border-emerald-500/25 bg-emerald-950/40 px-2 py-0.5 text-[10px] text-emerald-300">{k}</span>
+                  ))}
+                  {matchMeta.missing.slice(0, 5).map(k => (
+                    <span key={k} className="rounded-full border border-zinc-700/40 bg-zinc-800/40 px-2 py-0.5 text-[10px] text-zinc-500 line-through">{k}</span>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ── Keyword comparison (non-experience) ──────────── */}
+          {!isExperience && requirementComparison && (
+            <div className="px-4 py-3">
+              <div className="mb-2 flex items-center justify-between">
+                <span className="text-[9.5px] font-bold uppercase tracking-[0.13em] text-zinc-500">Từ khóa JD</span>
+                <span className="text-[10px] font-mono text-zinc-500">
+                  {requirementComparison.matched.length + requirementComparison.semanticMatched.length}/{requirementComparison.jdKeywords.length} khớp
+                </span>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {requirementComparison.matched.slice(0, 6).map(k => (
+                  <span key={k} className="rounded-full border border-emerald-500/25 bg-emerald-950/40 px-2 py-0.5 text-[10px] text-emerald-300">{k}</span>
+                ))}
+                {requirementComparison.semanticMatched.slice(0, 3).map(item => (
+                  <span key={item.keyword} className="rounded-full border border-cyan-500/25 bg-cyan-950/40 px-2 py-0.5 text-[10px] text-cyan-300">
+                    {normalizeVietnameseDisplay(item.keyword)} ~{Math.round(item.score * 100)}%
+                  </span>
+                ))}
+                {requirementComparison.missing.slice(0, 5).map(k => (
+                  <span key={k} className="rounded-full border border-zinc-700/40 bg-zinc-800/30 px-2 py-0.5 text-[10px] text-zinc-500 line-through">{k}</span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ── Advanced keyword match bar ───────────────────── */}
+          {keywordMetrics && keywordMetrics.total_required_keywords > 0 && (
+            <div className="px-4 py-3">
+              <div className="mb-2 flex items-center justify-between">
+                <span className="text-[9.5px] font-bold uppercase tracking-[0.13em] text-zinc-500">Từ khóa khớp</span>
+                <span className="text-[10px] font-mono text-zinc-500">
+                  {keywordMetrics.matched_keywords_count}/{keywordMetrics.total_required_keywords}
+                </span>
+              </div>
+              <div className="mb-2 h-1 overflow-hidden rounded-full bg-zinc-800">
+                <div
+                  className={`h-full rounded-full ${keywordMetrics.match_percentage >= 75 ? 'bg-emerald-500' : keywordMetrics.match_percentage >= 50 ? 'bg-amber-400' : 'bg-rose-500'}`}
+                  style={{ width: `${Math.min(100, keywordMetrics.match_percentage)}%` }}
+                />
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {matchedKeywordRows.slice(0, 8).map(kw => (
+                  <span key={`m-${kw.keyword}`} className="rounded-full border border-emerald-400/30 bg-emerald-400/10 px-2 py-0.5 text-[10px] font-medium text-emerald-200">
+                    {normalizeVietnameseDisplay(kw.keyword)}
+                  </span>
+                ))}
+                {missingKeywordRows.slice(0, 8).map(kw => (
+                  <span key={`miss-${kw.keyword}`} className="rounded-full border border-zinc-700/40 bg-zinc-800/30 px-2 py-0.5 text-[10px] text-zinc-500 line-through">
+                    {normalizeVietnameseDisplay(kw.keyword)}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ── Deductions ───────────────────────────────────── */}
+          {advancedBreakdown && advancedBreakdown.deductions.length > 0 && (
+            <div className="px-4 py-3">
+              <div className="mb-1.5 flex items-center justify-between">
+                <span className="text-[9.5px] font-bold uppercase tracking-[0.13em] text-rose-400/80">Lý do trừ điểm</span>
+                <span className="font-mono text-[10px] font-semibold text-rose-300">
+                  -{advancedBreakdown.deductions.reduce((s, d) => s + Number(d.points_lost || 0), 0)}đ
+                </span>
+              </div>
+              <ul className="space-y-1">
+                {advancedBreakdown.deductions.slice(0, 5).map((d, i) => (
+                  <li key={`ded-${i}`} className="flex items-start justify-between gap-3 text-[11px] text-rose-200/75">
+                    <span className="leading-5">{normalizeVietnameseDisplay(d.reason)}</span>
+                    <span className="shrink-0 font-mono font-bold text-rose-300">-{d.points_lost}đ</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* ── Bonuses ──────────────────────────────────────── */}
+          {advancedBreakdown && advancedBreakdown.bonuses_earned.length > 0 && (
+            <div className="px-4 py-3">
+              <span className="mb-1.5 block text-[9.5px] font-bold uppercase tracking-[0.13em] text-emerald-400/80">Điểm cộng</span>
+              <ul className="space-y-1">
+                {advancedBreakdown.bonuses_earned.slice(0, 4).map((b, i) => (
+                  <li key={`bon-${i}`} className="flex items-start gap-2 text-[11px] text-emerald-200/75">
+                    <Check className="mt-0.5 h-3 w-3 shrink-0 text-emerald-400" />
+                    {b}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
         </div>
       )}
     </div>
