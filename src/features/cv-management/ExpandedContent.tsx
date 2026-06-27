@@ -1480,9 +1480,10 @@ interface CriterionAccordionProps {
   isExpanded: boolean;
   onToggle: () => void;
   jdText: string;
+  detailed?: boolean;
 }
 
-const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpanded, onToggle, jdText }) => {
+const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpanded, onToggle, jdText, detailed = false }) => {
   const tc = useThemeColors();
   const [copied, setCopied] = React.useState(false);
   const criterionName = canonicalizeCriterionName(getDetailCriterion(item));
@@ -1568,6 +1569,10 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
   const progressColor = parsedData.achievedPct >= 80 ? 'bg-emerald-500' : parsedData.achievedPct >= 60 ? 'bg-amber-400' : 'bg-red-500';
   const progressTextColor = parsedData.achievedPct >= 80 ? 'text-emerald-400' : parsedData.achievedPct >= 60 ? 'text-amber-400' : 'text-red-400';
 
+  const formulaText = advancedBreakdown?.mathematical_formula || detailFormula || null;
+  const allMatchedKw = matchedKeywordRows.map(k => k.keyword);
+  const allMissingKw = missingKeywordRows.map(k => k.keyword);
+
   return (
     <div className="overflow-hidden rounded-xl border border-zinc-800/50 bg-zinc-900/30 transition-colors duration-150 hover:border-zinc-700/60">
       {/* ── Header row ─────────────────────────────────────── */}
@@ -1580,6 +1585,11 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
           <MetaIcon className="h-3.5 w-3.5" strokeWidth={2.2} />
         </span>
         <span className="flex-1 min-w-0 truncate text-[12.5px] font-semibold text-zinc-200">{criterionName}</span>
+        {detailed && keywordMetrics && keywordMetrics.total_required_keywords > 0 && (
+          <span className="shrink-0 rounded border border-zinc-700/50 bg-zinc-800/60 px-2 py-0.5 text-[10px] font-mono text-zinc-400">
+            {keywordMetrics.matched_keywords_count}/{keywordMetrics.total_required_keywords} KW
+          </span>
+        )}
         <span className="hidden sm:inline text-[10px] font-medium text-zinc-600">{proficiency}</span>
         <span className={`rounded-lg border px-2.5 py-0.5 text-[11px] font-bold font-mono ${scoreBadgeClass}`}>
           {parsedData.scoreLabel}
@@ -1587,8 +1597,40 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
         <ChevronDown className={`h-4 w-4 text-zinc-600 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`} />
       </button>
 
+      {/* ── Detailed preview (visible without expand) ─────── */}
+      {detailed && !isExpanded && (
+        <div className="border-t border-zinc-800/40 px-4 pb-3 pt-2 space-y-2">
+          {formulaText && (
+            <p className="font-mono text-[10.5px] text-cyan-400/80 leading-[1.5]">
+              <span className="mr-1.5 text-[9px] font-bold uppercase tracking-widest text-zinc-500">Công thức</span>
+              {formulaText}
+            </p>
+          )}
+          {(allMatchedKw.length > 0 || allMissingKw.length > 0) && (
+            <div className="flex flex-wrap gap-1">
+              {allMatchedKw.map(k => (
+                <span key={`h-m-${k}`} className="rounded-full border border-emerald-500/25 bg-emerald-950/40 px-2 py-0.5 text-[10px] text-emerald-300">{k}</span>
+              ))}
+              {allMissingKw.map(k => (
+                <span key={`h-x-${k}`} className="rounded-full border border-zinc-700/30 bg-zinc-800/30 px-2 py-0.5 text-[10px] text-zinc-500 line-through">{k}</span>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
       {isExpanded && (
         <div className="divide-y divide-zinc-800/40 border-t border-zinc-800/50">
+
+          {/* ── Formula box (detailed mode) ───────────────────── */}
+          {detailed && formulaText && (
+            <div className="px-4 py-3">
+              <span className="mb-1.5 block text-[9.5px] font-bold uppercase tracking-[0.13em] text-cyan-500/80">Công thức tính điểm</span>
+              <div className="rounded-lg border border-cyan-500/20 bg-cyan-950/20 px-3 py-2.5 font-mono text-[11.5px] leading-[1.6] text-cyan-200/90">
+                {formulaText}
+              </div>
+            </div>
+          )}
 
           {/* ── Evidence ─────────────────────────────────────── */}
           <div className="px-4 py-3">
@@ -1732,39 +1774,78 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
             </div>
           )}
 
-          {/* ── Deductions ───────────────────────────────────── */}
-          {advancedBreakdown && advancedBreakdown.deductions.length > 0 && (
-            <div className="px-4 py-3">
-              <div className="mb-1.5 flex items-center justify-between">
-                <span className="text-[9.5px] font-bold uppercase tracking-[0.13em] text-rose-400/80">Lý do trừ điểm</span>
-                <span className="font-mono text-[10px] font-semibold text-rose-300">
-                  -{advancedBreakdown.deductions.reduce((s, d) => s + Number(d.points_lost || 0), 0)}đ
-                </span>
-              </div>
-              <ul className="space-y-1">
-                {advancedBreakdown.deductions.slice(0, 5).map((d, i) => (
-                  <li key={`ded-${i}`} className="flex items-start justify-between gap-3 text-[11px] text-rose-200/75">
-                    <span className="leading-5">{normalizeVietnameseDisplay(d.reason)}</span>
-                    <span className="shrink-0 font-mono font-bold text-rose-300">-{d.points_lost}đ</span>
-                  </li>
-                ))}
-              </ul>
+          {/* ── Điểm trừ/cộng ───────────────────────────────── */}
+          {detailed && advancedBreakdown && (advancedBreakdown.deductions.length > 0 || advancedBreakdown.bonuses_earned.length > 0) ? (
+            <div className="px-4 py-3 space-y-3">
+              <span className="block text-[9.5px] font-bold uppercase tracking-[0.13em] text-zinc-500">Lí giải tính điểm</span>
+              {advancedBreakdown.deductions.length > 0 && (
+                <div>
+                  <div className="mb-1 flex items-center justify-between">
+                    <span className="text-[9px] font-semibold uppercase tracking-wider text-rose-400/70">Trừ điểm</span>
+                    <span className="font-mono text-[10px] font-bold text-rose-300">
+                      -{advancedBreakdown.deductions.reduce((s, d) => s + Number(d.points_lost || 0), 0)}đ
+                    </span>
+                  </div>
+                  <ul className="space-y-1">
+                    {advancedBreakdown.deductions.map((d, i) => (
+                      <li key={`ded-${i}`} className="flex items-start justify-between gap-3 rounded bg-rose-950/20 px-2.5 py-1.5 text-[11px] text-rose-200/75">
+                        <span className="leading-5">{normalizeVietnameseDisplay(d.reason)}</span>
+                        <span className="shrink-0 font-mono font-bold text-rose-300">-{d.points_lost}đ</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {advancedBreakdown.bonuses_earned.length > 0 && (
+                <div>
+                  <span className="mb-1 block text-[9px] font-semibold uppercase tracking-wider text-emerald-400/70">Điểm cộng</span>
+                  <ul className="space-y-1">
+                    {advancedBreakdown.bonuses_earned.map((b, i) => (
+                      <li key={`bon-${i}`} className="flex items-start gap-2 rounded bg-emerald-950/20 px-2.5 py-1.5 text-[11px] text-emerald-200/75">
+                        <Check className="mt-0.5 h-3 w-3 shrink-0 text-emerald-400" />
+                        {b}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
-          )}
-
-          {/* ── Bonuses ──────────────────────────────────────── */}
-          {advancedBreakdown && advancedBreakdown.bonuses_earned.length > 0 && (
-            <div className="px-4 py-3">
-              <span className="mb-1.5 block text-[9.5px] font-bold uppercase tracking-[0.13em] text-emerald-400/80">Điểm cộng</span>
-              <ul className="space-y-1">
-                {advancedBreakdown.bonuses_earned.slice(0, 4).map((b, i) => (
-                  <li key={`bon-${i}`} className="flex items-start gap-2 text-[11px] text-emerald-200/75">
-                    <Check className="mt-0.5 h-3 w-3 shrink-0 text-emerald-400" />
-                    {b}
-                  </li>
-                ))}
-              </ul>
-            </div>
+          ) : (
+            <>
+              {/* ── Deductions (non-detailed) ─────────────────── */}
+              {advancedBreakdown && advancedBreakdown.deductions.length > 0 && (
+                <div className="px-4 py-3">
+                  <div className="mb-1.5 flex items-center justify-between">
+                    <span className="text-[9.5px] font-bold uppercase tracking-[0.13em] text-rose-400/80">Lý do trừ điểm</span>
+                    <span className="font-mono text-[10px] font-semibold text-rose-300">
+                      -{advancedBreakdown.deductions.reduce((s, d) => s + Number(d.points_lost || 0), 0)}đ
+                    </span>
+                  </div>
+                  <ul className="space-y-1">
+                    {advancedBreakdown.deductions.slice(0, 5).map((d, i) => (
+                      <li key={`ded-${i}`} className="flex items-start justify-between gap-3 text-[11px] text-rose-200/75">
+                        <span className="leading-5">{normalizeVietnameseDisplay(d.reason)}</span>
+                        <span className="shrink-0 font-mono font-bold text-rose-300">-{d.points_lost}đ</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {/* ── Bonuses (non-detailed) ───────────────────── */}
+              {advancedBreakdown && advancedBreakdown.bonuses_earned.length > 0 && (
+                <div className="px-4 py-3">
+                  <span className="mb-1.5 block text-[9.5px] font-bold uppercase tracking-[0.13em] text-emerald-400/80">Điểm cộng</span>
+                  <ul className="space-y-1">
+                    {advancedBreakdown.bonuses_earned.slice(0, 4).map((b, i) => (
+                      <li key={`bon-${i}`} className="flex items-start gap-2 text-[11px] text-emerald-200/75">
+                        <Check className="mt-0.5 h-3 w-3 shrink-0 text-emerald-400" />
+                        {b}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </>
           )}
 
         </div>
@@ -1780,9 +1861,10 @@ interface ExpandedContentProps {
   jdText: string;
   weights?: WeightCriteria;
   mode?: 'full' | 'technical';
+  view?: 'jdmatch' | 'criteria';
 }
 
-const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCriteria, onToggleCriterion, jdText, weights, mode = 'full' }) => {
+const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCriteria, onToggleCriterion, jdText, weights, mode = 'full', view }) => {
   const tc = useThemeColors();
   const analysisRecord = candidate.analysis as Record<string, unknown> | undefined;
   const coreCriteriaConfig = useMemo(() => buildConfiguredCoreCriteria(weights), [weights]);
@@ -1979,6 +2061,8 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
   );
   const showAggregateSections = mode !== 'full';
   const showTechnicalSummary = mode !== 'full';
+  const showJdMatch = !view || view === 'jdmatch';
+  const showCriteria = !view || view === 'criteria';
 
   return (
     <div className="supporthr-detail-content space-y-4 p-2 md:p-4">
@@ -2066,7 +2150,7 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
       </div>
       )}
 
-      {candidate.jdCvMatchInsights && (
+      {showJdMatch && candidate.jdCvMatchInsights && (
           <div className="mt-4 rounded-none border border-emerald-500/25 bg-emerald-950/10 px-5 py-4 text-xs pl-2">
             {candidate.jdCvMatchInsights.roleKey && candidate.jdCvMatchInsights.roleKey !== 'generic' ? (
               <>
@@ -2234,7 +2318,7 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
           </div>
         )}
 
-        {showTechnicalSummary && (
+        {showJdMatch && showTechnicalSummary && (
         <div className="mt-4 rounded-none border border-zinc-800 bg-zinc-950/80 px-5 py-4 text-xs relative overflow-hidden pl-2">
           <div className="w-1 absolute left-0 top-0 bottom-0 bg-gradient-to-b from-indigo-500 to-cyan-500" />
           <div className="pl-2">
@@ -2243,7 +2327,7 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
           </div>
         </div>
         )}
-      {showTechnicalSummary && (
+      {showJdMatch && showTechnicalSummary && (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {candidate.analysis?.['Điểm mạnh CV'] && (
           <div className="p-5 bg-zinc-950/50 border border-emerald-500/20 rounded-none relative overflow-hidden">
@@ -2281,7 +2365,7 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
       )}
 
       {/* ── Cảnh báo AI Debiasing ────────────────────────────── */}
-      {showTechnicalSummary && candidate.debiasingWarnings && candidate.debiasingWarnings.length > 0 && (
+      {showJdMatch && showTechnicalSummary && candidate.debiasingWarnings && candidate.debiasingWarnings.length > 0 && (
         <div className="rounded-none border border-amber-500/20 bg-zinc-950/50 p-5 relative overflow-hidden">
           <div className="w-1 absolute left-0 top-0 bottom-0 bg-amber-500" />
           <h4 className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.14em] text-amber-400">
@@ -2299,7 +2383,7 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
       )}
 
       {/* ── Education Validation ─────────────────────────────── */}
-      {showTechnicalSummary && educationValidation && (
+      {showJdMatch && showTechnicalSummary && educationValidation && (
         <div className="rounded-none border border-zinc-800 bg-zinc-950/50 p-5 relative overflow-hidden">
           <div className="w-1 absolute left-0 top-0 bottom-0 bg-indigo-500" />
           <h4 className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.14em] text-indigo-400">
@@ -2344,7 +2428,7 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
       )}
 
       {/* ── Tab chuyển đổi Cơ bản / Nâng cao ───────────────── */}
-      <div className="rounded-none border border-zinc-800 bg-[#09090b] overflow-hidden">
+      {showCriteria && <div className="rounded-none border border-zinc-800 bg-[#09090b] overflow-hidden">
         <div className="border-b border-zinc-800 bg-zinc-950 px-5 py-4">
           <div className="flex flex-wrap items-center gap-3 text-xs font-bold uppercase tracking-[0.15em] text-cyan-400">
             <i className="fa-solid fa-layer-group text-base"></i>
@@ -2381,6 +2465,7 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
                   isExpanded={!!expandedCriteria[candidate.id]?.[criterionName]}
                   onToggle={() => onToggleCriterion(candidate.id, criterionName)}
                   jdText={jdText}
+                  detailed={view === 'criteria'}
                 />
               );
             })
@@ -2406,13 +2491,14 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
                     isExpanded={!!expandedCriteria[candidate.id]?.[criterionName]}
                     onToggle={() => onToggleCriterion(candidate.id, criterionName)}
                     jdText={jdText}
+                    detailed={view === 'criteria'}
                   />
                 );
               })}
             </div>
           )}
         </div>
-      </div>
+      </div>}
     </div>
   );
 };

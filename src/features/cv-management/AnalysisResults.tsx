@@ -27,11 +27,12 @@ interface AnalysisResultsProps {
   feedbackByCandidate?: Record<string, AnalysisFeedbackRecord>;
 }
 
-type DetailTab = 'overview' | 'analysis' | 'stats' | 'chat' | 'feedback';
+type DetailTab = 'overview' | 'jdmatch' | 'criteria' | 'stats' | 'chat' | 'feedback';
 
 const DETAIL_TABS: Array<{ key: DetailTab; label: string }> = [
   { key: 'overview', label: 'Tổng quan' },
-  { key: 'analysis', label: 'Phân tích' },
+  { key: 'jdmatch', label: 'So khớp JD' },
+  { key: 'criteria', label: 'Tiêu chí' },
   { key: 'stats', label: 'Thống kê' },
   { key: 'chat', label: 'Tư vấn AI' },
   { key: 'feedback', label: 'Phản hồi điểm' },
@@ -731,7 +732,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({
                   {(selected.videoLinks?.length ?? 0) > 0 && (
                     <a href={selected.videoLinks![0]} target="_blank" rel="noopener noreferrer" className="apple-toolbar-button !px-2.5 !text-rose-500" title="Xem video giới thiệu"><PlayCircle size={16} /></a>
                   )}
-                  {(tab === 'overview' || tab === 'analysis') && (
+                  {tab === 'overview' && (
                     <button type="button" onClick={() => setShowCvPanel(v => !v)} className="apple-toolbar-button !px-2.5" title={showCvPanel ? 'Ẩn CV' : 'Hiện CV'}>
                       {showCvPanel ? <PanelRightClose size={16} /> : <PanelRightOpen size={16} />}
                     </button>
@@ -748,19 +749,29 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({
             </header>
 
             <div className="min-h-0 flex-1">
-              {tab === 'analysis' ? (
-                <div className={`grid h-full min-h-0 ${showCvPanel ? 'xl:grid-cols-[minmax(340px,52%)_minmax(0,48%)]' : ''}`}>
-                  <div className={`custom-scrollbar min-h-0 overflow-y-auto ${showCvPanel ? 'border-r border-[#d2d2d7]' : ''}`}>
-                    <ExpandedContent
-                      candidate={selected}
-                      expandedCriteria={expandedCriteria}
-                      onToggleCriterion={handleToggleCriterion}
-                      jdText={jdText}
-                      weights={weights}
-                      mode="full"
-                    />
-                  </div>
-                  {showCvPanel && <div className="hidden min-h-0 xl:block"><CvDocumentViewer ownerKey={documentOwner} candidate={selected} /></div>}
+              {tab === 'jdmatch' ? (
+                <div className="custom-scrollbar h-full overflow-y-auto">
+                  <ExpandedContent
+                    candidate={selected}
+                    expandedCriteria={expandedCriteria}
+                    onToggleCriterion={handleToggleCriterion}
+                    jdText={jdText}
+                    weights={weights}
+                    mode="full"
+                    view="jdmatch"
+                  />
+                </div>
+              ) : tab === 'criteria' ? (
+                <div className="custom-scrollbar h-full overflow-y-auto">
+                  <ExpandedContent
+                    candidate={selected}
+                    expandedCriteria={expandedCriteria}
+                    onToggleCriterion={handleToggleCriterion}
+                    jdText={jdText}
+                    weights={weights}
+                    mode="full"
+                    view="criteria"
+                  />
                 </div>
               ) : tab === 'stats' ? (
                 <StatsPane candidate={selected} />
