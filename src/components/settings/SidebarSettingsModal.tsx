@@ -35,6 +35,7 @@ import type { HardFilters, HistoryRetention, NewSessionMode, RecruiterInfo, User
 import { useUserSettings } from '@/context/settings/UserSettingsProvider';
 import { useTheme } from '@/context/theme/ThemeProvider';
 import { JDTemplatesService } from '@/services/data-sync/jdTemplatesService';
+import type { UserProfileSaveStatus } from '@/services/data-sync/userProfileService';
 import type { UserJDTemplate } from '@/services/data-sync/jdTemplatesService';
 import FilteredCvLibraryPage from '@/pages/tools/FilteredCvLibraryPage';
 import { readWorkflowDraft } from '@/services/history-cache/workflowDraft';
@@ -56,11 +57,12 @@ const DEFAULT_HARD_FILTERS: HardFilters = {
 interface SidebarSettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
+  isAuthenticated: boolean;
   userEmail?: string;
   userName?: string;
   userAvatar?: string | null;
   onLogout?: () => void;
-  onSaveAccountProfile: (payload: { displayName: string; avatar: string | null; recruiterInfo?: RecruiterInfo }) => Promise<void>;
+  onSaveAccountProfile: (payload: { displayName: string; avatar: string | null; recruiterInfo?: RecruiterInfo }) => Promise<{ status: UserProfileSaveStatus; message?: string }>;
   onClearWorkflowDraft: () => void;
   onClearLocalCache: () => void;
   onClearLocalHistory: () => void;
@@ -268,6 +270,7 @@ function InlineConfirmButton({
 const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
   isOpen,
   onClose,
+  isAuthenticated,
   userEmail,
   userName,
   userAvatar,
@@ -371,6 +374,7 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
     setEmailSignature(ri?.emailSignature || '');
     setSignatureEditing(false);
     setRecruiterSaved(false);
+    setRecruiterError('');
     setFixedJDName(settings.workflow.fixedJD?.name || '');
     setFixedJDText(settings.workflow.fixedJD?.jdText || '');
     const w = settings.workflow.fixedJD?.weights;
@@ -496,10 +500,14 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
     profileTimerRef.current = setTimeout(async () => {
       setProfileSaving(true);
       try {
-        await onSaveAccountProfile({ displayName: name.trim(), avatar });
+        const result = await onSaveAccountProfile({ displayName: name.trim(), avatar });
         await saveSettings({ account: { displayName: name.trim(), avatar, email: userEmail || settings.account.email } });
-        setProfileSaved(true);
-        setTimeout(() => setProfileSaved(false), 2000);
+        if (result.status === 'serverSaved') {
+          setProfileSaved(true);
+          setTimeout(() => setProfileSaved(false), 2000);
+        } else {
+          setProfileSaved(false);
+        }
       } finally {
         setProfileSaving(false);
       }
@@ -512,6 +520,12 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
   };
 
   const handleSaveRecruiterInfo = useCallback(async () => {
+    if (!isAuthenticated) {
+      setRecruiterSaved(false);
+      setRecruiterError('Đăng nhập lại để lưu hồ sơ lên server.');
+      return;
+    }
+
     const sig = signatureEditing ? emailSignature : autoSignature;
     const info: RecruiterInfo = {
       title: recruiterTitle.trim(),
@@ -524,17 +538,23 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
     setRecruiterError('');
     try {
       // Không truyền avatar để tránh gửi base64 lớn — avatar được lưu riêng qua updateUserAvatar
-      await onSaveAccountProfile({ displayName: displayName.trim(), avatar: null, recruiterInfo: info });
+      const result = await onSaveAccountProfile({ displayName: displayName.trim(), avatar: null, recruiterInfo: info });
       await saveSettings({ account: { ...settings.account, recruiterInfo: info } });
       if (!signatureEditing) setEmailSignature(sig);
-      setRecruiterSaved(true);
-      setTimeout(() => setRecruiterSaved(false), 2500);
+      if (result.status === 'serverSaved') {
+        setRecruiterSaved(true);
+        setTimeout(() => setRecruiterSaved(false), 2500);
+      } else {
+        setRecruiterSaved(false);
+        setRecruiterError(result.message || 'Đã lưu trên Firebase nhưng server chưa xác nhận.');
+      }
     } catch (err) {
+      setRecruiterSaved(false);
       setRecruiterError(err instanceof Error ? err.message : 'Không thể lưu lên server. Vui lòng thử lại.');
     } finally {
       setRecruiterSaving(false);
     }
-  }, [autoSignature, displayName, emailSignature, onSaveAccountProfile, recruiterCompany, recruiterDepartment, recruiterPhone, recruiterTitle, saveSettings, settings.account, signatureEditing]);
+  }, [autoSignature, displayName, emailSignature, isAuthenticated, onSaveAccountProfile, recruiterCompany, recruiterDepartment, recruiterPhone, recruiterTitle, saveSettings, settings.account, signatureEditing]);
 
   const handleAvatarInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -552,6 +572,7 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
   if (!isOpen) return null;
 
   const syncBadge = (() => {
+    if (!isAuthenticated) return { icon: <CloudOff size={12} />, label: t('settings_not_authed'), cls: 'border-slate-200 bg-slate-100 text-slate-500' };
     if (syncStatus === 'synced') return { icon: <CheckCircle2 size={12} />, label: t('settings_synced'), cls: 'border-emerald-200 bg-emerald-50 text-emerald-700' };
     if (syncStatus === 'pending') return { icon: <Loader2 size={12} className="animate-spin" />, label: t('settings_saving'), cls: 'border-amber-200 bg-amber-50 text-amber-700' };
     if (syncStatus === 'error') return { icon: <AlertTriangle size={12} />, label: t('settings_sync_error'), cls: 'border-rose-200 bg-rose-50 text-rose-700' };
@@ -676,6 +697,9 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
           </div>
 
           <div className="flex flex-col gap-1 pt-1">
+            {!isAuthenticated && (
+              <p className="text-right text-[11px] text-amber-600">Đăng nhập lại để lưu hồ sơ lên server.</p>
+            )}
             {recruiterError && (
               <p className="text-right text-[11px] text-red-500">{recruiterError}</p>
             )}
@@ -688,7 +712,7 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
               <button
                 type="button"
                 onClick={() => void handleSaveRecruiterInfo()}
-                disabled={recruiterSaving}
+                disabled={recruiterSaving || !isAuthenticated}
                 className="flex h-8 items-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50 px-4 text-[12px] font-semibold text-blue-700 transition hover:bg-blue-100 disabled:opacity-50"
               >
                 {recruiterSaving ? <Loader2 size={12} className="animate-spin" /> : <Check size={12} />}

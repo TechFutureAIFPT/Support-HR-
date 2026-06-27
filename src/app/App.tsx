@@ -11,6 +11,7 @@ import { UserSettingsProvider, useUserSettings } from '@/context/settings/UserSe
 
 import { DataSyncService } from '@/services/data-sync/dataSyncService';
 import { UserProfileService } from '@/services/data-sync/userProfileService';
+import type { UserProfileSaveStatus } from '@/services/data-sync/userProfileService';
 import { warmUpServer } from '@/services/api/renderClient';
   
 // Wake up the server before Firebase auth resolves so the first real request hits a warm server.
@@ -211,6 +212,37 @@ function clearExpiredWorkflowSession(): void {
   window.localStorage.removeItem('hardFilters');
 }
 
+function buildMergedRecruiterInfo(profileInfo?: RecruiterInfo, snapshotInfo?: RecruiterInfo): RecruiterInfo | undefined {
+  const merged: RecruiterInfo = {
+    title: profileInfo?.title || snapshotInfo?.title || '',
+    company: profileInfo?.company || snapshotInfo?.company || '',
+    department: profileInfo?.department || snapshotInfo?.department || '',
+    phone: profileInfo?.phone || snapshotInfo?.phone || '',
+    emailSignature: profileInfo?.emailSignature || snapshotInfo?.emailSignature || '',
+  };
+
+  return Object.values(merged).some((value) => value.trim()) ? merged : undefined;
+}
+
+function recruiterInfoEquals(left?: RecruiterInfo, right?: RecruiterInfo): boolean {
+  return (
+    (left?.title || '') === (right?.title || '')
+    && (left?.company || '') === (right?.company || '')
+    && (left?.department || '') === (right?.department || '')
+    && (left?.phone || '') === (right?.phone || '')
+    && (left?.emailSignature || '') === (right?.emailSignature || '')
+  );
+}
+
+function buildProfileSeed(user: AuthUser, fallbackDisplayName?: string): string {
+  return user.displayName || fallbackDisplayName || user.email.split('@')[0] || 'Support HR';
+}
+
+interface SaveAccountProfileResult {
+  status: UserProfileSaveStatus;
+  message?: string;
+}
+
 const MainApp = () => {
   clearExpiredWorkflowSession();
   const location = useLocation();
@@ -219,15 +251,14 @@ const MainApp = () => {
   const shouldBlockInitialRender = !publicMarketingPaths.has(initialPath) && initialPath !== '/welcome';
 
   // Initialize state
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [resetKey, setResetKey] = useState(Date.now());
   const [isInitializing, setIsInitializing] = useState(true);
+  const isLoggedIn = Boolean(currentUser);
 
   const handleLogin = (user: AuthUser) => {
     setCurrentUser(user);
-    setIsLoggedIn(true);
     setShowLoginModal(false);
     navigate('/');
   };
@@ -259,58 +290,32 @@ const MainApp = () => {
           createdAt: user.metadata.creationTime ? new Date(user.metadata.creationTime).getTime() : Date.now(),
         };
         setCurrentUser(authUser);
-        setIsLoggedIn(true);
         setShowLoginModal(false);
         localStorage.setItem('authEmail', user.email || '');
-        setIsInitializing(false);
 
-        void (async () => {
-          try {
+        try {
+          if (user.email) {
             await UserProfileService.saveUserProfile(
               user.uid,
-              user.email!,
-              user.displayName || undefined
+              user.email,
+              buildProfileSeed(authUser),
             );
-
-            await UserProfileService.migrateLocalDataToFirebase(user.uid, user.email!);
-          } catch (error) {
-            console.error('Error syncing user profile:', error);
+            await UserProfileService.migrateLocalDataToFirebase(user.uid, user.email);
           }
-        })();
+        } catch (error) {
+          console.error('Error syncing user profile:', error);
+        } finally {
+          setIsInitializing(false);
+        }
         return;
-      } else {
-        const storedAuthEmail = localStorage.getItem('authEmail') || '';
-        setCurrentUser(null);
-        setIsLoggedIn(Boolean(storedAuthEmail));
       }
 
+      setCurrentUser(null);
       setIsInitializing(false);
     });
 
     return () => unsubscribe();
   }, []);
-
-  // Fallback to localStorage for compatibility — event-driven only, no polling
-  useEffect(() => {
-    if (!isInitializing && !currentUser) {
-      const syncLoginState = () => {
-          try {
-          const authEmail = localStorage.getItem('authEmail') || '';
-          const wasLoggedIn = !!(authEmail && authEmail.length > 0);
-          if (wasLoggedIn && !isLoggedIn) {
-            setIsLoggedIn(wasLoggedIn);
-          }
-        } catch { }
-      };
-
-      syncLoginState();
-      window.addEventListener('storage', syncLoginState);
-
-      return () => {
-        window.removeEventListener('storage', syncLoginState);
-      };
-    }
-  }, [isInitializing, currentUser, isLoggedIn]);
 
   if (isInitializing && shouldBlockInitialRender) {
     return (
@@ -415,39 +420,85 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
   const [appNotice, setAppNotice] = useState<{ tone: 'success' | 'error'; message: string } | null>(null);
   const noticeTimeoutRef = useRef<number | null>(null);
 
+  useEffect(() => {
+    const syncEmail = () => {
+      try {
+        const stored = localStorage.getItem('authEmail') || '';
+        setUserEmail(currentUser?.email || stored);
+      } catch {
+        setUserEmail(currentUser?.email || '');
+      }
+    };
+
+    syncEmail();
+    window.addEventListener('storage', syncEmail);
+    return () => {
+      window.removeEventListener('storage', syncEmail);
+    };
+  }, [currentUser?.email]);
+
   // Load avatar, username and recruiter profile from Firestore on login
   useEffect(() => {
     const loadUserData = async () => {
       if (currentUser) {
-        if (currentUser.displayName) {
-          setUserName(currentUser.displayName);
-        } else if (currentUser.email) {
-          setUserName(currentUser.email.split('@')[0]);
-        }
-
         try {
-          const profile = await UserProfileService.getUserProfile(currentUser.uid);
-          if (profile?.avatar) {
-            setUserAvatar(profile.avatar);
-          } else if (currentUser.photoURL) {
-            setUserAvatar(currentUser.photoURL);
-          } else if (currentUser.email) {
-            setUserAvatar(localStorage.getItem(`avatar_${currentUser.email}`));
+          let profile = await UserProfileService.getUserProfile(currentUser.uid);
+
+          if (!profile && currentUser.email) {
+            const repaired = await UserProfileService.saveUserProfile(
+              currentUser.uid,
+              currentUser.email,
+              buildProfileSeed(currentUser, settings.account.displayName),
+              currentUser.photoURL || undefined,
+              settings.account.recruiterInfo,
+            );
+            profile = repaired.profile ?? await UserProfileService.getProfileFromFirestore(currentUser.uid);
           }
-          // Merge recruiterInfo from Firestore into settings if not already set
-          if (profile?.recruiterInfo && !settings.account.recruiterInfo?.title) {
-            updateAccountSnapshot({ recruiterInfo: profile.recruiterInfo });
+
+          const nextName = profile?.displayName || currentUser.displayName || currentUser.email.split('@')[0];
+          const nextAvatar = profile?.avatar
+            || currentUser.photoURL
+            || localStorage.getItem(`avatar_${currentUser.email}`)
+            || null;
+
+          setUserName(nextName);
+          setUserAvatar(nextAvatar);
+
+          const mergedRecruiterInfo = buildMergedRecruiterInfo(profile?.recruiterInfo, settings.account.recruiterInfo);
+          const nextAccountPatch: {
+            email: string;
+            displayName?: string;
+            avatar?: string | null;
+            recruiterInfo?: RecruiterInfo;
+          } = {
+            email: currentUser.email,
+          };
+
+          if (profile?.displayName && profile.displayName !== settings.account.displayName) {
+            nextAccountPatch.displayName = profile.displayName;
+          }
+
+          if ((profile?.avatar || null) !== (settings.account.avatar || null) && profile?.avatar) {
+            nextAccountPatch.avatar = profile.avatar;
+          }
+
+          if (!recruiterInfoEquals(settings.account.recruiterInfo, mergedRecruiterInfo)) {
+            nextAccountPatch.recruiterInfo = mergedRecruiterInfo;
+          }
+
+          if (Object.keys(nextAccountPatch).length > 1) {
+            updateAccountSnapshot(nextAccountPatch);
           }
         } catch {
-          if (currentUser.photoURL) {
-            setUserAvatar(currentUser.photoURL);
-          } else if (currentUser.email) {
-            setUserAvatar(localStorage.getItem(`avatar_${currentUser.email}`));
-          }
+          setUserName(currentUser.displayName || currentUser.email.split('@')[0]);
+          setUserAvatar(currentUser.photoURL || localStorage.getItem(`avatar_${currentUser.email}`));
         }
       } else if (userEmail) {
         setUserName(userEmail.split('@')[0]);
         setUserAvatar(localStorage.getItem(`avatar_${userEmail}`));
+      } else {
+        setUserName('');
+        setUserAvatar(null);
       }
     };
     loadUserData();
@@ -478,10 +529,12 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
     try {
       await auth.signOut();
       localStorage.removeItem('authEmail');
+      setUserEmail('');
       navigate('/');
     } catch (error) {
       console.error('Logout error:', error);
       localStorage.removeItem('authEmail');
+      setUserEmail('');
       window.location.href = '/';
     }
   }, [navigate]);
@@ -515,21 +568,6 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
   );
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [loadingMessage, setLoadingMessage] = useState<string>('');
-
-  // Đồng bộ lại email nếu ban đầu rỗng hoặc thay đổi ở tab khác — event-driven only, no polling
-  useEffect(() => {
-    const syncEmail = () => {
-      try {
-        const stored = localStorage.getItem('authEmail') || '';
-        setUserEmail(prev => (prev && prev.length > 0) ? prev : stored);
-      } catch { }
-    };
-    syncEmail();
-    window.addEventListener('storage', syncEmail);
-    return () => {
-      window.removeEventListener('storage', syncEmail);
-    };
-  }, []);
 
   const handleRestore = useCallback((payload: any) => {
     if (!payload) return;
@@ -1018,15 +1056,15 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
     setActiveStep('jd');
   }, [markStepAsCompleted, setActiveStep]);
 
-  const handleSaveAccountProfile = useCallback(async (payload: { displayName: string; avatar: string | null; recruiterInfo?: RecruiterInfo }) => {
+  const handleSaveAccountProfile = useCallback(async (payload: { displayName: string; avatar: string | null; recruiterInfo?: RecruiterInfo }): Promise<SaveAccountProfileResult> => {
     const nextDisplayName = payload.displayName.trim() || (userEmail ? userEmail.split('@')[0] : 'Support HR');
-    const nextAvatar = payload.avatar;
+    const nextAvatar = payload.avatar === null && payload.recruiterInfo ? userAvatar : payload.avatar;
 
     setUserName(nextDisplayName);
     setUserAvatar(nextAvatar);
 
     if (currentUser?.email) {
-      await UserProfileService.saveUserProfile(
+      const saveResult = await UserProfileService.saveUserProfile(
         currentUser.uid,
         currentUser.email,
         nextDisplayName,
@@ -1037,17 +1075,47 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
       if (nextAvatar) {
         await UserProfileService.updateUserAvatar(currentUser.uid, nextAvatar);
       }
-    } else if (userEmail) {
+
+      const mergedRecruiterInfo = buildMergedRecruiterInfo(
+        payload.recruiterInfo,
+        saveResult.profile?.recruiterInfo,
+      );
+
+      updateAccountSnapshot({
+        displayName: saveResult.profile?.displayName || nextDisplayName,
+        avatar: nextAvatar,
+        email: currentUser.email,
+        ...(mergedRecruiterInfo ? { recruiterInfo: mergedRecruiterInfo } : {}),
+      });
+
+      if (saveResult.status === 'firebaseSaved') {
+        showAppNotice(
+          saveResult.message || 'Đã lưu trên Firebase nhưng server chưa xác nhận.',
+          'error',
+        );
+      }
+
+      return {
+        status: saveResult.status,
+        message: saveResult.message,
+      };
+    }
+
+    if (userEmail) {
       localStorage.setItem(`avatar_${userEmail}`, nextAvatar || '');
     }
 
     updateAccountSnapshot({
       displayName: nextDisplayName,
       avatar: nextAvatar,
-      email: currentUser?.email || userEmail,
+      email: userEmail,
       ...(payload.recruiterInfo ? { recruiterInfo: payload.recruiterInfo } : {}),
     });
-  }, [currentUser, updateAccountSnapshot, userEmail]);
+
+    const message = 'Đăng nhập lại để lưu hồ sơ lên server.';
+    showAppNotice(message, 'error');
+    return { status: 'localOnly', message };
+  }, [currentUser, showAppNotice, updateAccountSnapshot, userAvatar, userEmail]);
 
   const handleClearWorkflowDraft = useCallback(() => {
     clearWorkflowDraft();
@@ -1293,6 +1361,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
       <SidebarSettingsModal
         isOpen={sidebarSettingsOpen}
         onClose={() => setSidebarSettingsOpen(false)}
+        isAuthenticated={Boolean(currentUser)}
         userEmail={currentUser?.email || userEmail}
         userName={userName}
         userAvatar={userAvatar}

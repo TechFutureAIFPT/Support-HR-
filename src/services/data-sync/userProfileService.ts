@@ -1,5 +1,5 @@
-import { db } from '@/services/firebase';
 import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore';
+import { db } from '@/services/firebase';
 import { apiGet, apiPatch, apiPost, apiPut, pickArray, pickObject } from '@/services/api/renderClient';
 import type { RecruiterInfo } from '@/types';
 
@@ -11,6 +11,14 @@ export interface UserProfile {
   recruiterInfo?: RecruiterInfo;
   createdAt: any;
   updatedAt: any;
+}
+
+export type UserProfileSaveStatus = 'serverSaved' | 'firebaseSaved' | 'localOnly';
+
+export interface UserProfileSaveResult {
+  status: Exclude<UserProfileSaveStatus, 'localOnly'>;
+  profile: UserProfile | null;
+  message?: string;
 }
 
 export interface UserCVHistory {
@@ -33,18 +41,16 @@ function normalizeTimestamp(value: unknown): number {
 }
 
 function extractRecruiterInfo(data: Record<string, unknown>): RecruiterInfo | undefined {
-  // API returns flat fields (recruiterTitle, recruiterCompany, ...)
-  // Firestore returns nested recruiterInfo object
   const flat = data.recruiterTitle || data.recruiterCompany || data.recruiterDepartment || data.recruiterPhone || data.emailSignature;
   const nested = data.recruiterInfo && typeof data.recruiterInfo === 'object' ? data.recruiterInfo as Record<string, unknown> : null;
   if (!flat && !nested) return undefined;
 
   return {
-    title:          String(data.recruiterTitle    ?? nested?.title          ?? ''),
-    company:        String(data.recruiterCompany  ?? nested?.company        ?? ''),
-    department:     String(data.recruiterDepartment ?? nested?.department   ?? ''),
-    phone:          String(data.recruiterPhone    ?? nested?.phone          ?? ''),
-    emailSignature: String(data.emailSignature    ?? nested?.emailSignature ?? ''),
+    title: String(data.recruiterTitle ?? nested?.title ?? ''),
+    company: String(data.recruiterCompany ?? nested?.company ?? ''),
+    department: String(data.recruiterDepartment ?? nested?.department ?? ''),
+    phone: String(data.recruiterPhone ?? nested?.phone ?? ''),
+    emailSignature: String(data.emailSignature ?? nested?.emailSignature ?? ''),
   };
 }
 
@@ -53,25 +59,25 @@ function normalizeUserProfile(raw: unknown): UserProfile | null {
   if (!profile) return null;
 
   return {
-    uid:           String(profile.uid || ''),
-    email:         String(profile.email || ''),
-    displayName:   profile.displayName ? String(profile.displayName) : undefined,
-    avatar:        profile.avatar ? String(profile.avatar) : undefined,
+    uid: String(profile.uid || ''),
+    email: String(profile.email || ''),
+    displayName: profile.displayName ? String(profile.displayName) : undefined,
+    avatar: profile.avatar ? String(profile.avatar) : undefined,
     recruiterInfo: extractRecruiterInfo(profile),
-    createdAt:     profile.createdAt ?? Date.now(),
-    updatedAt:     profile.updatedAt ?? Date.now(),
+    createdAt: profile.createdAt ?? Date.now(),
+    updatedAt: profile.updatedAt ?? Date.now(),
   };
 }
 
 function normalizeFirestoreProfile(data: Record<string, unknown>): UserProfile {
   return {
-    uid:           String(data.uid || ''),
-    email:         String(data.email || ''),
-    displayName:   data.displayName ? String(data.displayName) : undefined,
-    avatar:        data.avatar ? String(data.avatar) : undefined,
+    uid: String(data.uid || ''),
+    email: String(data.email || ''),
+    displayName: data.displayName ? String(data.displayName) : undefined,
+    avatar: data.avatar ? String(data.avatar) : undefined,
     recruiterInfo: extractRecruiterInfo(data),
-    createdAt:     normalizeTimestamp(data.createdAt),
-    updatedAt:     normalizeTimestamp(data.updatedAt),
+    createdAt: normalizeTimestamp(data.createdAt),
+    updatedAt: normalizeTimestamp(data.updatedAt),
   };
 }
 
@@ -79,14 +85,14 @@ function normalizeUserCVHistory(raw: unknown): UserCVHistory {
   const record = (raw && typeof raw === 'object') ? raw as Record<string, unknown> : {};
 
   return {
-    id:        record.id ? String(record.id) : undefined,
-    uid:       String(record.uid || ''),
-    email:     String(record.email || ''),
-    jdText:    String(record.jdText || ''),
-    jdTitle:   String(record.jdTitle || 'Vị trí tuyển dụng'),
-    cvCount:   Number(record.cvCount || 0),
+    id: record.id ? String(record.id) : undefined,
+    uid: String(record.uid || ''),
+    email: String(record.email || ''),
+    jdText: String(record.jdText || ''),
+    jdTitle: String(record.jdTitle || 'Vị trí tuyển dụng'),
+    cvCount: Number(record.cvCount || 0),
     timestamp: normalizeTimestamp(record.timestamp),
-    results:   Array.isArray(record.results) ? record.results : [],
+    results: Array.isArray(record.results) ? record.results : [],
   };
 }
 
@@ -97,21 +103,18 @@ export class UserProfileService {
     displayName?: string,
     avatar?: string | null,
     recruiterInfo?: RecruiterInfo,
-  ): Promise<void> {
-    // Run API and Firestore writes in parallel; Firestore must NOT depend on API success.
-    // Avatar (possibly large base64) is excluded from the recruiterInfo path to avoid payload errors.
+  ): Promise<UserProfileSaveResult> {
     const apiPayload: Record<string, unknown> = {
       email,
       provider: 'firebase-auth',
       ...(displayName !== undefined ? { displayName } : {}),
-      // Only send avatar to API if it is a non-null, non-base64 URL (avoids 413 errors)
       ...(avatar && !avatar.startsWith('data:') ? { avatar } : {}),
       ...(recruiterInfo ? {
-        recruiterTitle:      recruiterInfo.title,
-        recruiterCompany:    recruiterInfo.company,
+        recruiterTitle: recruiterInfo.title,
+        recruiterCompany: recruiterInfo.company,
         recruiterDepartment: recruiterInfo.department,
-        recruiterPhone:      recruiterInfo.phone,
-        emailSignature:      recruiterInfo.emailSignature,
+        recruiterPhone: recruiterInfo.phone,
+        emailSignature: recruiterInfo.emailSignature,
       } : {}),
     };
 
@@ -119,34 +122,42 @@ export class UserProfileService {
       uid,
       email,
       ...(displayName !== undefined ? { displayName } : {}),
-      // Never write avatar to Firestore (separate updateUserAvatar flow)
       ...(recruiterInfo ? { recruiterInfo } : {}),
       updatedAt: serverTimestamp(),
     };
 
-    // Firestore write is authoritative — always runs regardless of API outcome
     const firestoreWrite = setDoc(doc(db, 'users', uid), firestorePayload, { merge: true });
-
-    // API write is best-effort — failure surfaces to caller so UI can show error
     const apiWrite = apiPut('/api/account/profile', apiPayload, { authRequired: true });
 
-    const [, apiResult] = await Promise.allSettled([firestoreWrite, apiWrite]);
+    const [firestoreResult, apiResult] = await Promise.allSettled([firestoreWrite, apiWrite]);
 
-    if (apiResult.status === 'rejected') {
-      throw apiResult.reason instanceof Error
-        ? apiResult.reason
-        : new Error('Không thể lưu lên server. Dữ liệu đã được lưu cục bộ trên Firebase.');
+    if (apiResult.status === 'fulfilled') {
+      return {
+        status: 'serverSaved',
+        profile: normalizeUserProfile(apiResult.value),
+      };
     }
+
+    if (firestoreResult.status === 'fulfilled') {
+      return {
+        status: 'firebaseSaved',
+        profile: await UserProfileService.getProfileFromFirestore(uid),
+        message: 'Đã lưu trên Firebase nhưng server chưa xác nhận. Vui lòng đăng nhập lại hoặc thử lại sau.',
+      };
+    }
+
+    throw apiResult.reason instanceof Error
+      ? apiResult.reason
+      : new Error('Không thể lưu hồ sơ lúc này. Vui lòng thử lại sau.');
   }
 
   static async getUserProfile(uid: string): Promise<UserProfile | null> {
-    // Try backend API first; fall back to Firestore if it fails or returns nothing
     try {
       const response = await apiGet<unknown>('/api/account/profile', { authRequired: true });
       const profile = normalizeUserProfile(response);
       if (profile?.uid) return profile;
     } catch {
-      // backend unavailable — fall through to Firestore
+      // Backend unavailable. Fall through to Firestore.
     }
 
     return UserProfileService.getProfileFromFirestore(uid);
@@ -167,19 +178,19 @@ export class UserProfileService {
       '/api/account/profile/cv-history',
       {
         email,
-        jdText:   historyData.jdText ?? '',
-        jdTitle:  historyData.jdTitle ?? 'Vị trí tuyển dụng',
-        cvCount:  typeof historyData.cvCount === 'number' ? historyData.cvCount : 0,
-        results:  Array.isArray(historyData.results) ? historyData.results : [],
+        jdText: historyData.jdText ?? '',
+        jdTitle: historyData.jdTitle ?? 'Vị trí tuyển dụng',
+        cvCount: typeof historyData.cvCount === 'number' ? historyData.cvCount : 0,
+        results: Array.isArray(historyData.results) ? historyData.results : [],
       },
-      { authRequired: true }
+      { authRequired: true },
     );
   }
 
   static async getUserCVHistory(_uid: string, limitCount: number = 50): Promise<UserCVHistory[]> {
     const response = await apiGet<unknown>(
       `/api/account/profile/cv-history?limit_count=${limitCount}`,
-      { authRequired: true }
+      { authRequired: true },
     );
 
     return pickArray<unknown>(response, ['items', 'history', 'entries', 'data']).map(normalizeUserCVHistory);
@@ -189,7 +200,7 @@ export class UserProfileService {
     await apiPost(
       `/api/account/profile/cv-history/cleanup?keep_count=${keepCount}`,
       undefined,
-      { authRequired: true }
+      { authRequired: true },
     );
   }
 
@@ -203,10 +214,10 @@ export class UserProfileService {
       try {
         const parsed = JSON.parse(localHistory) as Array<Record<string, unknown>>;
         return parsed.map((entry) => ({
-          jdText:   String(entry.jdText || ''),
-          jdTitle:  String(entry.jdTitle || 'Vị trí tuyển dụng'),
-          cvCount:  Number(entry.cvCount || 0),
-          results:  Array.isArray(entry.results) ? entry.results : [],
+          jdText: String(entry.jdText || ''),
+          jdTitle: String(entry.jdTitle || 'Vị trí tuyển dụng'),
+          cvCount: Number(entry.cvCount || 0),
+          results: Array.isArray(entry.results) ? entry.results : [],
         }));
       } catch {
         return [];
@@ -218,10 +229,10 @@ export class UserProfileService {
     await apiPost(
       '/api/account/profile/migrate-local',
       {
-        avatar:  localAvatar || null,
+        avatar: localAvatar || null,
         history,
       },
-      { authRequired: true }
+      { authRequired: true },
     );
 
     localStorage.removeItem('cvFilterHistory');
