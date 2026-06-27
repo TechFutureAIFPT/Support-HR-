@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowLeft, Bot, CalendarDays, CheckCircle2, ChevronRight, Clipboard, Mail, MessageSquareText, PanelRightClose, PanelRightOpen, PlayCircle, Send, Star, TriangleAlert, Zap } from 'lucide-react';
+import { RadarChart, Radar, PolarGrid, PolarAngleAxis, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Cell, Tooltip } from 'recharts';
 import { useSearchParams } from 'react-router-dom';
 import type { AnalysisFeedbackDraft, AnalysisFeedbackRecord, AppStep, Candidate, HardFilters, RecruiterInfo, WeightCriteria } from '@/types';
 import SupportHRLoading from '@/components/common/SupportHRLoading';
@@ -104,81 +105,213 @@ const CRITERIA_COLOR: Record<string, string> = {
   'Phù hợp văn hoá': '#ff2d55',
 };
 
+const CRITERIA_SHORT: Record<string, string> = {
+  'Phù hợp JD (Job Fit)': 'Job Fit',
+  'Kinh nghiệm': 'K.Nghiệm',
+  'Kỹ năng': 'Kỹ năng',
+  'Thành tựu/KPI': 'KPI',
+  'Học vấn': 'Học vấn',
+  'Ngôn ngữ': 'Ngôn ngữ',
+  'Chuyên nghiệp': 'C.Nghiệp',
+  'Gắn bó & Lịch sử CV': 'Gắn bó',
+  'Phù hợp văn hoá': 'Văn hoá',
+};
+
+// Circular score ring using plain SVG
+const ScoreRing: React.FC<{ score: number; grade: string }> = ({ score, grade }) => {
+  const r = 54;
+  const circ = 2 * Math.PI * r;
+  const filled = (score / 100) * circ;
+  const gradeColor = grade === 'A' ? '#34c759' : grade === 'B' ? '#007aff' : '#ff9f0a';
+  const gradeLabel = grade === 'A' ? 'Xuất sắc' : grade === 'B' ? 'Khá' : 'Cần xem xét';
+  return (
+    <div className="flex flex-col items-center gap-1">
+      <svg width={140} height={140} viewBox="0 0 140 140">
+        <circle cx={70} cy={70} r={r} fill="none" stroke="#f2f2f7" strokeWidth={12} />
+        <circle
+          cx={70} cy={70} r={r} fill="none"
+          stroke={gradeColor} strokeWidth={12}
+          strokeLinecap="round"
+          strokeDasharray={`${filled} ${circ}`}
+          strokeDashoffset={circ / 4}
+          style={{ transition: 'stroke-dasharray 1s ease' }}
+        />
+        <text x={70} y={64} textAnchor="middle" dominantBaseline="middle" fontSize={28} fontWeight={800} fill={gradeColor} fontFamily="system-ui">{score.toFixed(0)}</text>
+        <text x={70} y={84} textAnchor="middle" dominantBaseline="middle" fontSize={11} fill="#86868b" fontFamily="system-ui">/100</text>
+      </svg>
+      <span className="rounded-full px-3 py-0.5 text-[11px] font-bold" style={{ backgroundColor: gradeColor + '20', color: gradeColor }}>
+        Hạng {grade} · {gradeLabel}
+      </span>
+    </div>
+  );
+};
+
+// Recharts custom tooltip for bar chart
+const CriteriaTooltip: React.FC<{ active?: boolean; payload?: Array<{ value: number; payload: { name: string; color: string } }> }> = ({ active, payload }) => {
+  if (!active || !payload?.length) return null;
+  const d = payload[0];
+  return (
+    <div className="rounded-xl border border-[#d2d2d7] bg-white px-3 py-2 shadow-lg text-[12px]">
+      <p className="font-semibold text-[#1d1d1f]">{d.payload.name}</p>
+      <p className="font-bold tabular-nums mt-0.5" style={{ color: d.payload.color }}>{d.value}<span className="font-normal text-[#86868b]">/100</span></p>
+    </div>
+  );
+};
+
 const StatsPane: React.FC<{ candidate: Candidate }> = ({ candidate }) => {
   const score = candidateScore(candidate);
   const grade = candidate.analysis?.['Hạng'] || 'C';
+
   const criteria = useMemo(() => {
     const raw = candidate.analysis?.['Chi tiết'] || [];
     return raw.map((item) => ({
       name: item['Tiêu chí'],
+      short: CRITERIA_SHORT[item['Tiêu chí']] || item['Tiêu chí'],
       score: parseInt(item['Điểm'].split('/')[0], 10) || 0,
       color: CRITERIA_COLOR[item['Tiêu chí']] || '#6e6e73',
     }));
   }, [candidate.analysis]);
 
+  const radarData = useMemo(() =>
+    criteria.map((c) => ({ name: c.short, score: c.score, fullMark: 100 })),
+  [criteria]);
+
   const jdMatchPct = candidate.jdCvMatchInsights
     ? Math.round(candidate.jdCvMatchInsights.similarity * 1000) / 10
     : null;
-  const gradeColor = grade === 'A' ? '#34c759' : grade === 'B' ? '#007aff' : '#ff3b30';
-  const scoreColor = score >= 75 ? '#34c759' : score >= 60 ? '#007aff' : score >= 40 ? '#ff9f0a' : '#ff3b30';
+
+  const expMonths = candidate.candidateProfile?.totalExperienceMonths;
+  const expYears = expMonths != null ? (expMonths / 12).toFixed(1) : null;
+  const eduLevel = candidate.candidateProfile?.educationLevel;
+
+  const strengths = candidate.analysis?.['Điểm mạnh CV'] || [];
+  const weaknesses = candidate.analysis?.['Điểm yếu CV'] || [];
+  const redFlags = candidate.hrSummary?.canh_bao_red_flag || [];
 
   return (
     <div className="custom-scrollbar h-full overflow-y-auto p-4 sm:p-5 space-y-4">
-      {/* Top widgets */}
-      <div className="grid grid-cols-3 gap-3">
-        <div className="rounded-2xl border border-[#d2d2d7] bg-white p-4 text-center">
-          <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#6e6e73] mb-1">Tổng điểm</p>
-          <p className="text-[28px] font-black tabular-nums leading-none" style={{ color: scoreColor }}>{score.toFixed(0)}</p>
-          <p className="text-[10px] text-[#86868b] mt-0.5">/100</p>
+
+      {/* ── Row 1: Score ring + key metrics ── */}
+      <div className="grid grid-cols-2 gap-3">
+        {/* Score ring */}
+        <div className="rounded-2xl border border-[#d2d2d7] bg-white p-4 flex flex-col items-center justify-center">
+          <ScoreRing score={score} grade={grade} />
         </div>
-        <div className="rounded-2xl border border-[#d2d2d7] bg-white p-4 text-center">
-          <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#6e6e73] mb-1">Hạng</p>
-          <p className="text-[28px] font-black leading-none" style={{ color: gradeColor }}>{grade}</p>
-          <p className="text-[10px] text-[#86868b] mt-0.5">{grade === 'A' ? 'Xuất sắc' : grade === 'B' ? 'Khá' : 'Cần xem xét'}</p>
-        </div>
-        <div className="rounded-2xl border border-[#d2d2d7] bg-white p-4 text-center">
-          <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#6e6e73] mb-1">JD Match</p>
-          <p className="text-[28px] font-black tabular-nums leading-none text-[#007aff]">
-            {jdMatchPct !== null ? `${jdMatchPct.toFixed(0)}%` : '--'}
-          </p>
-          <p className="text-[10px] text-[#86868b] mt-0.5">Semantic</p>
+
+        {/* Key metrics stacked */}
+        <div className="flex flex-col gap-3">
+          <div className="flex-1 rounded-2xl border border-[#d2d2d7] bg-white px-4 py-3 text-center">
+            <p className="text-[9.5px] font-bold uppercase tracking-[0.12em] text-[#6e6e73] mb-1">JD Match</p>
+            <p className="text-[22px] font-black tabular-nums text-[#007aff]">
+              {jdMatchPct !== null ? `${jdMatchPct.toFixed(0)}%` : '--'}
+            </p>
+            <p className="text-[9px] text-[#86868b]">Semantic similarity</p>
+          </div>
+          <div className="flex-1 rounded-2xl border border-[#d2d2d7] bg-white px-4 py-3 text-center">
+            <p className="text-[9.5px] font-bold uppercase tracking-[0.12em] text-[#6e6e73] mb-1">Kinh nghiệm</p>
+            <p className="text-[22px] font-black tabular-nums text-[#34c759]">{expYears ?? '--'}</p>
+            <p className="text-[9px] text-[#86868b]">{expYears ? 'năm' : 'chưa xác định'}</p>
+          </div>
+          {eduLevel && (
+            <div className="rounded-2xl border border-[#d2d2d7] bg-white px-4 py-2 text-center">
+              <p className="text-[9.5px] font-bold uppercase tracking-[0.12em] text-[#6e6e73] mb-0.5">Học vấn</p>
+              <p className="text-[11px] font-semibold text-[#1d1d1f] leading-tight">{eduLevel}</p>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Criteria progress bars */}
-      {criteria.length > 0 && (
-        <div className="rounded-2xl border border-[#d2d2d7] bg-white px-5 py-4">
-          <p className="mb-4 text-[11px] font-bold uppercase tracking-[0.14em] text-[#6e6e73]">Phân tích từng tiêu chí</p>
-          <div className="space-y-3.5">
-            {criteria.map((criterion) => (
-              <div key={criterion.name}>
-                <div className="mb-1.5 flex items-center justify-between">
-                  <span className="text-[12.5px] font-medium text-[#1d1d1f]">{criterion.name}</span>
-                  <span className="text-[12px] font-bold tabular-nums" style={{ color: criterion.color }}>{criterion.score}</span>
-                </div>
-                <div className="h-2 w-full overflow-hidden rounded-full bg-[#f2f2f7]">
-                  <div
-                    className="h-full rounded-full transition-all duration-700"
-                    style={{ width: `${criterion.score}%`, backgroundColor: criterion.color }}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
+      {/* ── Row 2: Radar chart ── */}
+      {radarData.length > 0 && (
+        <div className="rounded-2xl border border-[#d2d2d7] bg-white px-4 pt-4 pb-2">
+          <p className="mb-1 text-[11px] font-bold uppercase tracking-[0.14em] text-[#6e6e73]">Biểu đồ radar tiêu chí</p>
+          <ResponsiveContainer width="100%" height={230}>
+            <RadarChart data={radarData} margin={{ top: 10, right: 20, bottom: 10, left: 20 }}>
+              <PolarGrid stroke="#e5e5ea" />
+              <PolarAngleAxis
+                dataKey="name"
+                tick={{ fontSize: 10, fill: '#6e6e73', fontWeight: 600 }}
+              />
+              <Radar
+                name="Điểm"
+                dataKey="score"
+                fill="#007aff"
+                fillOpacity={0.18}
+                stroke="#007aff"
+                strokeWidth={2}
+                dot={{ r: 3, fill: '#007aff', strokeWidth: 0 }}
+              />
+            </RadarChart>
+          </ResponsiveContainer>
         </div>
       )}
 
-      {/* Strengths chips */}
-      {(candidate.analysis?.['Điểm mạnh CV'] || []).length > 0 && (
-        <div className="rounded-2xl border border-[#d2d2d7] bg-white px-5 py-4">
-          <p className="mb-3 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-[#34c759]">
-            <Star size={12} /> Điểm nổi bật
+      {/* ── Row 3: Horizontal bar chart ── */}
+      {criteria.length > 0 && (
+        <div className="rounded-2xl border border-[#d2d2d7] bg-white px-4 pt-4 pb-2">
+          <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.14em] text-[#6e6e73]">Điểm từng tiêu chí</p>
+          <ResponsiveContainer width="100%" height={criteria.length * 34 + 16}>
+            <BarChart
+              layout="vertical"
+              data={criteria}
+              margin={{ top: 0, right: 36, bottom: 0, left: 0 }}
+              barSize={12}
+            >
+              <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 9, fill: '#86868b' }} axisLine={false} tickLine={false} />
+              <YAxis type="category" dataKey="short" width={72} tick={{ fontSize: 10.5, fill: '#1d1d1f', fontWeight: 500 }} axisLine={false} tickLine={false} />
+              <Tooltip content={<CriteriaTooltip />} cursor={{ fill: '#f2f2f7', radius: 6 }} />
+              <Bar dataKey="score" radius={[0, 6, 6, 0]} label={{ position: 'right', fontSize: 10, fontWeight: 700, formatter: (v: number) => v }}>
+                {criteria.map((c) => <Cell key={c.name} fill={c.color} />)}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      )}
+
+      {/* ── Row 4: Strengths & Weaknesses ── */}
+      {(strengths.length > 0 || weaknesses.length > 0) && (
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          {strengths.length > 0 && (
+            <div className="rounded-2xl border border-[#d1f5d3] bg-[#f6fff7] px-4 py-3">
+              <p className="mb-2 flex items-center gap-1.5 text-[10.5px] font-bold uppercase tracking-[0.12em] text-[#1a7f37]">
+                <Star size={11} /> Điểm mạnh
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {strengths.map((item, i) => (
+                  <span key={i} className="rounded-full border border-[#bbf0c3] bg-white px-2.5 py-0.5 text-[11px] font-medium text-[#1a7f37]">{item}</span>
+                ))}
+              </div>
+            </div>
+          )}
+          {weaknesses.length > 0 && (
+            <div className="rounded-2xl border border-[#ffd6d6] bg-[#fff8f8] px-4 py-3">
+              <p className="mb-2 flex items-center gap-1.5 text-[10.5px] font-bold uppercase tracking-[0.12em] text-[#c00]">
+                <TriangleAlert size={11} /> Điểm yếu
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {weaknesses.map((item, i) => (
+                  <span key={i} className="rounded-full border border-[#ffb3b3] bg-white px-2.5 py-0.5 text-[11px] font-medium text-[#cc0000]">{item}</span>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── Row 5: Red flags ── */}
+      {redFlags.length > 0 && (
+        <div className="rounded-2xl border border-[#ff9f0a]/40 bg-[#fffbf0] px-4 py-3">
+          <p className="mb-2 flex items-center gap-1.5 text-[10.5px] font-bold uppercase tracking-[0.12em] text-[#c77700]">
+            <TriangleAlert size={11} /> Cảnh báo
           </p>
-          <div className="flex flex-wrap gap-2">
-            {(candidate.analysis?.['Điểm mạnh CV'] || []).map((item, i) => (
-              <span key={i} className="rounded-full border border-[#d1f5d3] bg-[#f0fff1] px-3 py-1 text-[12px] font-medium text-[#1a7f37]">{item}</span>
+          <ul className="space-y-1">
+            {redFlags.map((flag, i) => (
+              <li key={i} className="flex items-start gap-1.5 text-[11.5px] text-[#8a5a00]">
+                <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-[#ff9f0a]" />
+                {flag}
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
       )}
     </div>
@@ -536,18 +669,25 @@ const ChatPane: React.FC<{ candidate: Candidate; jobPosition: string; jdText?: s
   }, [messages]);
 
   const buildContext = () => {
-    const details = (candidate.analysis?.['Chi tiết'] || []).slice(0, 6).map(
-      (item) => `  - ${item['Tiêu chí']}: ${item['Điểm']} — ${item['Dẫn chứng'].slice(0, 100)}`
+    const details = (candidate.analysis?.['Chi tiết'] ?? []).slice(0, 6).map(
+      (item) => `  - ${item['Tiêu chí'] ?? ''}: ${item['Điểm'] ?? ''} — ${(item['Dẫn chứng'] ?? '').slice(0, 120)}`
     ).join('\n');
+    const profile = candidate.candidateProfile;
+    const expYears = profile?.totalExperienceMonths != null
+      ? `${(profile.totalExperienceMonths / 12).toFixed(1)} năm`
+      : null;
     return [
       `Ứng viên: ${candidate.candidateName}`,
       `Vị trí ứng tuyển: ${jobPosition}`,
       `Chức danh hiện tại: ${candidate.jobTitle || 'Chưa rõ'}`,
-      `Tổng điểm: ${candidate.analysis?.['Tổng điểm'] || 0}/100 — Hạng ${candidate.analysis?.['Hạng'] || 'C'}`,
-      `Điểm mạnh: ${(candidate.analysis?.['Điểm mạnh CV'] || []).slice(0, 3).join('; ')}`,
-      `Điểm cần lưu ý: ${(candidate.analysis?.['Điểm yếu CV'] || []).slice(0, 2).join('; ')}`,
+      expYears ? `Kinh nghiệm: ${expYears}` : '',
+      profile?.educationLevel ? `Học vấn: ${profile.educationLevel}` : '',
+      candidate.email ? `Email: ${candidate.email}` : '',
+      `Tổng điểm: ${candidate.analysis?.['Tổng điểm'] ?? 0}/100 — Hạng ${candidate.analysis?.['Hạng'] ?? 'C'}`,
+      `Điểm mạnh: ${(candidate.analysis?.['Điểm mạnh CV'] ?? []).slice(0, 3).join('; ')}`,
+      `Điểm cần lưu ý: ${(candidate.analysis?.['Điểm yếu CV'] ?? []).slice(0, 2).join('; ')}`,
       details ? `Chi tiết tiêu chí:\n${details}` : '',
-      jdText ? `Mô tả công việc (trích): ${jdText.slice(0, 300)}` : '',
+      jdText ? `Mô tả công việc (trích): ${jdText.slice(0, 400)}` : '',
     ].filter(Boolean).join('\n');
   };
 
@@ -558,24 +698,35 @@ const ChatPane: React.FC<{ candidate: Candidate; jobPosition: string; jdText?: s
     setInput('');
     setLoading(true);
 
+    let context = '';
     try {
-      const context = buildContext();
-      const recruiterCtx = recruiterInfo?.title && recruiterInfo?.company
-        ? `Bạn đang hỗ trợ ${recruiterInfo.title} tại ${recruiterInfo.company}${recruiterInfo.department ? `, phòng ${recruiterInfo.department}` : ''}. `
-        : '';
-      const { apiPost } = await import('@/services/api/renderClient');
-      const response = await (apiPost as (path: string, body: unknown) => Promise<{ text?: string; responseText?: string }>)(
-        '/api/gemini-chat',
-        {
-          model: 'gemini-2.0-flash',
-          contents: `Bạn là trợ lý tuyển dụng AI chuyên sâu. ${recruiterCtx}Trả lời ngắn gọn bằng tiếng Việt.\n\nThông tin ứng viên:\n${context}\n\nCâu hỏi: ${text}`,
-          config: { temperature: 0.4, maxOutputTokens: 600 },
-        }
-      );
-      const aiText = response.text || response.responseText || 'Không có phản hồi từ AI.';
-      setMessages((prev) => [...prev, { role: 'ai', text: aiText }]);
+      context = buildContext();
     } catch {
-      setMessages((prev) => [...prev, { role: 'ai', text: 'Không thể kết nối AI. Vui lòng thử lại.' }]);
+      // buildContext crash — continue with empty context
+    }
+
+    const recruiterCtx = recruiterInfo?.title && recruiterInfo?.company
+      ? `Bạn đang hỗ trợ ${recruiterInfo.title} tại ${recruiterInfo.company}${recruiterInfo.department ? `, phòng ${recruiterInfo.department}` : ''}. `
+      : '';
+
+    const prompt = [
+      `Bạn là trợ lý tuyển dụng AI chuyên sâu. ${recruiterCtx}Trả lời ngắn gọn, rõ ràng bằng tiếng Việt.`,
+      context ? `\nThông tin ứng viên:\n${context}` : '',
+      `\nCâu hỏi: ${text}`,
+    ].filter(Boolean).join('');
+
+    try {
+      const { apiPost } = await import('@/services/api/renderClient');
+      const response = await (apiPost as (path: string, body: unknown, opts: unknown) => Promise<{ text?: string; responseText?: string }>)(
+        '/api/gemini-chat',
+        { model: 'gemini-2.0-flash', contents: prompt, config: { temperature: 0.4, maxOutputTokens: 800 } },
+        { authRequired: true }
+      );
+      const aiText = response.text?.trim() || response.responseText?.trim() || 'AI không trả về nội dung.';
+      setMessages((prev) => [...prev, { role: 'ai', text: aiText }]);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Không thể kết nối AI.';
+      setMessages((prev) => [...prev, { role: 'ai', text: `⚠️ ${msg} Vui lòng thử lại.` }]);
     } finally {
       setLoading(false);
     }
