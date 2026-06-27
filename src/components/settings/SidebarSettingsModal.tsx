@@ -312,6 +312,7 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
   const [signatureEditing, setSignatureEditing] = useState(false);
   const [recruiterSaving, setRecruiterSaving] = useState(false);
   const [recruiterSaved, setRecruiterSaved] = useState(false);
+  const [recruiterError, setRecruiterError] = useState('');
 
   const autoSignature = [
     displayName || userName || '',
@@ -520,16 +521,20 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
       emailSignature: sig.trim(),
     };
     setRecruiterSaving(true);
+    setRecruiterError('');
     try {
-      await onSaveAccountProfile({ displayName: displayName.trim(), avatar: avatarPreview, recruiterInfo: info });
+      // Không truyền avatar để tránh gửi base64 lớn — avatar được lưu riêng qua updateUserAvatar
+      await onSaveAccountProfile({ displayName: displayName.trim(), avatar: null, recruiterInfo: info });
       await saveSettings({ account: { ...settings.account, recruiterInfo: info } });
       if (!signatureEditing) setEmailSignature(sig);
       setRecruiterSaved(true);
       setTimeout(() => setRecruiterSaved(false), 2500);
+    } catch (err) {
+      setRecruiterError(err instanceof Error ? err.message : 'Không thể lưu lên server. Vui lòng thử lại.');
     } finally {
       setRecruiterSaving(false);
     }
-  }, [autoSignature, avatarPreview, displayName, emailSignature, onSaveAccountProfile, recruiterCompany, recruiterDepartment, recruiterPhone, recruiterTitle, saveSettings, settings.account, signatureEditing]);
+  }, [autoSignature, displayName, emailSignature, onSaveAccountProfile, recruiterCompany, recruiterDepartment, recruiterPhone, recruiterTitle, saveSettings, settings.account, signatureEditing]);
 
   const handleAvatarInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -670,21 +675,26 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
             )}
           </div>
 
-          <div className="flex items-center justify-end gap-2 pt-1">
-            {recruiterSaved && (
-              <span className="flex items-center gap-1 text-[11px] text-emerald-600">
-                <CheckCircle2 size={12} /> Đã lưu
-              </span>
+          <div className="flex flex-col gap-1 pt-1">
+            {recruiterError && (
+              <p className="text-right text-[11px] text-red-500">{recruiterError}</p>
             )}
-            <button
-              type="button"
-              onClick={() => void handleSaveRecruiterInfo()}
-              disabled={recruiterSaving}
-              className="flex h-8 items-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50 px-4 text-[12px] font-semibold text-blue-700 transition hover:bg-blue-100 disabled:opacity-50"
-            >
-              {recruiterSaving ? <Loader2 size={12} className="animate-spin" /> : <Check size={12} />}
-              Lưu hồ sơ
-            </button>
+            <div className="flex items-center justify-end gap-2">
+              {recruiterSaved && (
+                <span className="flex items-center gap-1 text-[11px] text-emerald-600">
+                  <CheckCircle2 size={12} /> Đã lưu
+                </span>
+              )}
+              <button
+                type="button"
+                onClick={() => void handleSaveRecruiterInfo()}
+                disabled={recruiterSaving}
+                className="flex h-8 items-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50 px-4 text-[12px] font-semibold text-blue-700 transition hover:bg-blue-100 disabled:opacity-50"
+              >
+                {recruiterSaving ? <Loader2 size={12} className="animate-spin" /> : <Check size={12} />}
+                Lưu hồ sơ
+              </button>
+            </div>
           </div>
         </div>
       </Section>

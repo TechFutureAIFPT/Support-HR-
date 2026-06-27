@@ -11,6 +11,7 @@ import CandidateEmailNotifier from '@/features/email/CandidateEmailNotifier';
 import AIFeedbackForm from '@/features/feedback/AIFeedbackForm';
 import { useUserSettings } from '@/context/settings/UserSettingsProvider';
 import { auth, db } from '@/services/firebase';
+import { getGoogleAccessToken } from '@/services/auth/authService';
 import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore';
 
 interface AnalysisResultsProps {
@@ -191,6 +192,7 @@ interface ScheduledInterview {
   time: string;
   type: string;
   note: string;
+  recipientEmail?: string;
   createdAt: number;
 }
 
@@ -207,11 +209,15 @@ const SchedulePane: React.FC<{ candidate: Candidate; recruiterInfo?: RecruiterIn
   const [time, setTime] = useState('09:00');
   const [type, setType] = useState('video');
   const [note, setNote] = useState('');
+  const [recipientEmail, setRecipientEmail] = useState(candidate.email ?? '');
   const [saved, setSaved] = useState<ScheduledInterview[]>([]);
   const [justSaved, setJustSaved] = useState(false);
   const [emailDraft, setEmailDraft] = useState('');
   const [emailLoading, setEmailLoading] = useState(false);
   const [emailCopied, setEmailCopied] = useState(false);
+  const [emailSending, setEmailSending] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
+  const [emailSendError, setEmailSendError] = useState('');
   const [draftForScheduleId, setDraftForScheduleId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -285,20 +291,53 @@ const SchedulePane: React.FC<{ candidate: Candidate; recruiterInfo?: RecruiterIn
 
   const handleSave = () => {
     if (!date) return;
-    const entry: ScheduledInterview = { id: `${Date.now()}`, date, time, type, note, createdAt: Date.now() };
+    const entry: ScheduledInterview = { id: `${Date.now()}`, date, time, type, note, recipientEmail: recipientEmail.trim(), createdAt: Date.now() };
     const newList = [entry, ...saved];
     persist(newList);
     setDate('');
     setNote('');
     setJustSaved(true);
+    setEmailSent(false);
+    setEmailSendError('');
     setTimeout(() => setJustSaved(false), 2000);
-    // Đồng thời soạn email mời phỏng vấn
     void handleDraftEmail(entry);
   };
 
   const handleDelete = (id: string) => {
     persist(saved.filter((item) => item.id !== id));
     if (draftForScheduleId === id) { setEmailDraft(''); setDraftForScheduleId(null); }
+  };
+
+  const handleSendEmail = async (item: ScheduledInterview) => {
+    if (!emailDraft.trim()) return;
+    const to = item.recipientEmail?.trim() || recipientEmail.trim();
+    if (!to) { setEmailSendError('Vui lòng nhập email ứng viên.'); return; }
+    const googleToken = getGoogleAccessToken();
+    if (!googleToken) {
+      setEmailSendError('Cần đăng nhập bằng Google để gửi qua Gmail. Hãy dùng "Mở trong Mail" thay thế.');
+      return;
+    }
+    const lines = emailDraft.split('\n');
+    const subjectLine = lines.find((l) => /^(subject|tiêu đề|chủ đề):/i.test(l));
+    const subject = subjectLine ? subjectLine.replace(/^(subject|tiêu đề|chủ đề):\s*/i, '').trim() : `Mời phỏng vấn — ${jobPosition}`;
+    const body = emailDraft;
+    setEmailSending(true);
+    setEmailSent(false);
+    setEmailSendError('');
+    try {
+      const { apiPost } = await import('@/services/api/renderClient');
+      await (apiPost as (path: string, body: unknown, opts: unknown) => Promise<unknown>)(
+        '/api/account/email/send',
+        { emails: [{ to, subject, body }] },
+        { authRequired: true, headers: { 'X-Google-Access-Token': googleToken } }
+      );
+      setEmailSent(true);
+      setTimeout(() => setEmailSent(false), 4000);
+    } catch (err) {
+      setEmailSendError(err instanceof Error ? err.message : 'Gửi thất bại. Vui lòng thử lại.');
+    } finally {
+      setEmailSending(false);
+    }
   };
 
   const handleCopy = () => {
@@ -341,6 +380,18 @@ const SchedulePane: React.FC<{ candidate: Candidate; recruiterInfo?: RecruiterIn
           <div>
             <label className="mb-1.5 block text-[11px] font-semibold text-[#6e6e73]">Ghi chú</label>
             <input type="text" value={note} onChange={(e) => setNote(e.target.value)} placeholder="Phòng họp, link Zoom..." className={inputCls} />
+          </div>
+          <div className="sm:col-span-2">
+            <label className="mb-1.5 flex items-center gap-1.5 text-[11px] font-semibold text-[#6e6e73]">
+              <Mail size={11} /> Email ứng viên
+            </label>
+            <input
+              type="email"
+              value={recipientEmail}
+              onChange={(e) => setRecipientEmail(e.target.value)}
+              placeholder="email@ứng-viên.com"
+              className={inputCls}
+            />
           </div>
         </div>
         <button
@@ -395,26 +446,60 @@ const SchedulePane: React.FC<{ candidate: Candidate; recruiterInfo?: RecruiterIn
                       </div>
                     ) : (
                       <>
+                        {/* Recipient field in draft section */}
+                        <div className="mb-2">
+                          <label className="mb-1 flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide text-[#6e6e73]">
+                            <Mail size={10} /> Gửi tới
+                          </label>
+                          <input
+                            type="email"
+                            value={item.recipientEmail || recipientEmail}
+                            onChange={(e) => {
+                              // Update the saved entry's recipientEmail in place
+                              const updated = saved.map((s) => s.id === item.id ? { ...s, recipientEmail: e.target.value } : s);
+                              persist(updated);
+                              setRecipientEmail(e.target.value);
+                            }}
+                            placeholder="email@ứng-viên.com"
+                            className="w-full rounded-lg border border-[#e5e5ea] bg-[#f8f8fa] px-3 py-1.5 text-[12.5px] outline-none focus:border-[#007aff] focus:bg-white"
+                          />
+                        </div>
                         <textarea
                           value={emailDraft}
                           onChange={(e) => setEmailDraft(e.target.value)}
                           rows={10}
                           className="w-full resize-none rounded-xl border border-[#e5e5ea] bg-[#f8f8fa] px-3 py-2.5 text-[12.5px] leading-[1.6] text-[#1d1d1f] outline-none focus:border-[#007aff] focus:bg-white"
                         />
+                        {emailSendError && draftForScheduleId === item.id && (
+                          <p className="mt-1 text-[11px] text-[#ff3b30]">{emailSendError}</p>
+                        )}
                         <div className="mt-2 flex gap-2">
                           <button
                             onClick={handleCopy}
-                            className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-[#d2d2d7] bg-white py-2 text-[12px] font-semibold text-[#1d1d1f] transition hover:bg-[#f8f8fa]"
+                            className="flex items-center justify-center gap-1.5 rounded-xl border border-[#d2d2d7] bg-white px-3 py-2 text-[12px] font-semibold text-[#1d1d1f] transition hover:bg-[#f8f8fa]"
                           >
                             <Clipboard size={12} />
                             {emailCopied ? '✓ Đã sao chép' : 'Sao chép'}
                           </button>
                           <button
                             onClick={handleMailto}
-                            className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-[#007aff]/30 bg-[#eef5ff] py-2 text-[12px] font-semibold text-[#007aff] transition hover:bg-[#dceaff]"
+                            className="flex items-center justify-center gap-1.5 rounded-xl border border-[#d2d2d7] bg-white px-3 py-2 text-[12px] font-semibold text-[#1d1d1f] transition hover:bg-[#f8f8fa]"
                           >
                             <Mail size={12} />
-                            Mở trong Mail
+                            Mở Mail
+                          </button>
+                          <button
+                            onClick={() => void handleSendEmail(item)}
+                            disabled={emailSending}
+                            className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-[#34c759]/40 bg-[#f0fff4] py-2 text-[12px] font-semibold text-[#1a8a3a] transition hover:bg-[#dcf5e3] disabled:opacity-50"
+                          >
+                            {emailSending ? (
+                              <span className="flex gap-0.5">{[0,1,2].map((i) => <span key={i} className="h-1 w-1 animate-bounce rounded-full bg-[#1a8a3a]" style={{ animationDelay: `${i * 0.12}s` }} />)}</span>
+                            ) : emailSent && draftForScheduleId === item.id ? (
+                              <><CheckCircle2 size={12} /> Đã gửi!</>
+                            ) : (
+                              <><Send size={12} /> Gửi qua Gmail</>
+                            )}
                           </button>
                         </div>
                       </>

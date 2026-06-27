@@ -95,42 +95,48 @@ export class UserProfileService {
     uid: string,
     email: string,
     displayName?: string,
-    avatar?: string,
+    avatar?: string | null,
     recruiterInfo?: RecruiterInfo,
   ): Promise<void> {
-    // 1. Save to backend API (existing behaviour)
-    await apiPut(
-      '/api/account/profile',
-      {
-        email,
-        displayName,
-        avatar,
-        provider: 'firebase-auth',
-        ...(recruiterInfo ? {
-          recruiterTitle:      recruiterInfo.title,
-          recruiterCompany:    recruiterInfo.company,
-          recruiterDepartment: recruiterInfo.department,
-          recruiterPhone:      recruiterInfo.phone,
-          emailSignature:      recruiterInfo.emailSignature,
-        } : {}),
-      },
-      { authRequired: true }
-    );
+    // Run API and Firestore writes in parallel; Firestore must NOT depend on API success.
+    // Avatar (possibly large base64) is excluded from the recruiterInfo path to avoid payload errors.
+    const apiPayload: Record<string, unknown> = {
+      email,
+      provider: 'firebase-auth',
+      ...(displayName !== undefined ? { displayName } : {}),
+      // Only send avatar to API if it is a non-null, non-base64 URL (avoids 413 errors)
+      ...(avatar && !avatar.startsWith('data:') ? { avatar } : {}),
+      ...(recruiterInfo ? {
+        recruiterTitle:      recruiterInfo.title,
+        recruiterCompany:    recruiterInfo.company,
+        recruiterDepartment: recruiterInfo.department,
+        recruiterPhone:      recruiterInfo.phone,
+        emailSignature:      recruiterInfo.emailSignature,
+      } : {}),
+    };
 
-    // 2. Write the same data directly to Firestore users/{uid}
-    //    merge: true so unrelated fields (e.g. avatar) are not wiped
-    await setDoc(
-      doc(db, 'users', uid),
-      {
-        uid,
-        email,
-        ...(displayName !== undefined ? { displayName } : {}),
-        ...(avatar !== undefined ? { avatar } : {}),
-        ...(recruiterInfo ? { recruiterInfo } : {}),
-        updatedAt: serverTimestamp(),
-      },
-      { merge: true }
-    );
+    const firestorePayload: Record<string, unknown> = {
+      uid,
+      email,
+      ...(displayName !== undefined ? { displayName } : {}),
+      // Never write avatar to Firestore (separate updateUserAvatar flow)
+      ...(recruiterInfo ? { recruiterInfo } : {}),
+      updatedAt: serverTimestamp(),
+    };
+
+    // Firestore write is authoritative — always runs regardless of API outcome
+    const firestoreWrite = setDoc(doc(db, 'users', uid), firestorePayload, { merge: true });
+
+    // API write is best-effort — failure surfaces to caller so UI can show error
+    const apiWrite = apiPut('/api/account/profile', apiPayload, { authRequired: true });
+
+    const [, apiResult] = await Promise.allSettled([firestoreWrite, apiWrite]);
+
+    if (apiResult.status === 'rejected') {
+      throw apiResult.reason instanceof Error
+        ? apiResult.reason
+        : new Error('Không thể lưu lên server. Dữ liệu đã được lưu cục bộ trên Firebase.');
+    }
   }
 
   static async getUserProfile(uid: string): Promise<UserProfile | null> {
