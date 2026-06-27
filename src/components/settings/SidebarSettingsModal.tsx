@@ -3,8 +3,6 @@ import {
   AlertTriangle,
   Bell,
   BookOpen,
-  Briefcase,
-  Building2,
   Check,
   CheckCircle2,
   ChevronDown,
@@ -16,7 +14,6 @@ import {
   LogOut,
   Moon,
   Monitor,
-  Phone,
   Plus,
   RefreshCcw,
   Settings,
@@ -25,13 +22,12 @@ import {
   Trash2,
   Upload,
   UserCircle2,
-  Users,
   Wand2,
   X,
 } from 'lucide-react';
 import { googleDriveService } from '@/services/file-processing/googleDriveService';
 import { extractHardFiltersFromJD } from '@/services/screening/frontendScreeningService';
-import type { HardFilters, HistoryRetention, NewSessionMode, RecruiterInfo, UserSettingsLanguage, UserSettingsTheme, WeightCriteria } from '@/types';
+import type { HardFilters, HistoryRetention, NewSessionMode, UserSettingsLanguage, UserSettingsTheme, WeightCriteria } from '@/types';
 import { useUserSettings } from '@/context/settings/UserSettingsProvider';
 import { useTheme } from '@/context/theme/ThemeProvider';
 import { JDTemplatesService } from '@/services/data-sync/jdTemplatesService';
@@ -62,7 +58,7 @@ interface SidebarSettingsModalProps {
   userName?: string;
   userAvatar?: string | null;
   onLogout?: () => void;
-  onSaveAccountProfile: (payload: { displayName: string; avatar: string | null; recruiterInfo?: RecruiterInfo }) => Promise<{ status: UserProfileSaveStatus; message?: string }>;
+  onSaveAccountProfile: (payload: { displayName: string; avatar: string | null }) => Promise<{ status: UserProfileSaveStatus; message?: string }>;
   onClearWorkflowDraft: () => void;
   onClearLocalCache: () => void;
   onClearLocalHistory: () => void;
@@ -305,23 +301,6 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
   const profileTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  // Recruiter profile fields
-  const savedRecruiter = settings.account.recruiterInfo;
-  const [recruiterTitle, setRecruiterTitle] = useState(savedRecruiter?.title || '');
-  const [recruiterCompany, setRecruiterCompany] = useState(savedRecruiter?.company || '');
-  const [recruiterDepartment, setRecruiterDepartment] = useState(savedRecruiter?.department || '');
-  const [recruiterPhone, setRecruiterPhone] = useState(savedRecruiter?.phone || '');
-  const [emailSignature, setEmailSignature] = useState(savedRecruiter?.emailSignature || '');
-  const [signatureEditing, setSignatureEditing] = useState(false);
-  const [recruiterSaving, setRecruiterSaving] = useState(false);
-  const [recruiterSaved, setRecruiterSaved] = useState(false);
-  const [recruiterError, setRecruiterError] = useState('');
-
-  const autoSignature = [
-    displayName || userName || '',
-    [recruiterTitle, recruiterCompany].filter(Boolean).join(' — '),
-    [recruiterDepartment, recruiterPhone].filter(Boolean).join(' | '),
-  ].filter(Boolean).join('\n');
 
   // Per-toggle saving indicator
   const [savingKey, setSavingKey] = useState<string | null>(null);
@@ -366,15 +345,6 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
     if (!isOpen) return;
     setDisplayName(userName || settings.account.displayName || '');
     setAvatarPreview(userAvatar || settings.account.avatar || null);
-    const ri = settings.account.recruiterInfo;
-    setRecruiterTitle(ri?.title || '');
-    setRecruiterCompany(ri?.company || '');
-    setRecruiterDepartment(ri?.department || '');
-    setRecruiterPhone(ri?.phone || '');
-    setEmailSignature(ri?.emailSignature || '');
-    setSignatureEditing(false);
-    setRecruiterSaved(false);
-    setRecruiterError('');
     setFixedJDName(settings.workflow.fixedJD?.name || '');
     setFixedJDText(settings.workflow.fixedJD?.jdText || '');
     const w = settings.workflow.fixedJD?.weights;
@@ -519,42 +489,6 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
     scheduleProfileSave(value, avatarPreview);
   };
 
-  const handleSaveRecruiterInfo = useCallback(async () => {
-    if (!isAuthenticated) {
-      setRecruiterSaved(false);
-      setRecruiterError('Đăng nhập lại để lưu hồ sơ lên server.');
-      return;
-    }
-
-    const sig = signatureEditing ? emailSignature : autoSignature;
-    const info: RecruiterInfo = {
-      title: recruiterTitle.trim(),
-      company: recruiterCompany.trim(),
-      department: recruiterDepartment.trim(),
-      phone: recruiterPhone.trim(),
-      emailSignature: sig.trim(),
-    };
-    setRecruiterSaving(true);
-    setRecruiterError('');
-    try {
-      // Không truyền avatar để tránh gửi base64 lớn — avatar được lưu riêng qua updateUserAvatar
-      const result = await onSaveAccountProfile({ displayName: displayName.trim(), avatar: null, recruiterInfo: info });
-      await saveSettings({ account: { ...settings.account, recruiterInfo: info } });
-      if (!signatureEditing) setEmailSignature(sig);
-      if (result.status === 'serverSaved') {
-        setRecruiterSaved(true);
-        setTimeout(() => setRecruiterSaved(false), 2500);
-      } else {
-        setRecruiterSaved(false);
-        setRecruiterError(result.message || 'Đã lưu trên Firebase nhưng server chưa xác nhận.');
-      }
-    } catch (err) {
-      setRecruiterSaved(false);
-      setRecruiterError(err instanceof Error ? err.message : 'Không thể lưu lên server. Vui lòng thử lại.');
-    } finally {
-      setRecruiterSaving(false);
-    }
-  }, [autoSignature, displayName, emailSignature, isAuthenticated, onSaveAccountProfile, recruiterCompany, recruiterDepartment, recruiterPhone, recruiterTitle, saveSettings, settings.account, signatureEditing]);
 
   const handleAvatarInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -640,88 +574,6 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
           </div>
         )}
       </div>
-
-      {/* Recruiter profile */}
-      <Section title="Hồ sơ tuyển dụng">
-        <div className="rounded-2xl border border-slate-100 bg-white p-4 space-y-3">
-          <p className="text-[12px] leading-5 text-slate-500">
-            Thông tin này được dùng để AI biết bạn là ai và tự soạn email mời phỏng vấn cho ứng viên.
-          </p>
-          <div className="grid grid-cols-2 gap-2">
-            {([
-              { icon: Briefcase, label: 'Chức vụ',      value: recruiterTitle,      set: setRecruiterTitle,      ph: 'VD: HR Manager' },
-              { icon: Building2, label: 'Tên công ty',   value: recruiterCompany,    set: setRecruiterCompany,    ph: 'VD: Công ty ABC' },
-              { icon: Users,     label: 'Phòng ban',     value: recruiterDepartment, set: setRecruiterDepartment, ph: 'VD: Nhân sự' },
-              { icon: Phone,     label: 'Số điện thoại', value: recruiterPhone,      set: setRecruiterPhone,      ph: 'VD: 0912 345 678' },
-            ]).map(({ icon: Icon, label, value, set, ph }) => (
-              <div key={label}>
-                <label className="mb-1 flex items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-slate-400">
-                  <Icon size={11} />
-                  {label}
-                </label>
-                <input
-                  type="text"
-                  value={value}
-                  onChange={(e) => set(e.target.value)}
-                  placeholder={ph}
-                  className="h-9 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-[12.5px] text-slate-900 outline-none transition focus:border-blue-400 focus:bg-white"
-                />
-              </div>
-            ))}
-          </div>
-
-          {/* Signature preview */}
-          <div>
-            <div className="mb-1 flex items-center justify-between">
-              <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-slate-400">Chữ ký email</span>
-              <button
-                type="button"
-                onClick={() => { setSignatureEditing((v) => !v); if (!signatureEditing) setEmailSignature(autoSignature); }}
-                className="text-[11px] font-medium text-blue-500 hover:text-blue-700"
-              >
-                {signatureEditing ? 'Dùng tự động' : 'Chỉnh sửa thủ công'}
-              </button>
-            </div>
-            {signatureEditing ? (
-              <textarea
-                value={emailSignature}
-                onChange={(e) => setEmailSignature(e.target.value)}
-                rows={3}
-                className="w-full resize-none rounded-xl border border-blue-200 bg-white px-3 py-2 text-[12px] leading-5 text-slate-700 outline-none focus:border-blue-400"
-              />
-            ) : (
-              <div className="rounded-xl border border-slate-100 bg-slate-50 px-3 py-2 text-[12px] leading-5 text-slate-600 whitespace-pre-line min-h-[52px]">
-                {autoSignature || <span className="text-slate-400 italic">Điền thông tin để xem trước chữ ký</span>}
-              </div>
-            )}
-          </div>
-
-          <div className="flex flex-col gap-1 pt-1">
-            {!isAuthenticated && (
-              <p className="text-right text-[11px] text-amber-600">Đăng nhập lại để lưu hồ sơ lên server.</p>
-            )}
-            {recruiterError && (
-              <p className="text-right text-[11px] text-red-500">{recruiterError}</p>
-            )}
-            <div className="flex items-center justify-end gap-2">
-              {recruiterSaved && (
-                <span className="flex items-center gap-1 text-[11px] text-emerald-600">
-                  <CheckCircle2 size={12} /> Đã lưu
-                </span>
-              )}
-              <button
-                type="button"
-                onClick={() => void handleSaveRecruiterInfo()}
-                disabled={recruiterSaving || !isAuthenticated}
-                className="flex h-8 items-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50 px-4 text-[12px] font-semibold text-blue-700 transition hover:bg-blue-100 disabled:opacity-50"
-              >
-                {recruiterSaving ? <Loader2 size={12} className="animate-spin" /> : <Check size={12} />}
-                Lưu hồ sơ
-              </button>
-            </div>
-          </div>
-        </div>
-      </Section>
 
       {/* Theme */}
       <Section title={t('settings_section_ui')}>

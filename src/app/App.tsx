@@ -1056,9 +1056,9 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
     setActiveStep('jd');
   }, [markStepAsCompleted, setActiveStep]);
 
-  const handleSaveAccountProfile = useCallback(async (payload: { displayName: string; avatar: string | null; recruiterInfo?: RecruiterInfo }): Promise<SaveAccountProfileResult> => {
+  const handleSaveAccountProfile = useCallback(async (payload: { displayName: string; avatar: string | null }): Promise<SaveAccountProfileResult> => {
     const nextDisplayName = payload.displayName.trim() || (userEmail ? userEmail.split('@')[0] : 'Support HR');
-    const nextAvatar = payload.avatar === null && payload.recruiterInfo ? userAvatar : payload.avatar;
+    const nextAvatar = payload.avatar;
 
     setUserName(nextDisplayName);
     setUserAvatar(nextAvatar);
@@ -1069,23 +1069,16 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
         currentUser.email,
         nextDisplayName,
         nextAvatar || undefined,
-        payload.recruiterInfo,
       );
 
       if (nextAvatar) {
         await UserProfileService.updateUserAvatar(currentUser.uid, nextAvatar);
       }
 
-      const mergedRecruiterInfo = buildMergedRecruiterInfo(
-        payload.recruiterInfo,
-        saveResult.profile?.recruiterInfo,
-      );
-
       updateAccountSnapshot({
         displayName: saveResult.profile?.displayName || nextDisplayName,
         avatar: nextAvatar,
         email: currentUser.email,
-        ...(mergedRecruiterInfo ? { recruiterInfo: mergedRecruiterInfo } : {}),
       });
 
       if (saveResult.status === 'firebaseSaved') {
@@ -1109,13 +1102,12 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
       displayName: nextDisplayName,
       avatar: nextAvatar,
       email: userEmail,
-      ...(payload.recruiterInfo ? { recruiterInfo: payload.recruiterInfo } : {}),
     });
 
     const message = 'Đăng nhập lại để lưu hồ sơ lên server.';
     showAppNotice(message, 'error');
     return { status: 'localOnly', message };
-  }, [currentUser, showAppNotice, updateAccountSnapshot, userAvatar, userEmail]);
+  }, [currentUser, showAppNotice, updateAccountSnapshot, userEmail]);
 
   const handleClearWorkflowDraft = useCallback(() => {
     clearWorkflowDraft();
