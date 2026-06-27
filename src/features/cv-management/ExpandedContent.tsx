@@ -1574,50 +1574,28 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
   const allMissingKw = missingKeywordRows.map(k => k.keyword);
 
   return (
-    <div className="overflow-hidden rounded-xl border border-zinc-800/50 bg-zinc-900/30 transition-colors duration-150 hover:border-zinc-700/60">
+    <div className="overflow-hidden rounded-2xl border border-zinc-800/35 bg-zinc-950/55 transition-colors duration-150 hover:border-zinc-700/45">
       {/* ── Header row ─────────────────────────────────────── */}
       <button
-        className="flex min-h-[46px] w-full items-center gap-3 px-4 py-2.5 text-left"
+        className="flex min-h-[50px] w-full items-center gap-3 px-4 py-3 text-left"
         onClick={onToggle}
         aria-expanded={isExpanded}
       >
-        <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-zinc-800/70 ${meta.color}`}>
+        <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-zinc-800/55 ${meta.color}`}>
           <MetaIcon className="h-3.5 w-3.5" strokeWidth={2.2} />
         </span>
         <span className="flex-1 min-w-0 truncate text-[12.5px] font-semibold text-zinc-200">{criterionName}</span>
         {detailed && keywordMetrics && keywordMetrics.total_required_keywords > 0 && (
-          <span className="shrink-0 rounded border border-zinc-700/50 bg-zinc-800/60 px-2 py-0.5 text-[10px] font-mono text-zinc-400">
+          <span className="shrink-0 rounded-full border border-zinc-700/35 bg-zinc-900/65 px-2.5 py-0.5 text-[10px] font-mono text-zinc-400">
             {keywordMetrics.matched_keywords_count}/{keywordMetrics.total_required_keywords} KW
           </span>
         )}
         <span className="hidden sm:inline text-[10px] font-medium text-zinc-600">{proficiency}</span>
-        <span className={`rounded-lg border px-2.5 py-0.5 text-[11px] font-bold font-mono ${scoreBadgeClass}`}>
+        <span className={`rounded-full border px-2.5 py-0.5 text-[11px] font-bold font-mono ${scoreBadgeClass}`}>
           {parsedData.scoreLabel}
         </span>
         <ChevronDown className={`h-4 w-4 text-zinc-600 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`} />
       </button>
-
-      {/* ── Detailed preview (visible without expand) ─────── */}
-      {detailed && !isExpanded && (
-        <div className="border-t border-zinc-800/40 px-4 pb-3 pt-2 space-y-2">
-          {formulaText && (
-            <p className="font-mono text-[10.5px] text-cyan-400/80 leading-[1.5]">
-              <span className="mr-1.5 text-[9px] font-bold uppercase tracking-widest text-zinc-500">Công thức</span>
-              {formulaText}
-            </p>
-          )}
-          {(allMatchedKw.length > 0 || allMissingKw.length > 0) && (
-            <div className="flex flex-wrap gap-1">
-              {allMatchedKw.map(k => (
-                <span key={`h-m-${k}`} className="rounded-full border border-emerald-500/25 bg-emerald-950/40 px-2 py-0.5 text-[10px] text-emerald-300">{k}</span>
-              ))}
-              {allMissingKw.map(k => (
-                <span key={`h-x-${k}`} className="rounded-full border border-zinc-700/30 bg-zinc-800/30 px-2 py-0.5 text-[10px] text-zinc-500 line-through">{k}</span>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
 
       {isExpanded && (
         <div className="divide-y divide-zinc-800/40 border-t border-zinc-800/50">
@@ -2151,7 +2129,7 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
       )}
 
       {showJdMatch && candidate.jdCvMatchInsights && (
-          <div className="mt-4 rounded-none border border-emerald-500/25 bg-emerald-950/10 px-5 py-4 text-xs pl-2">
+          <div className="mt-4 rounded-2xl border border-emerald-500/15 bg-emerald-950/10 px-4 py-4 text-xs sm:px-5">
             {candidate.jdCvMatchInsights.roleKey && candidate.jdCvMatchInsights.roleKey !== 'generic' ? (
               <>
                 <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
@@ -2164,12 +2142,12 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
                       {candidate.jdCvMatchInsights.queryModel ? ` • ${normalizeVietnameseDisplay(candidate.jdCvMatchInsights.queryModel)}` : ''}
                     </div>
                   </div>
-                  <div className="rounded-none border border-emerald-500/30 bg-emerald-950/30 px-3.5 py-2 font-mono font-bold text-emerald-300 text-xs">
+                  <div className="rounded-full border border-emerald-500/20 bg-emerald-950/35 px-3.5 py-2 font-mono text-xs font-bold text-emerald-300">
                     {jdFitScore.toFixed(1)}/{jdFitMaxScore} điểm Job Fit
                   </div>
                 </div>
                 {(candidate.jdCvMatchInsights.matchedSkills.length > 0 || candidate.jdCvMatchInsights.transferMatches.length > 0 || (candidate.jdCvMatchInsights.missingRequirements?.length || 0) > 0) && (
-                  <div className="mt-3 text-[11px] leading-5 text-emerald-300/70 border-t border-emerald-500/10 pt-2 flex flex-wrap gap-x-4 gap-y-1">
+                  <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 border-t border-emerald-500/10 pt-2 text-[11px] leading-5 text-emerald-300/70">
                     {candidate.jdCvMatchInsights.matchedSkills.length > 0 && (
                       <span>Yêu cầu đã đáp ứng: {candidate.jdCvMatchInsights.matchedSkills.slice(0, 5).map(normalizeVietnameseDisplay).join(', ')}.</span>
                     )}
@@ -2185,9 +2163,9 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
                   <div className="mt-4 border-t border-emerald-500/10 pt-4">
                     <div className="mb-3 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
                       <div>
-                        <div className="text-[10px] font-bold uppercase tracking-[0.16em] text-emerald-300">So khớp năng lực theo vị trí</div>
-                        <p className="mt-1 text-[11px] leading-5 text-emerald-100/65">
-                          Mỗi dòng kết luận Đúng/Sai, kèm yêu cầu JD và bằng chứng CV để HR kiểm tra nhanh theo từng cụm năng lực.
+                        <div className="text-[10px] font-bold uppercase tracking-[0.16em] text-emerald-300">So khớp năng lực</div>
+                        <p className="mt-1 text-[11px] leading-5 text-emerald-100/60">
+                          JD bên trái, dẫn chứng CV bên phải.
                         </p>
                       </div>
                       <div className="text-[10px] font-bold uppercase tracking-[0.12em] text-emerald-300/80">
@@ -2198,14 +2176,14 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
                     <div className="space-y-3">
                       {jdCvRoleSections.map(([section, sectionRows]) => (
                         <div key={section} className="space-y-2">
-                          <div className="inline-flex rounded-none border border-emerald-500/20 bg-emerald-500/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-emerald-300">
+                          <div className="inline-flex rounded-full border border-emerald-500/15 bg-emerald-500/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-emerald-300">
                             {section}
                           </div>
                           {sectionRows.map((row, index) => (
-                            <div key={row.id || index} className="grid min-w-0 grid-cols-1 gap-3 border border-emerald-500/15 bg-black/20 p-3 md:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
+                            <div key={row.id || index} className="grid min-w-0 grid-cols-1 gap-4 rounded-2xl border border-emerald-500/10 bg-black/15 p-4 md:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
                               <div className="min-w-0">
                                 <div className="mb-2 flex flex-wrap items-center gap-2">
-                                  <span className={`rounded-none border px-2 py-1 text-[9px] font-bold uppercase tracking-[0.12em] ${getMatchKindClasses(row.matchKind)}`}>
+                                  <span className={`rounded-full border px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.12em] ${getMatchKindClasses(row.matchKind)}`}>
                                     {getMatchKindLabel(row.matchKind)}
                                   </span>
                                   <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-zinc-500">
@@ -2222,7 +2200,7 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
                                 </blockquote>
                               </div>
 
-                              <div className="min-w-0 border-t border-emerald-500/10 pt-3 md:border-l md:border-t-0 md:pl-3 md:pt-0">
+                              <div className="min-w-0 pt-1 md:pl-1">
                                 <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-zinc-500">CV chứng minh / suy luận</div>
                                 <blockquote className={`mt-2 border-l pl-3 text-[11px] leading-5 ${row.matchKind === 'incorrect' ? 'border-rose-500/40 text-rose-200' : 'border-cyan-500/30 text-zinc-200'}`}>
                                   "{row.cvEvidence}"
@@ -2249,7 +2227,7 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
                   {candidate.jdCvMatchInsights.queryModel ? ` • ${normalizeVietnameseDisplay(candidate.jdCvMatchInsights.queryModel)}` : ''}
                 </div>
               </div>
-              <div className="rounded-none border border-emerald-500/30 bg-emerald-950/30 px-3.5 py-2 font-mono font-bold text-emerald-300 text-xs">
+              <div className="rounded-full border border-emerald-500/20 bg-emerald-950/35 px-3.5 py-2 font-mono text-xs font-bold text-emerald-300">
                 {jdFitScore.toFixed(1)}/{jdFitMaxScore} điểm Job Fit
               </div>
             </div>
@@ -2267,9 +2245,9 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
               <div className="mt-4 border-t border-emerald-500/10 pt-4">
                 <div className="mb-3 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
                   <div>
-                    <div className="text-[10px] font-bold uppercase tracking-[0.16em] text-emerald-300">So khớp kỹ năng JD ↔ CV</div>
-                    <p className="mt-1 text-[11px] leading-5 text-emerald-100/65">
-                      Mỗi dòng kết luận Đúng/Sai, kèm yêu cầu JD, dẫn chứng hoặc suy luận từ CV để HR kiểm tra nhanh.
+                    <div className="text-[10px] font-bold uppercase tracking-[0.16em] text-emerald-300">So khớp JD / CV</div>
+                    <p className="mt-1 text-[11px] leading-5 text-emerald-100/60">
+                      JD bên trái, dẫn chứng CV bên phải.
                     </p>
                   </div>
                   <div className="text-[10px] font-bold uppercase tracking-[0.12em] text-emerald-300/80">
@@ -2279,10 +2257,10 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
 
                 <div className="space-y-2">
                   {jdCvEvidenceRows.map((row, index) => (
-                    <div key={row.id || index} className="grid min-w-0 grid-cols-1 gap-3 border border-emerald-500/15 bg-black/20 p-3 md:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
+                    <div key={row.id || index} className="grid min-w-0 grid-cols-1 gap-4 rounded-2xl border border-emerald-500/10 bg-black/15 p-4 md:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
                       <div className="min-w-0">
                         <div className="mb-2 flex flex-wrap items-center gap-2">
-                          <span className={`rounded-none border px-2 py-1 text-[9px] font-bold uppercase tracking-[0.12em] ${getMatchKindClasses(row.matchKind)}`}>
+                          <span className={`rounded-full border px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.12em] ${getMatchKindClasses(row.matchKind)}`}>
                             {getMatchKindLabel(row.matchKind)}
                           </span>
                           <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-zinc-500">
@@ -2299,7 +2277,7 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
                         </blockquote>
                       </div>
 
-                      <div className="min-w-0 border-t border-emerald-500/10 pt-3 md:border-l md:border-t-0 md:pl-3 md:pt-0">
+                      <div className="min-w-0 pt-1 md:pl-1">
                         <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-zinc-500">CV chứng minh / suy luận</div>
                         <blockquote className={`mt-2 border-l pl-3 text-[11px] leading-5 ${row.matchKind === 'incorrect' ? 'border-rose-500/40 text-rose-200' : 'border-cyan-500/30 text-zinc-200'}`}>
                           "{row.cvEvidence}"
@@ -2428,26 +2406,25 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
       )}
 
       {/* ── Tab chuyển đổi Cơ bản / Nâng cao ───────────────── */}
-      {showCriteria && <div className="rounded-none border border-zinc-800 bg-[#09090b] overflow-hidden">
-        <div className="border-b border-zinc-800 bg-zinc-950 px-5 py-4">
-          <div className="flex flex-wrap items-center gap-3 text-xs font-bold uppercase tracking-[0.15em] text-cyan-400">
-            <i className="fa-solid fa-layer-group text-base"></i>
-            <span>Tiêu chí cốt lõi</span>
-            <span className="rounded-none border border-cyan-500/20 bg-cyan-950/40 px-2.5 py-0.5 text-[9px] font-bold text-cyan-300 uppercase tracking-wider">{configuredCoreTotalMax} điểm</span>
-            <span className={`rounded-none border px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wider ${basicScoreRatio >= 0.8 ? 'border-emerald-500/25 bg-emerald-500/10 text-emerald-400' : basicScoreRatio >= 0.6 ? 'border-amber-500/25 bg-amber-500/10 text-amber-400' : 'border-red-500/25 bg-red-500/10 text-red-400'}`}>{basicScore.toFixed(1)}/{configuredCoreTotalMax}</span>
+      {showCriteria && <div className="overflow-hidden rounded-2xl border border-zinc-800/35 bg-[#09090b]/95">
+        <div className="px-5 py-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center gap-3 text-xs font-bold uppercase tracking-[0.15em] text-cyan-400">
+              <i className="fa-solid fa-layer-group text-base"></i>
+              <span>Tiêu chí cốt lõi</span>
+              <span className="rounded-full border border-cyan-500/15 bg-cyan-950/25 px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-cyan-300">{configuredCoreTotalMax} điểm</span>
+            </div>
+            <span className={`rounded-full border px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wider ${basicScoreRatio >= 0.8 ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-400' : basicScoreRatio >= 0.6 ? 'border-amber-500/20 bg-amber-500/10 text-amber-400' : 'border-red-500/20 bg-red-500/10 text-red-400'}`}>{basicScore.toFixed(1)}/{configuredCoreTotalMax}</span>
           </div>
         </div>
 
-        <div className="p-5 space-y-4">
-          <div className="flex items-center gap-2 pb-2.5 border-b border-zinc-900">
-            <i className="fa-solid fa-circle-info text-cyan-500/60 text-xs"></i>
-            <p className="text-[10px] uppercase tracking-[0.12em] text-zinc-500 leading-normal">
-              {basicDetails.length} tiêu chí hiển thị • {configuredCoreCriteria.length} tiêu chí cốt lõi • Tổng phổ điểm <span className="text-cyan-400 font-bold">{configuredCoreTotalMax}</span> điểm • Đánh giá nền tảng ứng viên
-            </p>
+        <div className="space-y-4 px-5 pb-5">
+          <div className="text-[10px] uppercase tracking-[0.12em] text-zinc-500">
+            {basicDetails.length} tiêu chí • {configuredCoreCriteria.length} cốt lõi
           </div>
 
           {missingCoreCriteria.length > 0 && (
-            <div className="rounded-none border border-amber-500/20 bg-amber-950/20 px-3.5 py-2.5 text-[11px] text-amber-300 leading-relaxed">
+            <div className="rounded-2xl border border-amber-500/15 bg-amber-950/15 px-3.5 py-2.5 text-[11px] leading-relaxed text-amber-300">
               Backend hiện đang trả về thiếu {missingCoreCriteria.length}/{configuredCoreCriteria.length} tiêu chí cốt lõi.
               {' '}
               {missingCoreCriteria.slice(0, 4).join(', ')}
@@ -2477,10 +2454,10 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
           )}
 
           {supplementalDetails.length > 0 && (
-            <div className="pt-5 border-t border-zinc-900 space-y-3">
+            <div className="space-y-3 border-t border-zinc-900/70 pt-5">
               <div className="flex items-center gap-2">
                 <i className="fa-solid fa-sparkles text-emerald-400/70 text-xs"></i>
-                <p className="text-[10px] uppercase tracking-[0.12em] text-zinc-500">Các phân tích bổ sung do AI trả về</p>
+                <p className="text-[10px] uppercase tracking-[0.12em] text-zinc-500">Phân tích bổ sung</p>
               </div>
               {supplementalDetails.map((item, index) => {
                 const criterionName = canonicalizeCriterionName(getDetailCriterion(item)) || `supplemental-${index}`;
