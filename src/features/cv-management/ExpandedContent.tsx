@@ -1475,6 +1475,18 @@ function buildConfiguredCoreCriteria(weights?: WeightCriteria): { criteria: stri
   };
 }
 
+function highlightKeywordsInText(text: string, keywords: string[]): React.ReactNode {
+  if (!text || !keywords.length) return text;
+  const escaped = keywords.map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+  const pattern = new RegExp(`(${escaped.join('|')})`, 'gi');
+  const parts = text.split(pattern);
+  return parts.map((part, i) =>
+    keywords.some(k => k.toLowerCase() === part.toLowerCase())
+      ? <mark key={i} className="rounded bg-emerald-900/50 px-0.5 text-emerald-200 not-italic font-medium">{part}</mark>
+      : part
+  );
+}
+
 interface CriterionAccordionProps {
   item: DetailedScore;
   isExpanded: boolean;
@@ -1572,6 +1584,7 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
   const formulaText = advancedBreakdown?.mathematical_formula || detailFormula || null;
   const allMatchedKw = matchedKeywordRows.map(k => k.keyword);
   const allMissingKw = missingKeywordRows.map(k => k.keyword);
+  const isSoftCriterion = /văn hoá|văn hóa|chuyên nghiệp|gắn bó|thái độ|tinh thần|ngoại giao/i.test(criterionName);
 
   return (
     <div className="overflow-hidden rounded-2xl border border-zinc-800/35 bg-zinc-950/55 transition-colors duration-150 hover:border-zinc-700/45">
@@ -1624,10 +1637,16 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
               </button>
             </div>
             {canShowRawEvidence ? (
-              <blockquote
-                className="border-l-2 border-cyan-500/50 pl-3 text-[11.5px] italic leading-[1.7] text-zinc-300"
-                dangerouslySetInnerHTML={{ __html: highlightedEvidenceHtml }}
-              />
+              detailed ? (
+                <blockquote className="border-l-2 border-cyan-500/50 pl-3 text-[11.5px] italic leading-[1.7] text-zinc-300">
+                  {highlightKeywordsInText(detailEvidence, allMatchedKw)}
+                </blockquote>
+              ) : (
+                <blockquote
+                  className="border-l-2 border-cyan-500/50 pl-3 text-[11.5px] italic leading-[1.7] text-zinc-300"
+                  dangerouslySetInnerHTML={{ __html: highlightedEvidenceHtml }}
+                />
+              )
             ) : (
               <span className="inline-flex rounded-lg border border-amber-500/30 bg-amber-500/10 px-2.5 py-1 text-[10px] font-semibold text-amber-300">
                 Chưa tìm thấy trong CV
@@ -1697,58 +1716,69 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
             </div>
           )}
 
-          {/* ── Keyword comparison (non-experience) ──────────── */}
-          {!isExperience && requirementComparison && (
-            <div className="px-4 py-3">
-              <div className="mb-2 flex items-center justify-between">
-                <span className="text-[9.5px] font-bold uppercase tracking-[0.13em] text-zinc-500">Từ khóa JD</span>
-                <span className="text-[10px] font-mono text-zinc-500">
-                  {requirementComparison.matched.length + requirementComparison.semanticMatched.length}/{requirementComparison.jdKeywords.length} khớp
-                </span>
+          {/* ── Đối chiếu JD ↔ CV ────────────────────────────── */}
+          {(allMatchedKw.length > 0 || allMissingKw.length > 0 || (!isExperience && requirementComparison)) && (
+            <div className="px-4 py-3 space-y-2.5">
+              <div className="flex items-center justify-between">
+                <span className="text-[9.5px] font-bold uppercase tracking-[0.13em] text-zinc-500">Đối chiếu JD ↔ CV</span>
+                {detailed && (
+                  <span className={`text-[9px] rounded-full px-2 py-0.5 ${
+                    isSoftCriterion
+                      ? 'bg-violet-950/40 text-violet-400 border border-violet-800/30'
+                      : 'bg-cyan-950/40 text-cyan-400 border border-cyan-800/30'
+                  }`}>
+                    {isSoftCriterion
+                      ? 'Tiêu chí mềm — 2–3 tín hiệu là đủ'
+                      : `${allMatchedKw.length}/${allMatchedKw.length + allMissingKw.length} từ khóa`}
+                  </span>
+                )}
               </div>
               <div className="flex flex-wrap gap-1.5">
-                {requirementComparison.matched.slice(0, 6).map(k => (
-                  <span key={k} className="rounded-full border border-emerald-500/25 bg-emerald-950/40 px-2 py-0.5 text-[10px] text-emerald-300">{k}</span>
+                {allMatchedKw.slice(0, 10).map(kw => (
+                  <span key={`mk-${kw}`} className="rounded-full border border-emerald-500/30 bg-emerald-950/40 px-2 py-0.5 text-[10px] text-emerald-300">✓ {normalizeVietnameseDisplay(kw)}</span>
                 ))}
-                {requirementComparison.semanticMatched.slice(0, 3).map(item => (
-                  <span key={item.keyword} className="rounded-full border border-cyan-500/25 bg-cyan-950/40 px-2 py-0.5 text-[10px] text-cyan-300">
-                    {normalizeVietnameseDisplay(item.keyword)} ~{Math.round(item.score * 100)}%
-                  </span>
+                {allMissingKw.slice(0, 10).map(kw => (
+                  <span key={`xk-${kw}`} className="rounded-full border border-red-900/40 bg-red-950/30 px-2 py-0.5 text-[10px] text-red-400 line-through">{normalizeVietnameseDisplay(kw)}</span>
                 ))}
-                {requirementComparison.missing.slice(0, 5).map(k => (
-                  <span key={k} className="rounded-full border border-zinc-700/40 bg-zinc-800/30 px-2 py-0.5 text-[10px] text-zinc-500 line-through">{k}</span>
-                ))}
+                {!allMatchedKw.length && !allMissingKw.length && requirementComparison && (
+                  <>
+                    {requirementComparison.matched.slice(0, 6).map(k => (
+                      <span key={k} className="rounded-full border border-emerald-500/25 bg-emerald-950/40 px-2 py-0.5 text-[10px] text-emerald-300">✓ {k}</span>
+                    ))}
+                    {requirementComparison.semanticMatched.slice(0, 3).map(item => (
+                      <span key={item.keyword} className="rounded-full border border-cyan-500/25 bg-cyan-950/40 px-2 py-0.5 text-[10px] text-cyan-300">
+                        {normalizeVietnameseDisplay(item.keyword)} ~{Math.round(item.score * 100)}%
+                      </span>
+                    ))}
+                    {requirementComparison.missing.slice(0, 5).map(k => (
+                      <span key={k} className="rounded-full border border-red-900/40 bg-red-950/30 px-2 py-0.5 text-[10px] text-red-400 line-through">{k}</span>
+                    ))}
+                  </>
+                )}
               </div>
-            </div>
-          )}
-
-          {/* ── Advanced keyword match bar ───────────────────── */}
-          {keywordMetrics && keywordMetrics.total_required_keywords > 0 && (
-            <div className="px-4 py-3">
-              <div className="mb-2 flex items-center justify-between">
-                <span className="text-[9.5px] font-bold uppercase tracking-[0.13em] text-zinc-500">Từ khóa khớp</span>
-                <span className="text-[10px] font-mono text-zinc-500">
-                  {keywordMetrics.matched_keywords_count}/{keywordMetrics.total_required_keywords}
-                </span>
-              </div>
-              <div className="mb-2 h-1 overflow-hidden rounded-full bg-zinc-800">
-                <div
-                  className={`h-full rounded-full ${keywordMetrics.match_percentage >= 75 ? 'bg-emerald-500' : keywordMetrics.match_percentage >= 50 ? 'bg-amber-400' : 'bg-rose-500'}`}
-                  style={{ width: `${Math.min(100, keywordMetrics.match_percentage)}%` }}
-                />
-              </div>
-              <div className="flex flex-wrap gap-1.5">
-                {matchedKeywordRows.slice(0, 8).map(kw => (
-                  <span key={`m-${kw.keyword}`} className="rounded-full border border-emerald-400/30 bg-emerald-400/10 px-2 py-0.5 text-[10px] font-medium text-emerald-200">
-                    {normalizeVietnameseDisplay(kw.keyword)}
-                  </span>
-                ))}
-                {missingKeywordRows.slice(0, 8).map(kw => (
-                  <span key={`miss-${kw.keyword}`} className="rounded-full border border-zinc-700/40 bg-zinc-800/30 px-2 py-0.5 text-[10px] text-zinc-500 line-through">
-                    {normalizeVietnameseDisplay(kw.keyword)}
-                  </span>
-                ))}
-              </div>
+              {(allMatchedKw.length + allMissingKw.length) > 0 && (
+                <div className="h-1 overflow-hidden rounded-full bg-zinc-800">
+                  <div
+                    className={`h-full rounded-full ${
+                      allMatchedKw.length / (allMatchedKw.length + allMissingKw.length) >= 0.75
+                        ? 'bg-emerald-500'
+                        : allMatchedKw.length / (allMatchedKw.length + allMissingKw.length) >= 0.5
+                        ? 'bg-amber-400'
+                        : 'bg-rose-500'
+                    }`}
+                    style={{ width: `${Math.round(allMatchedKw.length / (allMatchedKw.length + allMissingKw.length) * 100)}%` }}
+                  />
+                </div>
+              )}
+              {detailed && advancedBreakdown?.evidence_highlights
+                ?.filter(h => h && !h.startsWith('Không tìm thấy'))
+                .slice(0, 2)
+                .map((h, i) => (
+                  <p key={i} className="border-l-2 border-zinc-700/50 pl-3 text-[11px] italic leading-[1.65] text-zinc-300">
+                    {highlightKeywordsInText(h, allMatchedKw)}
+                  </p>
+                ))
+              }
             </div>
           )}
 
