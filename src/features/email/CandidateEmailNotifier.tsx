@@ -62,6 +62,7 @@ export interface CandidateEmailNotifierProps {
   feedbackByCandidate: Record<string, AnalysisFeedbackRecord>;
   jobPosition: string;
   onClose: () => void;
+  inline?: boolean;
 }
 
 const FORMAT_OPTIONS: { value: InterviewFormat; label: string }[] = [
@@ -130,6 +131,7 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
   feedbackByCandidate,
   jobPosition,
   onClose,
+  inline,
 }) => {
   const tc = useThemeColors();
   const [activeTab, setActiveTab] = useState<TabType>('pass');
@@ -264,17 +266,17 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ background: 'rgba(15,23,42,0.55)', backdropFilter: 'blur(6px)' }}
-      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      className={inline ? undefined : "fixed inset-0 z-50 flex items-center justify-center p-4"}
+      style={inline ? undefined : { background: 'rgba(15,23,42,0.55)', backdropFilter: 'blur(6px)' }}
+      onClick={inline ? undefined : (e) => { if (e.target === e.currentTarget) onClose(); }}
     >
       <div
-        className="relative flex w-full max-w-5xl flex-col overflow-hidden rounded-2xl shadow-2xl"
-        style={{
-          background: tc.cardBg,
-          border: `1px solid ${tc.borderSoft}`,
-          height: 'min(92vh, 760px)',
-        }}
+        className={inline
+          ? "relative flex h-full flex-col overflow-hidden"
+          : "relative flex w-full max-w-5xl flex-col overflow-hidden rounded-2xl shadow-2xl"}
+        style={inline
+          ? { background: tc.cardBg, border: `1px solid ${tc.borderSoft}` }
+          : { background: tc.cardBg, border: `1px solid ${tc.borderSoft}`, height: 'min(92vh, 760px)' }}
       >
         {/* ── Header ──────────────────────────────────── */}
         <div

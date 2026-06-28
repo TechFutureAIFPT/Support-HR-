@@ -2073,7 +2073,7 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
   const showCriteria = !view || view === 'criteria';
 
   return (
-    <div className="supporthr-detail-content space-y-4 p-2 md:p-4">
+    <div className={`supporthr-detail-content ${view ? 'space-y-0 p-0' : 'space-y-4 p-2 md:p-4'}`}>
 
       {/* ── Tổng hợp đánh giá ─────────────────────────────── */}
       {showAggregateSections && (
@@ -2159,7 +2159,7 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
       )}
 
       {showJdMatch && candidate.jdCvMatchInsights && (
-          <div className="mt-4 rounded-2xl border border-emerald-500/15 bg-emerald-950/10 px-4 py-4 text-xs sm:px-5">
+          <div className="px-4 py-4 text-xs sm:px-5">
             {candidate.jdCvMatchInsights.roleKey && candidate.jdCvMatchInsights.roleKey !== 'generic' ? (
               <>
                 <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
@@ -2210,7 +2210,7 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
                             {section}
                           </div>
                           {sectionRows.map((row, index) => (
-                            <div key={row.id || index} className="grid min-w-0 grid-cols-1 gap-4 rounded-2xl border border-emerald-500/10 bg-black/15 p-4 md:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
+                            <div key={row.id || index} className="grid min-w-0 grid-cols-1 gap-3 border-t border-zinc-800/50 pt-3 md:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
                               <div className="min-w-0">
                                 <div className="mb-2 flex flex-wrap items-center gap-2">
                                   <span className={`rounded-full border px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.12em] ${getMatchKindClasses(row.matchKind)}`}>
@@ -2327,26 +2327,24 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
         )}
 
         {showJdMatch && showTechnicalSummary && (
-        <div className="mt-4 rounded-none border border-zinc-800 bg-zinc-950/80 px-5 py-4 text-xs relative overflow-hidden pl-2">
-          <div className="w-1 absolute left-0 top-0 bottom-0 bg-gradient-to-b from-indigo-500 to-cyan-500" />
-          <div className="pl-2">
+        <div className="border-t border-zinc-800/50 px-4 py-3 text-xs relative overflow-hidden">
+          <div className="pl-3">
             <span className="font-bold text-zinc-400 uppercase tracking-[0.14em] text-[10px] mr-2">Nhận định AI:</span>
             <span className="text-zinc-200 italic leading-relaxed">"{normalizeVietnameseDisplay(recommendation)}"</span>
           </div>
         </div>
         )}
       {showJdMatch && showTechnicalSummary && (
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
         {candidate.analysis?.['Điểm mạnh CV'] && (
-          <div className="p-5 bg-zinc-950/50 border border-emerald-500/20 rounded-none relative overflow-hidden">
-            <div className="w-1 absolute left-0 top-0 bottom-0 bg-emerald-500" />
-            <p className="font-bold text-emerald-400 mb-3 flex items-center gap-2 text-xs uppercase tracking-[0.14em]">
+          <div className="border-l-2 border-emerald-500/50 pl-4 py-2">
+            <p className="font-bold text-emerald-400 mb-2 flex items-center gap-2 text-[10px] uppercase tracking-[0.14em]">
               <i className="fa-solid fa-wand-magic-sparkles"></i>Điểm mạnh CV
             </p>
-            <ul className="text-xs text-emerald-300/90 space-y-2 pl-2 leading-relaxed">
+            <ul className="text-xs text-emerald-300/90 space-y-1.5 leading-relaxed">
               {candidate.analysis['Điểm mạnh CV'].map((s, idx) => (
                 <li key={idx} className="flex items-start gap-2">
-                  <span className="text-emerald-500 mt-0.5 select-none">✓</span>
+                  <span className="text-emerald-500 mt-0.5 select-none shrink-0">✓</span>
                   <span>{normalizeVietnameseDisplay(s)}</span>
                 </li>
               ))}
@@ -2354,15 +2352,14 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
           </div>
         )}
         {candidate.analysis?.['Điểm yếu CV'] && (
-          <div className="p-5 bg-zinc-950/50 border border-rose-500/20 rounded-none relative overflow-hidden">
-            <div className="w-1 absolute left-0 top-0 bottom-0 bg-rose-500" />
-            <p className="font-bold text-rose-400 mb-3 flex items-center gap-2 text-xs uppercase tracking-[0.14em]">
+          <div className="border-l-2 border-rose-500/50 pl-4 py-2">
+            <p className="font-bold text-rose-400 mb-2 flex items-center gap-2 text-[10px] uppercase tracking-[0.14em]">
               <i className="fa-solid fa-flag"></i>Điểm yếu CV
             </p>
-            <ul className="text-xs text-rose-300/90 space-y-2 pl-2 leading-relaxed">
+            <ul className="text-xs text-rose-300/90 space-y-1.5 leading-relaxed">
               {candidate.analysis['Điểm yếu CV'].map((s, idx) => (
                 <li key={idx} className="flex items-start gap-2">
-                  <span className="text-rose-500 mt-0.5 select-none">⚠</span>
+                  <span className="text-rose-500 mt-0.5 select-none shrink-0">⚠</span>
                   <span>{normalizeVietnameseDisplay(s)}</span>
                 </li>
               ))}
@@ -2374,15 +2371,14 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
 
       {/* ── Cảnh báo AI Debiasing ────────────────────────────── */}
       {showJdMatch && showTechnicalSummary && candidate.debiasingWarnings && candidate.debiasingWarnings.length > 0 && (
-        <div className="rounded-none border border-amber-500/20 bg-zinc-950/50 p-5 relative overflow-hidden">
-          <div className="w-1 absolute left-0 top-0 bottom-0 bg-amber-500" />
-          <h4 className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.14em] text-amber-400">
+        <div className="border-l-2 border-amber-500/50 pl-4 py-2">
+          <h4 className="mb-2 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.14em] text-amber-400">
             <i className="fa-solid fa-scale-balanced"></i> Cảnh báo Đạo đức AI
           </h4>
-          <ul className="space-y-2.5">
+          <ul className="space-y-2">
             {candidate.debiasingWarnings.map((w, idx) => (
-              <li key={idx} className="flex items-start gap-2.5 rounded-none border border-amber-500/10 bg-amber-950/10 p-3">
-                <i className="fa-solid fa-triangle-exclamation text-amber-400 mt-0.5 shrink-0"></i>
+              <li key={idx} className="flex items-start gap-2">
+                <i className="fa-solid fa-triangle-exclamation text-amber-400 mt-0.5 shrink-0 text-[10px]"></i>
                 <span className="text-xs text-amber-200/80 leading-relaxed">{w}</span>
               </li>
             ))}
@@ -2392,52 +2388,42 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
 
       {/* ── Education Validation ─────────────────────────────── */}
       {showJdMatch && showTechnicalSummary && educationValidation && (
-        <div className="rounded-none border border-zinc-800 bg-zinc-950/50 p-5 relative overflow-hidden">
-          <div className="w-1 absolute left-0 top-0 bottom-0 bg-indigo-500" />
-          <h4 className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.14em] text-indigo-400">
-            <i className="fa-solid fa-graduation-cap text-indigo-400"></i> Xác thực học vấn
+        <div className="border-l-2 border-indigo-500/50 pl-4 py-2">
+          <h4 className="mb-2 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.14em] text-indigo-400">
+            <i className="fa-solid fa-graduation-cap"></i> Xác thực học vấn
           </h4>
-          <div className="overflow-hidden rounded-none border border-zinc-800 bg-zinc-950 p-4">
-            <div className="grid min-w-0 grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_max-content] xl:items-start">
-              <div className="min-w-0 space-y-3">
-                <div>
-                  <span className="block whitespace-normal break-words text-[9px] font-bold uppercase tracking-[0.15em] text-zinc-500">Học vấn phát hiện từ CV</span>
-                  <span className="mt-1 block min-w-0 whitespace-normal break-words text-xs font-bold leading-5 text-slate-200">
-                    {educationSummary
-                      ? [
-                          educationSummary.degree,
-                          educationSummary.major,
-                          educationSummary.institution,
-                        ]
-                          .filter(Boolean)
-                          .join(' — ')
-                      : 'Chưa có thông tin'}
+          <div className="grid min-w-0 grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1fr)_max-content] xl:items-start">
+            <div className="min-w-0 space-y-2">
+              <div>
+                <span className="block text-[9px] font-bold uppercase tracking-[0.15em] text-zinc-500">Học vấn phát hiện từ CV</span>
+                <span className="mt-1 block min-w-0 whitespace-normal break-words text-xs font-bold leading-5 text-slate-200">
+                  {educationSummary
+                    ? [educationSummary.degree, educationSummary.major, educationSummary.institution].filter(Boolean).join(' — ')
+                    : 'Chưa có thông tin'}
+                </span>
+                {educationSummary?.rawLine && (
+                  <span className="mt-1 block text-[11px] italic leading-normal text-zinc-500">
+                    Trích dẫn CV: "{educationSummary.rawLine}"
                   </span>
-                  {educationSummary?.rawLine && (
-                    <span className="mt-1 block min-w-0 whitespace-normal break-words text-[11px] italic leading-normal text-zinc-500">
-                      Trích dẫn CV: "{educationSummary.rawLine}"
-                    </span>
-                  )}
-                </div>
-                {shouldShowStandardizedEducation && (
-                  <div className="max-w-full overflow-hidden rounded-none border border-zinc-800/80 bg-zinc-950/80 px-3 py-2">
-                    <span className="block text-[9px] font-bold uppercase tracking-[0.15em] text-zinc-500">Thông tin Chuẩn hóa</span>
-                    <span className="mt-1 block min-w-0 whitespace-normal break-words text-xs leading-5 text-slate-200">{standardizedEducation}</span>
-                  </div>
                 )}
               </div>
-
-              <span className={`inline-flex max-w-full items-center justify-center whitespace-normal break-words rounded-none border px-2.5 py-1 text-left text-[10px] font-bold uppercase leading-4 tracking-[0.12em] xl:max-w-[18rem] xl:text-right ${educationIsValid ? 'border-emerald-500/35 bg-emerald-500/10 text-emerald-300' : 'border-red-500/35 bg-red-500/10 text-red-300'}`}>
-                {educationValidationNote}
-              </span>
+              {shouldShowStandardizedEducation && (
+                <div>
+                  <span className="block text-[9px] font-bold uppercase tracking-[0.15em] text-zinc-500">Thông tin Chuẩn hóa</span>
+                  <span className="mt-0.5 block text-xs leading-5 text-slate-300">{standardizedEducation}</span>
+                </div>
+              )}
             </div>
+            <span className={`inline-flex items-center rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase leading-4 tracking-[0.12em] ${educationIsValid ? 'border-emerald-500/35 bg-emerald-500/10 text-emerald-300' : 'border-red-500/35 bg-red-500/10 text-red-300'}`}>
+              {educationValidationNote}
+            </span>
           </div>
         </div>
       )}
 
       {/* ── Tab chuyển đổi Cơ bản / Nâng cao ───────────────── */}
-      {showCriteria && <div className="overflow-hidden rounded-2xl border border-zinc-800/35 bg-[#09090b]/95">
-        <div className="px-5 py-4">
+      {showCriteria && <div className="overflow-hidden">
+        <div className="px-3 py-3">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex flex-wrap items-center gap-3 text-xs font-bold uppercase tracking-[0.15em] text-cyan-400">
               <i className="fa-solid fa-layer-group text-base"></i>
@@ -2448,7 +2434,7 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
           </div>
         </div>
 
-        <div className="space-y-4 px-5 pb-5">
+        <div className="space-y-3 px-3 pb-3">
           <div className="text-[10px] uppercase tracking-[0.12em] text-zinc-500">
             {basicDetails.length} tiêu chí • {configuredCoreCriteria.length} cốt lõi
           </div>

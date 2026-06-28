@@ -52,6 +52,7 @@ const LoginPage = lazy(() => import('@/pages/auth/LoginPage'));
 const DetailedAnalyticsPage = lazy(() => import('@/pages/analytics/DetailedAnalyticsPage'));
 const WorkspaceDashboardPage = lazy(() => import('@/pages/main/WorkspaceDashboardPage'));
 const AIFeedbackPage = lazy(() => import('@/pages/main/AIFeedbackPage'));
+const ContactCandidatesPage = lazy(() => import('@/pages/main/ContactCandidatesPage'));
 const FilteredCvLibraryPage = lazy(() => import('@/pages/tools/FilteredCvLibraryPage'));
 const JDStandardizerPage = lazy(() => import('@/pages/tools/JDStandardizerPage'));
 import CandidateSuggestions from '@/pages/analytics/CandidateSuggestions';
@@ -1306,6 +1307,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
               <Route path="/dashboard" element={isLoggedIn ? <Navigate to="/" replace /> : authFallback} />
               <Route path="/detailed-analytics" element={isLoggedIn ? <DetailedAnalyticsPage candidates={analysisResults} jobPosition={jobPosition} onReset={onResetRequest} /> : authFallback} />
               <Route path="/chatbot" element={isLoggedIn ? <CandidateSuggestions candidates={analysisResults} jobPosition={jobPosition} /> : authFallback} />
+              <Route path="/contact-candidates" element={isLoggedIn ? <ContactCandidatesPage candidates={analysisResults} jobPosition={jobPosition} onReset={onResetRequest} /> : authFallback} />
               <Route path="/feedback" element={isLoggedIn ? <AIFeedbackPage candidates={analysisResults} jobPosition={jobPosition} weights={weights} hardFilters={hardFilters} analysisContext={activeAnalysisContext} /> : authFallback} />
               <Route path="/records" element={isLoggedIn ? <FilteredCvLibraryPage userEmail={userEmail} /> : authFallback} />
               <Route path="/jd-standardizer" element={isLoggedIn ? <JDStandardizerPage onUseJD={handleUseStandardizedJD} /> : authFallback} />
