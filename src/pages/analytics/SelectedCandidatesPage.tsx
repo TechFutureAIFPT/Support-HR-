@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, FileText, X, Star, Mail, Phone, Briefcase, ChevronDown, ChevronUp, CheckCheck, Flag } from 'lucide-react';
+import { Users, FileText, X, Star, Mail, Phone, Briefcase, ChevronDown, ChevronUp, CheckCheck, Send } from 'lucide-react';
 import type { Candidate } from '@/types';
 import { normalizeVietnameseDisplay } from '@/utils/textDisplay';
 
@@ -227,11 +227,11 @@ const SelectedCandidatesPage: React.FC<SelectedCandidatesPageProps> = ({ candida
               {exportMsg ? 'Đã xuất!' : `Xuất CSV (${selectedCandidates.length})`}
             </button>
             <button
-              onClick={() => navigate('/feedback')}
+              onClick={() => navigate('/contact-candidates')}
               className="flex items-center gap-1.5 rounded-md border border-sky-400/20 bg-gradient-to-r from-sky-600 to-cyan-600 px-4 py-1.5 text-xs font-bold text-white shadow shadow-sky-950/30 transition-all hover:from-sky-500 hover:to-cyan-500"
             >
-              <Flag className="w-3.5 h-3.5" />
-              Hoàn tất quy trình
+              <Send className="w-3.5 h-3.5" />
+              Gửi email ứng viên
             </button>
           </div>
         </div>

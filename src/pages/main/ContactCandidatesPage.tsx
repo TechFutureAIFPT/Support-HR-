@@ -5,6 +5,8 @@ import type { AnalysisFeedbackRecord, Candidate } from '@/types';
 import CandidateEmailNotifier from '@/features/email/CandidateEmailNotifier';
 import { clearWorkflowActivity, clearWorkflowDraft } from '@/services/history-cache/workflowDraft';
 
+const SELECTED_IDS_KEY = 'supporthr.selectedCandidateIds';
+
 interface ContactCandidatesPageProps {
   candidates: Candidate[];
   jobPosition: string;
@@ -14,17 +16,33 @@ interface ContactCandidatesPageProps {
 const ContactCandidatesPage: React.FC<ContactCandidatesPageProps> = ({ candidates, jobPosition, onReset }) => {
   const navigate = useNavigate();
 
+  // Sync with chatbot selection: only show candidates the user picked
+  // Fallback to all successful candidates if no selection exists
+  const { displayCandidates, fromChatbotSelection } = useMemo(() => {
+    try {
+      const raw = localStorage.getItem(SELECTED_IDS_KEY);
+      const ids: string[] = raw ? JSON.parse(raw) : [];
+      if (ids.length > 0) {
+        const filtered = candidates.filter(c => ids.includes(c.id) && c.status === 'SUCCESS');
+        if (filtered.length > 0) return { displayCandidates: filtered, fromChatbotSelection: true };
+      }
+    } catch { /* ignore */ }
+    return {
+      displayCandidates: candidates.filter(c => c.status === 'SUCCESS'),
+      fromChatbotSelection: false,
+    };
+  }, [candidates]);
+
   const feedbackByCandidate = useMemo<Record<string, AnalysisFeedbackRecord>>(() => {
     const map: Record<string, AnalysisFeedbackRecord> = {};
-    candidates.forEach((c) => {
-      const analysis = c.analysis as Record<string, unknown> | undefined;
-      const score =
-        typeof analysis?.['Tổng điểm'] === 'number'
-          ? (analysis['Tổng điểm'] as number)
-          : typeof analysis?.['Tong diem'] === 'number'
-            ? (analysis['Tong diem'] as number)
-            : 0;
-      const action = score >= 65 ? 'shortlist' : 'reject';
+    displayCandidates.forEach((c) => {
+      // Chatbot-selected candidates are explicitly shortlisted by the recruiter;
+      // direct-access fallback uses score threshold
+      const action = fromChatbotSelection ? 'shortlist' : (() => {
+        const analysis = c.analysis as Record<string, unknown> | undefined;
+        const score = typeof analysis?.['Tổng điểm'] === 'number' ? (analysis['Tổng điểm'] as number) : 0;
+        return score >= 65 ? 'shortlist' : 'reject';
+      })();
       map[c.id] = {
         id: `auto-${c.id}`,
         uid: '',
@@ -41,7 +59,7 @@ const ContactCandidatesPage: React.FC<ContactCandidatesPageProps> = ({ candidate
       } satisfies AnalysisFeedbackRecord;
     });
     return map;
-  }, [candidates, jobPosition]);
+  }, [displayCandidates, fromChatbotSelection, jobPosition]);
 
   const handleFinish = () => {
     clearWorkflowDraft();
@@ -54,10 +72,10 @@ const ContactCandidatesPage: React.FC<ContactCandidatesPageProps> = ({ candidate
     <div className="flex h-full flex-col">
       <div className="min-h-0 flex-1 overflow-hidden">
         <CandidateEmailNotifier
-          candidates={candidates}
+          candidates={displayCandidates}
           feedbackByCandidate={feedbackByCandidate}
           jobPosition={jobPosition}
-          onClose={() => navigate('/analysis')}
+          onClose={() => navigate('/chatbot')}
           inline
         />
       </div>

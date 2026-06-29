@@ -192,6 +192,7 @@ const protectedWorkspacePaths = new Set([
   '/dashboard',
   '/detailed-analytics',
   '/chatbot',
+  '/contact-candidates',
   '/feedback',
   '/records',
   '/jd-standardizer',
