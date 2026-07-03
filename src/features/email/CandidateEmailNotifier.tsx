@@ -17,6 +17,8 @@ import { normalizeVietnameseDisplay } from '@/utils/textDisplay';
 import { apiPost } from '@/services/api/renderClient';
 import { getGoogleAccessToken } from '@/services/auth/authService';
 
+type ThemeColors = ReturnType<typeof useThemeColors>;
+
 const PASS_ACTIONS = new Set<AnalysisFeedbackAction>(['interview', 'shortlist', 'hire']);
 const FAIL_ACTIONS = new Set<AnalysisFeedbackAction>(['reject']);
 
@@ -125,6 +127,150 @@ function generatePassBody(details: InterviewDetails, name: string, position: str
 
   return lines.join('\n');
 }
+
+function splitEmailBodyBlocks(body: string): string[] {
+  return body
+    .split(/\n\s*\n/)
+    .map((block) => block.trim())
+    .filter(Boolean);
+}
+
+const EmailPreviewCard: React.FC<{
+  tc: ThemeColors;
+  to: string;
+  subject: string;
+  body: string;
+  tone: 'pass' | 'fail';
+  helperText: string;
+}> = ({ tc, to, subject, body, tone, helperText }) => {
+  const blocks = splitEmailBodyBlocks(body);
+  const hasEmail = to.includes('@');
+  const accent = tone === 'pass'
+    ? {
+      softBg: 'linear-gradient(135deg, rgba(16,185,129,0.10), rgba(59,130,246,0.08))',
+      badgeBg: 'rgba(16,185,129,0.14)',
+      badgeText: '#047857',
+      iconBg: 'rgba(16,185,129,0.12)',
+      iconText: '#059669',
+    }
+    : {
+      softBg: 'linear-gradient(135deg, rgba(244,63,94,0.10), rgba(249,115,22,0.08))',
+      badgeBg: 'rgba(244,63,94,0.12)',
+      badgeText: '#be123c',
+      iconBg: 'rgba(244,63,94,0.10)',
+      iconText: '#e11d48',
+    };
+
+  return (
+    <div
+      className="flex h-full min-h-[380px] flex-col overflow-hidden rounded-2xl border shadow-sm"
+      style={{ background: tc.cardBg, borderColor: tc.borderSoft }}
+    >
+      <div
+        className="border-b px-4 py-3"
+        style={{ borderColor: tc.borderSoft, background: accent.softBg }}
+      >
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div
+              className="flex h-10 w-10 items-center justify-center rounded-2xl"
+              style={{ background: accent.iconBg, color: accent.iconText }}
+            >
+              <Mail className="h-4 w-4" />
+            </div>
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.16em]" style={{ color: tc.textMuted }}>
+                Xem trước email
+              </p>
+              <h3 className="text-[14px] font-bold" style={{ color: tc.textPrimary }}>
+                Nội dung gửi tới ứng viên
+              </h3>
+            </div>
+          </div>
+          <span
+            className="rounded-full px-3 py-1 text-[11px] font-semibold"
+            style={{ background: accent.badgeBg, color: accent.badgeText }}
+          >
+            {tone === 'pass' ? 'Mẫu vượt vòng' : 'Mẫu không phù hợp'}
+          </span>
+        </div>
+        <p className="mt-2 text-[12px] leading-relaxed" style={{ color: tc.textSecondary }}>
+          {helperText}
+        </p>
+      </div>
+
+      <div
+        className="grid grid-cols-1 gap-2 border-b px-4 py-3 sm:grid-cols-3"
+        style={{ borderColor: tc.borderSoft, background: 'rgba(148,163,184,0.05)' }}
+      >
+        <div className="rounded-xl border px-3 py-2" style={{ borderColor: tc.borderSoft, background: tc.cardBg }}>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.12em]" style={{ color: tc.textMuted }}>
+            Người nhận
+          </p>
+          <p className="mt-1 truncate text-[12px] font-semibold" style={{ color: hasEmail ? '#1d4ed8' : '#d97706' }}>
+            {to || '(chưa có email)'}
+          </p>
+        </div>
+        <div className="rounded-xl border px-3 py-2 sm:col-span-2" style={{ borderColor: tc.borderSoft, background: tc.cardBg }}>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.12em]" style={{ color: tc.textMuted }}>
+            Tiêu đề
+          </p>
+          <p className="mt-1 text-[12px] font-semibold" style={{ color: tc.textPrimary }}>
+            {subject}
+          </p>
+        </div>
+      </div>
+
+      <div className="min-h-0 flex-1 px-4 py-4">
+        <div
+          className="flex h-full min-h-[320px] flex-col rounded-2xl border px-4 py-4 lg:min-h-[420px]"
+          style={{ borderColor: tc.borderSoft, background: tone === 'pass' ? 'rgba(248,250,252,0.9)' : tc.pageBg }}
+        >
+          <div className="custom-scrollbar flex-1 space-y-3 overflow-y-auto pr-1">
+            {blocks.map((block, index) => {
+              const lines = block.split('\n').map((line) => line.trim()).filter(Boolean);
+              const isInfoBlock = lines.every((line) => /^(📅|📍|🔗)/.test(line));
+              const isGreeting = index === 0;
+              const isSignature = lines[0]?.startsWith('Trân trọng');
+
+              if (isInfoBlock) {
+                return (
+                  <div
+                    key={`${block}-${index}`}
+                    className="space-y-2 rounded-xl border px-3 py-3"
+                    style={{ borderColor: tc.borderSoft, background: tc.cardBg }}
+                  >
+                    {lines.map((line, lineIndex) => (
+                      <p key={`${line}-${lineIndex}`} className="text-[12.5px] font-medium leading-relaxed" style={{ color: tc.textPrimary }}>
+                        {line}
+                      </p>
+                    ))}
+                  </div>
+                );
+              }
+
+              return (
+                <div key={`${block}-${index}`} className={isSignature ? 'pt-2' : undefined}>
+                  {lines.map((line, lineIndex) => (
+                    <p
+                      key={`${line}-${lineIndex}`}
+                      className={`text-[13px] leading-[1.72] ${
+                        isGreeting ? 'font-semibold' : isSignature ? 'text-[12.5px]' : ''
+                      }`}
+                      style={{ color: isGreeting ? tc.textPrimary : tc.textSecondary }}
+                    >
+                      {line}
+                    </p>
+                  ))}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
   candidates,
@@ -306,11 +452,11 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
         </div>
 
         {/* ── Body ────────────────────────────────────── */}
-        <div className="flex min-h-0 flex-1 overflow-hidden">
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden xl:flex-row">
 
           {/* Left — candidate list */}
           <div
-            className="flex w-[50%] min-h-0 flex-col border-r"
+            className="flex min-h-0 w-full flex-col border-b xl:w-[42%] xl:border-b-0 xl:border-r"
             style={{ borderColor: tc.borderSoft }}
           >
             {/* Tabs */}
@@ -468,7 +614,7 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
           </div>
 
           {/* Right — interview form (pass) or template editor (fail) */}
-          <div className="flex w-[50%] min-h-0 flex-col">
+          <div className="flex min-h-0 w-full flex-col xl:w-[58%]">
 
             {/* Panel toolbar */}
             <div
@@ -512,12 +658,12 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
 
               {/* ── PASS TAB: Interview form + auto preview ── */}
               {activeTab === 'pass' && (
-                <div className="flex flex-col">
+                <div className="flex min-h-0 flex-1 flex-col">
                   {/* Form fields */}
-                  <div className="space-y-4 p-4">
+                  <div className="space-y-4 p-4 lg:px-5 lg:py-4">
 
                     {/* Date + Time */}
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                       <div className="flex flex-col gap-1.5">
                         <label
                           className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide"
@@ -559,7 +705,7 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
                       >
                         Hình thức phỏng vấn
                       </label>
-                      <div className="flex gap-2">
+                      <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
                         {FORMAT_OPTIONS.map(({ value, label }) => (
                           <button
                             key={value}
@@ -624,47 +770,23 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
                   </div>
 
                   {/* Auto-generated email preview */}
-                  <div className="border-t" style={{ borderColor: tc.borderSoft }}>
-                    <div className="px-4 py-3">
+                  <div className="min-h-0 border-t" style={{ borderColor: tc.borderSoft }}>
+                    <div className="min-h-0 px-4 py-3 lg:px-5">
                       <p
                         className="mb-2.5 text-[11px] font-semibold uppercase tracking-[0.15em]"
                         style={{ color: tc.textMuted }}
                       >
                         Nội dung email · tự động tạo
                       </p>
-                      <div
-                        className="overflow-hidden rounded-xl border"
-                        style={{ background: tc.pageBg, borderColor: tc.borderSoft }}
-                      >
-                        {/* Email meta */}
-                        <div
-                          className="space-y-1 border-b px-4 py-2.5"
-                          style={{ borderColor: tc.borderSoft }}
-                        >
-                          <div className="flex gap-3 text-[12px]">
-                            <span className="w-6 shrink-0 font-semibold" style={{ color: tc.textMuted }}>To:</span>
-                            <span style={{ color: previewItem?.email.includes('@') ? '#1d4ed8' : '#d97706' }}>
-                              {previewItem
-                                ? (previewItem.email || '(chưa có email)')
-                                : '(chọn ứng viên để xem)'}
-                            </span>
-                          </div>
-                          <div className="flex gap-3 text-[12px]">
-                            <span className="w-6 shrink-0 font-semibold" style={{ color: tc.textMuted }}>V/v:</span>
-                            <span style={{ color: tc.textSecondary }}>
-                              Thông báo kết quả sơ tuyển – {jobPosition}
-                            </span>
-                          </div>
-                        </div>
-                        {/* Email body */}
-                        <div className="px-4 py-3">
-                          <p
-                            className="whitespace-pre-wrap text-[13px] leading-relaxed"
-                            style={{ color: tc.textPrimary }}
-                          >
-                            {previewBody}
-                          </p>
-                        </div>
+                      <div className="min-h-[340px] lg:min-h-[460px]">
+                      <EmailPreviewCard
+                        tc={tc}
+                        to={previewItem ? (previewItem.email || '(chưa có email)') : '(chọn ứng viên để xem)'}
+                        subject={`Thông báo kết quả sơ tuyển – ${jobPosition}`}
+                        body={previewBody}
+                        tone="pass"
+                        helperText="Xem trước theo ứng viên đang chọn. Khi gửi hàng loạt, hệ thống vẫn tự cá nhân hóa tên và thông tin cho từng người."
+                      />
                       </div>
                     </div>
                   </div>
@@ -673,9 +795,9 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
 
               {/* ── FAIL TAB: Template editor / preview ── */}
               {activeTab === 'fail' && (
-                <div className="flex h-full flex-col p-4">
+                <div className="flex h-full min-h-0 flex-col p-4 lg:px-5">
                   {!showFailPreview ? (
-                    <div className="flex h-full flex-col gap-2">
+                    <div className="flex h-full min-h-0 flex-col gap-2.5">
                       <p className="shrink-0 text-[11px]" style={{ color: tc.textMuted }}>
                         Biến:{' '}
                         <code className="rounded bg-slate-100 px-1 py-0.5 text-[10px] font-mono">{`{{name}}`}</code>
@@ -685,7 +807,7 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
                       <textarea
                         value={failTemplate}
                         onChange={(e) => setFailTemplate(e.target.value)}
-                        className="min-h-[320px] flex-1 w-full resize-none rounded-xl border p-3.5 text-[13px] leading-relaxed outline-none transition-colors focus:border-blue-400 focus:ring-2 focus:ring-blue-50"
+                        className="min-h-[360px] flex-1 w-full resize-none rounded-xl border p-3.5 text-[13px] leading-relaxed outline-none transition-colors focus:border-blue-400 focus:ring-2 focus:ring-blue-50 lg:min-h-[460px]"
                         style={{
                           background: tc.pageBg,
                           borderColor: tc.borderSoft,
@@ -694,35 +816,15 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
                       />
                     </div>
                   ) : (
-                    <div
-                      className="overflow-hidden rounded-xl border"
-                      style={{ background: tc.pageBg, borderColor: tc.borderSoft }}
-                    >
-                      <div
-                        className="space-y-1 border-b px-4 py-2.5"
-                        style={{ borderColor: tc.borderSoft }}
-                      >
-                        <div className="flex gap-3 text-[12px]">
-                          <span className="w-6 shrink-0 font-semibold" style={{ color: tc.textMuted }}>To:</span>
-                          <span style={{ color: previewItem?.email.includes('@') ? '#1d4ed8' : '#d97706' }}>
-                            {previewItem
-                              ? (previewItem.email || '(chưa có email)')
-                              : '(chưa chọn ứng viên)'}
-                          </span>
-                        </div>
-                        <div className="flex gap-3 text-[12px]">
-                          <span className="w-6 shrink-0 font-semibold" style={{ color: tc.textMuted }}>V/v:</span>
-                          <span style={{ color: tc.textSecondary }}>Kết quả ứng tuyển – {jobPosition}</span>
-                        </div>
-                      </div>
-                      <div className="px-4 py-4">
-                        <p
-                          className="whitespace-pre-wrap text-[13px] leading-relaxed"
-                          style={{ color: tc.textPrimary }}
-                        >
-                          {previewBody}
-                        </p>
-                      </div>
+                    <div className="min-h-[340px] lg:min-h-[460px]">
+                    <EmailPreviewCard
+                      tc={tc}
+                      to={previewItem ? (previewItem.email || '(chưa có email)') : '(chưa chọn ứng viên)'}
+                      subject={`Kết quả ứng tuyển – ${jobPosition}`}
+                      body={previewBody}
+                      tone="fail"
+                      helperText="Đây là bản xem trước của mẫu từ chối. Bạn có thể quay lại tab soạn để chỉnh câu chữ trước khi gửi."
+                    />
                     </div>
                   )}
                 </div>

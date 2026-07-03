@@ -363,8 +363,8 @@ const JDStandardizerPage: React.FC<JDStandardizerPageProps> = ({ onUseJD }) => {
       </div>
 
       {/* Main Content */}
-      <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto bg-white p-5">
-        <div className="mx-auto max-w-6xl space-y-5">
+      <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto bg-white px-5 py-4">
+        <div className="mx-auto max-w-6xl space-y-4">
 
           {/* Error */}
           {error && (
@@ -389,59 +389,93 @@ const JDStandardizerPage: React.FC<JDStandardizerPageProps> = ({ onUseJD }) => {
               title="Nhập mô tả công việc"
               subtitle="Dán nội dung JD hoặc tải file. Hệ thống sẽ tự phân tích và hỏi bổ sung nếu thiếu thông tin."
             >
-              <div>
-                <label className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">
-                  Nội dung JD
-                </label>
-                <textarea
-                  value={jdText}
-                  onChange={(e) => setJdText(e.target.value)}
-                  placeholder="Dán mô tả công việc hiện tại vào đây..."
-                  className="mt-2 min-h-[16rem] w-full resize-y rounded-lg border border-[#d2d2d7] bg-white px-4 py-3 text-sm leading-6 text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-[#007aff] focus:ring-2 focus:ring-[#007aff]/15"
-                />
-              </div>
-
-              <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_auto]">
-                <label className="flex min-h-16 cursor-pointer items-center gap-3 rounded-2xl border border-dashed border-blue-200 bg-white px-4 py-3 transition hover:bg-blue-50">
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
-                    <UploadCloud className="h-5 w-5" />
-                  </span>
-                  <span className="min-w-0">
-                    <span className="block text-sm font-black text-slate-950">
-                      {file ? file.name : 'Tải file JD'}
+              <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_340px]">
+                <div className="min-w-0">
+                  <div className="mb-2 flex items-center justify-between gap-3">
+                    <label className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">
+                      Nội dung JD
+                    </label>
+                    <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-bold text-slate-500">
+                      Dán trực tiếp hoặc kết hợp với file
                     </span>
-                    <span className="block truncate text-xs text-slate-500">
-                      PDF, DOCX, PNG, JPG
-                    </span>
-                  </span>
-                  <input
-                    type="file"
-                    className="hidden"
-                    accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.txt"
-                    onChange={(e) => setFile(e.target.files?.[0] || null)}
+                  </div>
+                  <textarea
+                    value={jdText}
+                    onChange={(e) => setJdText(e.target.value)}
+                    placeholder="Dán mô tả công việc hiện tại vào đây..."
+                    className="h-[320px] w-full resize-none rounded-2xl border border-[#d2d2d7] bg-white px-4 py-3 text-sm leading-6 text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-[#007aff] focus:ring-2 focus:ring-[#007aff]/15 lg:h-[360px] xl:h-[420px]"
                   />
-                </label>
-                <label className="flex h-16 items-center gap-2 rounded-2xl border border-blue-100 bg-white px-4 text-xs font-bold text-slate-600">
-                  <input
-                    type="checkbox"
-                    checked={forceOcr}
-                    onChange={(e) => setForceOcr(e.target.checked)}
-                    className="h-4 w-4 rounded border-blue-200 text-blue-600"
-                  />
-                  Ưu tiên OCR
-                </label>
-              </div>
+                </div>
 
-              <button
-                type="button"
-                onClick={() => void handleAnalyseJD()}
-                disabled={isLoading}
-                className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-blue-600 px-5 text-sm font-black text-white shadow-[0_18px_38px_rgba(35,136,255,0.2)] transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-200"
-              >
-                {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-                {isLoading ? 'Đang phân tích JD...' : 'Phân tích & Tiếp tục'}
-                {!isLoading && <ArrowRight className="h-4 w-4" />}
-              </button>
+                <div className="flex flex-col gap-3 rounded-3xl border border-blue-100 bg-[linear-gradient(180deg,#f8fbff_0%,#ffffff_100%)] p-4 shadow-[0_16px_40px_rgba(35,136,255,0.08)]">
+                  <div>
+                    <p className="text-xs font-black uppercase tracking-[0.14em] text-blue-600">
+                      Tải file & xử lý nhanh
+                    </p>
+                    <h3 className="mt-1 text-base font-black text-slate-950">
+                      Mọi thao tác chính ở ngay đây
+                    </h3>
+                    <p className="mt-1 text-sm leading-6 text-slate-600">
+                      Bạn có thể tải JD, bật OCR và bấm tiếp tục mà không cần kéo xuống cuối màn hình.
+                    </p>
+                  </div>
+
+                  <label className="flex min-h-[84px] cursor-pointer items-center gap-3 rounded-2xl border border-dashed border-blue-200 bg-white px-4 py-3 transition hover:bg-blue-50">
+                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
+                      <UploadCloud className="h-5 w-5" />
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-sm font-black text-slate-950">
+                        {file ? file.name : 'Tải file JD'}
+                      </span>
+                      <span className="mt-0.5 block truncate text-xs text-slate-500">
+                        PDF, DOCX, PNG, JPG, TXT
+                      </span>
+                    </span>
+                    <input
+                      type="file"
+                      className="hidden"
+                      accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.txt"
+                      onChange={(e) => setFile(e.target.files?.[0] || null)}
+                    />
+                  </label>
+
+                  <label className="flex items-center gap-3 rounded-2xl border border-blue-100 bg-white px-4 py-3 text-sm font-semibold text-slate-700">
+                    <input
+                      type="checkbox"
+                      checked={forceOcr}
+                      onChange={(e) => setForceOcr(e.target.checked)}
+                      className="h-4 w-4 rounded border-blue-200 text-blue-600"
+                    />
+                    <div>
+                      <p className="font-bold text-slate-800">Ưu tiên OCR</p>
+                      <p className="text-xs font-medium text-slate-500">Phù hợp khi JD là ảnh hoặc PDF scan</p>
+                    </div>
+                  </label>
+
+                  <div className="rounded-2xl border border-blue-100 bg-white px-4 py-3">
+                    <p className="text-[11px] font-black uppercase tracking-[0.14em] text-slate-500">
+                      Mẹo nhập nhanh
+                    </p>
+                    <ul className="mt-2 space-y-1.5 text-xs leading-5 text-slate-600">
+                      <li>Dán JD thô là đủ, AI sẽ tự tách mục chính.</li>
+                      <li>Nếu thiếu quyền lợi hoặc lương, hệ thống sẽ hỏi bổ sung ở bước sau.</li>
+                      <li>File scan hoặc ảnh nên bật OCR để đọc ổn định hơn.</li>
+                    </ul>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => void handleAnalyseJD()}
+                    disabled={isLoading}
+                    className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-blue-600 px-5 text-sm font-black text-white shadow-[0_18px_38px_rgba(35,136,255,0.2)] transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-200"
+                  >
+                    {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+                    {isLoading ? 'Đang phân tích JD...' : 'Phân tích & Tiếp tục'}
+                    {!isLoading && <ArrowRight className="h-4 w-4" />}
+                  </button>
+                </div>
+              </div>
             </StageCard>
           )}
 
@@ -819,7 +853,7 @@ const StageCard = ({
   subtitle: string;
   children: React.ReactNode;
 }) => (
-  <section className="space-y-4 border-t border-[#e5e5ea] py-6">
+  <section className="space-y-3 border-t border-[#e5e5ea] py-4">
     <div className="flex items-center gap-3">
       <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-blue-100 bg-blue-50 text-blue-600">
         {icon}

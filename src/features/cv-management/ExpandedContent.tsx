@@ -244,9 +244,21 @@ function escapeRegex(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-function buildHighlightedEvidenceHtml(text: string, keywords: string[]): string {
+function buildHighlightTerms(...sources: Array<string | string[] | undefined | null>): string[] {
+  const expanded = sources.flatMap((source) => {
+    if (!source) return [];
+    if (Array.isArray(source)) return source;
+    return buildEvidenceSearchTerms(source);
+  });
+
+  return uniqueTextItems(expanded)
+    .filter((term) => normalizeAscii(term).length >= 2)
+    .sort((left, right) => right.length - left.length);
+}
+
+function buildHighlightedEvidenceHtml(text: string, keywords: string[] = [], fallbackKeywords: string[] = []): string {
   let html = escapeHtml(text);
-  const sortedKeywords = [...new Set(keywords.filter(Boolean))].sort((a, b) => b.length - a.length);
+  const sortedKeywords = buildHighlightTerms(keywords, fallbackKeywords);
 
   sortedKeywords.forEach((keyword) => {
     const pattern = new RegExp(`(${escapeRegex(escapeHtml(keyword))})`, 'gi');
@@ -313,9 +325,12 @@ interface JdCvEvidenceRow {
   requirement: string;
   jdEvidence: string;
   cvEvidence: string;
+  highlightTerms: string[];
   matchKind: JdCvMatchKind;
   confidence: number;
   reason: string;
+  jdEvidenceQuoted: boolean;
+  cvEvidenceQuoted: boolean;
 }
 
 const uploadedCvTextCache = new Map<string, string>();
@@ -507,25 +522,39 @@ function buildJdCvEvidenceRows(
   const rows: JdCvEvidenceRow[] = [];
   const seen = new Set<string>();
 
-  const pushRow = (input: Omit<JdCvEvidenceRow, 'id'>) => {
+  const pushRow = (
+    input: Omit<JdCvEvidenceRow, 'id' | 'jdEvidence' | 'cvEvidence' | 'highlightTerms' | 'jdEvidenceQuoted' | 'cvEvidenceQuoted'> & {
+      jdEvidence?: string;
+      cvEvidence?: string;
+      highlightTerms?: string[];
+      jdEvidenceQuoted?: boolean;
+      cvEvidenceQuoted?: boolean;
+    }
+  ) => {
     const requirement = compactEvidenceText(input.requirement, 120);
     if (!requirement) return;
     const key = `${normalizeAscii(requirement)}::${input.matchKind}`;
     if (seen.has(key)) return;
     seen.add(key);
+    const rawJdEvidence = compactEvidenceText(input.jdEvidence || '');
+    const rawCvEvidence = compactEvidenceText(input.cvEvidence || '');
+    const jdEvidenceQuoted = Boolean(input.jdEvidenceQuoted && rawJdEvidence);
+    const cvEvidenceQuoted = Boolean(input.cvEvidenceQuoted && rawCvEvidence);
+    const fallbackJdEvidence = `Chưa có trích dẫn JD cụ thể cho yêu cầu "${requirement}".`;
+    const fallbackCvEvidence = input.matchKind === 'incorrect'
+      ? buildIncorrectCvStatement(requirement)
+      : `Chưa có trích dẫn CV cụ thể cho yêu cầu "${requirement}". Hệ thống đang dựa trên tín hiệu khớp tổng quan để gợi ý.`;
 
     rows.push({
       ...input,
       id: key || `${rows.length}`,
       requirement,
-      jdEvidence: compactEvidenceText(input.jdEvidence || `JD có yêu cầu liên quan đến "${requirement}".`),
-      cvEvidence: compactEvidenceText(
-        input.cvEvidence ||
-        (input.matchKind === 'incorrect'
-          ? buildIncorrectCvStatement(requirement)
-          : buildSkillSignalEvidence(requirement, insight) || `CV có tín hiệu phù hợp với yêu cầu "${requirement}" theo kết quả so khớp ngữ nghĩa.`)
-      ),
       confidence: Math.max(0, Math.min(100, Math.round(input.confidence))),
+      jdEvidence: rawJdEvidence || fallbackJdEvidence,
+      cvEvidence: rawCvEvidence || buildSkillSignalEvidence(requirement, insight) || fallbackCvEvidence,
+      highlightTerms: buildHighlightTerms(input.highlightTerms, requirement).slice(0, 12),
+      jdEvidenceQuoted,
+      cvEvidenceQuoted,
     });
   };
 
@@ -537,8 +566,11 @@ function buildJdCvEvidenceRows(
       requirement,
       jdEvidence: item.jdEvidence || findBestEvidenceSentence(jdText, requirement),
       cvEvidence: item.cvEvidence || findBestEvidenceSentence(combinedCvEvidence, requirement) || buildSkillSignalEvidence(requirement, insight),
+      highlightTerms: [requirement],
       matchKind,
       confidence: item.score !== undefined ? Number(item.score) * (Number(item.score) <= 1 ? 100 : 1) : semanticMatchPercentFromInsight(insight),
+      jdEvidenceQuoted: Boolean(item.jdEvidence || findBestEvidenceSentence(jdText, requirement)),
+      cvEvidenceQuoted: Boolean(item.cvEvidence || findBestEvidenceSentence(combinedCvEvidence, requirement)),
       reason: item.reason || 'Backend đã trả về cặp dẫn chứng JD/CV cho yêu cầu này.',
     });
   });
@@ -551,8 +583,11 @@ function buildJdCvEvidenceRows(
         requirement: keyword.keyword,
         jdEvidence: findBestEvidenceSentence(jdText, keyword.keyword),
         cvEvidence: keyword.context_sentence || findBestEvidenceSentence(combinedCvEvidence, keyword.keyword) || buildSkillSignalEvidence(keyword.keyword, insight),
+        highlightTerms: [keyword.keyword],
         matchKind: 'exact',
         confidence: 92,
+        jdEvidenceQuoted: Boolean(findBestEvidenceSentence(jdText, keyword.keyword)),
+        cvEvidenceQuoted: Boolean(keyword.context_sentence || findBestEvidenceSentence(combinedCvEvidence, keyword.keyword)),
         reason: 'Từ khóa yêu cầu xuất hiện trong JD và có câu dẫn chứng tương ứng trong CV.',
       });
     });
@@ -565,8 +600,11 @@ function buildJdCvEvidenceRows(
       requirement: skill,
       jdEvidence,
       cvEvidence: cvEvidence || buildSkillSignalEvidence(skill, insight),
+      highlightTerms: [skill],
       matchKind: jdEvidence && cvEvidence ? 'exact' : 'semantic',
       confidence: jdEvidence && cvEvidence ? 88 : semanticMatchPercentFromInsight(insight),
+      jdEvidenceQuoted: Boolean(jdEvidence),
+      cvEvidenceQuoted: Boolean(cvEvidence),
       reason: jdEvidence && cvEvidence
         ? 'Kỹ năng/công nghệ này được nhận diện là khớp trực tiếp giữa yêu cầu tuyển dụng và hồ sơ.'
         : 'Embedding và danh sách kỹ năng CV cho thấy nội dung hồ sơ cùng ngữ cảnh với yêu cầu này.',
@@ -585,8 +623,11 @@ function buildJdCvEvidenceRows(
         requirement: item.keyword,
         jdEvidence: findBestEvidenceSentence(jdText, item.keyword),
         cvEvidence: item.evidence,
+        highlightTerms: [item.keyword],
         matchKind: 'semantic',
         confidence: item.score * 100,
+        jdEvidenceQuoted: Boolean(findBestEvidenceSentence(jdText, item.keyword)),
+        cvEvidenceQuoted: Boolean(item.evidence),
         reason: item.reason,
       });
     });
@@ -598,8 +639,11 @@ function buildJdCvEvidenceRows(
       requirement: match,
       jdEvidence: findBestEvidenceSentence(jdText, match, terms),
       cvEvidence: findBestEvidenceSentence(combinedCvEvidence, match, terms) || buildSkillSignalEvidence(match, insight),
+      highlightTerms: [match, ...terms],
       matchKind: 'transfer',
       confidence: 78,
+      jdEvidenceQuoted: Boolean(findBestEvidenceSentence(jdText, match, terms)),
+      cvEvidenceQuoted: Boolean(findBestEvidenceSentence(combinedCvEvidence, match, terms)),
       reason: 'Hai cách diễn đạt không trùng chữ hoàn toàn nhưng có quan hệ kỹ năng/ngữ cảnh tương đương.',
     });
   });
@@ -613,8 +657,10 @@ function buildJdCvEvidenceRows(
         requirement: skill,
         jdEvidence: findBestEvidenceSentence(jdText, skill),
         cvEvidence: buildIncorrectCvStatement(skill),
+        highlightTerms: [skill],
         matchKind: 'incorrect',
         confidence: 0,
+        jdEvidenceQuoted: Boolean(findBestEvidenceSentence(jdText, skill)),
         reason: 'Sai vì yêu cầu này có trong JD nhưng nội dung CV đã trích xuất không thể hiện kỹ năng tương ứng.',
       });
     });
@@ -626,9 +672,12 @@ function buildJdCvEvidenceRows(
     pushRow({
       requirement: 'Mức phù hợp tổng thể JD/CV',
       jdEvidence: findBestEvidenceSentence(jdText, 'job requirement jd'),
+      highlightTerms: ['job fit', 'jd', 'cv'],
       cvEvidence: findBestEvidenceSentence(combinedCvEvidence, 'candidate cv experience skills') || (isOverallMatch ? buildSkillSignalEvidence('job fit', insight) : buildIncorrectCvStatement('mức phù hợp tổng thể JD/CV')),
       matchKind: isOverallMatch ? 'semantic' : 'incorrect',
       confidence: overallConfidence,
+      jdEvidenceQuoted: Boolean(findBestEvidenceSentence(jdText, 'job requirement jd')),
+      cvEvidenceQuoted: Boolean(findBestEvidenceSentence(combinedCvEvidence, 'candidate cv experience skills')),
       reason: isOverallMatch
         ? 'Đúng ở mức tổng thể vì embedding đo được độ tương đồng ngữ nghĩa cao giữa mô tả công việc và nội dung hồ sơ.'
         : 'Sai ở mức tổng thể vì độ tương đồng ngữ nghĩa giữa JD và CV còn thấp.',
@@ -1487,6 +1536,72 @@ function highlightKeywordsInText(text: string, keywords: string[]): React.ReactN
   );
 }
 
+interface HighlightedEvidenceQuoteProps {
+  text: string;
+  primaryKeywords?: string[];
+  fallbackKeywords?: string[];
+  className: string;
+  missing?: boolean;
+  missingLabel?: string;
+}
+
+const HighlightedEvidenceQuote: React.FC<HighlightedEvidenceQuoteProps> = ({
+  text,
+  primaryKeywords = [],
+  fallbackKeywords = [],
+  className,
+  missing = false,
+  missingLabel,
+}) => {
+  const highlightedHtml = useMemo(
+    () => buildHighlightedEvidenceHtml(text, primaryKeywords, fallbackKeywords),
+    [fallbackKeywords.join('|'), primaryKeywords.join('|'), text]
+  );
+
+  return (
+    <div className="space-y-2">
+      {missing && missingLabel && (
+        <span className="inline-flex rounded-full border border-amber-500/25 bg-amber-500/10 px-2.5 py-1 text-[10px] font-semibold text-amber-300">
+          {missingLabel}
+        </span>
+      )}
+      <blockquote
+        className={className}
+        dangerouslySetInnerHTML={{ __html: highlightedHtml }}
+      />
+    </div>
+  );
+};
+
+const CriteriaSignalPill: React.FC<{ label: string; tone: 'match' | 'missing' | 'semantic' }> = ({ label, tone }) => {
+  const toneClass = tone === 'match'
+    ? 'border-emerald-500/30 bg-emerald-950/40 text-emerald-300'
+    : tone === 'semantic'
+      ? 'border-cyan-500/30 bg-cyan-950/40 text-cyan-300'
+      : 'border-rose-900/40 bg-red-950/30 text-red-400';
+
+  return (
+    <span className={`rounded-full border px-2 py-0.5 text-[10px] ${toneClass}`}>
+      {label}
+    </span>
+  );
+};
+
+const FormulaMetricPill: React.FC<{ label: string; value: string; tone?: 'score' | 'weight' | 'max' }> = ({ label, value, tone = 'score' }) => {
+  const toneClass = tone === 'weight'
+    ? 'border-cyan-500/20 bg-cyan-950/25 text-cyan-200'
+    : tone === 'max'
+      ? 'border-zinc-700/50 bg-zinc-900/70 text-zinc-200'
+      : 'border-emerald-500/20 bg-emerald-950/25 text-emerald-200';
+
+  return (
+    <div className={`rounded-xl border px-3 py-2 ${toneClass}`}>
+      <div className="text-[9px] font-bold uppercase tracking-[0.12em] opacity-75">{label}</div>
+      <div className="mt-1 text-sm font-black">{value}</div>
+    </div>
+  );
+};
+
 interface CriterionAccordionProps {
   item: DetailedScore;
   isExpanded: boolean;
@@ -1584,7 +1699,29 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
   const formulaText = advancedBreakdown?.mathematical_formula || detailFormula || null;
   const allMatchedKw = matchedKeywordRows.map(k => k.keyword);
   const allMissingKw = missingKeywordRows.map(k => k.keyword);
+  const semanticMatchKeywords = requirementComparison?.semanticMatched.map((item) => item.keyword) || [];
+  const jdKeywordPool = requirementComparison
+    ? uniqueTextItems([
+        ...requirementComparison.jdKeywords,
+        ...requirementComparison.matched,
+        ...semanticMatchKeywords,
+        ...requirementComparison.missing,
+      ])
+    : [];
+  const criteriaHighlightTerms = buildHighlightTerms(allMatchedKw, semanticMatchKeywords, thisRequirement?.keywords, criterionName).slice(0, 12);
+  const formulaSummary = parsedData.hasScore
+    ? `${parsedData.score !== null ? formatScoreValue(parsedData.score) : '0'} / ${parsedData.maxScore !== null ? formatScoreValue(parsedData.maxScore) : '0'}${parsedData.weight > 0 ? ` × ${parsedData.weight}%` : ''}`
+    : formulaText;
   const isSoftCriterion = /văn hoá|văn hóa|chuyên nghiệp|gắn bó|thái độ|tinh thần|ngoại giao/i.test(criterionName);
+  const jdEvidenceSnippet = useMemo(() => {
+    if (!requirementComparison && !thisRequirement && !isSoftCriterion) return '';
+    return findBestEvidenceSentence(jdText, criterionName, jdKeywordPool.length > 0 ? jdKeywordPool : [criterionName]);
+  }, [criterionName, isSoftCriterion, jdKeywordPool.join('|'), jdText, requirementComparison, thisRequirement]);
+  const canRenderCriteriaEvidenceSplit = detailed
+    && hasRealEvidence
+    && !isExperience
+    && Boolean(requirementComparison)
+    && (!isSoftCriterion || Boolean(jdEvidenceSnippet));
 
   return (
     <div className="overflow-hidden rounded-2xl border border-zinc-800/35 bg-zinc-950/55 transition-colors duration-150 hover:border-zinc-700/45">
@@ -1614,11 +1751,41 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
         <div className="divide-y divide-zinc-800/40 border-t border-zinc-800/50">
 
           {/* ── Formula box (detailed mode) ───────────────────── */}
-          {detailed && formulaText && (
+          {detailed && formulaSummary && (
             <div className="px-4 py-3">
               <span className="mb-1.5 block text-[9.5px] font-bold uppercase tracking-[0.13em] text-cyan-500/80">Công thức tính điểm</span>
-              <div className="rounded-lg border border-cyan-500/20 bg-cyan-950/20 px-3 py-2.5 font-mono text-[11.5px] leading-[1.6] text-cyan-200/90">
-                {formulaText}
+              <div className="rounded-xl border border-cyan-500/20 bg-cyan-950/20 px-3 py-3">
+                <div className="rounded-lg border border-cyan-500/15 bg-black/10 px-3 py-2 font-mono text-[11.5px] leading-[1.7] text-cyan-100">
+                  <span className="font-bold text-cyan-300">Điểm đạt</span> / <span className="font-bold text-zinc-100">Điểm tối đa</span>
+                  {parsedData.weight > 0 && (
+                    <>
+                      {' '}× <span className="font-bold text-cyan-300">Trọng số</span>
+                    </>
+                  )}
+                  <span className="mx-2 text-zinc-500">=</span>
+                  <span className="font-bold text-cyan-200">{formulaSummary}</span>
+                </div>
+                <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-3">
+                  <FormulaMetricPill
+                    label="Điểm đạt"
+                    value={parsedData.score !== null ? formatScoreValue(parsedData.score) : 'Chưa có'}
+                  />
+                  <FormulaMetricPill
+                    label="Điểm tối đa"
+                    value={parsedData.maxScore !== null ? formatScoreValue(parsedData.maxScore) : 'Chưa có'}
+                    tone="max"
+                  />
+                  <FormulaMetricPill
+                    label="Trọng số"
+                    value={parsedData.weight > 0 ? `${parsedData.weight}%` : 'Chưa có'}
+                    tone="weight"
+                  />
+                </div>
+                {formulaText && (
+                  <p className="mt-3 text-[10.5px] leading-5 text-cyan-100/75">
+                    <span className="font-bold text-cyan-300">Công thức gốc từ hệ thống:</span> {formulaText}
+                  </p>
+                )}
               </div>
             </div>
           )}
@@ -1638,9 +1805,11 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
             </div>
             {canShowRawEvidence ? (
               detailed ? (
-                <blockquote className="border-l-2 border-cyan-500/50 pl-3 text-[11.5px] italic leading-[1.7] text-zinc-300">
-                  {highlightKeywordsInText(detailEvidence, allMatchedKw)}
-                </blockquote>
+                <HighlightedEvidenceQuote
+                  text={detailEvidence}
+                  primaryKeywords={criteriaHighlightTerms}
+                  className="border-l-2 border-cyan-500/50 pl-3 text-[11.5px] italic leading-[1.7] text-zinc-300"
+                />
               ) : (
                 <blockquote
                   className="border-l-2 border-cyan-500/50 pl-3 text-[11.5px] italic leading-[1.7] text-zinc-300"
@@ -1717,7 +1886,68 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
           )}
 
           {/* ── Đối chiếu JD ↔ CV ────────────────────────────── */}
-          {(allMatchedKw.length > 0 || allMissingKw.length > 0 || (!isExperience && requirementComparison)) && (
+          {canRenderCriteriaEvidenceSplit && requirementComparison && (
+            <div className="px-4 py-3 space-y-3">
+              <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  <span className="text-[9.5px] font-bold uppercase tracking-[0.13em] text-zinc-500">Đối chiếu JD ↔ CV</span>
+                  <p className="mt-1 text-[11px] leading-5 text-zinc-400">
+                    Bên trái là yêu cầu và từ khóa từ JD, bên phải là dẫn chứng CV đã được làm nổi bật.
+                  </p>
+                </div>
+                <span className="inline-flex rounded-full border border-cyan-500/25 bg-cyan-950/25 px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.12em] text-cyan-300">
+                  {jdKeywordPool.length > 0 ? `${allMatchedKw.length}/${jdKeywordPool.length} tín hiệu khớp` : 'Đối chiếu trọng tâm'}
+                </span>
+              </div>
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)]">
+                <div className="rounded-2xl border border-emerald-500/12 bg-emerald-950/10 p-4">
+                  <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-emerald-300">JD cần gì</div>
+                  <div className="mt-2 text-xs font-semibold leading-5 text-emerald-100">
+                    {criterionName}
+                  </div>
+                  <div className="mt-3 flex flex-wrap gap-1.5">
+                    {requirementComparison.matched.map((keyword) => (
+                      <CriteriaSignalPill key={`matched-${keyword}`} label={`Từ khóa khớp: ${normalizeVietnameseDisplay(keyword)}`} tone="match" />
+                    ))}
+                    {requirementComparison.semanticMatched.map((item) => (
+                      <CriteriaSignalPill key={`semantic-${item.keyword}`} label={`Gần đúng: ${normalizeVietnameseDisplay(item.keyword)}`} tone="semantic" />
+                    ))}
+                    {requirementComparison.missing.map((keyword) => (
+                      <CriteriaSignalPill key={`missing-${keyword}`} label={`Thiếu: ${normalizeVietnameseDisplay(keyword)}`} tone="missing" />
+                    ))}
+                  </div>
+                  {jdEvidenceSnippet ? (
+                    <div className="mt-3">
+                      <HighlightedEvidenceQuote
+                        text={jdEvidenceSnippet}
+                        primaryKeywords={criteriaHighlightTerms}
+                        className="border-l border-emerald-500/30 pl-3 text-[11px] leading-5 text-zinc-200"
+                      />
+                    </div>
+                  ) : (
+                    <span className="mt-3 inline-flex rounded-full border border-amber-500/25 bg-amber-500/10 px-2.5 py-1 text-[10px] font-semibold text-amber-300">
+                      Chưa có trích dẫn JD cụ thể
+                    </span>
+                  )}
+                </div>
+                <div className="rounded-2xl border border-cyan-500/12 bg-black/15 p-4">
+                  <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-cyan-300">CV chứng minh gì</div>
+                  <div className="mt-2 text-[10px] font-semibold uppercase tracking-[0.1em] text-zinc-500">
+                    Dẫn chứng CV
+                  </div>
+                  <div className="mt-2">
+                    <HighlightedEvidenceQuote
+                      text={detailEvidence}
+                      primaryKeywords={criteriaHighlightTerms}
+                      className="border-l border-cyan-500/30 pl-3 text-[11px] leading-5 text-zinc-200"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {!canRenderCriteriaEvidenceSplit && (allMatchedKw.length > 0 || allMissingKw.length > 0 || (!isExperience && requirementComparison)) && (
             <div className="px-4 py-3 space-y-2.5">
               <div className="flex items-center justify-between">
                 <span className="text-[9.5px] font-bold uppercase tracking-[0.13em] text-zinc-500">Đối chiếu JD ↔ CV</span>
@@ -2195,7 +2425,7 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
                       <div>
                         <div className="text-[10px] font-bold uppercase tracking-[0.16em] text-emerald-300">So khớp năng lực</div>
                         <p className="mt-1 text-[11px] leading-5 text-emerald-100/60">
-                          JD bên trái, dẫn chứng CV bên phải.
+                          Bên trái là yêu cầu từ JD, bên phải là dẫn chứng trong CV.
                         </p>
                       </div>
                       <div className="text-[10px] font-bold uppercase tracking-[0.12em] text-emerald-300/80">
@@ -2223,18 +2453,30 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
                                     <span className="font-mono text-[10px] font-bold text-emerald-300">{row.confidence}%</span>
                                   )}
                                 </div>
-                                <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-zinc-500">Yêu cầu JD</div>
+                                <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-zinc-500">Yêu cầu từ JD</div>
                                 <div className="mt-1 break-words text-xs font-bold leading-5 text-emerald-100">{row.requirement}</div>
-                                <blockquote className="mt-2 border-l border-emerald-500/30 pl-3 text-[11px] leading-5 text-zinc-300">
-                                  "{row.jdEvidence}"
-                                </blockquote>
+                                <div className="mt-2">
+                                  <HighlightedEvidenceQuote
+                                    text={row.jdEvidence}
+                                    primaryKeywords={row.highlightTerms}
+                                    className="border-l border-emerald-500/30 pl-3 text-[11px] leading-5 text-zinc-300"
+                                    missing={!row.jdEvidenceQuoted}
+                                    missingLabel="Chưa có trích dẫn JD cụ thể"
+                                  />
+                                </div>
                               </div>
 
                               <div className="min-w-0 pt-1 md:pl-1">
-                                <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-zinc-500">CV chứng minh / suy luận</div>
-                                <blockquote className={`mt-2 border-l pl-3 text-[11px] leading-5 ${row.matchKind === 'incorrect' ? 'border-rose-500/40 text-rose-200' : 'border-cyan-500/30 text-zinc-200'}`}>
-                                  "{row.cvEvidence}"
-                                </blockquote>
+                                <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-zinc-500">Dẫn chứng trong CV</div>
+                                <div className="mt-2">
+                                  <HighlightedEvidenceQuote
+                                    text={row.cvEvidence}
+                                    primaryKeywords={row.highlightTerms}
+                                    className={`border-l pl-3 text-[11px] leading-5 ${row.matchKind === 'incorrect' ? 'border-rose-500/40 text-rose-200' : 'border-cyan-500/30 text-zinc-200'}`}
+                                    missing={!row.cvEvidenceQuoted}
+                                    missingLabel="Chưa có trích dẫn CV cụ thể"
+                                  />
+                                </div>
                                 {row.reason && (
                                   <p className="mt-2 text-[10px] leading-5 text-zinc-500">{normalizeVietnameseDisplay(row.reason)}</p>
                                 )}
@@ -2277,7 +2519,7 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
                   <div>
                     <div className="text-[10px] font-bold uppercase tracking-[0.16em] text-emerald-300">So khớp JD / CV</div>
                     <p className="mt-1 text-[11px] leading-5 text-emerald-100/60">
-                      JD bên trái, dẫn chứng CV bên phải.
+                      Bên trái là yêu cầu từ JD, bên phải là dẫn chứng trong CV.
                     </p>
                   </div>
                   <div className="text-[10px] font-bold uppercase tracking-[0.12em] text-emerald-300/80">
@@ -2300,18 +2542,30 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
                             <span className="font-mono text-[10px] font-bold text-emerald-300">{row.confidence}%</span>
                           )}
                         </div>
-                        <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-zinc-500">Yêu cầu JD</div>
+                        <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-zinc-500">Yêu cầu từ JD</div>
                         <div className="mt-1 break-words text-xs font-bold leading-5 text-emerald-100">{row.requirement}</div>
-                        <blockquote className="mt-2 border-l border-emerald-500/30 pl-3 text-[11px] leading-5 text-zinc-300">
-                          "{row.jdEvidence}"
-                        </blockquote>
+                        <div className="mt-2">
+                          <HighlightedEvidenceQuote
+                            text={row.jdEvidence}
+                            primaryKeywords={row.highlightTerms}
+                            className="border-l border-emerald-500/30 pl-3 text-[11px] leading-5 text-zinc-300"
+                            missing={!row.jdEvidenceQuoted}
+                            missingLabel="Chưa có trích dẫn JD cụ thể"
+                          />
+                        </div>
                       </div>
 
                       <div className="min-w-0 pt-1 md:pl-1">
-                        <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-zinc-500">CV chứng minh / suy luận</div>
-                        <blockquote className={`mt-2 border-l pl-3 text-[11px] leading-5 ${row.matchKind === 'incorrect' ? 'border-rose-500/40 text-rose-200' : 'border-cyan-500/30 text-zinc-200'}`}>
-                          "{row.cvEvidence}"
-                        </blockquote>
+                        <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-zinc-500">Dẫn chứng trong CV</div>
+                        <div className="mt-2">
+                          <HighlightedEvidenceQuote
+                            text={row.cvEvidence}
+                            primaryKeywords={row.highlightTerms}
+                            className={`border-l pl-3 text-[11px] leading-5 ${row.matchKind === 'incorrect' ? 'border-rose-500/40 text-rose-200' : 'border-cyan-500/30 text-zinc-200'}`}
+                            missing={!row.cvEvidenceQuoted}
+                            missingLabel="Chưa có trích dẫn CV cụ thể"
+                          />
+                        </div>
                         {row.reason && (
                           <p className="mt-2 text-[10px] leading-5 text-zinc-500">{normalizeVietnameseDisplay(row.reason)}</p>
                         )}

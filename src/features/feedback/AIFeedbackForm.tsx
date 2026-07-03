@@ -231,7 +231,7 @@ export default function AIFeedbackForm({
     /* Step 1 — Decision */
     if (currentStep === 'decision') {
       return (
-        <div className="grid gap-2.5 md:grid-cols-2">
+        <div className="grid gap-3 md:grid-cols-2">
           {ACTION_OPTIONS.map((option) => {
             const isActive = action === option.value;
             const Icon = option.icon;
@@ -240,7 +240,7 @@ export default function AIFeedbackForm({
                 key={option.value}
                 type="button"
                 onClick={() => { setAction(option.value); setFormNotice(null); }}
-                className={`flex items-center gap-3 rounded-2xl border p-4 text-left transition-all duration-150 hover:shadow-sm ${
+                className={`flex min-h-[104px] items-center gap-3 rounded-2xl border p-4 text-left transition-all duration-150 hover:shadow-sm ${
                   isActive
                     ? option.activeClass
                     : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50'
@@ -251,11 +251,11 @@ export default function AIFeedbackForm({
                 }`}>
                   <Icon className="h-4.5 w-4.5" />
                 </div>
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                   <p className={`text-[13px] font-bold leading-tight ${isActive ? '' : 'text-slate-800'}`}>
                     {option.label}
                   </p>
-                  <p className={`mt-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] ${isActive ? 'opacity-60' : 'text-slate-400'}`}>
+                  <p className={`mt-1 text-[10px] font-semibold uppercase tracking-[0.14em] ${isActive ? 'opacity-60' : 'text-slate-400'}`}>
                     {option.shortLabel}
                   </p>
                 </div>
@@ -458,11 +458,11 @@ export default function AIFeedbackForm({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+    <form onSubmit={handleSubmit} className="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[0_18px_50px_rgba(15,23,42,0.08)]">
       {/* Form header + step navigation */}
-      <div className="flex flex-col gap-4 border-b border-slate-100 px-5 py-4 lg:flex-row lg:items-center lg:justify-between">
-        <div className="flex items-center gap-3 min-w-0">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+      <div className="flex flex-col gap-5 border-b border-slate-100 px-5 py-5 xl:flex-row xl:items-start xl:justify-between">
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
             <Sparkles className="h-4 w-4" />
           </div>
           <div className="min-w-0">
@@ -472,7 +472,7 @@ export default function AIFeedbackForm({
         </div>
 
         {/* Step pills */}
-        <div className="flex items-center gap-1.5 flex-wrap">
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 xl:min-w-[440px]">
           {FEEDBACK_STEPS.map((step, index) => {
             const isActive = step.key === currentStep;
             const isDone = index < stepIndex;
@@ -485,7 +485,7 @@ export default function AIFeedbackForm({
                     setCurrentStep(step.key);
                   }
                 }}
-                className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11px] font-semibold transition-colors ${
+                className={`inline-flex min-h-[42px] items-center justify-center gap-1.5 rounded-2xl border px-3 py-2 text-[11px] font-semibold transition-colors ${
                   isActive
                     ? 'border-blue-300 bg-blue-600 text-white shadow-sm shadow-blue-600/20'
                     : isDone
@@ -496,7 +496,7 @@ export default function AIFeedbackForm({
                 {isDone ? (
                   <CheckCircle2 className="h-3 w-3" />
                 ) : (
-                  <span className="h-4 w-4 flex items-center justify-center rounded-full text-[9px] font-black bg-white/20">
+                  <span className="flex h-4 w-4 items-center justify-center rounded-full bg-white/20 text-[9px] font-black">
                     {index + 1}
                   </span>
                 )}
@@ -508,7 +508,7 @@ export default function AIFeedbackForm({
       </div>
 
       {/* Step content */}
-      <div className="px-5 py-5">{renderStepContent()}</div>
+      <div className="px-5 py-5 sm:px-6">{renderStepContent()}</div>
 
       {/* Navigation */}
       <div className="flex flex-col justify-between gap-3 border-t border-slate-100 px-5 py-4 md:flex-row md:items-center">

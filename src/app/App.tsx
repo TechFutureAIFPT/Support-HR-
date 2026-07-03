@@ -55,7 +55,7 @@ const AIFeedbackPage = lazy(() => import('@/pages/main/AIFeedbackPage'));
 const ContactCandidatesPage = lazy(() => import('@/pages/main/ContactCandidatesPage'));
 const FilteredCvLibraryPage = lazy(() => import('@/pages/tools/FilteredCvLibraryPage'));
 const JDStandardizerPage = lazy(() => import('@/pages/tools/JDStandardizerPage'));
-import CandidateSuggestions from '@/pages/analytics/CandidateSuggestions';
+const CandidateSuggestions = lazy(() => import('@/pages/analytics/CandidateSuggestions'));
 // HistoryPage removed from UI (still saving to Firestore silently)
 import { saveHistorySession } from '@/services/history-cache/historyService';
 import { cvFilterHistoryService } from '@/services/history-cache/analysisHistory';
@@ -294,20 +294,21 @@ const MainApp = () => {
         setCurrentUser(authUser);
         setShowLoginModal(false);
         localStorage.setItem('authEmail', user.email || '');
+        setIsInitializing(false);
 
-        try {
-          if (user.email) {
-            await UserProfileService.saveUserProfile(
-              user.uid,
-              user.email,
-              buildProfileSeed(authUser),
-            );
-            await UserProfileService.migrateLocalDataToFirebase(user.uid, user.email);
-          }
-        } catch (error) {
-          console.error('Error syncing user profile:', error);
-        } finally {
-          setIsInitializing(false);
+        if (user.email) {
+          void (async () => {
+            try {
+              await UserProfileService.saveUserProfile(
+                user.uid,
+                user.email,
+                buildProfileSeed(authUser),
+              );
+              await UserProfileService.migrateLocalDataToFirebase(user.uid, user.email);
+            } catch (error) {
+              console.error('Error syncing user profile:', error);
+            }
+          })();
         }
         return;
       }
@@ -443,6 +444,26 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
   useEffect(() => {
     const loadUserData = async () => {
       if (currentUser) {
+        const cachedProfile = UserProfileService.getCachedUserProfile(currentUser.uid);
+        const cachedName = cachedProfile?.displayName || currentUser.displayName || currentUser.email.split('@')[0];
+        const cachedAvatar = cachedProfile?.avatar
+          || currentUser.photoURL
+          || localStorage.getItem(`avatar_${currentUser.email}`)
+          || null;
+
+        setUserName(cachedName);
+        setUserAvatar(cachedAvatar);
+
+        const cachedRecruiterInfo = buildMergedRecruiterInfo(cachedProfile?.recruiterInfo, settings.account.recruiterInfo);
+        if (cachedProfile?.displayName || cachedProfile?.avatar || cachedRecruiterInfo) {
+          updateAccountSnapshot({
+            email: currentUser.email,
+            ...(cachedProfile?.displayName ? { displayName: cachedProfile.displayName } : {}),
+            ...(cachedProfile?.avatar ? { avatar: cachedProfile.avatar } : {}),
+            ...(cachedRecruiterInfo ? { recruiterInfo: cachedRecruiterInfo } : {}),
+          });
+        }
+
         try {
           let profile = await UserProfileService.getUserProfile(currentUser.uid);
 

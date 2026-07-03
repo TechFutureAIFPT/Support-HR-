@@ -51,6 +51,9 @@ const QUICK_ACTIONS = [
   },
 ];
 
+const WELCOME_MESSAGE =
+  'Xin chào! Tôi là **Trợ lý tuyển dụng AI** của Support HR.\n\nTôi có thể giúp bạn:\n• Gợi ý ứng viên phù hợp nhất với JD\n• So sánh chi tiết hồ sơ ứng viên\n• Tạo câu hỏi phỏng vấn chuyên sâu\n• Phân nhóm ứng viên theo cấp độ\n\n**Bắt đầu bằng cách chọn một gợi ý bên dưới hoặc đặt câu hỏi trực tiếp!**';
+
 const CandidateSuggestions: React.FC<CandidateSuggestionsProps> = ({ candidates, jobPosition }) => {
   const tc = useThemeColors();
   const storedRun = useMemo(() => readLatestAnalysisRun(), []);
@@ -92,6 +95,12 @@ const CandidateSuggestions: React.FC<CandidateSuggestionsProps> = ({ candidates,
     candidates: effectiveCandidates,
   };
 
+  const buildInitialMessage = useCallback((): Message => ({
+    role: 'assistant',
+    content: WELCOME_MESSAGE,
+    timestamp: Date.now(),
+  }), []);
+
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
   useEffect(() => { inputRef.current?.focus(); }, []);
   useEffect(() => {
@@ -120,11 +129,7 @@ const CandidateSuggestions: React.FC<CandidateSuggestionsProps> = ({ candidates,
             totalCandidates: effectiveCandidates.length,
           });
           setSessionId(newId);
-          const initialMsg: Message = {
-            role: 'assistant',
-            content: 'Xin chào! Tôi là **Trợ lý tuyển dụng AI** của Support HR.\n\nTôi có thể giúp bạn:\n• Gợi ý ứng viên phù hợp nhất với JD\n• So sánh chi tiết hồ sơ ứng viên\n• Tạo câu hỏi phỏng vấn chuyên sâu\n• Phân nhóm ứng viên theo cấp độ\n\n**Bắt đầu bằng cách chọn một gợi ý bên dưới hoặc đặt câu hỏi trực tiếp!**',
-            timestamp: Date.now(),
-          };
+          const initialMsg = buildInitialMessage();
           setMessages([initialMsg]);
           if (newId) {
             await ChatbotHistoryService.addMessage(newId, {
@@ -140,7 +145,29 @@ const CandidateSuggestions: React.FC<CandidateSuggestionsProps> = ({ candidates,
       }
     };
     initSession();
-  }, [effectiveJobPosition, effectiveCandidates.length]);
+  }, [buildInitialMessage, effectiveJobPosition, effectiveCandidates.length]);
+
+  const startFreshChat = useCallback(async () => {
+    const newId = await ChatbotHistoryService.createSession({
+      jobPosition: analysisData.job.position,
+      totalCandidates: analysisData.candidates?.length || 0,
+    });
+    setSessionId(newId);
+    const initialMsg = buildInitialMessage();
+    setMessages([initialMsg]);
+    setInput('');
+    setExpandedMsg(null);
+    setCopiedId(null);
+    setShowHistory(false);
+    if (newId) {
+      await ChatbotHistoryService.addMessage(newId, {
+        id: 'initial',
+        author: 'bot',
+        content: initialMsg.content,
+        timestamp: initialMsg.timestamp!,
+      });
+    }
+  }, [analysisData.candidates?.length, analysisData.job.position, buildInitialMessage]);
 
   const loadPastSessions = async () => {
     try {
@@ -303,26 +330,7 @@ const CandidateSuggestions: React.FC<CandidateSuggestionsProps> = ({ candidates,
 
                 <div className="px-4 py-3 border-b" style={{ borderColor: tc.borderColor }}>
                   <button
-                    onClick={async () => {
-                      const newId = await ChatbotHistoryService.createSession({
-                        jobPosition: analysisData.job.position,
-                        totalCandidates: analysisData.candidates?.length || 0,
-                      });
-                      setSessionId(newId);
-                      const initialMsg: Message = {
-                        role: 'assistant',
-                        content: 'Xin chào! Tôi là **Trợ lý tuyển dụng AI** của Support HR.\n\nTôi có thể giúp bạn:\n• Gợi ý ứng viên phù hợp nhất với JD\n• So sánh chi tiết hồ sơ ứng viên\n• Tạo câu hỏi phỏng vấn chuyên sâu\n• Phân nhóm ứng viên theo cấp độ\n\n**Bắt đầu bằng cách chọn một gợi ý bên dưới hoặc đặt câu hỏi trực tiếp!**',
-                        timestamp: Date.now(),
-                      };
-                      setMessages([initialMsg]);
-                      setShowHistory(false);
-                      if (newId) {
-                        await ChatbotHistoryService.addMessage(newId, {
-                          id: 'initial', author: 'bot',
-                          content: initialMsg.content, timestamp: initialMsg.timestamp!,
-                        });
-                      }
-                    }}
+                    onClick={() => void startFreshChat()}
                     className="w-full flex items-center justify-center gap-2 rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 text-[12px] font-semibold text-blue-700 transition hover:bg-blue-100"
                   >
                     <Plus className="w-3.5 h-3.5" /> Hội thoại mới
@@ -405,6 +413,15 @@ const CandidateSuggestions: React.FC<CandidateSuggestionsProps> = ({ candidates,
                         {action.label}
                       </button>
                     ))}
+                    <button
+                      onClick={() => void startFreshChat()}
+                      disabled={isLoading}
+                      className="flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[12px] font-medium whitespace-nowrap flex-shrink-0 transition-all hover:border-rose-200 hover:bg-rose-50 hover:text-rose-700 disabled:opacity-40 disabled:cursor-not-allowed"
+                      style={{ background: tc.cardBg, borderColor: tc.borderSoft, color: tc.textSecondary }}
+                    >
+                      <X className="w-3 h-3 flex-shrink-0" />
+                      Clear chat
+                    </button>
                   </div>
                 </div>
               )}
@@ -639,7 +656,7 @@ const CandidateSuggestions: React.FC<CandidateSuggestionsProps> = ({ candidates,
 
               {/* ── Input Composer ───────────────────────────────────── */}
               <div className="shrink-0 px-4 pb-4 pt-3 md:px-6" style={{ background: tc.pageBg }}>
-                <div className="mx-auto max-w-3xl">
+                <div className="w-full">
                   <div
                     className="overflow-hidden rounded-2xl border shadow-sm transition-shadow focus-within:shadow-md focus-within:border-blue-200"
                     style={{ background: tc.cardBg, borderColor: tc.borderColor }}
@@ -669,16 +686,27 @@ const CandidateSuggestions: React.FC<CandidateSuggestionsProps> = ({ candidates,
                           </span>
                         )}
                       </div>
-                      <button
-                        onClick={() => { if (input.trim()) handleSend(input); }}
-                        disabled={isLoading || !input.trim()}
-                        className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 text-white shadow-sm shadow-blue-600/20 transition-all hover:bg-blue-700 disabled:opacity-30 disabled:cursor-not-allowed"
-                      >
-                        {isLoading
-                          ? <Loader2 className="w-4 h-4 animate-spin" />
-                          : <ArrowUp className="w-4 h-4" strokeWidth={2.5} />
-                        }
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => void startFreshChat()}
+                          disabled={isLoading || messages.length <= 1}
+                          className="inline-flex h-8 items-center gap-1.5 rounded-full border px-3 text-[11px] font-semibold transition-all hover:border-slate-300 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed"
+                          style={{ borderColor: tc.borderSoft, color: tc.textSecondary, background: tc.cardBg }}
+                        >
+                          <X className="w-3 h-3" />
+                          Clear
+                        </button>
+                        <button
+                          onClick={() => { if (input.trim()) handleSend(input); }}
+                          disabled={isLoading || !input.trim()}
+                          className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 text-white shadow-sm shadow-blue-600/20 transition-all hover:bg-blue-700 disabled:opacity-30 disabled:cursor-not-allowed"
+                        >
+                          {isLoading
+                            ? <Loader2 className="w-4 h-4 animate-spin" />
+                            : <ArrowUp className="w-4 h-4" strokeWidth={2.5} />
+                          }
+                        </button>
+                      </div>
                     </div>
                   </div>
                   <p className="mt-2 text-center text-[11px]" style={{ color: tc.textMuted }}>

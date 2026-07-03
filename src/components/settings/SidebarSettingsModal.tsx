@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { Suspense, lazy, useCallback, useEffect, useRef, useState } from 'react';
 import {
   AlertTriangle,
   Bell,
@@ -33,12 +33,13 @@ import { useTheme } from '@/context/theme/ThemeProvider';
 import { JDTemplatesService } from '@/services/data-sync/jdTemplatesService';
 import type { UserProfileSaveStatus } from '@/services/data-sync/userProfileService';
 import type { UserJDTemplate } from '@/services/data-sync/jdTemplatesService';
-import FilteredCvLibraryPage from '@/pages/tools/FilteredCvLibraryPage';
 import { readWorkflowDraft } from '@/services/history-cache/workflowDraft';
 import { initialWeights } from '@/config/constants';
 import WeightTile from '@/components/config/WeightTile';
 import HardFilterPanel from '@/components/config/HardFilterPanel';
 import { useTranslation } from '@/i18n/useTranslation';
+
+const FilteredCvLibraryPage = lazy(() => import('@/pages/tools/FilteredCvLibraryPage'));
 
 const DEFAULT_HARD_FILTERS: HardFilters = {
   location: '', minExp: '', seniority: '', education: '', industry: '',
@@ -685,7 +686,9 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
       {/* Content */}
       {librarySubPage === 'cv' ? (
         <div className="min-h-0 flex-1 overflow-hidden">
-          <FilteredCvLibraryPage userEmail={userEmail} />
+          <Suspense fallback={<div className="flex h-full items-center justify-center text-sm text-slate-500">Đang tải thư viện CV...</div>}>
+            <FilteredCvLibraryPage userEmail={userEmail} />
+          </Suspense>
         </div>
       ) : (
         <div className="custom-scrollbar flex-1 overflow-y-auto p-5 space-y-5">

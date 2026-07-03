@@ -32,6 +32,12 @@ export interface UserCVHistory {
   results?: any[];
 }
 
+const PROFILE_CACHE_KEY_PREFIX = 'supporthr.userProfile.';
+
+function profileCacheKey(uid: string): string {
+  return `${PROFILE_CACHE_KEY_PREFIX}${uid}`;
+}
+
 function normalizeTimestamp(value: unknown): number {
   if (typeof value === 'number') return value;
   if (value && typeof value === 'object' && typeof (value as Record<string, unknown>).seconds === 'number') {
@@ -81,6 +87,23 @@ function normalizeFirestoreProfile(data: Record<string, unknown>): UserProfile {
   };
 }
 
+function persistUserProfileCache(profile: UserProfile | null): void {
+  if (typeof window === 'undefined' || !profile?.uid) return;
+
+  try {
+    localStorage.setItem(
+      profileCacheKey(profile.uid),
+      JSON.stringify({
+        ...profile,
+        createdAt: normalizeTimestamp(profile.createdAt),
+        updatedAt: normalizeTimestamp(profile.updatedAt),
+      }),
+    );
+  } catch {
+    // Ignore local cache failures.
+  }
+}
+
 function normalizeUserCVHistory(raw: unknown): UserCVHistory {
   const record = (raw && typeof raw === 'object') ? raw as Record<string, unknown> : {};
 
@@ -97,6 +120,18 @@ function normalizeUserCVHistory(raw: unknown): UserCVHistory {
 }
 
 export class UserProfileService {
+  static getCachedUserProfile(uid: string): UserProfile | null {
+    if (typeof window === 'undefined' || !uid) return null;
+
+    try {
+      const raw = localStorage.getItem(profileCacheKey(uid));
+      if (!raw) return null;
+      return normalizeFirestoreProfile(JSON.parse(raw) as Record<string, unknown>);
+    } catch {
+      return null;
+    }
+  }
+
   static async saveUserProfile(
     uid: string,
     email: string,
@@ -132,16 +167,19 @@ export class UserProfileService {
     const [firestoreResult, apiResult] = await Promise.allSettled([firestoreWrite, apiWrite]);
 
     if (apiResult.status === 'fulfilled') {
+      const profile = normalizeUserProfile(apiResult.value);
+      persistUserProfileCache(profile);
       return {
         status: 'serverSaved',
-        profile: normalizeUserProfile(apiResult.value),
+        profile,
       };
     }
 
     if (firestoreResult.status === 'fulfilled') {
+      const profile = await UserProfileService.getProfileFromFirestore(uid);
       return {
         status: 'firebaseSaved',
-        profile: await UserProfileService.getProfileFromFirestore(uid),
+        profile,
         message: 'Đã lưu trên Firebase nhưng server chưa xác nhận. Vui lòng đăng nhập lại hoặc thử lại sau.',
       };
     }
@@ -155,18 +193,25 @@ export class UserProfileService {
     try {
       const response = await apiGet<unknown>('/api/account/profile', { authRequired: true });
       const profile = normalizeUserProfile(response);
-      if (profile?.uid) return profile;
+      if (profile?.uid) {
+        persistUserProfileCache(profile);
+        return profile;
+      }
     } catch {
       // Backend unavailable. Fall through to Firestore.
     }
 
-    return UserProfileService.getProfileFromFirestore(uid);
+    const firestoreProfile = await UserProfileService.getProfileFromFirestore(uid);
+    if (firestoreProfile) return firestoreProfile;
+    return UserProfileService.getCachedUserProfile(uid);
   }
 
   static async getProfileFromFirestore(uid: string): Promise<UserProfile | null> {
     const snap = await getDoc(doc(db, 'users', uid));
     if (!snap.exists()) return null;
-    return normalizeFirestoreProfile(snap.data() as Record<string, unknown>);
+    const profile = normalizeFirestoreProfile(snap.data() as Record<string, unknown>);
+    persistUserProfileCache(profile);
+    return profile;
   }
 
   static async updateUserAvatar(_uid: string, avatar: string): Promise<void> {

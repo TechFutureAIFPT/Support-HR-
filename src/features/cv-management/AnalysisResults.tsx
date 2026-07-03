@@ -320,44 +320,155 @@ const StatsPane: React.FC<{ candidate: Candidate }> = ({ candidate }) => {
 interface ChatMessage { role: 'user' | 'ai'; text: string; }
 
 const CHAT_SUGGESTIONS = [
-  'Tạo 5 câu hỏi phỏng vấn phù hợp ứng viên này',
-  'Điểm mạnh nào cần khai thác sâu hơn?',
-  'Những rủi ro cần xác minh trực tiếp là gì?',
-  'So sánh ứng viên này với tiêu chuẩn vị trí',
+  'D\u1ef1a tr\u00ean th\u1ed1ng k\u00ea hi\u1ec7n c\u00f3, h\u00e3y t\u00f3m t\u1eaft v\u00ec sao \u1ee9ng vi\u00ean n\u00e0y \u0111\u1ea1t \u0111i\u1ec3m nh\u01b0 v\u1eady.',
+  'Nh\u1eefng r\u1ee7i ro c\u1ea7n x\u00e1c minh tr\u1ef1c ti\u1ebfp l\u00e0 g\u00ec? H\u00e3y n\u00eau r\u00f5 theo t\u1eebng s\u1ed1 li\u1ec7u.',
+  'T\u1ea1o 5 c\u00e2u h\u1ecfi ph\u1ecfng v\u1ea5n b\u00e1m \u0111\u00fang ti\u00eau ch\u00ed y\u1ebfu v\u00e0 ph\u1ea7n thi\u1ebfu c\u1ee7a \u1ee9ng vi\u00ean n\u00e0y.',
+  'N\u1ebfu ch\u1ec9 d\u1ef1a tr\u00ean s\u1ed1 li\u1ec7u hi\u1ec7n c\u00f3, \u1ee9ng vi\u00ean n\u00e0y c\u00f3 n\u00ean v\u00e0o v\u00f2ng ti\u1ebfp theo kh\u00f4ng?',
 ];
+
+function buildCandidateChatSnapshot(candidate: Candidate, jobPosition: string, jdText?: string) {
+  const detailScores = (candidate.analysis?.['Chi ti\u1ebft'] ?? []).map((item) => {
+    const scoreText = String(item['\u0110i\u1ec3m'] ?? '');
+    const normalizedScore = Number.parseInt(scoreText.split('/')[0] || '0', 10) || 0;
+
+    return {
+      criterion: normalizeVietnameseDisplay(item['Ti\u00eau ch\u00ed'] ?? ''),
+      score: normalizedScore,
+      scoreText,
+      evidence: normalizeVietnameseDisplay(item['D\u1eabn ch\u1ee9ng'] ?? '').slice(0, 220),
+      explanation: normalizeVietnameseDisplay(item['Gi\u1ea3i th\u00edch'] ?? '').slice(0, 220),
+      matchedSignals: item.advancedBreakdown?.matched_signals?.slice(0, 4) || [],
+      missingRequirements: item.advancedBreakdown?.missing_requirements?.slice(0, 4) || [],
+      verdict: item.advancedBreakdown?.verdict || '',
+      evidenceQuality: item.advancedBreakdown?.evidence_quality || '',
+    };
+  });
+
+  const ranked = [...detailScores].sort((left, right) => right.score - left.score);
+  const profile = candidate.candidateProfile;
+  const expYears = profile?.totalExperienceMonths != null ? Number((profile.totalExperienceMonths / 12).toFixed(1)) : null;
+  const relevantYears = profile?.relevantExperienceMonths != null ? Number((profile.relevantExperienceMonths / 12).toFixed(1)) : null;
+  const jdMatchPercent = candidate.jdCvMatchInsights
+    ? Number((candidate.jdCvMatchInsights.similarity * 100).toFixed(1))
+    : null;
+
+  const screeningSummary = Object.entries(candidate.screeningSummary || {})
+    .map(([key, value]) => {
+      if (!value) return null;
+      return {
+        factor: key,
+        status: value.status,
+        mandatory: value.mandatory,
+        observed: typeof value.observed === 'string' ? normalizeVietnameseDisplay(value.observed) : value.observed,
+        expected: typeof value.expected === 'string' ? normalizeVietnameseDisplay(value.expected) : value.expected,
+        reason: normalizeVietnameseDisplay(value.reason || ''),
+        evidence: normalizeVietnameseDisplay(value.evidence || ''),
+      };
+    })
+    .filter(Boolean);
+
+  return {
+    candidate: {
+      id: candidate.id,
+      name: normalizeVietnameseDisplay(candidate.candidateName),
+      appliedRole: normalizeVietnameseDisplay(jobPosition),
+      currentTitle: normalizeVietnameseDisplay(candidate.jobTitle || ''),
+      totalScore: candidate.analysis?.['T\u1ed5ng \u0111i\u1ec3m'] || 0,
+      grade: candidate.analysis?.['H\u1ea1ng'] || 'C',
+      stageDecision: {
+        status: candidate.stageDecision?.status || '',
+        label: normalizeVietnameseDisplay(candidate.stageDecision?.label || ''),
+        reason: normalizeVietnameseDisplay(candidate.stageDecision?.reason || ''),
+        blockingReasons: candidate.stageDecision?.blockingReasons || [],
+      },
+      jdMatchPercent,
+      experienceYears: expYears,
+      relevantExperienceYears: relevantYears,
+      experienceLevel: normalizeVietnameseDisplay(candidate.experienceLevel || ''),
+      location: normalizeVietnameseDisplay(candidate.detectedLocation || ''),
+      locationMatch: candidate.locationMatch,
+      educationLevel: normalizeVietnameseDisplay(profile?.educationLevel || ''),
+      educationMajors: profile?.educationMajors || [],
+      experienceDomains: profile?.experienceDomains || [],
+    },
+    strengths: (candidate.analysis?.['\u0110i\u1ec3m m\u1ea1nh CV'] || []).slice(0, 5).map((item) => normalizeVietnameseDisplay(item)),
+    weaknesses: (candidate.analysis?.['\u0110i\u1ec3m y\u1ebfu CV'] || []).slice(0, 5).map((item) => normalizeVietnameseDisplay(item)),
+    warnings: {
+      softFilterWarnings: (candidate.softFilterWarnings || []).slice(0, 5).map((item) => normalizeVietnameseDisplay(item)),
+      autoRejectReasons: (candidate.autoRejectReasons || []).slice(0, 5).map((item) => normalizeVietnameseDisplay(item)),
+      hardFilterFailureReason: normalizeVietnameseDisplay(candidate.hardFilterFailureReason || ''),
+      redFlags: (candidate.hrSummary?.canh_bao_red_flag || []).slice(0, 5).map((item) => normalizeVietnameseDisplay(item)),
+      debiasingWarnings: (candidate.debiasingWarnings || []).slice(0, 5).map((item) => normalizeVietnameseDisplay(item)),
+    },
+    criteria: {
+      top: ranked.slice(0, 4),
+      weak: [...ranked].reverse().slice(0, 4),
+      full: detailScores.slice(0, 8),
+    },
+    jdCvMatch: candidate.jdCvMatchInsights ? {
+      matchedSkills: candidate.jdCvMatchInsights.matchedSkills.slice(0, 8),
+      missingSkills: candidate.jdCvMatchInsights.missingSkills.slice(0, 8),
+      transferMatches: candidate.jdCvMatchInsights.transferMatches.slice(0, 6),
+      matchedRequirements: (candidate.jdCvMatchInsights.matchedRequirements || []).slice(0, 8),
+      missingRequirements: (candidate.jdCvMatchInsights.missingRequirements || []).slice(0, 8),
+    } : null,
+    hrSummary: candidate.hrSummary ? {
+      overall: normalizeVietnameseDisplay(candidate.hrSummary.nhan_xet_tong_quan || ''),
+      requiredYears: normalizeVietnameseDisplay(candidate.hrSummary.kinh_nghiem?.so_nam_yeu_cau || ''),
+      actualYears: normalizeVietnameseDisplay(candidate.hrSummary.kinh_nghiem?.so_nam_thuc_te || ''),
+      conclusion: normalizeVietnameseDisplay(candidate.hrSummary.kinh_nghiem?.ket_luan || ''),
+      skills: candidate.hrSummary.danh_gia_ky_nang.slice(0, 6).map((item) => ({
+        name: normalizeVietnameseDisplay(item.ten_ky_nang),
+        level: normalizeVietnameseDisplay(item.muc_do_dap_ung),
+        evidence: normalizeVietnameseDisplay(item.bang_chung_tu_cv),
+      })),
+    } : null,
+    screeningSummary,
+    embedding: candidate.embeddingInsights ? {
+      industry: normalizeVietnameseDisplay(candidate.embeddingInsights.industry || ''),
+      averageSimilarity: candidate.embeddingInsights.averageSimilarity,
+      bonusPoints: candidate.embeddingInsights.bonusPoints,
+      topMatches: candidate.embeddingInsights.topMatches.slice(0, 4),
+    } : null,
+    jdExcerpt: normalizeVietnameseDisplay(jdText || '').slice(0, 600),
+  };
+}
 
 const ChatPane: React.FC<{ candidate: Candidate; jobPosition: string; jdText?: string; recruiterInfo?: RecruiterInfo }> = ({ candidate, jobPosition, jdText, recruiterInfo }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const candidateSnapshot = useMemo(
+    () => buildCandidateChatSnapshot(candidate, jobPosition, jdText),
+    [candidate, jdText, jobPosition],
+  );
+  const score = candidate.analysis?.['T\u1ed5ng \u0111i\u1ec3m'] || 0;
+  const grade = candidate.analysis?.['H\u1ea1ng'] || 'C';
+  const snapshotStats = [
+    { label: 'T\u1ed5ng \u0111i\u1ec3m', value: `${score}/100` },
+    { label: 'H\u1ea1ng', value: grade },
+    { label: 'JD match', value: candidateSnapshot.candidate.jdMatchPercent != null ? `${candidateSnapshot.candidate.jdMatchPercent}%` : '--' },
+    { label: 'Kinh nghi\u1ec7m', value: candidateSnapshot.candidate.experienceYears != null ? `${candidateSnapshot.candidate.experienceYears} n\u0103m` : '--' },
+  ];
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const buildContext = () => {
-    const details = (candidate.analysis?.['Chi tiết'] ?? []).slice(0, 6).map(
-      (item) => `  - ${item['Tiêu chí'] ?? ''}: ${item['Điểm'] ?? ''} — ${(item['Dẫn chứng'] ?? '').slice(0, 120)}`
-    ).join('\n');
-    const profile = candidate.candidateProfile;
-    const expYears = profile?.totalExperienceMonths != null
-      ? `${(profile.totalExperienceMonths / 12).toFixed(1)} năm`
-      : null;
-    return [
-      `Ứng viên: ${candidate.candidateName}`,
-      `Vị trí ứng tuyển: ${jobPosition}`,
-      `Chức danh hiện tại: ${candidate.jobTitle || 'Chưa rõ'}`,
-      expYears ? `Kinh nghiệm: ${expYears}` : '',
-      profile?.educationLevel ? `Học vấn: ${profile.educationLevel}` : '',
-      candidate.email ? `Email: ${candidate.email}` : '',
-      `Tổng điểm: ${candidate.analysis?.['Tổng điểm'] ?? 0}/100 — Hạng ${candidate.analysis?.['Hạng'] ?? 'C'}`,
-      `Điểm mạnh: ${(candidate.analysis?.['Điểm mạnh CV'] ?? []).slice(0, 3).join('; ')}`,
-      `Điểm cần lưu ý: ${(candidate.analysis?.['Điểm yếu CV'] ?? []).slice(0, 2).join('; ')}`,
-      details ? `Chi tiết tiêu chí:\n${details}` : '',
-      jdText ? `Mô tả công việc (trích): ${jdText.slice(0, 400)}` : '',
-    ].filter(Boolean).join('\n');
-  };
+  const buildContext = () => JSON.stringify(candidateSnapshot, null, 2);
+
+  const formatAiChatResponse = (rawText: string) => rawText
+    .replace(/\r\n/g, '\n')
+    .replace(/^#+\s*/gm, '')
+    .replace(/\*\*/g, '')
+    .replace(/\*/g, '')
+    .split('\n')
+    .map((line) => line.trim())
+    .map((line) => line.replace(/^[\-\u2022]\s+/, ''))
+    .map((line) => line.replace(/^>\s+/, ''))
+    .filter(Boolean)
+    .join('\n');
 
   const send = async (text: string) => {
     if (!text.trim() || loading) return;
@@ -370,31 +481,48 @@ const ChatPane: React.FC<{ candidate: Candidate; jobPosition: string; jdText?: s
     try {
       context = buildContext();
     } catch {
-      // buildContext crash — continue with empty context
+      // buildContext crash - continue with empty context
     }
 
     const recruiterCtx = recruiterInfo?.title && recruiterInfo?.company
-      ? `Bạn đang hỗ trợ ${recruiterInfo.title} tại ${recruiterInfo.company}${recruiterInfo.department ? `, phòng ${recruiterInfo.department}` : ''}. `
+      ? `B\u1ea1n \u0111ang h\u1ed7 tr\u1ee3 ${recruiterInfo.title} t\u1ea1i ${recruiterInfo.company}${recruiterInfo.department ? `, ph\u00f2ng ${recruiterInfo.department}` : ''}. `
       : '';
 
     const prompt = [
-      `Bạn là trợ lý tuyển dụng AI chuyên sâu. ${recruiterCtx}Trả lời ngắn gọn, rõ ràng bằng tiếng Việt.`,
-      context ? `\nThông tin ứng viên:\n${context}` : '',
-      `\nCâu hỏi: ${text}`,
-    ].filter(Boolean).join('');
+      `B\u1ea1n l\u00e0 tr\u1ee3 l\u00fd tuy\u1ec3n d\u1ee5ng AI chuy\u00ean s\u00e2u cho m\u1ed9t \u1ee9ng vi\u00ean duy nh\u1ea5t. ${recruiterCtx}Ch\u1ec9 \u0111\u01b0\u1ee3c t\u01b0 v\u1ea5n d\u1ef1a tr\u00ean s\u1ed1 li\u1ec7u v\u00e0 evidence c\u00f3 trong snapshot.`,
+      'Y\u00eau c\u1ea7u b\u1eaft bu\u1ed9c:',
+      '- M\u1ecdi nh\u1eadn \u0111\u1ecbnh ph\u1ea3i b\u00e1m v\u00e0o th\u1ed1ng k\u00ea c\u1ee5 th\u1ec3 nh\u01b0 t\u1ed5ng \u0111i\u1ec3m, JD match, ti\u00eau ch\u00ed m\u1ea1nh/y\u1ebfu, matched/missing skills, stage decision, red flags.',
+      '- N\u1ebfu d\u1eef li\u1ec7u ch\u01b0a \u0111\u1ee7, ph\u1ea3i n\u00f3i r\u00f5 m\u1ee5c n\u00e0o \u0111ang thi\u1ebfu d\u1eef li\u1ec7u.',
+      '- Kh\u00f4ng \u0111\u01b0\u1ee3c tr\u1ea3 l\u1eddi chung chung ki\u1ec3u c\u1ea3m t\u00ednh.',
+      '- \u01afu ti\u00ean n\u00eau b\u1eb1ng ch\u1ee9ng \u0111\u1ecbnh l\u01b0\u1ee3ng tr\u01b0\u1edbc r\u1ed3i m\u1edbi khuy\u1ebfn ngh\u1ecb.',
+      '- Khi n\u00f3i r\u1ee7i ro, c\u1ea7n g\u1eafn v\u1edbi ch\u1ec9 s\u1ed1 ho\u1eb7c criteria \u0111ang y\u1ebfu.',
+      '- Kh\u00f4ng d\u00f9ng markdown, kh\u00f4ng d\u00f9ng d\u1ea5u *, kh\u00f4ng b\u00f4i \u0111\u1eadm, kh\u00f4ng d\u00f9ng bullet k\u00fd hi\u1ec7u.',
+      '- M\u1ed7i \u00fd ph\u1ea3i n\u1eb1m tr\u00ean m\u1ed9t d\u00f2ng ri\u00eang, xu\u1ed1ng d\u00f2ng r\u00f5 r\u00e0ng, kh\u00f4ng g\u1ed9p \u00fd.',
+      'C\u1ea5u tr\u00fac tr\u1ea3 l\u1eddi:',
+      '1. K\u1ebft lu\u1eadn nhanh',
+      '2. B\u1eb1ng ch\u1ee9ng th\u1ed1ng k\u00ea',
+      '3. R\u1ee7i ro c\u1ea7n x\u00e1c minh',
+      '4. C\u00e2u h\u1ecfi ph\u1ecfng v\u1ea5n n\u00ean h\u1ecfi',
+      '5. \u0110\u1ec1 xu\u1ea5t b\u01b0\u1edbc ti\u1ebfp theo',
+      'M\u1ed7i m\u1ee5c ch\u1ec9 1-3 \u00fd, m\u1ed7i \u00fd \u0111\u00fang m\u1ed9t d\u00f2ng, ng\u1eafn nh\u01b0ng c\u1ee5 th\u1ec3, vi\u1ebft ti\u1ebfng Vi\u1ec7t r\u00f5 r\u00e0ng.',
+      context ? `\nSnapshot \u1ee9ng vi\u00ean:\n${context}` : '',
+      `\nC\u00e2u h\u1ecfi c\u1ee7a recruiter: ${text}`,
+    ].filter(Boolean).join('\n');
 
     try {
       const { apiPost } = await import('@/services/api/renderClient');
       const response = await (apiPost as (path: string, body: unknown, opts: unknown) => Promise<{ text?: string; responseText?: string }>)(
         '/api/gemini-chat',
-        { model: 'gemini-2.0-flash', contents: prompt, config: { temperature: 0.4, maxOutputTokens: 800 } },
+        { model: 'gemini-2.0-flash', contents: prompt, config: { temperature: 0.3, maxOutputTokens: 1000 } },
         { authRequired: true }
       );
-      const aiText = response.text?.trim() || response.responseText?.trim() || 'AI không trả về nội dung.';
+      const aiText = formatAiChatResponse(
+        response.text?.trim() || response.responseText?.trim() || 'AI kh\u00f4ng tr\u1ea3 v\u1ec1 n\u1ed9i dung.'
+      );
       setMessages((prev) => [...prev, { role: 'ai', text: aiText }]);
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Không thể kết nối AI.';
-      setMessages((prev) => [...prev, { role: 'ai', text: `⚠️ ${msg} Vui lòng thử lại.` }]);
+      const msg = err instanceof Error ? err.message : 'Kh\u00f4ng th\u1ec3 k\u1ebft n\u1ed1i AI.';
+      setMessages((prev) => [...prev, { role: 'ai', text: `L\u1ed7i: ${msg}. Vui l\u00f2ng th\u1eed l\u1ea1i.` }]);
     } finally {
       setLoading(false);
     }
@@ -408,11 +536,19 @@ const ChatPane: React.FC<{ candidate: Candidate; jobPosition: string; jdText?: s
             <div className="mb-4 flex items-center gap-2.5 rounded-2xl border border-[#d2d2d7] bg-[#f8f8fa] px-4 py-3">
               <Bot size={16} className="text-[#007aff]" />
               <div>
-                <p className="text-[13px] font-semibold text-[#1d1d1f]">Tư vấn AI về {normalizeVietnameseDisplay(candidate.candidateName)}</p>
-                <p className="text-[11.5px] text-[#6e6e73]">Hỏi bất kỳ điều gì liên quan đến hồ sơ ứng viên này</p>
+                <p className="text-[13px] font-semibold text-[#1d1d1f]">T\u01b0 v\u1ea5n AI v\u1ec1 {normalizeVietnameseDisplay(candidate.candidateName)}</p>
+                <p className="text-[11.5px] text-[#6e6e73]">Chatbot s\u1ebd d\u1ef1a v\u00e0o th\u1ed1ng k\u00ea v\u00e0 evidence c\u1ee7a ri\u00eang \u1ee9ng vi\u00ean n\u00e0y \u0111\u1ec3 t\u01b0 v\u1ea5n.</p>
               </div>
             </div>
-            <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.1em] text-[#86868b]">Gợi ý câu hỏi</p>
+            <div className="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
+              {snapshotStats.map((item) => (
+                <div key={item.label} className="rounded-xl border border-[#d2d2d7] bg-white px-3 py-2">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[#86868b]">{item.label}</p>
+                  <p className="mt-1 text-[13px] font-bold text-[#1d1d1f]">{item.value}</p>
+                </div>
+              ))}
+            </div>
+            <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.1em] text-[#86868b]">G\u1ee3i \u00fd c\u00e2u h\u1ecfi</p>
             <div className="space-y-2">
               {CHAT_SUGGESTIONS.map((suggestion) => (
                 <button key={suggestion} onClick={() => send(suggestion)} className="w-full rounded-xl border border-[#d2d2d7] bg-white px-4 py-2.5 text-left text-[13px] text-[#1d1d1f] transition hover:border-[#007aff] hover:bg-[#eef5ff]">
@@ -424,7 +560,7 @@ const ChatPane: React.FC<{ candidate: Candidate; jobPosition: string; jdText?: s
         )}
         {messages.map((msg, i) => (
           <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-            <div className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-[13px] leading-[1.55] ${msg.role === 'user' ? 'bg-[#007aff] text-white' : 'border border-[#d2d2d7] bg-white text-[#1d1d1f]'}`}>
+            <div className={`max-w-[85%] whitespace-pre-wrap rounded-2xl px-4 py-2.5 text-[13px] leading-[1.55] ${msg.role === 'user' ? 'bg-[#007aff] text-white' : 'border border-[#d2d2d7] bg-white text-[#1d1d1f]'}`}>
               {msg.text}
             </div>
           </div>
@@ -449,7 +585,7 @@ const ChatPane: React.FC<{ candidate: Candidate; jobPosition: string; jdText?: s
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); void send(input); } }}
-            placeholder="Hỏi về ứng viên này..."
+            placeholder="H\u1ecfi v\u1ec1 \u1ee9ng vi\u00ean n\u00e0y b\u1eb1ng th\u1ed1ng k\u00ea, \u0111i\u1ec3m s\u1ed1, r\u1ee7i ro..."
             className="flex-1 rounded-xl border border-[#d2d2d7] bg-[#f8f8fa] px-3.5 py-2 text-[13px] outline-none focus:border-[#007aff] focus:ring-2 focus:ring-[#007aff]/15"
             disabled={loading}
           />
@@ -458,7 +594,7 @@ const ChatPane: React.FC<{ candidate: Candidate; jobPosition: string; jdText?: s
             disabled={!input.trim() || loading}
             className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#007aff] text-white transition disabled:opacity-40"
           >
-            <Send size={15} />
+            <Send size={16} />
           </button>
         </div>
       </div>
@@ -466,7 +602,6 @@ const ChatPane: React.FC<{ candidate: Candidate; jobPosition: string; jdText?: s
   );
 };
 
-// ── FeedbackPane ──────────────────────────────────────────────────────────────
 const FeedbackPane: React.FC<{ candidate: Candidate }> = ({ candidate }) => {
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -498,7 +633,8 @@ const FeedbackPane: React.FC<{ candidate: Candidate }> = ({ candidate }) => {
   }
 
   return (
-    <div className="custom-scrollbar h-full overflow-y-auto p-4 sm:p-5">
+    <div className="custom-scrollbar h-full overflow-y-auto bg-[#f7f9fc] p-4 sm:p-5">
+      <div className="mx-auto max-w-5xl">
       <div className="mb-4 flex items-center gap-2.5">
         <MessageSquareText size={15} className="text-[#007aff]" />
         <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#6e6e73]">Phản hồi về chấm điểm AI</p>
@@ -513,6 +649,7 @@ const FeedbackPane: React.FC<{ candidate: Candidate }> = ({ candidate }) => {
         onSubmit={handleSubmit}
         onCancel={() => { /* noop */ }}
       />
+      </div>
     </div>
   );
 };
