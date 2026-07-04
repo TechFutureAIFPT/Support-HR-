@@ -1,6 +1,6 @@
 import type { Candidate, HistoryEntry } from '@/types';
 
-export type WorkspaceSessionStatus = 'screening' | 'review' | 'open' | 'closed';
+export type WorkspaceSessionStatus = 'open' | 'review' | 'completed';
 
 export interface WorkspaceSessionViewModel {
   id: string;

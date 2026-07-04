@@ -658,6 +658,14 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
   }, [activeAnalysisContext?.timestamp, analysisResults, hardFilters.location, initialStoredRun?.timestamp, jobPosition]);
 
   const handleOpenWorkspaceSession = useCallback((history: HistoryEntry | null, session: WorkspaceSessionViewModel) => {
+    const sessionContext: ActiveAnalysisContext = {
+      sessionId: session.id,
+      timestamp: history?.timestamp || session.createdAt,
+      jobPosition: session.title,
+      historyId: history?.id || session.history?.id,
+    };
+    saveActiveAnalysisContext(sessionContext);
+    setActiveAnalysisContext(sessionContext);
     if (history?.fullPayload) {
       handleRestore({ ...history.fullPayload, timestamp: history.timestamp });
       return;

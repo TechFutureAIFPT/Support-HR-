@@ -65,6 +65,7 @@ export interface CandidateEmailNotifierProps {
   jobPosition: string;
   onClose: () => void;
   inline?: boolean;
+  onSendSuccess?: (sentCount: number) => void;
 }
 
 const FORMAT_OPTIONS: { value: InterviewFormat; label: string }[] = [
@@ -278,6 +279,7 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
   jobPosition,
   onClose,
   inline,
+  onSendSuccess,
 }) => {
   const tc = useThemeColors();
   const [activeTab, setActiveTab] = useState<TabType>('pass');
@@ -393,6 +395,7 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
         { authRequired: true, headers: { 'X-Google-Access-Token': googleToken } },
       );
       setSentCount(res.sent);
+      if (res.sent > 0) onSendSuccess?.(res.sent);
     } catch {
       setSentCount(0);
     }
@@ -406,6 +409,13 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
   const previewBody = activeTab === 'pass'
     ? generatePassBody(interviewDetails, previewName, jobPosition)
     : applyTemplate(failTemplate, previewName, jobPosition);
+  const previewSubject = activeTab === 'pass'
+    ? `ThÃ´ng bÃ¡o káº¿t quáº£ sÆ¡ tuyá»ƒn â€“ ${jobPosition}`
+    : `Káº¿t quáº£ á»©ng tuyá»ƒn â€“ ${jobPosition}`;
+  const previewHelperText = activeTab === 'pass'
+    ? 'Xem trÆ°á»›c theo á»©ng viÃªn Ä‘ang chá»n. Khi gá»­i hÃ ng loáº¡t, há»‡ thá»‘ng váº«n tá»± cÃ¡ nhÃ¢n hÃ³a tÃªn vÃ  thÃ´ng tin cho tá»«ng ngÆ°á»i.'
+    : 'Xem trÆ°á»›c ná»™i dung email tá»« chá»‘i theo á»©ng viÃªn Ä‘ang chá»n. Khi chá»‰nh báº£n soáº¡n bÃªn trÃ¡i, khung nÃ y sáº½ cáº­p nháº­t ngay.';
+  const leftPanelTitle = activeTab === 'pass' ? 'ThÃ´ng tin phá»ng váº¥n' : 'Soáº¡n email Â· KhÃ´ng phÃ¹ há»£p';
 
   const inputCls = 'w-full rounded-lg border px-3 py-2 text-[13px] outline-none transition-colors focus:border-blue-400 focus:ring-1 focus:ring-blue-100';
   const inputStyle = { background: tc.pageBg, borderColor: tc.borderSoft, color: tc.textPrimary };
@@ -456,7 +466,7 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
 
           {/* Left — candidate list */}
           <div
-            className="flex min-h-0 w-full flex-col border-b xl:w-[42%] xl:border-b-0 xl:border-r"
+            className="flex min-h-0 w-full flex-col border-b xl:w-[44%] xl:border-b-0 xl:border-r"
             style={{ borderColor: tc.borderSoft }}
           >
             {/* Tabs */}
@@ -610,6 +620,151 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
                   );
                 })
               )}
+            </div>
+
+            <div className="flex min-h-0 flex-col border-t" style={{ borderColor: tc.borderSoft }}>
+              <div
+                className="flex shrink-0 items-center justify-between border-b px-4 py-3"
+                style={{ borderColor: tc.borderSoft }}
+              >
+                <p
+                  className="text-[11px] font-semibold uppercase tracking-[0.15em]"
+                  style={{ color: tc.textMuted }}
+                >
+                  {leftPanelTitle}
+                </p>
+              </div>
+
+              <div className="flex-1 overflow-y-auto">
+                {activeTab === 'pass' && (
+                  <div className="space-y-4 p-4 lg:px-5 lg:py-4">
+                    <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                      <div className="flex flex-col gap-1.5">
+                        <label
+                          className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide"
+                          style={{ color: tc.textMuted }}
+                        >
+                          <Calendar className="h-3 w-3" />
+                          NgÃ y phá»ng váº¥n
+                        </label>
+                        <input
+                          type="date"
+                          value={interviewDetails.date}
+                          onChange={(e) => updateInterview({ date: e.target.value })}
+                          className={inputCls}
+                          style={inputStyle}
+                        />
+                      </div>
+                      <div className="flex flex-col gap-1.5">
+                        <label
+                          className="text-[11px] font-semibold uppercase tracking-wide"
+                          style={{ color: tc.textMuted }}
+                        >
+                          Giá» báº¯t Ä‘áº§u
+                        </label>
+                        <input
+                          type="time"
+                          value={interviewDetails.time}
+                          onChange={(e) => updateInterview({ time: e.target.value })}
+                          className={inputCls}
+                          style={inputStyle}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col gap-1.5">
+                      <label
+                        className="text-[11px] font-semibold uppercase tracking-wide"
+                        style={{ color: tc.textMuted }}
+                      >
+                        HÃ¬nh thá»©c phá»ng váº¥n
+                      </label>
+                      <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                        {FORMAT_OPTIONS.map(({ value, label }) => (
+                          <button
+                            key={value}
+                            onClick={() => updateInterview({ format: value })}
+                            className={`flex-1 rounded-lg border py-2 text-[12px] font-semibold transition-all ${
+                              interviewDetails.format === value
+                                ? 'border-blue-300 bg-blue-50 text-blue-700'
+                                : 'hover:bg-slate-50'
+                            }`}
+                            style={interviewDetails.format !== value
+                              ? { borderColor: tc.borderSoft, color: tc.textSecondary }
+                              : {}
+                            }
+                          >
+                            {label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {(interviewDetails.format === 'offline' || interviewDetails.format === 'hybrid') && (
+                      <div className="flex flex-col gap-1.5">
+                        <label
+                          className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide"
+                          style={{ color: tc.textMuted }}
+                        >
+                          <MapPin className="h-3 w-3" />
+                          Äá»‹a Ä‘iá»ƒm phá»ng váº¥n
+                        </label>
+                        <input
+                          type="text"
+                          value={interviewDetails.location}
+                          onChange={(e) => updateInterview({ location: e.target.value })}
+                          placeholder="VD: Táº§ng 5, TÃ²a nhÃ  ABC, 123 Nguyá»…n Huá»‡, Q.1"
+                          className={inputCls}
+                          style={inputStyle}
+                        />
+                      </div>
+                    )}
+
+                    {(interviewDetails.format === 'online' || interviewDetails.format === 'hybrid') && (
+                      <div className="flex flex-col gap-1.5">
+                        <label
+                          className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide"
+                          style={{ color: tc.textMuted }}
+                        >
+                          <Video className="h-3 w-3" />
+                          Link Google Meet
+                        </label>
+                        <input
+                          type="url"
+                          value={interviewDetails.meetLink}
+                          onChange={(e) => updateInterview({ meetLink: e.target.value })}
+                          placeholder="https://meet.google.com/xxx-xxxx-xxx"
+                          className={inputCls}
+                          style={inputStyle}
+                        />
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {activeTab === 'fail' && (
+                  <div className="flex h-full min-h-0 flex-col p-4 lg:px-5">
+                    <div className="flex h-full min-h-0 flex-col gap-2.5">
+                      <p className="shrink-0 text-[11px]" style={{ color: tc.textMuted }}>
+                        Biáº¿n:{' '}
+                        <code className="rounded bg-slate-100 px-1 py-0.5 text-[10px] font-mono">{`{{name}}`}</code>
+                        {' '}
+                        <code className="rounded bg-slate-100 px-1 py-0.5 text-[10px] font-mono">{`{{position}}`}</code>
+                      </p>
+                      <textarea
+                        value={failTemplate}
+                        onChange={(e) => setFailTemplate(e.target.value)}
+                        className="min-h-[320px] flex-1 w-full resize-none rounded-xl border p-3.5 text-[13px] leading-relaxed outline-none transition-colors focus:border-blue-400 focus:ring-2 focus:ring-blue-50 xl:min-h-0"
+                        style={{
+                          background: tc.pageBg,
+                          borderColor: tc.borderSoft,
+                          color: tc.textPrimary,
+                        }}
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 

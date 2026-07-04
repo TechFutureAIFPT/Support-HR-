@@ -2,7 +2,18 @@ import type { WorkspaceSessionStatus } from '@/types/workspace';
 
 const STORAGE_KEY = 'supporthr.workspace.session-state.v1';
 
-type SessionStateMap = Record<string, { status: WorkspaceSessionStatus; updatedAt: number }>;
+type LegacyWorkspaceSessionStatus = WorkspaceSessionStatus | 'screening' | 'closed';
+type SessionStateMap = Record<string, { status: LegacyWorkspaceSessionStatus; updatedAt: number }>;
+
+function normalizeWorkspaceSessionStatus(
+  status: LegacyWorkspaceSessionStatus | undefined,
+  fallback: WorkspaceSessionStatus,
+): WorkspaceSessionStatus {
+  if (status === 'completed' || status === 'closed') return 'completed';
+  if (status === 'review' || status === 'screening') return 'review';
+  if (status === 'open') return 'open';
+  return fallback;
+}
 
 function readState(): SessionStateMap {
   if (typeof window === 'undefined') return {};
@@ -18,7 +29,10 @@ export function getWorkspaceSessionStatus(
   sessionId: string,
   fallback: WorkspaceSessionStatus,
 ): WorkspaceSessionStatus {
-  return readState()[`${ownerKey}::${sessionId}`]?.status || fallback;
+  return normalizeWorkspaceSessionStatus(
+    readState()[`${ownerKey}::${sessionId}`]?.status,
+    fallback,
+  );
 }
 
 export function setWorkspaceSessionStatus(
