@@ -43,10 +43,11 @@ export function WorkspaceSearch({
 
 export function ScoreLabel({ score, compact = false }: { score: number; compact?: boolean }) {
   const tone = workspaceScoreTone(score);
+  const formattedScore = Number.isInteger(score) ? String(score) : score.toFixed(1);
   return (
     <span className={`inline-flex items-center gap-2 font-medium ${tone.text} ${compact ? 'text-[13px]' : 'text-sm'}`}>
       <span className={`h-2 w-2 rounded-full ${tone.dot}`} />
-      {score}%{compact ? '' : ` ${tone.label}`}
+      {formattedScore} điểm{compact ? '' : ` · ${tone.label}`}
     </span>
   );
 }

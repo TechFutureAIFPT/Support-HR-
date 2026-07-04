@@ -194,11 +194,21 @@ function buildHrFriendlyDetailComment(
   keywordMetrics?: NonNullable<DetailedScore['advancedBreakdown']>['keyword_metrics'],
 ): string {
   const scoreText = parsedData.hasScore
-    ? `Tiêu chí này đạt ${parsedData.scoreLabel}, tương đương khoảng ${parsedData.achievedPct}%.`
+    ? `Tiêu chí này đạt ${parsedData.scoreLabel} điểm${parsedData.weight > 0 ? ` trên nhóm trọng số ${formatScoreValue(parsedData.weight)} điểm` : ''}.`
     : 'Tiêu chí này chưa có điểm chi tiết rõ ràng từ hệ thống.';
 
   const normalizedCriterion = normalizeAscii(criterionName);
   const guidance: string[] = [scoreText];
+
+  if (parsedData.hasScore) {
+    if (parsedData.achievedPct >= 80) {
+      guidance.push('Mức điểm này cho thấy bằng chứng trong CV khá sát với yêu cầu, có thể xem là điểm hỗ trợ tích cực khi ra quyết định.');
+    } else if (parsedData.achievedPct >= 55) {
+      guidance.push('Mức điểm này cho thấy ứng viên có một phần tín hiệu phù hợp, nhưng HR vẫn nên kiểm tra thêm bằng câu hỏi phỏng vấn hoặc tài liệu chứng minh.');
+    } else {
+      guidance.push('Mức điểm này còn thấp so với thang tối đa, vì vậy tiêu chí này nên được xem là rủi ro cần xác minh trước khi đưa vào vòng tiếp theo.');
+    }
+  }
 
   if (includesTechnicalModelSignals(explanation)) {
     guidance.push(
@@ -222,6 +232,8 @@ function buildHrFriendlyDetailComment(
 
   if (normalizedCriterion.includes('hoc van')) {
     guidance.push('Khi đánh giá học vấn, HR nên kiểm tra tên trường, chuyên ngành, thời gian học và chứng chỉ có đúng với yêu cầu JD hay không.');
+  } else if (normalizedCriterion.includes('ngon ngu')) {
+    guidance.push('Với tiêu chí ngôn ngữ, điểm chỉ nên được xem là chắc chắn khi CV có chứng chỉ, trình độ cụ thể hoặc kinh nghiệm làm việc/phỏng vấn bằng ngôn ngữ đó. Nếu CV chỉ ghi chung chung, HR nên xác minh trực tiếp trong phỏng vấn.');
   } else if (normalizedCriterion.includes('ky nang')) {
     guidance.push('Nên ưu tiên bằng chứng ứng viên đã dùng kỹ năng trong dự án thực tế, không chỉ liệt kê tên công nghệ.');
   } else if (normalizedCriterion.includes('phu hop jd')) {
@@ -1380,6 +1392,24 @@ function parseNumericValue(value: string): number | null {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
+function parseWeightFromFormula(detailFormula: string): number {
+  const normalizedFormula = normalizeAscii(detailFormula);
+  const patterns = [
+    /trong so\s*[:=]?\s*([\d.]+)\s*%/i,
+    /weight\s*[:=]?\s*([\d.]+)\s*%/i,
+    /(?:x|\*)\s*([\d.]+)\s*%/i,
+  ];
+
+  for (const pattern of patterns) {
+    const match = normalizedFormula.match(pattern);
+    if (!match) continue;
+    const parsed = Number.parseFloat(match[1]);
+    if (Number.isFinite(parsed) && parsed > 0) return parsed;
+  }
+
+  return 0;
+}
+
 function parseDetailScore(
   scoreText: string,
   detailFormula: string,
@@ -1417,8 +1447,7 @@ function parseDetailScore(
       ? Math.round((displayScore / displayMax) * 100)
       : 0;
 
-  const weightMatch = detailFormula.match(/trong so\s*([\d.]+)%/i);
-  const weight = Number.parseFloat(weightMatch?.[1] || '0');
+  const weight = parseWeightFromFormula(detailFormula);
 
   let scoreLabel = 'Chưa có';
   if (displayScore !== null && displayMax !== null) {
@@ -1492,6 +1521,28 @@ function getConfiguredCriterionMaxScore(criterion: WeightCriteria[string]): numb
   }
 
   return criterion.weight || 0;
+}
+
+function getConfiguredCriterionWeight(criterionName: string, weights?: WeightCriteria): number {
+  if (!weights) return 0;
+  const canonicalName = canonicalizeCriterionName(criterionName);
+
+  for (const criterion of Object.values(weights)) {
+    if (!criterion?.name) continue;
+    const configuredName = canonicalizeCriterionName(String(criterion.name).trim());
+    if (configuredName !== canonicalName) continue;
+    return getConfiguredCriterionMaxScore(criterion);
+  }
+
+  return 0;
+}
+
+function withFallbackWeight(parsed: ParsedDetailScore, fallbackWeight: number): ParsedDetailScore {
+  if (parsed.weight > 0 || fallbackWeight <= 0) return parsed;
+  return {
+    ...parsed,
+    weight: fallbackWeight,
+  };
 }
 
 function buildConfiguredCoreCriteria(weights?: WeightCriteria): { criteria: string[]; totalMax: number } {
@@ -1607,10 +1658,11 @@ interface CriterionAccordionProps {
   isExpanded: boolean;
   onToggle: () => void;
   jdText: string;
+  weights?: WeightCriteria;
   detailed?: boolean;
 }
 
-const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpanded, onToggle, jdText, detailed = false }) => {
+const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpanded, onToggle, jdText, weights, detailed = false }) => {
   const tc = useThemeColors();
   const [copied, setCopied] = React.useState(false);
   const criterionName = canonicalizeCriterionName(getDetailCriterion(item));
@@ -1628,8 +1680,11 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
   const canShowRawEvidence = shouldShowRawEvidence;
 
   const parsedData = useMemo(() => {
-    return parseDetailScore(detailScore, detailFormula);
-  }, [detailFormula, detailScore]);
+    return withFallbackWeight(
+      parseDetailScore(detailScore, detailFormula),
+      getConfiguredCriterionWeight(criterionName, weights),
+    );
+  }, [criterionName, detailFormula, detailScore, weights]);
   const advancedBreakdown = item.advancedBreakdown;
   const keywordMetrics = advancedBreakdown?.keyword_metrics;
   const hrFriendlyExplanation = useMemo(
@@ -1710,7 +1765,7 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
     : [];
   const criteriaHighlightTerms = buildHighlightTerms(allMatchedKw, semanticMatchKeywords, thisRequirement?.keywords, criterionName).slice(0, 12);
   const formulaSummary = parsedData.hasScore
-    ? `${parsedData.score !== null ? formatScoreValue(parsedData.score) : '0'} / ${parsedData.maxScore !== null ? formatScoreValue(parsedData.maxScore) : '0'}${parsedData.weight > 0 ? ` × ${parsedData.weight}%` : ''}`
+    ? `${parsedData.score !== null ? formatScoreValue(parsedData.score) : '0'} / ${parsedData.maxScore !== null ? formatScoreValue(parsedData.maxScore) : '0'}${parsedData.weight > 0 ? ` × ${formatScoreValue(parsedData.weight)} điểm` : ''}`
     : formulaText;
   const isSoftCriterion = /văn hoá|văn hóa|chuyên nghiệp|gắn bó|thái độ|tinh thần|ngoại giao/i.test(criterionName);
   const jdEvidenceSnippet = useMemo(() => {
@@ -1777,7 +1832,7 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
                   />
                   <FormulaMetricPill
                     label="Trọng số"
-                    value={parsedData.weight > 0 ? `${parsedData.weight}%` : 'Chưa có'}
+                    value={parsedData.weight > 0 ? `${formatScoreValue(parsedData.weight)} điểm` : 'Chưa có'}
                     tone="weight"
                   />
                 </div>
@@ -1838,10 +1893,10 @@ const CriterionAccordion: React.FC<CriterionAccordionProps> = ({ item, isExpande
                 <div className="h-1 flex-1 rounded-full bg-zinc-800 overflow-hidden">
                   <div className={`h-full rounded-full transition-all duration-500 ${progressColor}`} style={{ width: `${Math.min(100, parsedData.achievedPct)}%` }} />
                 </div>
-                <span className={`text-[11px] font-bold font-mono ${progressTextColor}`}>{parsedData.achievedPct}%</span>
+                <span className={`text-[11px] font-bold font-mono ${progressTextColor}`}>{parsedData.scoreLabel} điểm</span>
               </div>
               {parsedData.weight > 0 && (
-                <span className="text-[10px] text-zinc-600">trọng số {parsedData.weight}%</span>
+                <span className="text-[10px] text-zinc-600">trọng số {formatScoreValue(parsedData.weight)} điểm</span>
               )}
               {keywordMetrics && (
                 <span className="text-[10px] font-mono text-zinc-600">KW {keywordMetrics.match_percentage.toFixed(0)}%</span>
@@ -2712,6 +2767,7 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
                   isExpanded={!!expandedCriteria[candidate.id]?.[criterionName]}
                   onToggle={() => onToggleCriterion(candidate.id, criterionName)}
                   jdText={jdText}
+                  weights={weights}
                   detailed={view === 'criteria'}
                 />
               );
@@ -2738,6 +2794,7 @@ const ExpandedContent: React.FC<ExpandedContentProps> = ({ candidate, expandedCr
                     isExpanded={!!expandedCriteria[candidate.id]?.[criterionName]}
                     onToggle={() => onToggleCriterion(candidate.id, criterionName)}
                     jdText={jdText}
+                    weights={weights}
                     detailed={view === 'criteria'}
                   />
                 );
