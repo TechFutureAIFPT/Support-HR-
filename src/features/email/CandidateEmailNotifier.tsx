@@ -164,7 +164,7 @@ const EmailPreviewCard: React.FC<{
 
   return (
     <div
-      className="flex h-full min-h-[380px] flex-col overflow-hidden rounded-2xl border shadow-sm"
+      className="flex min-h-0 flex-col overflow-hidden rounded-2xl border shadow-sm"
       style={{ background: tc.cardBg, borderColor: tc.borderSoft }}
     >
       <div
@@ -222,12 +222,12 @@ const EmailPreviewCard: React.FC<{
         </div>
       </div>
 
-      <div className="min-h-0 flex-1 px-4 py-4">
+      <div className="px-4 py-4">
         <div
-          className="flex h-full min-h-[320px] flex-col rounded-2xl border px-4 py-4 lg:min-h-[420px]"
+          className="rounded-2xl border px-4 py-4"
           style={{ borderColor: tc.borderSoft, background: tone === 'pass' ? 'rgba(248,250,252,0.9)' : tc.pageBg }}
         >
-          <div className="custom-scrollbar flex-1 space-y-3 overflow-y-auto pr-1">
+          <div className="space-y-3 pr-1">
             {blocks.map((block, index) => {
               const lines = block.split('\n').map((line) => line.trim()).filter(Boolean);
               const isInfoBlock = lines.every((line) => /^(📅|📍|🔗)/.test(line));
@@ -809,7 +809,7 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
             </div>
 
             {/* Panel content */}
-            <div className="flex-1 overflow-y-auto">
+            <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto overscroll-contain">
 
               {/* ── PASS TAB: Interview form + auto preview ── */}
               {activeTab === 'pass' && (
@@ -933,7 +933,7 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
                       >
                         Nội dung email · tự động tạo
                       </p>
-                      <div className="min-h-[340px] lg:min-h-[460px]">
+                      <div>
                       <EmailPreviewCard
                         tc={tc}
                         to={previewItem ? (previewItem.email || '(chưa có email)') : '(chọn ứng viên để xem)'}
@@ -971,7 +971,7 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
                       />
                     </div>
                   ) : (
-                    <div className="min-h-[340px] lg:min-h-[460px]">
+                    <div>
                     <EmailPreviewCard
                       tc={tc}
                       to={previewItem ? (previewItem.email || '(chưa có email)') : '(chưa chọn ứng viên)'}
