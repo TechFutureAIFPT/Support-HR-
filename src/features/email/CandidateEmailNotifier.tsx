@@ -7,7 +7,10 @@ import {
   Eye,
   Mail,
   MapPin,
+  PanelLeftClose,
+  PanelLeftOpen,
   Send,
+  Users,
   Video,
   X,
 } from 'lucide-react';
@@ -294,6 +297,7 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
   });
   const [failTemplate, setFailTemplate] = useState(FAIL_TEMPLATE);
   const [showFailPreview, setShowFailPreview] = useState(false);
+  const [candidatePanelOpen, setCandidatePanelOpen] = useState(true);
   const [sendState, setSendState] = useState<SendState>('idle');
   const [sentCount, setSentCount] = useState(0);
 
@@ -466,14 +470,48 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
 
           {/* Left — candidate list */}
           <div
-            className="flex min-h-0 w-full flex-col border-b xl:w-[42%] xl:border-b-0 xl:border-r"
+            className={`flex min-h-0 w-full flex-col border-b transition-[width] duration-200 xl:border-b-0 xl:border-r ${
+              candidatePanelOpen ? 'xl:w-[34%]' : 'xl:w-[76px]'
+            }`}
             style={{ borderColor: tc.borderSoft }}
           >
+            {!candidatePanelOpen && (
+              <div className="flex h-full min-h-0 flex-col items-center gap-3 px-3 py-4">
+                <button
+                  type="button"
+                  onClick={() => setCandidatePanelOpen(true)}
+                  className="flex h-10 w-10 items-center justify-center rounded-xl border transition-colors hover:bg-slate-50"
+                  style={{ borderColor: tc.borderSoft, color: tc.textSecondary }}
+                  title="Mở danh sách ứng viên"
+                >
+                  <PanelLeftOpen className="h-4 w-4" />
+                </button>
+                <div
+                  className="flex h-10 w-10 items-center justify-center rounded-xl"
+                  style={{ background: tc.pageBg, color: tc.textMuted }}
+                  title={`${selectedItems.length}/${activeItems.length} ứng viên được chọn`}
+                >
+                  <Users className="h-4 w-4" />
+                </div>
+                <div className="[writing-mode:vertical-rl] rotate-180 text-[10px] font-bold uppercase tracking-[0.18em]" style={{ color: tc.textMuted }}>
+                  Ứng viên
+                </div>
+              </div>
+            )}
             {/* Tabs */}
             <div
-              className="flex shrink-0 items-center gap-2 border-b px-4 py-3"
+              className={`${candidatePanelOpen ? 'flex' : 'hidden'} shrink-0 items-center gap-2 border-b px-4 py-3`}
               style={{ borderColor: tc.borderSoft }}
             >
+              <button
+                type="button"
+                onClick={() => setCandidatePanelOpen(false)}
+                className="mr-1 flex h-8 w-8 items-center justify-center rounded-lg border transition-colors hover:bg-slate-50"
+                style={{ borderColor: tc.borderSoft, color: tc.textSecondary }}
+                title="Thu gọn danh sách ứng viên"
+              >
+                <PanelLeftClose className="h-3.5 w-3.5" />
+              </button>
               {([
                 { tab: 'pass' as TabType, label: 'Vượt vòng', count: passItems.length, dot: 'bg-emerald-500', active: 'border-emerald-200 bg-emerald-50 text-emerald-700' },
                 { tab: 'fail' as TabType, label: 'Không phù hợp', count: failItems.length, dot: 'bg-rose-500', active: 'border-rose-200 bg-rose-50 text-rose-700' },
@@ -493,7 +531,7 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
             </div>
 
             {/* Select-all bar */}
-            {activeItems.length > 0 && (
+            {candidatePanelOpen && activeItems.length > 0 && (
               <div
                 className="flex shrink-0 items-center justify-between border-b px-4 py-2"
                 style={{ borderColor: tc.borderSoft }}
@@ -516,7 +554,7 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
             )}
 
             {/* Candidate rows */}
-            <div className="flex-1 overflow-y-auto p-3 space-y-2">
+            <div className={`${candidatePanelOpen ? 'block' : 'hidden'} flex-1 overflow-y-auto p-3 space-y-2`}>
               {activeItems.length === 0 ? (
                 <div
                   className="flex h-36 flex-col items-center justify-center gap-2 rounded-xl text-center"
@@ -769,7 +807,7 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
           </div>
 
           {/* Right — interview form (pass) or template editor (fail) */}
-          <div className="flex min-h-0 w-full flex-col xl:w-[58%]">
+          <div className="flex min-h-0 w-full flex-col xl:flex-1">
 
             {/* Panel toolbar */}
             <div
@@ -813,9 +851,12 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
 
               {/* ── PASS TAB: Interview form + auto preview ── */}
               {activeTab === 'pass' && (
-                <div className="flex min-h-0 flex-1 flex-col">
+                <div className="flex min-h-0 flex-1 flex-col xl:flex-row">
                   {/* Form fields */}
-                  <div className="space-y-4 p-4 lg:px-5 lg:py-4">
+                  <div
+                    className="shrink-0 space-y-4 p-4 lg:px-5 lg:py-4 xl:w-[360px] xl:border-r"
+                    style={{ borderColor: tc.borderSoft }}
+                  >
 
                     {/* Date + Time */}
                     <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
@@ -925,7 +966,7 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
                   </div>
 
                   {/* Auto-generated email preview */}
-                  <div className="min-h-0 border-t" style={{ borderColor: tc.borderSoft }}>
+                  <div className="min-h-0 flex-1 border-t xl:border-t-0" style={{ borderColor: tc.borderSoft }}>
                     <div className="min-h-0 px-4 py-3 lg:px-5">
                       <p
                         className="mb-2.5 text-[11px] font-semibold uppercase tracking-[0.15em]"
