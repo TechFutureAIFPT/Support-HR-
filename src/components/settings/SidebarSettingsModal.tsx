@@ -27,7 +27,8 @@ import {
 } from 'lucide-react';
 import { googleDriveService } from '@/services/file-processing/googleDriveService';
 import { extractHardFiltersFromJD } from '@/services/screening/frontendScreeningService';
-import type { HardFilters, HistoryRetention, NewSessionMode, UserSettingsLanguage, UserSettingsTheme, WeightCriteria } from '@/types';
+import { standardizeJDText } from '@/services/data-sync/recruitmentToolsService';
+import type { HardFilters, HistoryRetention, JDQualityFinding, JDStandardizeResponse, NewSessionMode, UserSettingsLanguage, UserSettingsTheme, WeightCriteria } from '@/types';
 import { useUserSettings } from '@/context/settings/UserSettingsProvider';
 import { useTheme } from '@/context/theme/ThemeProvider';
 import { JDTemplatesService } from '@/services/data-sync/jdTemplatesService';
@@ -50,6 +51,38 @@ const DEFAULT_HARD_FILTERS: HardFilters = {
   languageMandatory: false, certificatesMandatory: false, workFormatMandatory: false,
   contractTypeMandatory: false, salaryMandatory: false,
 };
+
+const findingLabel = (finding: JDQualityFinding) =>
+  finding.label || finding.detail || finding.reason || 'Mục cần bổ sung';
+
+function buildJDTextFromStandardized(result: JDStandardizeResponse, fallbackTitle: string) {
+  const jd = result.normalizedJD;
+  const blocks: string[] = [];
+  const title = jd.title || fallbackTitle;
+
+  if (title) blocks.push(`# ${title}`);
+  if (jd.overview) blocks.push(`Tổng quan\n${jd.overview}`);
+  if (jd.responsibilities.length) {
+    blocks.push(`Trách nhiệm chính\n${jd.responsibilities.map((item) => `- ${item}`).join('\n')}`);
+  }
+  if (jd.requirements.length) {
+    blocks.push(`Yêu cầu ứng viên\n${jd.requirements.map((item) => `- ${item}`).join('\n')}`);
+  }
+  if (jd.benefits.length) {
+    blocks.push(`Quyền lợi\n${jd.benefits.map((item) => `- ${item}`).join('\n')}`);
+  }
+
+  const details = [
+    jd.workingTime ? `Thời gian làm việc: ${jd.workingTime}` : '',
+    jd.location ? `Địa điểm: ${jd.location}` : '',
+    jd.salary ? `Mức lương: ${jd.salary}` : '',
+    jd.applicationInfo ? `Ứng tuyển: ${jd.applicationInfo}` : '',
+  ].filter(Boolean);
+  if (details.length) blocks.push(`Thông tin thêm\n${details.join('\n')}`);
+  if (jd.keywords.length) blocks.push(`Từ khóa lọc CV\n${jd.keywords.join(', ')}`);
+
+  return blocks.join('\n\n').trim();
+}
 
 interface SidebarSettingsModalProps {
   isOpen: boolean;
@@ -323,6 +356,9 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
   const [driveImporting, setDriveImporting] = useState(false);
   const [autoFilling, setAutoFilling] = useState(false);
   const [autoFillNotice, setAutoFillNotice] = useState('');
+  const [jdAssistantLoading, setJdAssistantLoading] = useState(false);
+  const [jdAssistantResult, setJdAssistantResult] = useState<JDStandardizeResponse | null>(null);
+  const [jdAssistantNotice, setJdAssistantNotice] = useState('');
 
   // Danger zone
   const [dangerOpen, setDangerOpen] = useState(false);
@@ -362,6 +398,8 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
     setNewTplName('');
     setNewTplPosition('');
     setNewTplText('');
+    setJdAssistantResult(null);
+    setJdAssistantNotice('');
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]); // Chỉ chạy khi modal mở — không re-run khi settings thay đổi trong session để tránh reset tab
 
@@ -456,6 +494,48 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
       setAutoFilling(false);
     }
   }, [fixedJDText]);
+
+  const runJDAssistant = useCallback(async (sourceText?: string) => {
+    const text = (sourceText ?? fixedJDText).trim();
+    if (text.length < 20) {
+      setJdAssistantNotice('Nhập hoặc tải JD trước khi dùng trợ lý AI.');
+      return null;
+    }
+
+    setJdAssistantLoading(true);
+    setJdAssistantNotice('');
+    try {
+      const result = await standardizeJDText({
+        jdText: text,
+        targetPlatform: 'parse_jd',
+        supplementalFields: {
+          notes: 'Tối ưu JD để hệ thống Support HR trích xuất bộ lọc, trọng số và từ khóa khớp CV chính xác hơn.',
+        },
+      });
+      setJdAssistantResult(result);
+      if (!fixedJDName.trim() && result.normalizedJD.title) {
+        setFixedJDName(result.normalizedJD.title);
+      }
+      const issueCount = result.missingSections.length + result.weakPoints.length;
+      setJdAssistantNotice(issueCount > 0
+        ? `AI phát hiện ${issueCount} mục nên bổ sung trước khi dùng JD để lọc CV.`
+        : 'JD đã đủ thông tin chính cho bộ lọc.');
+      return result;
+    } catch {
+      setJdAssistantNotice('Không thể kiểm tra JD bằng AI lúc này.');
+      return null;
+    } finally {
+      setJdAssistantLoading(false);
+    }
+  }, [fixedJDName, fixedJDText]);
+
+  const applyAssistantJD = useCallback(() => {
+    if (!jdAssistantResult) return;
+    const nextText = buildJDTextFromStandardized(jdAssistantResult, fixedJDName);
+    if (nextText) setFixedJDText(nextText);
+    if (jdAssistantResult.normalizedJD.title) setFixedJDName(jdAssistantResult.normalizedJD.title);
+    setJdAssistantNotice('Đã áp dụng bản JD tối ưu vào nội dung hiện tại.');
+  }, [fixedJDName, jdAssistantResult]);
 
   const handleContinueToFilters = useCallback(async () => {
     if (!fixedJDText.trim()) return;
@@ -781,6 +861,10 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
     if (key.endsWith('Mandatory')) return false;
     return v !== '' && v !== null && v !== undefined && v !== false;
   });
+  const jdAssistantIssues = jdAssistantResult
+    ? [...jdAssistantResult.missingSections, ...jdAssistantResult.weakPoints]
+    : [];
+  const jdAssistantSuggestions = jdAssistantResult?.suggestions ?? [];
 
   const setupTab = (
     <div className="flex flex-col h-full">
@@ -892,6 +976,19 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
             })}
           />
 
+          <ToggleRow
+            title="Trợ lý tạo/chỉnh JD bằng AI"
+            description="Khi bật, tab Job Description có thể kiểm tra JD thiếu thông tin và tối ưu nội dung để bộ lọc CV đọc chính xác hơn."
+            checked={settings.workflow.jdAssistantEnabled}
+            saving={savingKey === 'jdAssistantEnabled'}
+            onChange={(v) => void autoSave('jdAssistantEnabled', {
+              workflow: {
+                ...settings.workflow,
+                jdAssistantEnabled: v,
+              },
+            })}
+          />
+
           <Section title="Tự lưu và khôi phục">
             <ToggleRow
               title="Tự lưu phiên làm việc"
@@ -949,6 +1046,121 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
 
       {setupSubPage === 'jd' && (
       <div className="rounded-2xl border border-slate-100 bg-white p-5 space-y-4">
+        <div className="rounded-2xl border border-sky-100 bg-sky-50/60 p-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-white text-sky-600 shadow-sm">
+                  <Wand2 size={15} />
+                </span>
+                <div>
+                  <p className="text-[13px] font-bold text-slate-900">Trợ lý JD cho bộ lọc</p>
+                  <p className="mt-0.5 text-[11px] leading-5 text-slate-500">
+                    Tạo hoặc chỉnh JD để AI đọc rõ yêu cầu, bộ lọc cứng, trọng số và từ khóa khớp CV.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <Toggle
+              checked={settings.workflow.jdAssistantEnabled}
+              disabled={savingKey === 'jdAssistantEnabled'}
+              onChange={(v) => void autoSave('jdAssistantEnabled', {
+                workflow: {
+                  ...settings.workflow,
+                  jdAssistantEnabled: v,
+                },
+              })}
+            />
+          </div>
+
+          {settings.workflow.jdAssistantEnabled && (
+            <div className="mt-4 space-y-3">
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                {[
+                  { label: 'Tạo JD mới', value: fixedJDText.trim() ? 'Sẵn sàng từ nội dung đang có' : 'Nhập mô tả ngắn bên dưới' },
+                  { label: 'Kiểm tra thiếu mục', value: jdAssistantResult ? `${jdAssistantResult.score}/100 điểm` : 'Chưa kiểm tra' },
+                  { label: 'Tối ưu cho bộ lọc', value: jdAssistantIssues.length ? `${jdAssistantIssues.length} mục cần xử lý` : 'Sẵn sàng' },
+                ].map((item) => (
+                  <div key={item.label} className="rounded-xl border border-white/80 bg-white px-3 py-2.5 shadow-sm">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-400">{item.label}</p>
+                    <p className="mt-1 text-[12px] font-semibold text-slate-800">{item.value}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <p className={`text-[12px] font-medium ${jdAssistantNotice.includes('Không') || jdAssistantNotice.includes('thiếu') ? 'text-amber-600' : 'text-slate-500'}`}>
+                  {jdAssistantNotice || 'Bật trợ lý rồi nhập hoặc tải JD để AI kiểm tra chất lượng nội dung.'}
+                </p>
+                <div className="flex shrink-0 gap-2">
+                  <button
+                    type="button"
+                    disabled={jdAssistantLoading || !fixedJDText.trim()}
+                    onClick={() => void runJDAssistant()}
+                    className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-sky-200 bg-white px-3 text-[11px] font-bold text-sky-700 transition hover:border-sky-300 hover:bg-sky-50 disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    {jdAssistantLoading ? <Loader2 size={12} className="animate-spin" /> : <Wand2 size={12} />}
+                    Kiểm tra JD
+                  </button>
+                  <button
+                    type="button"
+                    disabled={!jdAssistantResult}
+                    onClick={applyAssistantJD}
+                    className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-slate-900 px-3 text-[11px] font-bold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    <Check size={12} />
+                    Áp dụng bản tối ưu
+                  </button>
+                </div>
+              </div>
+
+              {jdAssistantResult && (
+                <div className="grid grid-cols-1 gap-3 lg:grid-cols-[1.05fr_0.95fr]">
+                  <div className="rounded-xl border border-white/80 bg-white p-3">
+                    <p className="text-[11px] font-bold uppercase tracking-[0.08em] text-slate-400">AI phát hiện</p>
+                    <div className="mt-2 space-y-2">
+                      {jdAssistantIssues.length === 0 ? (
+                        <div className="flex items-center gap-2 rounded-lg bg-emerald-50 px-3 py-2 text-[12px] font-semibold text-emerald-700">
+                          <CheckCircle2 size={13} />
+                          JD đủ thông tin chính để dùng cho bộ lọc.
+                        </div>
+                      ) : (
+                        jdAssistantIssues.slice(0, 4).map((item, index) => (
+                          <div key={`${item.key || item.label}-${index}`} className="rounded-lg border border-amber-100 bg-amber-50/70 px-3 py-2">
+                            <p className="text-[12px] font-semibold text-amber-800">{findingLabel(item)}</p>
+                            {(item.reason || item.detail) && (
+                              <p className="mt-0.5 text-[11px] leading-4 text-amber-700">{item.reason || item.detail}</p>
+                            )}
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="rounded-xl border border-white/80 bg-white p-3">
+                    <p className="text-[11px] font-bold uppercase tracking-[0.08em] text-slate-400">Gợi ý chỉnh</p>
+                    <div className="mt-2 space-y-2">
+                      {(jdAssistantSuggestions.length ? jdAssistantSuggestions : jdAssistantIssues).slice(0, 4).map((item, index) => (
+                        <div key={`${item.key || item.label}-suggestion-${index}`} className="rounded-lg bg-slate-50 px-3 py-2">
+                          <p className="text-[12px] font-semibold text-slate-800">{findingLabel(item)}</p>
+                          {(item.detail || item.reason) && (
+                            <p className="mt-0.5 text-[11px] leading-4 text-slate-500">{item.detail || item.reason}</p>
+                          )}
+                        </div>
+                      ))}
+                      {!jdAssistantSuggestions.length && !jdAssistantIssues.length && (
+                        <p className="rounded-lg bg-slate-50 px-3 py-2 text-[12px] text-slate-500">
+                          Có thể dùng nút áp dụng để chuẩn hóa lại bố cục JD.
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
         {/* JD Section */}
         <div>
           <p className="mb-2.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-400">Job Description</p>
@@ -977,6 +1189,9 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
                         if (imported.__preExtractedText) {
                           setFixedJDText(imported.__preExtractedText);
                           if (!fixedJDName.trim()) setFixedJDName(files[0].name.replace(/\.[^.]+$/, ''));
+                          if (settings.workflow.jdAssistantEnabled) {
+                            void runJDAssistant(imported.__preExtractedText);
+                          }
                         }
                       }
                     } catch {

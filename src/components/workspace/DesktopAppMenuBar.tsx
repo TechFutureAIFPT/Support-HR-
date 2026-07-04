@@ -14,7 +14,6 @@ import {
   SlidersHorizontal,
   Sparkles,
   UploadCloud,
-  Workflow,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -39,7 +38,6 @@ const menuGroups = [
       { label: 'Tài liệu ứng dụng', href: '/app-docs', icon: BookOpen },
       { label: 'Kho lưu trữ CV', href: '/records', icon: LibraryBig },
       { label: 'Mẫu JD', href: '/jd-templates', icon: FileText },
-      { label: 'Chuẩn hóa JD', href: '/jd-standardizer', icon: Workflow },
     ],
   },
   {

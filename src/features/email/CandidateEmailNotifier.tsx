@@ -466,7 +466,7 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
 
           {/* Left — candidate list */}
           <div
-            className="flex min-h-0 w-full flex-col border-b xl:w-[44%] xl:border-b-0 xl:border-r"
+            className="flex min-h-0 w-full flex-col border-b xl:w-[42%] xl:border-b-0 xl:border-r"
             style={{ borderColor: tc.borderSoft }}
           >
             {/* Tabs */}
@@ -622,7 +622,7 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
               )}
             </div>
 
-            <div className="flex min-h-0 flex-col border-t" style={{ borderColor: tc.borderSoft }}>
+            <div className="hidden min-h-0 flex-col border-t" style={{ borderColor: tc.borderSoft }}>
               <div
                 className="flex shrink-0 items-center justify-between border-b px-4 py-3"
                 style={{ borderColor: tc.borderSoft }}

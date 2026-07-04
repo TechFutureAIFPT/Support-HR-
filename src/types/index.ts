@@ -577,6 +577,7 @@ export interface UserSettingsWorkflow {
   rememberScoringConfig: boolean;
   autoSaveHistory: boolean;
   autoFillHardFiltersOnContinue: boolean;
+  jdAssistantEnabled: boolean;
   newSessionMode: NewSessionMode;
   fixedJD?: FixedJDConfig;
 }

@@ -71,6 +71,7 @@ export function createDefaultUserSettings(seed: AccountSeed = {}): UserSettings 
       rememberScoringConfig: true,
       autoSaveHistory: true,
       autoFillHardFiltersOnContinue: false,
+      jdAssistantEnabled: false,
       newSessionMode: 'reset',
     },
     notifications: {
@@ -199,6 +200,10 @@ export function normalizeUserSettings(raw: unknown, seed: AccountSeed = {}): Use
       autoFillHardFiltersOnContinue: normalizeBoolean(
         workflow.autoFillHardFiltersOnContinue,
         defaults.workflow.autoFillHardFiltersOnContinue,
+      ),
+      jdAssistantEnabled: normalizeBoolean(
+        workflow.jdAssistantEnabled,
+        defaults.workflow.jdAssistantEnabled,
       ),
       newSessionMode: workflow.newSessionMode === 'keep-config' ? 'keep-config' : 'reset',
       fixedJD: (() => {

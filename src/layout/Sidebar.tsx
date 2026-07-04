@@ -6,7 +6,6 @@ import {
   ChevronDown,
   ChevronRight,
   ClipboardCheck,
-  FileText,
   HelpCircle,
   LayoutDashboard,
   Lock,
@@ -62,7 +61,6 @@ const screeningPages = [
 const supportToolPages = [
   { path: '/chatbot', labelKey: 'nav_chatbot' as TranslationKey, icon: Bot },
   { path: '/contact-candidates', labelKey: 'nav_contact' as TranslationKey, icon: Mail },
-  { path: '/jd-standardizer', labelKey: 'nav_jd_standardizer' as TranslationKey, icon: FileText },
 ];
 
 // ── User menu dropdown ────────────────────────────────────────────────────────
