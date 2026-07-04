@@ -167,70 +167,70 @@ const EmailPreviewCard: React.FC<{
 
   return (
     <div
-      className="flex min-h-0 flex-col overflow-hidden rounded-2xl border shadow-sm"
+      className="flex min-h-0 flex-col overflow-hidden rounded-xl border shadow-sm"
       style={{ background: tc.cardBg, borderColor: tc.borderSoft }}
     >
       <div
-        className="border-b px-4 py-3"
+        className="border-b px-3 py-2"
         style={{ borderColor: tc.borderSoft, background: accent.softBg }}
       >
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex items-center gap-3">
+          <div className="flex items-start justify-between gap-2">
+          <div className="flex items-center gap-2.5">
             <div
-              className="flex h-10 w-10 items-center justify-center rounded-2xl"
+              className="flex h-8 w-8 items-center justify-center rounded-xl"
               style={{ background: accent.iconBg, color: accent.iconText }}
             >
               <Mail className="h-4 w-4" />
             </div>
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.16em]" style={{ color: tc.textMuted }}>
+              <p className="text-[9.5px] font-semibold uppercase tracking-[0.14em]" style={{ color: tc.textMuted }}>
                 Xem trước email
               </p>
-              <h3 className="text-[14px] font-bold" style={{ color: tc.textPrimary }}>
+              <h3 className="text-[12.5px] font-bold" style={{ color: tc.textPrimary }}>
                 Nội dung gửi tới ứng viên
               </h3>
             </div>
           </div>
           <span
-            className="rounded-full px-3 py-1 text-[11px] font-semibold"
+            className="rounded-full px-2.5 py-0.5 text-[10px] font-semibold"
             style={{ background: accent.badgeBg, color: accent.badgeText }}
           >
             {tone === 'pass' ? 'Mẫu vượt vòng' : 'Mẫu không phù hợp'}
           </span>
         </div>
-        <p className="mt-2 text-[12px] leading-relaxed" style={{ color: tc.textSecondary }}>
+        <p className="mt-1.5 text-[11px] leading-relaxed" style={{ color: tc.textSecondary }}>
           {helperText}
         </p>
       </div>
 
       <div
-        className="grid grid-cols-1 gap-2 border-b px-4 py-3 sm:grid-cols-3"
+        className="grid grid-cols-1 gap-2 border-b px-3 py-2 sm:grid-cols-3"
         style={{ borderColor: tc.borderSoft, background: 'rgba(148,163,184,0.05)' }}
       >
-        <div className="rounded-xl border px-3 py-2" style={{ borderColor: tc.borderSoft, background: tc.cardBg }}>
-          <p className="text-[10px] font-semibold uppercase tracking-[0.12em]" style={{ color: tc.textMuted }}>
+        <div className="rounded-lg border px-2.5 py-1.5" style={{ borderColor: tc.borderSoft, background: tc.cardBg }}>
+          <p className="text-[9px] font-semibold uppercase tracking-[0.12em]" style={{ color: tc.textMuted }}>
             Người nhận
           </p>
-          <p className="mt-1 truncate text-[12px] font-semibold" style={{ color: hasEmail ? '#1d4ed8' : '#d97706' }}>
+          <p className="mt-0.5 truncate text-[11px] font-semibold" style={{ color: hasEmail ? '#1d4ed8' : '#d97706' }}>
             {to || '(chưa có email)'}
           </p>
         </div>
-        <div className="rounded-xl border px-3 py-2 sm:col-span-2" style={{ borderColor: tc.borderSoft, background: tc.cardBg }}>
-          <p className="text-[10px] font-semibold uppercase tracking-[0.12em]" style={{ color: tc.textMuted }}>
+        <div className="rounded-lg border px-2.5 py-1.5 sm:col-span-2" style={{ borderColor: tc.borderSoft, background: tc.cardBg }}>
+          <p className="text-[9px] font-semibold uppercase tracking-[0.12em]" style={{ color: tc.textMuted }}>
             Tiêu đề
           </p>
-          <p className="mt-1 text-[12px] font-semibold" style={{ color: tc.textPrimary }}>
+          <p className="mt-0.5 text-[11px] font-semibold" style={{ color: tc.textPrimary }}>
             {subject}
           </p>
         </div>
       </div>
 
-      <div className="px-4 py-4">
+      <div className="px-2.5 py-2.5">
         <div
-          className="rounded-2xl border px-4 py-4"
+          className="rounded-lg border px-3 py-2.5"
           style={{ borderColor: tc.borderSoft, background: tone === 'pass' ? 'rgba(248,250,252,0.9)' : tc.pageBg }}
         >
-          <div className="space-y-3 pr-1">
+          <div className="space-y-2 pr-1">
             {blocks.map((block, index) => {
               const lines = block.split('\n').map((line) => line.trim()).filter(Boolean);
               const isInfoBlock = lines.every((line) => /^(📅|📍|🔗)/.test(line));
@@ -241,11 +241,11 @@ const EmailPreviewCard: React.FC<{
                 return (
                   <div
                     key={`${block}-${index}`}
-                    className="space-y-2 rounded-xl border px-3 py-3"
+                    className="space-y-1 rounded-md border px-2 py-1.5"
                     style={{ borderColor: tc.borderSoft, background: tc.cardBg }}
                   >
                     {lines.map((line, lineIndex) => (
-                      <p key={`${line}-${lineIndex}`} className="text-[12.5px] font-medium leading-relaxed" style={{ color: tc.textPrimary }}>
+                      <p key={`${line}-${lineIndex}`} className="text-[10.5px] font-medium leading-relaxed" style={{ color: tc.textPrimary }}>
                         {line}
                       </p>
                     ))}
@@ -254,12 +254,12 @@ const EmailPreviewCard: React.FC<{
               }
 
               return (
-                <div key={`${block}-${index}`} className={isSignature ? 'pt-2' : undefined}>
+                  <div key={`${block}-${index}`} className={isSignature ? 'pt-1.5' : undefined}>
                   {lines.map((line, lineIndex) => (
                     <p
                       key={`${line}-${lineIndex}`}
-                      className={`text-[13px] leading-[1.72] ${
-                        isGreeting ? 'font-semibold' : isSignature ? 'text-[12.5px]' : ''
+                      className={`text-[11px] leading-[1.55] ${
+                        isGreeting ? 'font-semibold' : isSignature ? 'text-[10.5px]' : ''
                       }`}
                       style={{ color: isGreeting ? tc.textPrimary : tc.textSecondary }}
                     >
@@ -421,7 +421,7 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
     : 'Xem trÆ°á»›c ná»™i dung email tá»« chá»‘i theo á»©ng viÃªn Ä‘ang chá»n. Khi chá»‰nh báº£n soáº¡n bÃªn trÃ¡i, khung nÃ y sáº½ cáº­p nháº­t ngay.';
   const leftPanelTitle = activeTab === 'pass' ? 'ThÃ´ng tin phá»ng váº¥n' : 'Soáº¡n email Â· KhÃ´ng phÃ¹ há»£p';
 
-  const inputCls = 'w-full rounded-lg border px-3 py-2 text-[13px] outline-none transition-colors focus:border-blue-400 focus:ring-1 focus:ring-blue-100';
+  const inputCls = 'w-full rounded-lg border px-2.5 py-1.5 text-[12px] outline-none transition-colors focus:border-blue-400 focus:ring-1 focus:ring-blue-100';
   const inputStyle = { background: tc.pageBg, borderColor: tc.borderSoft, color: tc.textPrimary };
 
   return (
@@ -432,7 +432,7 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
     >
       <div
         className={inline
-          ? "relative flex h-full flex-col overflow-hidden"
+          ? "relative flex h-full min-h-0 flex-col overflow-hidden"
           : "relative flex w-full max-w-5xl flex-col overflow-hidden rounded-2xl shadow-2xl"}
         style={inline
           ? { background: tc.cardBg, border: `1px solid ${tc.borderSoft}` }
@@ -440,25 +440,25 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
       >
         {/* ── Header ──────────────────────────────────── */}
         <div
-          className="flex shrink-0 items-center justify-between border-b px-6 py-4"
+          className="flex shrink-0 items-center justify-between border-b px-4 py-2.5"
           style={{ borderColor: tc.borderSoft }}
         >
-          <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 shadow-sm shadow-blue-600/30">
-              <Mail className="h-4 w-4 text-white" />
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-600 shadow-sm shadow-blue-600/30">
+              <Mail className="h-3.5 w-3.5 text-white" />
             </div>
             <div>
-              <h2 className="text-[15px] font-bold leading-tight" style={{ color: tc.textPrimary }}>
+              <h2 className="text-[14px] font-bold leading-tight" style={{ color: tc.textPrimary }}>
                 Gửi thông báo kết quả
               </h2>
-              <p className="text-[12px]" style={{ color: tc.textMuted }}>
+              <p className="text-[11px]" style={{ color: tc.textMuted }}>
                 {jobPosition || 'Phiên phân tích'}
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-slate-100"
+            className="flex h-7 w-7 items-center justify-center rounded-lg transition-colors hover:bg-slate-100"
             style={{ color: tc.textMuted }}
           >
             <X className="h-4 w-4" />
@@ -471,23 +471,23 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
           {/* Left — candidate list */}
           <div
             className={`flex min-h-0 w-full flex-col border-b transition-[width] duration-200 xl:border-b-0 xl:border-r ${
-              candidatePanelOpen ? 'xl:w-[34%]' : 'xl:w-[76px]'
+              candidatePanelOpen ? 'xl:w-[30%]' : 'xl:w-[64px]'
             }`}
             style={{ borderColor: tc.borderSoft }}
           >
             {!candidatePanelOpen && (
-              <div className="flex h-full min-h-0 flex-col items-center gap-3 px-3 py-4">
+              <div className="flex h-full min-h-0 flex-col items-center gap-2.5 px-2 py-2.5">
                 <button
                   type="button"
                   onClick={() => setCandidatePanelOpen(true)}
-                  className="flex h-10 w-10 items-center justify-center rounded-xl border transition-colors hover:bg-slate-50"
+                  className="flex h-9 w-9 items-center justify-center rounded-lg border transition-colors hover:bg-slate-50"
                   style={{ borderColor: tc.borderSoft, color: tc.textSecondary }}
                   title="Mở danh sách ứng viên"
                 >
                   <PanelLeftOpen className="h-4 w-4" />
                 </button>
                 <div
-                  className="flex h-10 w-10 items-center justify-center rounded-xl"
+                className="flex h-9 w-9 items-center justify-center rounded-lg"
                   style={{ background: tc.pageBg, color: tc.textMuted }}
                   title={`${selectedItems.length}/${activeItems.length} ứng viên được chọn`}
                 >
@@ -500,13 +500,13 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
             )}
             {/* Tabs */}
             <div
-              className={`${candidatePanelOpen ? 'flex' : 'hidden'} shrink-0 items-center gap-2 border-b px-4 py-3`}
+              className={`${candidatePanelOpen ? 'flex' : 'hidden'} shrink-0 items-center gap-2 border-b px-3 py-2`}
               style={{ borderColor: tc.borderSoft }}
             >
               <button
                 type="button"
                 onClick={() => setCandidatePanelOpen(false)}
-                className="mr-1 flex h-8 w-8 items-center justify-center rounded-lg border transition-colors hover:bg-slate-50"
+                className="mr-1 flex h-7 w-7 items-center justify-center rounded-lg border transition-colors hover:bg-slate-50"
                 style={{ borderColor: tc.borderSoft, color: tc.textSecondary }}
                 title="Thu gọn danh sách ứng viên"
               >
@@ -519,7 +519,7 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
                 <button
                   key={tab}
                   onClick={() => { setActiveTab(tab); setSelectedIds(new Set()); }}
-                  className={`flex items-center gap-2 rounded-full border px-4 py-1.5 text-[12px] font-semibold transition-all ${
+                  className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11.5px] font-semibold transition-all ${
                     activeTab === tab ? active : 'hover:bg-slate-50'
                   }`}
                   style={activeTab !== tab ? { borderColor: tc.borderSoft, color: tc.textSecondary } : {}}
@@ -533,7 +533,7 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
             {/* Select-all bar */}
             {candidatePanelOpen && activeItems.length > 0 && (
               <div
-                className="flex shrink-0 items-center justify-between border-b px-4 py-2"
+                className="flex shrink-0 items-center justify-between border-b px-3 py-1.5"
                 style={{ borderColor: tc.borderSoft }}
               >
                 <label className="flex cursor-pointer items-center gap-2">
@@ -554,7 +554,7 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
             )}
 
             {/* Candidate rows */}
-            <div className={`${candidatePanelOpen ? 'block' : 'hidden'} flex-1 overflow-y-auto p-3 space-y-2`}>
+            <div className={`${candidatePanelOpen ? 'block' : 'hidden'} flex-1 overflow-y-auto p-2 space-y-1.5`}>
               {activeItems.length === 0 ? (
                 <div
                   className="flex h-36 flex-col items-center justify-center gap-2 rounded-xl text-center"
@@ -584,7 +584,7 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
                       onClick={() => toggleSelect(item.candidate.id)}
                     >
                       {/* Candidate info row */}
-                      <div className="flex items-center gap-3 p-3">
+                      <div className="flex items-center gap-2.5 p-2.5">
                         <input
                           type="checkbox"
                           checked={isSelected}
@@ -593,14 +593,14 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
                           className="h-3.5 w-3.5 shrink-0 rounded accent-blue-600"
                         />
                         <div
-                          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-[12px] font-black ${
+                          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[11px] font-black ${
                             isPass ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'
                           }`}
                         >
                           {getInitials(normalizeVietnameseDisplay(item.candidate.candidateName))}
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="truncate text-[13px] font-semibold" style={{ color: tc.textPrimary }}>
+                          <p className="truncate text-[12.5px] font-semibold" style={{ color: tc.textPrimary }}>
                             {normalizeVietnameseDisplay(item.candidate.candidateName)}
                           </p>
                           <p className="text-[11px]" style={{ color: tc.textMuted }}>
@@ -625,7 +625,7 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
 
                       {/* Email row — always visible, prominent */}
                       <div
-                        className="flex items-center gap-2 rounded-b-xl border-t px-3 py-2"
+                        className="flex items-center gap-2 rounded-b-xl border-t px-2.5 py-1.5"
                         style={{
                           borderColor: isSelected ? '#bfdbfe' : tc.borderSoft,
                           background: isSelected ? 'rgba(219,234,254,0.4)' : 'transparent',
@@ -811,7 +811,7 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
 
             {/* Panel toolbar */}
             <div
-              className="flex shrink-0 items-center justify-between border-b px-4 py-3"
+              className="flex shrink-0 items-center justify-between border-b px-3 py-2"
               style={{ borderColor: tc.borderSoft }}
             >
               <p
@@ -851,18 +851,18 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
 
               {/* ── PASS TAB: Interview form + auto preview ── */}
               {activeTab === 'pass' && (
-                <div className="flex min-h-0 flex-1 flex-col xl:flex-row">
+                <div className="grid min-h-0 flex-1 grid-cols-1 xl:grid-cols-[300px_minmax(0,1fr)]">
                   {/* Form fields */}
                   <div
-                    className="shrink-0 space-y-4 p-4 lg:px-5 lg:py-4 xl:w-[360px] xl:border-r"
+                    className="space-y-2.5 p-2.5 xl:border-r"
                     style={{ borderColor: tc.borderSoft }}
                   >
 
                     {/* Date + Time */}
-                    <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                      <div className="grid grid-cols-1 gap-2">
                       <div className="flex flex-col gap-1.5">
                         <label
-                          className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide"
+                          className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wide"
                           style={{ color: tc.textMuted }}
                         >
                           <Calendar className="h-3 w-3" />
@@ -878,7 +878,7 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
                       </div>
                       <div className="flex flex-col gap-1.5">
                         <label
-                          className="text-[11px] font-semibold uppercase tracking-wide"
+                          className="text-[10px] font-semibold uppercase tracking-wide"
                           style={{ color: tc.textMuted }}
                         >
                           Giờ bắt đầu
@@ -896,17 +896,17 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
                     {/* Format selector */}
                     <div className="flex flex-col gap-1.5">
                       <label
-                        className="text-[11px] font-semibold uppercase tracking-wide"
+                        className="text-[10px] font-semibold uppercase tracking-wide"
                         style={{ color: tc.textMuted }}
                       >
                         Hình thức phỏng vấn
                       </label>
-                      <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                      <div className="grid grid-cols-3 gap-1.5">
                         {FORMAT_OPTIONS.map(({ value, label }) => (
                           <button
                             key={value}
                             onClick={() => updateInterview({ format: value })}
-                            className={`flex-1 rounded-lg border py-2 text-[12px] font-semibold transition-all ${
+                            className={`flex-1 rounded-lg border py-1.5 text-[10.5px] font-semibold transition-all ${
                               interviewDetails.format === value
                                 ? 'border-blue-300 bg-blue-50 text-blue-700'
                                 : 'hover:bg-slate-50'
@@ -926,7 +926,7 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
                     {(interviewDetails.format === 'offline' || interviewDetails.format === 'hybrid') && (
                       <div className="flex flex-col gap-1.5">
                         <label
-                          className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide"
+                          className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wide"
                           style={{ color: tc.textMuted }}
                         >
                           <MapPin className="h-3 w-3" />
@@ -947,7 +947,7 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
                     {(interviewDetails.format === 'online' || interviewDetails.format === 'hybrid') && (
                       <div className="flex flex-col gap-1.5">
                         <label
-                          className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide"
+                          className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wide"
                           style={{ color: tc.textMuted }}
                         >
                           <Video className="h-3 w-3" />
@@ -966,10 +966,10 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
                   </div>
 
                   {/* Auto-generated email preview */}
-                  <div className="min-h-0 flex-1 border-t xl:border-t-0" style={{ borderColor: tc.borderSoft }}>
-                    <div className="min-h-0 px-4 py-3 lg:px-5">
+                  <div className="min-w-0 border-t xl:border-t-0" style={{ borderColor: tc.borderSoft }}>
+                    <div className="min-h-0 px-2.5 py-2">
                       <p
-                        className="mb-2.5 text-[11px] font-semibold uppercase tracking-[0.15em]"
+                        className="mb-1.5 text-[9.5px] font-semibold uppercase tracking-[0.14em]"
                         style={{ color: tc.textMuted }}
                       >
                         Nội dung email · tự động tạo
@@ -991,7 +991,7 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
 
               {/* ── FAIL TAB: Template editor / preview ── */}
               {activeTab === 'fail' && (
-                <div className="flex h-full min-h-0 flex-col p-4 lg:px-5">
+                <div className="flex h-full min-h-0 flex-col p-3">
                   {!showFailPreview ? (
                     <div className="flex h-full min-h-0 flex-col gap-2.5">
                       <p className="shrink-0 text-[11px]" style={{ color: tc.textMuted }}>
@@ -1003,7 +1003,7 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
                       <textarea
                         value={failTemplate}
                         onChange={(e) => setFailTemplate(e.target.value)}
-                        className="min-h-[360px] flex-1 w-full resize-none rounded-xl border p-3.5 text-[13px] leading-relaxed outline-none transition-colors focus:border-blue-400 focus:ring-2 focus:ring-blue-50 lg:min-h-[460px]"
+                        className="min-h-[320px] flex-1 w-full resize-none rounded-xl border p-3 text-[12px] leading-relaxed outline-none transition-colors focus:border-blue-400 focus:ring-2 focus:ring-blue-50 lg:min-h-[390px]"
                         style={{
                           background: tc.pageBg,
                           borderColor: tc.borderSoft,
@@ -1032,19 +1032,19 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
 
         {/* ── Footer ──────────────────────────────────── */}
         <div
-          className="flex shrink-0 items-center justify-between border-t px-6 py-4"
+          className="flex shrink-0 items-center justify-between border-t px-4 py-2"
           style={{ borderColor: tc.borderSoft, background: tc.cardBg }}
         >
           <div>
             {sendState === 'sent' ? (
               <div className="flex items-center gap-2 text-emerald-600">
                 <CheckCircle2 className="h-4 w-4" />
-                <span className="text-[13px] font-semibold">
+                <span className="text-[12px] font-semibold">
                   Đã gửi thông báo cho {sentCount} ứng viên
                 </span>
               </div>
             ) : (
-              <span className="text-[13px]" style={{ color: tc.textMuted }}>
+              <span className="text-[12px]" style={{ color: tc.textMuted }}>
                 {selectedItems.length > 0 ? (
                   <>
                     <span className="font-bold" style={{ color: tc.textPrimary }}>
@@ -1064,10 +1064,10 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
             )}
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <button
               onClick={onClose}
-              className="inline-flex h-9 items-center rounded-xl border px-4 text-[13px] font-semibold transition-colors hover:bg-slate-50"
+              className="inline-flex h-8 items-center rounded-lg border px-3.5 text-[12px] font-semibold transition-colors hover:bg-slate-50"
               style={{ borderColor: tc.borderSoft, color: tc.textSecondary }}
             >
               {sendState === 'sent' ? 'Đóng' : 'Hủy'}
@@ -1077,7 +1077,7 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
               <button
                 onClick={() => void handleSend()}
                 disabled={!canSend || sendState === 'sending'}
-                className="inline-flex h-9 items-center gap-2 rounded-xl px-5 text-[13px] font-semibold text-white shadow-sm transition-all"
+                className="inline-flex h-8 items-center gap-1.5 rounded-lg px-4 text-[12px] font-semibold text-white shadow-sm transition-all"
                 style={{
                   background: canSend ? '#2563eb' : '#94a3b8',
                   boxShadow: canSend ? '0 2px 8px rgba(37,99,235,0.25)' : 'none',
