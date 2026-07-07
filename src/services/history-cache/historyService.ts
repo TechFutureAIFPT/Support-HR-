@@ -1,4 +1,4 @@
-import { apiGet, apiPost, pickArray } from '@/services/api/renderClient';
+import { apiGet, apiGetWithMeta, apiPost, pickArray } from '@/services/api/renderClient';
 import type { Candidate, HistoryEntry } from '@/types';
 
 interface SaveHistoryParams {
@@ -10,6 +10,13 @@ interface SaveHistoryParams {
   weights?: any;
   hardFilters?: any;
 }
+
+type HistoryQueryCache = {
+  etag: string | null;
+  items: HistoryEntry[];
+};
+
+const historyQueryCache = new Map<string, HistoryQueryCache>();
 
 function normalizeTopCandidate(raw: unknown) {
   const candidate = (raw && typeof raw === 'object') ? raw as Record<string, unknown> : {};
@@ -86,12 +93,25 @@ export async function saveHistorySession({
 export async function fetchRecentHistory(limitCount = 20, userEmail?: string): Promise<HistoryEntry[]> {
   const query = new URLSearchParams({ limit_count: String(limitCount) });
   if (userEmail) query.set('user_email', userEmail);
+  const cacheKey = `${userEmail?.trim().toLowerCase() || 'self'}:${limitCount}`;
+  const cached = historyQueryCache.get(cacheKey);
 
-  const response = await apiGet<unknown>(`/api/account/history?${query.toString()}`, {
+  const response = await apiGetWithMeta<unknown>(`/api/account/history?${query.toString()}`, {
     authRequired: true,
+    allowNotModified: true,
+    headers: cached?.etag ? { 'If-None-Match': cached.etag } : undefined,
   });
 
-  return pickArray<unknown>(response, ['items', 'history', 'entries', 'data']).map(normalizeHistoryEntry);
+  if (response.notModified) {
+    return cached?.items ?? [];
+  }
+
+  const items = pickArray<unknown>(response.data, ['items', 'history', 'entries', 'data']).map(normalizeHistoryEntry);
+  historyQueryCache.set(cacheKey, {
+    etag: response.etag,
+    items,
+  });
+  return items;
 }
 
 export async function saveManualHistorySnapshot(params: SaveHistoryParams) {

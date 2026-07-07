@@ -1,4 +1,4 @@
-import { apiGet, apiPost, apiUpload, pickArray, pickObject } from '@/services/api/renderClient';
+import { apiGetWithMeta, apiPost, apiUpload, pickArray, pickObject } from '@/services/api/renderClient';
 import type {
   JDQualityFinding,
   JDSupplementalFields,
@@ -16,6 +16,13 @@ const asNumber = (value: unknown, fallback = 0) => {
   return Number.isFinite(parsed) ? parsed : fallback;
 };
 const asArray = <T = unknown>(value: unknown): T[] => Array.isArray(value) ? value as T[] : [];
+
+type InboxCacheEntry = {
+  etag: string | null;
+  response: MobileInboxResponse;
+};
+
+const inboxResponseCache = new Map<string, InboxCacheEntry>();
 
 function normalizeStageDecision(raw: unknown, record: Record<string, unknown>, score: number): StageDecision {
   const fallbackBlockingReasons = [
@@ -209,11 +216,33 @@ export async function fetchFilteredCvLibrary(params?: {
   });
   if (params?.userEmail) query.set('user_email', params.userEmail);
 
-  const payload = await apiGet<unknown>(`/api/account/mobile-inbox?${query.toString()}`, {
+  const cacheKey = query.toString();
+  const cached = inboxResponseCache.get(cacheKey);
+  const payload = await apiGetWithMeta<unknown>(`/api/account/mobile-inbox?${query.toString()}`, {
     authRequired: true,
     timeoutMs: 25000,
+    allowNotModified: true,
+    headers: cached?.etag ? { 'If-None-Match': cached.etag } : undefined,
   });
-  return normalizeInboxResponse(payload);
+
+  if (payload.notModified) {
+    return cached?.response ?? {
+      candidates: [],
+      history: [],
+      stats: { candidateCount: 0, historyCount: 0, latestTimestamp: null },
+      dataRevision: payload.dataRevision ?? undefined,
+      notModified: true,
+    };
+  }
+
+  const response = normalizeInboxResponse(payload.data);
+  response.dataRevision = payload.dataRevision ?? response.revision;
+  response.notModified = false;
+  inboxResponseCache.set(cacheKey, {
+    etag: payload.etag,
+    response,
+  });
+  return response;
 }
 
 export async function standardizeJDText(input: {

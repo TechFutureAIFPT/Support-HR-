@@ -155,6 +155,7 @@ export interface Candidate {
     'Chi tiết': DetailedScore[];
     'Điểm mạnh CV'?: string[];
     'Điểm yếu CV'?: string[];
+    'Câu hỏi phỏng vấn'?: string[];
     educationValidation?: {
       standardizedEducation: string;
       validationNote: string;
@@ -246,6 +247,14 @@ export interface ActiveAnalysisContext {
   syncHistoryId?: string;
 }
 
+export interface ChatbotAnalysisContext {
+  analysisSessionId?: string | null;
+  historyId?: string | null;
+  syncHistoryId?: string | null;
+  jdHash?: string | null;
+  jobPosition?: string | null;
+}
+
 export interface CandidateEmbeddingMatch {
   id: string;
   name?: string;
@@ -306,6 +315,53 @@ export interface AnalysisFeedbackDraft {
   isReusableGuidance: boolean;
 }
 
+export interface CandidateBriefStageDecision {
+  status: string;
+  label: string;
+  reason: string;
+  blockingReasons: string[];
+}
+
+export interface CandidateBrief {
+  id: string;
+  candidateName: string;
+  score: number;
+  rank: string;
+  headlineVerdict: string;
+  topStrengths: string[];
+  topRisks: string[];
+  matchedRequirements: string[];
+  missingRequirements: string[];
+  redFlags: string[];
+  stageDecision: CandidateBriefStageDecision;
+  interviewQuestions: string[];
+}
+
+export interface CandidateAdviceCard extends CandidateBrief {
+  recommendedAction: string;
+  focusLabel: string;
+}
+
+export interface AnalysisFeedbackMetadata {
+  source?: string;
+  feedbackScope?: string;
+  isReusableGuidance?: boolean | string;
+  selectedCriteria?: string[];
+  scoreDifference?: number | null;
+  verdictHeadline?: string;
+  topStrengths?: string[];
+  topRisks?: string[];
+  matchedRequirements?: string[];
+  missingRequirements?: string[];
+  redFlags?: string[];
+  stageDecision?: {
+    status?: string;
+    label?: string;
+    reason?: string;
+    blockingReasons?: string[];
+  };
+}
+
 export interface AnalysisFeedbackRecord {
   id: string;
   uid: string;
@@ -331,7 +387,7 @@ export interface AnalysisFeedbackRecord {
   rank?: string | null;
   reason?: string | null;
   notes?: string | null;
-  metadata?: Record<string, unknown>;
+  metadata?: AnalysisFeedbackMetadata;
   createdAt?: number | null;
   updatedAt?: number | null;
 }
@@ -425,6 +481,8 @@ export interface MobileInboxResponse {
   };
   revision?: string;
   generatedAt?: number;
+  dataRevision?: string;
+  notModified?: boolean;
 }
 
 export type JDStandardizeTargetPlatform = 'generic' | 'topcv' | 'vietnamworks' | 'linkedin' | 'parse_jd';
@@ -488,6 +546,7 @@ export interface ChatMessage {
   content: string;
   timestamp?: number;
   suggestedCandidates?: Pick<Candidate, 'id' | 'candidateName' | 'analysis'>[];
+  metadata?: ChatMessageMetadata;
 }
 
 export interface UploadedFileRecord {
@@ -516,6 +575,14 @@ export interface ChatMessageRecord {
   content: string;
   timestamp: number;
   suggestedCandidateIds?: string[];
+  metadata?: ChatMessageMetadata;
+}
+
+export interface ChatMessageMetadata {
+  focusCandidateId?: string | null;
+  followUpQuestions?: string[];
+  suggestedActions?: string[];
+  candidateCards?: CandidateAdviceCard[];
 }
 
 export interface ChatbotSession {
@@ -527,9 +594,25 @@ export interface ChatbotSession {
   sessionTitle: string;
   messages: ChatMessageRecord[];
   messageCount: number;
+  analysisContext?: ChatbotAnalysisContext | null;
+  candidateBriefs?: CandidateBrief[];
+  lastSuggestedCandidateIds?: string[];
+  lastFocusCandidateId?: string | null;
   createdAt: any;
   updatedAt: any;
   lastMessageAt: number;
+}
+
+export interface ChatbotReplyResponse {
+  sessionId: string;
+  userMessage: ChatMessageRecord;
+  assistantMessage: ChatMessageRecord;
+  responseText: string;
+  suggestedCandidateIds: string[];
+  focusCandidateId?: string | null;
+  candidateCards: CandidateAdviceCard[];
+  followUpQuestions: string[];
+  suggestedActions: string[];
 }
 
 export type SidebarDensity = 'compact' | 'cozy';

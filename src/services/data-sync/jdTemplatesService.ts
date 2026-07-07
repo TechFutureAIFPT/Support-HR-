@@ -1,5 +1,5 @@
 import { auth, db } from '@/services/firebase';
-import { apiDelete, apiGet, apiPatch, apiPost, pickArray } from '@/services/api/renderClient';
+import { apiDelete, apiGetWithMeta, apiPatch, apiPost, pickArray } from '@/services/api/renderClient';
 import { collection as firestoreCollection, getDocs, query, where } from 'firebase/firestore';
 
 export interface UserJDTemplate {
@@ -18,38 +18,71 @@ export type CreateJDTemplateInput = Omit<UserJDTemplate, 'id' | 'uid' | 'created
 
 const TEMPLATE_CACHE_PREFIX = 'jdTemplatesCache:';
 
+type TemplateCacheEnvelope = {
+  templates: UserJDTemplate[];
+  etag: string | null;
+  dataRevision: string | null;
+  savedAt: number;
+};
+
 function getTemplateCacheKey(): string | null {
   const email = auth.currentUser?.email?.trim().toLowerCase() || localStorage.getItem('authEmail')?.trim().toLowerCase();
   if (!email) return null;
   return `${TEMPLATE_CACHE_PREFIX}${email}`;
 }
 
-function writeTemplateCache(templates: UserJDTemplate[]): void {
+function writeTemplateCache(
+  templates: UserJDTemplate[],
+  meta?: { etag?: string | null; dataRevision?: string | null }
+): void {
   const cacheKey = getTemplateCacheKey();
   if (!cacheKey) return;
 
   try {
-    localStorage.setItem(cacheKey, JSON.stringify(templates));
+    const envelope: TemplateCacheEnvelope = {
+      templates,
+      etag: meta?.etag ?? null,
+      dataRevision: meta?.dataRevision ?? null,
+      savedAt: Date.now(),
+    };
+    localStorage.setItem(cacheKey, JSON.stringify(envelope));
   } catch (error) {
     console.warn('Failed to cache JD templates locally:', error);
   }
 }
 
-function readTemplateCache(): UserJDTemplate[] {
+function readTemplateCacheEnvelope(): TemplateCacheEnvelope | null {
   const cacheKey = getTemplateCacheKey();
-  if (!cacheKey) return [];
+  if (!cacheKey) return null;
 
   try {
     const raw = localStorage.getItem(cacheKey);
-    if (!raw) return [];
+    if (!raw) return null;
 
     const parsed = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return [];
-    return parsed.map(normalizeTemplate);
+    if (Array.isArray(parsed)) {
+      return {
+        templates: parsed.map(normalizeTemplate),
+        etag: null,
+        dataRevision: null,
+        savedAt: 0,
+      };
+    }
+    if (!parsed || typeof parsed !== 'object' || !Array.isArray(parsed.templates)) return null;
+    return {
+      templates: (parsed.templates as unknown[]).map(normalizeTemplate),
+      etag: typeof parsed.etag === 'string' ? parsed.etag : null,
+      dataRevision: typeof parsed.dataRevision === 'string' ? parsed.dataRevision : null,
+      savedAt: typeof parsed.savedAt === 'number' ? parsed.savedAt : 0,
+    };
   } catch (error) {
     console.warn('Failed to load cached JD templates:', error);
-    return [];
+    return null;
   }
+}
+
+function readTemplateCache(): UserJDTemplate[] {
+  return readTemplateCacheEnvelope()?.templates ?? [];
 }
 
 function normalizeTemplate(raw: unknown): UserJDTemplate {
@@ -115,10 +148,19 @@ export class JDTemplatesService {
   }
 
   static async getUserTemplates(): Promise<UserJDTemplate[]> {
+    const cached = readTemplateCacheEnvelope();
     try {
-      const response = await apiGet<unknown>('/api/account/jd-templates', { authRequired: true });
-      const templates = pickArray<unknown>(response, ['items', 'templates', 'entries', 'data']).map(normalizeTemplate);
-      writeTemplateCache(templates);
+      const response = await apiGetWithMeta<unknown>('/api/account/jd-templates', {
+        authRequired: true,
+        allowNotModified: true,
+        headers: cached?.etag ? { 'If-None-Match': cached.etag } : undefined,
+      });
+      if (response.notModified) {
+        return cached?.templates ?? [];
+      }
+
+      const templates = pickArray<unknown>(response.data, ['items', 'templates', 'entries', 'data']).map(normalizeTemplate);
+      writeTemplateCache(templates, { etag: response.etag, dataRevision: response.dataRevision });
       return templates;
     } catch (error) {
       console.warn('Backend jd-templates failed, trying Firestore fallback.', error);

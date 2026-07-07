@@ -1205,7 +1205,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
   };
 
   return (
-    <div className={`h-[100dvh] bg-white text-slate-900 flex flex-col overflow-hidden ${shouldUseWorkspaceShell ? 'apple-workspace-shell' : ''} ${shouldShowDesktopAppMenu ? 'supporthr-shell--with-app-menu' : ''} ${className || ''}`}>
+    <div className={`h-[100dvh] bg-[var(--th-bg)] text-[var(--th-text)] flex flex-col overflow-hidden ${shouldUseWorkspaceShell ? 'apple-workspace-shell' : ''} ${shouldShowDesktopAppMenu ? 'supporthr-shell--with-app-menu' : ''} ${className || ''}`}>
       {shouldShowDesktopAppMenu && (
         <DesktopAppMenuBar
           sidebarCollapsed={isDesktopSidebarCollapsed}

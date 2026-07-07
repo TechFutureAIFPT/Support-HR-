@@ -1,4 +1,4 @@
-import { apiDelete, apiGet, apiPost, pickArray } from '@/services/api/renderClient';
+import { apiDelete, apiGet, apiGetWithMeta, apiPost, pickArray } from '@/services/api/renderClient';
 import type { AnalysisRunData } from '@/types';
 import { readLocalUserSettings } from '@/services/settings/userSettingsService';
 
@@ -15,6 +15,15 @@ interface CacheEntryRecord {
     lastModified: number;
   };
 }
+
+type QueryCacheEntry<T> = {
+  etag: string | null;
+  value: T;
+};
+
+const syncCacheEntryCache = new Map<string, QueryCacheEntry<any | null>>();
+const syncCacheCollectionCache = new Map<string, QueryCacheEntry<Map<string, any>>>();
+const syncHistoryCache = new Map<string, QueryCacheEntry<AnalysisRunData[]>>();
 
 export class DataSyncService {
   static async syncCacheToFirebase(
@@ -41,22 +50,43 @@ export class DataSyncService {
   }
 
   static async getCacheFromFirebase(cacheKey: string): Promise<any | null> {
-    const response = await apiGet<unknown>(
+    const cached = syncCacheEntryCache.get(cacheKey);
+    const response = await apiGetWithMeta<unknown>(
       `/api/account/sync/cache/${encodeURIComponent(cacheKey)}`,
-      { authRequired: true }
+      {
+        authRequired: true,
+        allowNotModified: true,
+        headers: cached?.etag ? { 'If-None-Match': cached.etag } : undefined,
+      }
     );
 
-    if (response && typeof response === 'object' && !Array.isArray(response)) {
-      const record = response as Record<string, unknown>;
-      return record.candidateData ?? record.data ?? record.entry ?? response;
+    if (response.notModified) {
+      return cached?.value ?? null;
     }
 
-    return null;
+    let value: any | null = null;
+    if (response.data && typeof response.data === 'object' && !Array.isArray(response.data)) {
+      const record = response.data as Record<string, unknown>;
+      value = record.candidateData ?? record.data ?? record.entry ?? response.data;
+    }
+    syncCacheEntryCache.set(cacheKey, { etag: response.etag, value });
+    return value;
   }
 
   static async getAllUserCacheFromFirebase(): Promise<Map<string, any>> {
-    const response = await apiGet<unknown>('/api/account/sync/cache', { authRequired: true });
-    const entries = pickArray<unknown>(response, ['items', 'entries', 'cache', 'data']);
+    const cacheKey = 'all';
+    const cached = syncCacheCollectionCache.get(cacheKey);
+    const response = await apiGetWithMeta<unknown>('/api/account/sync/cache', {
+      authRequired: true,
+      allowNotModified: true,
+      headers: cached?.etag ? { 'If-None-Match': cached.etag } : undefined,
+    });
+    if (response.notModified) {
+      return cached?.value ?? new Map<string, any>();
+    }
+
+    const payload = response.data;
+    const entries = pickArray<unknown>(payload, ['items', 'entries', 'cache', 'data']);
     const cacheMap = new Map<string, any>();
 
     if (entries.length > 0) {
@@ -66,17 +96,19 @@ export class DataSyncService {
           cacheMap.set(entry.cacheKey, entry.candidateData);
         }
       });
+      syncCacheCollectionCache.set(cacheKey, { etag: response.etag, value: cacheMap });
       return cacheMap;
     }
 
-    if (response && typeof response === 'object' && !Array.isArray(response)) {
-      Object.entries(response as Record<string, unknown>).forEach(([key, value]) => {
+    if (payload && typeof payload === 'object' && !Array.isArray(payload)) {
+      Object.entries(payload as Record<string, unknown>).forEach(([key, value]) => {
         if (value && typeof value === 'object' && 'candidateData' in (value as Record<string, unknown>)) {
           cacheMap.set(key, (value as Record<string, unknown>).candidateData);
         }
       });
     }
 
+    syncCacheCollectionCache.set(cacheKey, { etag: response.etag, value: cacheMap });
     return cacheMap;
   }
 
@@ -86,12 +118,24 @@ export class DataSyncService {
   }
 
   static async getHistoryFromFirebase(limitCount: number = 20): Promise<AnalysisRunData[]> {
-    const response = await apiGet<unknown>(
+    const cacheKey = String(limitCount);
+    const cached = syncHistoryCache.get(cacheKey);
+    const response = await apiGetWithMeta<unknown>(
       `/api/account/sync/history?limit_count=${limitCount}`,
-      { authRequired: true }
+      {
+        authRequired: true,
+        allowNotModified: true,
+        headers: cached?.etag ? { 'If-None-Match': cached.etag } : undefined,
+      }
     );
 
-    return pickArray<AnalysisRunData>(response, ['items', 'history', 'entries', 'data']);
+    if (response.notModified) {
+      return cached?.value ?? [];
+    }
+
+    const items = pickArray<AnalysisRunData>(response.data, ['items', 'history', 'entries', 'data']);
+    syncHistoryCache.set(cacheKey, { etag: response.etag, value: items });
+    return items;
   }
 
   static async migrateLocalDataToFirebase(): Promise<void> {

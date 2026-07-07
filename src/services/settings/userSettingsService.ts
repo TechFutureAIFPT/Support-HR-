@@ -10,6 +10,7 @@ import type {
 export const USER_SETTINGS_LOCAL_KEY = 'supporthr.userSettings.snapshot';
 export const USER_SETTINGS_DIRTY_KEY = 'supporthr.userSettings.dirty';
 export const USER_SETTINGS_EVENT = 'supporthr:settings-updated';
+export const USER_SETTINGS_THEME_KEY = 'supporthr.ui.theme';
 
 type AccountSeed = {
   email?: string;
@@ -91,6 +92,7 @@ export function createDefaultUserSettings(seed: AccountSeed = {}): UserSettings 
 
 function readLegacyBootstrap(seed: AccountSeed): Partial<UserSettings> {
   if (typeof window === 'undefined') return {};
+  const storedTheme = normalizeTheme(window.localStorage.getItem(USER_SETTINGS_THEME_KEY));
 
   return {
     ui: {
@@ -98,7 +100,7 @@ function readLegacyBootstrap(seed: AccountSeed): Partial<UserSettings> {
       accessibleMode: window.localStorage.getItem('accessibleMode') === 'true',
       reducedMotion: window.localStorage.getItem('supporthr.reducedMotion') === 'true',
       language: 'vi-VN',
-      theme: 'light',
+      theme: storedTheme,
     },
     account: {
       displayName: seed.displayName || '',
@@ -254,6 +256,7 @@ function dispatchUserSettingsEvent(settings: UserSettings): void {
 export function writeLocalUserSettings(settings: UserSettings, isDirty: boolean): UserSettings {
   if (typeof window === 'undefined') return settings;
   window.localStorage.setItem(USER_SETTINGS_LOCAL_KEY, JSON.stringify(settings));
+  window.localStorage.setItem(USER_SETTINGS_THEME_KEY, settings.ui.theme);
   window.localStorage.setItem('supporthr.sidebar.density', settings.ui.sidebarDensity);
   window.localStorage.setItem('supporthr.sidebar.notifications', String(settings.notifications.sidebarBadge));
   window.localStorage.setItem('accessibleMode', String(settings.ui.accessibleMode));
@@ -288,11 +291,14 @@ export async function fetchRemoteUserSettings(seed: AccountSeed = {}): Promise<U
 export async function patchRemoteUserSettings(
   patch: UserSettingsPatch,
   seed: AccountSeed = {},
+  options: { persistLocal?: boolean } = {},
 ): Promise<UserSettings> {
   const response = await apiPatch<unknown>('/api/account/settings', patch, { authRequired: true });
   const candidate = response ? normalizeUserSettings(response, seed) : mergeUserSettings(readLocalUserSettings(seed), patch);
   const synced = mergeUserSettings(candidate, { sync: { lastSyncedAt: Date.now() } });
-  writeLocalUserSettings(synced, false);
+  if (options.persistLocal !== false) {
+    writeLocalUserSettings(synced, false);
+  }
   return synced;
 }
 

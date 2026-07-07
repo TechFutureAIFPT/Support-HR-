@@ -4383,3 +4383,125 @@ html.dark .supporthr-main--with-sidebar [class*="bg-[#f7f7f5]"],
 html.dark .apple-workspace-shell .feature-page-shell [class*="bg-[#f7f7f5]"] {
   background-color: #141b2d !important;
 }
+
+/* Scoped theme overrides for the settings modal while legacy utility colors are still in use. */
+.settings-theme-modal [class*="bg-white"] {
+  background-color: var(--th-surface-card) !important;
+}
+
+.settings-theme-modal [class*="bg-slate-50"],
+.settings-theme-modal [class*="bg-slate-100"] {
+  background-color: var(--th-bg-elevated) !important;
+}
+
+.settings-theme-modal [class*="bg-slate-900"] {
+  background-color: var(--th-text) !important;
+}
+
+.settings-theme-modal [class*="bg-blue-50"],
+.settings-theme-modal [class*="bg-blue-100"] {
+  background-color: var(--th-primary-muted) !important;
+}
+
+.settings-theme-modal [class*="bg-gradient-to-br"],
+.settings-theme-modal [class*="bg-gradient-to-r"] {
+  background: linear-gradient(135deg, var(--th-primary-muted) 0%, var(--th-surface-card) 52%, var(--th-bg-elevated) 100%) !important;
+}
+
+.settings-theme-modal [class*="bg-emerald-50"] {
+  background-color: var(--th-success-muted) !important;
+}
+
+.settings-theme-modal [class*="bg-amber-50"] {
+  background-color: var(--th-warning-muted) !important;
+}
+
+.settings-theme-modal [class*="bg-rose-50"] {
+  background-color: var(--th-error-muted) !important;
+}
+
+.settings-theme-modal [class*="border-slate-100"],
+.settings-theme-modal [class*="border-slate-200"],
+.settings-theme-modal [class*="border-slate-300"] {
+  border-color: var(--th-border-subtle) !important;
+}
+
+.settings-theme-modal [class*="border-blue-100"],
+.settings-theme-modal [class*="border-blue-200"],
+.settings-theme-modal [class*="border-blue-300"],
+.settings-theme-modal [class*="border-blue-400"] {
+  border-color: var(--th-primary) !important;
+}
+
+.settings-theme-modal [class*="border-emerald-100"],
+.settings-theme-modal [class*="border-emerald-200"] {
+  border-color: var(--th-success) !important;
+}
+
+.settings-theme-modal [class*="border-amber-100"],
+.settings-theme-modal [class*="border-amber-200"] {
+  border-color: var(--th-warning) !important;
+}
+
+.settings-theme-modal [class*="border-rose-200"],
+.settings-theme-modal [class*="border-rose-300"],
+.settings-theme-modal [class*="border-rose-400"] {
+  border-color: var(--th-error) !important;
+}
+
+.settings-theme-modal [class*="text-slate-900"],
+.settings-theme-modal [class*="text-slate-800"] {
+  color: var(--th-text) !important;
+}
+
+.settings-theme-modal [class*="text-slate-700"],
+.settings-theme-modal [class*="text-slate-600"],
+.settings-theme-modal [class*="text-slate-500"] {
+  color: var(--th-text-secondary) !important;
+}
+
+.settings-theme-modal [class*="text-slate-400"],
+.settings-theme-modal [class*="text-slate-300"] {
+  color: var(--th-text-muted) !important;
+}
+
+.settings-theme-modal [class*="text-blue-700"],
+.settings-theme-modal [class*="text-blue-600"],
+.settings-theme-modal [class*="text-blue-500"],
+.settings-theme-modal [class*="text-blue-400"] {
+  color: var(--th-primary) !important;
+}
+
+.settings-theme-modal [class*="text-emerald-700"],
+.settings-theme-modal [class*="text-emerald-600"],
+.settings-theme-modal [class*="text-emerald-500"] {
+  color: var(--th-success) !important;
+}
+
+.settings-theme-modal [class*="text-amber-800"],
+.settings-theme-modal [class*="text-amber-700"],
+.settings-theme-modal [class*="text-amber-600"],
+.settings-theme-modal [class*="text-amber-500"] {
+  color: var(--th-warning) !important;
+}
+
+.settings-theme-modal [class*="text-rose-800"],
+.settings-theme-modal [class*="text-rose-700"],
+.settings-theme-modal [class*="text-rose-600"],
+.settings-theme-modal [class*="text-rose-500"] {
+  color: var(--th-error) !important;
+}
+
+.settings-theme-modal [class*="divide-slate-100"] > :not([hidden]) ~ :not([hidden]) {
+  border-color: var(--th-border-subtle) !important;
+}
+
+.settings-theme-modal [class*="hover:bg-slate-50"]:hover,
+.settings-theme-modal [class*="hover:bg-white"]:hover {
+  background-color: var(--th-surface-hover) !important;
+}
+
+.settings-theme-modal [class*="hover:border-slate-300"]:hover,
+.settings-theme-modal [class*="hover:border-slate-200"]:hover {
+  border-color: var(--th-border) !important;
+}

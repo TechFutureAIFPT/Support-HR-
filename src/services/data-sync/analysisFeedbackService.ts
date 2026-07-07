@@ -1,5 +1,5 @@
 import { apiDelete, apiGet, apiPost, pickArray } from '@/services/api/renderClient';
-import type { AnalysisFeedbackAction, AnalysisFeedbackRecord, AnalysisFeedbackSeverity } from '@/types';
+import type { AnalysisFeedbackAction, AnalysisFeedbackMetadata, AnalysisFeedbackRecord, AnalysisFeedbackSeverity } from '@/types';
 
 export interface SaveAnalysisFeedbackPayload {
   sessionId?: string;
@@ -20,7 +20,7 @@ export interface SaveAnalysisFeedbackPayload {
   rank?: string;
   reason?: string;
   notes?: string;
-  metadata?: Record<string, unknown>;
+  metadata?: AnalysisFeedbackMetadata;
 }
 
 export interface AnalysisFeedbackFilters {
@@ -95,7 +95,7 @@ function normalizeFeedbackRecord(raw: unknown): AnalysisFeedbackRecord {
     reason: item.reason ? String(item.reason) : null,
     notes: item.notes ? String(item.notes) : null,
     metadata: item.metadata && typeof item.metadata === 'object'
-      ? item.metadata as Record<string, unknown>
+      ? item.metadata as AnalysisFeedbackMetadata
       : {},
     createdAt: normalizeTimestamp(item.createdAt),
     updatedAt: normalizeTimestamp(item.updatedAt),

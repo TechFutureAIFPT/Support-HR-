@@ -1,19 +1,18 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useTheme } from '@/context/theme/ThemeProvider';
-import { useThemeColors } from '@/hooks/useThemeColors';
 import {
-  AlertCircle,
   ArrowLeft,
   Brain,
   CheckCircle2,
   ChevronRight,
   FileText,
   Mail,
-  MessageSquareText,
+  ShieldAlert,
   TrendingUp,
   Users,
 } from 'lucide-react';
+import { useTheme } from '@/context/theme/ThemeProvider';
+import { useThemeColors } from '@/hooks/useThemeColors';
 import type {
   ActiveAnalysisContext,
   AnalysisFeedbackAction,
@@ -32,14 +31,25 @@ import {
   saveAnalysisFeedback,
   type AnalysisFeedbackStats,
 } from '@/services/data-sync/analysisFeedbackService';
-import {
-  buildAnalysisSessionId,
-  getActiveAnalysisContext,
-} from '@/services/history-cache/activeAnalysisContext';
+import { buildAnalysisSessionId, getActiveAnalysisContext } from '@/services/history-cache/activeAnalysisContext';
 import { readLatestAnalysisRun } from '@/services/history-cache/latestAnalysisRun';
+import {
+  buildCandidateBrief,
+  buildFeedbackMetadata,
+  buildHeadlineVerdict,
+  buildRecommendedAction,
+  buildTopReasons,
+  buildVerificationRisks,
+  getCandidateRank,
+  getCandidateScore,
+  getDisplayedCandidateScore,
+  getInitials,
+  getRankColors,
+} from '@/features/recruiter/candidateDecisionSupport';
 import { normalizeVietnameseDisplay } from '@/utils/textDisplay';
 
 type FeedbackView = 'overview' | 'decision';
+type FeedbackFilter = 'all' | 'pending' | AnalysisFeedbackAction;
 
 interface AIFeedbackPageProps {
   candidates: Candidate[];
@@ -50,13 +60,13 @@ interface AIFeedbackPageProps {
 }
 
 const ACTION_META: Record<AnalysisFeedbackAction, { label: string; colorClass: string; dotClass: string }> = {
-  like:      { label: 'Đánh giá tốt', colorClass: 'border-emerald-200 bg-emerald-50 text-emerald-700', dotClass: 'bg-emerald-500' },
-  dislike:   { label: 'Cần xem lại',  colorClass: 'border-amber-200 bg-amber-50 text-amber-700',      dotClass: 'bg-amber-500' },
-  shortlist: { label: 'Đề cử',        colorClass: 'border-blue-200 bg-blue-50 text-blue-700',         dotClass: 'bg-blue-500' },
-  reject:    { label: 'Từ chối',      colorClass: 'border-rose-200 bg-rose-50 text-rose-700',         dotClass: 'bg-rose-500' },
-  interview: { label: 'Phỏng vấn',   colorClass: 'border-sky-200 bg-sky-50 text-sky-700',            dotClass: 'bg-sky-500' },
-  hire:      { label: 'Đề xuất',      colorClass: 'border-violet-200 bg-violet-50 text-violet-700',  dotClass: 'bg-violet-500' },
-  neutral:   { label: 'Trung lập',    colorClass: 'border-slate-200 bg-white text-slate-600',         dotClass: 'bg-slate-400' },
+  like: { label: 'Đánh giá tốt', colorClass: 'border-emerald-200 bg-emerald-50 text-emerald-700', dotClass: 'bg-emerald-500' },
+  dislike: { label: 'Cần xem lại', colorClass: 'border-amber-200 bg-amber-50 text-amber-700', dotClass: 'bg-amber-500' },
+  shortlist: { label: 'Đề cử', colorClass: 'border-blue-200 bg-blue-50 text-blue-700', dotClass: 'bg-blue-500' },
+  reject: { label: 'Từ chối', colorClass: 'border-rose-200 bg-rose-50 text-rose-700', dotClass: 'bg-rose-500' },
+  interview: { label: 'Phỏng vấn', colorClass: 'border-sky-200 bg-sky-50 text-sky-700', dotClass: 'bg-sky-500' },
+  hire: { label: 'Đề xuất tuyển', colorClass: 'border-violet-200 bg-violet-50 text-violet-700', dotClass: 'bg-violet-500' },
+  neutral: { label: 'Trung lập', colorClass: 'border-slate-200 bg-white text-slate-600', dotClass: 'bg-slate-400' },
 };
 
 function getStoredAnalysisRun(): AnalysisRunData | null {
@@ -77,30 +87,6 @@ function buildEffectiveContext(
     timestamp: storedRun.timestamp,
     jobPosition: fallbackJobPosition || storedRun.job.position,
   };
-}
-
-function readAnalysisValue<T>(candidate: Candidate, keys: string[]): T | undefined {
-  const analysis = candidate.analysis as Record<string, unknown> | undefined;
-  if (!analysis) return undefined;
-  for (const key of keys) {
-    if (key in analysis) return analysis[key] as T;
-  }
-  return undefined;
-}
-
-function getCandidateScore(candidate: Candidate): number {
-  const score = readAnalysisValue<number>(candidate, ['Tổng điểm', 'Tong diem']);
-  return typeof score === 'number' ? score : 0;
-}
-
-function getDisplayedScore(candidate: Candidate): number {
-  return typeof candidate.analysis?.feedbackAdjusted === 'number'
-    ? candidate.analysis.feedbackAdjusted
-    : getCandidateScore(candidate);
-}
-
-function getCandidateRank(candidate: Candidate): string | undefined {
-  return readAnalysisValue<string>(candidate, ['Hạng', 'Hang']);
 }
 
 function getFeedbackMap(entries: AnalysisFeedbackRecord[]): Record<string, AnalysisFeedbackRecord> {
@@ -151,41 +137,44 @@ function getActionPresentation(action?: AnalysisFeedbackAction | null) {
   return ACTION_META[action] || ACTION_META.neutral;
 }
 
-function getInitials(name: string): string {
-  const parts = name.trim().split(' ');
-  return parts.length >= 2
-    ? (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase()
-    : name.charAt(0).toUpperCase();
+function formatUpdatedAt(value?: number | null): string {
+  if (!value) return 'Chưa có bản ghi phản hồi';
+  return new Date(value).toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
 }
 
-function getRankColors(rank?: string): string {
-  if (rank === 'A') return 'bg-emerald-50 text-emerald-700 border border-emerald-200';
-  if (rank === 'B') return 'bg-blue-50 text-blue-700 border border-blue-200';
-  return 'bg-slate-50 text-slate-600 border border-slate-200';
-}
+const FEEDBACK_FILTERS: Array<{ key: FeedbackFilter; label: string }> = [
+  { key: 'all', label: 'Tất cả' },
+  { key: 'pending', label: 'Chưa phản hồi' },
+  { key: 'shortlist', label: 'Đề cử' },
+  { key: 'interview', label: 'Phỏng vấn' },
+  { key: 'reject', label: 'Từ chối' },
+  { key: 'hire', label: 'Đề xuất tuyển' },
+];
 
-const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
+export default function AIFeedbackPage({
   candidates,
   jobPosition,
   analysisContext,
-}) => {
+}: AIFeedbackPageProps) {
   const navigate = useNavigate();
-  const { isDarkMode } = useTheme();
+  useTheme();
   const tc = useThemeColors();
   const storedRun = useMemo(() => getStoredAnalysisRun(), []);
+
   const [activeView, setActiveView] = useState<FeedbackView>('overview');
   const [showEmailNotifier, setShowEmailNotifier] = useState(false);
   const [selectedCandidateId, setSelectedCandidateId] = useState<string | null>(null);
   const [feedbackByCandidate, setFeedbackByCandidate] = useState<Record<string, AnalysisFeedbackRecord>>({});
   const [feedbackStats, setFeedbackStats] = useState<AnalysisFeedbackStats | null>(null);
-  const [isLoadingFeedback, setIsLoadingFeedback] = useState<boolean>(false);
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [isLoadingFeedback, setIsLoadingFeedback] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [overviewNotice, setOverviewNotice] = useState<string | null>(null);
+  const [activeFilter, setActiveFilter] = useState<FeedbackFilter>('all');
 
   const effectiveContext = useMemo(
     () => buildEffectiveContext(analysisContext, storedRun, jobPosition),
-    [analysisContext, storedRun, jobPosition]
+    [analysisContext, jobPosition, storedRun]
   );
 
   const sourceCandidates = useMemo(() => {
@@ -196,7 +185,7 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
   const validCandidates = useMemo(() => {
     const base = sourceCandidates.filter((candidate) => candidate.status === 'SUCCESS' && candidate.analysis);
     return hydrateFeedbackAdjusted(base, feedbackByCandidate);
-  }, [sourceCandidates, feedbackByCandidate]);
+  }, [feedbackByCandidate, sourceCandidates]);
 
   const selectedCandidate = useMemo(
     () => validCandidates.find((candidate) => candidate.id === selectedCandidateId) || null,
@@ -224,10 +213,28 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
   }, [feedbackByCandidate]);
 
   const effectiveJobPosition = jobPosition || effectiveContext?.jobPosition || storedRun?.job.position || '';
-  const submittedCount = feedbackEntries.length;
   const latestFeedbackLabel = feedbackStats?.latestFeedbackAt
     ? new Date(feedbackStats.latestFeedbackAt).toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
     : null;
+
+  const filteredCandidates = useMemo(() => {
+    return validCandidates.filter((candidate) => {
+      const entry = feedbackByCandidate[candidate.id] || feedbackByCandidate[candidate.fileName] || feedbackByCandidate[candidate.candidateName];
+      if (activeFilter === 'all') return true;
+      if (activeFilter === 'pending') return !entry;
+      return entry?.action === activeFilter;
+    });
+  }, [activeFilter, feedbackByCandidate, validCandidates]);
+
+  const statsChips = useMemo(() => {
+    const pendingCount = validCandidates.length - feedbackEntries.length;
+    return {
+      reviewed: feedbackEntries.length,
+      total: validCandidates.length,
+      pending: Math.max(pendingCount, 0),
+      strong: feedbackEntries.filter((entry) => entry.action === 'hire' || entry.action === 'shortlist' || entry.action === 'interview').length,
+    };
+  }, [feedbackEntries, validCandidates.length]);
 
   const reloadFeedback = useCallback(async () => {
     if (!effectiveContext?.sessionId && !effectiveContext?.historyId && !effectiveContext?.syncHistoryId) {
@@ -257,17 +264,18 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
   }, [effectiveContext]);
 
   useEffect(() => {
-    if (validCandidates.length > 0 && !selectedCandidateId) {
-      setSelectedCandidateId(validCandidates[0].id);
+    if (filteredCandidates.length > 0 && !selectedCandidateId) {
+      setSelectedCandidateId(filteredCandidates[0].id);
     }
-  }, [validCandidates, selectedCandidateId]);
+  }, [filteredCandidates, selectedCandidateId]);
 
-  useEffect(() => { void reloadFeedback(); }, [reloadFeedback]);
+  useEffect(() => {
+    void reloadFeedback();
+  }, [reloadFeedback]);
 
   const handleOpenCandidate = useCallback((candidateId: string) => {
     setSelectedCandidateId(candidateId);
     setSubmitError(null);
-    setOverviewNotice(null);
     setActiveView('decision');
   }, []);
 
@@ -280,9 +288,10 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
     if (!selectedCandidate) return;
     const scope = effectiveContext || buildEffectiveContext(null, storedRun, effectiveJobPosition);
     if (!scope?.sessionId && !scope?.historyId && !scope?.syncHistoryId && !scope?.jdHash) {
-      setSubmitError('Frontend chưa có context của phiên phân tích. Bạn hãy chạy lại một lần để gắn phản hồi đúng scope.');
+      setSubmitError('Frontend chưa có context của phiên phân tích. Hãy chạy lại một lần để gắn phản hồi đúng scope.');
       return;
     }
+
     setIsSubmitting(true);
     setSubmitError(null);
     try {
@@ -302,13 +311,7 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
         rank: getCandidateRank(selectedCandidate),
         reason: draft.reason,
         notes: draft.notes,
-        metadata: {
-          selectedCriteria: draft.selectedCriteria,
-          scoreDifference: draft.scoreDifference,
-          isReusableGuidance: draft.isReusableGuidance,
-          feedbackScope: draft.isReusableGuidance ? 'reusable-guidance' : 'candidate-specific',
-          source: 'ui-feedback-page',
-        },
+        metadata: buildFeedbackMetadata(selectedCandidate, draft.scoreDifference, draft.selectedCriteria, draft.isReusableGuidance),
       });
       setFeedbackByCandidate((previous) => ({
         ...previous,
@@ -328,24 +331,15 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
     }
   }, [effectiveContext, effectiveJobPosition, reloadFeedback, selectedCandidate, storedRun]);
 
-  /* ── Empty state ────────────────────────────────────────── */
   if (validCandidates.length === 0) {
     return (
-      <div
-        className="feature-page-shell flex h-full flex-col items-center justify-center p-8 text-center"
-        style={{ background: tc.pageBg, color: tc.textPrimary }}
-      >
-        <div
-          className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl border"
-          style={{ background: tc.cardBg, borderColor: tc.borderSoft }}
-        >
+      <div className="feature-page-shell flex h-full flex-col items-center justify-center p-8 text-center" style={{ background: tc.pageBg, color: tc.textPrimary }}>
+        <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl border" style={{ background: tc.cardBg, borderColor: tc.borderSoft }}>
           <Brain className="h-8 w-8 text-slate-400" />
         </div>
-        <h2 className="mb-2 text-[18px] font-bold" style={{ color: tc.textPrimary }}>
-          Chưa có dữ liệu ứng viên
-        </h2>
+        <h2 className="mb-2 text-[18px] font-bold">Chưa có dữ liệu ứng viên</h2>
         <p className="max-w-sm text-[13px] leading-relaxed" style={{ color: tc.textMuted }}>
-          Không tìm thấy ứng viên nào đã được phân tích. Hãy chạy lại bước phân tích CV trước khi mở màn phản hồi AI.
+          Hãy chạy bước phân tích CV trước khi mở Decision Cockpit.
         </p>
         <button
           onClick={() => navigate('/analysis')}
@@ -359,22 +353,16 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
     );
   }
 
-  return (
-    <div
-      className="feature-page-shell relative flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden"
-      style={{ background: tc.pageBg, color: tc.textPrimary }}
-    >
-      {/* Subtle grid texture */}
-      <div className="pointer-events-none absolute inset-0 supporthr-grid-mask opacity-[0.12]" />
+  const selectedBrief = selectedCandidate ? buildCandidateBrief(selectedCandidate) : null;
+  const selectedEntry = currentFeedbackEntry;
 
-      {/* Hidden compat header */}
-      <header style={{ display: 'none' }} />
+  return (
+    <div className="feature-page-shell relative flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden" style={{ background: tc.pageBg, color: tc.textPrimary }}>
+      <div className="pointer-events-none absolute inset-0 supporthr-grid-mask opacity-[0.12]" />
 
       <main className="relative z-10 min-h-0 flex-1 overflow-y-auto">
         {activeView === 'overview' ? (
           <div className="mx-auto w-full max-w-6xl px-4 py-5 md:px-6">
-
-            {/* ── Page header ─────────────────────────────── */}
             <div className="mb-5">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div className="flex items-center gap-3">
@@ -382,7 +370,7 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
                     <Brain className="h-5 w-5 text-white" />
                   </div>
                   <div>
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-blue-600">Phản hồi kết quả AI</p>
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-blue-600">Recruiter Decision Cockpit</p>
                     <h1 className="text-[17px] font-bold leading-tight" style={{ color: tc.textPrimary }}>
                       {effectiveJobPosition || 'Phiên phân tích hiện tại'}
                     </h1>
@@ -409,41 +397,42 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
                 </div>
               </div>
 
-              {/* Stats chips row */}
-              <div className="mt-4 flex flex-wrap gap-2">
-                <div
-                  className="flex items-center gap-2 rounded-full border px-3 py-1.5 text-[12px] font-medium"
-                  style={{ background: tc.cardBg, borderColor: tc.borderSoft, color: tc.textSecondary }}
-                >
-                  <Users className="h-3.5 w-3.5 text-blue-500" />
-                  <span><span className="font-bold" style={{ color: tc.textPrimary }}>{submittedCount}</span> / {validCandidates.length} đã phản hồi</span>
-                </div>
-                <div
-                  className="flex items-center gap-2 rounded-full border px-3 py-1.5 text-[12px] font-medium"
-                  style={{ background: tc.cardBg, borderColor: tc.borderSoft, color: tc.textSecondary }}
-                >
-                  <TrendingUp className="h-3.5 w-3.5 text-blue-500" />
-                  <span><span className="font-bold" style={{ color: tc.textPrimary }}>{feedbackStats?.totalFeedback ?? submittedCount}</span> bản ghi</span>
-                </div>
-                <div
-                  className="flex items-center gap-2 rounded-full border px-3 py-1.5 text-[12px] font-medium"
-                  style={{ background: tc.cardBg, borderColor: tc.borderSoft, color: tc.textSecondary }}
-                >
-                  <CheckCircle2 className={`h-3.5 w-3.5 ${isLoadingFeedback ? 'text-amber-500' : 'text-emerald-500'}`} />
-                  <span>{isLoadingFeedback ? 'Đang đồng bộ…' : 'Đã đồng bộ'}</span>
-                </div>
-                {latestFeedbackLabel && (
-                  <div
-                    className="flex items-center gap-2 rounded-full border px-3 py-1.5 text-[12px] font-medium"
-                    style={{ background: tc.cardBg, borderColor: tc.borderSoft, color: tc.textMuted }}
-                  >
-                    <span>Mới nhất: {latestFeedbackLabel}</span>
+              <div className="mt-4 grid gap-3 md:grid-cols-4">
+                {[
+                  { icon: Users, label: 'Đã phản hồi', value: `${statsChips.reviewed}/${statsChips.total}` },
+                  { icon: ShieldAlert, label: 'Cần xử lý tiếp', value: statsChips.pending },
+                  { icon: TrendingUp, label: 'Đề cử mạnh', value: statsChips.strong },
+                  { icon: CheckCircle2, label: 'Đồng bộ', value: isLoadingFeedback ? 'Đang tải...' : 'Sẵn sàng' },
+                ].map((item) => (
+                  <div key={item.label} className="rounded-2xl border p-4" style={{ background: tc.cardBg, borderColor: tc.borderSoft }}>
+                    <div className="flex items-center gap-2 text-blue-600">
+                      <item.icon className="h-4 w-4" />
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.14em]">{item.label}</p>
+                    </div>
+                    <p className="mt-3 text-[24px] font-black" style={{ color: tc.textPrimary }}>{item.value}</p>
+                    {item.label === 'Đồng bộ' && latestFeedbackLabel && (
+                      <p className="mt-1 text-[11px]" style={{ color: tc.textMuted }}>Mới nhất {latestFeedbackLabel}</p>
+                    )}
                   </div>
-                )}
+                ))}
               </div>
             </div>
 
-            {/* Success notice */}
+            <div className="mb-4 flex flex-wrap gap-2">
+              {FEEDBACK_FILTERS.map((filter) => (
+                <button
+                  key={filter.key}
+                  onClick={() => setActiveFilter(filter.key)}
+                  className={`rounded-full border px-3 py-1.5 text-[12px] font-semibold transition-all ${
+                    activeFilter === filter.key ? 'border-blue-200 bg-blue-50 text-blue-700' : ''
+                  }`}
+                  style={activeFilter === filter.key ? {} : { background: tc.cardBg, borderColor: tc.borderSoft, color: tc.textSecondary }}
+                >
+                  {filter.label}
+                </button>
+              ))}
+            </div>
+
             {overviewNotice && (
               <div className="mb-4 flex items-start gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-[13px] text-emerald-700">
                 <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />
@@ -451,82 +440,82 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
               </div>
             )}
 
-            {/* ── Candidate grid ─────────────────────────── */}
             <div className="grid gap-3 xl:grid-cols-2">
-              {validCandidates.map((candidate) => {
-                const entry = feedbackByCandidate[candidate.id]
-                  || feedbackByCandidate[candidate.fileName]
-                  || feedbackByCandidate[candidate.candidateName]
-                  || null;
+              {filteredCandidates.map((candidate) => {
+                const entry = feedbackByCandidate[candidate.id] || feedbackByCandidate[candidate.fileName] || feedbackByCandidate[candidate.candidateName] || null;
                 const actionPres = getActionPresentation(entry?.action);
-                const rank = getCandidateRank(candidate);
-                const score = getDisplayedScore(candidate);
-                const initials = getInitials(normalizeVietnameseDisplay(candidate.candidateName));
-
+                const brief = buildCandidateBrief(candidate);
+                const risks = brief.topRisks.length > 0 ? brief.topRisks : ['Chưa có rủi ro nổi bật trong snapshot hiện tại.'];
+                const reasons = brief.topStrengths.length > 0 ? brief.topStrengths : ['Chưa có evidence nổi bật được bóc tách.'];
                 return (
                   <article
                     key={candidate.id}
-                    className="rounded-2xl border p-4 transition-all hover:shadow-md"
-                    style={{
-                      background: tc.cardBg,
-                      borderColor: tc.borderSoft,
-                      boxShadow: '0 2px 12px rgba(30,64,175,0.05)',
-                    }}
+                    className="rounded-3xl border p-4 transition-all hover:shadow-md"
+                    style={{ background: tc.cardBg, borderColor: tc.borderSoft, boxShadow: '0 2px 12px rgba(30,64,175,0.05)' }}
                   >
                     <div className="flex items-start gap-3">
-                      {/* Avatar */}
                       <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-[13px] font-black text-blue-600">
-                        {initials}
+                        {getInitials(candidate.candidateName)}
                       </div>
-
-                      {/* Info */}
                       <div className="min-w-0 flex-1">
-                        <div className="flex flex-wrap items-center gap-2 mb-0.5">
-                          <h3 className="text-[15px] font-bold leading-tight truncate" style={{ color: tc.textPrimary }}>
+                        <div className="mb-1 flex flex-wrap items-center gap-2">
+                          <h3 className="truncate text-[15px] font-bold leading-tight" style={{ color: tc.textPrimary }}>
                             {normalizeVietnameseDisplay(candidate.candidateName)}
                           </h3>
-                          {rank && (
-                            <span className={`rounded-lg px-2 py-0.5 text-[10px] font-bold ${getRankColors(rank)}`}>
-                              Hạng {rank}
+                          <span className={`rounded-lg px-2 py-0.5 text-[10px] font-bold ${getRankColors(getCandidateRank(candidate))}`}>
+                            Hạng {getCandidateRank(candidate)}
+                          </span>
+                          {actionPres ? (
+                            <span className={`flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold ${actionPres.colorClass}`}>
+                              <span className={`h-1.5 w-1.5 rounded-full ${actionPres.dotClass}`} />
+                              {actionPres.label}
+                            </span>
+                          ) : (
+                            <span className="rounded-full border px-2.5 py-1 text-[11px] font-medium" style={{ borderColor: tc.borderSoft, color: tc.textMuted, background: tc.pageBg }}>
+                              Chưa phản hồi
                             </span>
                           )}
                         </div>
-                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px]" style={{ color: tc.textMuted }}>
-                          <span className="flex items-center gap-1">
-                            <FileText className="h-3 w-3" />
-                            {normalizeVietnameseDisplay(candidate.fileName)}
+                        <p className="text-[13px] leading-5" style={{ color: tc.textPrimary }}>
+                          {normalizeVietnameseDisplay(buildHeadlineVerdict(candidate))}
+                        </p>
+                        <div className="mt-2 flex flex-wrap gap-2 text-[11px]" style={{ color: tc.textMuted }}>
+                          <span className="rounded-full border px-2.5 py-1" style={{ borderColor: tc.borderSoft, background: tc.pageBg }}>
+                            AI {getCandidateScore(candidate).toFixed(1)}
                           </span>
-                          <span>Điểm: <span className="font-bold" style={{ color: tc.textPrimary }}>{score.toFixed(1)}</span></span>
+                          <span className="rounded-full border px-2.5 py-1" style={{ borderColor: tc.borderSoft, background: tc.pageBg }}>
+                            Recruiter {getDisplayedCandidateScore(candidate).toFixed(1)}
+                          </span>
+                          <span className="rounded-full border px-2.5 py-1" style={{ borderColor: tc.borderSoft, background: tc.pageBg }}>
+                            {normalizeVietnameseDisplay(buildRecommendedAction(candidate))}
+                          </span>
                         </div>
                       </div>
-
-                      {/* Action badge */}
-                      {actionPres ? (
-                        <span className={`flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold ${actionPres.colorClass}`}>
-                          <span className={`h-1.5 w-1.5 rounded-full ${actionPres.dotClass}`} />
-                          {actionPres.label}
-                        </span>
-                      ) : (
-                        <span
-                          className="flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium"
-                          style={{ borderColor: tc.borderSoft, color: tc.textMuted, background: tc.pageBg }}
-                        >
-                          <span className="h-1.5 w-1.5 rounded-full bg-slate-300" />
-                          Chưa phản hồi
-                        </span>
-                      )}
                     </div>
 
-                    {/* Footer */}
-                    <div
-                      className="mt-4 flex items-center justify-between border-t pt-3"
-                      style={{ borderColor: tc.borderSoft }}
-                    >
-                      <p className="text-[11px]" style={{ color: tc.textMuted }}>
-                        {entry?.updatedAt
-                          ? `Cập nhật: ${new Date(entry.updatedAt).toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}`
-                          : 'Chưa có bản ghi phản hồi'}
-                      </p>
+                    <div className="mt-4 grid gap-3 md:grid-cols-2">
+                      <div className="rounded-2xl border p-3" style={{ borderColor: tc.borderSoft, background: tc.pageBg }}>
+                        <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-blue-600">Top evidence</p>
+                        <ul className="space-y-1.5 text-[12px] leading-5" style={{ color: tc.textSecondary }}>
+                          {reasons.map((item) => <li key={item}>• {normalizeVietnameseDisplay(item)}</li>)}
+                        </ul>
+                      </div>
+                      <div className="rounded-2xl border p-3" style={{ borderColor: tc.borderSoft, background: tc.pageBg }}>
+                        <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-amber-600">Top risks</p>
+                        <ul className="space-y-1.5 text-[12px] leading-5" style={{ color: tc.textSecondary }}>
+                          {risks.map((item) => <li key={item}>• {normalizeVietnameseDisplay(item)}</li>)}
+                        </ul>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 flex items-center justify-between border-t pt-3" style={{ borderColor: tc.borderSoft }}>
+                      <div className="text-[11px]" style={{ color: tc.textMuted }}>
+                        <p>{formatUpdatedAt(entry?.updatedAt)}</p>
+                        <p className="mt-1 flex items-center gap-1">
+                          <FileText className="h-3 w-3" />
+                          {normalizeVietnameseDisplay(candidate.fileName)}
+                        </p>
+                      </div>
                       <button
                         type="button"
                         onClick={() => handleOpenCandidate(candidate.id)}
@@ -541,34 +530,25 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
               })}
             </div>
           </div>
-
-        ) : selectedCandidate ? (
-          <div className="mx-auto w-full max-w-3xl px-4 py-5 md:px-6">
-            {/* Decision view header */}
-            <div
-              className="mb-4 flex items-start gap-3 rounded-2xl border p-4"
-              style={{ background: tc.cardBg, borderColor: tc.borderSoft }}
-            >
+        ) : selectedCandidate && selectedBrief ? (
+          <div className="mx-auto w-full max-w-5xl px-4 py-5 md:px-6">
+            <div className="mb-4 flex items-start gap-3 rounded-3xl border p-4" style={{ background: tc.cardBg, borderColor: tc.borderSoft }}>
               <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-[13px] font-black text-blue-600">
-                {getInitials(normalizeVietnameseDisplay(selectedCandidate.candidateName))}
+                {getInitials(selectedCandidate.candidateName)}
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-blue-600 mb-0.5">Ứng viên đang phản hồi</p>
-                <h2 className="text-[16px] font-bold" style={{ color: tc.textPrimary }}>
-                  {normalizeVietnameseDisplay(selectedCandidate.candidateName)}
-                </h2>
+                <p className="mb-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-blue-600">Ứng viên đang phản hồi</p>
+                <h2 className="text-[16px] font-bold" style={{ color: tc.textPrimary }}>{normalizeVietnameseDisplay(selectedCandidate.candidateName)}</h2>
                 <div className="mt-1.5 flex flex-wrap gap-2">
-                  <span
-                    className="rounded-full border px-2.5 py-0.5 text-[11px] font-medium"
-                    style={{ background: tc.pageBg, borderColor: tc.borderSoft, color: tc.textSecondary }}
-                  >
+                  <span className="rounded-full border px-2.5 py-0.5 text-[11px] font-medium" style={{ background: tc.pageBg, borderColor: tc.borderSoft, color: tc.textSecondary }}>
                     Điểm AI: <strong style={{ color: tc.textPrimary }}>{getCandidateScore(selectedCandidate).toFixed(1)}</strong>
                   </span>
-                  {getCandidateRank(selectedCandidate) && (
-                    <span className={`rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${getRankColors(getCandidateRank(selectedCandidate))}`}>
-                      Hạng {getCandidateRank(selectedCandidate)}
-                    </span>
-                  )}
+                  <span className={`rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${getRankColors(getCandidateRank(selectedCandidate))}`}>
+                    Hạng {getCandidateRank(selectedCandidate)}
+                  </span>
+                  <span className="rounded-full border px-2.5 py-0.5 text-[11px] font-medium" style={{ background: tc.pageBg, borderColor: tc.borderSoft, color: tc.textSecondary }}>
+                    {normalizeVietnameseDisplay(buildRecommendedAction(selectedCandidate))}
+                  </span>
                 </div>
               </div>
               <button
@@ -582,42 +562,104 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
               </button>
             </div>
 
+            <div className="mb-4 grid gap-3 lg:grid-cols-4">
+              <div className="rounded-3xl border p-4 lg:col-span-2" style={{ background: tc.cardBg, borderColor: tc.borderSoft }}>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-blue-600">HR summary</p>
+                <p className="mt-2 text-[14px] leading-6" style={{ color: tc.textPrimary }}>
+                  {normalizeVietnameseDisplay(selectedBrief.headlineVerdict)}
+                </p>
+                {selectedCandidate.hrSummary && (
+                  <div className="mt-3 grid gap-3 sm:grid-cols-3">
+                    <div className="rounded-2xl border p-3" style={{ borderColor: tc.borderSoft, background: tc.pageBg }}>
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.14em]" style={{ color: tc.textMuted }}>Yêu cầu</p>
+                      <p className="mt-2 text-[13px] font-semibold" style={{ color: tc.textPrimary }}>
+                        {normalizeVietnameseDisplay(selectedCandidate.hrSummary.kinh_nghiem?.so_nam_yeu_cau || 'Chưa rõ')}
+                      </p>
+                    </div>
+                    <div className="rounded-2xl border p-3" style={{ borderColor: tc.borderSoft, background: tc.pageBg }}>
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.14em]" style={{ color: tc.textMuted }}>Thực tế</p>
+                      <p className="mt-2 text-[13px] font-semibold" style={{ color: tc.textPrimary }}>
+                        {normalizeVietnameseDisplay(selectedCandidate.hrSummary.kinh_nghiem?.so_nam_thuc_te || 'Chưa rõ')}
+                      </p>
+                    </div>
+                    <div className="rounded-2xl border p-3" style={{ borderColor: tc.borderSoft, background: tc.pageBg }}>
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.14em]" style={{ color: tc.textMuted }}>Kết luận</p>
+                      <p className="mt-2 text-[13px] font-semibold" style={{ color: tc.textPrimary }}>
+                        {normalizeVietnameseDisplay(selectedCandidate.hrSummary.kinh_nghiem?.ket_luan || 'Chưa rõ')}
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="rounded-3xl border p-4" style={{ background: tc.cardBg, borderColor: tc.borderSoft }}>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-emerald-600">JD fit</p>
+                <div className="mt-3 space-y-2 text-[12px]" style={{ color: tc.textSecondary }}>
+                  {(selectedBrief.matchedRequirements.length > 0 ? selectedBrief.matchedRequirements : ['Chưa có matched requirement nổi bật.']).map((item) => (
+                    <div key={item} className="rounded-xl border px-3 py-2" style={{ borderColor: tc.borderSoft, background: tc.pageBg }}>
+                      {normalizeVietnameseDisplay(item)}
+                    </div>
+                  ))}
+                </div>
+                {selectedBrief.missingRequirements.length > 0 && (
+                  <div className="mt-3">
+                    <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-amber-600">Thiếu gì</p>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedBrief.missingRequirements.map((item) => (
+                        <span key={item} className="rounded-full bg-amber-50 px-2.5 py-1 text-[11px] font-semibold text-amber-700">
+                          {normalizeVietnameseDisplay(item)}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="rounded-3xl border p-4" style={{ background: tc.cardBg, borderColor: tc.borderSoft }}>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-rose-600">Red flags / blockers</p>
+                <div className="mt-3 space-y-2 text-[12px]" style={{ color: tc.textSecondary }}>
+                  {(selectedBrief.redFlags.length > 0
+                    ? selectedBrief.redFlags
+                    : selectedBrief.stageDecision.blockingReasons.length > 0
+                      ? selectedBrief.stageDecision.blockingReasons
+                      : ['Chưa có blocker lớn trong snapshot hiện tại.']).map((item) => (
+                    <div key={item} className="rounded-xl border px-3 py-2" style={{ borderColor: tc.borderSoft, background: tc.pageBg }}>
+                      {normalizeVietnameseDisplay(item)}
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-3 rounded-2xl border p-3" style={{ borderColor: tc.borderSoft, background: tc.pageBg }}>
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.14em]" style={{ color: tc.textMuted }}>Gợi ý bước tiếp theo</p>
+                  <p className="mt-2 text-[13px] font-semibold" style={{ color: tc.textPrimary }}>
+                    {normalizeVietnameseDisplay(buildRecommendedAction(selectedCandidate))}
+                  </p>
+                </div>
+              </div>
+            </div>
+
             <AIFeedbackForm
               candidateId={selectedCandidate.id}
               candidateName={selectedCandidate.candidateName}
               fileName={selectedCandidate.fileName}
               candidateRank={getCandidateRank(selectedCandidate)}
               aiScore={getCandidateScore(selectedCandidate)}
-              initialFeedback={currentFeedbackEntry}
+              initialFeedback={selectedEntry}
               isSubmitting={isSubmitting}
               submitError={submitError}
+              evidenceChips={[
+                ...buildTopReasons(selectedCandidate, 4),
+                ...buildVerificationRisks(selectedCandidate, 3),
+              ].slice(0, 6)}
+              suggestedNotes={[
+                `Kết luận nhanh: ${buildHeadlineVerdict(selectedCandidate)}`,
+                `Điểm mạnh nổi bật: ${buildTopReasons(selectedCandidate, 2).join('; ') || 'cần xem thêm evidence.'}`,
+                `Rủi ro cần xác minh: ${buildVerificationRisks(selectedCandidate, 2).join('; ') || 'chưa có blocker lớn.'}`,
+              ]}
               onSubmit={handleSubmit}
               onCancel={handleBackToOverview}
             />
           </div>
-
-        ) : (
-          <div
-            className="flex h-full flex-col items-center justify-center px-6 py-12 text-center"
-            style={{ color: tc.textMuted }}
-          >
-            <div
-              className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border"
-              style={{ background: tc.cardBg, borderColor: tc.borderSoft }}
-            >
-              <Brain className="h-6 w-6 text-slate-400" />
-            </div>
-            <p className="text-[14px] font-semibold" style={{ color: tc.textSecondary }}>Không tìm thấy ứng viên đang chọn</p>
-            <button
-              type="button"
-              onClick={() => setActiveView('overview')}
-              className="mt-4 inline-flex items-center gap-2 rounded-xl border px-4 py-2 text-[13px] font-semibold transition-colors hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200"
-              style={{ background: tc.cardBg, borderColor: tc.borderSoft, color: tc.textSecondary }}
-            >
-              Về overview
-            </button>
-          </div>
-        )}
+        ) : null}
       </main>
 
       {showEmailNotifier && (
@@ -630,6 +672,4 @@ const AIFeedbackPage: React.FC<AIFeedbackPageProps> = ({
       )}
     </div>
   );
-};
-
-export default AIFeedbackPage;
+}

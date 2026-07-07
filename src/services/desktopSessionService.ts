@@ -3,7 +3,7 @@ import { auth, db } from '@/services/firebase';
 
 const SESSION_COLLECTION = 'desktopSessions';
 const COMMANDS_COLLECTION = 'sessionCommands';
-const HEARTBEAT_INTERVAL_MS = 10_000;
+const HEARTBEAT_INTERVAL_MS = 5_000;
 
 export type SessionStatus = 'idle' | 'analyzing' | 'done';
 export type SessionCommand = 'approve_all_a' | 'view_results' | 'ping';

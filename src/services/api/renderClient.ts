@@ -1,5 +1,5 @@
 import { onAuthStateChanged } from 'firebase/auth';
-import { auth } from '@/services/firebase';
+import { auth, getFirebaseAppCheckToken } from '@/services/firebase';
 import { SAFE_ERROR_MESSAGES, sanitizeApiErrorMessage } from '@/utils/errorMessages';
 import { normalizeVietnamesePayload } from '@/utils/textDisplay';
 
@@ -27,27 +27,10 @@ function resolveApiUrl(): string {
 
 export const RENDER_API_URL = resolveApiUrl();
 
-// Fire a lightweight GET to /health immediately so Render.com wakes up before auth resolves.
-// Also keeps the connection alive every 13 minutes to prevent sleep on the free tier.
-let _keepAliveTimer: ReturnType<typeof setInterval> | null = null;
-
 export function warmUpServer(): void {
   const target = RENDER_API_URL === LOCAL_API_URL ? null : RENDER_API_URL;
   if (!target) return;
-
-  const ping = () => fetch(`${target}/health`, { method: 'GET', keepalive: true }).catch(() => {});
-
-  ping();
-  if (!_keepAliveTimer) {
-    _keepAliveTimer = setInterval(ping, 13 * 60 * 1000);
-  }
-}
-
-export function stopServerWarmUp(): void {
-  if (_keepAliveTimer) {
-    clearInterval(_keepAliveTimer);
-    _keepAliveTimer = null;
-  }
+  void fetch(`${target}/health`, { method: 'GET', keepalive: true }).catch(() => {});
 }
 
 function getRemoteFallbackUrl(): string | null {
@@ -61,10 +44,15 @@ interface ApiRequestOptions extends Omit<RequestInit, 'body' | 'method'> {
   timeoutMs?: number;
   body?: BodyInit | null;
   jsonBody?: unknown;
+  allowNotModified?: boolean;
 }
 
-function buildUrl(path: string): string {
-  return path.startsWith('http') ? path : `${RENDER_API_URL}${path.startsWith('/') ? path : `/${path}`}`;
+export interface ApiResponseMeta<T> {
+  data: T | null;
+  status: number;
+  notModified: boolean;
+  etag: string | null;
+  dataRevision: string | null;
 }
 
 function extractErrorMessage(payload: unknown, fallback: string): string {
@@ -176,11 +164,33 @@ async function getAuthorizationHeader(authRequired: boolean, forceRefresh: boole
   return `Bearer ${token}`;
 }
 
-async function request<T>(
+async function applySecurityHeaders(headers: Headers, authRequired: boolean, forceRefresh: boolean = false): Promise<void> {
+  const authHeader = await getAuthorizationHeader(authRequired, forceRefresh);
+  if (authHeader) {
+    headers.set('Authorization', authHeader);
+  }
+
+  const appCheckToken = await getFirebaseAppCheckToken();
+  if (appCheckToken) {
+    headers.set('X-Firebase-AppCheck', appCheckToken);
+  }
+}
+
+function toApiResponseMeta<T>(response: Response, payload: unknown): ApiResponseMeta<T> {
+  return {
+    data: normalizeVietnamesePayload(payload) as T,
+    status: response.status,
+    notModified: response.status === 304,
+    etag: response.headers.get('etag'),
+    dataRevision: response.headers.get('x-data-revision'),
+  };
+}
+
+async function requestDetailed<T>(
   method: ApiMethod,
   path: string,
   options: ApiRequestOptions = {}
-): Promise<T> {
+): Promise<ApiResponseMeta<T>> {
   const controller = new AbortController();
   const timeoutMs = options.timeoutMs ?? 120000;
   const timeout = window.setTimeout(() => controller.abort(), timeoutMs);
@@ -188,11 +198,7 @@ async function request<T>(
   try {
     const headers = new Headers(options.headers);
     const authRequired = options.authRequired ?? false;
-    const authHeader = await getAuthorizationHeader(authRequired);
-
-    if (authHeader) {
-      headers.set('Authorization', authHeader);
-    }
+    await applySecurityHeaders(headers, authRequired);
 
     let body = options.body ?? null;
     if (options.jsonBody !== undefined) {
@@ -214,23 +220,38 @@ async function request<T>(
     let response = await send(RENDER_API_URL);
     const remoteFallbackUrl = getRemoteFallbackUrl();
 
+    if (response.status === 304 && options.allowNotModified) {
+      return {
+        data: null,
+        status: 304,
+        notModified: true,
+        etag: response.headers.get('etag'),
+        dataRevision: response.headers.get('x-data-revision'),
+      };
+    }
+
     if (!response.ok) {
       let previewPayload = await parseResponsePayload(response);
 
       if (authRequired && response.status === 401) {
-        const refreshedAuthHeader = await getAuthorizationHeader(true, true);
-        if (refreshedAuthHeader) {
-          headers.set('Authorization', refreshedAuthHeader);
-          response = await send(RENDER_API_URL);
-          previewPayload = response.ok ? null : await parseResponsePayload(response);
+        await applySecurityHeaders(headers, true, true);
+        response = await send(RENDER_API_URL);
+        if (response.status === 304 && options.allowNotModified) {
+          return {
+            data: null,
+            status: 304,
+            notModified: true,
+            etag: response.headers.get('etag'),
+            dataRevision: response.headers.get('x-data-revision'),
+          };
         }
+        previewPayload = response.ok ? null : await parseResponsePayload(response);
       }
 
       if (!response.ok && remoteFallbackUrl && shouldRetryWithRemote(path, authRequired, response.status, previewPayload)) {
         response = await send(remoteFallbackUrl);
       } else if (!response.ok) {
-        const payload = previewPayload;
-        throw new Error(extractErrorMessage(payload, SAFE_ERROR_MESSAGES.generic));
+        throw new Error(extractErrorMessage(previewPayload, SAFE_ERROR_MESSAGES.generic));
       }
     }
 
@@ -240,7 +261,7 @@ async function request<T>(
       throw new Error(extractErrorMessage(payload, SAFE_ERROR_MESSAGES.generic));
     }
 
-    return normalizeVietnamesePayload(payload) as T;
+    return toApiResponseMeta<T>(response, payload);
   } catch (error) {
     if (
       getRemoteFallbackUrl() &&
@@ -249,11 +270,7 @@ async function request<T>(
       error instanceof TypeError
     ) {
       const headers = new Headers(options.headers);
-      const authHeader = await getAuthorizationHeader(options.authRequired ?? false);
-
-      if (authHeader) {
-        headers.set('Authorization', authHeader);
-      }
+      await applySecurityHeaders(headers, options.authRequired ?? false);
 
       let body = options.body ?? null;
       if (options.jsonBody !== undefined) {
@@ -272,13 +289,23 @@ async function request<T>(
         }
       );
 
+      if (fallbackResponse.status === 304 && options.allowNotModified) {
+        return {
+          data: null,
+          status: 304,
+          notModified: true,
+          etag: fallbackResponse.headers.get('etag'),
+          dataRevision: fallbackResponse.headers.get('x-data-revision'),
+        };
+      }
+
       const fallbackPayload = await parseResponsePayload(fallbackResponse);
 
       if (!fallbackResponse.ok) {
         throw new Error(extractErrorMessage(fallbackPayload, SAFE_ERROR_MESSAGES.generic));
       }
 
-      return normalizeVietnamesePayload(fallbackPayload) as T;
+      return toApiResponseMeta<T>(fallbackResponse, fallbackPayload);
     }
 
     if (error instanceof DOMException && error.name === 'AbortError') {
@@ -339,23 +366,32 @@ export function pickObject<T extends Record<string, unknown>>(payload: unknown, 
 }
 
 export async function apiGet<T>(path: string, options?: ApiRequestOptions): Promise<T> {
-  return request<T>('GET', path, options);
+  const response = await requestDetailed<T>('GET', path, options);
+  return response.data as T;
+}
+
+export async function apiGetWithMeta<T>(path: string, options?: ApiRequestOptions): Promise<ApiResponseMeta<T>> {
+  return requestDetailed<T>('GET', path, options);
 }
 
 export async function apiPost<T>(path: string, jsonBody?: unknown, options?: ApiRequestOptions): Promise<T> {
-  return request<T>('POST', path, { ...options, jsonBody });
+  const response = await requestDetailed<T>('POST', path, { ...options, jsonBody });
+  return response.data as T;
 }
 
 export async function apiPut<T>(path: string, jsonBody?: unknown, options?: ApiRequestOptions): Promise<T> {
-  return request<T>('PUT', path, { ...options, jsonBody });
+  const response = await requestDetailed<T>('PUT', path, { ...options, jsonBody });
+  return response.data as T;
 }
 
 export async function apiPatch<T>(path: string, jsonBody?: unknown, options?: ApiRequestOptions): Promise<T> {
-  return request<T>('PATCH', path, { ...options, jsonBody });
+  const response = await requestDetailed<T>('PATCH', path, { ...options, jsonBody });
+  return response.data as T;
 }
 
 export async function apiDelete<T>(path: string, options?: ApiRequestOptions): Promise<T> {
-  return request<T>('DELETE', path, options);
+  const response = await requestDetailed<T>('DELETE', path, options);
+  return response.data as T;
 }
 
 export async function apiUpload<T>(
@@ -363,5 +399,6 @@ export async function apiUpload<T>(
   formData: FormData,
   options?: ApiRequestOptions
 ): Promise<T> {
-  return request<T>('POST', path, { ...options, body: formData });
+  const response = await requestDetailed<T>('POST', path, { ...options, body: formData });
+  return response.data as T;
 }

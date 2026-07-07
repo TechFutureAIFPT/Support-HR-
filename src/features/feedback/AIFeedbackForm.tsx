@@ -33,6 +33,8 @@ interface AIFeedbackFormProps {
   initialFeedback?: AnalysisFeedbackRecord | null;
   isSubmitting?: boolean;
   submitError?: string | null;
+  evidenceChips?: string[];
+  suggestedNotes?: string[];
   onSubmit: (feedback: AnalysisFeedbackDraft) => void | Promise<void>;
   onCancel: () => void;
 }
@@ -151,6 +153,8 @@ export default function AIFeedbackForm({
   initialFeedback,
   isSubmitting = false,
   submitError,
+  evidenceChips = [],
+  suggestedNotes = [],
   onSubmit,
   onCancel,
 }: AIFeedbackFormProps) {
@@ -323,8 +327,32 @@ export default function AIFeedbackForm({
           {/* Severity badge */}
           <div className={`flex items-center gap-2.5 rounded-2xl border px-4 py-3 text-[13px] font-semibold ${severityMeta.className}`}>
             <ShieldAlert className="h-4 w-4 shrink-0" />
-            {severityMeta.label}
+            {severityMeta.label} · chênh {scoreDifference > 0 ? '+' : ''}{scoreDifference.toFixed(1)} điểm
           </div>
+
+          {evidenceChips.length > 0 && (
+            <div>
+              <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">
+                Evidence gợi ý
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {evidenceChips.map((chip) => (
+                  <button
+                    key={chip}
+                    type="button"
+                    onClick={() => {
+                      if (!selectedCriteria.includes(chip)) {
+                        setSelectedCriteria((previous) => [...previous, chip]);
+                      }
+                    }}
+                    className="rounded-full border border-blue-200 bg-blue-50 px-3 py-1.5 text-[12px] font-medium text-blue-700 transition hover:bg-blue-100"
+                  >
+                    {chip}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       );
     }
@@ -402,6 +430,30 @@ export default function AIFeedbackForm({
               })}
             </div>
           </div>
+
+          {evidenceChips.length > 0 && (
+            <div>
+              <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">
+                Evidence gợi ý
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {evidenceChips.map((chip) => (
+                  <button
+                    key={chip}
+                    type="button"
+                    onClick={() => {
+                      if (!selectedCriteria.includes(chip)) {
+                        setSelectedCriteria((previous) => [...previous, chip]);
+                      }
+                    }}
+                    className="rounded-full border border-blue-200 bg-blue-50 px-3 py-1.5 text-[12px] font-medium text-blue-700 transition hover:bg-blue-100"
+                  >
+                    {chip}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       );
     }
@@ -439,6 +491,26 @@ export default function AIFeedbackForm({
           value={notes}
           onChange={(event) => setNotes(event.target.value)}
         />
+
+        {suggestedNotes.length > 0 && (
+          <div>
+            <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">
+              Mẫu ghi chú nhanh
+            </p>
+            <div className="grid gap-2 md:grid-cols-3">
+              {suggestedNotes.map((template) => (
+                <button
+                  key={template}
+                  type="button"
+                  onClick={() => setNotes(template)}
+                  className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-3 text-left text-[12px] leading-5 text-slate-700 transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
+                >
+                  {template}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Notices */}
         {formNotice && (

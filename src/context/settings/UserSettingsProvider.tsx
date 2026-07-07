@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import type { AuthUser } from '@/services/auth/authTypes';
 import type { UserSettings, UserSettingsPatch } from '@/types';
 import {
@@ -16,24 +16,49 @@ import {
 import { useTheme } from '@/context/theme/ThemeProvider';
 
 type SyncStatus = 'local' | 'pending' | 'synced' | 'error';
+type SaveSyncMode = 'background' | 'await-remote';
+
+interface SaveSettingsOptions {
+  saveKey?: string;
+  syncMode?: SaveSyncMode;
+}
 
 interface UserSettingsContextValue {
   settings: UserSettings;
   isHydrating: boolean;
   syncStatus: SyncStatus;
   syncError: string;
-  saveSettings: (patch: UserSettingsPatch) => Promise<UserSettings>;
+  saveSettings: (patch: UserSettingsPatch, options?: SaveSettingsOptions) => Promise<UserSettings>;
   resetSettings: () => Promise<UserSettings>;
   updateAccountSnapshot: (patch: UserSettingsPatch['account']) => void;
 }
 
 const UserSettingsContext = createContext<UserSettingsContextValue | null>(null);
 
-function buildSeed(currentUser: AuthUser | null, fallbackEmail?: string, fallbackDisplayName?: string, fallbackAvatar?: string | null) {
+function buildSeed(
+  currentUser: AuthUser | null,
+  fallbackEmail?: string,
+  fallbackDisplayName?: string,
+  fallbackAvatar?: string | null,
+) {
   return {
     email: currentUser?.email || fallbackEmail || '',
     displayName: fallbackDisplayName || currentUser?.displayName || '',
     avatar: fallbackAvatar ?? currentUser?.photoURL ?? null,
+  };
+}
+
+function mergeSettingsPatch(
+  base: UserSettingsPatch | null | undefined,
+  patch: UserSettingsPatch,
+): UserSettingsPatch {
+  return {
+    ...(base || {}),
+    ...(patch.ui ? { ui: { ...(base?.ui || {}), ...patch.ui } } : {}),
+    ...(patch.account ? { account: { ...(base?.account || {}), ...patch.account } } : {}),
+    ...(patch.workflow ? { workflow: { ...(base?.workflow || {}), ...patch.workflow } } : {}),
+    ...(patch.notifications ? { notifications: { ...(base?.notifications || {}), ...patch.notifications } } : {}),
+    ...(patch.sync ? { sync: { ...(base?.sync || {}), ...patch.sync } } : {}),
   };
 }
 
@@ -59,6 +84,16 @@ export const UserSettingsProvider: React.FC<{
   const [isHydrating, setIsHydrating] = useState(false);
   const [syncStatus, setSyncStatus] = useState<SyncStatus>(() => readUserSettingsDirtyFlag() ? 'pending' : currentUser ? 'pending' : 'local');
   const [syncError, setSyncError] = useState('');
+  const queuedPatchRef = useRef<UserSettingsPatch | null>(null);
+  const flushTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isFlushingRef = useRef(false);
+  const localChangeVersionRef = useRef(0);
+
+  const clearFlushTimer = useCallback(() => {
+    if (!flushTimerRef.current) return;
+    clearTimeout(flushTimerRef.current);
+    flushTimerRef.current = null;
+  }, []);
 
   useEffect(() => {
     setSettings((prev) => {
@@ -122,14 +157,14 @@ export const UserSettingsProvider: React.FC<{
           } catch (error) {
             if (isDisposed) return;
             setSyncStatus('error');
-            setSyncError(error instanceof Error ? error.message : 'Không thể đồng bộ cài đặt.');
+            setSyncError(error instanceof Error ? error.message : 'KhÃ´ng thá»ƒ Ä‘á»“ng bá»™ cÃ i Ä‘áº·t.');
           }
         }
       } catch (error) {
         if (isDisposed) return;
         setSettings(readLocalUserSettings(seed));
         setSyncStatus('error');
-        setSyncError(error instanceof Error ? error.message : 'Không thể tải cài đặt từ máy chủ.');
+        setSyncError(error instanceof Error ? error.message : 'KhÃ´ng thá»ƒ táº£i cÃ i Ä‘áº·t tá»« mÃ¡y chá»§.');
       } finally {
         if (!isDisposed) setIsHydrating(false);
       }
@@ -142,34 +177,107 @@ export const UserSettingsProvider: React.FC<{
     };
   }, [currentUser, seed]);
 
-  const saveSettings = useCallback(async (patch: UserSettingsPatch) => {
+  const flushQueuedSettings = useCallback(async (): Promise<UserSettings> => {
+    if (isFlushingRef.current) {
+      return readLocalUserSettings(seed);
+    }
+
+    const patch = queuedPatchRef.current;
+    if (!patch) {
+      return readLocalUserSettings(seed);
+    }
+
+    if (!currentUser?.email) {
+      queuedPatchRef.current = null;
+      setSyncStatus('local');
+      return readLocalUserSettings(seed);
+    }
+
+    queuedPatchRef.current = null;
+    clearFlushTimer();
+    isFlushingRef.current = true;
+    const flushVersion = localChangeVersionRef.current;
+
+    setSyncStatus('pending');
+    setSyncError('');
+
+    try {
+      const synced = await patchRemoteUserSettings(patch, seed, { persistLocal: false });
+      const hasNewerLocalChanges = flushVersion !== localChangeVersionRef.current || queuedPatchRef.current !== null;
+
+      if (hasNewerLocalChanges) {
+        const latestLocal = readLocalUserSettings(seed);
+        writeLocalUserSettings(latestLocal, true);
+        setSettings(latestLocal);
+        setSyncStatus('pending');
+        return latestLocal;
+      }
+
+      writeLocalUserSettings(synced, false);
+      setSettings(synced);
+      setSyncStatus('synced');
+      return synced;
+    } catch (error) {
+      setSyncStatus('error');
+      setSyncError(error instanceof Error ? error.message : 'KhÃ´ng thá»ƒ lÆ°u cÃ i Ä‘áº·t.');
+      return readLocalUserSettings(seed);
+    } finally {
+      isFlushingRef.current = false;
+    }
+  }, [clearFlushTimer, currentUser, seed]);
+
+  const scheduleQueuedSettingsFlush = useCallback(() => {
+    if (!currentUser?.email) return;
+    clearFlushTimer();
+    flushTimerRef.current = setTimeout(() => {
+      void flushQueuedSettings();
+    }, 300);
+  }, [clearFlushTimer, currentUser, flushQueuedSettings]);
+
+  const saveSettings = useCallback(async (patch: UserSettingsPatch, options?: SaveSettingsOptions) => {
+    const syncMode = options?.syncMode ?? 'background';
     const optimistic = mergeUserSettings(readLocalUserSettings(seed), patch);
     writeLocalUserSettings(optimistic, Boolean(currentUser?.email));
     setSettings(optimistic);
+    localChangeVersionRef.current += 1;
 
     if (!currentUser?.email) {
       setSyncStatus('local');
       return optimistic;
     }
 
+    if (syncMode === 'background') {
+      queuedPatchRef.current = mergeSettingsPatch(queuedPatchRef.current, patch);
+      setSyncStatus('pending');
+      setSyncError('');
+      scheduleQueuedSettingsFlush();
+      return optimistic;
+    }
+
+    clearFlushTimer();
+    queuedPatchRef.current = null;
     setSyncStatus('pending');
     setSyncError('');
 
     try {
-      const synced = await patchRemoteUserSettings(patch, seed);
+      const synced = await patchRemoteUserSettings(patch, seed, { persistLocal: false });
+      writeLocalUserSettings(synced, false);
       setSettings(synced);
       setSyncStatus('synced');
       return synced;
     } catch (error) {
       writeLocalUserSettings(optimistic, true);
       setSyncStatus('error');
-      setSyncError(error instanceof Error ? error.message : 'Không thể lưu cài đặt.');
+      setSyncError(error instanceof Error ? error.message : 'KhÃ´ng thá»ƒ lÆ°u cÃ i Ä‘áº·t.');
       return optimistic;
     }
-  }, [currentUser, seed]);
+  }, [clearFlushTimer, currentUser, scheduleQueuedSettingsFlush, seed]);
 
   const resetSettings = useCallback(async () => {
     const fallback = createDefaultUserSettings(seed);
+
+    clearFlushTimer();
+    queuedPatchRef.current = null;
 
     if (!currentUser?.email) {
       writeLocalUserSettings(fallback, false);
@@ -191,10 +299,10 @@ export const UserSettingsProvider: React.FC<{
       writeLocalUserSettings(fallback, true);
       setSettings(fallback);
       setSyncStatus('error');
-      setSyncError(error instanceof Error ? error.message : 'Không thể đặt lại cài đặt.');
+      setSyncError(error instanceof Error ? error.message : 'KhÃ´ng thá»ƒ Ä‘áº·t láº¡i cÃ i Ä‘áº·t.');
       return fallback;
     }
-  }, [currentUser, seed]);
+  }, [clearFlushTimer, currentUser, seed]);
 
   const updateAccountSnapshot = useCallback((patch?: UserSettingsPatch['account']) => {
     if (!patch) return;
@@ -212,6 +320,8 @@ export const UserSettingsProvider: React.FC<{
     resetSettings,
     updateAccountSnapshot,
   }), [isHydrating, resetSettings, saveSettings, settings, syncError, syncStatus, updateAccountSnapshot]);
+
+  useEffect(() => () => clearFlushTimer(), [clearFlushTimer]);
 
   return <UserSettingsContext.Provider value={value}>{children}</UserSettingsContext.Provider>;
 };

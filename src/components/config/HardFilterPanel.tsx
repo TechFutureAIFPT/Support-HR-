@@ -41,15 +41,15 @@ type FieldConfig = {
 
 const toneClass = {
   blue: {
-    icon: 'border-blue-100 bg-blue-50 text-blue-600',
+    icon: 'border-[color:var(--th-border)] bg-[color:var(--th-primary-muted)] text-[var(--th-primary)]',
     strip: 'from-blue-500 to-sky-300',
   },
   mint: {
-    icon: 'border-emerald-100 bg-emerald-50 text-emerald-600',
+    icon: 'border-[color:var(--th-border)] bg-[color:var(--th-accent-muted)] text-[var(--th-accent)]',
     strip: 'from-emerald-500 to-cyan-300',
   },
   orange: {
-    icon: 'border-orange-100 bg-orange-50 text-orange-500',
+    icon: 'border-[color:var(--th-border)] bg-[color:var(--th-warning-muted)] text-[var(--th-warning)]',
     strip: 'from-orange-400 to-blue-300',
   },
 } as const;
@@ -251,22 +251,22 @@ const HardFilterPanel: React.FC<HardFilterPanelProps> = ({ hardFilters, setHardF
   };
 
   const rowInputClasses = (isMandatory: boolean, valuePresent: boolean) =>
-    `w-full rounded-lg border bg-white px-3 py-2 text-xs text-slate-900 placeholder:text-slate-400 transition-all duration-150 focus:outline-none focus:ring-2 ${
+    `w-full rounded-lg border bg-[var(--th-bg-elevated)] px-3 py-2 text-xs text-[var(--th-text)] placeholder:text-[var(--th-text-muted)] transition-all duration-150 focus:outline-none focus:ring-2 ${
       isMandatory && !valuePresent
-        ? 'border-rose-300 focus:border-rose-400 focus:ring-rose-100'
+        ? 'border-[color:var(--th-error)] focus:border-[color:var(--th-error)] focus:ring-[color:var(--th-error-muted)]'
         : isMandatory
-          ? 'border-blue-200 focus:border-blue-300 focus:ring-blue-100'
-          : 'border-slate-200 hover:border-slate-300 focus:border-blue-300 focus:ring-blue-100'
+          ? 'border-[color:var(--th-primary)] focus:border-[color:var(--th-primary)] focus:ring-[color:var(--th-primary-muted)]'
+          : 'border-[color:var(--th-border-subtle)] hover:border-[color:var(--th-border)] focus:border-[color:var(--th-primary)] focus:ring-[color:var(--th-primary-muted)]'
     }`;
 
   const MandatoryToggle = ({ id, checked }: { id: MandatoryKey; checked: boolean }) => (
     <label className="flex shrink-0 cursor-pointer items-center gap-1.5">
-      <span className={`text-[10px] font-bold uppercase tracking-[0.12em] ${checked ? 'text-blue-600' : 'text-slate-400'}`}>
+      <span className={`text-[10px] font-bold uppercase tracking-[0.12em] ${checked ? 'text-[var(--th-primary)]' : 'text-[var(--th-text-muted)]'}`}>
         Bắt buộc
       </span>
       <input id={id} type="checkbox" checked={checked} onChange={handleMandatoryChange} className="sr-only" />
-      <span className={`relative h-5 w-9 rounded-full border transition ${checked ? 'border-blue-300 bg-blue-500' : 'border-slate-200 bg-slate-100'}`}>
-        <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-all ${checked ? 'left-[18px]' : 'left-0.5'}`} />
+      <span className={`relative h-5 w-9 rounded-full border transition ${checked ? 'border-[color:var(--th-primary)] bg-[var(--th-primary)]' : 'border-[color:var(--th-border)] bg-[var(--th-bg-tertiary)]'}`}>
+        <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-[var(--th-text-inverse)] shadow-sm transition-all ${checked ? 'left-[18px]' : 'left-0.5'}`} />
       </span>
     </label>
   );
@@ -278,12 +278,12 @@ const HardFilterPanel: React.FC<HardFilterPanelProps> = ({ hardFilters, setHardF
     const tone = toneClass[config.tone];
 
     return (
-      <div className={`flex items-center gap-3 px-4 py-2.5 transition-colors ${isMandatory ? 'bg-blue-50/30' : 'hover:bg-slate-50/40'}`}>
+      <div className={`flex items-center gap-3 px-4 py-2.5 transition-colors ${isMandatory ? 'bg-[color:var(--th-primary-muted)]' : 'hover:bg-[var(--th-surface-hover)]'}`}>
         <label htmlFor={config.id} className="flex w-[180px] shrink-0 items-center gap-2">
           <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md border ${tone.icon}`}>
             <Icon className="h-3.5 w-3.5" />
           </span>
-          <span className="truncate text-xs font-semibold text-slate-700">{config.label}</span>
+          <span className="truncate text-xs font-semibold text-[var(--th-text-secondary)]">{config.label}</span>
         </label>
 
         <div className="flex-1">
@@ -318,25 +318,25 @@ const HardFilterPanel: React.FC<HardFilterPanelProps> = ({ hardFilters, setHardF
     );
   };
 
-  const sectionCardClass = 'rounded-2xl border border-slate-100 bg-white overflow-hidden';
-  const sectionHeaderClass = 'border-b bg-slate-50/60 px-4 py-3 flex items-center gap-2.5';
+  const sectionCardClass = 'rounded-2xl border border-[color:var(--th-border-subtle)] bg-[var(--th-surface-card)] overflow-hidden';
+  const sectionHeaderClass = 'border-b border-[color:var(--th-border-subtle)] bg-[var(--th-bg-elevated)] px-4 py-3 flex items-center gap-2.5';
 
   return (
     <div className="w-full animate-fade-in space-y-4 pb-4">
       {/* Auto-fill status notice (auto-fill is triggered from JD sub-page) */}
       {autoFillNotice && (
-        <p className="text-[12px] font-medium text-emerald-600">{autoFillNotice}</p>
+        <p className={`text-[12px] font-medium ${autoFillNotice.startsWith('Đã') ? 'text-[var(--th-success)]' : 'text-[var(--th-warning)]'}`}>{autoFillNotice}</p>
       )}
 
       {/* Section 1 - Dieu kien co ban */}
       <div className={sectionCardClass}>
         <div className={sectionHeaderClass}>
-          <span className="flex h-6 w-6 items-center justify-center rounded-md border border-blue-100 bg-blue-50 text-blue-600">
+          <span className="flex h-6 w-6 items-center justify-center rounded-md border border-[color:var(--th-border)] bg-[color:var(--th-primary-muted)] text-[var(--th-primary)]">
             <ShieldCheck className="h-3.5 w-3.5" />
           </span>
-          <span className="text-xs font-bold uppercase tracking-[0.15em] text-slate-700">Điều kiện cơ bản</span>
+          <span className="text-xs font-bold uppercase tracking-[0.15em] text-[var(--th-text-secondary)]">Điều kiện cơ bản</span>
         </div>
-        <div className="divide-y divide-slate-100/80">
+        <div className="divide-y divide-[color:var(--th-border-subtle)]">
           {coreFields.map((config) => (
             <FieldRow key={String(config.id)} config={config} />
           ))}
@@ -346,23 +346,23 @@ const HardFilterPanel: React.FC<HardFilterPanelProps> = ({ hardFilters, setHardF
       {/* Section 2 - Chuyen mon & yeu cau */}
       <div className={sectionCardClass}>
         <div className={sectionHeaderClass}>
-          <span className="flex h-6 w-6 items-center justify-center rounded-md border border-emerald-100 bg-emerald-50 text-emerald-600">
+          <span className="flex h-6 w-6 items-center justify-center rounded-md border border-[color:var(--th-border)] bg-[color:var(--th-accent-muted)] text-[var(--th-accent)]">
             <Award className="h-3.5 w-3.5" />
           </span>
-          <span className="text-xs font-bold uppercase tracking-[0.15em] text-slate-700">Chuyên môn &amp; yêu cầu</span>
+          <span className="text-xs font-bold uppercase tracking-[0.15em] text-[var(--th-text-secondary)]">Chuyên môn &amp; yêu cầu</span>
         </div>
-        <div className="divide-y divide-slate-100/80">
+        <div className="divide-y divide-[color:var(--th-border-subtle)]">
           {detailFields.map((config) => (
             <FieldRow key={String(config.id)} config={config} />
           ))}
 
           {/* Do tuoi - 2 number inputs side by side */}
-          <div className={`flex items-center gap-3 px-4 py-2.5 transition-colors ${hardFilters.ageMandatory ? 'bg-blue-50/30' : 'hover:bg-slate-50/40'}`}>
+          <div className={`flex items-center gap-3 px-4 py-2.5 transition-colors ${hardFilters.ageMandatory ? 'bg-[color:var(--th-primary-muted)]' : 'hover:bg-[var(--th-surface-hover)]'}`}>
             <div className="flex w-[180px] shrink-0 items-center gap-2">
-              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-blue-100 bg-blue-50 text-blue-600">
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-[color:var(--th-border)] bg-[color:var(--th-primary-muted)] text-[var(--th-primary)]">
                 <Clock className="h-3.5 w-3.5" />
               </span>
-              <span className="truncate text-xs font-semibold text-slate-700">Độ tuổi</span>
+              <span className="truncate text-xs font-semibold text-[var(--th-text-secondary)]">Độ tuổi</span>
             </div>
             <div className="flex flex-1 items-center gap-2">
               <input
@@ -372,7 +372,7 @@ const HardFilterPanel: React.FC<HardFilterPanelProps> = ({ hardFilters, setHardF
                 placeholder="Từ"
                 className={rowInputClasses(Boolean(hardFilters.ageMandatory), hasValue(hardFilters.age?.min))}
               />
-              <span className="shrink-0 text-xs text-slate-400">—</span>
+              <span className="shrink-0 text-xs text-[var(--th-text-muted)]">—</span>
               <input
                 type="number"
                 value={hardFilters.age?.max ?? ''}
@@ -385,13 +385,13 @@ const HardFilterPanel: React.FC<HardFilterPanelProps> = ({ hardFilters, setHardF
           </div>
 
           {/* Nhom chuyen nganh - tag input */}
-          <div className={`px-4 py-2.5 transition-colors ${hardFilters.majorMandatory ? 'bg-blue-50/30' : 'hover:bg-slate-50/40'}`}>
+          <div className={`px-4 py-2.5 transition-colors ${hardFilters.majorMandatory ? 'bg-[color:var(--th-primary-muted)]' : 'hover:bg-[var(--th-surface-hover)]'}`}>
             <div className="flex items-center gap-3">
               <div className="flex w-[180px] shrink-0 items-center gap-2">
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-orange-100 bg-orange-50 text-orange-500">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-[color:var(--th-border)] bg-[color:var(--th-warning-muted)] text-[var(--th-warning)]">
                   <Tags className="h-3.5 w-3.5" />
                 </span>
-                <span className="truncate text-xs font-semibold text-slate-700">Nhóm chuyên ngành</span>
+                <span className="truncate text-xs font-semibold text-[var(--th-text-secondary)]">Nhóm chuyên ngành</span>
               </div>
               <div className="flex flex-1 items-center gap-2">
                 <input
@@ -410,7 +410,7 @@ const HardFilterPanel: React.FC<HardFilterPanelProps> = ({ hardFilters, setHardF
                 <button
                   type="button"
                   onClick={addMajorGroup}
-                  className="inline-flex h-[34px] shrink-0 items-center gap-1 rounded-lg border border-blue-200 bg-blue-50 px-3 text-xs font-bold text-blue-600 transition hover:border-blue-300 hover:bg-blue-100"
+                  className="inline-flex h-[34px] shrink-0 items-center gap-1 rounded-lg border border-[color:var(--th-primary)] bg-[color:var(--th-primary-muted)] px-3 text-xs font-bold text-[var(--th-primary)] transition hover:bg-[var(--th-surface-active)]"
                 >
                   <Plus className="h-3.5 w-3.5" />
                   Thêm
@@ -421,9 +421,9 @@ const HardFilterPanel: React.FC<HardFilterPanelProps> = ({ hardFilters, setHardF
             {(hardFilters.majorGroups || []).length > 0 && (
               <div className="mt-2 ml-[192px] flex flex-wrap gap-1.5">
                 {(hardFilters.majorGroups || []).map((group) => (
-                  <span key={group} className="inline-flex items-center gap-1 rounded-full border border-blue-100 bg-blue-50 px-2.5 py-0.5 text-[11px] font-semibold text-blue-700">
+                  <span key={group} className="inline-flex items-center gap-1 rounded-full border border-[color:var(--th-border)] bg-[color:var(--th-primary-muted)] px-2.5 py-0.5 text-[11px] font-semibold text-[var(--th-primary)]">
                     {group}
-                    <button type="button" onClick={() => removeMajorGroup(group)} className="text-blue-400 hover:text-blue-700">
+                    <button type="button" onClick={() => removeMajorGroup(group)} className="text-[var(--th-primary)] opacity-70 transition hover:opacity-100">
                       <X className="h-3 w-3" />
                     </button>
                   </span>
@@ -433,12 +433,12 @@ const HardFilterPanel: React.FC<HardFilterPanelProps> = ({ hardFilters, setHardF
           </div>
 
           {/* Ngon ngu - name input + level select */}
-          <div className={`flex items-center gap-3 px-4 py-2.5 transition-colors ${hardFilters.languageMandatory ? 'bg-blue-50/30' : 'hover:bg-slate-50/40'}`}>
+          <div className={`flex items-center gap-3 px-4 py-2.5 transition-colors ${hardFilters.languageMandatory ? 'bg-[color:var(--th-primary-muted)]' : 'hover:bg-[var(--th-surface-hover)]'}`}>
             <label htmlFor="language" className="flex w-[180px] shrink-0 items-center gap-2">
-              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-blue-100 bg-blue-50 text-blue-600">
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-[color:var(--th-border)] bg-[color:var(--th-primary-muted)] text-[var(--th-primary)]">
                 <Languages className="h-3.5 w-3.5" />
               </span>
-              <span className="truncate text-xs font-semibold text-slate-700">Ngôn ngữ</span>
+              <span className="truncate text-xs font-semibold text-[var(--th-text-secondary)]">Ngôn ngữ</span>
             </label>
             <div className="flex flex-1 items-center gap-2">
               <input
@@ -453,7 +453,7 @@ const HardFilterPanel: React.FC<HardFilterPanelProps> = ({ hardFilters, setHardF
                 id="languageLevel"
                 value={hardFilters.languageLevel}
                 onChange={handleChange}
-                className="w-20 shrink-0 rounded-lg border border-slate-200 bg-white px-2 py-2 text-xs text-slate-900 transition-all duration-150 hover:border-slate-300 focus:border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                className="w-20 shrink-0 rounded-lg border border-[color:var(--th-border-subtle)] bg-[var(--th-bg-elevated)] px-2 py-2 text-xs text-[var(--th-text)] transition-all duration-150 hover:border-[color:var(--th-border)] focus:border-[color:var(--th-primary)] focus:outline-none focus:ring-2 focus:ring-[color:var(--th-primary-muted)]"
               >
                 {selectOptions.languageLevel.map((option) => (
                   <option key={option.value || option.label} value={option.value}>
@@ -470,22 +470,22 @@ const HardFilterPanel: React.FC<HardFilterPanelProps> = ({ hardFilters, setHardF
       {/* Section 3 - Muc luong ky vong */}
       <div className={sectionCardClass}>
         <div className={sectionHeaderClass}>
-          <span className="flex h-6 w-6 items-center justify-center rounded-md border border-blue-100 bg-blue-50 text-blue-600">
+          <span className="flex h-6 w-6 items-center justify-center rounded-md border border-[color:var(--th-border)] bg-[color:var(--th-primary-muted)] text-[var(--th-primary)]">
             <Coins className="h-3.5 w-3.5" />
           </span>
-          <span className="text-xs font-bold uppercase tracking-[0.15em] text-slate-700">Mức lương kỳ vọng</span>
+          <span className="text-xs font-bold uppercase tracking-[0.15em] text-[var(--th-text-secondary)]">Mức lương kỳ vọng</span>
         </div>
-        <div className="divide-y divide-slate-100/80">
-          <div className={`flex items-center gap-3 px-4 py-2.5 transition-colors ${hardFilters.salaryMandatory ? 'bg-blue-50/30' : 'hover:bg-slate-50/40'}`}>
+        <div className="divide-y divide-[color:var(--th-border-subtle)]">
+          <div className={`flex items-center gap-3 px-4 py-2.5 transition-colors ${hardFilters.salaryMandatory ? 'bg-[color:var(--th-primary-muted)]' : 'hover:bg-[var(--th-surface-hover)]'}`}>
             <div className="flex w-[180px] shrink-0 items-center gap-2">
-              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-blue-100 bg-blue-50 text-blue-600">
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-[color:var(--th-border)] bg-[color:var(--th-primary-muted)] text-[var(--th-primary)]">
                 <Coins className="h-3.5 w-3.5" />
               </span>
-              <span className="truncate text-xs font-semibold text-slate-700">Khoảng lương (VNĐ)</span>
+              <span className="truncate text-xs font-semibold text-[var(--th-text-secondary)]">Khoảng lương (VNĐ)</span>
             </div>
             <div className="flex flex-1 items-center gap-2">
               <div className="flex flex-1 items-center gap-2">
-                <span className="shrink-0 text-[10px] font-bold uppercase tracking-[0.15em] text-slate-400">Từ</span>
+                <span className="shrink-0 text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--th-text-muted)]">Từ</span>
                 <input
                   type="number"
                   id="salaryMin"
@@ -495,9 +495,9 @@ const HardFilterPanel: React.FC<HardFilterPanelProps> = ({ hardFilters, setHardF
                   className={rowInputClasses(Boolean(hardFilters.salaryMandatory), hasValue(hardFilters.salaryMin))}
                 />
               </div>
-              <span className="shrink-0 text-xs text-slate-400">—</span>
+              <span className="shrink-0 text-xs text-[var(--th-text-muted)]">—</span>
               <div className="flex flex-1 items-center gap-2">
-                <span className="shrink-0 text-[10px] font-bold uppercase tracking-[0.15em] text-slate-400">Đến</span>
+                <span className="shrink-0 text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--th-text-muted)]">Đến</span>
                 <input
                   type="number"
                   id="salaryMax"

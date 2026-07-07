@@ -432,12 +432,20 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
   }, [tplDropdownOpen]);
 
   // Auto-save toggle helper
-  const autoSave = useCallback(async (key: string, patch: Parameters<typeof saveSettings>[0]) => {
-    setSavingKey(key);
+  const autoSave = useCallback(async (
+    key: string,
+    patch: Parameters<typeof saveSettings>[0],
+    options?: { showSaving?: boolean; syncMode?: 'background' | 'await-remote' },
+  ) => {
+    if (options?.showSaving !== false) {
+      setSavingKey(key);
+    }
     try {
-      await saveSettings(patch);
+      await saveSettings(patch, { saveKey: key, syncMode: options?.syncMode });
     } finally {
-      setSavingKey(null);
+      if (options?.showSaving !== false) {
+        setSavingKey(null);
+      }
     }
   }, [saveSettings]);
 
@@ -589,7 +597,7 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
   const syncBadge = (() => {
     if (!isAuthenticated) return { icon: <CloudOff size={12} />, label: t('settings_not_authed'), cls: 'border-slate-200 bg-slate-100 text-slate-500' };
     if (syncStatus === 'synced') return { icon: <CheckCircle2 size={12} />, label: t('settings_synced'), cls: 'border-emerald-200 bg-emerald-50 text-emerald-700' };
-    if (syncStatus === 'pending') return { icon: <Loader2 size={12} className="animate-spin" />, label: t('settings_saving'), cls: 'border-amber-200 bg-amber-50 text-amber-700' };
+    if (syncStatus === 'pending') return { icon: <Loader2 size={12} className="animate-spin" />, label: settings.ui.language === 'en-US' ? 'Syncing' : 'Đang đồng bộ', cls: 'border-amber-200 bg-amber-50 text-amber-700' };
     if (syncStatus === 'error') return { icon: <AlertTriangle size={12} />, label: t('settings_sync_error'), cls: 'border-rose-200 bg-rose-50 text-rose-700' };
     return { icon: <CloudOff size={12} />, label: t('settings_not_authed'), cls: 'border-slate-200 bg-slate-100 text-slate-500' };
   })();
@@ -672,7 +680,7 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
                   <button
                     key={value}
                     type="button"
-                    onClick={() => void autoSave('theme', { ui: { ...settings.ui, theme: value } })}
+                    onClick={() => void autoSave('theme', { ui: { ...settings.ui, theme: value } }, { showSaving: false, syncMode: 'background' })}
                     className={`flex flex-col items-center gap-2 rounded-2xl border py-4 text-[12px] font-semibold transition ${
                       active
                         ? 'border-blue-400 bg-blue-50 text-blue-700 shadow-sm shadow-blue-100'
@@ -1487,7 +1495,7 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[80] flex items-center justify-center bg-slate-950/40 px-3 py-4 backdrop-blur-sm sm:px-4 sm:py-6">
+    <div className="settings-theme-modal fixed inset-0 z-[80] flex items-center justify-center bg-slate-950/40 px-3 py-4 backdrop-blur-sm sm:px-4 sm:py-6">
       <div className="flex h-[min(92vh,840px)] w-full max-w-[960px] flex-col overflow-hidden rounded-[28px] border border-slate-200/80 bg-white shadow-[0_32px_80px_rgba(15,23,42,0.18)]">
 
         {/* Header */}

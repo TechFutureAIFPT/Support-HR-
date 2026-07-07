@@ -115,19 +115,32 @@ export const tokens = {
 
 export type TokenKey = keyof typeof lightTokens;
 
-export function getToken<K extends TokenKey>(key: K): typeof lightTokens[K] {
-  return lightTokens[key];
+export function resolveThemeTokenMode(): ThemeMode | 'light' | 'dark' {
+  if (typeof document === 'undefined') return 'light';
+  const root = document.documentElement;
+  if (root.classList.contains('dark')) return 'dark';
+  if (root.classList.contains('light')) return 'light';
+  return 'light';
 }
 
-export function themeClasses() {
+export function getActiveTokens(mode?: 'light' | 'dark') {
+  return tokens[mode ?? resolveThemeTokenMode()];
+}
+
+export function getToken<K extends TokenKey>(key: K, mode?: 'light' | 'dark'): typeof lightTokens[K] {
+  return getActiveTokens(mode)[key];
+}
+
+export function themeClasses(mode?: 'light' | 'dark') {
+  const active = getActiveTokens(mode);
   return {
-    bg: lightTokens.bgPrimary,
-    bgSecondary: lightTokens.bgSecondary,
-    bgTertiary: lightTokens.bgTertiary,
-    bgGlass: lightTokens.bgGlass,
-    text: lightTokens.textPrimary,
-    textMuted: lightTokens.textMuted,
-    primary: lightTokens.primary,
-    border: lightTokens.borderDefault,
+    bg: active.bgPrimary,
+    bgSecondary: active.bgSecondary,
+    bgTertiary: active.bgTertiary,
+    bgGlass: active.bgGlass,
+    text: active.textPrimary,
+    textMuted: active.textMuted,
+    primary: active.primary,
+    border: active.borderDefault,
   };
 }

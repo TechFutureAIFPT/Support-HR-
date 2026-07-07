@@ -1,8 +1,11 @@
 import React, { createContext, useContext, useEffect, useCallback, useState } from 'react';
-import { tokens, type ThemeMode } from '@/context/theme/tokens.ts';
-import { readLocalUserSettings, USER_SETTINGS_EVENT } from '@/services/settings/userSettingsService';
-
-const THEME_STORAGE_KEY = 'supporthr.ui.theme';
+import { getActiveTokens, tokens, type ThemeMode } from '@/context/theme/tokens.ts';
+import {
+  readLocalUserSettings,
+  USER_SETTINGS_EVENT,
+  USER_SETTINGS_LOCAL_KEY,
+  USER_SETTINGS_THEME_KEY,
+} from '@/services/settings/userSettingsService';
 
 interface ThemeContextType {
   isDarkMode: boolean;
@@ -35,9 +38,22 @@ function resolveEffectiveMode(mode: ThemeMode): 'light' | 'dark' {
   return mode;
 }
 
+function readThemeFromSettingsSnapshot(): ThemeMode | null {
+  try {
+    const raw = localStorage.getItem(USER_SETTINGS_LOCAL_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as { ui?: { theme?: unknown } };
+    const nextTheme = parsed?.ui?.theme;
+    if (nextTheme === 'dark' || nextTheme === 'system' || nextTheme === 'light') {
+      return nextTheme;
+    }
+  } catch {}
+  return null;
+}
+
 function applyThemeVariables(mode: ThemeMode) {
   const effective = resolveEffectiveMode(mode);
-  const t = tokens[effective];
+  const t = getActiveTokens(effective);
   const root = document.documentElement;
 
   root.classList.remove('dark', 'light');
@@ -103,8 +119,10 @@ function applyThemeVariables(mode: ThemeMode) {
 
 function readStoredTheme(): ThemeMode {
   try {
-    const raw = localStorage.getItem(THEME_STORAGE_KEY);
-    if (raw === 'dark' || raw === 'system') return raw;
+    const snapshotTheme = readThemeFromSettingsSnapshot();
+    if (snapshotTheme) return snapshotTheme;
+    const raw = localStorage.getItem(USER_SETTINGS_THEME_KEY);
+    if (raw === 'dark' || raw === 'system' || raw === 'light') return raw;
   } catch {}
   return 'light';
 }
@@ -161,7 +179,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }, []);
 
   const setTheme = useCallback((mode: ThemeMode) => {
-    try { localStorage.setItem(THEME_STORAGE_KEY, mode); } catch {}
+    try { localStorage.setItem(USER_SETTINGS_THEME_KEY, mode); } catch {}
     setThemeModeState(mode);
   }, []);
 
@@ -207,13 +225,15 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 export const useTheme = () => useContext(ThemeContext);
 
 export function useThemeVar(varName: string): string {
-  const t = tokens.light;
+  const { isDarkMode } = useTheme();
+  const t = isDarkMode ? tokens.dark : tokens.light;
   const key = varName.replace('--th-', '') as keyof typeof t;
   return (t as any)[key] as string;
 }
 
 export function useThemeVars(...varNames: string[]): Record<string, string> {
-  const t = tokens.light;
+  const { isDarkMode } = useTheme();
+  const t = isDarkMode ? tokens.dark : tokens.light;
   const result: Record<string, string> = {};
   for (const name of varNames) {
     const key = name.replace('--th-', '') as keyof typeof t;

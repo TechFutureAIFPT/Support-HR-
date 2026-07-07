@@ -1,5 +1,28 @@
 import { apiDelete, apiGet, apiPost, pickArray, pickObject } from '@/services/api/renderClient';
-import type { ChatbotSession, ChatMessageRecord } from '@/types';
+import type {
+  CandidateBrief,
+  ChatMessageMetadata,
+  ChatMessageRecord,
+  ChatbotAnalysisContext,
+  ChatbotReplyResponse,
+  ChatbotSession,
+} from '@/types';
+
+function normalizeMetadata(raw: unknown): ChatMessageMetadata {
+  const metadata = (raw && typeof raw === 'object') ? raw as Record<string, unknown> : {};
+  return {
+    focusCandidateId: metadata.focusCandidateId ? String(metadata.focusCandidateId) : null,
+    followUpQuestions: Array.isArray(metadata.followUpQuestions)
+      ? metadata.followUpQuestions.map((item) => String(item))
+      : [],
+    suggestedActions: Array.isArray(metadata.suggestedActions)
+      ? metadata.suggestedActions.map((item) => String(item))
+      : [],
+    candidateCards: Array.isArray(metadata.candidateCards)
+      ? metadata.candidateCards as ChatMessageMetadata['candidateCards']
+      : [],
+  };
+}
 
 function normalizeMessage(raw: unknown): ChatMessageRecord {
   const message = (raw && typeof raw === 'object') ? raw as Record<string, unknown> : {};
@@ -12,6 +35,7 @@ function normalizeMessage(raw: unknown): ChatMessageRecord {
     suggestedCandidateIds: Array.isArray(message.suggestedCandidateIds)
       ? message.suggestedCandidateIds.map((id) => String(id))
       : [],
+    metadata: normalizeMetadata(message.metadata),
   };
 }
 
@@ -27,6 +51,16 @@ function normalizeSession(raw: unknown): ChatbotSession {
     sessionTitle: String(session.sessionTitle || session.jobPosition || ''),
     messages: Array.isArray(session.messages) ? session.messages.map(normalizeMessage) : [],
     messageCount: Number(session.messageCount || 0),
+    analysisContext: session.analysisContext
+      ? session.analysisContext as ChatbotAnalysisContext
+      : null,
+    candidateBriefs: Array.isArray(session.candidateBriefs)
+      ? session.candidateBriefs as CandidateBrief[]
+      : [],
+    lastSuggestedCandidateIds: Array.isArray(session.lastSuggestedCandidateIds)
+      ? session.lastSuggestedCandidateIds.map((item) => String(item))
+      : [],
+    lastFocusCandidateId: session.lastFocusCandidateId ? String(session.lastFocusCandidateId) : null,
     createdAt: session.createdAt || Date.now(),
     updatedAt: session.updatedAt || Date.now(),
     lastMessageAt: Number(session.lastMessageAt || Date.now()),
@@ -37,6 +71,8 @@ export class ChatbotHistoryService {
   static async createSession(params: {
     jobPosition: string;
     totalCandidates: number;
+    analysisContext?: ChatbotAnalysisContext | null;
+    candidateBriefs?: CandidateBrief[];
   }): Promise<string | null> {
     const response = await apiPost<unknown>(
       '/api/account/chatbot/sessions',
@@ -93,6 +129,22 @@ export class ChatbotHistoryService {
     const session = pickObject<Record<string, unknown>>(response, ['session', 'data']);
     if (!session && !response) return null;
     return normalizeSession(session || response);
+  }
+
+  static async replyToSession(
+    sessionId: string,
+    payload: {
+      message: string;
+      selectedCandidateIds?: string[];
+      focusCandidateId?: string | null;
+      candidateBriefs?: CandidateBrief[];
+    }
+  ): Promise<ChatbotReplyResponse> {
+    return apiPost<ChatbotReplyResponse>(
+      `/api/account/chatbot/sessions/${encodeURIComponent(sessionId)}/reply`,
+      payload,
+      { authRequired: true }
+    );
   }
 
   static async deleteSession(sessionId: string): Promise<boolean> {
