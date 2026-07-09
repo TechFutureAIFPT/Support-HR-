@@ -65,18 +65,18 @@ function validatePassword(password: string, minLen = 6): string | null {
 
 const CornerFrame = () => (
   <>
-    <span className="absolute left-0 top-0 h-5 w-5 border-l border-t border-[#8ed8ff]/80" />
-    <span className="absolute right-0 top-0 h-5 w-5 border-r border-t border-[#8ed8ff]/80" />
-    <span className="absolute left-0 bottom-0 h-5 w-5 border-b border-l border-[#8ed8ff]/80" />
-    <span className="absolute right-0 bottom-0 h-5 w-5 border-b border-r border-[#8ed8ff]/80" />
+    <span className="absolute left-0 top-0 h-5 w-5 border-l border-t border-[#dbeafe]" />
+    <span className="absolute right-0 top-0 h-5 w-5 border-r border-t border-[#dbeafe]" />
+    <span className="absolute left-0 bottom-0 h-5 w-5 border-b border-l border-[#dbeafe]" />
+    <span className="absolute right-0 bottom-0 h-5 w-5 border-b border-r border-[#dbeafe]" />
   </>
 );
 
 const inputBaseClass =
-  'w-full rounded-xl border border-[#d2e3fb] bg-[#f7fbff] px-3.5 py-2.5 text-[13px] text-slate-900 outline-none transition-all placeholder:text-[#8aa0bf] focus:border-[#67c3ff] focus:bg-white focus:ring-4 focus:ring-[#67c3ff]/12';
+  'w-full rounded-xl border border-[#d9e5f4] bg-white px-3.5 py-2.5 text-[13px] text-slate-900 outline-none transition-all placeholder:text-[#8aa0bf] focus:border-[#67c3ff] focus:bg-white focus:ring-4 focus:ring-[#67c3ff]/10';
 
 const panelSurfaceClass =
-  'relative rounded-2xl border border-[#c7dcff] bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(241,248,255,0.94))] shadow-[0_24px_70px_rgba(15,23,42,0.14)]';
+  'relative rounded-2xl border border-[#e2e8f0] bg-white shadow-[0_24px_70px_rgba(15,23,42,0.08)]';
 
 const primaryActionClass =
   'w-full rounded-xl px-4 py-3 text-sm font-semibold text-white shadow-[0_16px_32px_rgba(37,99,235,0.22)] transition-all hover:brightness-[1.03] hover:shadow-[0_20px_36px_rgba(8,145,178,0.24)] disabled:cursor-not-allowed disabled:opacity-50';
@@ -293,41 +293,40 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
 
   return (
     <div
-      className={`login-page-shell relative min-h-[100svh] overflow-y-auto overflow-x-hidden bg-[#eef4ff] text-slate-900 transition-all duration-700 ${
+      className={`login-page-shell relative min-h-[100svh] overflow-y-auto overflow-x-hidden bg-white text-slate-900 transition-all duration-700 ${
         successStage === 'transitioning' ? 'opacity-0' : 'opacity-100'
       }`}
     >
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.035)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.035)_1px,transparent_1px)] bg-[size:56px_56px] opacity-20" />
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(34,211,238,0.1),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(37,99,235,0.1),transparent_26%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(148,163,184,0.07)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.07)_1px,transparent_1px)] bg-[size:56px_56px] opacity-50" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(59,130,246,0.08),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(14,165,233,0.06),transparent_24%)]" />
 
       <div className="relative z-10 grid min-h-[100svh] lg:grid-cols-[1.02fr_0.98fr]">
         <section
-          className={`relative hidden overflow-hidden px-8 py-5 lg:flex lg:flex-col lg:justify-between xl:px-10 xl:py-6 transition-all duration-700 ${
+          className={`relative hidden overflow-hidden border-r border-[#edf2f7] bg-white px-8 py-5 lg:flex lg:flex-col lg:justify-between xl:px-10 xl:py-6 transition-all duration-700 ${
             loaded ? 'translate-x-0 opacity-100' : '-translate-x-6 opacity-0'
           }`}
-          style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0c1a3a 100%)' }}
         >
           {/* Subtle grid overlay */}
-          <div className="pointer-events-none absolute inset-0 opacity-[0.06]" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.08) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.08) 1px,transparent 1px)', backgroundSize: '48px 48px' }} />
+          <div className="pointer-events-none absolute inset-0 opacity-[0.45]" style={{ backgroundImage: 'linear-gradient(rgba(148,163,184,0.08) 1px,transparent 1px),linear-gradient(90deg,rgba(148,163,184,0.08) 1px,transparent 1px)', backgroundSize: '48px 48px' }} />
           {/* Glow accents */}
-          <div className="pointer-events-none absolute -top-32 -left-32 h-80 w-80 rounded-full bg-blue-600/20 blur-3xl" />
-          <div className="pointer-events-none absolute -bottom-24 -right-24 h-64 w-64 rounded-full bg-indigo-500/15 blur-3xl" />
+          <div className="pointer-events-none absolute -top-32 -left-32 h-80 w-80 rounded-full bg-sky-100 blur-3xl" />
+          <div className="pointer-events-none absolute -bottom-24 -right-24 h-64 w-64 rounded-full bg-blue-50 blur-3xl" />
 
           <div className="relative max-w-lg">
-            <div className="inline-flex items-center gap-3 rounded-lg border border-white/10 bg-white/5 px-3 py-2.5 font-mono text-[11px] uppercase tracking-[0.22em] text-emerald-400">
+            <div className="inline-flex items-center gap-3 rounded-lg border border-[#dbeafe] bg-white px-3 py-2.5 font-mono text-[11px] uppercase tracking-[0.22em] text-emerald-600 shadow-sm">
               <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
               Hệ thống · Đang hoạt động
             </div>
 
             <div className="mt-8">
-              <h1 className="max-w-md text-4xl font-black uppercase leading-[0.9] tracking-[-0.03em] text-white xl:text-5xl">
+              <h1 className="max-w-md text-4xl font-black uppercase leading-[0.9] tracking-[-0.03em] text-slate-900 xl:text-5xl">
                 Tuyển dụng
                 <br />
-                <span className="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">thông minh hơn</span>
+                <span className="bg-gradient-to-r from-blue-500 to-cyan-500 bg-clip-text text-transparent">thông minh hơn</span>
               </h1>
 
-              <div className="mt-5 border-l-2 border-cyan-400/60 pl-4">
-                <p className="max-w-sm text-[0.94rem] leading-7 text-white">
+              <div className="mt-5 border-l-2 border-cyan-400/70 pl-4">
+                <p className="max-w-sm text-[0.94rem] leading-7 text-slate-600">
                   Nền tảng AI hỗ trợ sàng lọc CV, chuẩn hóa JD và ra quyết định tuyển dụng
                   nhanh hơn — trong một không gian làm việc thống nhất.
                 </p>
@@ -336,16 +335,16 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
 
             <div className="mt-8 flex flex-wrap gap-4">
               <div className="flex items-center gap-2">
-                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-cyan-400/20 text-cyan-300"><i className="fa-solid fa-bolt text-xs" /></span>
-                <span className="text-sm font-semibold text-white">Phân tích tức thì</span>
+                <span className="flex h-7 w-7 items-center justify-center rounded-lg border border-[#dbeafe] bg-white text-cyan-600 shadow-sm"><i className="fa-solid fa-bolt text-xs" /></span>
+                <span className="text-sm font-semibold text-slate-700">Phân tích tức thì</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-cyan-400/20 text-cyan-300"><i className="fa-solid fa-shield-halved text-xs" /></span>
-                <span className="text-sm font-semibold text-white">Bảo mật dữ liệu</span>
+                <span className="flex h-7 w-7 items-center justify-center rounded-lg border border-[#dbeafe] bg-white text-cyan-600 shadow-sm"><i className="fa-solid fa-shield-halved text-xs" /></span>
+                <span className="text-sm font-semibold text-slate-700">Bảo mật dữ liệu</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-cyan-400/20 text-cyan-300"><i className="fa-solid fa-ranking-star text-xs" /></span>
-                <span className="text-sm font-semibold text-white">Xếp hạng AI</span>
+                <span className="flex h-7 w-7 items-center justify-center rounded-lg border border-[#dbeafe] bg-white text-cyan-600 shadow-sm"><i className="fa-solid fa-ranking-star text-xs" /></span>
+                <span className="text-sm font-semibold text-slate-700">Xếp hạng AI</span>
               </div>
             </div>
           </div>
@@ -354,14 +353,14 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
             {systemSignals.map((signal) => (
               <div
                 key={signal.title}
-                className="flex items-center gap-4 rounded-xl border border-white/8 bg-white/5 px-4 py-3 backdrop-blur-sm"
+                className="flex items-center gap-4 rounded-xl border border-[#e2e8f0] bg-white px-4 py-3 shadow-[0_12px_32px_rgba(15,23,42,0.04)]"
               >
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/8 text-blue-400">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-[#dbeafe] bg-[#f8fbff] text-blue-500">
                   <i className={`${signal.icon} text-sm`} />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-[0.82rem] font-bold text-white">{signal.title}</p>
-                  <p className="mt-0.5 truncate text-[0.75rem] leading-5 text-white/65">{signal.status}</p>
+                  <p className="text-[0.82rem] font-bold text-slate-900">{signal.title}</p>
+                  <p className="mt-0.5 truncate text-[0.75rem] leading-5 text-slate-500">{signal.status}</p>
                 </div>
                 <span className="ml-auto h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-400/80" />
               </div>
@@ -370,7 +369,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
         </section>
 
         <section
-          className={`relative flex min-h-[100svh] flex-col bg-[radial-gradient(circle_at_top,rgba(103,195,255,0.16),transparent_20%),linear-gradient(180deg,#f6fbff_0%,#edf5ff_100%)] px-5 py-4 sm:px-7 lg:min-h-0 lg:px-8 lg:py-4 xl:px-10 transition-all duration-700 ${
+          className={`relative flex min-h-[100svh] flex-col bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.06),transparent_20%),linear-gradient(180deg,#ffffff_0%,#ffffff_100%)] px-5 py-4 sm:px-7 lg:min-h-0 lg:px-8 lg:py-4 xl:px-10 transition-all duration-700 ${
             loaded ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
           }`}
         >
@@ -387,7 +386,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
             ) : null}
 
             <div className="lg:hidden">
-              <div className="h-10 w-10 overflow-hidden rounded-xl border border-[#c7dcff] bg-[linear-gradient(180deg,#ffffff,#f1f8ff)] shadow-sm shadow-blue-900/5">
+              <div className="h-10 w-10 overflow-hidden rounded-xl border border-[#e2e8f0] bg-white shadow-sm shadow-slate-200/70">
                 <img src="/images/logos/logo.jpg" alt="Support HR" className="h-full w-full object-cover" />
               </div>
             </div>
@@ -398,7 +397,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
               <div className={`${panelSurfaceClass} px-5 py-5 sm:px-7 sm:py-5 xl:px-8`}>
                 <CornerFrame />
 
-                <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl border border-[#c7dcff] bg-[linear-gradient(180deg,#f8fbff,#ecf5ff)] shadow-inner shadow-white/80">
+                <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl border border-[#e2e8f0] bg-white shadow-[inset_0_1px_0_rgba(255,255,255,0.9)]">
                   <i className="fa-solid fa-user-shield text-xl text-cyan-600" />
                 </div>
 
@@ -444,7 +443,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
                 )}
 
                 {!showReset && (
-                  <div className="mt-5 flex rounded-xl border border-[#d8e6f7] bg-[#ebf3ff] p-1">
+                  <div className="mt-5 flex rounded-xl border border-[#e2e8f0] bg-[#f8fbff] p-1">
                     {(['signin', 'signup'] as AuthTab[]).map((mode) => (
                       <button
                         key={mode}
@@ -452,7 +451,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
                         onClick={() => switchTab(mode)}
                         className={`flex-1 rounded-lg px-3 py-2.5 text-sm font-semibold transition-all ${
                           tab === mode
-                            ? 'bg-[linear-gradient(180deg,#ffffff_0%,#f3faff_100%)] text-slate-900 shadow-[0_10px_24px_rgba(37,99,235,0.12)]'
+                            ? 'bg-white text-slate-900 shadow-[0_10px_24px_rgba(15,23,42,0.08)]'
                             : 'text-[#617a99] hover:text-slate-900'
                         }`}
                       >
@@ -485,7 +484,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
                         {errors.email && <p className="mt-1 text-xs text-red-600">{errors.email}</p>}
                       </div>
 
-                        <div className="rounded-xl border border-[#cde2ff] bg-[#eef7ff] px-4 py-3 text-[13px] leading-6 text-[#54708f]">
+                        <div className="rounded-xl border border-[#e2e8f0] bg-white px-4 py-3 text-[13px] leading-6 text-[#54708f]">
                           Support HR sẽ gửi liên kết đặt lại mật khẩu đến email của bạn. Kiểm tra cả
                           hộp thư spam nếu không thấy trong vài phút.
                         </div>
@@ -626,16 +625,16 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
                 {!showReset && (
                   <>
                     <div className="my-4 flex items-center gap-3">
-                      <div className="h-px flex-1 bg-[#d8e4f3]" />
+                      <div className="h-px flex-1 bg-[#e2e8f0]" />
                       <span className="text-xs text-[#8aa0bf]">hoặc</span>
-                      <div className="h-px flex-1 bg-[#d8e4f3]" />
+                      <div className="h-px flex-1 bg-[#e2e8f0]" />
                     </div>
 
                     <button
                       type="button"
                       onClick={handleGoogleSignIn}
                       disabled={loading}
-                      className="flex w-full items-center justify-center gap-3 rounded-xl border border-[#cfe0f7] bg-[#f8fbff] px-4 py-3 text-[13px] font-bold uppercase tracking-[0.12em] text-slate-900 shadow-[0_14px_28px_rgba(15,23,42,0.06)] transition-all hover:border-[#9fdbff] hover:bg-white disabled:cursor-not-allowed disabled:opacity-50"
+                      className="flex w-full items-center justify-center gap-3 rounded-xl border border-[#e2e8f0] bg-white px-4 py-3 text-[13px] font-bold uppercase tracking-[0.12em] text-slate-900 shadow-[0_14px_28px_rgba(15,23,42,0.05)] transition-all hover:border-[#bfdbfe] hover:bg-[#fbfdff] disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       <svg className="h-5 w-5 shrink-0" viewBox="0 0 24 24">
                         <path
@@ -660,7 +659,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
                   </>
                 )}
 
-                <div className="mt-4 border-t border-[#dce8f6] pt-4 text-center">
+                <div className="mt-4 border-t border-[#e2e8f0] pt-4 text-center">
                   <p className="text-[12px] text-[#6f84a0]">
                     Bằng cách tiếp tục, bạn đồng ý với{' '}
                     <a href="/terms" className="text-cyan-700 transition-colors hover:text-blue-700 hover:underline">Điều khoản dịch vụ</a>
@@ -682,10 +681,10 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
             onClick={() => setLinkModal((prev) => ({ ...prev, open: false }))}
           />
 
-          <div className={`${panelSurfaceClass} w-full max-w-md px-6 py-8 text-slate-900 shadow-2xl shadow-blue-900/10`}>
+          <div className={`${panelSurfaceClass} w-full max-w-md px-6 py-8 text-slate-900 shadow-2xl shadow-slate-200/80`}>
             <CornerFrame />
 
-            <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-2xl border border-[#c7dcff] bg-[linear-gradient(180deg,#f8fbff,#ecf5ff)]">
+            <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-2xl border border-[#e2e8f0] bg-white">
               <i className="fa-solid fa-link text-lg text-cyan-600" />
             </div>
 

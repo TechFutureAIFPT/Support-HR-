@@ -5,6 +5,7 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '@/services/firebase';
 import { SpeedInsights } from '@vercel/speed-insights/react';
 import { Analytics } from '@vercel/analytics/react';
+import { Menu } from 'lucide-react';
 import WebVitalsReporter from '@/components/charts/WebVitalsReporter';
 import { ThemeProvider } from '@/context/theme/ThemeProvider';
 import { UserSettingsProvider, useUserSettings } from '@/context/settings/UserSettingsProvider';
@@ -21,7 +22,6 @@ import type { AppStep, Candidate, HardFilters, RecruiterInfo, WeightCriteria, An
 import type { WorkspaceSessionViewModel } from '@/types/workspace';
 import { initialWeights } from '@/config/constants';
 import Sidebar from '@/layout/Sidebar';
-import WorkspaceTopbar from '@/components/workspace/WorkspaceTopbar';
 import ActiveFilterBanner from '@/components/workspace/ActiveFilterBanner';
 import DesktopAppMenuBar from '@/components/workspace/DesktopAppMenuBar';
 import SidebarSettingsModal from '@/components/settings/SidebarSettingsModal';
@@ -1047,7 +1047,6 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
   const shouldUseWorkspaceShell = isLoggedIn && !isMarketingRoute && !isWelcomeRoute && !isDocsRoute;
   const isWorkflowView = shouldUseWorkspaceShell;
   const isContactCandidatesRoute = location.pathname === '/contact-candidates';
-  const shouldShowWorkspaceTopbar = isWorkflowView && !isContactCandidatesRoute;
   const shouldShowWorkflowBanner = isWorkflowView && !isContactCandidatesRoute;
   const isLandingView = !shouldUseWorkspaceShell;
   const isStandaloneToolRoute = false;
@@ -1269,37 +1268,16 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
             : 'ml-0 w-full'
           }`}
       >
-        {shouldShowWorkspaceTopbar && (
-          <WorkspaceTopbar
-            activeStep={activeStep}
-            completedSteps={completedSteps}
-            jobPosition={jobPosition}
-            userName={userName}
-            userAvatar={userAvatar}
-            userEmail={userEmail}
-            onLogout={handleLogout}
-            onExportReport={handleExportReport}
-            onOpenMobileSidebar={() => setIsSidebarDrawerOpen(true)}
-            onNewSession={handleNewSession}
-            onOpenSettings={() => setSidebarSettingsOpen(true)}
-            sidebarCollapsed={isDesktopSidebarCollapsed}
-            onToggleSidebar={() => setIsDesktopSidebarCollapsed((value) => !value)}
-            onOpenAnalysis={() => {
-              setActiveStep('analysis');
-              navigate('/analysis');
-            }}
-            onOpenDetailedAnalytics={() => {
-              markStepAsCompleted('analysis');
-              setActiveStep('dashboard');
-              navigate('/detailed-analytics');
-            }}
-            onOpenCandidateSuggestions={() => {
-              markStepAsCompleted('analysis');
-              setActiveStep('chatbot');
-              navigate('/chatbot');
-            }}
-          />
-        )}
+        {shouldUseWorkspaceShell && !isSidebarDrawerOpen ? (
+          <button
+            type="button"
+            onClick={() => setIsSidebarDrawerOpen(true)}
+            className="fixed left-3 top-3 z-[55] flex h-10 w-10 items-center justify-center rounded-2xl border border-[#d2d2d7] bg-white/95 text-[#1d1d1f] shadow-[0_10px_30px_rgba(15,23,42,0.12)] backdrop-blur-xl transition hover:bg-white md:hidden"
+            aria-label="Mở thanh điều hướng"
+          >
+            <Menu size={18} />
+          </button>
+        ) : null}
         {shouldShowWorkflowBanner && (
           <ActiveFilterBanner onOpenSettings={() => setSidebarSettingsOpen(true)} />
         )}
