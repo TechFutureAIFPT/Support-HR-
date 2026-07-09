@@ -391,13 +391,51 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
           <div className="flex flex-1 items-center justify-center py-2 sm:py-4 lg:py-0">
             <div className="w-full max-w-[62rem]">
               <div className={`${panelSurfaceClass} overflow-hidden`}>
-                <CornerFrame />
+                <div className="lg:grid lg:grid-cols-[16rem_minmax(0,1fr)]">
+                  <aside className="hidden border-r border-[#e2e8f0] bg-[#fbfdff] p-6 lg:flex lg:flex-col lg:justify-between">
+                    <div>
+                      <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-[#e2e8f0] bg-white shadow-[inset_0_1px_0_rgba(255,255,255,0.9)]">
+                        <i className="fa-solid fa-user-shield text-lg text-cyan-600" />
+                      </div>
+                      <div className="mt-5">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#7a8ca7]">Support HR</p>
+                        <p className="mt-2 text-[1.7rem] font-bold leading-tight text-slate-900">
+                          {showReset ? 'Reset access' : tab === 'signup' ? 'Create account' : 'Sign in'}
+                        </p>
+                        <p className="mt-2 text-sm leading-6 text-[#58708f]">
+                          {showReset ? 'Use your email to recover access.' : 'Compact account access for your recruitment workspace.'}
+                        </p>
+                      </div>
+                    </div>
 
-                <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl border border-[#e2e8f0] bg-white shadow-[inset_0_1px_0_rgba(255,255,255,0.9)]">
-                  <i className="fa-solid fa-user-shield text-xl text-cyan-600" />
+                    {!showReset && (
+                      <div className="mt-6 flex flex-col gap-2 rounded-2xl border border-[#e2e8f0] bg-white p-2">
+                        {(['signin', 'signup'] as AuthTab[]).map((mode) => (
+                          <button
+                            key={mode}
+                            type="button"
+                            onClick={() => switchTab(mode)}
+                            className={`rounded-xl px-3 py-3 text-left text-sm font-semibold transition-all ${
+                              tab === mode
+                                ? 'bg-[#f3f8ff] text-slate-900 shadow-[0_10px_24px_rgba(15,23,42,0.06)]'
+                                : 'text-[#617a99] hover:bg-[#f8fbff] hover:text-slate-900'
+                            }`}
+                          >
+                            {mode === 'signin' ? 'Sign in' : 'Sign up'}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </aside>
+
+                  <div className="px-5 py-5 sm:px-7 sm:py-6 xl:px-8">
+                    <CornerFrame />
+
+                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-[#e2e8f0] bg-white shadow-[inset_0_1px_0_rgba(255,255,255,0.9)] lg:hidden">
+                  <i className="fa-solid fa-user-shield text-lg text-cyan-600" />
                 </div>
 
-                <div className="text-center">
+                <div className="text-center lg:hidden">
                   <h2 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-[1.75rem]">
                     {showReset
                       ? 'Khôi phục mật khẩu'
@@ -439,7 +477,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
                 )}
 
                 {!showReset && (
-                  <div className="mt-5 flex rounded-xl border border-[#e2e8f0] bg-[#f8fbff] p-1">
+                  <div className="mt-4 flex rounded-xl border border-[#e2e8f0] bg-[#f8fbff] p-1 lg:hidden">
                     {(['signin', 'signup'] as AuthTab[]).map((mode) => (
                       <button
                         key={mode}
@@ -517,7 +555,8 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
                     </form>
                   ) : (
                     <form onSubmit={handleSubmit} className="space-y-4">
-                      {tab === 'signup' && (
+                      <div className="grid gap-4 lg:grid-cols-2">
+                        {tab === 'signup' && (
                         <div>
                           <label className="mb-1.5 block text-xs font-semibold text-slate-700">
                             Họ và tên
@@ -553,7 +592,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
                         {errors.email && <p className="mt-1 text-xs text-red-600">{errors.email}</p>}
                       </div>
 
-                      <div>
+                      <div className={tab === 'signup' ? 'lg:col-span-2' : ''}>
                         <div className="mb-1.5 flex items-center justify-between">
                           <label className="block text-xs font-semibold text-slate-700">
                             Mật khẩu
@@ -585,10 +624,12 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
                         )}
                       </div>
 
+                      </div>
+
                       <button
                         type="submit"
                         disabled={loading}
-                        className={`mt-1 ${primaryActionClass}`}
+                        className={`mt-1 lg:ml-auto lg:block lg:max-w-[18rem] ${primaryActionClass}`}
                         style={primaryActionStyle}
                       >
                         {loading
@@ -609,7 +650,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
                             setAuthError('');
                             setResetSent(false);
                           }}
-                          className="w-full text-sm text-[#647995] transition-colors hover:text-cyan-700"
+                          className="w-full text-sm text-[#647995] transition-colors hover:text-cyan-700 lg:text-right"
                         >
                           Quên mật khẩu?
                         </button>
@@ -620,7 +661,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
 
                 {!showReset && (
                   <>
-                    <div className="my-4 flex items-center gap-3">
+                    <div className="my-4 flex items-center gap-3 lg:hidden">
                       <div className="h-px flex-1 bg-[#e2e8f0]" />
                       <span className="text-xs text-[#8aa0bf]">hoặc</span>
                       <div className="h-px flex-1 bg-[#e2e8f0]" />
@@ -630,7 +671,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
                       type="button"
                       onClick={handleGoogleSignIn}
                       disabled={loading}
-                      className="flex w-full items-center justify-center gap-3 rounded-xl border border-[#e2e8f0] bg-white px-4 py-3 text-[13px] font-bold uppercase tracking-[0.12em] text-slate-900 shadow-[0_14px_28px_rgba(15,23,42,0.05)] transition-all hover:border-[#bfdbfe] hover:bg-[#fbfdff] disabled:cursor-not-allowed disabled:opacity-50"
+                      className="flex w-full items-center justify-center gap-3 rounded-xl border border-[#e2e8f0] bg-white px-4 py-3 text-[13px] font-bold uppercase tracking-[0.12em] text-slate-900 shadow-[0_14px_28px_rgba(15,23,42,0.05)] transition-all hover:border-[#bfdbfe] hover:bg-[#fbfdff] disabled:cursor-not-allowed disabled:opacity-50 lg:ml-auto lg:max-w-[18rem]"
                     >
                       <svg className="h-5 w-5 shrink-0" viewBox="0 0 24 24">
                         <path
@@ -662,6 +703,8 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
                     {' '}và{' '}
                     <a href="/privacy-policy" className="text-cyan-700 transition-colors hover:text-blue-700 hover:underline">Chính sách bảo mật</a>.
                   </p>
+                </div>
+                  </div>
                 </div>
               </div>
             </div>
