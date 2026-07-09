@@ -167,14 +167,14 @@ const EmailPreviewCard: React.FC<{
 
   return (
     <div
-      className="flex min-h-0 flex-col overflow-hidden rounded-xl border shadow-sm"
+      className="flex h-full min-h-0 flex-col overflow-hidden rounded-xl border shadow-sm"
       style={{ background: tc.cardBg, borderColor: tc.borderSoft }}
     >
       <div
-        className="border-b px-3 py-2"
+        className="shrink-0 border-b px-3 py-2"
         style={{ borderColor: tc.borderSoft, background: accent.softBg }}
       >
-          <div className="flex items-start justify-between gap-2">
+        <div className="flex items-start justify-between gap-2">
           <div className="flex items-center gap-2.5">
             <div
               className="flex h-8 w-8 items-center justify-center rounded-xl"
@@ -204,7 +204,7 @@ const EmailPreviewCard: React.FC<{
       </div>
 
       <div
-        className="grid grid-cols-1 gap-2 border-b px-3 py-2 sm:grid-cols-3"
+        className="grid shrink-0 grid-cols-1 gap-2 border-b px-3 py-2 md:grid-cols-[minmax(180px,220px)_minmax(0,1fr)]"
         style={{ borderColor: tc.borderSoft, background: 'rgba(148,163,184,0.05)' }}
       >
         <div className="rounded-lg border px-2.5 py-1.5" style={{ borderColor: tc.borderSoft, background: tc.cardBg }}>
@@ -215,7 +215,7 @@ const EmailPreviewCard: React.FC<{
             {to || '(chưa có email)'}
           </p>
         </div>
-        <div className="rounded-lg border px-2.5 py-1.5 sm:col-span-2" style={{ borderColor: tc.borderSoft, background: tc.cardBg }}>
+        <div className="rounded-lg border px-2.5 py-1.5" style={{ borderColor: tc.borderSoft, background: tc.cardBg }}>
           <p className="text-[9px] font-semibold uppercase tracking-[0.12em]" style={{ color: tc.textMuted }}>
             Tiêu đề
           </p>
@@ -225,9 +225,9 @@ const EmailPreviewCard: React.FC<{
         </div>
       </div>
 
-      <div className="px-2.5 py-2.5">
+      <div className="min-h-0 flex-1 px-2.5 py-2.5">
         <div
-          className="rounded-lg border px-3 py-2.5"
+          className="custom-scrollbar h-full overflow-y-auto rounded-lg border px-3 py-2.5"
           style={{ borderColor: tc.borderSoft, background: tone === 'pass' ? 'rgba(248,250,252,0.9)' : tc.pageBg }}
         >
           <div className="space-y-2 pr-1">
@@ -413,6 +413,14 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
   const previewBody = activeTab === 'pass'
     ? generatePassBody(interviewDetails, previewName, jobPosition)
     : applyTemplate(failTemplate, previewName, jobPosition);
+  const candidatePanelWidthClass = candidatePanelOpen
+    ? inline
+      ? 'xl:w-[320px] 2xl:w-[340px]'
+      : 'xl:w-[30%]'
+    : 'xl:w-[64px]';
+  const passLayoutClass = inline
+    ? 'grid h-full min-h-0 grid-cols-1 xl:grid-cols-[minmax(280px,320px)_minmax(0,1fr)]'
+    : 'grid h-full min-h-0 grid-cols-1 xl:grid-cols-[300px_minmax(0,1fr)]';
   const previewSubject = activeTab === 'pass'
     ? `ThÃ´ng bÃ¡o káº¿t quáº£ sÆ¡ tuyá»ƒn â€“ ${jobPosition}`
     : `Káº¿t quáº£ á»©ng tuyá»ƒn â€“ ${jobPosition}`;
@@ -470,9 +478,7 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
 
           {/* Left — candidate list */}
           <div
-            className={`flex min-h-0 w-full flex-col border-b transition-[width] duration-200 xl:border-b-0 xl:border-r ${
-              candidatePanelOpen ? 'xl:w-[30%]' : 'xl:w-[64px]'
-            }`}
+            className={`flex min-h-0 w-full flex-col border-b transition-[width] duration-200 xl:border-b-0 xl:border-r ${candidatePanelWidthClass}`}
             style={{ borderColor: tc.borderSoft }}
           >
             {!candidatePanelOpen && (
@@ -847,14 +853,14 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
             </div>
 
             {/* Panel content */}
-            <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto overscroll-contain">
+            <div className="min-h-0 flex-1 overflow-hidden">
 
               {/* ── PASS TAB: Interview form + auto preview ── */}
               {activeTab === 'pass' && (
-                <div className="grid min-h-0 flex-1 grid-cols-1 xl:grid-cols-[300px_minmax(0,1fr)]">
+                <div className={passLayoutClass}>
                   {/* Form fields */}
                   <div
-                    className="space-y-2.5 p-2.5 xl:border-r"
+                    className="custom-scrollbar min-h-0 space-y-2.5 overflow-y-auto p-2.5 xl:border-r"
                     style={{ borderColor: tc.borderSoft }}
                   >
 
@@ -966,23 +972,23 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
                   </div>
 
                   {/* Auto-generated email preview */}
-                  <div className="min-w-0 border-t xl:border-t-0" style={{ borderColor: tc.borderSoft }}>
-                    <div className="min-h-0 px-2.5 py-2">
+                  <div className="min-h-0 min-w-0 border-t xl:border-t-0" style={{ borderColor: tc.borderSoft }}>
+                    <div className="flex h-full min-h-0 flex-col px-2.5 py-2">
                       <p
-                        className="mb-1.5 text-[9.5px] font-semibold uppercase tracking-[0.14em]"
+                        className="mb-1.5 shrink-0 text-[9.5px] font-semibold uppercase tracking-[0.14em]"
                         style={{ color: tc.textMuted }}
                       >
                         Nội dung email · tự động tạo
                       </p>
-                      <div>
-                      <EmailPreviewCard
-                        tc={tc}
-                        to={previewItem ? (previewItem.email || '(chưa có email)') : '(chọn ứng viên để xem)'}
-                        subject={`Thông báo kết quả sơ tuyển – ${jobPosition}`}
-                        body={previewBody}
-                        tone="pass"
-                        helperText="Xem trước theo ứng viên đang chọn. Khi gửi hàng loạt, hệ thống vẫn tự cá nhân hóa tên và thông tin cho từng người."
-                      />
+                      <div className="min-h-0 flex-1">
+                        <EmailPreviewCard
+                          tc={tc}
+                          to={previewItem ? (previewItem.email || '(chưa có email)') : '(chọn ứng viên để xem)'}
+                          subject={`Thông báo kết quả sơ tuyển – ${jobPosition}`}
+                          body={previewBody}
+                          tone="pass"
+                          helperText="Xem trước theo ứng viên đang chọn. Khi gửi hàng loạt, hệ thống vẫn tự cá nhân hóa tên và thông tin cho từng người."
+                        />
                       </div>
                     </div>
                   </div>
@@ -991,7 +997,7 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
 
               {/* ── FAIL TAB: Template editor / preview ── */}
               {activeTab === 'fail' && (
-                <div className="flex h-full min-h-0 flex-col p-3">
+                <div className="flex h-full min-h-0 flex-col overflow-hidden p-3">
                   {!showFailPreview ? (
                     <div className="flex h-full min-h-0 flex-col gap-2.5">
                       <p className="shrink-0 text-[11px]" style={{ color: tc.textMuted }}>
@@ -1003,7 +1009,7 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
                       <textarea
                         value={failTemplate}
                         onChange={(e) => setFailTemplate(e.target.value)}
-                        className="min-h-[320px] flex-1 w-full resize-none rounded-xl border p-3 text-[12px] leading-relaxed outline-none transition-colors focus:border-blue-400 focus:ring-2 focus:ring-blue-50 lg:min-h-[390px]"
+                        className="min-h-0 flex-1 w-full resize-none rounded-xl border p-3 text-[12px] leading-relaxed outline-none transition-colors focus:border-blue-400 focus:ring-2 focus:ring-blue-50"
                         style={{
                           background: tc.pageBg,
                           borderColor: tc.borderSoft,
@@ -1012,15 +1018,15 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
                       />
                     </div>
                   ) : (
-                    <div>
-                    <EmailPreviewCard
-                      tc={tc}
-                      to={previewItem ? (previewItem.email || '(chưa có email)') : '(chưa chọn ứng viên)'}
-                      subject={`Kết quả ứng tuyển – ${jobPosition}`}
-                      body={previewBody}
-                      tone="fail"
-                      helperText="Đây là bản xem trước của mẫu từ chối. Bạn có thể quay lại tab soạn để chỉnh câu chữ trước khi gửi."
-                    />
+                    <div className="min-h-0 flex-1">
+                      <EmailPreviewCard
+                        tc={tc}
+                        to={previewItem ? (previewItem.email || '(chưa có email)') : '(chưa chọn ứng viên)'}
+                        subject={`Kết quả ứng tuyển – ${jobPosition}`}
+                        body={previewBody}
+                        tone="fail"
+                        helperText="Đây là bản xem trước của mẫu từ chối. Bạn có thể quay lại tab soạn để chỉnh câu chữ trước khi gửi."
+                      />
                     </div>
                   )}
                 </div>

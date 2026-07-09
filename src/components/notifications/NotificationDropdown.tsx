@@ -7,6 +7,7 @@ interface NotificationDropdownProps {
   isOpen: boolean;
   onClose: () => void;
   anchorRef: React.RefObject<HTMLButtonElement | null>;
+  placement?: 'bottom-end' | 'top-end';
 }
 
 function timeAgo(ts: number): string {
@@ -39,7 +40,12 @@ const TYPE_META: Record<AccountNotification['type'], { icon: React.ReactNode; cl
   },
 };
 
-const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ isOpen, onClose, anchorRef }) => {
+const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
+  isOpen,
+  onClose,
+  anchorRef,
+  placement = 'bottom-end',
+}) => {
   const panelRef = useRef<HTMLDivElement>(null);
   const [items, setItems] = useState<AccountNotification[]>([]);
   const [loading, setLoading] = useState(false);
@@ -94,11 +100,14 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ isOpen, onC
   if (!isOpen) return null;
 
   const unread = items.filter((n) => !n.read).length;
+  const positionClass = placement === 'top-end'
+    ? 'absolute bottom-[calc(100%+8px)] right-0'
+    : 'absolute right-0 top-[calc(100%+8px)]';
 
   return (
     <div
       ref={panelRef}
-      className="absolute right-0 top-[calc(100%+8px)] z-[90] flex w-[360px] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_12px_40px_rgba(15,23,42,0.14)]"
+      className={`${positionClass} z-[90] flex w-[360px] max-w-[min(360px,calc(100vw-1rem))] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_12px_40px_rgba(15,23,42,0.14)]`}
       role="dialog"
       aria-label="Thông báo"
     >

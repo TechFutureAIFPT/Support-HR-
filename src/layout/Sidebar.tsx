@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   BarChart3,
+  Bell,
   Bot,
   BookOpen,
   ChevronDown,
@@ -27,6 +28,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import type { AppStep } from '@/types';
 import { cvFilterHistoryService } from '@/services/history-cache/analysisHistory';
 import { TrafficLights } from '@/components/workspace/WorkspacePrimitives';
+import NotificationDropdown from '@/components/notifications/NotificationDropdown';
 import { useTranslation } from '@/i18n/useTranslation';
 import type { TranslationKey } from '@/i18n/translations';
 
@@ -195,8 +197,10 @@ const Sidebar: React.FC<SidebarProps> = ({
   const [sessions, setSessions] = useState<HistorySession[]>([]);
   const [openSection, setOpenSection] = useState<'sessions' | 'tools'>('sessions');
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
   const userCardRef = useRef<HTMLButtonElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
+  const notifButtonRef = useRef<HTMLButtonElement>(null);
 
   const sessionsOpen = openSection === 'sessions';
   const toolsOpen = openSection === 'tools';
@@ -242,6 +246,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   const go = (path: string) => {
     navigate(path);
     onClose?.();
+    setNotifOpen(false);
   };
 
   const screeningActive = screeningPages.some(({ path }) => path === location.pathname);
@@ -415,7 +420,30 @@ const Sidebar: React.FC<SidebarProps> = ({
               </div>
             </button>
 
-            {/* Download app icon */}
+            <div className="relative shrink-0">
+              <button
+                ref={notifButtonRef}
+                type="button"
+                onClick={() => setNotifOpen((value) => !value)}
+                className={`flex h-9 w-9 items-center justify-center rounded-xl transition ${
+                  notifOpen
+                    ? 'bg-[#dceaff] text-[#005fbd]'
+                    : 'text-[#86868b] hover:bg-black/[0.04] hover:text-[#1d1d1f]'
+                }`}
+                aria-label="Thông báo"
+                aria-expanded={notifOpen}
+                title="Thông báo"
+              >
+                <Bell size={16} strokeWidth={1.7} />
+              </button>
+              <NotificationDropdown
+                isOpen={notifOpen}
+                onClose={() => setNotifOpen(false)}
+                anchorRef={notifButtonRef}
+                placement="top-end"
+              />
+            </div>
+
             <button
               type="button"
               className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-[#86868b] transition hover:bg-black/[0.04] hover:text-[#1d1d1f]"

@@ -1046,6 +1046,9 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
   const isDocsRoute = publicDocsPaths.has(location.pathname);
   const shouldUseWorkspaceShell = isLoggedIn && !isMarketingRoute && !isWelcomeRoute && !isDocsRoute;
   const isWorkflowView = shouldUseWorkspaceShell;
+  const isContactCandidatesRoute = location.pathname === '/contact-candidates';
+  const shouldShowWorkspaceTopbar = isWorkflowView && !isContactCandidatesRoute;
+  const shouldShowWorkflowBanner = isWorkflowView && !isContactCandidatesRoute;
   const isLandingView = !shouldUseWorkspaceShell;
   const isStandaloneToolRoute = false;
   const shouldShowDesktopAppMenu = false;
@@ -1266,7 +1269,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
             : 'ml-0 w-full'
           }`}
       >
-        {isWorkflowView && (
+        {shouldShowWorkspaceTopbar && (
           <WorkspaceTopbar
             activeStep={activeStep}
             completedSteps={completedSteps}
@@ -1297,7 +1300,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
             }}
           />
         )}
-        {isWorkflowView && (
+        {shouldShowWorkflowBanner && (
           <ActiveFilterBanner onOpenSettings={() => setSidebarSettingsOpen(true)} />
         )}
         <div className={`flex h-full min-h-0 w-full flex-1 flex-col ${isWorkflowView ? 'overflow-hidden' : isLandingView || isStandaloneToolRoute ? 'overflow-y-auto custom-scrollbar' : 'max-w-7xl px-4 sm:px-6 lg:px-8 mx-auto py-4 overflow-y-auto custom-scrollbar'}`}>
