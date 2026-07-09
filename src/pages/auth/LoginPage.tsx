@@ -300,12 +300,8 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(148,163,184,0.07)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.07)_1px,transparent_1px)] bg-[size:56px_56px] opacity-50" />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(59,130,246,0.08),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(14,165,233,0.06),transparent_24%)]" />
 
-      <div className="relative z-10 grid min-h-[100svh] lg:grid-cols-[1.02fr_0.98fr]">
-        <section
-          className={`relative hidden overflow-hidden border-r border-[#edf2f7] bg-white px-8 py-5 lg:flex lg:flex-col lg:justify-between xl:px-10 xl:py-6 transition-all duration-700 ${
-            loaded ? 'translate-x-0 opacity-100' : '-translate-x-6 opacity-0'
-          }`}
-        >
+      <div className="relative z-10 flex min-h-[100svh] items-center justify-center px-4 py-6 sm:px-6">
+        <section className="hidden">
           {/* Subtle grid overlay */}
           <div className="pointer-events-none absolute inset-0 opacity-[0.45]" style={{ backgroundImage: 'linear-gradient(rgba(148,163,184,0.08) 1px,transparent 1px),linear-gradient(90deg,rgba(148,163,184,0.08) 1px,transparent 1px)', backgroundSize: '48px 48px' }} />
           {/* Glow accents */}
@@ -369,7 +365,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
         </section>
 
         <section
-          className={`relative flex min-h-[100svh] flex-col bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.06),transparent_20%),linear-gradient(180deg,#ffffff_0%,#ffffff_100%)] px-5 py-4 sm:px-7 lg:min-h-0 lg:px-8 lg:py-4 xl:px-10 transition-all duration-700 ${
+          className={`relative flex w-full max-w-[34rem] flex-col bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.06),transparent_20%),linear-gradient(180deg,#ffffff_0%,#ffffff_100%)] px-5 py-4 sm:px-7 lg:min-h-0 lg:px-0 lg:py-4 transition-all duration-700 ${
             loaded ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
           }`}
         >
