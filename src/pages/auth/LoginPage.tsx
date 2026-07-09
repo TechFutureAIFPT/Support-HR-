@@ -73,13 +73,13 @@ const CornerFrame = () => (
 );
 
 const inputBaseClass =
-  'w-full rounded-xl border border-[#d9e5f4] bg-white px-3.5 py-2.5 text-[13px] text-slate-900 outline-none transition-all placeholder:text-[#8aa0bf] focus:border-[#67c3ff] focus:bg-white focus:ring-4 focus:ring-[#67c3ff]/10';
+  'w-full rounded-xl border border-[#dbe3ee] bg-white px-3.5 py-2.5 text-[13px] text-slate-900 outline-none transition-all placeholder:text-[#8b9bb1] focus:border-[#94c5f8] focus:bg-white focus:ring-4 focus:ring-[#94c5f8]/12';
 
 const panelSurfaceClass =
-  'relative rounded-2xl border border-[#e2e8f0] bg-white shadow-[0_24px_70px_rgba(15,23,42,0.08)]';
+  'relative rounded-2xl border border-[#e2e8f0] bg-white shadow-[0_14px_38px_rgba(15,23,42,0.06)]';
 
 const primaryActionClass =
-  'w-full rounded-xl px-4 py-3 text-sm font-semibold text-white shadow-[0_16px_32px_rgba(37,99,235,0.22)] transition-all hover:brightness-[1.03] hover:shadow-[0_20px_36px_rgba(8,145,178,0.24)] disabled:cursor-not-allowed disabled:opacity-50';
+  'w-full rounded-xl px-4 py-3 text-sm font-semibold text-white shadow-[0_12px_28px_rgba(37,99,235,0.18)] transition-all hover:brightness-[1.03] hover:shadow-[0_16px_32px_rgba(8,145,178,0.2)] disabled:cursor-not-allowed disabled:opacity-50';
 
 const primaryActionStyle = {
   background: 'linear-gradient(135deg, #2563eb 0%, #06b6d4 100%)',
@@ -297,9 +297,6 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
         successStage === 'transitioning' ? 'opacity-0' : 'opacity-100'
       }`}
     >
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(148,163,184,0.07)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.07)_1px,transparent_1px)] bg-[size:56px_56px] opacity-50" />
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(59,130,246,0.08),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(14,165,233,0.06),transparent_24%)]" />
-
       <div className="relative z-10 flex min-h-[100svh] items-center justify-center px-4 py-6 sm:px-6">
         <section className="hidden">
           {/* Subtle grid overlay */}
@@ -365,7 +362,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
         </section>
 
         <section
-          className={`relative flex w-full max-w-[62rem] flex-col bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.06),transparent_20%),linear-gradient(180deg,#ffffff_0%,#ffffff_100%)] px-5 py-4 sm:px-7 lg:min-h-0 lg:px-0 lg:py-4 transition-all duration-700 ${
+          className={`relative flex w-full max-w-[62rem] flex-col bg-transparent px-5 py-4 sm:px-7 lg:min-h-0 lg:px-0 lg:py-4 transition-all duration-700 ${
             loaded ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
           }`}
         >
@@ -392,7 +389,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
             <div className="w-full max-w-[62rem]">
               <div className={`${panelSurfaceClass} overflow-hidden`}>
                 <div className="lg:grid lg:grid-cols-[16rem_minmax(0,1fr)]">
-                  <aside className="hidden border-r border-[#e2e8f0] bg-[#fbfdff] p-6 lg:flex lg:flex-col lg:justify-between">
+                  <aside className="hidden border-r border-[#e2e8f0] bg-white p-6 lg:flex lg:flex-col lg:justify-between">
                     <div>
                       <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-[#e2e8f0] bg-white shadow-[inset_0_1px_0_rgba(255,255,255,0.9)]">
                         <i className="fa-solid fa-user-shield text-lg text-cyan-600" />
@@ -417,8 +414,8 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
                             onClick={() => switchTab(mode)}
                             className={`rounded-xl px-3 py-3 text-left text-sm font-semibold transition-all ${
                               tab === mode
-                                ? 'bg-[#f3f8ff] text-slate-900 shadow-[0_10px_24px_rgba(15,23,42,0.06)]'
-                                : 'text-[#617a99] hover:bg-[#f8fbff] hover:text-slate-900'
+                                ? 'bg-[#f8fafc] text-slate-900 shadow-[0_8px_18px_rgba(15,23,42,0.05)]'
+                                : 'text-[#617a99] hover:bg-[#f8fafc] hover:text-slate-900'
                             }`}
                           >
                             {mode === 'signin' ? 'Sign in' : 'Sign up'}
@@ -477,7 +474,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
                 )}
 
                 {!showReset && (
-                  <div className="mt-4 flex rounded-xl border border-[#e2e8f0] bg-[#f8fbff] p-1 lg:hidden">
+                  <div className="mt-4 flex rounded-xl border border-[#e2e8f0] bg-[#f8fafc] p-1 lg:hidden">
                     {(['signin', 'signup'] as AuthTab[]).map((mode) => (
                       <button
                         key={mode}
@@ -485,7 +482,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
                         onClick={() => switchTab(mode)}
                         className={`flex-1 rounded-lg px-3 py-2.5 text-sm font-semibold transition-all ${
                           tab === mode
-                            ? 'bg-white text-slate-900 shadow-[0_10px_24px_rgba(15,23,42,0.08)]'
+                            ? 'bg-white text-slate-900 shadow-[0_8px_18px_rgba(15,23,42,0.05)]'
                             : 'text-[#617a99] hover:text-slate-900'
                         }`}
                       >
@@ -518,7 +515,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
                         {errors.email && <p className="mt-1 text-xs text-red-600">{errors.email}</p>}
                       </div>
 
-                        <div className="rounded-xl border border-[#e2e8f0] bg-white px-4 py-3 text-[13px] leading-6 text-[#54708f]">
+                        <div className="rounded-xl border border-[#e2e8f0] bg-[#f8fafc] px-4 py-3 text-[13px] leading-6 text-[#54708f]">
                           Support HR sẽ gửi liên kết đặt lại mật khẩu đến email của bạn. Kiểm tra cả
                           hộp thư spam nếu không thấy trong vài phút.
                         </div>
@@ -671,7 +668,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
                       type="button"
                       onClick={handleGoogleSignIn}
                       disabled={loading}
-                      className="flex w-full items-center justify-center gap-3 rounded-xl border border-[#e2e8f0] bg-white px-4 py-3 text-[13px] font-bold uppercase tracking-[0.12em] text-slate-900 shadow-[0_14px_28px_rgba(15,23,42,0.05)] transition-all hover:border-[#bfdbfe] hover:bg-[#fbfdff] disabled:cursor-not-allowed disabled:opacity-50 lg:ml-auto lg:max-w-[18rem]"
+                      className="flex w-full items-center justify-center gap-3 rounded-xl border border-[#e2e8f0] bg-white px-4 py-3 text-[13px] font-bold uppercase tracking-[0.12em] text-slate-900 shadow-[0_12px_24px_rgba(15,23,42,0.04)] transition-all hover:border-[#bfdbfe] hover:bg-[#f8fafc] disabled:cursor-not-allowed disabled:opacity-50 lg:ml-auto lg:max-w-[18rem]"
                     >
                       <svg className="h-5 w-5 shrink-0" viewBox="0 0 24 24">
                         <path

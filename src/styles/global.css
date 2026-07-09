@@ -3026,6 +3026,19 @@ body {
   color: #102033 !important;
 }
 
+.login-page-shell input:-webkit-autofill,
+.login-page-shell input:-webkit-autofill:hover,
+.login-page-shell input:-webkit-autofill:focus,
+.login-page-shell textarea:-webkit-autofill,
+.login-page-shell select:-webkit-autofill {
+  -webkit-text-fill-color: #0f172a !important;
+  -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+  box-shadow: 0 0 0 1000px #ffffff inset !important;
+  border-color: #dbe3ee !important;
+  caret-color: #0f172a !important;
+  transition: background-color 99999s ease-out 0s;
+}
+
 .feature-page-shell {
   background-color: #ffffff !important;
   background-image: none !important;
