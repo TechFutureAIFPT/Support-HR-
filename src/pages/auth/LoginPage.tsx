@@ -365,7 +365,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
         </section>
 
         <section
-          className={`relative flex w-full max-w-[34rem] flex-col bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.06),transparent_20%),linear-gradient(180deg,#ffffff_0%,#ffffff_100%)] px-5 py-4 sm:px-7 lg:min-h-0 lg:px-0 lg:py-4 transition-all duration-700 ${
+          className={`relative flex w-full max-w-[62rem] flex-col bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.06),transparent_20%),linear-gradient(180deg,#ffffff_0%,#ffffff_100%)] px-5 py-4 sm:px-7 lg:min-h-0 lg:px-0 lg:py-4 transition-all duration-700 ${
             loaded ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
           }`}
         >
@@ -388,9 +388,9 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
             </div>
           </div>
 
-          <div className="flex flex-1 items-start justify-center py-4 sm:items-center sm:py-5 lg:py-2">
-            <div className="w-full max-w-lg">
-              <div className={`${panelSurfaceClass} px-5 py-5 sm:px-7 sm:py-5 xl:px-8`}>
+          <div className="flex flex-1 items-center justify-center py-2 sm:py-4 lg:py-0">
+            <div className="w-full max-w-[62rem]">
+              <div className={`${panelSurfaceClass} overflow-hidden`}>
                 <CornerFrame />
 
                 <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl border border-[#e2e8f0] bg-white shadow-[inset_0_1px_0_rgba(255,255,255,0.9)]">
