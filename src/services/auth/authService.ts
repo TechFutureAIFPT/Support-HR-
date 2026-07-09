@@ -15,7 +15,6 @@ import {
 } from 'firebase/auth';
 import { auth } from '@/services/firebase';
 import { UserProfileService } from '@/services/data-sync/userProfileService';
-import { googleDriveService } from '@/services/file-processing/googleDriveService';
 import type { AuthUser, SignUpData, SignInData, AuthCallback } from '@/services/auth/authTypes';
 
 function toAuthUser(user: FirebaseUser, provider?: 'google' | 'email'): AuthUser {
@@ -91,23 +90,6 @@ export function getGoogleAccessToken(): string | null {
   return _googleAccessToken;
 }
 
-function extractGoogleAccessToken(source: unknown): string | null {
-  if (!source || typeof source !== 'object') return null;
-  const accessToken = (source as { accessToken?: unknown }).accessToken;
-  return typeof accessToken === 'string' && accessToken.trim() ? accessToken.trim() : null;
-}
-
-function bootstrapGoogleDriveSession(accessToken: string | null): void {
-  _googleAccessToken = accessToken;
-  if (!accessToken) return;
-
-  void googleDriveService.connectWithGoogleSession(accessToken, {
-    scopes: ['https://www.googleapis.com/auth/drive.readonly'],
-  }).catch((error) => {
-    console.warn('Google Drive session bootstrap failed after sign-in:', error);
-  });
-}
-
 export function onAuthChange(callback: AuthCallback): () => void {
   return onAuthStateChanged(auth, async (user) => {
     if (!user) {
@@ -139,12 +121,10 @@ export async function signInWithEmail(data: SignInData): Promise<AuthUser> {
 
 export async function signInWithGoogle(): Promise<AuthUser> {
   const provider = new GoogleAuthProvider();
-  provider.addScope('https://www.googleapis.com/auth/drive.readonly');
-  provider.addScope('https://www.googleapis.com/auth/gmail.send');
 
   try {
     const result = await signInWithPopup(auth, provider);
-    bootstrapGoogleDriveSession(extractGoogleAccessToken(GoogleAuthProvider.credentialFromResult(result)));
+    _googleAccessToken = null;
     queueUserProfileSync(result.user, 'google');
     return toAuthUser(result.user, 'google');
   } catch (err: any) {
@@ -172,17 +152,15 @@ export async function linkGoogleAfterPasswordSignIn(
 ): Promise<AuthUser> {
   const result = await signInWithEmailAndPassword(auth, email, password);
   await linkWithCredential(result.user, pendingCred);
-  bootstrapGoogleDriveSession(extractGoogleAccessToken(pendingCred));
+  _googleAccessToken = null;
   queueUserProfileSync(result.user, 'google');
   return toAuthUser(result.user, 'google');
 }
 
 export async function linkGoogleAccount(): Promise<AuthUser> {
   const provider = new GoogleAuthProvider();
-  provider.addScope('https://www.googleapis.com/auth/drive.readonly');
-  provider.addScope('https://www.googleapis.com/auth/gmail.send');
   const result = await linkWithPopup(auth.currentUser!, provider);
-  bootstrapGoogleDriveSession(extractGoogleAccessToken(GoogleAuthProvider.credentialFromResult(result)));
+  _googleAccessToken = null;
   queueUserProfileSync(result.user, 'google');
   return toAuthUser(result.user, 'google');
 }

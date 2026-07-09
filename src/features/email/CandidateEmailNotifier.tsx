@@ -156,6 +156,9 @@ const EmailPreviewCard: React.FC<{
       badgeText: '#047857',
       iconBg: 'rgba(16,185,129,0.12)',
       iconText: '#059669',
+      metaBg: 'rgba(15,23,42,0.03)',
+      bodyBg: 'rgba(255,255,255,0.86)',
+      infoBg: 'rgba(59,130,246,0.07)',
     }
     : {
       softBg: 'linear-gradient(135deg, rgba(244,63,94,0.10), rgba(249,115,22,0.08))',
@@ -163,15 +166,18 @@ const EmailPreviewCard: React.FC<{
       badgeText: '#be123c',
       iconBg: 'rgba(244,63,94,0.10)',
       iconText: '#e11d48',
+      metaBg: 'rgba(15,23,42,0.03)',
+      bodyBg: 'rgba(255,255,255,0.82)',
+      infoBg: 'rgba(244,63,94,0.07)',
     };
 
   return (
     <div
-      className="flex h-full min-h-0 flex-col overflow-hidden rounded-xl border shadow-sm"
+      className="flex h-full min-h-0 flex-col overflow-hidden rounded-2xl border shadow-sm"
       style={{ background: tc.cardBg, borderColor: tc.borderSoft }}
     >
       <div
-        className="shrink-0 border-b px-3 py-2"
+        className="shrink-0 border-b px-4 py-3"
         style={{ borderColor: tc.borderSoft, background: accent.softBg }}
       >
         <div className="flex items-start justify-between gap-2">
@@ -204,10 +210,10 @@ const EmailPreviewCard: React.FC<{
       </div>
 
       <div
-        className="grid shrink-0 grid-cols-1 gap-2 border-b px-3 py-2 md:grid-cols-[minmax(180px,220px)_minmax(0,1fr)]"
-        style={{ borderColor: tc.borderSoft, background: 'rgba(148,163,184,0.05)' }}
+        className="grid shrink-0 grid-cols-1 gap-3 border-b px-4 py-3 md:grid-cols-[minmax(180px,220px)_minmax(0,1fr)]"
+        style={{ borderColor: tc.borderSoft, background: accent.metaBg }}
       >
-        <div className="rounded-lg border px-2.5 py-1.5" style={{ borderColor: tc.borderSoft, background: tc.cardBg }}>
+        <div className="min-w-0">
           <p className="text-[9px] font-semibold uppercase tracking-[0.12em]" style={{ color: tc.textMuted }}>
             Người nhận
           </p>
@@ -215,22 +221,22 @@ const EmailPreviewCard: React.FC<{
             {to || '(chưa có email)'}
           </p>
         </div>
-        <div className="rounded-lg border px-2.5 py-1.5" style={{ borderColor: tc.borderSoft, background: tc.cardBg }}>
+        <div className="min-w-0">
           <p className="text-[9px] font-semibold uppercase tracking-[0.12em]" style={{ color: tc.textMuted }}>
             Tiêu đề
           </p>
-          <p className="mt-0.5 text-[11px] font-semibold" style={{ color: tc.textPrimary }}>
+          <p className="mt-0.5 truncate text-[11px] font-semibold" style={{ color: tc.textPrimary }}>
             {subject}
           </p>
         </div>
       </div>
 
-      <div className="min-h-0 flex-1 px-2.5 py-2.5">
+      <div className="min-h-0 flex-1 px-4 py-3">
         <div
-          className="custom-scrollbar h-full overflow-y-auto rounded-lg border px-3 py-2.5"
-          style={{ borderColor: tc.borderSoft, background: tone === 'pass' ? 'rgba(248,250,252,0.9)' : tc.pageBg }}
+          className="custom-scrollbar h-full overflow-y-auto rounded-[20px] px-4 py-3"
+          style={{ background: accent.bodyBg, boxShadow: 'inset 0 0 0 1px rgba(148,163,184,0.22)' }}
         >
-          <div className="space-y-2 pr-1">
+          <div className="space-y-3 pr-1">
             {blocks.map((block, index) => {
               const lines = block.split('\n').map((line) => line.trim()).filter(Boolean);
               const isInfoBlock = lines.every((line) => /^(📅|📍|🔗)/.test(line));
@@ -241,8 +247,8 @@ const EmailPreviewCard: React.FC<{
                 return (
                   <div
                     key={`${block}-${index}`}
-                    className="space-y-1 rounded-md border px-2 py-1.5"
-                    style={{ borderColor: tc.borderSoft, background: tc.cardBg }}
+                    className="space-y-1.5 rounded-xl px-3 py-2"
+                    style={{ background: accent.infoBg }}
                   >
                     {lines.map((line, lineIndex) => (
                       <p key={`${line}-${lineIndex}`} className="text-[10.5px] font-medium leading-relaxed" style={{ color: tc.textPrimary }}>
@@ -375,7 +381,7 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
 
     const googleToken = getGoogleAccessToken();
     if (!googleToken) {
-      alert('Chưa có quyền gửi email. Vui lòng đăng xuất và đăng nhập lại bằng Google.');
+      alert('Chưa có quyền Gmail để gửi email. Luồng đăng nhập hiện chỉ dùng xác thực cơ bản; quyền Gmail cần được cấp riêng cho tính năng gửi thư.');
       setSendState('idle');
       return;
     }
@@ -419,8 +425,8 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
       : 'xl:w-[30%]'
     : 'xl:w-[64px]';
   const passLayoutClass = inline
-    ? 'grid h-full min-h-0 grid-cols-1 xl:grid-cols-[minmax(280px,320px)_minmax(0,1fr)]'
-    : 'grid h-full min-h-0 grid-cols-1 xl:grid-cols-[300px_minmax(0,1fr)]';
+    ? 'grid h-full min-h-0 grid-cols-1 gap-3 p-3 xl:grid-cols-[minmax(280px,312px)_minmax(0,1fr)]'
+    : 'grid h-full min-h-0 grid-cols-1 gap-3 p-3 xl:grid-cols-[300px_minmax(0,1fr)]';
   const previewSubject = activeTab === 'pass'
     ? `ThÃ´ng bÃ¡o káº¿t quáº£ sÆ¡ tuyá»ƒn â€“ ${jobPosition}`
     : `Káº¿t quáº£ á»©ng tuyá»ƒn â€“ ${jobPosition}`;
@@ -816,17 +822,17 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
           <div className="flex min-h-0 w-full flex-col xl:flex-1">
 
             {/* Panel toolbar */}
-            <div
-              className="flex shrink-0 items-center justify-between border-b px-3 py-2"
-              style={{ borderColor: tc.borderSoft }}
-            >
-              <p
-                className="text-[11px] font-semibold uppercase tracking-[0.15em]"
-                style={{ color: tc.textMuted }}
+            {activeTab === 'fail' && (
+              <div
+                className="flex shrink-0 items-center justify-between border-b px-3 py-2"
+                style={{ borderColor: tc.borderSoft }}
               >
-                {activeTab === 'pass' ? 'Thông tin phỏng vấn' : 'Mẫu email · Không phù hợp'}
-              </p>
-              {activeTab === 'fail' && (
+                <p
+                  className="text-[11px] font-semibold uppercase tracking-[0.15em]"
+                  style={{ color: tc.textMuted }}
+                >
+                  Mẫu email · Không phù hợp
+                </p>
                 <div className="flex gap-1">
                   <button
                     onClick={() => setShowFailPreview(false)}
@@ -849,8 +855,8 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
                     Preview
                   </button>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
 
             {/* Panel content */}
             <div className="min-h-0 flex-1 overflow-hidden">
@@ -860,136 +866,142 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
                 <div className={passLayoutClass}>
                   {/* Form fields */}
                   <div
-                    className="custom-scrollbar min-h-0 space-y-2.5 overflow-y-auto p-2.5 xl:border-r"
-                    style={{ borderColor: tc.borderSoft }}
+                    className="custom-scrollbar min-h-0 overflow-y-auto rounded-2xl border p-3.5"
+                    style={{ borderColor: tc.borderSoft, background: 'rgba(248,250,252,0.68)' }}
                   >
+                    <div className="mb-3">
+                      <p
+                        className="text-[11px] font-semibold uppercase tracking-[0.15em]"
+                        style={{ color: tc.textMuted }}
+                      >
+                        Thông tin phỏng vấn
+                      </p>
+                      <p className="mt-1 text-[12px]" style={{ color: tc.textSecondary }}>
+                        Điền lịch một lần, email bên phải sẽ cập nhật ngay.
+                      </p>
+                    </div>
 
-                    {/* Date + Time */}
+                    <div className="space-y-3">
+
+                      {/* Date + Time */}
                       <div className="grid grid-cols-1 gap-2">
-                      <div className="flex flex-col gap-1.5">
-                        <label
-                          className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wide"
-                          style={{ color: tc.textMuted }}
-                        >
-                          <Calendar className="h-3 w-3" />
-                          Ngày phỏng vấn
-                        </label>
-                        <input
-                          type="date"
-                          value={interviewDetails.date}
-                          onChange={(e) => updateInterview({ date: e.target.value })}
-                          className={inputCls}
-                          style={inputStyle}
-                        />
+                        <div className="flex flex-col gap-1.5">
+                          <label
+                            className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wide"
+                            style={{ color: tc.textMuted }}
+                          >
+                            <Calendar className="h-3 w-3" />
+                            Ngày phỏng vấn
+                          </label>
+                          <input
+                            type="date"
+                            value={interviewDetails.date}
+                            onChange={(e) => updateInterview({ date: e.target.value })}
+                            className={inputCls}
+                            style={inputStyle}
+                          />
+                        </div>
+                        <div className="flex flex-col gap-1.5">
+                          <label
+                            className="text-[10px] font-semibold uppercase tracking-wide"
+                            style={{ color: tc.textMuted }}
+                          >
+                            Giờ bắt đầu
+                          </label>
+                          <input
+                            type="time"
+                            value={interviewDetails.time}
+                            onChange={(e) => updateInterview({ time: e.target.value })}
+                            className={inputCls}
+                            style={inputStyle}
+                          />
+                        </div>
                       </div>
+
+                      {/* Format selector */}
                       <div className="flex flex-col gap-1.5">
                         <label
                           className="text-[10px] font-semibold uppercase tracking-wide"
                           style={{ color: tc.textMuted }}
                         >
-                          Giờ bắt đầu
+                          Hình thức phỏng vấn
                         </label>
-                        <input
-                          type="time"
-                          value={interviewDetails.time}
-                          onChange={(e) => updateInterview({ time: e.target.value })}
-                          className={inputCls}
-                          style={inputStyle}
-                        />
+                        <div className="grid grid-cols-3 gap-1.5">
+                          {FORMAT_OPTIONS.map(({ value, label }) => (
+                            <button
+                              key={value}
+                              onClick={() => updateInterview({ format: value })}
+                              className={`flex-1 rounded-lg border py-1.5 text-[10.5px] font-semibold transition-all ${
+                                interviewDetails.format === value
+                                  ? 'border-blue-300 bg-blue-50 text-blue-700'
+                                  : 'hover:bg-slate-50'
+                              }`}
+                              style={interviewDetails.format !== value
+                                ? { borderColor: tc.borderSoft, color: tc.textSecondary }
+                                : {}
+                              }
+                            >
+                              {label}
+                            </button>
+                          ))}
+                        </div>
                       </div>
-                    </div>
 
-                    {/* Format selector */}
-                    <div className="flex flex-col gap-1.5">
-                      <label
-                        className="text-[10px] font-semibold uppercase tracking-wide"
-                        style={{ color: tc.textMuted }}
-                      >
-                        Hình thức phỏng vấn
-                      </label>
-                      <div className="grid grid-cols-3 gap-1.5">
-                        {FORMAT_OPTIONS.map(({ value, label }) => (
-                          <button
-                            key={value}
-                            onClick={() => updateInterview({ format: value })}
-                            className={`flex-1 rounded-lg border py-1.5 text-[10.5px] font-semibold transition-all ${
-                              interviewDetails.format === value
-                                ? 'border-blue-300 bg-blue-50 text-blue-700'
-                                : 'hover:bg-slate-50'
-                            }`}
-                            style={interviewDetails.format !== value
-                              ? { borderColor: tc.borderSoft, color: tc.textSecondary }
-                              : {}
-                            }
+                      {/* Location (offline / hybrid) */}
+                      {(interviewDetails.format === 'offline' || interviewDetails.format === 'hybrid') && (
+                        <div className="flex flex-col gap-1.5">
+                          <label
+                            className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wide"
+                            style={{ color: tc.textMuted }}
                           >
-                            {label}
-                          </button>
-                        ))}
-                      </div>
+                            <MapPin className="h-3 w-3" />
+                            Địa điểm phỏng vấn
+                          </label>
+                          <input
+                            type="text"
+                            value={interviewDetails.location}
+                            onChange={(e) => updateInterview({ location: e.target.value })}
+                            placeholder="VD: Tầng 5, Tòa nhà ABC, 123 Nguyễn Huệ, Q.1"
+                            className={inputCls}
+                            style={inputStyle}
+                          />
+                        </div>
+                      )}
+
+                      {/* Google Meet link (online / hybrid) */}
+                      {(interviewDetails.format === 'online' || interviewDetails.format === 'hybrid') && (
+                        <div className="flex flex-col gap-1.5">
+                          <label
+                            className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wide"
+                            style={{ color: tc.textMuted }}
+                          >
+                            <Video className="h-3 w-3" />
+                            Link Google Meet
+                          </label>
+                          <input
+                            type="url"
+                            value={interviewDetails.meetLink}
+                            onChange={(e) => updateInterview({ meetLink: e.target.value })}
+                            placeholder="https://meet.google.com/xxx-xxxx-xxx"
+                            className={inputCls}
+                            style={inputStyle}
+                          />
+                        </div>
+                      )}
                     </div>
-
-                    {/* Location (offline / hybrid) */}
-                    {(interviewDetails.format === 'offline' || interviewDetails.format === 'hybrid') && (
-                      <div className="flex flex-col gap-1.5">
-                        <label
-                          className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wide"
-                          style={{ color: tc.textMuted }}
-                        >
-                          <MapPin className="h-3 w-3" />
-                          Địa điểm phỏng vấn
-                        </label>
-                        <input
-                          type="text"
-                          value={interviewDetails.location}
-                          onChange={(e) => updateInterview({ location: e.target.value })}
-                          placeholder="VD: Tầng 5, Tòa nhà ABC, 123 Nguyễn Huệ, Q.1"
-                          className={inputCls}
-                          style={inputStyle}
-                        />
-                      </div>
-                    )}
-
-                    {/* Google Meet link (online / hybrid) */}
-                    {(interviewDetails.format === 'online' || interviewDetails.format === 'hybrid') && (
-                      <div className="flex flex-col gap-1.5">
-                        <label
-                          className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wide"
-                          style={{ color: tc.textMuted }}
-                        >
-                          <Video className="h-3 w-3" />
-                          Link Google Meet
-                        </label>
-                        <input
-                          type="url"
-                          value={interviewDetails.meetLink}
-                          onChange={(e) => updateInterview({ meetLink: e.target.value })}
-                          placeholder="https://meet.google.com/xxx-xxxx-xxx"
-                          className={inputCls}
-                          style={inputStyle}
-                        />
-                      </div>
-                    )}
                   </div>
 
                   {/* Auto-generated email preview */}
-                  <div className="min-h-0 min-w-0 border-t xl:border-t-0" style={{ borderColor: tc.borderSoft }}>
-                    <div className="flex h-full min-h-0 flex-col px-2.5 py-2">
-                      <p
-                        className="mb-1.5 shrink-0 text-[9.5px] font-semibold uppercase tracking-[0.14em]"
-                        style={{ color: tc.textMuted }}
-                      >
-                        Nội dung email · tự động tạo
-                      </p>
-                      <div className="min-h-0 flex-1">
-                        <EmailPreviewCard
-                          tc={tc}
-                          to={previewItem ? (previewItem.email || '(chưa có email)') : '(chọn ứng viên để xem)'}
-                          subject={`Thông báo kết quả sơ tuyển – ${jobPosition}`}
-                          body={previewBody}
-                          tone="pass"
-                          helperText="Xem trước theo ứng viên đang chọn. Khi gửi hàng loạt, hệ thống vẫn tự cá nhân hóa tên và thông tin cho từng người."
-                        />
-                      </div>
+                  <div className="min-h-0 min-w-0">
+                    <div className="min-h-0 flex h-full flex-1">
+                      <EmailPreviewCard
+                        tc={tc}
+                        to={previewItem ? (previewItem.email || '(chưa có email)') : '(chọn ứng viên để xem)'}
+                        subject={`Thông báo kết quả sơ tuyển – ${jobPosition}`}
+                        body={previewBody}
+                        tone="pass"
+                        helperText="Xem trước theo ứng viên đang chọn. Khi gửi hàng loạt, hệ thống vẫn tự cá nhân hóa tên và thông tin cho từng người."
+                      />
                     </div>
                   </div>
                 </div>

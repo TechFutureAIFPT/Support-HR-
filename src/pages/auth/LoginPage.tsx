@@ -65,15 +65,25 @@ function validatePassword(password: string, minLen = 6): string | null {
 
 const CornerFrame = () => (
   <>
-    <span className="absolute left-0 top-0 h-5 w-5 border-l border-t border-blue-200" />
-    <span className="absolute right-0 top-0 h-5 w-5 border-r border-t border-blue-200" />
-    <span className="absolute left-0 bottom-0 h-5 w-5 border-b border-l border-blue-200" />
-    <span className="absolute right-0 bottom-0 h-5 w-5 border-b border-r border-blue-200" />
+    <span className="absolute left-0 top-0 h-5 w-5 border-l border-t border-[#8ed8ff]/80" />
+    <span className="absolute right-0 top-0 h-5 w-5 border-r border-t border-[#8ed8ff]/80" />
+    <span className="absolute left-0 bottom-0 h-5 w-5 border-b border-l border-[#8ed8ff]/80" />
+    <span className="absolute right-0 bottom-0 h-5 w-5 border-b border-r border-[#8ed8ff]/80" />
   </>
 );
 
 const inputBaseClass =
-  'w-full rounded-xl border border-blue-100 bg-white px-3.5 py-2.5 text-[13px] text-slate-900 outline-none transition-all placeholder:text-slate-500 focus:border-blue-300 focus:bg-white';
+  'w-full rounded-xl border border-[#d2e3fb] bg-[#f7fbff] px-3.5 py-2.5 text-[13px] text-slate-900 outline-none transition-all placeholder:text-[#8aa0bf] focus:border-[#67c3ff] focus:bg-white focus:ring-4 focus:ring-[#67c3ff]/12';
+
+const panelSurfaceClass =
+  'relative rounded-2xl border border-[#c7dcff] bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(241,248,255,0.94))] shadow-[0_24px_70px_rgba(15,23,42,0.14)]';
+
+const primaryActionClass =
+  'w-full rounded-xl px-4 py-3 text-sm font-semibold text-white shadow-[0_16px_32px_rgba(37,99,235,0.22)] transition-all hover:brightness-[1.03] hover:shadow-[0_20px_36px_rgba(8,145,178,0.24)] disabled:cursor-not-allowed disabled:opacity-50';
+
+const primaryActionStyle = {
+  background: 'linear-gradient(135deg, #2563eb 0%, #06b6d4 100%)',
+};
 
 const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
   const [tab, setTab] = useState<AuthTab>('signin');
@@ -283,12 +293,12 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
 
   return (
     <div
-      className={`login-page-shell relative min-h-[100svh] overflow-y-auto overflow-x-hidden bg-[#f6f9ff] text-slate-900 transition-all duration-700 ${
+      className={`login-page-shell relative min-h-[100svh] overflow-y-auto overflow-x-hidden bg-[#eef4ff] text-slate-900 transition-all duration-700 ${
         successStage === 'transitioning' ? 'opacity-0' : 'opacity-100'
       }`}
     >
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.035)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.035)_1px,transparent_1px)] bg-[size:56px_56px] opacity-20" />
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(34,211,238,0.08),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(99,102,241,0.08),transparent_24%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(34,211,238,0.1),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(37,99,235,0.1),transparent_26%)]" />
 
       <div className="relative z-10 grid min-h-[100svh] lg:grid-cols-[1.02fr_0.98fr]">
         <section
@@ -360,7 +370,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
         </section>
 
         <section
-          className={`flex min-h-[100svh] flex-col px-5 py-4 sm:px-7 lg:min-h-0 lg:px-8 lg:py-4 xl:px-10 transition-all duration-700 ${
+          className={`relative flex min-h-[100svh] flex-col bg-[radial-gradient(circle_at_top,rgba(103,195,255,0.16),transparent_20%),linear-gradient(180deg,#f6fbff_0%,#edf5ff_100%)] px-5 py-4 sm:px-7 lg:min-h-0 lg:px-8 lg:py-4 xl:px-10 transition-all duration-700 ${
             loaded ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
           }`}
         >
@@ -369,7 +379,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
               <button
                 type="button"
                 onClick={handleBackHome}
-                className="inline-flex items-center gap-3 text-xs font-medium text-slate-500 transition-colors hover:text-blue-600"
+                className="inline-flex items-center gap-3 text-xs font-medium text-[#647995] transition-colors hover:text-cyan-700"
               >
                 <i className="fa-solid fa-arrow-left text-[11px]" />
                 TRỞ VỀ
@@ -377,7 +387,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
             ) : null}
 
             <div className="lg:hidden">
-              <div className="h-10 w-10 overflow-hidden rounded-xl border border-blue-100 bg-white">
+              <div className="h-10 w-10 overflow-hidden rounded-xl border border-[#c7dcff] bg-[linear-gradient(180deg,#ffffff,#f1f8ff)] shadow-sm shadow-blue-900/5">
                 <img src="/images/logos/logo.jpg" alt="Support HR" className="h-full w-full object-cover" />
               </div>
             </div>
@@ -385,11 +395,11 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
 
           <div className="flex flex-1 items-start justify-center py-4 sm:items-center sm:py-5 lg:py-2">
             <div className="w-full max-w-lg">
-              <div className="relative rounded-2xl border border-blue-100 bg-white shadow-[0_24px_70px_rgba(30,64,175,0.12)] px-5 py-5 sm:px-7 sm:py-5 xl:px-8">
+              <div className={`${panelSurfaceClass} px-5 py-5 sm:px-7 sm:py-5 xl:px-8`}>
                 <CornerFrame />
 
-                <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl border border-blue-100 bg-blue-50">
-                  <i className="fa-solid fa-user-shield text-xl text-blue-600" />
+                <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl border border-[#c7dcff] bg-[linear-gradient(180deg,#f8fbff,#ecf5ff)] shadow-inner shadow-white/80">
+                  <i className="fa-solid fa-user-shield text-xl text-cyan-600" />
                 </div>
 
                 <div className="text-center">
@@ -400,7 +410,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
                         ? 'Tạo tài khoản mới'
                         : 'Chào mừng trở lại'}
                   </h2>
-                  <p className="mt-1.5 text-sm text-slate-500">
+                  <p className="mt-1.5 text-sm text-[#58708f]">
                     {showReset
                       ? 'Nhập email để nhận liên kết đặt lại mật khẩu'
                       : tab === 'signup'
@@ -434,7 +444,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
                 )}
 
                 {!showReset && (
-                  <div className="mt-5 flex rounded-xl border border-slate-200 bg-slate-100 p-1">
+                  <div className="mt-5 flex rounded-xl border border-[#d8e6f7] bg-[#ebf3ff] p-1">
                     {(['signin', 'signup'] as AuthTab[]).map((mode) => (
                       <button
                         key={mode}
@@ -442,8 +452,8 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
                         onClick={() => switchTab(mode)}
                         className={`flex-1 rounded-lg px-3 py-2.5 text-sm font-semibold transition-all ${
                           tab === mode
-                            ? 'bg-white text-slate-900 shadow-sm'
-                            : 'text-slate-500 hover:text-slate-700'
+                            ? 'bg-[linear-gradient(180deg,#ffffff_0%,#f3faff_100%)] text-slate-900 shadow-[0_10px_24px_rgba(37,99,235,0.12)]'
+                            : 'text-[#617a99] hover:text-slate-900'
                         }`}
                       >
                         {mode === 'signin' ? 'Đăng nhập' : 'Đăng ký'}
@@ -475,10 +485,10 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
                         {errors.email && <p className="mt-1 text-xs text-red-600">{errors.email}</p>}
                       </div>
 
-                      <div className="rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-[13px] leading-6 text-slate-600">
-                        Support HR sẽ gửi liên kết đặt lại mật khẩu đến email của bạn. Kiểm tra cả
-                        hộp thư spam nếu không thấy trong vài phút.
-                      </div>
+                        <div className="rounded-xl border border-[#cde2ff] bg-[#eef7ff] px-4 py-3 text-[13px] leading-6 text-[#54708f]">
+                          Support HR sẽ gửi liên kết đặt lại mật khẩu đến email của bạn. Kiểm tra cả
+                          hộp thư spam nếu không thấy trong vài phút.
+                        </div>
 
                       {resetSent && (
                         <div className="flex items-start gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-[13px]">
@@ -490,7 +500,8 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
                       <button
                         type="submit"
                         disabled={loading}
-                        className="w-full rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                        className={primaryActionClass}
+                        style={primaryActionStyle}
                       >
                         {loading ? 'Đang gửi liên kết...' : 'Gửi liên kết đặt lại'}
                       </button>
@@ -504,7 +515,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
                           setErrors({});
                           setAuthError('');
                         }}
-                        className="w-full text-sm text-slate-500 transition-colors hover:text-blue-600"
+                        className="w-full text-sm text-[#647995] transition-colors hover:text-cyan-700"
                       >
                         ← Quay lại đăng nhập
                       </button>
@@ -552,7 +563,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
                           <label className="block text-xs font-semibold text-slate-700">
                             Mật khẩu
                           </label>
-                          <span className="text-[11px] text-blue-500 italic">{typedHint}<span className="ml-0.5 inline-block h-3 w-px bg-blue-400 align-middle animate-pulse" /></span>
+                          <span className="text-[11px] text-cyan-600 italic">{typedHint}<span className="ml-0.5 inline-block h-3 w-px bg-cyan-500 align-middle animate-pulse" /></span>
                         </div>
 
                         <div className="relative">
@@ -568,7 +579,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
                           <button
                             type="button"
                             onClick={() => setPasswordVisible((prev) => !prev)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium text-slate-400 transition-colors hover:text-blue-600"
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium text-[#6c83a0] transition-colors hover:text-cyan-700"
                           >
                             {passwordVisible ? 'Ẩn' : 'Hiện'}
                           </button>
@@ -582,7 +593,8 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
                       <button
                         type="submit"
                         disabled={loading}
-                        className="mt-1 w-full rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                        className={`mt-1 ${primaryActionClass}`}
+                        style={primaryActionStyle}
                       >
                         {loading
                           ? tab === 'signup'
@@ -602,7 +614,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
                             setAuthError('');
                             setResetSent(false);
                           }}
-                          className="w-full text-sm text-slate-500 transition-colors hover:text-blue-600"
+                          className="w-full text-sm text-[#647995] transition-colors hover:text-cyan-700"
                         >
                           Quên mật khẩu?
                         </button>
@@ -614,16 +626,16 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
                 {!showReset && (
                   <>
                     <div className="my-4 flex items-center gap-3">
-                      <div className="h-px flex-1 bg-slate-200" />
-                      <span className="text-xs text-slate-400">hoặc</span>
-                      <div className="h-px flex-1 bg-slate-200" />
+                      <div className="h-px flex-1 bg-[#d8e4f3]" />
+                      <span className="text-xs text-[#8aa0bf]">hoặc</span>
+                      <div className="h-px flex-1 bg-[#d8e4f3]" />
                     </div>
 
                     <button
                       type="button"
                       onClick={handleGoogleSignIn}
                       disabled={loading}
-                      className="flex w-full items-center justify-center gap-3 rounded-xl border border-blue-100 bg-white px-4 py-3 text-[13px] font-bold uppercase tracking-[0.12em] text-slate-900 shadow-sm transition-all hover:border-blue-200 hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="flex w-full items-center justify-center gap-3 rounded-xl border border-[#cfe0f7] bg-[#f8fbff] px-4 py-3 text-[13px] font-bold uppercase tracking-[0.12em] text-slate-900 shadow-[0_14px_28px_rgba(15,23,42,0.06)] transition-all hover:border-[#9fdbff] hover:bg-white disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       <svg className="h-5 w-5 shrink-0" viewBox="0 0 24 24">
                         <path
@@ -648,12 +660,12 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
                   </>
                 )}
 
-                <div className="mt-4 border-t border-slate-100 pt-4 text-center">
-                  <p className="text-[12px] text-slate-400">
+                <div className="mt-4 border-t border-[#dce8f6] pt-4 text-center">
+                  <p className="text-[12px] text-[#6f84a0]">
                     Bằng cách tiếp tục, bạn đồng ý với{' '}
-                    <a href="/terms" className="text-blue-600 hover:underline">Điều khoản dịch vụ</a>
+                    <a href="/terms" className="text-cyan-700 transition-colors hover:text-blue-700 hover:underline">Điều khoản dịch vụ</a>
                     {' '}và{' '}
-                    <a href="/privacy-policy" className="text-blue-600 hover:underline">Chính sách bảo mật</a>.
+                    <a href="/privacy-policy" className="text-cyan-700 transition-colors hover:text-blue-700 hover:underline">Chính sách bảo mật</a>.
                   </p>
                 </div>
               </div>
@@ -670,18 +682,18 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
             onClick={() => setLinkModal((prev) => ({ ...prev, open: false }))}
           />
 
-          <div className="relative w-full max-w-md rounded-2xl border border-blue-100 bg-white px-6 py-8 text-slate-900 shadow-2xl shadow-blue-900/10">
+          <div className={`${panelSurfaceClass} w-full max-w-md px-6 py-8 text-slate-900 shadow-2xl shadow-blue-900/10`}>
             <CornerFrame />
 
-            <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-2xl border border-blue-100 bg-blue-50">
-              <i className="fa-solid fa-link text-lg text-blue-600" />
+            <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-2xl border border-[#c7dcff] bg-[linear-gradient(180deg,#f8fbff,#ecf5ff)]">
+              <i className="fa-solid fa-link text-lg text-cyan-600" />
             </div>
 
             <h3 className="text-center text-2xl font-bold text-slate-900">
               Liên kết tài khoản
             </h3>
-            <p className="mt-3 text-center text-sm leading-7 text-slate-500">
-              Email <span className="font-semibold text-blue-600">{linkModal.email}</span> đã tồn tại với mật
+            <p className="mt-3 text-center text-sm leading-7 text-[#58708f]">
+              Email <span className="font-semibold text-cyan-700">{linkModal.email}</span> đã tồn tại với mật
               khẩu. Xác thực lại để gộp với đăng nhập Google.
             </p>
 
@@ -710,7 +722,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
                   <button
                     type="button"
                     onClick={() => setLinkPasswordVisible((prev) => !prev)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium text-slate-400 transition-colors hover:text-blue-600"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium text-[#6c83a0] transition-colors hover:text-cyan-700"
                   >
                     {linkPasswordVisible ? 'Ẩn' : 'Hiện'}
                   </button>
@@ -721,7 +733,8 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
               <button
                 type="submit"
                 disabled={linkModal.loading}
-                className="w-full rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                className={primaryActionClass}
+                style={primaryActionStyle}
               >
                 {linkModal.loading ? 'Đang liên kết...' : 'Xác nhận và liên kết'}
               </button>
@@ -729,7 +742,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
               <button
                 type="button"
                 onClick={() => setLinkModal((prev) => ({ ...prev, open: false }))}
-                className="w-full text-sm text-slate-500 transition-colors hover:text-blue-600"
+                className="w-full text-sm text-[#647995] transition-colors hover:text-cyan-700"
               >
                 Hủy
               </button>
