@@ -441,6 +441,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 onClose={() => setNotifOpen(false)}
                 anchorRef={notifButtonRef}
                 placement="top-end"
+                compact
               />
             </div>
 

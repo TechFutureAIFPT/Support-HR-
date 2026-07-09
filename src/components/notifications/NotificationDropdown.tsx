@@ -8,6 +8,7 @@ interface NotificationDropdownProps {
   onClose: () => void;
   anchorRef: React.RefObject<HTMLButtonElement | null>;
   placement?: 'bottom-end' | 'top-end';
+  compact?: boolean;
 }
 
 function timeAgo(ts: number): string {
@@ -45,6 +46,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
   onClose,
   anchorRef,
   placement = 'bottom-end',
+  compact = false,
 }) => {
   const panelRef = useRef<HTMLDivElement>(null);
   const [items, setItems] = useState<AccountNotification[]>([]);
@@ -103,45 +105,59 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
   const positionClass = placement === 'top-end'
     ? 'absolute bottom-[calc(100%+8px)] right-0'
     : 'absolute right-0 top-[calc(100%+8px)]';
+  const panelWidth = compact
+    ? 'min(calc(var(--supporthr-sidebar-width) - 1rem), calc(100vw - 1rem))'
+    : 'min(360px, calc(100vw - 1rem))';
+  const bodyMaxHeight = compact
+    ? 'min(320px, calc(100vh - 8rem))'
+    : 'min(420px, calc(100vh - 6rem))';
 
   return (
     <div
       ref={panelRef}
-      className={`${positionClass} z-[90] flex w-[360px] max-w-[min(360px,calc(100vw-1rem))] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_12px_40px_rgba(15,23,42,0.14)]`}
+      className={`${positionClass} z-[90] flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_12px_40px_rgba(15,23,42,0.14)]`}
+      style={{ width: panelWidth, maxHeight: 'calc(100vh - 1rem)' }}
       role="dialog"
       aria-label="Thông báo"
     >
       {/* Header */}
-      <div className="flex items-center gap-2 border-b border-slate-100 px-4 py-3">
+      <div className={`flex border-b border-slate-100 ${compact ? 'items-start gap-2 px-3 py-2.5' : 'items-center gap-2 px-4 py-3'}`}>
         <Bell size={15} className="shrink-0 text-slate-400" />
-        <span className="flex-1 text-[14px] font-bold text-slate-900">Thông báo</span>
-        {unread > 0 && (
-          <span className="rounded-full bg-blue-500 px-2 py-0.5 text-[10px] font-bold text-white">
-            {unread}
-          </span>
-        )}
-        {unread > 0 && (
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+            <span className={`${compact ? 'text-[13px]' : 'text-[14px]'} font-bold text-slate-900`}>Thông báo</span>
+            {unread > 0 && (
+              <span className="rounded-full bg-blue-500 px-2 py-0.5 text-[10px] font-bold text-white">
+                {unread}
+              </span>
+            )}
+          </div>
+        </div>
+        <div className="ml-auto flex shrink-0 items-center gap-1">
+          {unread > 0 && (
+            <button
+              type="button"
+              onClick={() => void handleMarkAll()}
+              disabled={markingAll}
+              className={`flex items-center gap-1 rounded-lg border border-slate-200 text-[11px] font-semibold text-slate-600 transition hover:bg-slate-50 disabled:opacity-50 ${compact ? 'px-2 py-1' : 'px-2.5 py-1'}`}
+              title="Đánh dấu tất cả đã đọc"
+            >
+              {markingAll ? <Loader2 size={11} className="animate-spin" /> : <CheckCheck size={11} />}
+              {compact ? 'Đọc' : 'Đọc hết'}
+            </button>
+          )}
           <button
             type="button"
-            onClick={() => void handleMarkAll()}
-            disabled={markingAll}
-            className="flex items-center gap-1 rounded-lg border border-slate-200 px-2.5 py-1 text-[11px] font-semibold text-slate-600 transition hover:bg-slate-50 disabled:opacity-50"
+            onClick={onClose}
+            className="flex h-7 w-7 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
           >
-            {markingAll ? <Loader2 size={11} className="animate-spin" /> : <CheckCheck size={11} />}
-            Đọc hết
+            <X size={14} />
           </button>
-        )}
-        <button
-          type="button"
-          onClick={onClose}
-          className="flex h-7 w-7 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
-        >
-          <X size={14} />
-        </button>
+        </div>
       </div>
 
       {/* Body */}
-      <div className="custom-scrollbar max-h-[420px] overflow-y-auto">
+      <div className="custom-scrollbar overflow-y-auto" style={{ maxHeight: bodyMaxHeight }}>
         {loading && (
           <div className="flex flex-col items-center gap-2 py-12 text-slate-400">
             <Loader2 size={22} className="animate-spin" />
@@ -170,7 +186,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
               return (
                 <li
                   key={item.id}
-                  className={`group flex gap-3 border-b border-slate-50 px-4 py-3 transition ${item.read ? 'bg-white' : 'bg-blue-50/40'}`}
+                  className={`group flex gap-3 border-b border-slate-50 transition ${item.read ? 'bg-white' : 'bg-blue-50/40'} ${compact ? 'px-3 py-2.5' : 'px-4 py-3'}`}
                 >
                   <span className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-xl border ${meta.cls}`}>
                     {meta.icon}
