@@ -61,7 +61,7 @@ const achievementImages: AchievementImage[] = [
     title: "Khoa học kỹ thuật cấp trường",
   },
   {
-    src: "/images/achieve/stempetition.PNG",
+    src: "/images/achieve/stempetition.jpg",
     alt: "Chứng nhận cuộc thi STEM",
     title: "Cuộc thi STEM",
   },

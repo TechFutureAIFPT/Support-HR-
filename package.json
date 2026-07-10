@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "tsc && vite build && node scripts/report-build.mjs web",
+    "build:desktop": "tsc && vite build --mode desktop && node scripts/report-build.mjs desktop",
     "preview": "vite preview"
   },
   "dependencies": {

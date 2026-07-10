@@ -11,6 +11,7 @@ import ExpandedContent from '@/features/cv-management/ExpandedContent';
 import CandidateEmailNotifier from '@/features/email/CandidateEmailNotifier';
 import AIFeedbackForm from '@/features/feedback/AIFeedbackForm';
 import { useUserSettings } from '@/context/settings/UserSettingsProvider';
+import { useBreakpoint } from '@/hooks/useDeviceDetection';
 
 interface AnalysisResultsProps {
   isLoading: boolean;
@@ -634,7 +635,7 @@ const FeedbackPane: React.FC<{ candidate: Candidate }> = ({ candidate }) => {
 
   return (
     <div className="custom-scrollbar h-full overflow-y-auto bg-[#f7f9fc] p-4 sm:p-5">
-      <div className="mx-auto max-w-5xl">
+      <div className="supporthr-page-shell">
       <div className="mb-4 flex items-center gap-2.5">
         <MessageSquareText size={15} className="text-[#007aff]" />
         <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#6e6e73]">Phản hồi về chấm điểm AI</p>
@@ -764,6 +765,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({
   feedbackByCandidate: externalFeedback,
 }) => {
   const { settings } = useUserSettings();
+  const { isDesktopWide } = useBreakpoint();
   const recruiterInfo = settings.account.recruiterInfo;
   const [params, setParams] = useSearchParams();
   const search = params.get('q') || '';
@@ -804,9 +806,9 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({
   const selected = successful.find((candidate) => candidate.id === selectedId) || visible[0] || null;
 
   useEffect(() => {
-    if (!selectedId && visible[0]?.id && window.innerWidth >= 1280) setParam('candidate', visible[0].id);
+    if (!selectedId && visible[0]?.id && isDesktopWide) setParam('candidate', visible[0].id);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedId, visible]);
+  }, [isDesktopWide, selectedId, visible]);
 
   if (isLoading) {
     return <SupportHRLoading mode="panel" minHeightClass="min-h-full" label="Support HR" title="Đang phân tích hồ sơ" description={loadingMessage || 'Đang tổng hợp dữ liệu ứng viên.'} stages={[{ label: 'Đọc CV', hint: 'Trích xuất thông tin', tone: 'cyan' }, { label: 'Đối chiếu', hint: 'So khớp tiêu chí', tone: 'violet' }, { label: 'Xếp hạng', hint: 'Chuẩn bị shortlist', tone: 'emerald' }]} />;
@@ -818,7 +820,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({
 
   return (
     <section className="flex h-full min-h-0 bg-white text-[#1d1d1f]">
-      <aside className={`${selectedId ? 'hidden xl:flex' : 'flex'} min-h-0 w-full shrink-0 flex-col border-r border-[#d2d2d7] bg-white xl:w-[352px]`}>
+      <aside className={`${selectedId ? 'hidden xl:flex' : 'flex'} supporthr-analysis-rail min-h-0 w-full shrink-0 flex-col border-r border-[#d2d2d7] bg-white`}>
         <div className="shrink-0 border-b border-[#d2d2d7] p-3">
           <WorkspaceSearch value={search} onChange={(value) => setParam('q', value || null)} placeholder="Tìm ứng viên" />
           <div className="mt-3 flex items-center justify-between text-[11px] text-[#6e6e73]">
@@ -918,7 +920,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({
                 <FeedbackPane candidate={selected} />
               ) : (
                 /* overview */
-                <div className={`grid h-full min-h-0 ${showCvPanel ? 'xl:grid-cols-[minmax(340px,48%)_minmax(0,52%)]' : ''}`}>
+                <div className={`${showCvPanel ? 'supporthr-analysis-split' : ''} grid h-full min-h-0`}>
                   <div className={`custom-scrollbar min-h-0 overflow-y-auto ${showCvPanel ? 'border-r border-[#d2d2d7]' : ''}`}>
                     <CandidateAnalysisPane candidate={selected} scrollable={false} />
                   </div>

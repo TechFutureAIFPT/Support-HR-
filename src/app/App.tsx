@@ -3,27 +3,21 @@ import { detectIndustryFromJD } from '@/services/jd/industryDetector';
 import { BrowserRouter, Navigate, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '@/services/firebase';
-import { SpeedInsights } from '@vercel/speed-insights/react';
-import { Analytics } from '@vercel/analytics/react';
 import { Menu } from 'lucide-react';
-import WebVitalsReporter from '@/components/charts/WebVitalsReporter';
 import { ThemeProvider } from '@/context/theme/ThemeProvider';
 import { UserSettingsProvider, useUserSettings } from '@/context/settings/UserSettingsProvider';
+import { TELEMETRY_ENABLED } from '@/config/appEnv';
 
 import { DataSyncService } from '@/services/data-sync/dataSyncService';
 import { UserProfileService } from '@/services/data-sync/userProfileService';
 import type { UserProfileSaveStatus } from '@/services/data-sync/userProfileService';
 import { warmUpServer } from '@/services/api/renderClient';
-  
-// Wake up the server before Firebase auth resolves so the first real request hits a warm server.
-warmUpServer();
 import type { AuthUser } from '@/services/auth/authTypes';
 import type { AppStep, Candidate, HardFilters, RecruiterInfo, WeightCriteria, AnalysisRunData, ActiveAnalysisContext, HistoryEntry } from '@/types';
 import type { WorkspaceSessionViewModel } from '@/types/workspace';
 import { initialWeights } from '@/config/constants';
 import Sidebar from '@/layout/Sidebar';
 import ActiveFilterBanner from '@/components/workspace/ActiveFilterBanner';
-import DesktopAppMenuBar from '@/components/workspace/DesktopAppMenuBar';
 import SidebarSettingsModal from '@/components/settings/SidebarSettingsModal';
 import JDTemplatesModal, { JDTemplate } from '@/components/history/JDTemplatesModal';
 import PageTransition from '@/components/PageTransition';
@@ -56,6 +50,15 @@ const ContactCandidatesPage = lazy(() => import('@/pages/main/ContactCandidatesP
 const FilteredCvLibraryPage = lazy(() => import('@/pages/tools/FilteredCvLibraryPage'));
 const JDStandardizerPage = lazy(() => import('@/pages/tools/JDStandardizerPage'));
 const CandidateSuggestions = lazy(() => import('@/pages/analytics/CandidateSuggestions'));
+const Analytics = TELEMETRY_ENABLED
+  ? lazy(() => import('@vercel/analytics/react').then((module) => ({ default: module.Analytics })))
+  : null;
+const SpeedInsights = TELEMETRY_ENABLED
+  ? lazy(() => import('@vercel/speed-insights/react').then((module) => ({ default: module.SpeedInsights })))
+  : null;
+const WebVitalsReporter = TELEMETRY_ENABLED
+  ? lazy(() => import('@/components/charts/WebVitalsReporter'))
+  : null;
 // HistoryPage removed from UI (still saving to Firestore silently)
 import { saveHistorySession } from '@/services/history-cache/historyService';
 import { cvFilterHistoryService } from '@/services/history-cache/analysisHistory';
@@ -245,6 +248,51 @@ interface SaveAccountProfileResult {
   message?: string;
 }
 
+function useWarmWorkspaceServer({
+  isInitializing,
+  isLoggedIn,
+  pathname,
+}: {
+  isInitializing: boolean;
+  isLoggedIn: boolean;
+  pathname: string;
+}) {
+  const hasWarmedServerRef = useRef(false);
+
+  useEffect(() => {
+    if (hasWarmedServerRef.current || isInitializing || !isLoggedIn) return;
+    if (!protectedWorkspacePaths.has(pathname)) return;
+
+    const idleWindow = window as Window & {
+      requestIdleCallback?: (callback: IdleRequestCallback, options?: IdleRequestOptions) => number;
+      cancelIdleCallback?: (handle: number) => void;
+    };
+
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+    let idleId: number | null = null;
+
+    const runWarmup = () => {
+      hasWarmedServerRef.current = true;
+      warmUpServer();
+    };
+
+    if (typeof idleWindow.requestIdleCallback === 'function') {
+      idleId = idleWindow.requestIdleCallback(() => runWarmup(), { timeout: 1200 });
+    } else {
+      timeoutId = setTimeout(runWarmup, 300);
+    }
+
+    return () => {
+      if (idleId !== null && typeof idleWindow.cancelIdleCallback === 'function') {
+        idleWindow.cancelIdleCallback(idleId);
+      }
+      if (timeoutId !== null) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, [isInitializing, isLoggedIn, pathname]);
+}
+
 const MainApp = () => {
   clearExpiredWorkflowSession();
   const location = useLocation();
@@ -258,6 +306,7 @@ const MainApp = () => {
   const [resetKey, setResetKey] = useState(Date.now());
   const [isInitializing, setIsInitializing] = useState(true);
   const isLoggedIn = Boolean(currentUser);
+  useWarmWorkspaceServer({ isInitializing, isLoggedIn, pathname: location.pathname });
 
   const handleLogin = (user: AuthUser) => {
     setCurrentUser(user);
@@ -1050,7 +1099,6 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
   const shouldShowWorkflowBanner = isWorkflowView && !isContactCandidatesRoute;
   const isLandingView = !shouldUseWorkspaceShell;
   const isStandaloneToolRoute = false;
-  const shouldShowDesktopAppMenu = false;
 
   useEffect(() => {
     const path = location.pathname;
@@ -1207,14 +1255,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
   };
 
   return (
-    <div className={`h-[100dvh] bg-[var(--th-bg)] text-[var(--th-text)] flex flex-col overflow-hidden ${shouldUseWorkspaceShell ? 'apple-workspace-shell' : ''} ${shouldShowDesktopAppMenu ? 'supporthr-shell--with-app-menu' : ''} ${className || ''}`}>
-      {shouldShowDesktopAppMenu && (
-        <DesktopAppMenuBar
-          sidebarCollapsed={isDesktopSidebarCollapsed}
-          onToggleSidebar={() => setIsDesktopSidebarCollapsed((value) => !value)}
-        />
-      )}
-
+    <div className={`h-[100dvh] bg-[var(--th-bg)] text-[var(--th-text)] flex flex-col overflow-hidden ${shouldUseWorkspaceShell ? 'apple-workspace-shell' : ''} ${className || ''}`}>
       {shouldUseWorkspaceShell && !isDesktopSidebarCollapsed && (
         <div className="hidden md:block">
           <Sidebar
@@ -1263,7 +1304,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
       )}
 
       <main
-        className={`main-content supporthr-main pb-0 ${shouldUseWorkspaceShell ? `supporthr-main--with-sidebar ${isDesktopSidebarCollapsed ? 'supporthr-main--sidebar-collapsed' : ''}` : shouldShowDesktopAppMenu ? 'lg:pt-[34px]' : ''} flex-1 flex flex-col min-h-0 overflow-x-hidden transition-all duration-200 ease-in-out ${!isLandingView
+        className={`main-content supporthr-main pb-0 ${shouldUseWorkspaceShell ? `supporthr-main--with-sidebar ${isDesktopSidebarCollapsed ? 'supporthr-main--sidebar-collapsed' : ''}` : ''} flex-1 flex flex-col min-h-0 overflow-x-hidden transition-all duration-200 ease-in-out ${!isLandingView
             ? 'min-w-0'
             : 'ml-0 w-full'
           }`}
@@ -1393,10 +1434,13 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
         </div>
       ) : null}
 
-      {/* Vercel Analytics & Speed Insights for performance monitoring */}
-      <Analytics />
-      <SpeedInsights />
-      <WebVitalsReporter />
+      {TELEMETRY_ENABLED && Analytics && SpeedInsights && WebVitalsReporter ? (
+        <Suspense fallback={null}>
+          <Analytics />
+          <SpeedInsights />
+          <WebVitalsReporter />
+        </Suspense>
+      ) : null}
     </div>
   );
 };

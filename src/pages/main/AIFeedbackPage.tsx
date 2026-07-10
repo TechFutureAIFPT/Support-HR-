@@ -362,7 +362,7 @@ export default function AIFeedbackPage({
 
       <main className="relative z-10 min-h-0 flex-1 overflow-y-auto">
         {activeView === 'overview' ? (
-          <div className="mx-auto w-full max-w-6xl px-4 py-5 md:px-6">
+          <div className="supporthr-page-shell--wide px-4 py-5 md:px-6">
             <div className="mb-5">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div className="flex items-center gap-3">
@@ -531,7 +531,7 @@ export default function AIFeedbackPage({
             </div>
           </div>
         ) : selectedCandidate && selectedBrief ? (
-          <div className="mx-auto w-full max-w-5xl px-4 py-5 md:px-6">
+          <div className="supporthr-page-shell px-4 py-5 md:px-6">
             <div className="mb-4 flex items-start gap-3 rounded-3xl border p-4" style={{ background: tc.cardBg, borderColor: tc.borderSoft }}>
               <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-[13px] font-black text-blue-600">
                 {getInitials(selectedCandidate.candidateName)}

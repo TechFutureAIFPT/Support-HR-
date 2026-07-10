@@ -173,7 +173,7 @@ const WorkspaceDashboardPage: React.FC<WorkspaceDashboardPageProps> = ({ userEma
   return (
     <div className="flex h-full min-h-0 bg-white text-[#1d1d1f]">
       <main className="min-w-0 flex-1 overflow-y-auto px-5 py-8 sm:px-8 lg:px-10">
-        <div className="mx-auto max-w-5xl">
+        <div className="supporthr-page-shell">
           <h1 className="text-[28px] font-semibold tracking-[-0.025em]">Tổng quan tuyển dụng</h1>
 
           <div className="mt-8 grid gap-5 border-b border-[#e5e5ea] pb-8 sm:grid-cols-3">

@@ -7,8 +7,11 @@ import SupportHRLoading from '@/components/common/SupportHRLoading';
 import { findCvDocument, linkCvDocument, storeCvFiles } from '@/services/workspace/cvDocumentStore';
 import { broadcastProgress, broadcastSessionDone, broadcastSessionStart, clearSession } from '@/services/desktopSessionService';
 
-const WeightsConfig = lazy(() => import('@/features/criteria-config/WeightsConfig'));
-const AnalysisResults = lazy(() => import('@/features/cv-management/AnalysisResults'));
+const loadWeightsConfig = () => import('@/features/criteria-config/WeightsConfig');
+const loadAnalysisResults = () => import('@/features/cv-management/AnalysisResults');
+
+const WeightsConfig = lazy(loadWeightsConfig);
+const AnalysisResults = lazy(loadAnalysisResults);
 
 const ModuleLoader = () => (
   <SupportHRLoading
@@ -59,6 +62,23 @@ const ScreenerPage: React.FC<ScreenerPageProps> = (props) => {
   const { activeStep } = props;
   const [intakeNotice, setIntakeNotice] = useState('');
 
+  const prefetchWorkflowModules = useCallback(() => {
+    const idleWindow = window as Window & {
+      requestIdleCallback?: (callback: IdleRequestCallback, options?: IdleRequestOptions) => number;
+    };
+
+    const schedule = () => {
+      void Promise.allSettled([loadWeightsConfig(), loadAnalysisResults()]);
+    };
+
+    if (typeof idleWindow.requestIdleCallback === 'function') {
+      idleWindow.requestIdleCallback(() => schedule(), { timeout: 1000 });
+      return;
+    }
+
+    setTimeout(schedule, 150);
+  }, []);
+
   useEffect(() => {
     if (!props.cvFiles.length) return;
     void storeCvFiles(props.documentOwner || 'local', props.cvFiles).catch((error) => {
@@ -78,6 +98,11 @@ const ScreenerPage: React.FC<ScreenerPageProps> = (props) => {
   useEffect(() => {
     if (props.jdText.trim().length > 0) setIntakeNotice('');
   }, [props.jdText]);
+
+  useEffect(() => {
+    if (!props.jdText.trim() || props.cvFiles.length === 0) return;
+    prefetchWorkflowModules();
+  }, [prefetchWorkflowModules, props.cvFiles.length, props.jdText]);
 
   const handleUseTemplate = useCallback(() => {
     props.onOpenJdTemplates?.();

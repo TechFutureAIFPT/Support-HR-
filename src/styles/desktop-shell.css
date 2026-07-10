@@ -1,0 +1,349 @@
+/* Desktop workspace shell and width tokens */
+
+:root {
+  --supporthr-sidebar-width: 17rem;
+  --supporthr-page-max: 80rem;
+  --supporthr-page-max-wide: 88rem;
+  --supporthr-page-max-compact: 72rem;
+  --supporthr-modal-max: 64rem;
+  --supporthr-review-rail-width: 22rem;
+  --supporthr-review-split-min: 21.25rem;
+}
+
+.supporthr-sidebar {
+  width: min(82vw, var(--supporthr-sidebar-width));
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+.supporthr-sidebar,
+.supporthr-sidebar * {
+  box-sizing: border-box;
+}
+
+.supporthr-sidebar-brand {
+  display: block;
+  max-width: 8.5rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.875rem;
+  line-height: 1;
+}
+
+.supporthr-main {
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.supporthr-page-shell,
+.supporthr-page-shell--wide,
+.supporthr-page-shell--compact,
+.supporthr-modal-shell {
+  width: min(100%, var(--supporthr-page-max));
+  margin-inline: auto;
+}
+
+.supporthr-page-shell--wide {
+  width: min(100%, var(--supporthr-page-max-wide));
+}
+
+.supporthr-page-shell--compact {
+  width: min(100%, var(--supporthr-page-max-compact));
+}
+
+.supporthr-modal-shell {
+  width: min(100%, var(--supporthr-modal-max));
+}
+
+.apple-workspace-shell {
+  --apple-blue: #007aff;
+  --apple-blue-hover: #0066d6;
+  --apple-text: #1d1d1f;
+  --apple-secondary: #515154;
+  --apple-muted: #86868b;
+  --apple-border: #d2d2d7;
+  --apple-soft-border: #e5e5ea;
+  --apple-sidebar: rgba(246, 246, 248, 0.88);
+  --apple-surface: #ffffff;
+  background: #ffffff !important;
+  color: var(--apple-text);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", sans-serif;
+  color-scheme: light;
+}
+
+.apple-workspace-shell *,
+.apple-workspace-shell *::before,
+.apple-workspace-shell *::after {
+  box-sizing: border-box;
+}
+
+.apple-workspace-shell .supporthr-sidebar {
+  top: 0 !important;
+  height: 100dvh !important;
+  width: var(--supporthr-sidebar-width) !important;
+  background: rgba(246, 246, 248, 0.88) !important;
+  border-right: 1px solid rgba(210, 210, 215, 0.92) !important;
+  box-shadow: 16px 0 40px rgba(30, 64, 175, 0.08) !important;
+  color: var(--apple-text) !important;
+}
+
+.apple-workspace-shell .supporthr-sidebar nav {
+  background: transparent;
+}
+
+.apple-workspace-shell .supporthr-sidebar button,
+.apple-workspace-shell .supporthr-sidebar a {
+  border-radius: 12px !important;
+}
+
+.apple-workspace-shell .supporthr-sidebar [style*="background: linear-gradient"],
+.apple-workspace-shell .supporthr-sidebar [style*="background: rgb(0, 0, 0)"],
+.apple-workspace-shell .supporthr-sidebar [style*="background: #000000"] {
+  background: linear-gradient(180deg, #ffffff 0%, #eef6ff 100%) !important;
+}
+
+.apple-workspace-shell .apple-workspace-topbar {
+  min-height: 68px;
+  box-shadow: none;
+}
+
+.apple-toolbar-button {
+  display: inline-flex;
+  height: 34px;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border: 1px solid var(--apple-border);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.94);
+  padding: 0 12px;
+  color: var(--apple-text);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+  transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+
+.apple-toolbar-button:hover:not(:disabled) {
+  border-color: #b8b8bd;
+  background: #f8f8fa;
+}
+
+.apple-toolbar-button:focus-visible,
+.apple-toolbar-icon:focus-visible {
+  outline: 2px solid rgba(0, 122, 255, 0.34);
+  outline-offset: 2px;
+}
+
+.apple-toolbar-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.42;
+}
+
+.apple-toolbar-button--primary {
+  border-color: var(--apple-blue);
+  background: var(--apple-blue);
+  color: #ffffff;
+}
+
+.apple-toolbar-button--primary:hover:not(:disabled) {
+  border-color: var(--apple-blue-hover);
+  background: var(--apple-blue-hover);
+}
+
+.apple-toolbar-icon {
+  display: inline-flex;
+  height: 34px;
+  width: 34px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  color: var(--apple-secondary);
+  transition: background-color 150ms ease;
+}
+
+.apple-toolbar-icon:hover {
+  background: #f2f2f5;
+}
+
+.apple-mobile-only,
+.apple-detail-back {
+  display: inline-flex;
+}
+
+.apple-workspace-shell .feature-page-shell,
+.apple-workspace-shell .module-pane,
+.apple-workspace-shell .chatbot-page-shell,
+.apple-workspace-shell .supporthr-dashboard-light,
+.apple-workspace-shell .weights-config,
+.apple-workspace-shell #module-jd,
+.apple-workspace-shell #module-analysis {
+  background: #ffffff !important;
+  background-image: none !important;
+  color: var(--apple-text);
+}
+
+.apple-workspace-shell .feature-page-shell :is(.rounded-xl, .rounded-2xl, .rounded-3xl),
+.apple-workspace-shell .module-pane :is(.rounded-xl, .rounded-2xl, .rounded-3xl),
+.apple-workspace-shell main :is(.rounded-2xl, .rounded-3xl) {
+  border-radius: 10px !important;
+}
+
+.apple-workspace-shell main [class*="shadow"]:not(canvas):not(.apple-docx-page),
+.apple-workspace-shell .feature-page-shell :is([class*="shadow-xl"], [class*="shadow-2xl"], [class*="shadow-lg"]),
+.apple-workspace-shell .module-pane :is([class*="shadow-xl"], [class*="shadow-2xl"], [class*="shadow-lg"]) {
+  box-shadow: none !important;
+}
+
+.apple-workspace-shell [aria-label="Trình xem CV"] canvas {
+  box-shadow: 0 2px 12px rgba(29, 29, 31, 0.12) !important;
+}
+
+.apple-workspace-shell .feature-page-shell :is([class*="bg-slate-950"], [class*="bg-slate-900"], [class*="bg-zinc-950"], [class*="bg-black"]),
+.apple-workspace-shell .module-pane :is([class*="bg-slate-950"], [class*="bg-slate-900"], [class*="bg-zinc-950"], [class*="bg-black"]) {
+  background: #ffffff !important;
+}
+
+.apple-workspace-shell .feature-page-shell :is([class*="border-slate-800"], [class*="border-zinc-800"], [class*="border-white"]),
+.apple-workspace-shell .module-pane :is([class*="border-slate-800"], [class*="border-zinc-800"], [class*="border-white"]) {
+  border-color: var(--apple-soft-border) !important;
+}
+
+.apple-workspace-shell .chatbot-page-shell,
+.apple-workspace-shell :is(.chatbot-messages, .chatbot-conversation, .chatbot-empty-state) {
+  background: #ffffff !important;
+  background-image: none !important;
+}
+
+.apple-workspace-shell .chatbot-page-shell {
+  font-family: inherit !important;
+}
+
+.apple-workspace-shell .chatbot-page-shell::before {
+  display: none !important;
+}
+
+.apple-workspace-shell :is(.chatbot-global-header, .chatbot-quickbar, .chatbot-input-area),
+.apple-workspace-shell .chatbot-quick-action {
+  border-color: var(--apple-soft-border) !important;
+  background: #ffffff !important;
+  box-shadow: none !important;
+}
+
+.apple-workspace-shell .chatbot-quick-action {
+  border-color: var(--apple-border) !important;
+}
+
+.apple-docx-viewer .apple-docx-page-wrapper {
+  background: transparent !important;
+  padding: 0 !important;
+}
+
+.apple-docx-viewer .apple-docx-page {
+  width: 100% !important;
+  min-height: 70vh !important;
+  padding: 40px !important;
+  margin: 0 auto 16px !important;
+  background: #ffffff !important;
+  box-shadow: 0 2px 12px rgba(29, 29, 31, 0.1) !important;
+}
+
+.supporthr-analysis-rail {
+  width: min(100%, var(--supporthr-review-rail-width));
+}
+
+@media (max-width: 640px) {
+  .apple-docx-viewer .apple-docx-page {
+    padding: 24px !important;
+  }
+}
+
+@media (min-width: 768px) {
+  .apple-mobile-only {
+    display: none !important;
+  }
+
+  .apple-workspace-shell .main-content.supporthr-main--with-sidebar {
+    width: auto;
+    max-width: none;
+    margin-left: var(--supporthr-sidebar-width);
+    padding-top: 0;
+  }
+
+  .apple-workspace-shell .main-content.supporthr-main--with-sidebar > header:first-child {
+    position: relative;
+    inset: auto;
+  }
+
+  .apple-workspace-shell .main-content.supporthr-main--with-sidebar.supporthr-main--sidebar-collapsed {
+    margin-left: 0;
+  }
+}
+
+@media (min-width: 1024px) {
+  .supporthr-intake-grid {
+    grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+  }
+}
+
+@media (min-width: 1280px) {
+  .apple-detail-back {
+    display: none !important;
+  }
+
+  .supporthr-analysis-split {
+    display: grid;
+    grid-template-columns: minmax(var(--supporthr-review-split-min), 48%) minmax(0, 52%);
+  }
+}
+
+@media (max-width: 767px) {
+  .apple-workspace-shell .main-content.supporthr-main--with-sidebar {
+    width: auto;
+    max-width: none;
+    margin-left: 0;
+    padding-top: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .apple-workspace-shell *,
+  .apple-workspace-shell *::before,
+  .apple-workspace-shell *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.001ms !important;
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+html.dark .apple-workspace-shell .feature-page-shell,
+html.dark .apple-workspace-shell .module-pane,
+html.dark .apple-workspace-shell .chatbot-page-shell,
+html.dark .apple-workspace-shell .supporthr-dashboard-light,
+html.dark .apple-workspace-shell .weights-config,
+html.dark .apple-workspace-shell #module-jd,
+html.dark .apple-workspace-shell #module-analysis {
+  background: #0f1523 !important;
+  background-image: none !important;
+  color: #e2e8f4 !important;
+}
+
+html.dark .apple-workspace-shell .feature-page-shell :is([class*="bg-slate-950"], [class*="bg-slate-900"], [class*="bg-zinc-950"], [class*="bg-black"]),
+html.dark .apple-workspace-shell .module-pane :is([class*="bg-slate-950"], [class*="bg-slate-900"], [class*="bg-zinc-950"], [class*="bg-black"]) {
+  background: #141b2d !important;
+}
+
+html.dark .apple-workspace-shell .chatbot-page-shell {
+  background: #0f1523 !important;
+}
+
+html.dark .apple-workspace-shell .feature-page-shell [class*="bg-white"],
+html.dark .apple-workspace-shell .module-pane [class*="bg-white"] {
+  background-color: #1e2a3d !important;
+}
+
+html.dark .apple-workspace-shell .feature-page-shell [class*="bg-[#f7f7f5]"] {
+  background-color: #141b2d !important;
+}

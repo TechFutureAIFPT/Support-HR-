@@ -24,7 +24,7 @@ import {
   extractJobPositionFromJD,
   filterAndStructureJD,
 } from '@/services/screening/frontendScreeningService';
-import { googleDriveService } from '@/services/file-processing/googleDriveService';
+import { getGoogleDriveService } from '@/services/file-processing/googleDriveLoader';
 import { fetchFilteredCvLibrary } from '@/services/data-sync/recruitmentToolsService';
 import type { HardFilters, MobileInboxCandidate, MobileInboxHistory } from '@/types';
 import { getSafeErrorMessage, isRedirectingToGoogle } from '@/utils/errorMessages';
@@ -308,7 +308,7 @@ const CvLibraryImportModal = ({
 
   return (
     <div className="fixed inset-0 z-[80] flex items-center justify-center bg-slate-900/25 px-4 backdrop-blur-sm" onClick={onClose}>
-      <div className="flex max-h-[86vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-blue-100 bg-white shadow-[0_30px_90px_rgba(15,23,42,0.18)]" onClick={(event) => event.stopPropagation()}>
+      <div className="supporthr-modal-shell flex max-h-[86vh] flex-col overflow-hidden rounded-2xl border border-blue-100 bg-white shadow-[0_30px_90px_rgba(15,23,42,0.18)]" onClick={(event) => event.stopPropagation()}>
         <div className="flex shrink-0 flex-col gap-4 border-b border-blue-100 p-5 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0">
             <p className="supporthr-mono text-[10px] font-black uppercase tracking-[0.2em] text-blue-600">Thư viện CV</p>
@@ -617,6 +617,7 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
   const handleGoogleDrive = async () => {
     try {
       setErrorMsg('');
+      const googleDriveService = await getGoogleDriveService();
       const driveFiles = await googleDriveService.pickAndImportFiles({
         mimeTypes:
           'application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,image/png,image/jpeg',
@@ -646,6 +647,7 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
     try {
       setCvError('');
       setIsLoadingCvDrive(true);
+      const googleDriveService = await getGoogleDriveService();
       const driveFiles = await googleDriveService.pickAndImportFiles({
         mimeTypes:
           'application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,image/png,image/jpeg',
@@ -726,6 +728,7 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
     let cancelled = false;
 
     const resumePendingDriveImport = async () => {
+      const googleDriveService = await getGoogleDriveService();
       const pendingType = googleDriveService.getPendingImportFileType();
 
       try {
@@ -938,7 +941,7 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
         )}
 
         {stage === 'jd' ? (
-          <main className="grid min-h-max flex-none gap-6 py-5 lg:min-h-0 lg:flex-1 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] lg:gap-10 lg:py-6">
+          <main className="supporthr-intake-grid grid min-h-max flex-none gap-6 py-5 lg:min-h-0 lg:flex-1 lg:gap-10 lg:py-6">
             <section className="flex min-h-0 flex-col">
               <div className="flex flex-row items-start justify-between gap-3">
                 <div className="min-w-0">
@@ -1109,7 +1112,7 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
             </section>
           </main>
         ) : (
-          <main className="grid min-h-max flex-none gap-6 py-5 lg:min-h-0 lg:flex-1 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] lg:gap-10 lg:py-6">
+          <main className="supporthr-intake-grid grid min-h-max flex-none gap-6 py-5 lg:min-h-0 lg:flex-1 lg:gap-10 lg:py-6">
             <section className="flex min-h-0 flex-col">
               <div className="flex flex-row items-start justify-between gap-3">
                 <div className="min-w-0">

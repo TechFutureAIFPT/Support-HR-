@@ -3,7 +3,7 @@ import type { CSSProperties } from 'react';
 import { UploadCloud } from 'lucide-react';
 import type { Candidate, HardFilters, WeightCriteria, AppStep } from '@/types';
 import { analyzeCVs } from '@/services/screening/frontendScreeningService';
-import { googleDriveService } from '@/services/file-processing/googleDriveService';
+import { getGoogleDriveService } from '@/services/file-processing/googleDriveLoader';
 import { useThemeColors } from '@/hooks/useThemeColors';
 import { getSafeErrorMessage, isRedirectingToGoogle } from '@/utils/errorMessages';
 import '@/features/cv-management/styles/cv-upload.css';
@@ -93,6 +93,7 @@ const CVUpload: React.FC<CVUploadProps> = memo((props) => {
 
   const handleGoogleDriveSelect = async () => {
     try {
+      const googleDriveService = await getGoogleDriveService();
       const driveFiles = await googleDriveService.pickAndImportFiles({
         mimeTypes:
           'application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,image/png,image/jpeg',

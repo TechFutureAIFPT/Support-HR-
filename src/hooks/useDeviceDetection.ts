@@ -11,6 +11,12 @@ interface DeviceInfo {
   height: number;
 }
 
+function getDeviceType(width: number): DeviceType {
+  if (width < breakpoints.mobile) return 'mobile';
+  if (width < breakpoints.tablet) return 'tablet';
+  return 'desktop';
+}
+
 export const useDeviceDetection = (): DeviceInfo => {
   const [deviceInfo, setDeviceInfo] = useState<DeviceInfo>(() => {
     if (typeof window === 'undefined') {
@@ -27,14 +33,7 @@ export const useDeviceDetection = (): DeviceInfo => {
     const width = window.innerWidth;
     const height = window.innerHeight;
     
-    let type: DeviceType;
-    if (width < 768) {
-      type = 'mobile';
-    } else if (width < 1024) {
-      type = 'tablet';
-    } else {
-      type = 'desktop';
-    }
+    const type = getDeviceType(width);
 
     return {
       type,
@@ -51,14 +50,7 @@ export const useDeviceDetection = (): DeviceInfo => {
       const width = window.innerWidth;
       const height = window.innerHeight;
       
-      let type: DeviceType;
-      if (width < 768) {
-        type = 'mobile';
-      } else if (width < 1024) {
-        type = 'tablet';
-      } else {
-        type = 'desktop';
-      }
+      const type = getDeviceType(width);
 
       setDeviceInfo({
         type,
@@ -81,7 +73,8 @@ export const useDeviceDetection = (): DeviceInfo => {
 export const breakpoints = {
   mobile: 768,
   tablet: 1024,
-  desktop: 1920
+  desktopWide: 1280,
+  desktop: 1920,
 };
 
 export const useBreakpoint = () => {
@@ -91,6 +84,7 @@ export const useBreakpoint = () => {
     isMobile: width < breakpoints.mobile,
     isTablet: width >= breakpoints.mobile && width < breakpoints.tablet,
     isDesktop: width >= breakpoints.tablet,
-    width
+    isDesktopWide: width >= breakpoints.desktopWide,
+    width,
   };
 };

@@ -1186,81 +1186,6 @@
    GLOBAL LIGHT MODE — applies to ALL pages when .light is on <html>
    ============================================================ */
 
-/* --- Body & Root background --- */
-
-/* --- Sidebar --- */
-
-:root {
-  --supporthr-sidebar-width: 17rem;
-}
-
-.supporthr-sidebar {
-  width: min(82vw, var(--supporthr-sidebar-width));
-  box-sizing: border-box;
-  overflow-x: hidden;
-}
-
-.supporthr-sidebar,
-.supporthr-sidebar * {
-  box-sizing: border-box;
-}
-
-.supporthr-sidebar-brand {
-  display: block;
-  max-width: 8.5rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: 0.875rem;
-  line-height: 1;
-}
-
-.supporthr-main {
-  min-width: 0;
-}
-
-@media (min-width: 1024px) {
-  .supporthr-sidebar {
-    top: 54px;
-    width: var(--supporthr-sidebar-width);
-    height: calc(100vh - 54px);
-  }
-
-  .main-content.supporthr-main--with-sidebar {
-    width: calc(100vw - var(--supporthr-sidebar-width));
-    max-width: calc(100vw - var(--supporthr-sidebar-width));
-    margin-left: var(--supporthr-sidebar-width);
-    padding-top: 54px;
-  }
-
-  .main-content.supporthr-main--with-sidebar > header:first-child {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 60;
-  }
-
-  .supporthr-shell--with-app-menu .supporthr-sidebar {
-    top: 102px;
-    height: calc(100vh - 102px);
-  }
-
-  .supporthr-shell--with-app-menu .main-content.supporthr-main--with-sidebar {
-    padding-top: 102px;
-  }
-
-  .supporthr-shell--with-app-menu .main-content.supporthr-main--with-sidebar > header:first-child {
-    top: 34px;
-  }
-
-  .main-content.supporthr-main--with-sidebar.supporthr-main--sidebar-collapsed {
-    width: 100vw;
-    max-width: 100vw;
-    margin-left: 0;
-  }
-}
-
 /* Sidebar brand area */
 
 /* Sidebar logo button */
@@ -1631,54 +1556,10 @@ html {
 }
 
 /* Sidebar và Main Content Layout Improvements */
-.sidebar-transition {
-  transition: margin-left 0.3s ease-in-out, width 0.3s ease-in-out;
-}
 
 /* Đảm bảo main content luôn có đủ không gian */
-@media (min-width: 768px) {
-  .main-content-area {
-    width: calc(100vw - 220px);
-    max-width: calc(100vw - 220px);
-  }
-
-  .main-content-area.sidebar-closed {
-    width: 100vw;
-    max-width: 100vw;
-  }
-}
 
 /* Smooth sidebar animations */
-.sidebar-narrow {
-  transform: translateX(0);
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.sidebar-narrow.closed {
-  transform: translateX(-100%);
-}
-
-/* Responsive content adjustment */
-.content-wrapper {
-  min-height: 0;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-/* Grid layout improvements for weights page */
-.weights-responsive {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1rem;
-}
-
-@media (min-width: 1024px) {
-  .weights-responsive {
-    grid-template-columns: 3fr 7fr;
-    gap: 2rem;
-  }
-}
 
 /* Main content responsive adjustments */
 .main-content {
@@ -1690,33 +1571,6 @@ html {
 }
 
 /* Ensure content doesn't overflow when sidebar is open */
-@media (min-width: 768px) {
-  .main-content.with-sidebar {
-    width: calc(100vw - 220px);
-    max-width: calc(100vw - 220px);
-  }
-
-  .main-content.without-sidebar {
-    width: 100vw;
-    max-width: 100vw;
-  }
-}
-
-/* Container adjustments for better responsiveness */
-.container-responsive {
-  width: 100%;
-  max-width: none;
-  padding-left: 1rem;
-  padding-right: 1rem;
-  box-sizing: border-box;
-}
-
-@media (min-width: 1024px) {
-  .container-responsive {
-    padding-left: 2rem;
-    padding-right: 2rem;
-  }
-}
 
 
 
@@ -1779,9 +1633,6 @@ html {
   box-shadow: 0 4px 18px -4px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
 }
 
-.sidebar-narrow {
-  width: 220px;
-}
 
 .weights-layout.full-expand .weights-col {
   padding: 12px 12px 8px;
@@ -4058,251 +3909,15 @@ button[style*="linear-gradient"],
   }
 }
 
-/* ============================================================
-   APPLE HIG WORKSPACE
-   Scoped to authenticated product routes. Public marketing and
-   documentation pages deliberately keep their own visual system.
-   ============================================================ */
-.apple-workspace-shell {
-  --supporthr-sidebar-width: 17rem;
-  --apple-blue: #007aff;
-  --apple-blue-hover: #0066d6;
-  --apple-text: #1d1d1f;
-  --apple-secondary: #515154;
-  --apple-muted: #86868b;
-  --apple-border: #d2d2d7;
-  --apple-soft-border: #e5e5ea;
-  --apple-sidebar: rgba(246, 246, 248, 0.88);
-  --apple-surface: #ffffff;
-  background: #ffffff !important;
-  color: var(--apple-text);
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", sans-serif;
-  color-scheme: light;
-}
 
-.apple-workspace-shell *,
-.apple-workspace-shell *::before,
-.apple-workspace-shell *::after {
-  box-sizing: border-box;
-}
 
-.apple-workspace-shell .supporthr-sidebar {
-  top: 0 !important;
-  height: 100dvh !important;
-  width: var(--supporthr-sidebar-width) !important;
-}
-
-.apple-workspace-shell .apple-workspace-topbar {
-  min-height: 68px;
-  box-shadow: none;
-}
-
-.apple-toolbar-button {
-  display: inline-flex;
-  height: 34px;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  border: 1px solid var(--apple-border);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.94);
-  padding: 0 12px;
-  color: var(--apple-text);
-  font-size: 13px;
-  font-weight: 500;
-  line-height: 1;
-  transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
-}
-
-.apple-toolbar-button:hover:not(:disabled) {
-  border-color: #b8b8bd;
-  background: #f8f8fa;
-}
-
-.apple-toolbar-button:focus-visible,
-.apple-toolbar-icon:focus-visible {
-  outline: 2px solid rgba(0, 122, 255, 0.34);
-  outline-offset: 2px;
-}
-
-.apple-toolbar-button:disabled {
-  cursor: not-allowed;
-  opacity: 0.42;
-}
-
-.apple-toolbar-button--primary {
-  border-color: var(--apple-blue);
-  background: var(--apple-blue);
-  color: #ffffff;
-}
-
-.apple-toolbar-button--primary:hover:not(:disabled) {
-  border-color: var(--apple-blue-hover);
-  background: var(--apple-blue-hover);
-}
-
-.apple-toolbar-icon {
-  display: inline-flex;
-  height: 34px;
-  width: 34px;
-  align-items: center;
-  justify-content: center;
-  border-radius: 8px;
-  color: var(--apple-secondary);
-  transition: background-color 150ms ease;
-}
-
-.apple-toolbar-icon:hover {
-  background: #f2f2f5;
-}
-
-.apple-mobile-only {
-  display: inline-flex;
-}
-
-.apple-detail-back {
-  display: inline-flex;
-}
-
-.apple-workspace-shell .feature-page-shell,
-.apple-workspace-shell .module-pane,
-.apple-workspace-shell .chatbot-page-shell,
-.apple-workspace-shell .supporthr-dashboard-light,
-.apple-workspace-shell .weights-config,
-.apple-workspace-shell #module-jd,
-.apple-workspace-shell #module-analysis {
-  background: #ffffff !important;
-  background-image: none !important;
-  color: var(--apple-text);
-}
-
-.apple-workspace-shell .feature-page-shell :is(.rounded-xl, .rounded-2xl, .rounded-3xl),
-.apple-workspace-shell .module-pane :is(.rounded-xl, .rounded-2xl, .rounded-3xl) {
-  border-radius: 10px !important;
-}
-
-.apple-workspace-shell main :is(.rounded-2xl, .rounded-3xl) {
-  border-radius: 10px !important;
-}
-
-.apple-workspace-shell main [class*="shadow"]:not(canvas):not(.apple-docx-page) {
-  box-shadow: none !important;
-}
 
 .apple-workspace-shell [aria-label="Trình xem CV"] canvas {
   box-shadow: 0 2px 12px rgba(29, 29, 31, 0.12) !important;
 }
 
-.apple-workspace-shell .feature-page-shell :is([class*="shadow-xl"], [class*="shadow-2xl"], [class*="shadow-lg"]),
-.apple-workspace-shell .module-pane :is([class*="shadow-xl"], [class*="shadow-2xl"], [class*="shadow-lg"]) {
-  box-shadow: none !important;
-}
 
-.apple-workspace-shell .feature-page-shell :is([class*="bg-slate-950"], [class*="bg-slate-900"], [class*="bg-zinc-950"], [class*="bg-black"]),
-.apple-workspace-shell .module-pane :is([class*="bg-slate-950"], [class*="bg-slate-900"], [class*="bg-zinc-950"], [class*="bg-black"]) {
-  background: #ffffff !important;
-}
 
-.apple-workspace-shell .feature-page-shell :is([class*="border-slate-800"], [class*="border-zinc-800"], [class*="border-white"]),
-.apple-workspace-shell .module-pane :is([class*="border-slate-800"], [class*="border-zinc-800"], [class*="border-white"]) {
-  border-color: var(--apple-soft-border) !important;
-}
-
-.apple-workspace-shell .chatbot-page-shell {
-  background: #ffffff !important;
-  background-image: none !important;
-  font-family: inherit !important;
-}
-
-.apple-workspace-shell .chatbot-page-shell::before {
-  display: none !important;
-}
-
-.apple-workspace-shell :is(.chatbot-global-header, .chatbot-quickbar, .chatbot-input-area) {
-  border-color: var(--apple-soft-border) !important;
-  box-shadow: none !important;
-}
-
-.apple-workspace-shell :is(.chatbot-messages, .chatbot-conversation, .chatbot-empty-state) {
-  background: #ffffff !important;
-  background-image: none !important;
-}
-
-.apple-workspace-shell .chatbot-quick-action {
-  border-color: var(--apple-border) !important;
-  background: #ffffff !important;
-  box-shadow: none !important;
-}
-
-.apple-docx-viewer .apple-docx-page-wrapper {
-  background: transparent !important;
-  padding: 0 !important;
-}
-
-.apple-docx-viewer .apple-docx-page {
-  width: 100% !important;
-  min-height: 70vh !important;
-  padding: 40px !important;
-  margin: 0 auto 16px !important;
-  background: #ffffff !important;
-  box-shadow: 0 2px 12px rgba(29, 29, 31, 0.1) !important;
-}
-
-@media (max-width: 640px) {
-  .apple-docx-viewer .apple-docx-page {
-    padding: 24px !important;
-  }
-}
-
-@media (min-width: 768px) {
-  .apple-mobile-only {
-    display: none !important;
-  }
-
-  .apple-workspace-shell .main-content.supporthr-main--with-sidebar {
-    width: calc(100vw - var(--supporthr-sidebar-width));
-    max-width: calc(100vw - var(--supporthr-sidebar-width));
-    margin-left: var(--supporthr-sidebar-width);
-    padding-top: 0;
-  }
-
-  .apple-workspace-shell .main-content.supporthr-main--with-sidebar > header:first-child {
-    position: relative;
-    inset: auto;
-  }
-
-  .apple-workspace-shell .main-content.supporthr-main--with-sidebar.supporthr-main--sidebar-collapsed {
-    width: 100vw;
-    max-width: 100vw;
-    margin-left: 0;
-  }
-}
-
-@media (min-width: 1280px) {
-  .apple-detail-back {
-    display: none !important;
-  }
-}
-
-@media (max-width: 767px) {
-  .apple-workspace-shell .main-content.supporthr-main--with-sidebar {
-    width: 100vw;
-    max-width: 100vw;
-    margin-left: 0;
-    padding-top: 0;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .apple-workspace-shell *,
-  .apple-workspace-shell *::before,
-  .apple-workspace-shell *::after {
-    scroll-behavior: auto !important;
-    transition-duration: 0.001ms !important;
-    animation-duration: 0.001ms !important;
-    animation-iteration-count: 1 !important;
-  }
-}
 
 /* ══════════════════════════════════════════════════════════════
    DARK MODE — WORKSPACE SHELL FORCED-WHITE OVERRIDES
@@ -4360,40 +3975,18 @@ html.dark .supporthr-main--with-sidebar [class*="bg-[#eef5ff]"] {
 }
 
 /* ── apple-workspace-shell page shells (lines 4154–4164) ── */
-html.dark .apple-workspace-shell .feature-page-shell,
-html.dark .apple-workspace-shell .module-pane,
-html.dark .apple-workspace-shell .chatbot-page-shell,
-html.dark .apple-workspace-shell .supporthr-dashboard-light,
-html.dark .apple-workspace-shell .weights-config,
-html.dark .apple-workspace-shell #module-jd,
-html.dark .apple-workspace-shell #module-analysis {
-  background: #0f1523 !important;
-  background-image: none !important;
-  color: #e2e8f4 !important;
-}
 
 /* ── Dark classes forced white inside feature-page-shell (lines 4188–4191) ── */
-html.dark .apple-workspace-shell .feature-page-shell :is([class*="bg-slate-950"], [class*="bg-slate-900"], [class*="bg-zinc-950"], [class*="bg-black"]),
-html.dark .apple-workspace-shell .module-pane :is([class*="bg-slate-950"], [class*="bg-slate-900"], [class*="bg-zinc-950"], [class*="bg-black"]) {
-  background: #141b2d !important;
-}
 
 /* ── Chatbot page shell (lines 4198–4202) ── */
-html.dark .apple-workspace-shell .chatbot-page-shell {
-  background: #0f1523 !important;
-  background-image: none !important;
-}
 
 /* ── Re-apply bg-white → surface-card for elements inside workspace shells ── */
-html.dark .supporthr-main--with-sidebar [class*="bg-white"],
-html.dark .apple-workspace-shell .feature-page-shell [class*="bg-white"],
-html.dark .apple-workspace-shell .module-pane [class*="bg-white"] {
+html.dark .supporthr-main--with-sidebar [class*="bg-white"] {
   background-color: #1e2a3d !important;
 }
 
 /* ── Near-white section backgrounds inside workspace content ── */
-html.dark .supporthr-main--with-sidebar [class*="bg-[#f7f7f5]"],
-html.dark .apple-workspace-shell .feature-page-shell [class*="bg-[#f7f7f5]"] {
+html.dark .supporthr-main--with-sidebar [class*="bg-[#f7f7f5]"] {
   background-color: #141b2d !important;
 }
 

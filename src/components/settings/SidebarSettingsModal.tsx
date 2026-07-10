@@ -25,7 +25,7 @@ import {
   Wand2,
   X,
 } from 'lucide-react';
-import { googleDriveService } from '@/services/file-processing/googleDriveService';
+import { getGoogleDriveService } from '@/services/file-processing/googleDriveLoader';
 import { extractHardFiltersFromJD } from '@/services/screening/frontendScreeningService';
 import { standardizeJDText } from '@/services/data-sync/recruitmentToolsService';
 import type { HardFilters, HistoryRetention, JDQualityFinding, JDStandardizeResponse, NewSessionMode, UserSettingsLanguage, UserSettingsTheme, WeightCriteria } from '@/types';
@@ -1191,6 +1191,7 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
                   onClick={async () => {
                     setDriveImporting(true);
                     try {
+                      const googleDriveService = await getGoogleDriveService();
                       const files = await googleDriveService.openPicker({ redirectUri: window.location.href });
                       if (files.length > 0) {
                         const imported = await googleDriveService.importFile(files[0].id, 'jd');
