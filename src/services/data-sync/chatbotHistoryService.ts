@@ -7,6 +7,7 @@ import type {
   ChatbotReplyResponse,
   ChatbotSession,
 } from '@/types';
+import { normalizeChatMessageContent } from '@/utils/chatMessageFormatter';
 
 function normalizeMetadata(raw: unknown): ChatMessageMetadata {
   const metadata = (raw && typeof raw === 'object') ? raw as Record<string, unknown> : {};
@@ -30,7 +31,7 @@ function normalizeMessage(raw: unknown): ChatMessageRecord {
   return {
     id: String(message.id || ''),
     author: message.author === 'user' ? 'user' : 'bot',
-    content: String(message.content || ''),
+    content: normalizeChatMessageContent(message.content),
     timestamp: Number(message.timestamp || Date.now()),
     suggestedCandidateIds: Array.isArray(message.suggestedCandidateIds)
       ? message.suggestedCandidateIds.map((id) => String(id))
@@ -140,11 +141,17 @@ export class ChatbotHistoryService {
       candidateBriefs?: CandidateBrief[];
     }
   ): Promise<ChatbotReplyResponse> {
-    return apiPost<ChatbotReplyResponse>(
+    const response = await apiPost<ChatbotReplyResponse>(
       `/api/account/chatbot/sessions/${encodeURIComponent(sessionId)}/reply`,
       payload,
       { authRequired: true }
     );
+    return {
+      ...response,
+      responseText: normalizeChatMessageContent(response.responseText),
+      userMessage: normalizeMessage(response.userMessage),
+      assistantMessage: normalizeMessage(response.assistantMessage),
+    };
   }
 
   static async deleteSession(sessionId: string): Promise<boolean> {

@@ -34,6 +34,7 @@ import {
   getInitials,
 } from '@/features/recruiter/candidateDecisionSupport';
 import { normalizeVietnameseDisplay } from '@/utils/textDisplay';
+import { chatMessageToPlainText, formatChatMessageContent, normalizeChatMessageContent } from '@/utils/chatMessageFormatter';
 import '@/pages/analytics/styles/candidate-suggestions.css';
 
 const SELECTED_IDS_KEY = 'supporthr.selectedCandidateIds';
@@ -68,7 +69,7 @@ function mapRecordToUi(record: ChatMessageRecord): ChatUiMessage {
   return {
     id: record.id,
     role: record.author === 'bot' ? 'assistant' : 'user',
-    content: record.content,
+    content: normalizeChatMessageContent(record.content),
     timestamp: record.timestamp,
     suggestedCandidateIds: record.suggestedCandidateIds || [],
     candidateCards: record.metadata?.candidateCards || [],
@@ -77,6 +78,33 @@ function mapRecordToUi(record: ChatMessageRecord): ChatUiMessage {
     focusCandidateId: record.metadata?.focusCandidateId || null,
   };
 }
+
+const FormattedMessageContent: React.FC<{ content: string }> = ({ content }) => {
+  const sections = formatChatMessageContent(content);
+  if (!sections.length) return null;
+  return (
+    <div className="space-y-3 text-sm leading-6">
+      {sections.map((section, sectionIndex) => (
+        <section key={`${section.heading}-${sectionIndex}`}>
+          {section.heading && (
+            <h3 className="mb-1 text-[13px] font-semibold text-slate-900">{section.heading}</h3>
+          )}
+          {section.ordered ? (
+            <ol className="list-decimal space-y-1 pl-5 text-slate-700">
+              {section.items.map((item, index) => <li key={`${item}-${index}`}>{item}</li>)}
+            </ol>
+          ) : section.heading === 'Kết luận' && section.items.length === 1 ? (
+            <p className="text-pretty text-slate-700">{section.items[0]}</p>
+          ) : (
+            <ul className="list-disc space-y-1 pl-5 text-slate-700">
+              {section.items.map((item, index) => <li key={`${item}-${index}`}>{item}</li>)}
+            </ul>
+          )}
+        </section>
+      ))}
+    </div>
+  );
+};
 
 function buildAnalysisContext(jobPosition: string): ChatbotAnalysisContext | null {
   const active = getActiveAnalysisContext();
@@ -245,7 +273,7 @@ export default function CandidateSuggestions({ candidates, jobPosition }: Candid
   }, [persistSelectedIds]);
 
   const handleCopy = useCallback((text: string, id: string) => {
-    void navigator.clipboard.writeText(text);
+    void navigator.clipboard.writeText(chatMessageToPlainText(text));
     setCopiedId(id);
     window.setTimeout(() => setCopiedId(null), 1800);
   }, []);
@@ -486,19 +514,22 @@ export default function CandidateSuggestions({ candidates, jobPosition }: Candid
                     </div>
                   </div>
                 ) : (
-                  <div className="mx-auto flex w-full max-w-4xl flex-col gap-4">
+                  <div className="mx-auto flex w-full max-w-5xl flex-col gap-4">
                     {messages.map((message) => {
                       const isAssistant = message.role === 'assistant';
                       return (
                         <div
                           key={message.id}
-                          className={`rounded-3xl border p-4 shadow-sm ${isAssistant ? '' : 'ml-auto max-w-[80%]'}`}
-                          style={{
-                            background: isAssistant ? tc.cardBg : '#0f6fff',
-                            borderColor: isAssistant ? tc.borderSoft : '#0f6fff',
-                            color: isAssistant ? tc.textPrimary : '#fff',
-                          }}
+                          className={`${isAssistant ? 'w-full' : 'ml-auto max-w-[70%]'} min-w-0`}
                         >
+                          <div
+                            className="rounded-lg border p-4"
+                            style={{
+                              background: isAssistant ? tc.cardBg : '#0f6fff',
+                              borderColor: isAssistant ? tc.borderSoft : '#0f6fff',
+                              color: isAssistant ? tc.textPrimary : '#fff',
+                            }}
+                          >
                           <div className="mb-2 flex items-center justify-between gap-3">
                             <div className="flex items-center gap-2">
                               <div className={`flex h-8 w-8 items-center justify-center rounded-2xl ${isAssistant ? 'bg-blue-50 text-blue-600' : 'bg-white/15 text-white'}`}>
@@ -511,7 +542,7 @@ export default function CandidateSuggestions({ candidates, jobPosition }: Candid
                             </div>
                             <button
                               onClick={() => handleCopy(message.content, message.id)}
-                              className={`flex h-8 w-8 items-center justify-center rounded-xl border transition ${isAssistant ? 'hover:bg-slate-50' : 'hover:bg-white/10'}`}
+                              className={`flex size-8 items-center justify-center rounded-lg border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${isAssistant ? 'hover:bg-slate-50' : 'hover:bg-white/10'}`}
                               style={{ borderColor: isAssistant ? tc.borderSoft : 'rgba(255,255,255,0.2)' }}
                               aria-label="Sao chép nội dung"
                             >
@@ -519,20 +550,21 @@ export default function CandidateSuggestions({ candidates, jobPosition }: Candid
                             </button>
                           </div>
 
-                          <div className="space-y-2 text-[14px] leading-6">
-                            {message.content.split('\n').filter(Boolean).map((line, index) => (
-                              <p key={`${message.id}-${index}`}>{line}</p>
-                            ))}
+                          {isAssistant ? (
+                            <FormattedMessageContent content={message.content} />
+                          ) : (
+                            <p className="whitespace-pre-wrap text-pretty text-sm leading-6">{normalizeVietnameseDisplay(message.content)}</p>
+                          )}
                           </div>
 
                           {isAssistant && message.candidateCards.length > 0 && (
-                            <div className="mt-4 border-t pt-4" style={{ borderColor: tc.borderSoft }}>
-                              <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.16em]" style={{ color: tc.textMuted }}>
-                                Candidate cards
+                            <div className="mt-3">
+                              <p className="mb-2 text-xs font-semibold text-slate-500">
+                                Ứng viên liên quan
                               </p>
                               <div className="grid gap-3 md:grid-cols-2">
                                 {message.candidateCards.map((card) => (
-                                  <div key={`${message.id}-${card.id}`} className="rounded-2xl border p-3" style={{ background: tc.pageBg, borderColor: tc.borderSoft }}>
+                                  <div key={`${message.id}-${card.id}`} className="rounded-lg border p-3" style={{ background: tc.cardBg, borderColor: tc.borderSoft }}>
                                     <div className="flex items-start gap-3">
                                       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-[13px] font-black text-blue-600">
                                         {getInitials(card.candidateName)}
@@ -556,16 +588,16 @@ export default function CandidateSuggestions({ candidates, jobPosition }: Candid
                                     </div>
 
                                     <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                                      <div className="rounded-xl border p-2.5" style={{ borderColor: tc.borderSoft }}>
-                                        <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.14em]" style={{ color: tc.textMuted }}>Điểm mạnh</p>
+                                      <div className="rounded-lg bg-emerald-50/70 p-2.5">
+                                        <p className="mb-1 text-xs font-semibold text-emerald-700">Điểm mạnh</p>
                                         <ul className="space-y-1 text-[12px]" style={{ color: tc.textSecondary }}>
                                           {(card.topStrengths.length > 0 ? card.topStrengths : ['Chưa có evidence nổi bật trong snapshot.']).map((item) => (
                                             <li key={item}>• {normalizeVietnameseDisplay(item)}</li>
                                           ))}
                                         </ul>
                                       </div>
-                                      <div className="rounded-xl border p-2.5" style={{ borderColor: tc.borderSoft }}>
-                                        <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.14em]" style={{ color: tc.textMuted }}>Rủi ro</p>
+                                      <div className="rounded-lg bg-amber-50/70 p-2.5">
+                                        <p className="mb-1 text-xs font-semibold text-amber-700">Rủi ro</p>
                                         <ul className="space-y-1 text-[12px]" style={{ color: tc.textSecondary }}>
                                           {(card.topRisks.length > 0 ? card.topRisks : ['Chưa thấy rủi ro lớn từ snapshot hiện tại.']).map((item) => (
                                             <li key={item}>• {normalizeVietnameseDisplay(item)}</li>
@@ -588,13 +620,13 @@ export default function CandidateSuggestions({ candidates, jobPosition }: Candid
                                     <div className="mt-3 flex flex-wrap gap-2">
                                       <button
                                         onClick={() => void handleSend(`Đào sâu ứng viên ${card.candidateName}`, { focusCandidateId: card.id, selectedCandidateIds: [card.id] })}
-                                        className="rounded-xl bg-blue-600 px-3 py-2 text-[12px] font-semibold text-white transition hover:bg-blue-700"
+                                        className="rounded-lg bg-blue-600 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-blue-700"
                                       >
                                         Đào sâu
                                       </button>
                                       <button
                                         onClick={() => handleToggleSelect(card.id)}
-                                        className="rounded-xl border px-3 py-2 text-[12px] font-semibold transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
+                                        className="rounded-lg border px-3 py-2 text-xs font-semibold transition-colors hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
                                         style={{ borderColor: tc.borderSoft, color: tc.textSecondary, background: tc.cardBg }}
                                       >
                                         {selectedIds.has(card.id) ? <Check className="mr-1 inline h-3.5 w-3.5" /> : null}
@@ -642,7 +674,7 @@ export default function CandidateSuggestions({ candidates, jobPosition }: Candid
                     })}
 
                     {isLoading && (
-                      <div className="flex items-center gap-2 rounded-2xl border px-4 py-3" style={{ background: tc.cardBg, borderColor: tc.borderSoft, color: tc.textSecondary }}>
+                      <div className="flex items-center gap-2 rounded-lg border px-4 py-3" style={{ background: tc.cardBg, borderColor: tc.borderSoft, color: tc.textSecondary }}>
                         <Loader2 className="h-4 w-4 animate-spin text-blue-500" />
                         Candidate Copilot đang tổng hợp verdict và bằng chứng...
                       </div>
@@ -653,7 +685,7 @@ export default function CandidateSuggestions({ candidates, jobPosition }: Candid
               </div>
 
               <div className="shrink-0 border-t px-4 py-3 sm:px-6" style={{ borderColor: tc.borderColor, background: tc.pageBg }}>
-                <div className="overflow-hidden rounded-[28px] border shadow-sm" style={{ background: tc.cardBg, borderColor: tc.borderSoft }}>
+                <div className="overflow-hidden rounded-xl border" style={{ background: tc.cardBg, borderColor: tc.borderSoft }}>
                   <textarea
                     ref={inputRef}
                     value={input}
@@ -665,7 +697,7 @@ export default function CandidateSuggestions({ candidates, jobPosition }: Candid
                       }
                     }}
                     placeholder="Hỏi về một ứng viên, hoặc yêu cầu copilot so sánh shortlist..."
-                    className="min-h-[72px] w-full resize-none bg-transparent px-4 pb-2 pt-3.5 text-[14px] focus:outline-none"
+                    className="min-h-12 max-h-28 w-full resize-none bg-transparent px-4 py-3 text-sm focus:outline-none"
                     style={{ color: tc.textPrimary }}
                     disabled={isLoading}
                   />
@@ -690,7 +722,8 @@ export default function CandidateSuggestions({ candidates, jobPosition }: Candid
                       <button
                         onClick={() => void handleSend(input)}
                         disabled={isLoading || !input.trim()}
-                        className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 text-white shadow-sm shadow-blue-600/20 transition-all hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-30"
+                        className="flex size-9 items-center justify-center rounded-lg bg-blue-600 text-white transition-colors hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-30"
+                        aria-label="Gửi câu hỏi"
                       >
                         {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowUp className="h-4 w-4" strokeWidth={2.5} />}
                       </button>

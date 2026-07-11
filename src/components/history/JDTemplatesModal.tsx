@@ -88,20 +88,20 @@ const EMPTY_HARD_FILTERS = {
   contractTypeMandatory: false,
 };
 
-const modalLabelClass = 'supporthr-mono mb-2 block text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-400';
-const modalMetaClass = 'supporthr-mono text-[10px] font-semibold uppercase tracking-[0.24em] text-slate-400';
+const modalLabelClass = 'mb-1.5 block text-xs font-semibold text-slate-600';
+const modalMetaClass = 'text-xs font-medium text-slate-500';
 const modalFieldClass =
-  'supporthr-mono w-full rounded-xl border border-blue-100 bg-white px-3.5 py-3 text-[12px] text-slate-900 placeholder:text-slate-400 transition-colors focus:border-blue-300 focus:bg-blue-50/40 focus:outline-none';
+  'h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 placeholder:text-slate-400 transition-colors focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100';
 const modalSecondaryButtonClass =
-  'supporthr-mono rounded-xl border border-blue-100 bg-white px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-blue-600 transition-colors hover:border-blue-200 hover:bg-blue-50';
+  'inline-flex h-10 items-center justify-center rounded-lg border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50';
 const modalPrimaryButtonClass =
-  'supporthr-mono rounded-xl border border-blue-500 bg-blue-600 px-5 py-2.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-white transition-colors hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60';
+  'inline-flex h-10 items-center justify-center rounded-lg bg-blue-600 px-5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60';
 const modalDangerButtonClass =
-  'supporthr-mono rounded-xl border border-red-200 bg-red-50 px-5 py-2.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-red-600 transition-colors hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60';
+  'inline-flex h-10 items-center justify-center rounded-lg border border-red-200 bg-red-50 px-5 text-sm font-semibold text-red-600 transition-colors hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60';
 const modalCardClass =
-  'group rounded-2xl border border-blue-100 bg-white p-5 shadow-[0_18px_42px_rgba(30,64,175,0.08)] transition-all hover:border-blue-200 hover:bg-blue-50/45';
+  'group flex h-full flex-col rounded-lg border border-slate-200 bg-white p-4 transition-colors hover:border-blue-200';
 const modalChipClass =
-  'supporthr-mono inline-flex rounded-lg border border-blue-100 bg-blue-50 px-2.5 py-1 text-[9px] uppercase tracking-[0.16em] text-blue-600';
+  'inline-flex rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700';
 
 function TemplateForm({ initial, isSaving, onCancel, onSave }: TemplateFormProps) {
   const [name, setName] = useState(initial?.name || '');
@@ -555,9 +555,9 @@ const JDTemplatesModal: React.FC<JDTemplatesModalProps> = ({
     <>
       {!isPage ? <div className="fixed inset-0 z-50 bg-slate-900/22 backdrop-blur-sm" onClick={onClose} /> : null}
 
-      <div className={isPage ? 'h-full min-h-0 overflow-y-auto bg-white p-3 sm:p-5' : 'fixed inset-0 z-50 flex items-center justify-center p-4'}>
-        <div className={isPage ? 'mx-auto flex min-h-full w-full max-w-[88rem] flex-col overflow-hidden border border-blue-100 bg-white' : 'flex max-h-[90vh] w-full max-w-[88rem] flex-col overflow-hidden rounded-2xl border border-blue-100 bg-white shadow-[0_38px_120px_rgba(30,64,175,0.18)]'}>
-          <div className="flex items-center justify-between border-b border-blue-100 bg-white px-6 py-4">
+      <div className={isPage ? 'recruitment-compact-shell h-full min-h-0 overflow-y-auto bg-white px-4 py-4 sm:px-6' : 'fixed inset-0 z-50 flex items-center justify-center p-4'}>
+        <div className={isPage ? 'mx-auto flex min-h-full w-full max-w-7xl flex-col overflow-hidden bg-white' : 'flex max-h-[90vh] w-full max-w-6xl flex-col overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl'}>
+          <div className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3 sm:px-5">
             <div className="flex items-center gap-3">
               {view !== 'list' && (
                 <button
@@ -567,6 +567,7 @@ const JDTemplatesModal: React.FC<JDTemplatesModalProps> = ({
                     setDeletingTemplate(null);
                   }}
                   className="flex h-9 w-9 items-center justify-center rounded-xl border border-blue-100 bg-white text-blue-600 transition-colors hover:border-blue-200 hover:bg-blue-50"
+                  aria-label="Quay lại danh sách mẫu JD"
                 >
                   <i className="fa-solid fa-arrow-left text-xs" />
                 </button>
@@ -575,14 +576,14 @@ const JDTemplatesModal: React.FC<JDTemplatesModalProps> = ({
                 <i className={`fa-solid ${activeTab === 'jd' ? 'fa-file-invoice' : 'fa-clock-rotate-left'} text-blue-600`} />
               </div>
               <div>
-                <h2 className="supporthr-display text-[1.45rem] font-semibold tracking-[-0.05em] text-slate-900">
+                <h2 className="text-balance text-2xl font-semibold text-slate-900">
                   {view === 'create' && 'Tạo mẫu JD'}
                   {view === 'edit' && 'Chỉnh sửa mẫu JD'}
                   {view === 'confirm-delete' && 'Xác nhận xóa'}
                   {view === 'list' && activeTab === 'jd' && 'Mẫu JD đã dùng'}
                   {view === 'list' && activeTab === 'history' && 'Lịch sử hoạt động'}
                 </h2>
-                <p className="supporthr-mono text-[10px] uppercase tracking-[0.2em] text-slate-400">
+                <p className="mt-0.5 text-xs text-slate-500">
                   {view === 'list' && activeTab === 'jd'
                     ? `${combinedTemplates.length} mẫu từ tài khoản và các JD đã từng phân tích`
                     : 'Đồng bộ từ máy chủ và dữ liệu cục bộ'}
@@ -593,16 +594,17 @@ const JDTemplatesModal: React.FC<JDTemplatesModalProps> = ({
             <button
               onClick={onClose}
               className="flex h-9 w-9 items-center justify-center rounded-xl border border-blue-100 bg-white text-blue-600 transition-colors hover:border-blue-200 hover:bg-blue-50"
+              aria-label="Đóng thư viện mẫu JD"
             >
               <i className="fa-solid fa-xmark" />
             </button>
           </div>
 
           {view === 'list' && (
-            <div className="grid grid-cols-2 border-b border-blue-100 bg-[#f6f9ff]">
+            <div className="grid grid-cols-2 border-b border-slate-200 bg-white">
               <button
                 onClick={() => setActiveTab('jd')}
-                className={`supporthr-display flex items-center justify-center gap-2 border-b px-4 py-4 text-[1.05rem] font-semibold tracking-[-0.04em] transition-colors ${
+                className={`flex items-center justify-center gap-2 border-b px-4 py-3 text-sm font-semibold transition-colors ${
                   activeTab === 'jd'
                     ? 'border-blue-500 bg-white text-blue-700'
                     : 'border-transparent text-slate-500 hover:bg-blue-50 hover:text-slate-900'
@@ -613,7 +615,7 @@ const JDTemplatesModal: React.FC<JDTemplatesModalProps> = ({
               </button>
               <button
                 onClick={() => setActiveTab('history')}
-                className={`supporthr-display flex items-center justify-center gap-2 border-b px-4 py-4 text-[1.05rem] font-semibold tracking-[-0.04em] transition-colors ${
+                className={`flex items-center justify-center gap-2 border-b px-4 py-3 text-sm font-semibold transition-colors ${
                   activeTab === 'history'
                     ? 'border-blue-500 bg-white text-blue-700'
                     : 'border-transparent text-slate-500 hover:bg-blue-50 hover:text-slate-900'
@@ -676,7 +678,7 @@ const JDTemplatesModal: React.FC<JDTemplatesModalProps> = ({
 
             {view === 'list' && activeTab === 'jd' && (
               <div className="flex h-full flex-col">
-                <div className="flex flex-col gap-3 border-b border-blue-100 px-5 py-4 sm:flex-row sm:items-center">
+                <div className="flex flex-col gap-3 border-b border-slate-200 px-4 py-3 sm:flex-row sm:items-center">
                   <div className="relative flex-1">
                     <i className="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-500" />
                     <input
@@ -699,7 +701,7 @@ const JDTemplatesModal: React.FC<JDTemplatesModalProps> = ({
                   </button>
                 </div>
 
-                <div className="flex gap-2 overflow-x-auto border-b border-blue-100 px-5 py-3">
+                <div className="flex gap-2 overflow-x-auto border-b border-slate-200 px-4 py-2.5">
                   {categories.map((category) => (
                     <button
                       key={category}
@@ -734,7 +736,7 @@ const JDTemplatesModal: React.FC<JDTemplatesModalProps> = ({
                       description="Các JD đã từng phân tích từ lịch sử Render cũng sẽ hiện tại đây."
                     />
                   ) : (
-                    <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 2xl:grid-cols-3">
                       {filteredTemplates.map((template) => (
                         <div
                           key={template.id}
@@ -768,7 +770,7 @@ const JDTemplatesModal: React.FC<JDTemplatesModalProps> = ({
 
                           <div className="flex items-center justify-between gap-2 border-t border-blue-100 pt-4">
                             {template.origin === 'saved' ? (
-                              <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                              <div className="flex gap-1">
                                 <button
                                   onClick={() => {
                                     setEditingTemplate(template);

@@ -129,6 +129,7 @@ export interface HrSummary {
 export interface Candidate {
   id: string;
   candidateName: string;
+  avatarUrl?: string;
   fileName: string;
   phone?: string;
   email?: string;

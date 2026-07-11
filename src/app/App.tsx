@@ -3,7 +3,6 @@ import { detectIndustryFromJD } from '@/services/jd/industryDetector';
 import { BrowserRouter, Navigate, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '@/services/firebase';
-import { Menu } from 'lucide-react';
 import { ThemeProvider } from '@/context/theme/ThemeProvider';
 import { UserSettingsProvider, useUserSettings } from '@/context/settings/UserSettingsProvider';
 import { TELEMETRY_ENABLED } from '@/config/appEnv';
@@ -18,6 +17,7 @@ import type { WorkspaceSessionViewModel } from '@/types/workspace';
 import { initialWeights } from '@/config/constants';
 import Sidebar from '@/layout/Sidebar';
 import ActiveFilterBanner from '@/components/workspace/ActiveFilterBanner';
+import WorkspaceTopbar from '@/components/workspace/WorkspaceTopbar';
 import SidebarSettingsModal from '@/components/settings/SidebarSettingsModal';
 import JDTemplatesModal, { JDTemplate } from '@/components/history/JDTemplatesModal';
 import PageTransition from '@/components/PageTransition';
@@ -1274,6 +1274,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
               setJdTemplatesModalOpen(true);
             }}
             onOpenSettingsPanel={() => setSidebarSettingsOpen(true)}
+            onCollapsedChange={setIsDesktopSidebarCollapsed}
             onNewSession={handleNewSession}
           />
         </div>
@@ -1309,15 +1310,16 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
             : 'ml-0 w-full'
           }`}
       >
-        {shouldUseWorkspaceShell && !isSidebarDrawerOpen ? (
-          <button
-            type="button"
-            onClick={() => setIsSidebarDrawerOpen(true)}
-            className="fixed left-3 top-3 z-[55] flex h-10 w-10 items-center justify-center rounded-2xl border border-[#d2d2d7] bg-white/95 text-[#1d1d1f] shadow-[0_10px_30px_rgba(15,23,42,0.12)] backdrop-blur-xl transition hover:bg-white md:hidden"
-            aria-label="Mở thanh điều hướng"
-          >
-            <Menu size={18} />
-          </button>
+        {shouldUseWorkspaceShell ? (
+          <WorkspaceTopbar
+            onOpenMobileSidebar={() => setIsSidebarDrawerOpen(true)}
+            onOpenSettings={() => setSidebarSettingsOpen(true)}
+            userName={userName}
+            userAvatar={userAvatar}
+            userEmail={userEmail}
+            sidebarCollapsed={isDesktopSidebarCollapsed}
+            onToggleSidebar={() => setIsDesktopSidebarCollapsed(false)}
+          />
         ) : null}
         {shouldShowWorkflowBanner && (
           <ActiveFilterBanner onOpenSettings={() => setSidebarSettingsOpen(true)} />

@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import { Eye, EyeOff } from 'lucide-react';
 import {
   linkGoogleAfterPasswordSignIn,
   mapFirebaseError,
@@ -79,10 +80,10 @@ const panelSurfaceClass =
   'relative rounded-2xl border border-[#e2e8f0] bg-white shadow-[0_14px_38px_rgba(15,23,42,0.06)]';
 
 const primaryActionClass =
-  'w-full rounded-xl px-4 py-3 text-sm font-semibold text-white shadow-[0_12px_28px_rgba(37,99,235,0.18)] transition-all hover:brightness-[1.03] hover:shadow-[0_16px_32px_rgba(8,145,178,0.2)] disabled:cursor-not-allowed disabled:opacity-50';
+  'w-full rounded-lg bg-[#2563eb] px-4 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50';
 
 const primaryActionStyle = {
-  background: 'linear-gradient(135deg, #2563eb 0%, #06b6d4 100%)',
+  backgroundColor: '#2563eb',
 };
 
 const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
@@ -551,8 +552,8 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
                       </button>
                     </form>
                   ) : (
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                      <div className="grid gap-4 lg:grid-cols-2">
+                    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                      <div className="flex flex-col gap-4">
                         {tab === 'signup' && (
                         <div>
                           <label className="mb-1.5 block text-xs font-semibold text-slate-700">
@@ -589,7 +590,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
                         {errors.email && <p className="mt-1 text-xs text-red-600">{errors.email}</p>}
                       </div>
 
-                      <div className={tab === 'signup' ? 'lg:col-span-2' : ''}>
+                      <div>
                         <div className="mb-1.5 flex items-center justify-between">
                           <label className="block text-xs font-semibold text-slate-700">
                             Mật khẩu
@@ -603,16 +604,18 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
                             value={form.password}
                             onChange={(e) => setField('password', e.target.value)}
                             placeholder={tab === 'signup' ? 'Ít nhất 6 ký tự' : 'Nhập mật khẩu'}
-                            className={`${inputBaseClass} pr-16 ${
+                            className={`${inputBaseClass} pr-12 ${
                               errors.password ? 'border-red-300' : ''
                             }`}
                           />
                           <button
                             type="button"
                             onClick={() => setPasswordVisible((prev) => !prev)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium text-[#6c83a0] transition-colors hover:text-cyan-700"
+                            aria-label={passwordVisible ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+                            aria-pressed={passwordVisible}
+                            className="absolute right-3 top-1/2 flex size-8 -translate-y-1/2 items-center justify-center rounded-md text-[#6b7280] transition-colors hover:bg-slate-100 hover:text-[#2563eb] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
                           >
-                            {passwordVisible ? 'Ẩn' : 'Hiện'}
+                            {passwordVisible ? <EyeOff className="size-5" aria-hidden="true" /> : <Eye className="size-5" aria-hidden="true" />}
                           </button>
                         </div>
 
@@ -626,7 +629,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
                       <button
                         type="submit"
                         disabled={loading}
-                        className={`mt-1 lg:ml-auto lg:block lg:max-w-[18rem] ${primaryActionClass}`}
+                        className={primaryActionClass}
                         style={primaryActionStyle}
                       >
                         {loading
@@ -647,7 +650,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
                             setAuthError('');
                             setResetSent(false);
                           }}
-                          className="w-full text-sm text-[#647995] transition-colors hover:text-cyan-700 lg:text-right"
+                          className="w-full text-right text-sm text-[#647995] transition-colors hover:text-[#2563eb]"
                         >
                           Quên mật khẩu?
                         </button>
@@ -668,9 +671,9 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
                       type="button"
                       onClick={handleGoogleSignIn}
                       disabled={loading}
-                      className="flex w-full items-center justify-center gap-3 rounded-xl border border-[#e2e8f0] bg-white px-4 py-3 text-[13px] font-bold uppercase tracking-[0.12em] text-slate-900 shadow-[0_12px_24px_rgba(15,23,42,0.04)] transition-all hover:border-[#bfdbfe] hover:bg-[#f8fafc] disabled:cursor-not-allowed disabled:opacity-50 lg:ml-auto lg:max-w-[18rem]"
+                      className="relative flex w-full items-center justify-center rounded-lg border border-gray-200 bg-white px-12 py-3 text-[13px] font-bold uppercase text-slate-900 shadow-sm transition-colors hover:border-blue-200 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
                     >
-                      <svg className="h-5 w-5 shrink-0" viewBox="0 0 24 24">
+                      <svg className="absolute left-4 size-5" viewBox="0 0 24 24" aria-hidden="true">
                         <path
                           fill="#EA4335"
                           d="M5.2662 9.76453C6.19879 6.93863 8.85445 4.90909 12 4.90909C13.6909 4.90909 15.2182 5.50909 16.4182 6.49091L19.9091 3C17.7818 1.14545 15.0545 0 12 0C7.27007 0 3.19775 2.6983 1.23999 6.65002L5.2662 9.76453Z"
@@ -694,7 +697,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
                 )}
 
                 <div className="mt-4 border-t border-[#e2e8f0] pt-4 text-center">
-                  <p className="text-[12px] text-[#6f84a0]">
+                  <p className="text-pretty text-[12px] text-[#6b7280]">
                     Bằng cách tiếp tục, bạn đồng ý với{' '}
                     <a href="/terms" className="text-cyan-700 transition-colors hover:text-blue-700 hover:underline">Điều khoản dịch vụ</a>
                     {' '}và{' '}

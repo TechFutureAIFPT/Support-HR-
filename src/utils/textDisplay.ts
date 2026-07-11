@@ -97,10 +97,16 @@ function repairDamagedMojibake(value: string): string {
   );
 }
 
+function decodeLiteralUnicodeEscapes(value: string): string {
+  return value.replace(/\\u([0-9a-fA-F]{4})/g, (_match, code: string) =>
+    String.fromCharCode(Number.parseInt(code, 16))
+  );
+}
+
 export function normalizeVietnameseDisplay(value: unknown): string {
   if (value === null || value === undefined) return '';
 
-  let current = repairDamagedMojibake(String(value));
+  let current = repairDamagedMojibake(decodeLiteralUnicodeEscapes(String(value)));
   for (let index = 0; index < 4; index += 1) {
     if (!MOJIBAKE_PATTERN.test(current) && !DAMAGED_MOJIBAKE_PATTERN.test(current)) return current;
 

@@ -68,6 +68,7 @@ export interface CandidateEmailNotifierProps {
   jobPosition: string;
   onClose: () => void;
   inline?: boolean;
+  onFinish?: () => void;
   onSendSuccess?: (sentCount: number) => void;
 }
 
@@ -288,6 +289,7 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
   jobPosition,
   onClose,
   inline,
+  onFinish,
   onSendSuccess,
 }) => {
   const tc = useThemeColors();
@@ -421,11 +423,11 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
     : applyTemplate(failTemplate, previewName, jobPosition);
   const candidatePanelWidthClass = candidatePanelOpen
     ? inline
-      ? 'xl:w-[320px] 2xl:w-[340px]'
+      ? 'xl:w-[300px]'
       : 'xl:w-[30%]'
     : 'xl:w-[64px]';
   const passLayoutClass = inline
-    ? 'grid h-full min-h-0 grid-cols-1 gap-3 p-3 xl:grid-cols-[minmax(280px,312px)_minmax(0,1fr)]'
+    ? 'flex h-full min-h-0 flex-col gap-3 overflow-y-auto p-4'
     : 'grid h-full min-h-0 grid-cols-1 gap-3 p-3 xl:grid-cols-[300px_minmax(0,1fr)]';
   const previewSubject = activeTab === 'pass'
     ? `ThÃ´ng bÃ¡o káº¿t quáº£ sÆ¡ tuyá»ƒn â€“ ${jobPosition}`
@@ -435,7 +437,7 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
     : 'Xem trÆ°á»›c ná»™i dung email tá»« chá»‘i theo á»©ng viÃªn Ä‘ang chá»n. Khi chá»‰nh báº£n soáº¡n bÃªn trÃ¡i, khung nÃ y sáº½ cáº­p nháº­t ngay.';
   const leftPanelTitle = activeTab === 'pass' ? 'ThÃ´ng tin phá»ng váº¥n' : 'Soáº¡n email Â· KhÃ´ng phÃ¹ há»£p';
 
-  const inputCls = 'w-full rounded-lg border px-2.5 py-1.5 text-[12px] outline-none transition-colors focus:border-blue-400 focus:ring-1 focus:ring-blue-100';
+  const inputCls = 'h-10 w-full rounded-lg border px-3 text-sm outline-none transition-colors focus:border-blue-400 focus:ring-2 focus:ring-blue-100';
   const inputStyle = { background: tc.pageBg, borderColor: tc.borderSoft, color: tc.textPrimary };
 
   return (
@@ -446,10 +448,10 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
     >
       <div
         className={inline
-          ? "relative flex h-full min-h-0 flex-col overflow-hidden"
+          ? "recruitment-compact-shell relative flex h-full min-h-0 flex-col overflow-hidden bg-white"
           : "relative flex w-full max-w-5xl flex-col overflow-hidden rounded-2xl shadow-2xl"}
         style={inline
-          ? { background: tc.cardBg, border: `1px solid ${tc.borderSoft}` }
+          ? { background: tc.cardBg }
           : { background: tc.cardBg, border: `1px solid ${tc.borderSoft}`, height: 'min(92vh, 760px)' }}
       >
         {/* ── Header ──────────────────────────────────── */}
@@ -866,8 +868,7 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
                 <div className={passLayoutClass}>
                   {/* Form fields */}
                   <div
-                    className="custom-scrollbar min-h-0 overflow-y-auto rounded-2xl border p-3.5"
-                    style={{ borderColor: tc.borderSoft, background: 'rgba(248,250,252,0.68)' }}
+                    className="shrink-0 rounded-lg bg-slate-50 p-4"
                   >
                     <div className="mb-3">
                       <p
@@ -992,8 +993,8 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
                   </div>
 
                   {/* Auto-generated email preview */}
-                  <div className="min-h-0 min-w-0">
-                    <div className="min-h-0 flex h-full flex-1">
+                  <div className="min-h-[360px] min-w-0 flex-1">
+                    <div className="flex h-full min-h-[360px]">
                       <EmailPreviewCard
                         tc={tc}
                         to={previewItem ? (previewItem.email || '(chưa có email)') : '(chọn ứng viên để xem)'}
@@ -1050,7 +1051,7 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
 
         {/* ── Footer ──────────────────────────────────── */}
         <div
-          className="flex shrink-0 items-center justify-between border-t px-4 py-2"
+          className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-t px-4 py-3"
           style={{ borderColor: tc.borderSoft, background: tc.cardBg }}
         >
           <div>
@@ -1113,6 +1114,16 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
                     Gửi thông báo
                   </>
                 )}
+              </button>
+            )}
+            {onFinish && (
+              <button
+                type="button"
+                onClick={onFinish}
+                className="inline-flex h-9 items-center gap-2 rounded-lg bg-emerald-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+              >
+                <CheckCircle2 className="size-4" />
+                Hoàn thành
               </button>
             )}
           </div>

@@ -625,6 +625,9 @@ function normalizeCandidate(rawCandidate: unknown, fallbackFile?: File, cvText?:
   return {
     id: String(candidate.id || `${fileName}-${candidateName}`),
     candidateName,
+    avatarUrl: candidate.avatarUrl || candidate.photoUrl || candidate.avatar_url
+      ? String(candidate.avatarUrl || candidate.photoUrl || candidate.avatar_url)
+      : undefined,
     fileName,
     phone: candidate.phone ? String(candidate.phone) : undefined,
     email: candidate.email ? String(candidate.email) : undefined,

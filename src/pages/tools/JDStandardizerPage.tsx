@@ -347,12 +347,12 @@ const JDStandardizerPage: React.FC<JDStandardizerPageProps> = ({ onUseJD }) => {
   // ─── Render ────────────────────────────────────────────────────────────────
 
   return (
-    <div className="feature-page-shell flex h-full min-h-0 w-full flex-1 flex-col bg-white">
+    <div className="feature-page-shell recruitment-compact-shell flex h-full min-h-0 w-full flex-1 flex-col bg-white">
       {/* Page Header */}
-      <div className="shrink-0 border-b border-blue-100 bg-white px-5 py-4">
+      <div className="shrink-0 border-b border-slate-200 bg-white px-6 py-3">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-semibold tracking-[-0.02em] text-[#1d1d1f]">Chuẩn hóa JD</h1>
+            <h1 className="text-balance text-2xl font-semibold text-slate-950">Chuẩn hóa JD</h1>
             <p className="mt-1 text-sm text-slate-600">
               Quy trình từng bước biến mô tả công việc thô thành JD rõ ràng, đủ mục và sẵn sàng cho AI.
             </p>
@@ -363,8 +363,8 @@ const JDStandardizerPage: React.FC<JDStandardizerPageProps> = ({ onUseJD }) => {
       </div>
 
       {/* Main Content */}
-      <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto bg-white px-5 py-4">
-        <div className="mx-auto max-w-6xl space-y-4">
+      <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto bg-white px-4 py-4 sm:px-6">
+        <div className="mx-auto max-w-7xl space-y-4">
 
           {/* Error */}
           {error && (
@@ -389,7 +389,7 @@ const JDStandardizerPage: React.FC<JDStandardizerPageProps> = ({ onUseJD }) => {
               title="Nhập mô tả công việc"
               subtitle="Dán nội dung JD hoặc tải file. Hệ thống sẽ tự phân tích và hỏi bổ sung nếu thiếu thông tin."
             >
-              <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_340px]">
+              <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
                 <div className="min-w-0">
                   <div className="mb-2 flex items-center justify-between gap-3">
                     <label className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">
@@ -403,11 +403,11 @@ const JDStandardizerPage: React.FC<JDStandardizerPageProps> = ({ onUseJD }) => {
                     value={jdText}
                     onChange={(e) => setJdText(e.target.value)}
                     placeholder="Dán mô tả công việc hiện tại vào đây..."
-                    className="h-[320px] w-full resize-none rounded-2xl border border-[#d2d2d7] bg-white px-4 py-3 text-sm leading-6 text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-[#007aff] focus:ring-2 focus:ring-[#007aff]/15 lg:h-[360px] xl:h-[420px]"
+                    className="h-[min(52vh,420px)] min-h-[320px] w-full resize-none rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm leading-6 text-slate-800 outline-none transition-colors placeholder:text-slate-400 focus:border-blue-400 focus:ring-2 focus:ring-blue-500/15"
                   />
                 </div>
 
-                <div className="flex flex-col gap-3 rounded-3xl border border-blue-100 bg-[linear-gradient(180deg,#f8fbff_0%,#ffffff_100%)] p-4 shadow-[0_16px_40px_rgba(35,136,255,0.08)]">
+                <div className="flex flex-col gap-3 rounded-lg bg-slate-50 p-4">
                   <div>
                     <p className="text-xs font-black uppercase tracking-[0.14em] text-blue-600">
                       Tải file & xử lý nhanh
@@ -468,7 +468,7 @@ const JDStandardizerPage: React.FC<JDStandardizerPageProps> = ({ onUseJD }) => {
                     type="button"
                     onClick={() => void handleAnalyseJD()}
                     disabled={isLoading}
-                    className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-blue-600 px-5 text-sm font-black text-white shadow-[0_18px_38px_rgba(35,136,255,0.2)] transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-200"
+                    className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-200"
                   >
                     {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
                     {isLoading ? 'Đang phân tích JD...' : 'Phân tích & Tiếp tục'}
@@ -565,7 +565,7 @@ const JDStandardizerPage: React.FC<JDStandardizerPageProps> = ({ onUseJD }) => {
                   <button
                     type="button"
                     onClick={() => setStage('format')}
-                    className="inline-flex h-11 flex-[2] items-center justify-center gap-2 rounded-2xl bg-blue-600 px-4 text-sm font-black text-white shadow-[0_18px_38px_rgba(35,136,255,0.2)] transition hover:bg-blue-700"
+                    className="inline-flex h-10 flex-[2] items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-blue-700"
                   >
                     Chọn định dạng
                     <ArrowRight className="h-4 w-4" />
@@ -593,8 +593,8 @@ const JDStandardizerPage: React.FC<JDStandardizerPageProps> = ({ onUseJD }) => {
                       className={`group relative flex flex-col items-start gap-2 rounded-2xl border p-4 text-left transition-all ${
                         isSelected
                           ? option.highlight
-                            ? 'border-blue-400 bg-blue-600 text-white shadow-[0_12px_32px_rgba(35,136,255,0.3)]'
-                            : 'border-blue-300 bg-blue-50 shadow-[0_8px_24px_rgba(35,136,255,0.12)]'
+                            ? 'border-blue-500 bg-blue-600 text-white'
+                            : 'border-blue-300 bg-blue-50'
                           : option.highlight
                             ? 'border-blue-200 bg-white hover:border-blue-300 hover:bg-blue-50'
                             : 'border-blue-100 bg-white hover:border-blue-200 hover:bg-blue-50'
@@ -682,7 +682,7 @@ const JDStandardizerPage: React.FC<JDStandardizerPageProps> = ({ onUseJD }) => {
                   type="button"
                   onClick={() => void handleStandardize()}
                   disabled={isLoading}
-                  className="inline-flex h-11 flex-[2] items-center justify-center gap-2 rounded-2xl bg-blue-600 px-4 text-sm font-black text-white shadow-[0_18px_38px_rgba(35,136,255,0.2)] transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-200"
+                  className="inline-flex h-10 flex-[2] items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-200"
                 >
                   {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <WandSparkles className="h-4 w-4" />}
                   {isLoading ? 'Đang chuẩn hóa...' : 'Chuẩn hóa JD'}
@@ -764,7 +764,7 @@ const JDStandardizerPage: React.FC<JDStandardizerPageProps> = ({ onUseJD }) => {
               )}
 
               {/* JD Preview */}
-              <div className="rounded-3xl border border-blue-100 bg-white p-5 shadow-[0_18px_46px_rgba(30,64,175,0.07)]">
+              <div className="rounded-lg border border-slate-200 bg-white p-5">
                 <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
                   <div>
                     <p className="supporthr-mono text-[10px] font-bold uppercase tracking-[0.2em] text-blue-600">
@@ -814,7 +814,7 @@ const WizardStepBar = ({ stage }: { stage: WizardStage }) => {
                   isDone
                     ? 'bg-emerald-500 text-white'
                     : isCurrent
-                      ? 'bg-blue-600 text-white shadow-[0_4px_12px_rgba(35,136,255,0.35)]'
+                      ? 'bg-blue-600 text-white'
                       : 'bg-slate-100 text-slate-400'
                 }`}
               >
@@ -853,14 +853,14 @@ const StageCard = ({
   subtitle: string;
   children: React.ReactNode;
 }) => (
-  <section className="space-y-3 border-t border-[#e5e5ea] py-4">
+  <section className="space-y-4 border-t border-slate-200 py-4">
     <div className="flex items-center gap-3">
-      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-blue-100 bg-blue-50 text-blue-600">
+      <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
         {icon}
       </span>
       <div>
-        <h2 className="text-lg font-black text-slate-950">{title}</h2>
-        <p className="mt-0.5 text-sm text-slate-600">{subtitle}</p>
+        <h2 className="text-balance text-base font-semibold text-slate-950">{title}</h2>
+        <p className="mt-0.5 text-pretty text-sm text-slate-600">{subtitle}</p>
       </div>
     </div>
     {children}
@@ -884,7 +884,7 @@ const InputField = ({
       value={value}
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
-      className="mt-2 h-11 w-full rounded-xl border border-blue-100 bg-white px-3 text-sm font-semibold text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-blue-300 focus:ring-4 focus:ring-blue-100"
+      className="mt-2 h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-800 outline-none transition-colors placeholder:text-slate-400 focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
     />
   </label>
 );
@@ -901,7 +901,7 @@ const ActionButton = ({
   <button
     type="button"
     onClick={onClick}
-    className="inline-flex h-10 items-center gap-2 rounded-xl border border-blue-100 bg-white px-3 text-sm font-bold text-slate-700 transition hover:bg-blue-50 hover:text-blue-700"
+    className="inline-flex h-10 items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 transition-colors hover:bg-blue-50 hover:text-blue-700"
   >
     {icon}
     {label}

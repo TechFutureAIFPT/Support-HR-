@@ -321,11 +321,36 @@ const StatsPane: React.FC<{ candidate: Candidate }> = ({ candidate }) => {
 interface ChatMessage { role: 'user' | 'ai'; text: string; }
 
 const CHAT_SUGGESTIONS = [
-  'D\u1ef1a tr\u00ean th\u1ed1ng k\u00ea hi\u1ec7n c\u00f3, h\u00e3y t\u00f3m t\u1eaft v\u00ec sao \u1ee9ng vi\u00ean n\u00e0y \u0111\u1ea1t \u0111i\u1ec3m nh\u01b0 v\u1eady.',
-  'Nh\u1eefng r\u1ee7i ro c\u1ea7n x\u00e1c minh tr\u1ef1c ti\u1ebfp l\u00e0 g\u00ec? H\u00e3y n\u00eau r\u00f5 theo t\u1eebng s\u1ed1 li\u1ec7u.',
-  'T\u1ea1o 5 c\u00e2u h\u1ecfi ph\u1ecfng v\u1ea5n b\u00e1m \u0111\u00fang ti\u00eau ch\u00ed y\u1ebfu v\u00e0 ph\u1ea7n thi\u1ebfu c\u1ee7a \u1ee9ng vi\u00ean n\u00e0y.',
-  'N\u1ebfu ch\u1ec9 d\u1ef1a tr\u00ean s\u1ed1 li\u1ec7u hi\u1ec7n c\u00f3, \u1ee9ng vi\u00ean n\u00e0y c\u00f3 n\u00ean v\u00e0o v\u00f2ng ti\u1ebfp theo kh\u00f4ng?',
+  'Tạo 5 câu hỏi phỏng vấn bám đúng điểm yếu và phần còn thiếu của ứng viên này.',
+  'Tạo câu hỏi xác minh kinh nghiệm và kỹ năng quan trọng của ứng viên này.',
+  'Tư vấn riêng về điểm mạnh, rủi ro và mức độ phù hợp của ứng viên này.',
+  'Tư vấn recruiter nên kiểm tra điều gì trước khi quyết định đưa ứng viên vào vòng tiếp theo.',
 ];
+
+const CandidateAvatar: React.FC<{ candidate: Candidate; className: string }> = ({ candidate, className }) => {
+  const [imageFailed, setImageFailed] = useState(false);
+  const initials = normalizeVietnameseDisplay(candidate.candidateName)
+    .split(/\s+/)
+    .slice(-2)
+    .map((part) => part[0])
+    .join('')
+    .toUpperCase();
+
+  useEffect(() => setImageFailed(false), [candidate.avatarUrl]);
+
+  return (
+    <div className={`${className} flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#e8f1ff] font-medium text-[#007aff]`}>
+      {candidate.avatarUrl && !imageFailed ? (
+        <img
+          src={candidate.avatarUrl}
+          alt={`Ảnh đại diện của ${normalizeVietnameseDisplay(candidate.candidateName)}`}
+          className="size-full object-cover"
+          onError={() => setImageFailed(true)}
+        />
+      ) : initials || '?'}
+    </div>
+  );
+};
 
 function buildCandidateChatSnapshot(candidate: Candidate, jobPosition: string, jdText?: string) {
   const detailScores = (candidate.analysis?.['Chi ti\u1ebft'] ?? []).map((item) => {
@@ -459,7 +484,7 @@ const ChatPane: React.FC<{ candidate: Candidate; jobPosition: string; jdText?: s
 
   const buildContext = () => JSON.stringify(candidateSnapshot, null, 2);
 
-  const formatAiChatResponse = (rawText: string) => rawText
+  const formatAiChatResponse = (rawText: string) => normalizeVietnameseDisplay(rawText)
     .replace(/\r\n/g, '\n')
     .replace(/^#+\s*/gm, '')
     .replace(/\*\*/g, '')
@@ -490,7 +515,8 @@ const ChatPane: React.FC<{ candidate: Candidate; jobPosition: string; jdText?: s
       : '';
 
     const prompt = [
-      `B\u1ea1n l\u00e0 tr\u1ee3 l\u00fd tuy\u1ec3n d\u1ee5ng AI chuy\u00ean s\u00e2u cho m\u1ed9t \u1ee9ng vi\u00ean duy nh\u1ea5t. ${recruiterCtx}Ch\u1ec9 \u0111\u01b0\u1ee3c t\u01b0 v\u1ea5n d\u1ef1a tr\u00ean s\u1ed1 li\u1ec7u v\u00e0 evidence c\u00f3 trong snapshot.`,
+      `Bạn là trợ lý tuyển dụng AI cho một ứng viên duy nhất. ${recruiterCtx}Chỉ thực hiện một trong hai nhiệm vụ: tạo câu hỏi phỏng vấn hoặc tư vấn riêng về ứng viên đang chọn.`,
+      'Nếu người dùng hỏi ngoài hai nhiệm vụ này, hãy đề nghị họ đặt câu hỏi về phỏng vấn hoặc đánh giá riêng ứng viên.',
       'Y\u00eau c\u1ea7u b\u1eaft bu\u1ed9c:',
       '- M\u1ecdi nh\u1eadn \u0111\u1ecbnh ph\u1ea3i b\u00e1m v\u00e0o th\u1ed1ng k\u00ea c\u1ee5 th\u1ec3 nh\u01b0 t\u1ed5ng \u0111i\u1ec3m, JD match, ti\u00eau ch\u00ed m\u1ea1nh/y\u1ebfu, matched/missing skills, stage decision, red flags.',
       '- N\u1ebfu d\u1eef li\u1ec7u ch\u01b0a \u0111\u1ee7, ph\u1ea3i n\u00f3i r\u00f5 m\u1ee5c n\u00e0o \u0111ang thi\u1ebfu d\u1eef li\u1ec7u.',
@@ -537,8 +563,8 @@ const ChatPane: React.FC<{ candidate: Candidate; jobPosition: string; jdText?: s
             <div className="mb-4 flex items-center gap-2.5 rounded-2xl border border-[#d2d2d7] bg-[#f8f8fa] px-4 py-3">
               <Bot size={16} className="text-[#007aff]" />
               <div>
-                <p className="text-[13px] font-semibold text-[#1d1d1f]">T\u01b0 v\u1ea5n AI v\u1ec1 {normalizeVietnameseDisplay(candidate.candidateName)}</p>
-                <p className="text-[11.5px] text-[#6e6e73]">Chatbot s\u1ebd d\u1ef1a v\u00e0o th\u1ed1ng k\u00ea v\u00e0 evidence c\u1ee7a ri\u00eang \u1ee9ng vi\u00ean n\u00e0y \u0111\u1ec3 t\u01b0 v\u1ea5n.</p>
+                <p className="text-[13px] font-semibold text-[#1d1d1f]">Tư vấn riêng về {normalizeVietnameseDisplay(candidate.candidateName)}</p>
+                <p className="text-[11.5px] text-[#6e6e73]">Tạo câu hỏi phỏng vấn hoặc nhận tư vấn dựa trên dữ liệu riêng của ứng viên này.</p>
               </div>
             </div>
             <div className="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
@@ -549,7 +575,7 @@ const ChatPane: React.FC<{ candidate: Candidate; jobPosition: string; jdText?: s
                 </div>
               ))}
             </div>
-            <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.1em] text-[#86868b]">G\u1ee3i \u00fd c\u00e2u h\u1ecfi</p>
+            <p className="mb-2 text-[11px] font-semibold uppercase text-[#86868b]">Câu hỏi phỏng vấn và tư vấn ứng viên</p>
             <div className="space-y-2">
               {CHAT_SUGGESTIONS.map((suggestion) => (
                 <button key={suggestion} onClick={() => send(suggestion)} className="w-full rounded-xl border border-[#d2d2d7] bg-white px-4 py-2.5 text-left text-[13px] text-[#1d1d1f] transition hover:border-[#007aff] hover:bg-[#eef5ff]">
@@ -586,7 +612,7 @@ const ChatPane: React.FC<{ candidate: Candidate; jobPosition: string; jdText?: s
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); void send(input); } }}
-            placeholder="H\u1ecfi v\u1ec1 \u1ee9ng vi\u00ean n\u00e0y b\u1eb1ng th\u1ed1ng k\u00ea, \u0111i\u1ec3m s\u1ed1, r\u1ee7i ro..."
+            placeholder="Nhập câu hỏi phỏng vấn hoặc yêu cầu tư vấn về ứng viên..."
             className="flex-1 rounded-xl border border-[#d2d2d7] bg-[#f8f8fa] px-3.5 py-2 text-[13px] outline-none focus:border-[#007aff] focus:ring-2 focus:ring-[#007aff]/15"
             disabled={loading}
           />
@@ -864,7 +890,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({
               <div className="flex items-start justify-between gap-4 px-4 py-5 sm:px-6">
                 <div className="flex min-w-0 items-center gap-4">
                   <button type="button" onClick={() => setParam('candidate', null)} className="apple-toolbar-icon apple-detail-back" aria-label="Quay lại danh sách"><ArrowLeft size={17} /></button>
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#e8f1ff] text-[16px] font-medium text-[#007aff]">{normalizeVietnameseDisplay(selected.candidateName).split(/\s+/).slice(-2).map((part) => part[0]).join('').toUpperCase()}</div>
+                  <CandidateAvatar candidate={selected} className="size-12 text-base" />
                   <div className="min-w-0"><h2 className="truncate text-[24px] font-semibold tracking-[-0.02em]">{normalizeVietnameseDisplay(selected.candidateName)}</h2><p className="mt-1 truncate text-[13px] text-[#6e6e73]">{candidateRole(selected, jobPosition)}</p><div className="mt-1"><ScoreLabel score={candidateScore(selected)} /></div></div>
                 </div>
                 <div className="hidden items-center gap-2 sm:flex">

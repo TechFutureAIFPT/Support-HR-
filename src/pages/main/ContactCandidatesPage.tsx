@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CheckCircle2 } from 'lucide-react';
 import type { AnalysisFeedbackRecord, Candidate } from '@/types';
 import type { WorkspaceSessionStatus } from '@/types/workspace';
 import CandidateEmailNotifier from '@/features/email/CandidateEmailNotifier';
@@ -118,27 +117,9 @@ const ContactCandidatesPage: React.FC<ContactCandidatesPageProps> = ({ candidate
               }
             }
           }}
+          onFinish={handleFinish}
           inline
         />
-      </div>
-
-      <div
-        className="shrink-0 border-t border-[#e5e7eb] bg-white px-6 py-3"
-        style={{ boxShadow: '0 -1px 0 0 rgba(0,0,0,0.04)' }}
-      >
-        <div className="flex items-center justify-between">
-          <p className="text-[12px] text-[#9ca3af]">
-            Ấn <strong>Hoàn thành</strong> để kết thúc phiên lọc và quay về trang chủ.
-          </p>
-          <button
-            type="button"
-            onClick={handleFinish}
-            className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2 text-[13px] font-semibold text-white shadow-sm transition hover:bg-emerald-700 active:scale-95"
-          >
-            <CheckCircle2 size={15} />
-            Hoàn thành
-          </button>
-        </div>
       </div>
     </div>
   );

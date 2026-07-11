@@ -2,6 +2,10 @@ export type Locale = 'vi-VN' | 'en-US';
 
 const vi = {
   // Sidebar navigation
+  nav_section_overview:   'Tổng quan',
+  nav_section_screening:  'Quy trình sàng lọc',
+  nav_section_candidates: 'Quản lý ứng viên',
+  nav_section_tools:      'Công cụ tuyển dụng',
   nav_overview:        'Tổng quan tuyển dụng',
   nav_upload:          'Nạp hồ sơ ứng viên',
   nav_results:         'Kết quả phân tích',
@@ -10,6 +14,7 @@ const vi = {
   nav_contact:         'Liên Hệ ứng viên',
   nav_feedback:        'Phản hồi kết quả AI',
   nav_jd_standardizer: 'Chuẩn hóa JD',
+  nav_jd_templates:    'Thư viện mẫu JD',
   nav_history:         'Lịch sử lọc CV',
   nav_salary:          'Phân tích lương',
   nav_library:         'Thư viện CV',
@@ -67,6 +72,10 @@ const vi = {
 };
 
 const en: typeof vi = {
+  nav_section_overview:   'Overview',
+  nav_section_screening:  'Screening Workflow',
+  nav_section_candidates: 'Candidate Management',
+  nav_section_tools:      'Recruitment Tools',
   nav_overview:        'Recruitment Overview',
   nav_upload:          'Upload Candidates',
   nav_results:         'Analysis Results',
@@ -75,6 +84,7 @@ const en: typeof vi = {
   nav_contact:         'Contact Candidates',
   nav_feedback:        'AI Feedback',
   nav_jd_standardizer: 'JD Standardizer',
+  nav_jd_templates:    'JD Template Library',
   nav_history:         'CV Filter History',
   nav_salary:          'Salary Analysis',
   nav_library:         'CV Library',
