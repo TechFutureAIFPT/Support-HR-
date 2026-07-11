@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
+  AlertTriangle,
   ArrowLeft,
   Brain,
   CheckCircle2,
@@ -140,6 +141,37 @@ function getActionPresentation(action?: AnalysisFeedbackAction | null) {
 function formatUpdatedAt(value?: number | null): string {
   if (!value) return 'Chưa có bản ghi phản hồi';
   return new Date(value).toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+}
+
+function CandidateScoreRing({ score }: { score: number }) {
+  const normalizedScore = Math.max(0, Math.min(100, score));
+  const radius = 22;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference - (normalizedScore / 100) * circumference;
+  const color = normalizedScore >= 75 ? '#22c55e' : normalizedScore >= 55 ? '#2563eb' : '#f59e0b';
+
+  return (
+    <div className="relative size-16 shrink-0" role="img" aria-label={`Điểm AI ${normalizedScore.toFixed(1)} trên 100`}>
+      <svg className="size-16 -rotate-90" viewBox="0 0 56 56" aria-hidden="true">
+        <circle cx="28" cy="28" r={radius} fill="none" stroke="#e2e8f0" strokeWidth="5" />
+        <circle
+          cx="28"
+          cy="28"
+          r={radius}
+          fill="none"
+          stroke={color}
+          strokeWidth="5"
+          strokeLinecap="round"
+          strokeDasharray={circumference}
+          strokeDashoffset={offset}
+        />
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <span className="text-sm font-bold tabular-nums text-slate-950">{normalizedScore.toFixed(0)}</span>
+        <span className="text-[9px] font-medium text-slate-500">AI</span>
+      </div>
+    </div>
+  );
 }
 
 const FEEDBACK_FILTERS: Array<{ key: FeedbackFilter; label: string }> = [
@@ -450,79 +482,86 @@ export default function AIFeedbackPage({
                 return (
                   <article
                     key={candidate.id}
-                    className="rounded-3xl border p-4 transition-all hover:shadow-md"
-                    style={{ background: tc.cardBg, borderColor: tc.borderSoft, boxShadow: '0 2px 12px rgba(30,64,175,0.05)' }}
+                    className="flex min-h-full flex-col rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
                   >
-                    <div className="flex items-start gap-3">
-                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-[13px] font-black text-blue-600">
+                    <div className="flex items-start gap-3 sm:gap-4">
+                      <div className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-sm font-bold text-blue-700">
                         {getInitials(candidate.candidateName)}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <div className="mb-1 flex flex-wrap items-center gap-2">
-                          <h3 className="truncate text-[15px] font-bold leading-tight" style={{ color: tc.textPrimary }}>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <h3 className="text-balance text-base font-semibold leading-6 text-slate-950">
                             {normalizeVietnameseDisplay(candidate.candidateName)}
                           </h3>
-                          <span className={`rounded-lg px-2 py-0.5 text-[10px] font-bold ${getRankColors(getCandidateRank(candidate))}`}>
+                          <span className={`rounded-md px-2 py-0.5 text-xs font-semibold ${getRankColors(getCandidateRank(candidate))}`}>
                             Hạng {getCandidateRank(candidate)}
                           </span>
                           {actionPres ? (
-                            <span className={`flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold ${actionPres.colorClass}`}>
-                              <span className={`h-1.5 w-1.5 rounded-full ${actionPres.dotClass}`} />
+                            <span className={`flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${actionPres.colorClass}`}>
+                              <span className={`size-1.5 rounded-full ${actionPres.dotClass}`} />
                               {actionPres.label}
                             </span>
                           ) : (
-                            <span className="rounded-full border px-2.5 py-1 text-[11px] font-medium" style={{ borderColor: tc.borderSoft, color: tc.textMuted, background: tc.pageBg }}>
+                            <span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-500">
                               Chưa phản hồi
                             </span>
                           )}
                         </div>
-                        <p className="text-[13px] leading-5" style={{ color: tc.textPrimary }}>
+                        <p className="mt-2 text-pretty text-sm leading-6 text-slate-700">
                           {normalizeVietnameseDisplay(buildHeadlineVerdict(candidate))}
                         </p>
-                        <div className="mt-2 flex flex-wrap gap-2 text-[11px]" style={{ color: tc.textMuted }}>
-                          <span className="rounded-full border px-2.5 py-1" style={{ borderColor: tc.borderSoft, background: tc.pageBg }}>
-                            AI {getCandidateScore(candidate).toFixed(1)}
+                        <div className="mt-3 flex flex-wrap gap-2 text-xs text-slate-600">
+                          <span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 tabular-nums">
+                            Điểm recruiter {getDisplayedCandidateScore(candidate).toFixed(1)}
                           </span>
-                          <span className="rounded-full border px-2.5 py-1" style={{ borderColor: tc.borderSoft, background: tc.pageBg }}>
-                            Recruiter {getDisplayedCandidateScore(candidate).toFixed(1)}
-                          </span>
-                          <span className="rounded-full border px-2.5 py-1" style={{ borderColor: tc.borderSoft, background: tc.pageBg }}>
+                          <span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1">
                             {normalizeVietnameseDisplay(buildRecommendedAction(candidate))}
                           </span>
                         </div>
                       </div>
+                      <CandidateScoreRing score={getCandidateScore(candidate)} />
                     </div>
 
-                    <div className="mt-4 grid gap-3 md:grid-cols-2">
-                      <div className="rounded-2xl border p-3" style={{ borderColor: tc.borderSoft, background: tc.pageBg }}>
-                        <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-blue-600">Top evidence</p>
-                        <ul className="space-y-1.5 text-[12px] leading-5" style={{ color: tc.textSecondary }}>
-                          {reasons.map((item) => <li key={item}>• {normalizeVietnameseDisplay(item)}</li>)}
+                    <div className="mt-5 grid flex-1 gap-3 md:grid-cols-2">
+                      <section className="rounded-lg border border-emerald-100 bg-emerald-50/70 p-4" aria-labelledby={`evidence-${candidate.id}`}>
+                        <h4 id={`evidence-${candidate.id}`} className="mb-3 text-sm font-semibold text-emerald-800">Top Evidence</h4>
+                        <ul className="space-y-2.5 text-sm leading-6 text-slate-700">
+                          {reasons.map((item) => (
+                            <li key={item} className="flex items-start gap-2">
+                              <CheckCircle2 className="mt-1 size-4 shrink-0 text-[#22c55e]" />
+                              <span className="text-pretty">{normalizeVietnameseDisplay(item)}</span>
+                            </li>
+                          ))}
                         </ul>
-                      </div>
-                      <div className="rounded-2xl border p-3" style={{ borderColor: tc.borderSoft, background: tc.pageBg }}>
-                        <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-amber-600">Top risks</p>
-                        <ul className="space-y-1.5 text-[12px] leading-5" style={{ color: tc.textSecondary }}>
-                          {risks.map((item) => <li key={item}>• {normalizeVietnameseDisplay(item)}</li>)}
+                      </section>
+                      <section className="rounded-lg border border-red-100 bg-red-50/70 p-4" aria-labelledby={`risks-${candidate.id}`}>
+                        <h4 id={`risks-${candidate.id}`} className="mb-3 text-sm font-semibold text-red-800">Top Risks</h4>
+                        <ul className="space-y-2.5 text-sm leading-6 text-slate-700">
+                          {risks.map((item) => (
+                            <li key={item} className="flex items-start gap-2">
+                              <AlertTriangle className="mt-1 size-4 shrink-0 text-[#ef4444]" />
+                              <span className="text-pretty">{normalizeVietnameseDisplay(item)}</span>
+                            </li>
+                          ))}
                         </ul>
-                      </div>
+                      </section>
                     </div>
 
-                    <div className="mt-4 flex items-center justify-between border-t pt-3" style={{ borderColor: tc.borderSoft }}>
-                      <div className="text-[11px]" style={{ color: tc.textMuted }}>
+                    <div className="mt-5 flex flex-col gap-3 border-t border-slate-200 pt-4 sm:flex-row sm:items-end sm:justify-between">
+                      <div className="min-w-0 text-xs leading-5 text-slate-500">
                         <p>{formatUpdatedAt(entry?.updatedAt)}</p>
-                        <p className="mt-1 flex items-center gap-1">
-                          <FileText className="h-3 w-3" />
-                          {normalizeVietnameseDisplay(candidate.fileName)}
+                        <p className="mt-1 flex min-w-0 items-center gap-1.5">
+                          <FileText className="size-3.5 shrink-0" />
+                          <span className="truncate">{normalizeVietnameseDisplay(candidate.fileName)}</span>
                         </p>
                       </div>
                       <button
                         type="button"
                         onClick={() => handleOpenCandidate(candidate.id)}
-                        className="inline-flex items-center gap-1.5 rounded-xl bg-blue-600 px-4 py-2 text-[12px] font-semibold text-white shadow-sm shadow-blue-600/20 transition-all hover:bg-blue-700"
+                        className="inline-flex h-10 items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-blue-600 to-blue-500 px-5 text-sm font-semibold text-white shadow-sm hover:from-blue-700 hover:to-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
                       >
                         {entry ? 'Chỉnh sửa' : 'Phản hồi'}
-                        <ChevronRight className="h-3.5 w-3.5" />
+                        <ChevronRight className="size-4" />
                       </button>
                     </div>
                   </article>

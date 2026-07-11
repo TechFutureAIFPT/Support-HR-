@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   AlertCircle,
   ArrowLeft,
@@ -7,6 +7,7 @@ import {
   Clipboard,
   Copy,
   FileText,
+  Info,
   Loader2,
   Save,
   Sparkles,
@@ -23,10 +24,13 @@ import type {
 } from '@/types';
 import { standardizeJDFile, standardizeJDText } from '@/services/data-sync/recruitmentToolsService';
 import { JDTemplatesService } from '@/services/data-sync/jdTemplatesService';
+import { getGoogleDriveService } from '@/services/file-processing/googleDriveLoader';
+import { getSafeErrorMessage, isRedirectingToGoogle } from '@/utils/errorMessages';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 type WizardStage = 'input' | 'supplement' | 'format' | 'result';
+type InputMode = 'text' | 'file' | 'drive';
 
 type ExtendedPlatform = JDStandardizeTargetPlatform | 'support_hr';
 
@@ -148,6 +152,8 @@ const JDStandardizerPage: React.FC<JDStandardizerPageProps> = ({ onUseJD }) => {
   const [stage, setStage] = useState<WizardStage>('input');
   const [jdText, setJdText] = useState('');
   const [file, setFile] = useState<File | null>(null);
+  const [inputMode, setInputMode] = useState<InputMode>('text');
+  const [isDriveLoading, setIsDriveLoading] = useState(false);
   const [forceOcr, setForceOcr] = useState(false);
   const [supplementalFields, setSupplementalFields] = useState<JDSupplementalFields>(emptySupplemental);
   const [selectedPlatform, setSelectedPlatform] = useState<ExtendedPlatform>('support_hr');
@@ -161,6 +167,69 @@ const JDStandardizerPage: React.FC<JDStandardizerPageProps> = ({ onUseJD }) => {
   const normalizedJD = result?.normalizedJD ?? emptyNormalizedJD;
   const outputText = useMemo(() => buildJDText(normalizedJD), [normalizedJD]);
 
+  useEffect(() => {
+    let cancelled = false;
+
+    const resumeGoogleDriveImport = async () => {
+      try {
+        const driveService = await getGoogleDriveService();
+        if (driveService.getPendingImportFileType() !== 'jd') return;
+
+        setIsDriveLoading(true);
+        const files = await driveService.resumePendingPickAndImportIfNeeded();
+        if (!cancelled && files.length > 0) {
+          setFile(files[0]);
+          setInputMode('drive');
+          setNotice(`Đã nhập ${files[0].name} từ Google Drive.`);
+        }
+      } catch (err) {
+        if (!cancelled && !isRedirectingToGoogle(err)) {
+          setError(getSafeErrorMessage(err, 'drive'));
+        }
+      } finally {
+        if (!cancelled) setIsDriveLoading(false);
+      }
+    };
+
+    void resumeGoogleDriveImport();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const selectInputMode = (mode: InputMode) => {
+    setInputMode(mode);
+    setFile(null);
+    setError('');
+    setNotice('');
+  };
+
+  const handleGoogleDrivePicker = async () => {
+    setError('');
+    setNotice('');
+    setIsDriveLoading(true);
+
+    try {
+      const driveService = await getGoogleDriveService();
+      const files = await driveService.pickAndImportFiles({
+        mimeTypes:
+          'application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,image/png,image/jpeg,text/plain',
+        multiSelect: false,
+        fileType: 'jd',
+      });
+
+      if (files.length > 0) {
+        setFile(files[0]);
+        setInputMode('drive');
+        setNotice(`Đã chọn ${files[0].name} từ Google Drive.`);
+      }
+    } catch (err) {
+      if (!isRedirectingToGoogle(err)) setError(getSafeErrorMessage(err, 'drive'));
+    } finally {
+      setIsDriveLoading(false);
+    }
+  };
+
   const updateSupplemental = (key: keyof JDSupplementalFields, value: string) => {
     setSupplementalFields((prev) => ({ ...prev, [key]: value }));
   };
@@ -168,14 +237,18 @@ const JDStandardizerPage: React.FC<JDStandardizerPageProps> = ({ onUseJD }) => {
   // ── Step 1: analyse JD to detect missing fields ───────────────────────────
   const handleAnalyseJD = async () => {
     setError('');
-    if (!file && jdText.trim().length < 20) {
-      setError('Vui lòng nhập JD hoặc tải file JD để tiếp tục.');
+    if (inputMode === 'text' && jdText.trim().length < 20) {
+      setError('Vui lòng nhập ít nhất 20 ký tự mô tả công việc để tiếp tục.');
+      return;
+    }
+    if (inputMode !== 'text' && !file) {
+      setError(inputMode === 'drive' ? 'Vui lòng chọn một file từ Google Drive.' : 'Vui lòng tải lên một file JD.');
       return;
     }
 
     setIsLoading(true);
     try {
-      const response = file
+      const response = inputMode !== 'text' && file
         ? await standardizeJDFile({ file, targetPlatform: 'parse_jd', supplementalFields, forceOcr })
         : await standardizeJDText({ jdText, targetPlatform: 'parse_jd', supplementalFields });
 
@@ -203,7 +276,7 @@ const JDStandardizerPage: React.FC<JDStandardizerPageProps> = ({ onUseJD }) => {
 
     try {
       const apiPlatform = resolveApiPlatform(selectedPlatform);
-      const response = file
+      const response = inputMode !== 'text' && file
         ? await standardizeJDFile({ file, targetPlatform: apiPlatform, supplementalFields, forceOcr })
         : await standardizeJDText({ jdText, targetPlatform: apiPlatform, supplementalFields });
 
@@ -334,6 +407,7 @@ const JDStandardizerPage: React.FC<JDStandardizerPageProps> = ({ onUseJD }) => {
     setStage('input');
     setJdText('');
     setFile(null);
+    setInputMode('text');
     setForceOcr(false);
     setSupplementalFields(emptySupplemental);
     setSelectedPlatform('support_hr');
@@ -387,93 +461,115 @@ const JDStandardizerPage: React.FC<JDStandardizerPageProps> = ({ onUseJD }) => {
             <StageCard
               icon={<FileText className="h-5 w-5" />}
               title="Nhập mô tả công việc"
-              subtitle="Dán nội dung JD hoặc tải file. Hệ thống sẽ tự phân tích và hỏi bổ sung nếu thiếu thông tin."
+              subtitle="Chọn một cách nhập JD. Hệ thống sẽ phân tích và hỏi bổ sung khi cần."
             >
-              <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
-                <div className="min-w-0">
-                  <div className="mb-2 flex items-center justify-between gap-3">
-                    <label className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">
-                      Nội dung JD
-                    </label>
-                    <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-bold text-slate-500">
-                      Dán trực tiếp hoặc kết hợp với file
-                    </span>
-                  </div>
-                  <textarea
-                    value={jdText}
-                    onChange={(e) => setJdText(e.target.value)}
-                    placeholder="Dán mô tả công việc hiện tại vào đây..."
-                    className="h-[min(52vh,420px)] min-h-[320px] w-full resize-none rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm leading-6 text-slate-800 outline-none transition-colors placeholder:text-slate-400 focus:border-blue-400 focus:ring-2 focus:ring-blue-500/15"
-                  />
+              <div className="mx-auto max-w-4xl overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+                <div className="grid grid-cols-3 border-b border-slate-200 bg-slate-50 p-1.5" role="tablist" aria-label="Cách nhập JD">
+                  {([
+                    ['text', 'Dán văn bản'],
+                    ['file', 'Tải file'],
+                    ['drive', 'Google Drive'],
+                  ] as const).map(([mode, label]) => (
+                    <button
+                      key={mode}
+                      type="button"
+                      role="tab"
+                      aria-selected={inputMode === mode}
+                      onClick={() => selectInputMode(mode)}
+                      className={`h-10 rounded-lg px-2 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 sm:text-sm ${
+                        inputMode === mode ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-600 hover:bg-white hover:text-slate-900'
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  ))}
                 </div>
 
-                <div className="flex flex-col gap-3 rounded-lg bg-slate-50 p-4">
-                  <div>
-                    <p className="text-xs font-black uppercase tracking-[0.14em] text-blue-600">
-                      Tải file & xử lý nhanh
-                    </p>
-                    <h3 className="mt-1 text-base font-black text-slate-950">
-                      Mọi thao tác chính ở ngay đây
-                    </h3>
-                    <p className="mt-1 text-sm leading-6 text-slate-600">
-                      Bạn có thể tải JD, bật OCR và bấm tiếp tục mà không cần kéo xuống cuối màn hình.
-                    </p>
-                  </div>
-
-                  <label className="flex min-h-[84px] cursor-pointer items-center gap-3 rounded-2xl border border-dashed border-blue-200 bg-white px-4 py-3 transition hover:bg-blue-50">
-                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
-                      <UploadCloud className="h-5 w-5" />
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="block truncate text-sm font-black text-slate-950">
-                        {file ? file.name : 'Tải file JD'}
-                      </span>
-                      <span className="mt-0.5 block truncate text-xs text-slate-500">
-                        PDF, DOCX, PNG, JPG, TXT
-                      </span>
-                    </span>
-                    <input
-                      type="file"
-                      className="hidden"
-                      accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.txt"
-                      onChange={(e) => setFile(e.target.files?.[0] || null)}
-                    />
-                  </label>
-
-                  <label className="flex items-center gap-3 rounded-2xl border border-blue-100 bg-white px-4 py-3 text-sm font-semibold text-slate-700">
-                    <input
-                      type="checkbox"
-                      checked={forceOcr}
-                      onChange={(e) => setForceOcr(e.target.checked)}
-                      className="h-4 w-4 rounded border-blue-200 text-blue-600"
-                    />
+                <div className="p-4 sm:p-6">
+                  {inputMode === 'text' && (
                     <div>
-                      <p className="font-bold text-slate-800">Ưu tiên OCR</p>
-                      <p className="text-xs font-medium text-slate-500">Phù hợp khi JD là ảnh hoặc PDF scan</p>
+                      <label htmlFor="jd-standardizer-text" className="mb-2 block text-sm font-semibold text-slate-800">
+                        Nội dung mô tả công việc
+                      </label>
+                      <textarea
+                        id="jd-standardizer-text"
+                        value={jdText}
+                        onChange={(e) => setJdText(e.target.value)}
+                        placeholder="Dán mô tả công việc hiện tại vào đây..."
+                        className="h-[min(46vh,380px)] min-h-64 w-full resize-y rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm leading-6 text-slate-800 outline-none transition-colors placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/15"
+                      />
+                      <p className="mt-2 text-pretty text-xs leading-5 text-slate-500">
+                        Có thể dán JD thô; hệ thống sẽ tự nhận diện tiêu đề, trách nhiệm, yêu cầu và quyền lợi.
+                      </p>
                     </div>
-                  </label>
+                  )}
 
-                  <div className="rounded-2xl border border-blue-100 bg-white px-4 py-3">
-                    <p className="text-[11px] font-black uppercase tracking-[0.14em] text-slate-500">
-                      Mẹo nhập nhanh
+                  {inputMode === 'file' && (
+                    <div className="space-y-4">
+                      <label className="flex min-h-56 cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-blue-300 bg-blue-50/40 px-6 py-8 text-center hover:bg-blue-50 focus-within:ring-2 focus-within:ring-blue-500">
+                        <span className="flex size-12 items-center justify-center rounded-lg bg-blue-100 text-blue-700">
+                          <UploadCloud className="size-6" />
+                        </span>
+                        <span className="mt-4 max-w-full truncate text-sm font-semibold text-slate-900">
+                          {file ? file.name : 'Chọn file JD từ máy tính'}
+                        </span>
+                        <span className="mt-1 text-xs text-slate-500">PDF, DOC, DOCX, PNG, JPG hoặc TXT</span>
+                        <input
+                          type="file"
+                          className="sr-only"
+                          accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.txt"
+                          onChange={(e) => setFile(e.target.files?.[0] || null)}
+                        />
+                      </label>
+                      <OcrOption checked={forceOcr} onChange={setForceOcr} />
+                    </div>
+                  )}
+
+                  {inputMode === 'drive' && (
+                    <div className="space-y-4">
+                      <div className="flex min-h-56 flex-col items-center justify-center rounded-lg border border-slate-200 bg-slate-50 px-6 py-8 text-center">
+                        <GoogleDriveIcon className="size-12" />
+                        <h3 className="mt-4 text-balance text-base font-semibold text-slate-950">Nhập JD từ Google Drive</h3>
+                        <p className="mt-1 max-w-md text-pretty text-sm leading-6 text-slate-500">
+                          Chọn một file JD trong Drive. File được đưa vào cùng luồng phân tích với file tải từ máy.
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => void handleGoogleDrivePicker()}
+                          disabled={isDriveLoading}
+                          className="mt-5 inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 shadow-sm hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                          {isDriveLoading ? <Loader2 className="size-4 animate-spin" /> : <GoogleDriveIcon className="size-5" />}
+                          {isDriveLoading ? 'Đang mở Google Drive...' : 'Chọn từ Google Drive'}
+                        </button>
+                        {file && <p className="mt-3 max-w-full truncate text-xs font-medium text-blue-700">Đã chọn: {file.name}</p>}
+                      </div>
+                      <OcrOption checked={forceOcr} onChange={setForceOcr} />
+                    </div>
+                  )}
+
+                  <details className="mt-4 border-t border-slate-200 pt-3 text-sm text-slate-600">
+                    <summary className="flex cursor-pointer list-none items-center gap-2 font-medium text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
+                      <Info className="size-4 text-blue-600" />
+                      Mẹo nhập JD
+                    </summary>
+                    <p className="mt-2 pl-6 text-pretty text-xs leading-5 text-slate-500">
+                      Với file scan hoặc ảnh, hãy bật OCR. Nếu JD thiếu thông tin, hệ thống sẽ hỏi bổ sung ở bước tiếp theo.
                     </p>
-                    <ul className="mt-2 space-y-1.5 text-xs leading-5 text-slate-600">
-                      <li>Dán JD thô là đủ, AI sẽ tự tách mục chính.</li>
-                      <li>Nếu thiếu quyền lợi hoặc lương, hệ thống sẽ hỏi bổ sung ở bước sau.</li>
-                      <li>File scan hoặc ảnh nên bật OCR để đọc ổn định hơn.</li>
-                    </ul>
-                  </div>
+                  </details>
 
-                  <button
-                    type="button"
-                    onClick={() => void handleAnalyseJD()}
-                    disabled={isLoading}
-                    className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-200"
-                  >
-                    {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-                    {isLoading ? 'Đang phân tích JD...' : 'Phân tích & Tiếp tục'}
-                    {!isLoading && <ArrowRight className="h-4 w-4" />}
-                  </button>
+                  <div className="mt-5 flex justify-center border-t border-slate-200 pt-5">
+                    <button
+                      type="button"
+                      onClick={() => void handleAnalyseJD()}
+                      disabled={isLoading || isDriveLoading}
+                      className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-6 text-sm font-semibold text-white hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-blue-300 sm:w-auto sm:min-w-64"
+                    >
+                      {isLoading ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
+                      {isLoading ? 'Đang phân tích JD...' : 'Phân tích & Tiếp tục'}
+                      {!isLoading && <ArrowRight className="size-4" />}
+                    </button>
+                  </div>
                 </div>
               </div>
             </StageCard>
@@ -802,27 +898,28 @@ const WizardStepBar = ({ stage }: { stage: WizardStage }) => {
   const currentIndex = stageOrder[stage];
 
   return (
-    <div className="flex items-center gap-1">
+    <div className="flex items-center gap-1" aria-label="Tiến trình chuẩn hóa JD">
       {steps.map((step, index) => {
         const isDone = index < currentIndex;
         const isCurrent = index === currentIndex;
         return (
           <React.Fragment key={step.key}>
-            <div className="flex flex-col items-center gap-1">
+            <div className="flex flex-col items-center gap-1.5">
               <div
-                className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-black transition-all ${
+                aria-current={isCurrent ? 'step' : undefined}
+                className={`flex size-8 items-center justify-center rounded-full text-xs font-semibold transition-colors ${
                   isDone
-                    ? 'bg-emerald-500 text-white'
+                    ? 'bg-blue-600 text-white'
                     : isCurrent
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-slate-100 text-slate-400'
+                      ? 'bg-blue-600 text-white ring-4 ring-blue-100'
+                      : 'bg-slate-100 text-slate-500'
                 }`}
               >
-                {isDone ? <CheckCircle2 className="h-4 w-4" /> : index + 1}
+                {isDone ? <CheckCircle2 className="size-4" /> : index + 1}
               </div>
               <span
-                className={`hidden text-[10px] font-bold sm:block ${
-                  isCurrent ? 'text-blue-600' : isDone ? 'text-emerald-600' : 'text-slate-400'
+                className={`hidden text-xs font-medium sm:block ${
+                  isCurrent || isDone ? 'text-blue-700' : 'text-slate-500'
                 }`}
               >
                 {step.label}
@@ -830,8 +927,8 @@ const WizardStepBar = ({ stage }: { stage: WizardStage }) => {
             </div>
             {index < steps.length - 1 && (
               <div
-                className={`mb-4 h-0.5 w-6 rounded transition-all ${
-                  index < currentIndex ? 'bg-emerald-300' : 'bg-slate-200'
+                className={`mb-5 h-1 w-7 rounded-full transition-colors sm:w-10 ${
+                  index < currentIndex ? 'bg-blue-500' : 'bg-slate-200'
                 }`}
               />
             )}
@@ -841,6 +938,29 @@ const WizardStepBar = ({ stage }: { stage: WizardStage }) => {
     </div>
   );
 };
+
+const OcrOption = ({ checked, onChange }: { checked: boolean; onChange: (checked: boolean) => void }) => (
+  <label className="flex items-center gap-3 rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700">
+    <input
+      type="checkbox"
+      checked={checked}
+      onChange={(event) => onChange(event.target.checked)}
+      className="size-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+    />
+    <span>
+      <span className="block font-semibold text-slate-800">Ưu tiên OCR</span>
+      <span className="block text-xs leading-5 text-slate-500">Dùng cho ảnh hoặc PDF scan từ máy tính và Google Drive.</span>
+    </span>
+  </label>
+);
+
+const GoogleDriveIcon = ({ className = 'size-5' }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+    <path fill="#0F9D58" d="M8.3 3h7.1L22 14.3h-7.1L8.3 3Z" />
+    <path fill="#F4B400" d="M8.3 3 2 14.3l3.6 6.2L11.8 9.2 8.3 3Z" />
+    <path fill="#4285F4" d="M5.6 20.5 9.1 14.3H22l-3.6 6.2H5.6Z" />
+  </svg>
+);
 
 const StageCard = ({
   icon,
