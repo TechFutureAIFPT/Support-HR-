@@ -3,6 +3,7 @@ import {
   AlertCircle,
   Calendar,
   CheckCircle2,
+  ChevronRight,
   Edit3,
   Eye,
   Mail,
@@ -45,6 +46,7 @@ Bộ phận Tuyển dụng`;
 
 type TabType = 'pass' | 'fail';
 type SendState = 'idle' | 'sending' | 'sent';
+type WorkflowStep = 'setup' | 'preview';
 type InterviewFormat = 'offline' | 'online' | 'hybrid';
 
 interface InterviewDetails {
@@ -294,6 +296,7 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
 }) => {
   const tc = useThemeColors();
   const [activeTab, setActiveTab] = useState<TabType>('pass');
+  const [workflowStep, setWorkflowStep] = useState<WorkflowStep>('setup');
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [emailOverrides, setEmailOverrides] = useState<Record<string, string>>({});
   const [interviewDetails, setInterviewDetails] = useState<InterviewDetails>({
@@ -472,13 +475,21 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
               </p>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="flex h-7 w-7 items-center justify-center rounded-lg transition-colors hover:bg-slate-100"
-            style={{ color: tc.textMuted }}
-          >
-            <X className="h-4 w-4" />
-          </button>
+          <div className="flex items-center gap-3">
+            <div className="hidden items-center gap-2 text-xs sm:flex">
+              <span className={`rounded-full px-2.5 py-1 font-semibold ${workflowStep === 'setup' ? 'bg-blue-600 text-white' : 'bg-blue-50 text-blue-700'}`}>1. Thiết lập</span>
+              <span className="text-slate-300">→</span>
+              <span className={`rounded-full px-2.5 py-1 font-semibold ${workflowStep === 'preview' ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-500'}`}>2. Xem email &amp; gửi</span>
+            </div>
+            <button
+              onClick={onClose}
+              className="flex size-8 items-center justify-center rounded-lg transition-colors hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+              style={{ color: tc.textMuted }}
+              aria-label="Đóng gửi thông báo"
+            >
+              <X className="size-4" />
+            </button>
+          </div>
         </div>
 
         {/* ── Body ────────────────────────────────────── */}
@@ -486,7 +497,7 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
 
           {/* Left — candidate list */}
           <div
-            className={`flex min-h-0 w-full flex-col border-b transition-[width] duration-200 xl:border-b-0 xl:border-r ${candidatePanelWidthClass}`}
+            className={`${workflowStep === 'preview' ? 'hidden' : 'flex'} min-h-0 w-full flex-col border-b transition-[width] duration-200 xl:border-b-0 xl:border-r ${candidatePanelWidthClass}`}
             style={{ borderColor: tc.borderSoft }}
           >
             {!candidatePanelOpen && (
@@ -532,7 +543,7 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
               ]).map(({ tab, label, count, dot, active }) => (
                 <button
                   key={tab}
-                  onClick={() => { setActiveTab(tab); setSelectedIds(new Set()); }}
+                  onClick={() => { setActiveTab(tab); setSelectedIds(new Set()); setWorkflowStep('setup'); setSendState('idle'); }}
                   className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11.5px] font-semibold transition-all ${
                     activeTab === tab ? active : 'hover:bg-slate-50'
                   }`}
@@ -824,7 +835,7 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
           <div className="flex min-h-0 w-full flex-col xl:flex-1">
 
             {/* Panel toolbar */}
-            {activeTab === 'fail' && (
+            {activeTab === 'fail' && workflowStep === 'setup' && (
               <div
                 className="flex shrink-0 items-center justify-between border-b px-3 py-2"
                 style={{ borderColor: tc.borderSoft }}
@@ -847,7 +858,7 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
                     Soạn
                   </button>
                   <button
-                    onClick={() => setShowFailPreview(true)}
+                    onClick={() => { setShowFailPreview(true); setWorkflowStep('preview'); }}
                     className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[11px] font-semibold transition-colors ${
                       showFailPreview ? 'bg-blue-600 text-white' : 'hover:bg-slate-100'
                     }`}
@@ -867,7 +878,7 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
               {activeTab === 'pass' && (
                 <div className={passLayoutClass}>
                   {/* Form fields */}
-                  <div
+                  {workflowStep === 'setup' && <div
                     className="shrink-0 rounded-lg bg-slate-50 p-4"
                   >
                     <div className="mb-3">
@@ -990,10 +1001,10 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
                         </div>
                       )}
                     </div>
-                  </div>
+                  </div>}
 
                   {/* Auto-generated email preview */}
-                  <div className="min-h-[360px] min-w-0 flex-1">
+                  {workflowStep === 'preview' && <div className="mx-auto min-h-[360px] w-full max-w-4xl flex-1">
                     <div className="flex h-full min-h-[360px]">
                       <EmailPreviewCard
                         tc={tc}
@@ -1004,14 +1015,14 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
                         helperText="Xem trước theo ứng viên đang chọn. Khi gửi hàng loạt, hệ thống vẫn tự cá nhân hóa tên và thông tin cho từng người."
                       />
                     </div>
-                  </div>
+                  </div>}
                 </div>
               )}
 
               {/* ── FAIL TAB: Template editor / preview ── */}
               {activeTab === 'fail' && (
                 <div className="flex h-full min-h-0 flex-col overflow-hidden p-3">
-                  {!showFailPreview ? (
+                  {workflowStep === 'setup' ? (
                     <div className="flex h-full min-h-0 flex-col gap-2.5">
                       <p className="shrink-0 text-[11px]" style={{ color: tc.textMuted }}>
                         Biến:{' '}
@@ -1085,14 +1096,26 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
 
           <div className="flex items-center gap-2">
             <button
-              onClick={onClose}
+              onClick={sendState === 'sent' ? onClose : workflowStep === 'preview' ? () => { setWorkflowStep('setup'); setSendState('idle'); } : onClose}
               className="inline-flex h-8 items-center rounded-lg border px-3.5 text-[12px] font-semibold transition-colors hover:bg-slate-50"
               style={{ borderColor: tc.borderSoft, color: tc.textSecondary }}
             >
-              {sendState === 'sent' ? 'Đóng' : 'Hủy'}
+              {sendState === 'sent' ? 'Đóng' : workflowStep === 'preview' ? 'Quay lại chỉnh sửa' : 'Hủy'}
             </button>
 
-            {sendState !== 'sent' && (
+            {workflowStep === 'setup' && (
+              <button
+                type="button"
+                onClick={() => { setWorkflowStep('preview'); setShowFailPreview(true); }}
+                disabled={!canSend}
+                className="inline-flex h-9 items-center gap-2 rounded-lg bg-blue-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+              >
+                Xem nội dung email
+                <ChevronRight className="size-4" />
+              </button>
+            )}
+
+            {workflowStep === 'preview' && sendState !== 'sent' && (
               <button
                 onClick={() => void handleSend()}
                 disabled={!canSend || sendState === 'sending'}
@@ -1116,7 +1139,7 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
                 )}
               </button>
             )}
-            {onFinish && (
+            {workflowStep === 'preview' && sendState === 'sent' && onFinish && (
               <button
                 type="button"
                 onClick={onFinish}
