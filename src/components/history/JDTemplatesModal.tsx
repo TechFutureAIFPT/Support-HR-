@@ -99,9 +99,16 @@ const modalPrimaryButtonClass =
 const modalDangerButtonClass =
   'inline-flex h-10 items-center justify-center rounded-lg border border-red-200 bg-red-50 px-5 text-sm font-semibold text-red-600 transition-colors hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60';
 const modalCardClass =
-  'group flex h-full flex-col rounded-lg border border-slate-200 bg-white p-4 transition-colors hover:border-blue-200';
-const modalChipClass =
-  'inline-flex rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700';
+  'group flex h-full flex-col rounded-xl border border-slate-200 bg-white/95 p-5 shadow-sm transition-colors hover:border-blue-300';
+function categoryBadgeClass(category: string): string {
+  const normalized = category.toLocaleLowerCase('vi-VN');
+  if (normalized.includes('marketing')) return 'bg-rose-50 text-rose-700 ring-rose-100';
+  if (normalized.includes('it') || normalized.includes('software')) return 'bg-indigo-50 text-indigo-700 ring-indigo-100';
+  if (normalized.includes('support')) return 'bg-cyan-50 text-cyan-700 ring-cyan-100';
+  if (normalized.includes('chuẩn hóa')) return 'bg-emerald-50 text-emerald-700 ring-emerald-100';
+  if (normalized.includes('sales')) return 'bg-amber-50 text-amber-700 ring-amber-100';
+  return 'bg-blue-50 text-blue-700 ring-blue-100';
+}
 
 function TemplateForm({ initial, isSaving, onCancel, onSave }: TemplateFormProps) {
   const [name, setName] = useState(initial?.name || '');
@@ -706,10 +713,10 @@ const JDTemplatesModal: React.FC<JDTemplatesModalProps> = ({
                     <button
                       key={category}
                       onClick={() => setSelectedCategory(category)}
-                      className={`supporthr-mono whitespace-nowrap rounded-xl border px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.18em] transition-colors ${
+                      className={`whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
                         selectedCategory === category
-                          ? 'border-[#2388ff]/42 bg-[#2388ff]/10 text-[#2388ff]'
-                          : 'border-blue-100 bg-white/55 text-slate-500 hover:border-blue-200 hover:text-slate-900'
+                          ? 'border-blue-300 bg-blue-50 text-blue-700'
+                          : 'border-slate-200 bg-white text-slate-600 hover:border-blue-200 hover:text-blue-700'
                       }`}
                     >
                       {category}
@@ -736,64 +743,56 @@ const JDTemplatesModal: React.FC<JDTemplatesModalProps> = ({
                       description="Các JD đã từng phân tích từ lịch sử Render cũng sẽ hiện tại đây."
                     />
                   ) : (
-                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 2xl:grid-cols-3">
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
                       {filteredTemplates.map((template) => (
                         <div
                           key={template.id}
                           className={modalCardClass}
                         >
-                          <div className="mb-2 flex items-start justify-between gap-3">
-                            <div className="min-w-0">
-                              <h3 className="supporthr-display truncate text-[1.3rem] font-semibold tracking-[-0.04em] text-slate-900">{template.name}</h3>
-                              <div className="supporthr-mono mt-1 flex items-center gap-2 text-[10px] uppercase tracking-[0.18em] text-[#2388ff]/70">
-                                <i className="fa-solid fa-briefcase text-[9px]" />
-                                <span className="truncate">{template.jobPosition}</span>
-                              </div>
-                            </div>
-                            <div className="flex flex-col items-end gap-1">
-                              <span className={modalChipClass}>
-                                {template.category}
-                              </span>
-                              <span
-                                className={`supporthr-mono px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.16em] ${
-                                  template.origin === 'saved'
-                                    ? 'border border-[#2388ff]/20 bg-[#2388ff]/10 text-[#2388ff]'
-                                    : 'border border-[#2388ff]/20 bg-[#2388ff]/10 text-[#2388ff]'
-                                }`}
-                              >
-                                {template.origin === 'saved' ? 'Đã lưu' : 'Từ lịch sử'}
-                              </span>
-                            </div>
+                          <div className="mb-3 flex items-start justify-between gap-3">
+                            <h3 className="line-clamp-2 min-w-0 flex-1 text-lg font-semibold leading-6 text-slate-950">{template.name}</h3>
+                            <span className={`inline-flex shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ring-1 ring-inset ${categoryBadgeClass(template.category)}`}>
+                              {template.category}
+                            </span>
                           </div>
 
-                          <p className="mb-4 line-clamp-3 text-sm leading-7 text-slate-500">{template.jdText}</p>
+                          <div className="mb-3 flex items-center gap-2 text-xs text-slate-500">
+                            <i className="fa-solid fa-briefcase text-blue-500" aria-hidden="true" />
+                            <span className="truncate">{template.jobPosition}</span>
+                            <span aria-hidden="true">•</span>
+                            <span className="shrink-0">{template.origin === 'saved' ? 'Đã lưu' : 'Từ lịch sử'}</span>
+                          </div>
 
-                          <div className="flex items-center justify-between gap-2 border-t border-blue-100 pt-4">
+                          <p className="mb-5 line-clamp-2 text-pretty text-sm leading-6 text-slate-600">{template.jdText}</p>
+
+                          <div className="mt-auto flex items-center justify-between gap-3 border-t border-slate-100 pt-4">
                             {template.origin === 'saved' ? (
-                              <div className="flex gap-1">
+                              <div className="flex items-center gap-1">
                                 <button
                                   onClick={() => {
                                     setEditingTemplate(template);
                                     setView('edit');
                                   }}
-                                  className="supporthr-mono rounded-xl border border-transparent px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500 transition-colors hover:border-[#2388ff]/24 hover:bg-[#2388ff]/8 hover:text-[#2388ff]"
+                                  className="flex size-9 items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-blue-50 hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                                  aria-label={`Sửa mẫu ${template.name}`}
+                                  title="Sửa mẫu"
                                 >
-                                  <i className="fa-solid fa-pen mr-1 text-[9px]" />
-                                  Sửa
+                                  <i className="fa-solid fa-pen text-xs" aria-hidden="true" />
                                 </button>
                                 <button
                                   onClick={() => {
                                     setDeletingTemplate(template);
                                     setView('confirm-delete');
                                   }}
-                                  className="supporthr-mono rounded-xl border border-transparent px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500 transition-colors hover:border-red-500/20 hover:bg-red-500/8 hover:text-red-600"
+                                  className="flex size-9 items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-red-50 hover:text-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+                                  aria-label={`Xóa mẫu ${template.name}`}
+                                  title="Xóa mẫu"
                                 >
-                                  <i className="fa-solid fa-trash mr-1 text-[9px]" />
-                                  Xóa
+                                  <i className="fa-solid fa-trash text-xs" aria-hidden="true" />
                                 </button>
                               </div>
                             ) : (
-                              <span className="supporthr-mono text-[10px] uppercase tracking-[0.16em] text-slate-500">Khôi phục nhanh từ lần phân tích trước</span>
+                              <span className="text-xs text-slate-500">Khôi phục từ lịch sử</span>
                             )}
 
                             <button
@@ -807,9 +806,9 @@ const JDTemplatesModal: React.FC<JDTemplatesModalProps> = ({
                                   hardFilters: template.hardFilters,
                                 })
                               }
-                              className="supporthr-mono rounded-xl border border-[#2388ff]/30 bg-[#2388ff]/8 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#2388ff] transition-all hover:bg-[#2388ff] hover:text-black"
+                              className="inline-flex h-10 items-center justify-center rounded-lg bg-blue-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
                             >
-                              Sử dụng
+                              Sử dụng mẫu
                             </button>
                           </div>
                         </div>
