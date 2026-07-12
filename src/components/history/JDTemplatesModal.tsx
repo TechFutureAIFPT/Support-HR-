@@ -587,7 +587,6 @@ const JDTemplatesModal: React.FC<JDTemplatesModalProps> = ({
                   {view === 'create' && 'Tạo mẫu JD'}
                   {view === 'edit' && 'Chỉnh sửa mẫu JD'}
                   {view === 'confirm-delete' && 'Xác nhận xóa'}
-                  {view === 'list' && activeTab === 'jd' && 'Mẫu JD đã dùng'}
                   {view === 'list' && activeTab === 'history' && 'Lịch sử hoạt động'}
                 </h2>
                 <p className="mt-0.5 text-xs text-slate-500">

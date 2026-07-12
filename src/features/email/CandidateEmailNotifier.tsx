@@ -1062,7 +1062,7 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
 
         {/* ── Footer ──────────────────────────────────── */}
         <div
-          className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-t px-4 py-3"
+          className="mt-auto flex min-h-14 flex-none flex-wrap items-center justify-between gap-2 border-t px-4 py-2 sm:h-14 sm:max-h-14 sm:flex-nowrap sm:py-0"
           style={{ borderColor: tc.borderSoft, background: tc.cardBg }}
         >
           <div>

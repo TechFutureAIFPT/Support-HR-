@@ -426,7 +426,6 @@ const JDStandardizerPage: React.FC<JDStandardizerPageProps> = ({ onUseJD }) => {
       <div className="shrink-0 border-b border-slate-200 bg-white px-6 py-3">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <h1 className="text-balance text-2xl font-semibold text-slate-950">Chuẩn hóa JD</h1>
             <p className="mt-1 text-sm text-slate-600">
               Quy trình từng bước biến mô tả công việc thô thành JD rõ ràng, đủ mục và sẵn sàng cho AI.
             </p>
