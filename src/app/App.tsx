@@ -346,18 +346,12 @@ const MainApp = () => {
         setIsInitializing(false);
 
         if (user.email) {
-          void (async () => {
-            try {
-              await UserProfileService.saveUserProfile(
-                user.uid,
-                user.email,
-                buildProfileSeed(authUser),
-              );
-              await UserProfileService.migrateLocalDataToFirebase(user.uid, user.email);
-            } catch (error) {
-              console.error('Error syncing user profile:', error);
-            }
-          })();
+          // Việc tạo/sửa profile đã được xử lý đầy đủ hơn (cache-first, chỉ ghi khi thật sự
+          // cần) trong MainLayout.loadUserData bên dưới — không gọi saveUserProfile lại ở đây
+          // để tránh race + ghi Firestore trùng lặp cho cùng 1 lần đăng nhập.
+          void UserProfileService.migrateLocalDataToFirebase(user.uid, user.email).catch((error) => {
+            console.error('Error migrating local data to Firebase:', error);
+          });
         }
         return;
       }

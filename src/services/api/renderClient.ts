@@ -186,7 +186,40 @@ function toApiResponseMeta<T>(response: Response, payload: unknown): ApiResponse
   };
 }
 
+// Dedup các GET request giống hệt nhau đang bay cùng lúc (cùng path + cùng If-None-Match),
+// tránh việc nhiều component cùng mount/gọi 1 endpoint tại cùng thời điểm bắn N request y hệt
+// nhau (N+1 phía client). Không áp dụng cho POST/PUT/PATCH/DELETE vì các method này có side-effect.
+// Entry bị xóa ngay khi resolve — đây không phải cache có TTL, chỉ chặn trùng lặp tức thời.
+const inflightGetRequests = new Map<string, Promise<ApiResponseMeta<unknown>>>();
+
+function buildGetDedupKey(path: string, options: ApiRequestOptions): string {
+  const ifNoneMatch = new Headers(options.headers).get('If-None-Match') ?? '';
+  return `${path}::${ifNoneMatch}`;
+}
+
 async function requestDetailed<T>(
+  method: ApiMethod,
+  path: string,
+  options: ApiRequestOptions = {}
+): Promise<ApiResponseMeta<T>> {
+  if (method !== 'GET') {
+    return performRequest<T>(method, path, options);
+  }
+
+  const dedupKey = buildGetDedupKey(path, options);
+  const existing = inflightGetRequests.get(dedupKey);
+  if (existing) {
+    return existing as Promise<ApiResponseMeta<T>>;
+  }
+
+  const promise = performRequest<T>(method, path, options).finally(() => {
+    inflightGetRequests.delete(dedupKey);
+  });
+  inflightGetRequests.set(dedupKey, promise as Promise<ApiResponseMeta<unknown>>);
+  return promise;
+}
+
+async function performRequest<T>(
   method: ApiMethod,
   path: string,
   options: ApiRequestOptions = {}

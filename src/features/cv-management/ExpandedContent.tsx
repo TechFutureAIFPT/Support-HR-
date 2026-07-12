@@ -799,6 +799,12 @@ function scoreUploadedFileMatch(file: UploadedFileRecord, candidate: Candidate):
   return score;
 }
 
+// Cache promise đang chạy theo cacheKey — ExpandedContent có 2 useEffect độc lập
+// (hydrateCvText, hydrateEducation) cùng gọi resolveCandidateCvText khi mount; nếu không
+// dedup, cả 2 có thể cùng lúc cache-miss và cùng bắn 2 request getUserFilesByType('cv', 200)
+// giống hệt nhau. Effect gọi sau chờ chung promise của effect gọi trước thay vì tự fetch lại.
+const uploadedCvTextInflight = new Map<string, Promise<string>>();
+
 async function resolveCandidateCvText(candidate: Candidate): Promise<string> {
   if (candidate._cvText?.trim()) {
     return candidate._cvText.trim();
@@ -810,39 +816,51 @@ async function resolveCandidateCvText(candidate: Candidate): Promise<string> {
     return cachedText;
   }
 
-  if (candidate._rawBatchJson) {
-    try {
-      const rawCandidate = JSON.parse(candidate._rawBatchJson) as unknown;
-      const structuredExperience = extractStructuredExperienceText(rawCandidate);
-      if (structuredExperience) {
-        uploadedCvTextCache.set(cacheKey, structuredExperience);
-        return structuredExperience;
+  const inflight = uploadedCvTextInflight.get(cacheKey);
+  if (inflight) {
+    return inflight;
+  }
+
+  const promise = (async () => {
+    if (candidate._rawBatchJson) {
+      try {
+        const rawCandidate = JSON.parse(candidate._rawBatchJson) as unknown;
+        const structuredExperience = extractStructuredExperienceText(rawCandidate);
+        if (structuredExperience) {
+          uploadedCvTextCache.set(cacheKey, structuredExperience);
+          return structuredExperience;
+        }
+        const embeddedText = extractNestedCvText(rawCandidate);
+        if (embeddedText && !looksLikeAnalysisPayload(embeddedText)) {
+          uploadedCvTextCache.set(cacheKey, embeddedText);
+          return embeddedText;
+        }
+      } catch {
+        // Ignore malformed raw candidate payloads and continue with uploaded file lookup.
       }
-      const embeddedText = extractNestedCvText(rawCandidate);
-      if (embeddedText && !looksLikeAnalysisPayload(embeddedText)) {
-        uploadedCvTextCache.set(cacheKey, embeddedText);
-        return embeddedText;
-      }
-    } catch {
-      // Ignore malformed raw candidate payloads and continue with uploaded file lookup.
     }
-  }
 
-  const uploadedCvFiles = await UploadedFilesService.getUserFilesByType('cv', 200).catch(() => [] as UploadedFileRecord[]);
-  const matchedFile = [...uploadedCvFiles]
-    .map((file) => ({ file, score: scoreUploadedFileMatch(file, candidate) }))
-    .filter((entry) => entry.score > 0 && entry.file.extractedText.trim())
-    .sort((left, right) => {
-      if (right.score !== left.score) return right.score - left.score;
-      return Number(right.file.lastAccessedAt || right.file.uploadedAt || 0) - Number(left.file.lastAccessedAt || left.file.uploadedAt || 0);
-    })[0]?.file;
+    const uploadedCvFiles = await UploadedFilesService.getUserFilesByType('cv', 200).catch(() => [] as UploadedFileRecord[]);
+    const matchedFile = [...uploadedCvFiles]
+      .map((file) => ({ file, score: scoreUploadedFileMatch(file, candidate) }))
+      .filter((entry) => entry.score > 0 && entry.file.extractedText.trim())
+      .sort((left, right) => {
+        if (right.score !== left.score) return right.score - left.score;
+        return Number(right.file.lastAccessedAt || right.file.uploadedAt || 0) - Number(left.file.lastAccessedAt || left.file.uploadedAt || 0);
+      })[0]?.file;
 
-  if (!matchedFile?.extractedText.trim()) {
-    return '';
-  }
+    if (!matchedFile?.extractedText.trim()) {
+      return '';
+    }
 
-  uploadedCvTextCache.set(cacheKey, matchedFile.extractedText.trim());
-  return matchedFile.extractedText.trim();
+    uploadedCvTextCache.set(cacheKey, matchedFile.extractedText.trim());
+    return matchedFile.extractedText.trim();
+  })().finally(() => {
+    uploadedCvTextInflight.delete(cacheKey);
+  });
+
+  uploadedCvTextInflight.set(cacheKey, promise);
+  return promise;
 }
 
 function cleanTimelineText(value: string): string {
