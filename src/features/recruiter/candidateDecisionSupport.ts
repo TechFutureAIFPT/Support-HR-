@@ -4,7 +4,7 @@ import type {
   CandidateBrief,
   StageDecision,
 } from '@/types';
-import { normalizeVietnameseDisplay } from '@/utils/textDisplay';
+import { isSystemDiagnosticText, normalizeVietnameseDisplay } from '@/utils/textDisplay';
 
 export function getCandidateScore(candidate: Candidate): number {
   return candidate.status === 'SUCCESS' ? candidate.analysis?.['Tổng điểm'] || 0 : 0;
@@ -21,8 +21,10 @@ export function getCandidateRank(candidate: Candidate): string {
 }
 
 export function buildHeadlineVerdict(candidate: Candidate): string {
-  if (candidate.hrSummary?.nhan_xet_tong_quan) return normalizeVietnameseDisplay(candidate.hrSummary.nhan_xet_tong_quan);
-  if (candidate.stageDecision?.reason) return normalizeVietnameseDisplay(candidate.stageDecision.reason);
+  const overallVerdict = normalizeVietnameseDisplay(candidate.hrSummary?.nhan_xet_tong_quan || '');
+  if (overallVerdict && !isSystemDiagnosticText(overallVerdict)) return overallVerdict;
+  const stageReason = normalizeVietnameseDisplay(candidate.stageDecision?.reason || '');
+  if (stageReason && !isSystemDiagnosticText(stageReason)) return stageReason;
   const score = getCandidateScore(candidate);
   if (score >= 75) return 'Hồ sơ phù hợp tốt với vị trí, nên ưu tiên shortlist.';
   if (score >= 60) return 'Ứng viên đáp ứng phần lớn yêu cầu, nên xem xét mời phỏng vấn.';
@@ -58,7 +60,7 @@ export function buildVerificationRisks(candidate: Candidate, limit = 3): string[
   for (const item of [...weaknesses, ...warnings, ...missing, ...blockers, ...redFlags]) {
     const text = normalizeVietnameseDisplay(item);
     const key = text.toLowerCase().substring(0, 60);
-    if (!text || seen.has(key)) continue;
+    if (!text || seen.has(key) || isSystemDiagnosticText(text)) continue;
     seen.add(key);
     out.push(text);
     if (out.length >= limit) break;

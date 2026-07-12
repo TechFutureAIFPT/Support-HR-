@@ -124,6 +124,21 @@ export function normalizeVietnameseList(values: unknown[] | undefined | null): s
   return values.map((value) => normalizeVietnameseDisplay(value)).filter(Boolean);
 }
 
+// Backend AI-scoring pipeline occasionally falls back to keyword/vector matching and
+// leaves the raw JSON-parser exception in a warning field (e.g. "Expecting ',' delimiter:
+// line 2907 column 8 (char 129425)"). That text must never reach recruiter-facing UI as if
+// it were a real evaluation of the candidate.
+const SYSTEM_DIAGNOSTIC_PATTERN =
+  /expecting\s+\S+\s+delimiter|line\s+\d+\s+column\s+\d+|\(char\s+\d+\)|json\s*decode\s*error|traceback\s*\(most recent call last\)|ai generation (?:t[aạ]m ?th[oờ]i|tam thoi) l[oỗ]i|fallback keyword\/vector scoring/i;
+
+export function isSystemDiagnosticText(value: unknown): boolean {
+  return typeof value === 'string' && SYSTEM_DIAGNOSTIC_PATTERN.test(value);
+}
+
+export function filterSystemDiagnosticText(values: unknown[] | undefined | null): string[] {
+  return normalizeVietnameseList(values).filter((item) => !isSystemDiagnosticText(item));
+}
+
 export function normalizeVietnamesePayload<T = unknown>(payload: T): T {
   if (typeof payload === 'string') {
     return normalizeVietnameseDisplay(payload) as T;

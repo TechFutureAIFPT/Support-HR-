@@ -6,7 +6,7 @@ import type { AnalysisFeedbackDraft, AnalysisFeedbackRecord, AppStep, Candidate,
 import SupportHRLoading from '@/components/common/SupportHRLoading';
 import CvDocumentViewer from '@/features/cv-management/CvDocumentViewer';
 import { ScoreLabel, WorkspaceEmpty, WorkspaceSearch } from '@/components/workspace/WorkspacePrimitives';
-import { normalizeVietnameseDisplay } from '@/utils/textDisplay';
+import { filterSystemDiagnosticText, isSystemDiagnosticText, normalizeVietnameseDisplay } from '@/utils/textDisplay';
 import ExpandedContent from '@/features/cv-management/ExpandedContent';
 import CandidateEmailNotifier from '@/features/email/CandidateEmailNotifier';
 import AIFeedbackForm from '@/features/feedback/AIFeedbackForm';
@@ -48,8 +48,10 @@ function candidateRole(candidate: Candidate, fallback: string): string {
 }
 
 function buildHeadlineVerdict(candidate: Candidate): string {
-  if (candidate.hrSummary?.nhan_xet_tong_quan) return normalizeVietnameseDisplay(candidate.hrSummary.nhan_xet_tong_quan);
-  if (candidate.stageDecision?.reason) return normalizeVietnameseDisplay(candidate.stageDecision.reason);
+  const overallVerdict = normalizeVietnameseDisplay(candidate.hrSummary?.nhan_xet_tong_quan || '');
+  if (overallVerdict && !isSystemDiagnosticText(overallVerdict)) return overallVerdict;
+  const stageReason = normalizeVietnameseDisplay(candidate.stageDecision?.reason || '');
+  if (stageReason && !isSystemDiagnosticText(stageReason)) return stageReason;
   const score = candidateScore(candidate);
   if (score >= 75) return 'Hồ sơ phù hợp tốt với vị trí — đề xuất ưu tiên đưa vào shortlist.';
   if (score >= 60) return 'Ứng viên đáp ứng phần lớn yêu cầu — nên xem xét mời phỏng vấn.';
@@ -77,8 +79,11 @@ function buildVerificationRisks(candidate: Candidate): string[] {
   const seen = new Set<string>();
   const out: string[] = [];
   for (const item of [...weaknesses, ...warnings, ...missing]) {
-    const key = normalizeVietnameseDisplay(item).toLowerCase().substring(0, 40);
-    if (!seen.has(key)) { seen.add(key); out.push(normalizeVietnameseDisplay(item)); }
+    const text = normalizeVietnameseDisplay(item);
+    const key = text.toLowerCase().substring(0, 40);
+    if (seen.has(key) || isSystemDiagnosticText(text)) continue;
+    seen.add(key);
+    out.push(text);
     if (out.length >= 3) break;
   }
   return out;
@@ -420,7 +425,7 @@ function buildCandidateChatSnapshot(candidate: Candidate, jobPosition: string, j
     strengths: (candidate.analysis?.['\u0110i\u1ec3m m\u1ea1nh CV'] || []).slice(0, 5).map((item) => normalizeVietnameseDisplay(item)),
     weaknesses: (candidate.analysis?.['\u0110i\u1ec3m y\u1ebfu CV'] || []).slice(0, 5).map((item) => normalizeVietnameseDisplay(item)),
     warnings: {
-      softFilterWarnings: (candidate.softFilterWarnings || []).slice(0, 5).map((item) => normalizeVietnameseDisplay(item)),
+      softFilterWarnings: filterSystemDiagnosticText(candidate.softFilterWarnings).slice(0, 5),
       autoRejectReasons: (candidate.autoRejectReasons || []).slice(0, 5).map((item) => normalizeVietnameseDisplay(item)),
       hardFilterFailureReason: normalizeVietnameseDisplay(candidate.hardFilterFailureReason || ''),
       redFlags: (candidate.hrSummary?.canh_bao_red_flag || []).slice(0, 5).map((item) => normalizeVietnameseDisplay(item)),
