@@ -565,6 +565,12 @@ const CandidateCard: React.FC<CandidateCardProps> = ({ candidate, rank }) => {
                 </div>
               )}
 
+              {candidate.pipelineMetadata?.analysisMethod === 'rule_based_fallback' && (
+                <div className="rounded-2xl border border-amber-500/40 bg-amber-500/10 p-4 text-sm text-amber-200">
+                  ⚠️ Kết quả này được tính bằng phương pháp so khớp từ khoá thay thế (không phải AI) do hệ thống AI tạm thời không phản hồi được. Khuyến nghị chạy phân tích lại để có đánh giá đầy đủ.
+                </div>
+              )}
+
               {candidate.hrSummary && (
                 <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5">
                   <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3">

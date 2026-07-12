@@ -487,8 +487,6 @@ const ChatPane: React.FC<{ candidate: Candidate; jobPosition: string; jdText?: s
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const buildContext = () => JSON.stringify(candidateSnapshot, null, 2);
-
   const formatAiChatResponse = (rawText: string) => normalizeVietnameseDisplay(rawText)
     .replace(/\r\n/g, '\n')
     .replace(/^#+\s*/gm, '')
@@ -508,53 +506,27 @@ const ChatPane: React.FC<{ candidate: Candidate; jobPosition: string; jdText?: s
     setInput('');
     setLoading(true);
 
-    let context = '';
-    try {
-      context = buildContext();
-    } catch {
-      // buildContext crash - continue with empty context
-    }
-
     const recruiterCtx = recruiterInfo?.title && recruiterInfo?.company
-      ? `B\u1ea1n \u0111ang h\u1ed7 tr\u1ee3 ${recruiterInfo.title} t\u1ea1i ${recruiterInfo.company}${recruiterInfo.department ? `, ph\u00f2ng ${recruiterInfo.department}` : ''}. `
-      : '';
-
-    const prompt = [
-      `Bạn là trợ lý tuyển dụng AI cho một ứng viên duy nhất. ${recruiterCtx}Chỉ thực hiện một trong hai nhiệm vụ: tạo câu hỏi phỏng vấn hoặc tư vấn riêng về ứng viên đang chọn.`,
-      'Nếu người dùng hỏi ngoài hai nhiệm vụ này, hãy đề nghị họ đặt câu hỏi về phỏng vấn hoặc đánh giá riêng ứng viên.',
-      'Y\u00eau c\u1ea7u b\u1eaft bu\u1ed9c:',
-      '- M\u1ecdi nh\u1eadn \u0111\u1ecbnh ph\u1ea3i b\u00e1m v\u00e0o th\u1ed1ng k\u00ea c\u1ee5 th\u1ec3 nh\u01b0 t\u1ed5ng \u0111i\u1ec3m, JD match, ti\u00eau ch\u00ed m\u1ea1nh/y\u1ebfu, matched/missing skills, stage decision, red flags.',
-      '- N\u1ebfu d\u1eef li\u1ec7u ch\u01b0a \u0111\u1ee7, ph\u1ea3i n\u00f3i r\u00f5 m\u1ee5c n\u00e0o \u0111ang thi\u1ebfu d\u1eef li\u1ec7u.',
-      '- Kh\u00f4ng \u0111\u01b0\u1ee3c tr\u1ea3 l\u1eddi chung chung ki\u1ec3u c\u1ea3m t\u00ednh.',
-      '- \u01afu ti\u00ean n\u00eau b\u1eb1ng ch\u1ee9ng \u0111\u1ecbnh l\u01b0\u1ee3ng tr\u01b0\u1edbc r\u1ed3i m\u1edbi khuy\u1ebfn ngh\u1ecb.',
-      '- Khi n\u00f3i r\u1ee7i ro, c\u1ea7n g\u1eafn v\u1edbi ch\u1ec9 s\u1ed1 ho\u1eb7c criteria \u0111ang y\u1ebfu.',
-      '- Kh\u00f4ng d\u00f9ng markdown, kh\u00f4ng d\u00f9ng d\u1ea5u *, kh\u00f4ng b\u00f4i \u0111\u1eadm, kh\u00f4ng d\u00f9ng bullet k\u00fd hi\u1ec7u.',
-      '- M\u1ed7i \u00fd ph\u1ea3i n\u1eb1m tr\u00ean m\u1ed9t d\u00f2ng ri\u00eang, xu\u1ed1ng d\u00f2ng r\u00f5 r\u00e0ng, kh\u00f4ng g\u1ed9p \u00fd.',
-      'C\u1ea5u tr\u00fac tr\u1ea3 l\u1eddi:',
-      '1. K\u1ebft lu\u1eadn nhanh',
-      '2. B\u1eb1ng ch\u1ee9ng th\u1ed1ng k\u00ea',
-      '3. R\u1ee7i ro c\u1ea7n x\u00e1c minh',
-      '4. C\u00e2u h\u1ecfi ph\u1ecfng v\u1ea5n n\u00ean h\u1ecfi',
-      '5. \u0110\u1ec1 xu\u1ea5t b\u01b0\u1edbc ti\u1ebfp theo',
-      'M\u1ed7i m\u1ee5c ch\u1ec9 1-3 \u00fd, m\u1ed7i \u00fd \u0111\u00fang m\u1ed9t d\u00f2ng, ng\u1eafn nh\u01b0ng c\u1ee5 th\u1ec3, vi\u1ebft ti\u1ebfng Vi\u1ec7t r\u00f5 r\u00e0ng.',
-      context ? `\nSnapshot \u1ee9ng vi\u00ean:\n${context}` : '',
-      `\nC\u00e2u h\u1ecfi c\u1ee7a recruiter: ${text}`,
-    ].filter(Boolean).join('\n');
+      ? `Bạn đang hỗ trợ ${recruiterInfo.title} tại ${recruiterInfo.company}${recruiterInfo.department ? `, phòng ${recruiterInfo.department}` : ''}.`
+      : null;
 
     try {
       const { apiPost } = await import('@/services/api/renderClient');
-      const response = await (apiPost as (path: string, body: unknown, opts: unknown) => Promise<{ text?: string; responseText?: string }>)(
-        '/api/gemini-chat',
-        { model: 'gemini-2.0-flash', contents: prompt, config: { temperature: 0.3, maxOutputTokens: 1000 } },
+      const response = await apiPost<{ responseText: string }>(
+        '/api/cv/candidate-chat',
+        {
+          candidate_snapshot: candidateSnapshot,
+          message: text,
+          job_position: jobPosition,
+          recruiter_context: recruiterCtx,
+        },
         { authRequired: true }
       );
-      const aiText = formatAiChatResponse(
-        response.text?.trim() || response.responseText?.trim() || 'AI kh\u00f4ng tr\u1ea3 v\u1ec1 n\u1ed9i dung.'
-      );
+      const aiText = formatAiChatResponse(response.responseText?.trim() || 'AI không trả về nội dung.');
       setMessages((prev) => [...prev, { role: 'ai', text: aiText }]);
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Kh\u00f4ng th\u1ec3 k\u1ebft n\u1ed1i AI.';
-      setMessages((prev) => [...prev, { role: 'ai', text: `L\u1ed7i: ${msg}. Vui l\u00f2ng th\u1eed l\u1ea1i.` }]);
+      const msg = err instanceof Error ? err.message : 'Không thể kết nối AI.';
+      setMessages((prev) => [...prev, { role: 'ai', text: `Lỗi: ${msg}. Vui lòng thử lại.` }]);
     } finally {
       setLoading(false);
     }

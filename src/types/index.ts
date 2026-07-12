@@ -126,6 +126,14 @@ export interface HrSummary {
   danh_gia_ky_nang: HrSummarySkillAssessment[];
 }
 
+export interface DirectMatchMatrixItem {
+  tag: '[KHỚP TUYỆT ĐỐI]' | '[KHỚP MỘT PHẦN / KHUYẾT]' | '[LỆCH PHA / THIẾU]' | string;
+  jd: string;
+  cv: string;
+  danhGia: string;
+  khoangTrong: string;
+}
+
 export interface Candidate {
   id: string;
   candidateName: string;
@@ -149,6 +157,12 @@ export interface Candidate {
   hrSummary?: HrSummary;
   embeddingInsights?: CandidateEmbeddingInsight;
   jdCvMatchInsights?: CandidateJdCvMatchInsight;
+  pipelineMetadata?: {
+    analysisMethod?: 'llm' | 'llm_after_repair' | 'rule_based_fallback' | string;
+    aiFallback?: boolean;
+    cacheHit?: boolean;
+    [key: string]: unknown;
+  };
 
   analysis?: {
     'Tổng điểm': number;
@@ -157,6 +171,7 @@ export interface Candidate {
     'Điểm mạnh CV'?: string[];
     'Điểm yếu CV'?: string[];
     'Câu hỏi phỏng vấn'?: string[];
+    'Ma tran doi sanh truc tiep'?: DirectMatchMatrixItem[];
     educationValidation?: {
       standardizedEducation: string;
       validationNote: string;

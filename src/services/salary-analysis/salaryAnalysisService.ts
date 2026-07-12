@@ -1,36 +1,12 @@
 /**
  * Salary Analysis Service
- * Phân tích và so sánh mức lương với thị trường Việt Nam
- * Sử dụng API: job-salary-data.p.rapidapi.com
+ * Phân tích và so sánh mức lương với thị trường Việt Nam.
+ * Gọi backend `/api/salary/analyze` (RapidAPI + Gemini chạy server-side, key không lộ ra client).
+ * Nếu backend lỗi/không kết nối được, fallback về ước tính nội bộ (không gọi RapidAPI từ browser nữa).
  */
 
+import { apiPost } from '@/services/api/renderClient';
 import { getSafeErrorMessage } from '@/utils/errorMessages';
-
-interface SalaryData {
-  job_title: string;
-  location: string;
-  publisher_name?: string;
-  publisher_link?: string;
-  salary_period?: string;
-  salary_currency?: string;
-  salary_from?: number;
-  salary_to?: number;
-  median_salary?: number;
-  p25_salary?: number;
-  p75_salary?: number;
-}
-
-interface SalaryApiResponse {
-  status: string;
-  request_id: string;
-  parameters: {
-    job_title: string;
-    location: string;
-    location_type: string;
-    years_of_experience: string;
-  };
-  data: SalaryData[];
-}
 
 interface ExperienceLevel {
   years: string;
@@ -64,6 +40,7 @@ interface SalaryAnalysisResult {
   recommendation: string;
   negotiationTips: string[];
   source: string;
+  confidenceNote?: string;
   error?: string;
 }
 
@@ -85,7 +62,7 @@ const normalizeJobTitle = (title: string): string => {
  */
 const normalizeLocation = (location?: string): string => {
   if (!location) return 'Vietnam';
-  
+
   const locationMap: { [key: string]: string } = {
     'hà nội': 'Hanoi',
     'hanoi': 'Hanoi',
@@ -197,57 +174,7 @@ const extractInfoFromText = (text: string): {
 };
 
 /**
- * Gọi API lấy dữ liệu lương từ RapidAPI
- */
-const fetchSalaryData = async (
-  jobTitle: string,
-  location: string,
-  yearsOfExperience: string
-): Promise<SalaryData[] | null> => {
-  const apiKey = (import.meta as any).env?.VITE_RAPIDAPI_KEY;
-  
-  if (!apiKey) {
-    console.warn('⚠️ RAPIDAPI_KEY not configured. Using fallback estimation.');
-    return null;
-  }
-
-  try {
-    const params = new URLSearchParams({
-      job_title: jobTitle,
-      location: location,
-      location_type: 'ANY',
-      years_of_experience: yearsOfExperience,
-    });
-
-    const url = `https://job-salary-data.p.rapidapi.com/job-salary?${params}`;
-    
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'x-rapidapi-key': apiKey,
-        'x-rapidapi-host': 'job-salary-data.p.rapidapi.com',
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`API error: ${response.status} ${response.statusText}`);
-    }
-
-    const data: SalaryApiResponse = await response.json();
-    
-    if (data.status === 'OK' && data.data && data.data.length > 0) {
-      return data.data;
-    }
-
-    return null;
-  } catch (error) {
-    console.error('❌ Salary API fetch error:', error);
-    return null;
-  }
-};
-
-/**
- * Ước tính mức lương nội bộ (fallback khi API không khả dụng)
+ * Ước tính mức lương nội bộ (fallback khi backend/API không khả dụng)
  */
 const estimateSalaryFallback = (
   jobTitle: string,
@@ -256,7 +183,7 @@ const estimateSalaryFallback = (
 ): SalaryAnalysisResult['marketSalary'] => {
   // Basic salary estimation based on job title keywords and experience
   const titleLower = jobTitle.toLowerCase();
-  
+
   let baseMin = 8; // 8 triệu VND
   let baseMedian = 15; // 15 triệu VND
   let baseMax = 25; // 25 triệu VND
@@ -387,7 +314,66 @@ const compareSalary = (
 };
 
 /**
- * Hàm chính: Phân tích mức lương
+ * Fallback nội bộ (không gọi mạng) khi backend `/api/salary/analyze` không khả dụng.
+ */
+const analyzeSalaryLocalFallback = (input: {
+  jobTitle: string;
+  location?: string;
+  yearsOfExperience?: number;
+  currentSalary?: number;
+}): SalaryAnalysisResult => {
+  const { jobTitle, currentSalary } = input;
+  const normalizedLocation = normalizeLocation(input.location);
+  const expLevel = getExperienceLevel(input.yearsOfExperience);
+  const marketSalary = estimateSalaryFallback(jobTitle, normalizedLocation, input.yearsOfExperience);
+
+  const comparison = currentSalary ? compareSalary(currentSalary, marketSalary) : undefined;
+
+  let summary = '';
+  let recommendation = '';
+  const negotiationTips: string[] = [];
+
+  if (comparison) {
+    const { marketPosition, differencePercent, currentSalary: salaryNow } = comparison;
+
+    if (marketPosition === 'below') {
+      summary = `Mức lương hiện tại (${formatVND(salaryNow)}) thấp hơn thị trường khoảng ${Math.abs(differencePercent)}%. Đây là cơ hội tốt để đàm phán tăng lương.`;
+      recommendation = `Bạn nên đề xuất tăng lương lên khoảng ${formatVND(marketSalary!.median)} (mức trung vị thị trường) hoặc tối thiểu ${formatVND(marketSalary!.p25)} (mức P25).`;
+    } else if (marketPosition === 'reasonable') {
+      summary = `Mức lương hiện tại (${formatVND(salaryNow)}) nằm trong khoảng hợp lý của thị trường (chênh lệch ${Math.abs(differencePercent)}% so với median).`;
+      recommendation = `Mức lương của bạn phù hợp. Tập trung vào phát triển kỹ năng để tiến tới mức ${formatVND(marketSalary!.p75)} (P75 - top 25%).`;
+    } else {
+      summary = `Mức lương hiện tại (${formatVND(salaryNow)}) cao hơn thị trường khoảng ${Math.abs(differencePercent)}%. Đây là mức lương rất tốt!`;
+      recommendation = `Mức lương của bạn xuất sắc. Hãy duy trì hiệu suất cao và tìm kiếm cơ hội phát triển sự nghiệp dài hạn.`;
+    }
+
+    negotiationTips.push(...generateNegotiationTips(marketPosition, salaryNow, marketSalary!.median));
+  } else {
+    summary = `Khoảng lương thị trường cho vị trí "${jobTitle}" tại ${normalizedLocation} với ${expLevel.level} level là từ ${formatVND(marketSalary!.p25)} đến ${formatVND(marketSalary!.p75)}.`;
+    recommendation = `Mức lương xứng đáng đề xuất: ${formatVND(marketSalary!.median)} (median). Tùy vào kỹ năng và kinh nghiệm cụ thể, bạn có thể đàm phán trong khoảng này.`;
+
+    negotiationTips.push(
+      '💼 Đánh giá kỹ năng và kinh nghiệm của bạn so với yêu cầu công việc.',
+      `📊 Median (${formatVND(marketSalary!.median)}) là mức an toàn để bắt đầu đàm phán.`,
+      `🎯 Nếu có kỹ năng nổi trội hoặc kinh nghiệm đặc biệt, hướng tới P75 (${formatVND(marketSalary!.p75)}).`,
+      '🔍 Xem xét thêm benefits như bảo hiểm, thưởng, training, career path.',
+      '⚖️ Cân nhắc quy mô công ty, văn hóa làm việc, và cơ hội phát triển.'
+    );
+  }
+
+  return {
+    summary,
+    marketSalary,
+    comparison,
+    recommendation,
+    negotiationTips,
+    source: 'Ước tính dựa trên dữ liệu nội bộ và xu hướng thị trường Việt Nam (không kết nối được backend).',
+  };
+};
+
+/**
+ * Hàm chính: Phân tích mức lương — gọi backend (RapidAPI + Gemini server-side),
+ * fallback về ước tính nội bộ nếu backend lỗi/không kết nối được.
  */
 export const analyzeSalary = async (
   input: SalaryAnalysisInput
@@ -399,7 +385,7 @@ export const analyzeSalary = async (
     // Extract from CV/JD if provided and missing info
     if ((input.cvText || input.jdText) && (!jobTitle || !location || !yearsOfExperience)) {
       const extracted = extractInfoFromText(input.cvText || input.jdText || '');
-      
+
       jobTitle = jobTitle || extracted.jobTitle || '';
       location = location || extracted.location;
       yearsOfExperience = yearsOfExperience ?? extracted.yearsOfExperience;
@@ -411,104 +397,22 @@ export const analyzeSalary = async (
       throw new Error('Không thể xác định chức danh công việc. Vui lòng cung cấp thông tin rõ ràng hơn.');
     }
 
-    // 2. Normalize data
-    const normalizedTitle = normalizeJobTitle(jobTitle);
-    const normalizedLocation = normalizeLocation(location);
-    const expLevel = getExperienceLevel(yearsOfExperience);
-
-    // 3. Fetch salary data from API
-    const salaryData = await fetchSalaryData(
-      normalizedTitle,
-      normalizedLocation,
-      expLevel.years
-    );
-
-    let marketSalary: SalaryAnalysisResult['marketSalary'] = null;
-
-    // 4. Process API response or use fallback
-    if (salaryData && salaryData.length > 0) {
-      const primary = salaryData[0];
-      
-      // Convert to VND if needed
-      let multiplier = 1;
-      if (primary.salary_currency && primary.salary_currency !== 'VND') {
-        multiplier = 25000; // Rough USD to VND conversion
-      }
-
-      marketSalary = {
-        p25: (primary.p25_salary || 0) * multiplier,
-        median: (primary.median_salary || 0) * multiplier,
-        p75: (primary.p75_salary || 0) * multiplier,
-        currency: 'VND',
-        period: primary.salary_period || 'MONTHLY',
-      };
-
-      // Validate data
-      if (marketSalary.median <= 0) {
-        console.warn('Invalid API data, using fallback');
-        marketSalary = estimateSalaryFallback(jobTitle, normalizedLocation, yearsOfExperience);
-      }
-    } else {
-      marketSalary = estimateSalaryFallback(jobTitle, normalizedLocation, yearsOfExperience);
+    try {
+      return await apiPost<SalaryAnalysisResult>('/api/salary/analyze', {
+        job_title: jobTitle,
+        location,
+        years_of_experience: yearsOfExperience,
+        current_salary: currentSalary,
+        jd_text: input.jdText,
+        cv_text: input.cvText,
+      });
+    } catch (backendError) {
+      console.warn('⚠️ Salary analyze backend call failed, using local fallback estimate:', backendError);
+      return analyzeSalaryLocalFallback({ jobTitle, location, yearsOfExperience, currentSalary });
     }
-
-    // 5. Compare if current salary provided
-    const comparison = currentSalary 
-      ? compareSalary(currentSalary, marketSalary)
-      : undefined;
-
-    // 6. Generate summary and recommendations
-    let summary = '';
-    let recommendation = '';
-    const negotiationTips: string[] = [];
-
-    if (comparison) {
-      // Has current salary - compare with market (use comparison.currentSalary: strict number)
-      const { marketPosition, differencePercent, currentSalary: salaryNow } = comparison;
-
-      if (marketPosition === 'below') {
-        summary = `Mức lương hiện tại (${formatVND(salaryNow)}) thấp hơn thị trường khoảng ${Math.abs(differencePercent)}%. Đây là cơ hội tốt để đàm phán tăng lương.`;
-        recommendation = `Bạn nên đề xuất tăng lương lên khoảng ${formatVND(marketSalary!.median)} (mức trung vị thị trường) hoặc tối thiểu ${formatVND(marketSalary!.p25)} (mức P25).`;
-      } else if (marketPosition === 'reasonable') {
-        summary = `Mức lương hiện tại (${formatVND(salaryNow)}) nằm trong khoảng hợp lý của thị trường (chênh lệch ${Math.abs(differencePercent)}% so với median).`;
-        recommendation = `Mức lương của bạn phù hợp. Tập trung vào phát triển kỹ năng để tiến tới mức ${formatVND(marketSalary!.p75)} (P75 - top 25%).`;
-      } else {
-        summary = `Mức lương hiện tại (${formatVND(salaryNow)}) cao hơn thị trường khoảng ${Math.abs(differencePercent)}%. Đây là mức lương rất tốt!`;
-        recommendation = `Mức lương của bạn xuất sắc. Hãy duy trì hiệu suất cao và tìm kiếm cơ hội phát triển sự nghiệp dài hạn.`;
-      }
-
-      negotiationTips.push(...generateNegotiationTips(marketPosition, salaryNow, marketSalary!.median));
-    } else {
-      // No current salary - provide market range
-      summary = `Khoảng lương thị trường cho vị trí "${jobTitle}" tại ${normalizedLocation} với ${expLevel.level} level là từ ${formatVND(marketSalary!.p25)} đến ${formatVND(marketSalary!.p75)}.`;
-      recommendation = `Mức lương xứng đáng đề xuất: ${formatVND(marketSalary!.median)} (median). Tùy vào kỹ năng và kinh nghiệm cụ thể, bạn có thể đàm phán trong khoảng này.`;
-      
-      negotiationTips.push(
-        '💼 Đánh giá kỹ năng và kinh nghiệm của bạn so với yêu cầu công việc.',
-        `📊 Median (${formatVND(marketSalary!.median)}) là mức an toàn để bắt đầu đàm phán.`,
-        `🎯 Nếu có kỹ năng nổi trội hoặc kinh nghiệm đặc biệt, hướng tới P75 (${formatVND(marketSalary!.p75)}).`,
-        '🔍 Xem xét thêm benefits như bảo hiểm, thưởng, training, career path.',
-        '⚖️ Cân nhắc quy mô công ty, văn hóa làm việc, và cơ hội phát triển.'
-      );
-    }
-
-    // 7. Source attribution
-    const source = salaryData 
-      ? 'Theo dữ liệu từ job-salary-data API (RapidAPI), thị trường Việt Nam.'
-      : 'Ước tính dựa trên dữ liệu nội bộ và xu hướng thị trường Việt Nam (API không khả dụng).';
-
-    return {
-      summary,
-      marketSalary,
-      comparison,
-      recommendation,
-      negotiationTips,
-      source,
-    };
-
   } catch (error) {
     console.error('❌ Salary analysis error:', error);
-    
+
     return {
       summary: 'Không thể phân tích mức lương do lỗi xử lý.',
       marketSalary: null,
@@ -527,21 +431,21 @@ export const analyzeSalaryBatch = async (
   inputs: SalaryAnalysisInput[]
 ): Promise<SalaryAnalysisResult[]> => {
   const results: SalaryAnalysisResult[] = [];
-  
+
   // Process in small batches to avoid rate limiting
   const BATCH_SIZE = 3;
-  
+
   for (let i = 0; i < inputs.length; i += BATCH_SIZE) {
     const batch = inputs.slice(i, Math.min(i + BATCH_SIZE, inputs.length));
     const batchResults = await Promise.all(batch.map(input => analyzeSalary(input)));
     results.push(...batchResults);
-    
+
     // Delay between batches to avoid rate limiting
     if (i + BATCH_SIZE < inputs.length) {
       await new Promise(resolve => setTimeout(resolve, 1000));
     }
   }
-  
+
   return results;
 };
 

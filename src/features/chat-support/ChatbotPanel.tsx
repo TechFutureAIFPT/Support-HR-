@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
-import type { AnalysisRunData, ChatMessage, ChatMessageRecord, ChatbotSession } from '@/types';
-import { getChatbotAdvice, normalizeChatbotResponseText } from '@/services/screening/frontendScreeningService';
+import type { AnalysisRunData, ChatMessage, ChatbotSession } from '@/types';
+import { normalizeChatbotResponseText } from '@/services/screening/frontendScreeningService';
 import { analyzeSalary } from '@/services/salary-analysis/salaryAnalysisService';
 import { ChatbotHistoryService } from '@/services/data-sync/chatbotHistoryService';
+import { buildCandidateBriefs } from '@/utils/candidateBrief';
 import { useThemeColors } from '@/hooks/useThemeColors';
 import { getSafeErrorMessage } from '@/utils/errorMessages';
 import { normalizeVietnameseDisplay } from '@/utils/textDisplay';
@@ -86,6 +87,7 @@ const ChatbotPanel: React.FC<ChatbotPanelProps> = ({ analysisData, onClose }) =>
           const newId = await ChatbotHistoryService.createSession({
             jobPosition: analysisData.job.position,
             totalCandidates: analysisData.candidates?.length || 0,
+            candidateBriefs: buildCandidateBriefs(analysisData.candidates || []),
           });
           setSessionId(newId);
           if (newId) {
@@ -99,12 +101,6 @@ const ChatbotPanel: React.FC<ChatbotPanelProps> = ({ analysisData, onClose }) =>
       }
     })();
   }, [analysisData]);
-
-  const persistMessages = useCallback(async (msgs: ChatMessageRecord[]) => {
-    if (!sessionId) return;
-    try { await ChatbotHistoryService.addMessages(sessionId, msgs); }
-    catch (e) { console.warn('Failed to persist chat messages:', e); }
-  }, [sessionId]);
 
   const loadPastSessions = useCallback(async () => {
     try { setPastSessions(await ChatbotHistoryService.getUserSessions(20)); }
@@ -129,6 +125,7 @@ const ChatbotPanel: React.FC<ChatbotPanelProps> = ({ analysisData, onClose }) =>
       const newId = await ChatbotHistoryService.createSession({
         jobPosition: analysisData.job.position,
         totalCandidates: analysisData.candidates?.length || 0,
+        candidateBriefs: buildCandidateBriefs(analysisData.candidates || []),
       });
       setSessionId(newId);
       setMessages([{ id: 'initial', author: 'bot', content: INITIAL_BOT_MSG }]);
@@ -153,8 +150,26 @@ const ChatbotPanel: React.FC<ChatbotPanelProps> = ({ analysisData, onClose }) =>
     const salaryKeywords = ['lương', 'salary', 'mức lương', 'thu nhập', 'chi phí tuyển dụng', 'ngân sách'];
     const isSalaryQuery = salaryKeywords.some(kw => input.toLowerCase().includes(kw));
 
-    const aiResponse = await getChatbotAdvice(analysisData, input);
-    let { responseText, candidateIds } = aiResponse;
+    let activeSessionId = sessionId;
+    const candidateBriefs = buildCandidateBriefs(analysisData.candidates || []);
+    if (!activeSessionId) {
+      activeSessionId = await ChatbotHistoryService.createSession({
+        jobPosition: analysisData.job.position,
+        totalCandidates: analysisData.candidates?.length || 0,
+        candidateBriefs,
+      });
+      setSessionId(activeSessionId);
+    }
+    if (!activeSessionId) {
+      throw new Error('Không thể tạo phiên chatbot.');
+    }
+
+    const reply = await ChatbotHistoryService.replyToSession(activeSessionId, {
+      message: input,
+      candidateBriefs,
+    });
+    let responseText = reply.responseText;
+    const candidateIds = reply.suggestedCandidateIds || [];
 
     if (isSalaryQuery) {
       try {
@@ -179,7 +194,7 @@ const ChatbotPanel: React.FC<ChatbotPanelProps> = ({ analysisData, onClose }) =>
     }
 
     return { responseText, candidateIds };
-  }, [analysisData]);
+  }, [analysisData, sessionId]);
 
   // Shared send handler used by both suggestion clicks and form submit
   const sendMessage = useCallback(async (input: string) => {
@@ -209,11 +224,8 @@ const ChatbotPanel: React.FC<ChatbotPanelProps> = ({ analysisData, onClose }) =>
         suggestedCandidates: suggestedCandidates?.length ? suggestedCandidates : undefined,
       };
       setMessages(prev => [...prev, botMessage]);
-
-      await persistMessages([
-        { id: userMessage.id, author: 'user', content: input, timestamp: Date.now() },
-        { id: botMessage.id, author: 'bot', content: responseText, timestamp: Date.now(), suggestedCandidateIds: candidateIds },
-      ]);
+      // Không cần persistMessages thủ công nữa — ChatbotHistoryService.replyToSession()
+      // đã lưu cả userMessage lẫn assistantMessage phía backend trong 1 request.
     } catch (error) {
       const errMsg = getSafeErrorMessage(error, 'ai');
       setMessages(prev => [...prev, {
@@ -224,7 +236,7 @@ const ChatbotPanel: React.FC<ChatbotPanelProps> = ({ analysisData, onClose }) =>
     } finally {
       setIsLoading(false);
     }
-  }, [analysisData, isLoading, persistMessages, processQuery]);
+  }, [analysisData, isLoading, processQuery]);
 
   const handleSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();

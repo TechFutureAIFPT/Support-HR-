@@ -22,7 +22,7 @@
     "paths": {
       "@/*": [
         "./src/*"
-      ]
+      ]   
     },
     "allowImportingTsExtensions": true,
     "noEmit": true,
@@ -36,7 +36,7 @@
     "strictNullChecks": false
   },
   "include": [
-    "./src/**/*.ts",
+    "./src/**/*.ts",  
     "./src/**/*.tsx",
     "./src/**/*.js",
     "./src/**/*.jsx",

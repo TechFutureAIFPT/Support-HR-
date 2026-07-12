@@ -1,4 +1,4 @@
-import type { Candidate, DetailedScore, HardFilters, WeightCriteria, AnalysisRunData } from '@/types';
+import type { Candidate, DetailedScore, DirectMatchMatrixItem, HardFilters, WeightCriteria } from '@/types';
 import { apiGet, apiPost, pickArray } from '@/services/api/renderClient';
 import { analysisCacheService } from '@/services/history-cache/analysisCache';
 import { UploadedFilesService } from '@/services/data-sync/uploadedFilesService';
@@ -6,16 +6,9 @@ import { extractTextFromFile } from '@/services/file-processing/ocrService';
 import { auth } from '@/services/firebase';
 import { getSafeErrorMessage, sanitizeApiErrorMessage, SAFE_ERROR_MESSAGES } from '@/utils/errorMessages';
 
-const RENDER_CHAT_MODEL = 'gemini-2.0-flash';
-
 export interface ScreeningProgress {
   status: 'progress';
   message: string;
-}
-
-export interface ChatbotAdviceResult {
-  responseText: string;
-  candidateIds: string[];
 }
 
 interface CandidateAnalysis {
@@ -31,6 +24,7 @@ interface CandidateAnalysis {
   };
   softSkillsReport?: Record<string, unknown>;
   feedbackAdjusted?: number;
+  'Ma tran doi sanh truc tiep'?: DirectMatchMatrixItem[];
 }
 
 interface CoreAnalysisResponse {
@@ -63,12 +57,6 @@ interface JdPositionResponse {
 
 interface JdHardFiltersResponse {
   filters?: Record<string, unknown>;
-}
-
-interface BackendChatResponse {
-  text?: unknown;
-  responseText?: unknown;
-  candidateIds?: unknown;
 }
 
 const ANALYSIS_JOB_POLL_INTERVAL_MS = 2500;
@@ -552,6 +540,12 @@ function normalizeAnalysis(rawAnalysis: unknown): CandidateAnalysis | undefined 
       ? analysis.softSkillsReport as Record<string, unknown>
       : undefined,
     feedbackAdjusted: typeof analysis.feedbackAdjusted === 'number' ? analysis.feedbackAdjusted : undefined,
+    // Giữ nguyên ma trận đối sánh JD/CV do Gemini sinh ra (dùng làm căn cứ gap cho
+    // /api/interview/questions) — trước đây bị bỏ qua khi normalize, khiến khoảng trống
+    // cụ thể không bao giờ tới được backend interview-questions.
+    'Ma tran doi sanh truc tiep': Array.isArray(analysis['Ma tran doi sanh truc tiep'])
+      ? (analysis['Ma tran doi sanh truc tiep'] as DirectMatchMatrixItem[])
+      : [],
   };
 }
 
@@ -730,39 +724,6 @@ export function normalizeChatbotResponseText(value: unknown): string {
   }
 
   return '';
-}
-
-function normalizeCandidateIds(value: unknown, allowedIds: Set<string>): string[] {
-  if (!Array.isArray(value)) return [];
-
-  return Array.from(
-    new Set(
-      value
-        .map((id) => String(id || '').trim())
-        .filter((id) => id && allowedIds.has(id))
-    )
-  );
-}
-
-function buildFallbackChatbotAdvice(analysisData: AnalysisRunData): ChatbotAdviceResult {
-  const top = [...analysisData.candidates]
-    .filter((candidate) => candidate.status === 'SUCCESS')
-    .sort((a, b) => (b.analysis?.['Tổng điểm'] || 0) - (a.analysis?.['Tổng điểm'] || 0))
-    .slice(0, 3);
-
-  return {
-    responseText: top.length
-      ? `Ưu tiên phỏng vấn: ${top.map((candidate) => `${candidate.candidateName} (${candidate.analysis?.['Tổng điểm'] || 0} điểm)`).join(', ')}.`
-      : 'Hiện chưa có đủ dữ liệu để gợi ý thêm.',
-    candidateIds: top.map((candidate) => candidate.id),
-  };
-}
-
-function compactPromptText(value: unknown, maxLength: number = 160): string {
-  return String(value || '')
-    .replace(/\s+/g, ' ')
-    .trim()
-    .slice(0, maxLength);
 }
 
 export async function filterAndStructureJD(rawJdText: string): Promise<string> {
@@ -952,82 +913,5 @@ export async function* analyzeCVs(
     }
 
     yield normalizedCandidate;
-  }
-}
-
-export async function getChatbotAdvice(
-  analysisData: AnalysisRunData,
-  prompt: string
-): Promise<ChatbotAdviceResult> {
-  const candidateContext = analysisData.candidates
-    .filter((candidate) => candidate.status === 'SUCCESS')
-    .map((candidate) => ({
-      id: candidate.id,
-      name: candidate.candidateName,
-      score: candidate.analysis?.['Tổng điểm'] || 0,
-      grade: candidate.analysis?.['Hạng'] || 'C',
-      jobTitle: candidate.jobTitle,
-      strengths: candidate.analysis?.['Điểm mạnh CV'] || [],
-      weaknesses: candidate.analysis?.['Điểm yếu CV'] || [],
-      details: (candidate.analysis?.['Chi tiết'] || []).slice(0, 8).map((detail) => ({
-        criterion: compactPromptText(detail['Tiêu chí'], 60),
-        score: compactPromptText(detail['Điểm'], 24),
-        evidence: compactPromptText(detail['Dẫn chứng'], 140),
-        note: compactPromptText(detail['Giải thích'], 120),
-      })),
-    }))
-    .slice(0, 12);
-  const allowedCandidateIds = new Set(
-    candidateContext
-      .map((candidate) => String(candidate.id || '').trim())
-      .filter(Boolean)
-  );
-
-  const backendPrompt = [
-    'Bạn là trợ lý tuyển dụng cho SupportHR.',
-    'Hãy trả lời ngắn gọn bằng tiếng Việt và xuất ra JSON hợp lệ.',
-    'JSON phải có dạng: {"responseText":"...","candidateIds":["id-1","id-2"]}.',
-    'Chỉ chọn candidateIds từ danh sách ứng viên đã cho nếu thực sự liên quan.',
-    'Phong cách responseText: tối đa 5 gạch đầu dòng, mỗi dòng dưới 22 từ, không mở bài dài.',
-    'Dùng khớp ngữ nghĩa/vector: hiểu ý nghĩa kỹ năng và kết quả, không chỉ so trùng từ khóa.',
-    'Ví dụ: "giảm 20% thời gian truy vấn" là KPI hiệu suất/thành tựu; nếu nói doanh thu/tăng trưởng thì ghi là tác động gián tiếp.',
-    'Nếu thiếu dữ liệu, nói đúng phần thiếu; không phóng đại năng lực ứng viên.',
-    '',
-    `Vị trí tuyển dụng: ${analysisData.job.position || 'Chưa rõ'}`,
-    `Số ứng viên: ${candidateContext.length}`,
-    `Câu hỏi người dùng: ${prompt}`,
-    '',
-    `Danh sách ứng viên: ${JSON.stringify(candidateContext)}`,
-  ].join('\n');
-
-  try {
-    const response = await apiPost<BackendChatResponse>('/api/gemini-chat', {
-      model: RENDER_CHAT_MODEL,
-      contents: backendPrompt,
-      config: {
-        temperature: 0.2,
-      },
-    });
-
-    const fallback = buildFallbackChatbotAdvice(analysisData);
-    const rawText = typeof response.text === 'string' ? response.text : '';
-    const parsedPayload = rawText ? parseChatbotPayload(rawText) : null;
-    const responsePayload = response as Record<string, unknown>;
-    const rawResponseText = parsedPayload?.responseText
-      ?? responsePayload.responseText
-      ?? responsePayload.text;
-    const rawCandidateIds = parsedPayload?.candidateIds ?? responsePayload.candidateIds;
-    const responseText = normalizeChatbotResponseText(rawResponseText);
-    const candidateIds = rawCandidateIds !== undefined
-      ? normalizeCandidateIds(rawCandidateIds, allowedCandidateIds)
-      : fallback.candidateIds;
-
-    return {
-      responseText: responseText || fallback.responseText,
-      candidateIds,
-    };
-  } catch (error) {
-    console.warn('Backend chatbot request failed, using fallback advice:', error);
-    return buildFallbackChatbotAdvice(analysisData);
   }
 }
