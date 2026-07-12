@@ -468,7 +468,6 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
   const [userAvatar, setUserAvatar] = useState<string | null>(null);
   const [userName, setUserName] = useState<string>('');
   const [isSidebarDrawerOpen, setIsSidebarDrawerOpen] = useState(false);
-  const [isDesktopSidebarCollapsed, setIsDesktopSidebarCollapsed] = useState(false);
   const [appNotice, setAppNotice] = useState<{ tone: 'success' | 'error'; message: string } | null>(null);
   const noticeTimeoutRef = useRef<number | null>(null);
 
@@ -1256,7 +1255,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
 
   return (
     <div className={`h-[100dvh] bg-[var(--th-bg)] text-[var(--th-text)] flex flex-col overflow-hidden ${shouldUseWorkspaceShell ? 'apple-workspace-shell' : ''} ${className || ''}`}>
-      {shouldUseWorkspaceShell && !isDesktopSidebarCollapsed && (
+      {shouldUseWorkspaceShell && (
         <div className="hidden md:block">
           <Sidebar
             activeStep={activeStep}
@@ -1274,7 +1273,6 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
               setJdTemplatesModalOpen(true);
             }}
             onOpenSettingsPanel={() => setSidebarSettingsOpen(true)}
-            onCollapsedChange={setIsDesktopSidebarCollapsed}
             onNewSession={handleNewSession}
           />
         </div>
@@ -1305,7 +1303,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
       )}
 
       <main
-        className={`main-content supporthr-main pb-0 ${shouldUseWorkspaceShell ? `supporthr-main--with-sidebar ${isDesktopSidebarCollapsed ? 'supporthr-main--sidebar-collapsed' : ''}` : ''} flex-1 flex flex-col min-h-0 overflow-x-hidden transition-all duration-200 ease-in-out ${!isLandingView
+        className={`main-content supporthr-main pb-0 ${shouldUseWorkspaceShell ? 'supporthr-main--with-sidebar' : ''} flex-1 flex flex-col min-h-0 overflow-x-hidden transition-all duration-200 ease-in-out ${!isLandingView
             ? 'min-w-0'
             : 'ml-0 w-full'
           }`}
@@ -1317,8 +1315,6 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
             userName={userName}
             userAvatar={userAvatar}
             userEmail={userEmail}
-            sidebarCollapsed={isDesktopSidebarCollapsed}
-            onToggleSidebar={() => setIsDesktopSidebarCollapsed(false)}
             jobPosition={jobPosition}
           />
         ) : null}

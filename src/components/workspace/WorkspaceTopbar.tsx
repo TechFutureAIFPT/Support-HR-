@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useState } from 'react';
-import { Bell, ChevronDown, Menu, PanelLeft, Search } from 'lucide-react';
+import { Bell, ChevronDown, Menu, Search } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import NotificationDropdown from '@/components/notifications/NotificationDropdown';
 import { getWorkspaceNavigationEntry, workspaceNavigationItems } from '@/config/workspaceNavigation';
@@ -11,8 +11,6 @@ interface WorkspaceTopbarProps {
   userName?: string;
   userAvatar?: string | null;
   userEmail?: string;
-  sidebarCollapsed?: boolean;
-  onToggleSidebar?: () => void;
   jobPosition?: string;
 }
 
@@ -22,8 +20,6 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
   userName,
   userAvatar,
   userEmail,
-  sidebarCollapsed,
-  onToggleSidebar,
   jobPosition,
 }) => {
   const navigate = useNavigate();
@@ -75,11 +71,6 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
         >
           <Menu size={17} />
         </button>
-        {sidebarCollapsed ? (
-          <button type="button" onClick={onToggleSidebar} className="apple-toolbar-button hidden md:flex" aria-label="Hiện thanh điều hướng">
-            <PanelLeft size={16} />
-          </button>
-        ) : null}
         <div className="flex min-w-0 items-center gap-2.5">
           <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-700">
             <CurrentPageIcon className="size-[18px]" strokeWidth={1.8} aria-hidden="true" />

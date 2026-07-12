@@ -7,7 +7,6 @@ import {
   Lock,
   LogOut,
   MessageCircleQuestion,
-  PanelLeftClose,
   ScrollText,
   Settings,
   ShieldCheck,
@@ -33,7 +32,6 @@ interface SidebarProps {
   onShowSettings?: () => void;
   onOpenSettingsPanel?: () => void;
   onShowHistory?: () => void;
-  onCollapsedChange?: (collapsed: boolean) => void;
   onNewSession?: () => void;
 }
 
@@ -162,7 +160,6 @@ const Sidebar: React.FC<SidebarProps> = ({
   isOpen = true,
   onClose,
   onOpenSettingsPanel,
-  onCollapsedChange,
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -223,14 +220,6 @@ const Sidebar: React.FC<SidebarProps> = ({
     setOpenSections((current) => ({ ...current, [sectionId]: !current[sectionId] }));
   };
 
-  const collapseSidebar = () => {
-    if (onClose) {
-      onClose();
-      return;
-    }
-    onCollapsedChange?.(true);
-  };
-
   return (
     <>
       {isOpen && onClose ? (
@@ -264,16 +253,6 @@ const Sidebar: React.FC<SidebarProps> = ({
               <p className="mt-0.5 text-xs text-slate-500">Admin</p>
             </div>
           </button>
-          <button
-            type="button"
-            onClick={collapseSidebar}
-            className="flex size-8 shrink-0 items-center justify-center rounded-lg border border-slate-200 text-slate-500 transition-colors hover:bg-blue-50 hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
-            aria-label="Thu gọn thanh điều hướng"
-            title="Thu gọn sidebar"
-          >
-            <PanelLeftClose className="size-4" aria-hidden="true" />
-          </button>
-
           {userMenuOpen && (
             <div ref={userMenuRef} className="absolute left-3 right-3 top-[calc(100%+8px)] z-10">
               <UserMenu

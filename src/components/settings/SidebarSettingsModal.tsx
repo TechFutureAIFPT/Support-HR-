@@ -14,6 +14,7 @@ import {
   LogOut,
   Moon,
   Monitor,
+  Pencil,
   Plus,
   RefreshCcw,
   Settings,
@@ -101,13 +102,14 @@ interface SidebarSettingsModalProps {
   onGoToScoring?: () => void;
 }
 
-type SettingsTab = 'account' | 'library' | 'setup' | 'notifications';
+type SettingsTab = 'account' | 'library' | 'setup' | 'notifications' | 'system';
 
 const TAB_DEFS: Array<{ id: SettingsTab; icon: React.ComponentType<{ size?: number; className?: string }> }> = [
   { id: 'account',       icon: UserCircle2 },
   { id: 'library',       icon: Database },
   { id: 'setup',         icon: SlidersHorizontal },
   { id: 'notifications', icon: Bell },
+  { id: 'system',        icon: Monitor },
 ];
 
 // ── Primitives ────────────────────────────────────────────────────────────────
@@ -325,6 +327,7 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
     library:       'Dữ liệu & Thư viện',
     setup:         'Cài đặt bộ lọc',
     notifications: t('settings_tab_notif'),
+    system:        'Hệ thống & Giao diện',
   };
 
   // Profile fields with local state + debounced save
@@ -332,6 +335,7 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
   const [avatarPreview, setAvatarPreview] = useState<string | null>(userAvatar || settings.account.avatar || null);
   const [profileSaving, setProfileSaving] = useState(false);
   const [profileSaved, setProfileSaved] = useState(false);
+  const [profileEditing, setProfileEditing] = useState(false);
   const profileTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -602,36 +606,47 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
     return { icon: <CloudOff size={12} />, label: t('settings_not_authed'), cls: 'border-slate-200 bg-slate-100 text-slate-500' };
   })();
 
-  // ── Tab: Tài khoản (merged: Chung + Hồ sơ) ──
+  // ── Tab: Tài khoản ──
   const accountTab = (
-    <div className="space-y-5">
-      {/* Gradient profile card */}
-      <div className="rounded-2xl border border-blue-100/60 bg-gradient-to-br from-blue-50 via-indigo-50/60 to-slate-50 p-5">
+    <div className="space-y-4">
+      <section className="rounded-xl border border-slate-200 bg-white p-5">
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <h3 className="text-balance text-sm font-semibold text-slate-900">Hồ sơ người dùng</h3>
+          <button
+            type="button"
+            onClick={() => setProfileEditing((current) => !current)}
+            className="inline-flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-xs font-medium text-blue-700 hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+          >
+            <Pencil className="size-3.5" aria-hidden="true" />
+            {profileEditing ? 'Xong' : 'Chỉnh sửa'}
+          </button>
+        </div>
+
         <div className="flex items-center gap-4">
           <button
             type="button"
-            onClick={() => fileInputRef.current?.click()}
-            className="group relative h-[72px] w-[72px] shrink-0 overflow-hidden rounded-2xl border-2 border-white bg-white shadow-md transition hover:shadow-lg"
+            onClick={() => profileEditing && fileInputRef.current?.click()}
+            disabled={!profileEditing}
+            aria-label={profileEditing ? 'Thay đổi ảnh đại diện' : 'Ảnh đại diện'}
+            className="relative size-16 shrink-0 overflow-hidden rounded-full border border-slate-200 bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:cursor-default"
           >
             {avatarPreview
-              ? <img src={avatarPreview} alt="" className="h-full w-full object-cover" />
+              ? <img src={avatarPreview} alt="" className="size-full object-cover" />
               : <UserCircle2 size={30} className="absolute inset-0 m-auto text-slate-300" />
             }
-            <span className="absolute inset-0 flex items-end justify-center bg-black/0 pb-1.5 opacity-0 transition group-hover:bg-black/25 group-hover:opacity-100">
-              <Upload size={13} className="text-white" />
-            </span>
+            {profileEditing && <span className="absolute inset-x-0 bottom-0 flex h-5 items-center justify-center bg-slate-900/65 text-white"><Upload size={12} /></span>}
           </button>
           <input ref={fileInputRef} type="file" accept="image/*" onChange={handleAvatarInput} className="hidden" />
 
-          <div className="min-w-0 flex-1 space-y-2.5">
-            <div>
-              <label className="mb-1 block text-[11px] font-semibold uppercase tracking-[0.1em] text-blue-400/80">Tên hiển thị</label>
-              <div className="relative">
+          <div className="min-w-0 flex-1">
+            {profileEditing ? (
+              <div className="relative max-w-sm">
                 <input
                   value={displayName}
                   onChange={(e) => handleDisplayNameChange(e.target.value)}
                   placeholder="Nhập tên của bạn"
-                  className="h-10 w-full rounded-xl border border-blue-100 bg-white/70 px-3 pr-9 text-[13px] font-medium text-slate-900 outline-none backdrop-blur-sm transition focus:border-blue-400 focus:bg-white"
+                  aria-label="Tên hiển thị"
+                  className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 pr-9 text-sm font-medium text-slate-900 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
                 />
                 <span className="absolute right-3 top-1/2 -translate-y-1/2">
                   {profileSaving
@@ -641,93 +656,104 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
                       : null}
                 </span>
               </div>
-            </div>
-            <div className="rounded-xl border border-blue-100/60 bg-white/50 px-3 py-2">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-blue-400/70">Email</p>
-              <p className="mt-0.5 text-[13px] font-medium text-slate-800">{userEmail || 'Chưa đăng nhập'}</p>
-            </div>
+            ) : (
+              <p className="truncate text-lg font-semibold text-slate-950">{displayName || 'Chưa đặt tên'}</p>
+            )}
+            <p className="mt-1 truncate text-sm text-slate-500">{userEmail || 'Chưa đăng nhập'}</p>
+            <span className={`mt-2 inline-flex items-center gap-1.5 rounded-full border px-2 py-1 text-xs font-medium ${syncBadge.cls}`}>
+              {syncBadge.icon}
+              {syncBadge.label}
+            </span>
           </div>
         </div>
 
         {onLogout && (
-          <div className="mt-4 flex items-center justify-between border-t border-blue-100/60 pt-4">
-            <p className="text-[12px] text-slate-500">Đăng xuất khỏi thiết bị này. Dữ liệu giữ nguyên trên server.</p>
+          <div className="mt-5 flex justify-end border-t border-slate-200 pt-4">
             <button
               type="button"
               onClick={onLogout}
-              className="ml-4 inline-flex shrink-0 h-8 items-center gap-1.5 rounded-xl border border-rose-200 bg-white px-3 text-[12px] font-semibold text-rose-600 transition hover:bg-rose-50"
+              className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-xs font-medium text-slate-700 hover:border-rose-200 hover:bg-rose-50 hover:text-rose-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500"
             >
-              <LogOut size={12} />
+              <LogOut className="size-3.5" aria-hidden="true" />
               Đăng xuất
             </button>
           </div>
         )}
+      </section>
+    </div>
+  );
+
+  // ── Tab: Hệ thống & Giao diện ──
+  const systemTab = (
+    <div className="space-y-4">
+      <div>
+        <h3 className="text-balance text-sm font-semibold text-slate-900">Cài đặt hệ thống &amp; Giao diện</h3>
+        <p className="mt-1 text-pretty text-xs text-slate-500">Tùy chỉnh cách Support HR hiển thị trên thiết bị này.</p>
       </div>
 
-      {/* Theme */}
-      <Section title={t('settings_section_ui')}>
-        <div className="rounded-2xl border border-slate-100 bg-white p-4 space-y-4">
-          <div>
-            <p className="mb-3 text-[12px] font-semibold text-slate-700">{t('settings_theme_label')}</p>
-            <div className="grid grid-cols-3 gap-2">
+      <section className="rounded-xl border border-slate-200 bg-white p-4">
+        <h4 className="mb-3 text-sm font-semibold text-slate-800">{t('settings_theme_label')}</h4>
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
               {([
-                { value: 'light' as UserSettingsTheme, label: t('settings_theme_light'), icon: Sun },
-                { value: 'dark'  as UserSettingsTheme, label: t('settings_theme_dark'),  icon: Moon },
-                { value: 'system' as UserSettingsTheme, label: t('settings_theme_system'), icon: Monitor },
-              ] as const).map(({ value, label, icon: Icon }) => {
+                { value: 'light' as UserSettingsTheme, label: t('settings_theme_light'), description: 'Nền sáng, dễ quan sát', icon: Sun },
+                { value: 'dark' as UserSettingsTheme, label: t('settings_theme_dark'), description: 'Giảm độ sáng màn hình', icon: Moon },
+                { value: 'system' as UserSettingsTheme, label: t('settings_theme_system'), description: 'Theo cài đặt thiết bị', icon: Monitor },
+              ] as const).map(({ value, label, description, icon: Icon }) => {
                 const active = settings.ui.theme === value;
                 return (
                   <button
                     key={value}
                     type="button"
                     onClick={() => void autoSave('theme', { ui: { ...settings.ui, theme: value } }, { showSaving: false, syncMode: 'background' })}
-                    className={`flex flex-col items-center gap-2 rounded-2xl border py-4 text-[12px] font-semibold transition ${
+                    className={`flex min-h-28 flex-col items-center justify-center rounded-lg border p-3 text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
                       active
-                        ? 'border-blue-400 bg-blue-50 text-blue-700 shadow-sm shadow-blue-100'
-                        : 'border-slate-200 bg-slate-50 text-slate-600 hover:border-slate-300 hover:bg-white'
+                        ? 'border-blue-500 bg-blue-50 text-blue-700'
+                        : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
                     }`}
                   >
-                    <span className={`flex h-9 w-9 items-center justify-center rounded-xl border ${
-                      active ? 'border-blue-200 bg-blue-100' : 'border-slate-200 bg-white'
-                    }`}>
-                      <Icon size={16} className={active ? 'text-blue-500' : 'text-slate-400'} />
+                    <span className={`flex size-8 items-center justify-center rounded-lg ${active ? 'bg-blue-100' : 'bg-slate-100'}`}>
+                      <Icon className="size-4" aria-hidden="true" />
                     </span>
-                    {label}
-                    {active && <Check size={10} className="text-blue-500" />}
+                    <span className="mt-2 text-sm font-semibold">{label}</span>
+                    <span className="mt-0.5 text-xs font-normal text-slate-500">{description}</span>
                   </button>
                 );
               })}
-            </div>
-            {themeMode === 'system' && settings.ui.theme === 'system' && (
-              <p className="mt-2 text-[11px] text-slate-400">Đang dùng chủ đề của hệ điều hành.</p>
-            )}
+        </div>
+        {themeMode === 'system' && settings.ui.theme === 'system' && <p className="mt-2 text-xs text-slate-500">Đang dùng chủ đề của hệ điều hành.</p>}
+      </section>
+
+      <div className="grid gap-3 md:grid-cols-2">
+        <section className="rounded-xl border border-slate-200 bg-white p-4">
+          <label htmlFor="settings-language" className="text-sm font-semibold text-slate-800">{t('settings_section_language')}</label>
+          <div className="relative mt-3">
+            <select
+              id="settings-language"
+              value={settings.ui.language}
+              onChange={(event) => void autoSave('language', { ui: { ...settings.ui, language: event.target.value as UserSettingsLanguage } })}
+              className="h-10 w-full appearance-none rounded-lg border border-slate-200 bg-white px-3 pr-9 text-sm text-slate-800 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+            >
+              <option value="vi-VN">{t('settings_language_vi')}</option>
+              <option value="en-US">{t('settings_language_en')}</option>
+            </select>
+            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" aria-hidden="true" />
           </div>
-        </div>
-      </Section>
+        </section>
 
-      <Section title={t('settings_section_language')}>
-        <div className="rounded-2xl border border-slate-100 bg-white p-4">
-          <p className="mb-3 text-[12px] leading-5 text-slate-500">{t('settings_language_desc')}</p>
-          <ChipGroup<UserSettingsLanguage>
-            value={settings.ui.language}
-            onChange={(v) => void autoSave('language', { ui: { ...settings.ui, language: v } })}
-            options={[
-              { value: 'vi-VN', label: t('settings_language_vi') },
-              { value: 'en-US', label: t('settings_language_en') },
-            ]}
+        <section className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-4">
+          <span className="min-w-0 flex-1">
+            <span className="flex items-center gap-2 text-sm font-semibold text-slate-800">
+              {t('settings_reduced_motion')}
+              {savingKey === 'reducedMotion' && <Loader2 className="size-3.5 animate-spin text-blue-500" />}
+            </span>
+            <span className="mt-1 block text-pretty text-xs text-slate-500">Giảm các hiệu ứng chuyển động.</span>
+          </span>
+          <Toggle
+            checked={settings.ui.reducedMotion}
+            onChange={(value) => void autoSave('reducedMotion', { ui: { ...settings.ui, reducedMotion: value } })}
           />
-        </div>
-      </Section>
-
-      <Section title={t('settings_section_accessibility')}>
-        <ToggleRow
-          title={t('settings_reduced_motion')}
-          description={t('settings_reduced_motion_desc')}
-          checked={settings.ui.reducedMotion}
-          saving={savingKey === 'reducedMotion'}
-          onChange={(v) => void autoSave('reducedMotion', { ui: { ...settings.ui, reducedMotion: v } })}
-        />
-      </Section>
+        </section>
+      </div>
     </div>
   );
 
@@ -1493,11 +1519,12 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
     library:       libraryTab,
     setup:         setupTab,
     notifications: notificationsTab,
+    system:        systemTab,
   };
 
   return (
     <div className="settings-theme-modal fixed inset-0 z-[80] flex items-center justify-center bg-slate-950/40 px-3 py-4 backdrop-blur-sm sm:px-4 sm:py-6">
-      <div className="flex h-[min(92vh,840px)] w-full max-w-[960px] flex-col overflow-hidden rounded-[28px] border border-slate-200/80 bg-white shadow-[0_32px_80px_rgba(15,23,42,0.18)]">
+      <div className="flex h-[min(88vh,720px)] w-full max-w-5xl flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl">
 
         {/* Header */}
         <div className="flex shrink-0 items-center gap-3 border-b border-slate-100 bg-white px-6 py-4">
@@ -1517,7 +1544,8 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-slate-400 transition hover:bg-slate-100 hover:text-slate-900"
+            className="flex size-8 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+            aria-label="Đóng cài đặt"
           >
             <X size={14} />
           </button>
@@ -1531,7 +1559,7 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
 
         <div className="flex min-h-0 flex-1">
           {/* Sidebar nav */}
-          <aside className="w-[215px] shrink-0 border-r border-slate-100 bg-slate-50/40 p-3">
+          <aside className="flex w-56 shrink-0 flex-col border-r border-slate-200 bg-slate-50/50 p-3 max-sm:w-16">
             <nav className="space-y-0.5">
               {TAB_DEFS.map(({ id, icon: Icon }) => {
                 const label = TAB_LABELS[id];
@@ -1541,38 +1569,37 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
                     key={id}
                     type="button"
                     onClick={() => setActiveTab(id)}
-                    className={`relative flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-[13px] font-semibold transition ${
+                    className={`flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
                       active
-                        ? 'bg-white text-blue-700 shadow-sm'
-                        : 'text-slate-600 hover:bg-white/60 hover:text-slate-900'
+                        ? 'border border-blue-200 bg-white text-blue-700'
+                        : 'border border-transparent text-slate-600 hover:bg-white hover:text-slate-900'
                     }`}
                   >
-                    {active && (
-                      <span className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-[3px] rounded-r-full bg-blue-500" />
-                    )}
-                    <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border transition ${
+                    <span className={`flex size-7 shrink-0 items-center justify-center rounded-lg border ${
                       active ? 'border-blue-200 bg-blue-50 text-blue-500' : 'border-slate-200 bg-white text-slate-400'
                     }`}>
-                      <Icon size={14} />
+                      <Icon className="size-4" />
                     </span>
-                    {label}
+                    <span className="truncate max-sm:hidden">{label}</span>
                   </button>
                 );
               })}
             </nav>
 
-            {/* Sync time */}
-            {settings.sync.lastSyncedAt ? (
-              <div className="mt-4 border-t border-slate-100 pt-3 px-1">
-                <p className="text-[10px] leading-4 text-slate-400">
-                  Đồng bộ lần cuối
-                  <br />
-                  {new Date(settings.sync.lastSyncedAt).toLocaleString('vi-VN', {
-                    day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit',
-                  })}
-                </p>
+            {/* Sync status */}
+            <div className="mt-auto border-t border-slate-200 px-1 pt-3 max-sm:hidden">
+              <div className="flex items-center gap-2 text-xs font-medium text-slate-600">
+                <span className="text-emerald-600">{syncBadge.icon}</span>
+                <span>{syncBadge.label}</span>
               </div>
-            ) : null}
+              <p className="mt-1 text-xs leading-5 text-slate-500">
+                {settings.sync.lastSyncedAt
+                  ? new Date(settings.sync.lastSyncedAt).toLocaleString('vi-VN', {
+                      day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit',
+                    })
+                  : 'Chưa có lần đồng bộ'}
+              </p>
+            </div>
           </aside>
 
           {/* Content */}
@@ -1585,15 +1612,15 @@ const SidebarSettingsModal: React.FC<SidebarSettingsModalProps> = ({
           </main>
         </div>
 
-        {/* Footer - auto-save hint only */}
+        {/* Footer */}
         <div className="shrink-0 flex items-center justify-between border-t border-slate-200 bg-white px-5 py-3">
-          <p className="text-[11px] text-slate-400">
+          <p className="text-xs text-slate-500">
             {t('settings_autosave_hint')}
           </p>
           <button
             type="button"
             onClick={onClose}
-            className="h-9 rounded-xl border border-slate-200 bg-white px-4 text-[12px] font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
+            className="h-9 rounded-lg px-3 text-sm font-semibold text-blue-700 hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
           >
             {t('btn_close')}
           </button>
