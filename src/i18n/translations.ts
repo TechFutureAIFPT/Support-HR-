@@ -7,7 +7,9 @@ const vi = {
   nav_section_candidates: 'Quản lý ứng viên',
   nav_section_tools:      'Công cụ tuyển dụng',
   nav_overview:        'Tổng quan tuyển dụng',
+  nav_jd_input:        'Nhập mô tả công việc',
   nav_upload:          'Nạp hồ sơ ứng viên',
+  nav_weights:         'Thiết lập tiêu chí',
   nav_results:         'Kết quả phân tích',
   nav_analytics:       'Phân tích chi tiết',
   nav_chatbot:         'Trợ lý tuyển dụng AI',
@@ -23,6 +25,8 @@ const vi = {
   nav_help:            'Trợ giúp',
   nav_logout:          'Đăng xuất',
   nav_new_session:     'Phiên mới',
+  header_job_position: 'Vị trí tuyển dụng',
+  header_no_position:  'Chưa chọn vị trí tuyển dụng',
 
   // User menu
   user_docs:        'Tài liệu & hướng dẫn',
@@ -77,7 +81,9 @@ const en: typeof vi = {
   nav_section_candidates: 'Candidate Management',
   nav_section_tools:      'Recruitment Tools',
   nav_overview:        'Recruitment Overview',
+  nav_jd_input:        'Enter Job Description',
   nav_upload:          'Upload Candidates',
+  nav_weights:         'Configure Criteria',
   nav_results:         'Analysis Results',
   nav_analytics:       'Detailed Analytics',
   nav_chatbot:         'AI Recruitment Assistant',
@@ -93,6 +99,8 @@ const en: typeof vi = {
   nav_help:            'Help',
   nav_logout:          'Log out',
   nav_new_session:     'New Session',
+  header_job_position: 'Hiring position',
+  header_no_position:  'No hiring position selected',
 
   user_docs:        'Documentation & Guides',
   user_faq:         'Frequently Asked Questions',

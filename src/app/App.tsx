@@ -1319,6 +1319,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
             userEmail={userEmail}
             sidebarCollapsed={isDesktopSidebarCollapsed}
             onToggleSidebar={() => setIsDesktopSidebarCollapsed(false)}
+            jobPosition={jobPosition}
           />
         ) : null}
         {shouldShowWorkflowBanner && (

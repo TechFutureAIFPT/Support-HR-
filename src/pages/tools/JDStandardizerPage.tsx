@@ -437,8 +437,8 @@ const JDStandardizerPage: React.FC<JDStandardizerPageProps> = ({ onUseJD }) => {
       </div>
 
       {/* Main Content */}
-      <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto bg-white px-4 py-4 sm:px-6">
-        <div className="mx-auto max-w-7xl space-y-4">
+      <div className={`custom-scrollbar min-h-0 flex-1 bg-white px-4 py-3 sm:px-6 ${stage === 'input' ? 'overflow-y-auto lg:overflow-hidden' : 'overflow-y-auto'}`}>
+        <div className={`mx-auto max-w-7xl ${stage === 'input' ? 'flex h-full min-h-0 flex-col gap-3' : 'space-y-4'}`}>
 
           {/* Error */}
           {error && (
@@ -462,8 +462,9 @@ const JDStandardizerPage: React.FC<JDStandardizerPageProps> = ({ onUseJD }) => {
               icon={<FileText className="h-5 w-5" />}
               title="Nhập mô tả công việc"
               subtitle="Chọn một cách nhập JD. Hệ thống sẽ phân tích và hỏi bổ sung khi cần."
+              className="min-h-0 flex-1"
             >
-              <div className="mx-auto max-w-4xl overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+              <div className="mx-auto flex h-full min-h-0 w-full max-w-4xl flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
                 <div className="grid grid-cols-3 border-b border-slate-200 bg-slate-50 p-1.5" role="tablist" aria-label="Cách nhập JD">
                   {([
                     ['text', 'Dán văn bản'],
@@ -485,9 +486,9 @@ const JDStandardizerPage: React.FC<JDStandardizerPageProps> = ({ onUseJD }) => {
                   ))}
                 </div>
 
-                <div className="p-4 sm:p-6">
+                <div className="flex min-h-0 flex-1 flex-col p-3 sm:p-4">
                   {inputMode === 'text' && (
-                    <div>
+                    <div className="flex min-h-0 flex-1 flex-col">
                       <label htmlFor="jd-standardizer-text" className="mb-2 block text-sm font-semibold text-slate-800">
                         Nội dung mô tả công việc
                       </label>
@@ -496,7 +497,7 @@ const JDStandardizerPage: React.FC<JDStandardizerPageProps> = ({ onUseJD }) => {
                         value={jdText}
                         onChange={(e) => setJdText(e.target.value)}
                         placeholder="Dán mô tả công việc hiện tại vào đây..."
-                        className="h-[min(46vh,380px)] min-h-64 w-full resize-y rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm leading-6 text-slate-800 outline-none transition-colors placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/15"
+                        className="min-h-40 flex-1 resize-none overflow-y-auto rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm leading-6 text-slate-800 outline-none transition-colors placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/15"
                       />
                       <p className="mt-2 text-pretty text-xs leading-5 text-slate-500">
                         Có thể dán JD thô; hệ thống sẽ tự nhận diện tiêu đề, trách nhiệm, yêu cầu và quyền lợi.
@@ -548,7 +549,7 @@ const JDStandardizerPage: React.FC<JDStandardizerPageProps> = ({ onUseJD }) => {
                     </div>
                   )}
 
-                  <details className="mt-4 border-t border-slate-200 pt-3 text-sm text-slate-600">
+                  <details className="mt-3 shrink-0 border-t border-slate-200 pt-2 text-sm text-slate-600">
                     <summary className="flex cursor-pointer list-none items-center gap-2 font-medium text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
                       <Info className="size-4 text-blue-600" />
                       Mẹo nhập JD
@@ -558,7 +559,7 @@ const JDStandardizerPage: React.FC<JDStandardizerPageProps> = ({ onUseJD }) => {
                     </p>
                   </details>
 
-                  <div className="mt-5 flex justify-center border-t border-slate-200 pt-5">
+                  <div className="mt-3 flex shrink-0 justify-center border-t border-slate-200 pt-3">
                     <button
                       type="button"
                       onClick={() => void handleAnalyseJD()}
@@ -967,14 +968,16 @@ const StageCard = ({
   title,
   subtitle,
   children,
+  className = '',
 }: {
   icon: React.ReactNode;
   title: string;
   subtitle: string;
   children: React.ReactNode;
+  className?: string;
 }) => (
-  <section className="space-y-4 border-t border-slate-200 py-4">
-    <div className="flex items-center gap-3">
+  <section className={`flex flex-col gap-3 border-t border-slate-200 pt-3 ${className}`}>
+    <div className="flex shrink-0 items-center gap-3">
       <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
         {icon}
       </span>
@@ -983,7 +986,7 @@ const StageCard = ({
         <p className="mt-0.5 text-pretty text-sm text-slate-600">{subtitle}</p>
       </div>
     </div>
-    {children}
+    <div className="min-h-0 flex-1">{children}</div>
   </section>
 );
 

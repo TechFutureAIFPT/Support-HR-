@@ -1,32 +1,22 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
-  BarChart3,
-  Bot,
   BookOpen,
   ChevronDown,
   ChevronRight,
-  ClipboardCheck,
-  FileText,
   HelpCircle,
-  LayoutDashboard,
   Lock,
   LogOut,
-  Mail,
-  MessageSquareText,
   MessageCircleQuestion,
   PanelLeftClose,
   ScrollText,
   Settings,
   ShieldCheck,
-  Sparkles,
-  Upload,
-  User,
-  Users,
 } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import type { AppStep } from '@/types';
 import { useTranslation } from '@/i18n/useTranslation';
 import type { TranslationKey } from '@/i18n/translations';
+import { workspaceNavigationSections } from '@/config/workspaceNavigation';
 
 interface SidebarProps {
   activeStep: AppStep;
@@ -46,51 +36,6 @@ interface SidebarProps {
   onCollapsedChange?: (collapsed: boolean) => void;
   onNewSession?: () => void;
 }
-
-type NavigationItem = {
-  labelKey: TranslationKey;
-  path: string;
-  icon: React.ComponentType<{ size?: number; strokeWidth?: number; className?: string }>;
-};
-
-const navigationSections: Array<{ id: string; labelKey: TranslationKey; icon: NavigationItem['icon']; items: NavigationItem[] }> = [
-  {
-    id: 'overview',
-    labelKey: 'nav_section_overview',
-    icon: LayoutDashboard,
-    items: [{ labelKey: 'nav_overview', path: '/', icon: LayoutDashboard }],
-  },
-  {
-    id: 'screening',
-    labelKey: 'nav_section_screening',
-    icon: ClipboardCheck,
-    items: [
-      { labelKey: 'nav_upload', path: '/upload', icon: Upload },
-      { labelKey: 'nav_results', path: '/analysis', icon: ClipboardCheck },
-      { labelKey: 'nav_analytics', path: '/detailed-analytics', icon: BarChart3 },
-    ],
-  },
-  {
-    id: 'candidates',
-    labelKey: 'nav_section_candidates',
-    icon: Users,
-    items: [
-      { labelKey: 'nav_library', path: '/records', icon: User },
-      { labelKey: 'nav_contact', path: '/contact-candidates', icon: Mail },
-    ],
-  },
-  {
-    id: 'tools',
-    labelKey: 'nav_section_tools',
-    icon: Sparkles,
-    items: [
-      { labelKey: 'nav_chatbot', path: '/chatbot', icon: Bot },
-      { labelKey: 'nav_jd_standardizer', path: '/jd-standardizer', icon: Sparkles },
-      { labelKey: 'nav_jd_templates', path: '/jd-templates', icon: FileText },
-      { labelKey: 'nav_feedback', path: '/feedback', icon: MessageSquareText },
-    ],
-  },
-];
 
 // ── User menu dropdown ────────────────────────────────────────────────────────
 
@@ -245,7 +190,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   }, [userMenuOpen]);
 
   useEffect(() => {
-    const activeSection = navigationSections.find((section) =>
+    const activeSection = workspaceNavigationSections.find((section) =>
       section.items.some((item) => item.path === location.pathname),
     );
     if (!activeSection) return;
@@ -348,7 +293,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         <nav className="custom-scrollbar min-h-0 flex-1 overflow-y-auto px-3 py-4" aria-label="Điều hướng HR Portal">
           <p className="mb-3 px-3 text-xs font-semibold uppercase text-slate-400">Support HR</p>
           <div className="flex flex-col gap-2">
-            {navigationSections.map((section) => {
+            {workspaceNavigationSections.map((section) => {
               const sectionActive = section.items.some((item) => item.path === location.pathname);
               const expanded = openSections[section.id];
               const SectionIcon = section.icon;
@@ -366,7 +311,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                   </button>
                   {expanded && (
                     <div className="mt-1 flex flex-col gap-1 pl-4">
-                      {section.items.map((item) => {
+                      {section.items.filter((item) => item.showInSidebar !== false).map((item) => {
                         const ItemIcon = item.icon;
                         const active = item.path === location.pathname;
                         return (

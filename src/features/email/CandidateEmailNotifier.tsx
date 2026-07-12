@@ -879,7 +879,7 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
                 <div className={passLayoutClass}>
                   {/* Form fields */}
                   {workflowStep === 'setup' && <div
-                    className="shrink-0 rounded-lg bg-slate-50 p-4"
+                    className="flex min-h-0 flex-1 flex-col overflow-y-auto rounded-lg bg-slate-50 p-4"
                   >
                     <div className="mb-3">
                       <p
@@ -893,7 +893,7 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
                       </p>
                     </div>
 
-                    <div className="space-y-3">
+                    <div className="flex-1 space-y-3">
 
                       {/* Date + Time */}
                       <div className="grid grid-cols-1 gap-2">

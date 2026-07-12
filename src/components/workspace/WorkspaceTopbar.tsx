@@ -1,7 +1,9 @@
 import React, { useMemo, useRef, useState } from 'react';
 import { Bell, ChevronDown, Menu, PanelLeft, Search } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import NotificationDropdown from '@/components/notifications/NotificationDropdown';
+import { getWorkspaceNavigationEntry, workspaceNavigationItems } from '@/config/workspaceNavigation';
+import { useTranslation } from '@/i18n/useTranslation';
 
 interface WorkspaceTopbarProps {
   onOpenMobileSidebar?: () => void;
@@ -11,20 +13,8 @@ interface WorkspaceTopbarProps {
   userEmail?: string;
   sidebarCollapsed?: boolean;
   onToggleSidebar?: () => void;
+  jobPosition?: string;
 }
-
-const SEARCH_DESTINATIONS = [
-  { label: 'Tổng quan tuyển dụng', path: '/' },
-  { label: 'Nạp hồ sơ ứng viên', path: '/upload' },
-  { label: 'Kết quả phân tích', path: '/analysis' },
-  { label: 'Phân tích chi tiết', path: '/detailed-analytics' },
-  { label: 'Thư viện CV đã lọc', path: '/records' },
-  { label: 'Liên hệ ứng viên', path: '/contact-candidates' },
-  { label: 'Trợ lý tuyển dụng AI', path: '/chatbot' },
-  { label: 'Chuẩn hóa JD', path: '/jd-standardizer' },
-  { label: 'Thư viện mẫu JD', path: '/jd-templates' },
-  { label: 'Phản hồi cho AI', path: '/feedback' },
-];
 
 const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
   onOpenMobileSidebar,
@@ -34,8 +24,11 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
   userEmail,
   sidebarCollapsed,
   onToggleSidebar,
+  jobPosition,
 }) => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { t, locale } = useTranslation();
   const [query, setQuery] = useState('');
   const [searchOpen, setSearchOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
@@ -43,14 +36,22 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
 
   const displayName = userName?.trim() || userEmail?.split('@')[0] || 'HR';
   const initials = displayName.split(/\s+/).map((part) => part[0]).join('').slice(0, 2).toUpperCase();
+  const currentNavigation = getWorkspaceNavigationEntry(location.pathname);
+  const CurrentPageIcon = currentNavigation.icon;
+  const currentPageLabel = t(currentNavigation.labelKey);
+  const currentSectionLabel = t(currentNavigation.sectionLabelKey);
+  const positionLabel = jobPosition?.trim() || t('header_no_position');
 
   const searchResults = useMemo(() => {
+    const destinations = workspaceNavigationItems
+      .filter((item) => item.showInSearch !== false)
+      .map((item) => ({ label: t(item.labelKey), path: item.path }));
     const normalized = query.trim().toLocaleLowerCase('vi-VN');
-    if (!normalized) return SEARCH_DESTINATIONS.slice(0, 5);
-    return SEARCH_DESTINATIONS.filter((item) =>
+    if (!normalized) return destinations.slice(0, 5);
+    return destinations.filter((item) =>
       item.label.toLocaleLowerCase('vi-VN').includes(normalized),
     ).slice(0, 6);
-  }, [query]);
+  }, [locale, query, t]);
 
   const openDestination = (path: string) => {
     setSearchOpen(false);
@@ -65,7 +66,7 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
 
   return (
     <header className="apple-workspace-topbar relative z-40 flex h-[68px] shrink-0 items-center justify-between gap-3 border-b border-slate-200 bg-white px-3 md:px-5">
-      <div className="flex min-w-0 items-center gap-2">
+      <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
         <button
           type="button"
           onClick={onOpenMobileSidebar}
@@ -79,9 +80,22 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
             <PanelLeft size={16} />
           </button>
         ) : null}
+        <div className="flex min-w-0 items-center gap-2.5">
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-700">
+            <CurrentPageIcon className="size-[18px]" strokeWidth={1.8} aria-hidden="true" />
+          </span>
+          <div className="min-w-0">
+            <div className="flex min-w-0 items-center gap-1.5 text-sm font-semibold text-slate-900">
+              <span className="hidden shrink-0 text-slate-500 lg:inline">{currentSectionLabel}</span>
+              <span className="hidden shrink-0 text-slate-300 lg:inline" aria-hidden="true">›</span>
+              <span className="truncate" title={currentPageLabel}>{currentPageLabel}</span>
+            </div>
+            <p className="mt-0.5 hidden max-w-64 truncate text-xs text-slate-500 sm:block xl:max-w-96" title={positionLabel}>
+              {jobPosition?.trim() ? `${t('header_job_position')}: ${positionLabel}` : positionLabel}
+            </p>
+          </div>
+        </div>
       </div>
-
-      <div className="hidden min-w-0 flex-1 lg:flex" />
 
       <div className="flex shrink-0 items-center gap-2">
         <form onSubmit={handleSearch} className="relative hidden lg:block">
