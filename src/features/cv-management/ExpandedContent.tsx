@@ -799,6 +799,16 @@ function scoreUploadedFileMatch(file: UploadedFileRecord, candidate: Candidate):
   return score;
 }
 
+function matchUploadedFile(files: UploadedFileRecord[], candidate: Candidate): UploadedFileRecord | undefined {
+  return [...files]
+    .map((file) => ({ file, score: scoreUploadedFileMatch(file, candidate) }))
+    .filter((entry) => entry.score > 0 && entry.file.extractedText.trim())
+    .sort((left, right) => {
+      if (right.score !== left.score) return right.score - left.score;
+      return Number(right.file.lastAccessedAt || right.file.uploadedAt || 0) - Number(left.file.lastAccessedAt || left.file.uploadedAt || 0);
+    })[0]?.file;
+}
+
 // Cache promise đang chạy theo cacheKey — ExpandedContent có 2 useEffect độc lập
 // (hydrateCvText, hydrateEducation) cùng gọi resolveCandidateCvText khi mount; nếu không
 // dedup, cả 2 có thể cùng lúc cache-miss và cùng bắn 2 request getUserFilesByType('cv', 200)
@@ -840,14 +850,18 @@ async function resolveCandidateCvText(candidate: Candidate): Promise<string> {
       }
     }
 
+    // Thử khớp bằng cache cũ (không network) trước — nếu list uploaded-files đã được fetch
+    // trước đó trên thiết bị này (localStorage), tránh hẳn việc chờ round-trip mới cho lần
+    // mở candidate này. Chỉ gọi network khi cache trống hoặc không khớp được file nào.
+    const cachedFiles = UploadedFilesService.getCachedUserFilesByType('cv', 200);
+    const cachedMatch = matchUploadedFile(cachedFiles, candidate);
+    if (cachedMatch?.extractedText.trim()) {
+      uploadedCvTextCache.set(cacheKey, cachedMatch.extractedText.trim());
+      return cachedMatch.extractedText.trim();
+    }
+
     const uploadedCvFiles = await UploadedFilesService.getUserFilesByType('cv', 200).catch(() => [] as UploadedFileRecord[]);
-    const matchedFile = [...uploadedCvFiles]
-      .map((file) => ({ file, score: scoreUploadedFileMatch(file, candidate) }))
-      .filter((entry) => entry.score > 0 && entry.file.extractedText.trim())
-      .sort((left, right) => {
-        if (right.score !== left.score) return right.score - left.score;
-        return Number(right.file.lastAccessedAt || right.file.uploadedAt || 0) - Number(left.file.lastAccessedAt || left.file.uploadedAt || 0);
-      })[0]?.file;
+    const matchedFile = matchUploadedFile(uploadedCvFiles, candidate);
 
     if (!matchedFile?.extractedText.trim()) {
       return '';

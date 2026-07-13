@@ -1,5 +1,10 @@
 import { apiDelete, apiGet, apiPost, pickArray } from '@/services/api/renderClient';
+import { fetchWithStaleCache, peekCache } from '@/services/api/staleCache';
 import type { UploadedFileRecord } from '@/types';
+
+function parseFileList(raw: unknown): UploadedFileRecord[] {
+  return pickArray<unknown>(raw, ['items', 'files', 'entries', 'data']).map(normalizeUploadedFile);
+}
 
 function normalizeUploadedFile(raw: unknown): UploadedFileRecord {
   const file = (raw && typeof raw === 'object') ? raw as Record<string, unknown> : {};
@@ -69,25 +74,32 @@ export class UploadedFilesService {
     return ids.map((id) => String(id));
   }
 
-  static async getUserFiles(limitCount: number = 50): Promise<UploadedFileRecord[]> {
-    const response = await apiGet<unknown>(
-      `/api/account/uploaded-files?limit_count=${limitCount}`,
-      { authRequired: true }
-    );
+  /** Đọc cache cũ ngay (không network) để render optimistic trước khi getUserFiles() trả về. */
+  static getCachedUserFiles(limitCount: number = 50): UploadedFileRecord[] {
+    return peekCache<UploadedFileRecord[]>(`uploaded_files:all:${limitCount}`) ?? [];
+  }
 
-    return pickArray<unknown>(response, ['items', 'files', 'entries', 'data']).map(normalizeUploadedFile);
+  static async getUserFiles(limitCount: number = 50): Promise<UploadedFileRecord[]> {
+    return fetchWithStaleCache(
+      `uploaded_files:all:${limitCount}`,
+      `/api/account/uploaded-files?limit_count=${limitCount}`,
+      parseFileList,
+    );
+  }
+
+  static getCachedUserFilesByType(fileType: 'cv' | 'jd', limitCount: number = 50): UploadedFileRecord[] {
+    return peekCache<UploadedFileRecord[]>(`uploaded_files:type:${fileType}:${limitCount}`) ?? [];
   }
 
   static async getUserFilesByType(
     fileType: 'cv' | 'jd',
     limitCount: number = 50
   ): Promise<UploadedFileRecord[]> {
-    const response = await apiGet<unknown>(
+    return fetchWithStaleCache(
+      `uploaded_files:type:${fileType}:${limitCount}`,
       `/api/account/uploaded-files/by-type/${fileType}?limit_count=${limitCount}`,
-      { authRequired: true }
+      parseFileList,
     );
-
-    return pickArray<unknown>(response, ['items', 'files', 'entries', 'data']).map(normalizeUploadedFile);
   }
 
   static async getFilesBySession(sessionId: string): Promise<UploadedFileRecord[]> {

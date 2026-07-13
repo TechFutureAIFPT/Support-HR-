@@ -190,6 +190,8 @@ export default function CandidateSuggestions({ candidates, jobPosition }: Candid
   }, [analysisContext, candidateBriefs, effectiveCandidates.length, effectiveJobPosition, sessionId]);
 
   const loadPastSessions = useCallback(async () => {
+    const cached = ChatbotHistoryService.getCachedUserSessions(20);
+    if (cached.length > 0) setPastSessions(cached);
     const sessions = await ChatbotHistoryService.getUserSessions(20);
     setPastSessions(sessions);
   }, []);

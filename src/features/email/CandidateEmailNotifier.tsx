@@ -455,7 +455,14 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
           : "relative flex w-full max-w-5xl flex-col overflow-hidden rounded-2xl shadow-2xl"}
         style={inline
           ? { background: tc.cardBg }
-          : { background: tc.cardBg, border: `1px solid ${tc.borderSoft}`, height: 'min(92vh, 760px)' }}
+          : {
+              background: tc.cardBg,
+              border: `1px solid ${tc.borderSoft}`,
+              // Bước "Thiết lập" (form phỏng vấn) nội dung ngắn hơn nhiều so với bước
+              // "Xem email & gửi" (preview 2 cột) — dùng chiều cao thấp hơn để tránh khoảng
+              // trống rỗng phía dưới form khi ở bước 1.
+              height: workflowStep === 'setup' ? 'min(88vh, 600px)' : 'min(92vh, 760px)',
+            }}
       >
         {/* ── Header ──────────────────────────────────── */}
         <div
@@ -893,7 +900,10 @@ const CandidateEmailNotifier: React.FC<CandidateEmailNotifierProps> = ({
                       </p>
                     </div>
 
-                    <div className="flex-1 space-y-3">
+                    {/* justify-center: khi panel bị kéo cao hơn nội dung thực (vd trang
+                        Liên hệ ứng viên full-height), các field căn giữa theo chiều dọc thay vì
+                        dồn lên đầu rồi để trống hẳn phía dưới. */}
+                    <div className="flex flex-1 flex-col justify-center space-y-3">
 
                       {/* Date + Time */}
                       <div className="grid grid-cols-1 gap-2">

@@ -103,6 +103,10 @@ const ChatbotPanel: React.FC<ChatbotPanelProps> = ({ analysisData, onClose }) =>
   }, [analysisData]);
 
   const loadPastSessions = useCallback(async () => {
+    // Hiện ngay danh sách cache cũ (không chờ network) rồi mới cập nhật bằng dữ liệu mới nhất —
+    // tránh cảm giác đứng/chờ mỗi lần mở lịch sử hội thoại.
+    const cached = ChatbotHistoryService.getCachedUserSessions(20);
+    if (cached.length > 0) setPastSessions(cached);
     try { setPastSessions(await ChatbotHistoryService.getUserSessions(20)); }
     catch (e) { console.warn('Failed to load past sessions:', e); }
   }, []);

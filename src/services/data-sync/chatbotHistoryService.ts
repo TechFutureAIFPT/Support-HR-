@@ -1,4 +1,5 @@
 import { apiDelete, apiGet, apiPost, pickArray, pickObject } from '@/services/api/renderClient';
+import { fetchWithStaleCache, peekCache } from '@/services/api/staleCache';
 import type {
   CandidateBrief,
   ChatMessageMetadata,
@@ -102,13 +103,17 @@ export class ChatbotHistoryService {
     return true;
   }
 
-  static async getUserSessions(limitCount: number = 20): Promise<ChatbotSession[]> {
-    const response = await apiGet<unknown>(
-      `/api/account/chatbot/sessions?limit_count=${limitCount}`,
-      { authRequired: true }
-    );
+  /** Đọc cache cũ ngay (không network) để render optimistic trước khi getUserSessions() trả về. */
+  static getCachedUserSessions(limitCount: number = 20): ChatbotSession[] {
+    return peekCache<ChatbotSession[]>(`chatbot_sessions:list:${limitCount}`) ?? [];
+  }
 
-    return pickArray<unknown>(response, ['items', 'sessions', 'entries', 'data']).map(normalizeSession);
+  static async getUserSessions(limitCount: number = 20): Promise<ChatbotSession[]> {
+    return fetchWithStaleCache(
+      `chatbot_sessions:list:${limitCount}`,
+      `/api/account/chatbot/sessions?limit_count=${limitCount}`,
+      (raw) => pickArray<unknown>(raw, ['items', 'sessions', 'entries', 'data']).map(normalizeSession),
+    );
   }
 
   static async getSession(sessionId: string): Promise<ChatbotSession | null> {

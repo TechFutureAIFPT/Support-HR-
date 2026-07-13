@@ -298,7 +298,12 @@ const MainApp = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const initialPath = typeof window !== 'undefined' ? window.location.pathname : '/';
-  const shouldBlockInitialRender = !publicMarketingPaths.has(initialPath) && initialPath !== '/welcome';
+  // Nếu thiết bị đã từng đăng nhập (còn authEmail cache), coi đây là returning user và không
+  // chặn full-screen chờ Firebase auth resolve — vào thẳng UI với dữ liệu cache (MainLayout đã
+  // tự xử lý currentUser=null tạm thời qua userEmail cache). Nếu auth sau đó xác nhận đã hết
+  // phiên, effect showLoginModal (gate bằng !isInitializing) sẽ tự hiện lại màn đăng nhập.
+  const hasCachedSession = typeof window !== 'undefined' && Boolean(window.localStorage.getItem('authEmail'));
+  const shouldBlockInitialRender = !hasCachedSession && !publicMarketingPaths.has(initialPath) && initialPath !== '/welcome';
 
   // Initialize state
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
