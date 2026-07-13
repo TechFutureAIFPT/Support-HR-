@@ -74,16 +74,16 @@ const CornerFrame = () => (
 );
 
 const inputBaseClass =
-  'w-full rounded-xl border border-[#dbe3ee] bg-white px-3.5 py-2.5 text-[13px] text-slate-900 outline-none transition-all placeholder:text-[#8b9bb1] focus:border-[#94c5f8] focus:bg-white focus:ring-4 focus:ring-[#94c5f8]/12';
+  'w-full rounded-xl border border-[#dbe3ee] bg-white px-3.5 py-2.5 text-[13px] text-slate-900 outline-none transition-all placeholder:text-[#8b9bb1] focus:border-[#1d4e89]/50 focus:bg-white focus:ring-4 focus:ring-[#1d4e89]/10';
 
 const panelSurfaceClass =
   'relative rounded-2xl border border-[#e2e8f0] bg-white shadow-[0_14px_38px_rgba(15,23,42,0.06)]';
 
 const primaryActionClass =
-  'w-full rounded-lg bg-[#2563eb] px-4 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50';
+  'w-full rounded-lg bg-[#1d4e89] px-4 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#163a5f] disabled:cursor-not-allowed disabled:opacity-50';
 
 const primaryActionStyle = {
-  backgroundColor: '#2563eb',
+  backgroundColor: '#1d4e89',
 };
 
 const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
@@ -613,7 +613,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
                             onClick={() => setPasswordVisible((prev) => !prev)}
                             aria-label={passwordVisible ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
                             aria-pressed={passwordVisible}
-                            className="absolute right-3 top-1/2 flex size-8 -translate-y-1/2 items-center justify-center rounded-md text-[#6b7280] transition-colors hover:bg-slate-100 hover:text-[#2563eb] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                            className="absolute right-3 top-1/2 flex size-8 -translate-y-1/2 items-center justify-center rounded-md text-[#6b7280] transition-colors hover:bg-slate-100 hover:text-[#1d4e89] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
                           >
                             {passwordVisible ? <EyeOff className="size-5" aria-hidden="true" /> : <Eye className="size-5" aria-hidden="true" />}
                           </button>
@@ -650,7 +650,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onClose }) => {
                             setAuthError('');
                             setResetSent(false);
                           }}
-                          className="w-full text-right text-sm text-[#647995] transition-colors hover:text-[#2563eb]"
+                          className="w-full text-right text-sm text-[#647995] transition-colors hover:text-[#1d4e89]"
                         >
                           Quên mật khẩu?
                         </button>

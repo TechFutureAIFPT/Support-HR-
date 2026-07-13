@@ -313,7 +313,7 @@ function createDriveSelectionModal(options: {
     header.innerHTML = `
       <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;">
         <div style="min-width:0;">
-          <div style="font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:#2388ff;font-weight:800;">Google Drive</div>
+          <div style="font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:#1d4e89;font-weight:800;">Google Drive</div>
           <div style="margin-top:6px;font-size:20px;line-height:1.2;color:${dk.text};font-weight:800;">Chọn tệp từ Drive</div>
         </div>
         <button data-role="cancel" style="height:36px;padding:0 14px;border-radius:10px;border:1px solid ${dk.btnBorder};background:${dk.bg2};color:${isDark ? dk.text : '#1e3a8a'};cursor:pointer;font:inherit;font-weight:700;">Đóng</button>
@@ -355,7 +355,7 @@ function createDriveSelectionModal(options: {
       <div style="display:flex;gap:10px;flex-wrap:wrap;">
         <button data-role="load-more" style="height:40px;padding:0 16px;border-radius:10px;border:1px solid ${dk.btnBorder};background:${dk.bg2};color:${isDark ? dk.text : '#1e3a8a'};cursor:pointer;font:inherit;display:none;">Tải thêm</button>
         <button data-role="cancel" style="height:40px;padding:0 16px;border-radius:10px;border:1px solid ${dk.btnBorder};background:${dk.bg2};color:${dk.muted};cursor:pointer;font:inherit;">Hủy</button>
-        <button data-role="confirm" style="height:40px;padding:0 18px;border-radius:10px;border:1px solid #2388ff;background:#2388ff;color:#ffffff;cursor:pointer;font-weight:800;font-family:inherit;">Sử dụng tệp đã chọn</button>
+        <button data-role="confirm" style="height:40px;padding:0 18px;border-radius:10px;border:1px solid #1d4e89;background:#1d4e89;color:#ffffff;cursor:pointer;font-weight:800;font-family:inherit;">Sử dụng tệp đã chọn</button>
       </div>
     `;
 
@@ -402,7 +402,7 @@ function createDriveSelectionModal(options: {
         button.style.border = '1px solid #bfdbfe';
         button.style.borderRadius = '999px';
         button.style.background = index === breadcrumbs.length - 1 ? '#e8f3ff' : '#ffffff';
-        button.style.color = index === breadcrumbs.length - 1 ? '#2388ff' : '#475569';
+        button.style.color = index === breadcrumbs.length - 1 ? '#1d4e89' : '#475569';
         button.style.cursor = index === breadcrumbs.length - 1 ? 'default' : 'pointer';
         button.style.font = 'inherit';
         button.style.whiteSpace = 'nowrap';
@@ -508,13 +508,13 @@ function createDriveSelectionModal(options: {
 
         row.innerHTML = `
           <div style="min-width:0;display:flex;align-items:center;gap:10px;">
-            <span style="width:42px;height:24px;display:inline-flex;align-items:center;justify-content:center;border:1px solid ${dk.btnBorder};border-radius:8px;background:${folder ? (isDark ? 'rgba(52,211,153,0.12)' : '#ecfdf5') : (isDark ? 'rgba(59,158,255,0.1)' : '#eff6ff')};color:${folder ? (isDark ? '#34d399' : '#047857') : '#2388ff'};font-size:10px;font-weight:800;letter-spacing:.08em;flex:0 0 auto;">${folder ? 'MỤC' : 'TỆP'}</span>
+            <span style="width:42px;height:24px;display:inline-flex;align-items:center;justify-content:center;border:1px solid ${dk.btnBorder};border-radius:8px;background:${folder ? (isDark ? 'rgba(52,211,153,0.12)' : '#ecfdf5') : (isDark ? 'rgba(59,158,255,0.1)' : '#eff6ff')};color:${folder ? (isDark ? '#34d399' : '#047857') : '#1d4e89'};font-size:10px;font-weight:800;letter-spacing:.08em;flex:0 0 auto;">${folder ? 'MỤC' : 'TỆP'}</span>
             <div style="min-width:0;">
               <div style="font-size:14px;font-weight:750;color:${dk.text};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(file.name)}</div>
               <div style="margin-top:4px;font-size:11px;color:${dk.muted};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(meta)}</div>
             </div>
           </div>
-          <div style="flex-shrink:0;font-size:11px;font-weight:800;color:${selected ? '#2388ff' : '#64748b'};">
+          <div style="flex-shrink:0;font-size:11px;font-weight:800;color:${selected ? '#1d4e89' : '#64748b'};">
             ${folder ? 'Mở' : selected ? 'Đã chọn' : selectable ? 'Chọn' : ''}
           </div>
         `;

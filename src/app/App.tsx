@@ -372,7 +372,7 @@ const MainApp = () => {
     return (
       <SupportHRLoading
         mode="screen"
-        label="Support HR // Khởi tạo"
+        label="SupportHR"
         title="Đang đồng bộ phiên làm việc"
         description="Hệ thống đang tải giao diện, kiểm tra trạng thái đăng nhập và chuẩn bị không gian làm việc cho bạn."
         rotatingTitles={[
@@ -1328,7 +1328,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
               <SupportHRLoading
                 mode="panel"
                 minHeightClass="min-h-[52vh]"
-                label="Support HR // Route Loading"
+                label="SupportHR"
                 title="Đang tải giao diện"
                 description="Hệ thống đang nạp module cần thiết để hiển thị trang tiếp theo."
                 stages={[

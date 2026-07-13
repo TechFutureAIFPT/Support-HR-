@@ -17,7 +17,7 @@ interface WorkspaceDashboardPageProps {
 }
 
 const statusMeta: Record<WorkspaceSessionStatus, { label: string; className: string }> = {
-  open: { label: 'Đang mở', className: 'border-[#c8dcf8] bg-[#eef5ff] text-[#0066d6]' },
+  open: { label: 'Đang mở', className: 'border-[#1d4e89]/25 bg-[#1d4e89]/[0.08] text-[#1d4e89]' },
   review: { label: 'Đang duyệt', className: 'border-[#f4d6a5] bg-[#fff7e8] text-[#a35d00]' },
   completed: { label: 'Hoàn thành', className: 'border-[#bde8c8] bg-[#eefaf2] text-[#16883f]' },
 };

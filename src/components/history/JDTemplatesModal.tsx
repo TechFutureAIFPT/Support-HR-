@@ -91,15 +91,30 @@ const EMPTY_HARD_FILTERS = {
 const modalLabelClass = 'mb-1.5 block text-xs font-semibold text-slate-600';
 const modalMetaClass = 'text-xs font-medium text-slate-500';
 const modalFieldClass =
-  'h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 placeholder:text-slate-400 transition-colors focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100';
+  'h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 placeholder:text-slate-400 transition-colors focus:border-[#1d4e89]/50 focus:outline-none focus:ring-2 focus:ring-[#1d4e89]/10';
 const modalSecondaryButtonClass =
   'inline-flex h-10 items-center justify-center rounded-lg border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50';
 const modalPrimaryButtonClass =
-  'inline-flex h-10 items-center justify-center rounded-lg bg-blue-600 px-5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60';
+  'inline-flex h-10 items-center justify-center rounded-lg bg-[#1d4e89] px-5 text-sm font-semibold text-white transition-colors hover:bg-[#163a5f] disabled:cursor-not-allowed disabled:opacity-60';
 const modalDangerButtonClass =
   'inline-flex h-10 items-center justify-center rounded-lg border border-red-200 bg-red-50 px-5 text-sm font-semibold text-red-600 transition-colors hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60';
 const modalCardClass =
   'group flex h-full flex-col rounded-xl border border-slate-200 bg-white/95 p-5 shadow-sm transition-colors hover:border-blue-300';
+/**
+ * Loại bỏ cú pháp Markdown (#, ##, *, -, **, `) khỏi đoạn preview JD
+ * để card không hiển thị ký tự thô như "# Application Developer ## Tổng quan".
+ */
+function stripJdPreview(jdText: string): string {
+  return jdText
+    .replace(/^#{1,6}\s+/gm, '')
+    .replace(/\*\*([^*]+)\*\*/g, '$1')
+    .replace(/\*([^*]+)\*/g, '$1')
+    .replace(/`([^`]+)`/g, '$1')
+    .replace(/^[-*+]\s+/gm, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 function categoryBadgeClass(category: string): string {
   const normalized = category.toLocaleLowerCase('vi-VN');
   if (normalized.includes('marketing')) return 'bg-rose-50 text-rose-700 ring-rose-100';
@@ -612,8 +627,8 @@ const JDTemplatesModal: React.FC<JDTemplatesModalProps> = ({
                 onClick={() => setActiveTab('jd')}
                 className={`flex items-center justify-center gap-2 border-b px-4 py-3 text-sm font-semibold transition-colors ${
                   activeTab === 'jd'
-                    ? 'border-blue-500 bg-white text-blue-700'
-                    : 'border-transparent text-slate-500 hover:bg-blue-50 hover:text-slate-900'
+                    ? 'border-[#1d4e89] bg-white text-[#1d4e89]'
+                    : 'border-transparent text-slate-500 hover:bg-slate-50 hover:text-slate-900'
                 }`}
               >
                 <i className="fa-solid fa-file-invoice text-sm" />
@@ -623,8 +638,8 @@ const JDTemplatesModal: React.FC<JDTemplatesModalProps> = ({
                 onClick={() => setActiveTab('history')}
                 className={`flex items-center justify-center gap-2 border-b px-4 py-3 text-sm font-semibold transition-colors ${
                   activeTab === 'history'
-                    ? 'border-blue-500 bg-white text-blue-700'
-                    : 'border-transparent text-slate-500 hover:bg-blue-50 hover:text-slate-900'
+                    ? 'border-[#1d4e89] bg-white text-[#1d4e89]'
+                    : 'border-transparent text-slate-500 hover:bg-slate-50 hover:text-slate-900'
                 }`}
               >
                 <i className="fa-solid fa-clock-rotate-left text-sm" />
@@ -726,7 +741,7 @@ const JDTemplatesModal: React.FC<JDTemplatesModalProps> = ({
                 <div className="flex-1 p-5">
                   {loadingTemplates ? (
                     <div className="flex items-center justify-center gap-2.5 py-10 text-slate-400">
-                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-slate-300 border-t-[#2388ff]" />
+                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-slate-300 border-t-[#1d4e89]" />
                       <span className="text-[13px]">Đang tải...</span>
                     </div>
                   ) : !isLoggedIn ? (
@@ -762,7 +777,7 @@ const JDTemplatesModal: React.FC<JDTemplatesModalProps> = ({
                             <span className="shrink-0">{template.origin === 'saved' ? 'Đã lưu' : 'Từ lịch sử'}</span>
                           </div>
 
-                          <p className="mb-5 line-clamp-2 text-pretty text-sm leading-6 text-slate-600">{template.jdText}</p>
+                          <p className="mb-5 line-clamp-2 text-pretty text-sm leading-6 text-slate-600">{stripJdPreview(template.jdText)}</p>
 
                           <div className="mt-auto flex items-center justify-between gap-3 border-t border-slate-100 pt-4">
                             {template.origin === 'saved' ? (
@@ -805,7 +820,7 @@ const JDTemplatesModal: React.FC<JDTemplatesModalProps> = ({
                                   hardFilters: template.hardFilters,
                                 })
                               }
-                              className="inline-flex h-10 items-center justify-center rounded-lg bg-blue-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                              className="inline-flex h-10 items-center justify-center rounded-lg border border-[#1d4e89]/40 bg-white px-4 text-sm font-semibold text-[#1d4e89] transition-colors hover:bg-[#1d4e89] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1d4e89] focus-visible:ring-offset-2"
                             >
                               Sử dụng mẫu
                             </button>
@@ -836,7 +851,7 @@ const JDTemplatesModal: React.FC<JDTemplatesModalProps> = ({
                   <div className="flex gap-2">
                     <button
                       onClick={handleRefreshHistory}
-                      className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#2388ff]/14 bg-white/55 text-[#2388ff]/70 transition-colors hover:border-[#2388ff]/40 hover:bg-[#2388ff] hover:text-black"
+                      className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#1d4e89]/14 bg-white/55 text-[#1d4e89]/70 transition-colors hover:border-[#1d4e89]/40 hover:bg-[#1d4e89] hover:text-white"
                       title="Làm mới"
                     >
                       <i className={`fa-solid fa-rotate ${historyLoading ? 'animate-spin' : ''}`} />
@@ -859,14 +874,14 @@ const JDTemplatesModal: React.FC<JDTemplatesModalProps> = ({
                       value={historySearchTerm}
                       onChange={(event) => setHistorySearchTerm(event.target.value)}
                       placeholder="Tìm vị trí công việc..."
-                      className={`${modalFieldClass} py-3 pl-9 pr-4 text-sm focus:border-[#2388ff]/36`}
+                      className={`${modalFieldClass} py-3 pl-9 pr-4 text-sm focus:border-[#1d4e89]/36`}
                     />
                   </div>
 
                   <select
                     value={historyTimeFilter}
                     onChange={(event) => setHistoryTimeFilter(event.target.value)}
-                    className={`${modalFieldClass} w-full sm:w-[13rem] focus:border-[#2388ff]/36`}
+                    className={`${modalFieldClass} w-full sm:w-[13rem] focus:border-[#1d4e89]/36`}
                   >
                     {['Tất cả', 'Hôm nay', 'Tuần này', 'Tháng này', '3 tháng qua', '6 tháng qua', 'Năm nay'].map((option) => (
                       <option key={option} value={option}>
@@ -878,7 +893,7 @@ const JDTemplatesModal: React.FC<JDTemplatesModalProps> = ({
                   <select
                     value={historyIndustryFilter}
                     onChange={(event) => setHistoryIndustryFilter(event.target.value)}
-                    className={`${modalFieldClass} w-full sm:w-[13rem] focus:border-[#2388ff]/36`}
+                    className={`${modalFieldClass} w-full sm:w-[13rem] focus:border-[#1d4e89]/36`}
                   >
                     {historyIndustries.map((option) => (
                       <option key={option} value={option}>
@@ -896,7 +911,7 @@ const JDTemplatesModal: React.FC<JDTemplatesModalProps> = ({
                     </div>
                     <div className="rounded-xl border border-blue-100 bg-white/[0.02] p-3">
                       <div className={modalMetaClass}>Hit Rate</div>
-                      <div className="supporthr-display mt-2 text-[1.45rem] font-semibold tracking-[-0.05em] text-[#2388ff]">{cacheStats.hitRate.toFixed(1)}%</div>
+                      <div className="supporthr-display mt-2 text-[1.45rem] font-semibold tracking-[-0.05em] text-[#1d4e89]">{cacheStats.hitRate.toFixed(1)}%</div>
                     </div>
                     <div className="rounded-xl border border-blue-100 bg-white/[0.02] p-3">
                       <div className={modalMetaClass}>Lần gần nhất</div>
@@ -918,7 +933,7 @@ const JDTemplatesModal: React.FC<JDTemplatesModalProps> = ({
                 <div className="flex-1 p-5">
                   {historyLoading ? (
                     <div className="flex items-center justify-center gap-2.5 py-10 text-slate-400">
-                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-slate-300 border-t-[#2388ff]" />
+                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-slate-300 border-t-[#1d4e89]" />
                       <span className="text-[13px]">Đang tải...</span>
                     </div>
                   ) : filteredHistory.length === 0 ? (
@@ -952,12 +967,12 @@ const JDTemplatesModal: React.FC<JDTemplatesModalProps> = ({
                           <div className="mb-2 flex items-start justify-between gap-3 pr-6">
                             <div className="min-w-0">
                               <h3 className="supporthr-display truncate text-[1.25rem] font-semibold tracking-[-0.04em] text-slate-900">{entry.jobPosition || 'Không rõ vị trí'}</h3>
-                              <div className="supporthr-mono mt-1 flex items-center gap-2 text-[10px] uppercase tracking-[0.18em] text-[#2388ff]/70">
+                              <div className="supporthr-mono mt-1 flex items-center gap-2 text-[10px] uppercase tracking-[0.18em] text-[#1d4e89]/70">
                                 <i className="fa-solid fa-calendar-days text-[9px]" />
                                 {new Date(entry.timestamp).toLocaleString('vi-VN')}
                               </div>
                             </div>
-                            <span className="supporthr-mono border border-[#2388ff]/20 bg-[#2388ff]/10 px-2.5 py-1 text-[9px] uppercase tracking-[0.16em] text-[#2388ff]">
+                            <span className="supporthr-mono border border-[#1d4e89]/20 bg-[#1d4e89]/10 px-2.5 py-1 text-[9px] uppercase tracking-[0.16em] text-[#1d4e89]">
                               {entry.industry || 'Khác'}
                             </span>
                           </div>
@@ -985,7 +1000,7 @@ const JDTemplatesModal: React.FC<JDTemplatesModalProps> = ({
         <div
           className={`supporthr-mono fixed bottom-6 left-1/2 z-[60] -translate-x-1/2 rounded-xl px-5 py-3 text-[10px] font-semibold uppercase tracking-[0.18em] shadow-2xl ${
             toast.type === 'success'
-              ? 'border border-[#2388ff]/40 bg-white/95 text-[#2388ff]'
+              ? 'border border-[#1d4e89]/40 bg-white/95 text-[#1d4e89]'
               : 'border border-red-500/40 bg-slate-950/95 text-red-600'
           }`}
         >

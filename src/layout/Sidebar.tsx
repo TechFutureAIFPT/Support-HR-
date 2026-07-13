@@ -241,16 +241,16 @@ const Sidebar: React.FC<SidebarProps> = ({
             type="button"
             ref={userCardRef}
             onClick={() => setUserMenuOpen((value) => !value)}
-            className="flex min-w-0 flex-1 items-center gap-3 rounded-lg text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+            className="flex min-w-0 flex-1 items-center gap-3 rounded-lg text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1d4e89]"
             aria-expanded={userMenuOpen}
             aria-haspopup="true"
           >
-            <div className="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-blue-100 text-sm font-semibold text-blue-700">
+            <div className="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#1d4e89]/10 text-sm font-semibold text-[#1d4e89]">
               {userAvatar ? <img src={userAvatar} alt="" className="size-full object-cover" /> : initials}
             </div>
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-semibold text-slate-900">{displayName}</p>
-              <p className="mt-0.5 text-xs text-slate-500">Admin</p>
+              <p className="mt-0.5 text-xs text-slate-500">Quản trị viên</p>
             </div>
           </button>
           {userMenuOpen && (
@@ -281,7 +281,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                   <button
                     type="button"
                     onClick={() => toggleSection(section.id)}
-                    className={`flex min-h-10 w-full items-center gap-3 rounded-lg px-3 text-left text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${sectionActive ? 'text-blue-700' : 'text-slate-700 hover:bg-slate-50'}`}
+                    className={`flex min-h-10 w-full items-center gap-3 rounded-lg px-3 text-left text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1d4e89] ${sectionActive ? 'text-[#1d4e89]' : 'text-slate-700 hover:bg-slate-50'}`}
                     aria-expanded={expanded}
                   >
                     <SectionIcon className="size-[18px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
@@ -299,7 +299,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                             type="button"
                             onClick={() => go(item.path)}
                             aria-current={active ? 'page' : undefined}
-                            className={`flex min-h-10 w-full items-center gap-3 rounded-lg px-3 text-left text-[13px] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${active ? 'bg-blue-100 font-semibold text-blue-800' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'}`}
+                            className={`flex min-h-10 w-full items-center gap-3 rounded-lg px-3 text-left text-[13px] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1d4e89] ${active ? 'bg-[#1d4e89]/[0.08] font-semibold text-[#1d4e89]' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'}`}
                           >
                             <ItemIcon className="size-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
                             <span className="min-w-0 flex-1 truncate">{t(item.labelKey)}</span>
@@ -317,7 +317,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           <button
             type="button"
             onClick={() => onOpenSettingsPanel?.()}
-            className="flex min-h-10 w-full items-center gap-3 rounded-lg px-3 text-left text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+            className="flex min-h-10 w-full items-center gap-3 rounded-lg px-3 text-left text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1d4e89]"
           >
             <Settings className="size-[18px]" strokeWidth={1.8} aria-hidden="true" />
             <span>{t('nav_settings')}</span>

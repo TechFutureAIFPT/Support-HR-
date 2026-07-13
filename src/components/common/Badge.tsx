@@ -26,12 +26,12 @@ const Badge: React.FC<BadgeProps> = ({
   };
 
   const variantStyles = {
-    success: { bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200', dot: 'bg-emerald-500' },
-    warning: { bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-200', dot: 'bg-amber-500' },
-    error: { bg: 'bg-rose-50', text: 'text-rose-700', border: 'border-rose-200', dot: 'bg-rose-500' },
-    info: { bg: 'bg-sky-50', text: 'text-sky-700', border: 'border-sky-200', dot: 'bg-sky-500' },
-    neutral: { bg: 'bg-slate-50', text: 'text-slate-600', border: 'border-slate-200', dot: 'bg-slate-400' },
-    primary: { bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-200', dot: 'bg-blue-500' },
+    success: { bg: 'bg-emerald-50', text: 'text-emerald-800', border: 'border-emerald-200', dot: 'bg-emerald-600' },
+    warning: { bg: 'bg-amber-50', text: 'text-amber-800', border: 'border-amber-300', dot: 'bg-amber-600' },
+    error: { bg: 'bg-rose-50', text: 'text-rose-800', border: 'border-rose-200', dot: 'bg-rose-600' },
+    info: { bg: 'bg-sky-50', text: 'text-sky-800', border: 'border-sky-200', dot: 'bg-sky-600' },
+    neutral: { bg: 'bg-slate-50', text: 'text-slate-700', border: 'border-slate-200', dot: 'bg-slate-500' },
+    primary: { bg: 'bg-[#1d4e89]/[0.08]', text: 'text-[#1d4e89]', border: 'border-[#1d4e89]/25', dot: 'bg-[#1d4e89]' },
   };
 
   const config = sizeConfig[size];
@@ -52,7 +52,7 @@ const Badge: React.FC<BadgeProps> = ({
       className={`
         ${config.text} ${config.padding} ${styles.bg} ${styles.text} ${styles.border}
         inline-flex items-center ${config.gap}
-        font-medium border
+        font-medium border rounded-full
         ${className}
       `}
       role="status"

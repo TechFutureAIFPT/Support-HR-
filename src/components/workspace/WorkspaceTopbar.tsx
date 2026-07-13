@@ -72,7 +72,7 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
           <Menu size={17} />
         </button>
         <div className="flex min-w-0 items-center gap-2.5">
-          <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-700">
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-[#1d4e89]/[0.08] text-[#1d4e89]">
             <CurrentPageIcon className="size-[18px]" strokeWidth={1.8} aria-hidden="true" />
           </span>
           <div className="min-w-0">
@@ -99,7 +99,7 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
             placeholder="Tìm kiếm toàn cục"
             aria-label="Tìm kiếm chức năng"
             aria-expanded={searchOpen}
-            className="h-9 w-64 rounded-lg border border-slate-200 bg-slate-100 pl-9 pr-4 text-[13px] text-slate-900 outline-none transition-colors placeholder:text-slate-500 focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-500/15 xl:w-80"
+            className="h-9 w-64 rounded-lg border border-slate-200 bg-slate-100 pl-9 pr-4 text-[13px] text-slate-900 outline-none transition-colors placeholder:text-slate-500 focus:border-[#1d4e89]/50 focus:bg-white focus:ring-2 focus:ring-[#1d4e89]/15 xl:w-80"
           />
           {searchOpen && (
             <div className="absolute left-0 right-0 top-[calc(100%+8px)] overflow-hidden rounded-xl border border-slate-200 bg-white py-1 shadow-lg">
@@ -109,7 +109,7 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
                   type="button"
                   onMouseDown={(event) => event.preventDefault()}
                   onClick={() => openDestination(item.path)}
-                  className="flex w-full items-center gap-2 px-3 py-2 text-left text-[13px] text-slate-700 transition-colors hover:bg-blue-50 hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500"
+                  className="flex w-full items-center gap-2 px-3 py-2 text-left text-[13px] text-slate-700 transition-colors hover:bg-[#f2f4f7] hover:text-[#1d4e89] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#1d4e89]"
                 >
                   <Search className="size-3.5 text-slate-400" aria-hidden="true" />
                   {item.label}
@@ -126,7 +126,7 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
             ref={notifButtonRef}
             type="button"
             onClick={() => setNotifOpen((current) => !current)}
-            className={`relative flex size-9 items-center justify-center rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${notifOpen ? 'bg-blue-50 text-blue-700' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900'}`}
+            className={`relative flex size-9 items-center justify-center rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1d4e89] ${notifOpen ? 'bg-[#1d4e89]/[0.08] text-[#1d4e89]' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900'}`}
             aria-label="Thông báo"
             aria-expanded={notifOpen}
           >
@@ -136,8 +136,8 @@ const WorkspaceTopbar: React.FC<WorkspaceTopbarProps> = ({
           <NotificationDropdown isOpen={notifOpen} onClose={() => setNotifOpen(false)} anchorRef={notifButtonRef} />
         </div>
 
-        <button type="button" onClick={onOpenSettings} className="flex items-center gap-1 rounded-lg p-1 transition-colors hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500" aria-label="Mở tài khoản">
-          <span className="flex size-8 items-center justify-center overflow-hidden rounded-full bg-blue-100 text-[12px] font-semibold text-blue-700">
+        <button type="button" onClick={onOpenSettings} className="flex items-center gap-1 rounded-lg p-1 transition-colors hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1d4e89]" aria-label="Mở tài khoản">
+          <span className="flex size-8 items-center justify-center overflow-hidden rounded-full bg-[#1d4e89]/10 text-[12px] font-semibold text-[#1d4e89]">
             {userAvatar ? <img src={userAvatar} alt="" className="size-full object-cover" /> : initials}
           </span>
           <ChevronDown className="size-4 text-slate-500" aria-hidden="true" />

@@ -9,7 +9,7 @@ const TotalWeightDisplay: React.FC<TotalWeightDisplayProps> = ({ totalWeight }) 
 
   const status = useMemo(() => {
     if (totalWeight === 100) {
-      return { label: 'Chuẩn', color: 'text-emerald-600', stroke: '#14b8a6' };
+      return { label: 'Chuẩn', color: 'text-emerald-600', stroke: '#17915f' };
     }
     if (totalWeight > 100) {
       return { label: 'Dư', color: 'text-red-600', stroke: '#ef4444' };

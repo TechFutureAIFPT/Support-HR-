@@ -46,7 +46,7 @@ const JDMetaToolbar: React.FC<JDMetaToolbarProps> = ({
       >
         <div
           className="h-8 w-[3px] rounded-full shrink-0"
-          style={{ background: 'linear-gradient(180deg, #2388ff, #14b8a6)' }}
+          style={{ background: 'linear-gradient(180deg, #1d4e89, #17915f)' }}
         />
 
         {leading ? (
@@ -98,7 +98,7 @@ const JDMetaToolbar: React.FC<JDMetaToolbarProps> = ({
             style={
               isCompleteEnabled
                 ? {
-                    background: 'linear-gradient(135deg, #2388ff, #14b8a6)',
+                    background: 'linear-gradient(135deg, #1d4e89, #17915f)',
                     border: '1px solid rgba(35,136,255,0.28)',
                     color: '#fff',
                     boxShadow: '0 14px 34px rgba(35,136,255,0.18)',
@@ -127,7 +127,7 @@ const JDMetaToolbar: React.FC<JDMetaToolbarProps> = ({
             flex: '1 1 140px',
           }}
         >
-          <span className="text-[9px] font-bold uppercase tracking-wider shrink-0" style={{ color: '#2388ff' }}>
+          <span className="text-[9px] font-bold uppercase tracking-wider shrink-0" style={{ color: '#1d4e89' }}>
             Vị trí
           </span>
           <input
@@ -149,7 +149,7 @@ const JDMetaToolbar: React.FC<JDMetaToolbarProps> = ({
             flex: '1 1 110px',
           }}
         >
-          <span className="text-[9px] font-bold uppercase tracking-wider shrink-0" style={{ color: '#2388ff' }}>
+          <span className="text-[9px] font-bold uppercase tracking-wider shrink-0" style={{ color: '#1d4e89' }}>
             Công ty
           </span>
           <input
@@ -171,7 +171,7 @@ const JDMetaToolbar: React.FC<JDMetaToolbarProps> = ({
             flex: '1 1 100px',
           }}
         >
-          <span className="text-[9px] font-bold uppercase tracking-wider shrink-0" style={{ color: '#2388ff' }}>
+          <span className="text-[9px] font-bold uppercase tracking-wider shrink-0" style={{ color: '#1d4e89' }}>
             Ngành
           </span>
           <input
@@ -199,7 +199,7 @@ const JDMetaToolbar: React.FC<JDMetaToolbarProps> = ({
             flex: '1 1 110px',
           }}
         >
-          <span className="text-[9px] font-bold uppercase tracking-wider shrink-0" style={{ color: '#2388ff' }}>
+          <span className="text-[9px] font-bold uppercase tracking-wider shrink-0" style={{ color: '#1d4e89' }}>
             Lương
           </span>
           <input
@@ -221,7 +221,7 @@ const JDMetaToolbar: React.FC<JDMetaToolbarProps> = ({
             flex: '1 1 120px',
           }}
         >
-          <span className="text-[9px] font-bold uppercase tracking-wider shrink-0" style={{ color: '#2388ff' }}>
+          <span className="text-[9px] font-bold uppercase tracking-wider shrink-0" style={{ color: '#1d4e89' }}>
             Kinh nghiệm
           </span>
           <input

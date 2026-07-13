@@ -75,7 +75,7 @@ const LIBRARY_TEXT_FIELDS = [
   'text',
 ];
 
-const accent = '#2388ff';
+const accent = '#1d4e89';
 const modalPanelClass = 'rounded-2xl border border-blue-100 bg-white shadow-[0_24px_80px_rgba(30,64,175,0.14)]';
 const secondaryButtonClass =
   'inline-flex h-9 items-center justify-center gap-2 rounded-xl border border-blue-100 bg-white px-3 text-xs font-semibold text-slate-600 transition-colors hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-45 sm:h-10 sm:px-3';
@@ -222,12 +222,12 @@ const ProcessingModal = ({
   <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/25 px-4 backdrop-blur-sm">
     <div className={`${modalPanelClass} w-full max-w-sm p-5 sm:p-6`}>
       <div className="flex items-center gap-4">
-        <div className="relative flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-[#2388ff]/35 bg-[#2388ff]/10 text-[#2388ff]">
-          <div className="absolute inset-2 animate-ping rounded-xl border border-[#2388ff]/20" />
-          <div className="h-7 w-7 animate-spin rounded-full border-2 border-[#2388ff] border-t-transparent" />
+        <div className="relative flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-[#1d4e89]/35 bg-[#1d4e89]/10 text-[#1d4e89]">
+          <div className="absolute inset-2 animate-ping rounded-xl border border-[#1d4e89]/20" />
+          <div className="h-7 w-7 animate-spin rounded-full border-2 border-[#1d4e89] border-t-transparent" />
         </div>
         <div className="min-w-0">
-          <p className="supporthr-mono text-[10px] font-black uppercase tracking-[0.22em] text-[#2388ff]/80">
+          <p className="supporthr-mono text-[10px] font-black uppercase tracking-[0.22em] text-[#1d4e89]/80">
             Quy trình JD
           </p>
           <h3 className="mt-1 text-lg font-black text-slate-900">Đang chuẩn bị tiêu chí</h3>
@@ -245,7 +245,7 @@ const ProcessingModal = ({
               key={item}
               className={`flex items-center gap-3 rounded-xl border px-3 py-2.5 text-sm transition-all ${
                 isCurrent
-                  ? 'border-[#2388ff]/40 bg-[#2388ff]/10 text-[#2388ff]'
+                  ? 'border-[#1d4e89]/40 bg-[#1d4e89]/10 text-[#1d4e89]'
                   : isDone
                     ? 'border-blue-100 bg-blue-50 text-slate-900'
                     : 'border-blue-100 bg-white text-slate-500'
@@ -945,7 +945,7 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
             <section className="flex min-h-0 flex-col">
               <div className="flex flex-row items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="supporthr-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-[#2388ff]/75">
+                  <p className="supporthr-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-[#1d4e89]/75">
                     Bước 01
                   </p>
                   <h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">Nạp JD</h2>
@@ -974,7 +974,7 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
                 onDrop={handleDropJdFile}
               >
                 <div className="flex flex-1 flex-col items-center justify-center text-center">
-                  <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border border-[#2388ff]/24 bg-[#2388ff]/8 text-[#2388ff] sm:h-20 sm:w-20">
+                  <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border border-[#1d4e89]/24 bg-[#1d4e89]/8 text-[#1d4e89] sm:h-20 sm:w-20">
                     {isProcessing ? (
                       <Loader2 className="h-8 w-8 animate-spin sm:h-9 sm:w-9" />
                     ) : jdReady ? (
@@ -1116,7 +1116,7 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
             <section className="flex min-h-0 flex-col">
               <div className="flex flex-row items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="supporthr-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-[#2388ff]/75">
+                  <p className="supporthr-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-[#1d4e89]/75">
                     {embedded ? 'Bước 01' : 'Bước 02'}
                   </p>
                   <h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">Nạp CV</h2>
@@ -1146,7 +1146,7 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
                 onDrop={handleDropCvFiles}
               >
                 <div className="flex flex-1 flex-col items-center justify-center text-center">
-                  <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border border-[#2388ff]/24 bg-[#2388ff]/8 text-[#2388ff] sm:h-20 sm:w-20">
+                  <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border border-[#1d4e89]/24 bg-[#1d4e89]/8 text-[#1d4e89] sm:h-20 sm:w-20">
                     <UploadCloud className="h-8 w-8 sm:h-9 sm:w-9" />
                   </div>
                   <p className="mt-5 text-xl font-semibold tracking-tight text-slate-900 sm:text-2xl">Kéo thả CV</p>
@@ -1174,7 +1174,7 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
                       className={secondaryButtonClass}
                     >
                       {isLoadingCvDrive ? (
-                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-[#2388ff] border-t-transparent" />
+                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-[#1d4e89] border-t-transparent" />
                       ) : (
                         <FolderOpen className="h-4 w-4" />
                       )}
@@ -1203,7 +1203,7 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
                   <div className="mt-2 h-px bg-blue-100">
                     <div
                       ref={progressBarRef}
-                      className="h-px bg-[#2388ff] transition-[width] duration-500"
+                      className="h-px bg-[#1d4e89] transition-[width] duration-500"
                     />
                   </div>
                 </div>
@@ -1268,7 +1268,7 @@ const CVScreenerWelcome: React.FC<CVScreenerWelcomeProps> = ({
                         key={`${file.name}-${index}`}
                         className="group flex items-center gap-3 rounded-xl border border-blue-100 bg-white px-3 py-3 shadow-[0_10px_26px_rgba(30,64,175,0.05)] transition-colors hover:border-blue-200 hover:bg-blue-50/70"
                       >
-                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-blue-100 bg-blue-50 text-[#2388ff]">
+                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-blue-100 bg-blue-50 text-[#1d4e89]">
                           <FileText className="h-4 w-4" />
                         </span>
                         <div className="min-w-0 flex-1">

@@ -209,7 +209,7 @@ const JDInput: React.FC<JDInputProps> = ({
             onClick={onComplete}
             disabled={!isCompleteEnabled}
             className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition-all hover:bg-blue-50 hover:text-blue-600 disabled:opacity-30"
-            style={isCompleteEnabled ? { background: 'rgba(35,136,255,0.12)', color: '#0875ee' } : {}}
+            style={isCompleteEnabled ? { background: 'rgba(35,136,255,0.12)', color: '#163a5f' } : {}}
             title="Kế tiếp"
           >
             <i className="fa-solid fa-arrow-right text-xs" />

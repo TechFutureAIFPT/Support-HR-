@@ -1,15 +1,11 @@
 .weights-config {
-  background:
-    radial-gradient(circle at 14% 0%, rgba(35, 136, 255, 0.08), transparent 24rem),
-    linear-gradient(180deg, #f6f9ff 0%, #ffffff 100%);
-  color: #102033;
+  background: #f6f8fb;
+  color: #172033;
 }
 
+/* Glow trang trí bị loại bỏ theo định hướng enterprise (không dùng hiệu ứng phát sáng) */
 .weights-config__glow {
-  pointer-events: none;
-  position: absolute;
-  border-radius: 9999px;
-  filter: blur(52px);
+  display: none;
 }
 
 .weights-config__glow--top {
@@ -17,7 +13,7 @@
   right: 0;
   height: 22rem;
   width: 22rem;
-  background: rgba(35, 136, 255, 0.1);
+  background: rgba(29, 78, 137, 0.1);
 }
 
 .weights-config__glow--bottom {
@@ -25,7 +21,7 @@
   left: 0;
   height: 18rem;
   width: 18rem;
-  background: rgba(20, 184, 166, 0.09);
+  background: rgba(23, 145, 95, 0.09);
 }
 
 .weights-config__glow--center {
@@ -33,21 +29,21 @@
   left: 28%;
   height: 16rem;
   width: 16rem;
-  background: rgba(35, 136, 255, 0.06);
+  background: rgba(29, 78, 137, 0.06);
 }
 
 .weights-config__header {
   background: rgba(255, 255, 255, 0.96);
-  border-color: rgba(55, 125, 255, 0.14);
-  box-shadow: 0 10px 28px rgba(30, 64, 175, 0.05);
+  border-color: rgba(16, 24, 40, 0.14);
+  box-shadow: 0 10px 28px rgba(16, 24, 40, 0.05);
 }
 
 .weights-config__accent,
 .weights-config__card-accent,
 .weights-config__note-accent {
   border-radius: 999px;
-  background: linear-gradient(180deg, #2388ff, #14b8a6);
-  box-shadow: 0 10px 22px rgba(35, 136, 255, 0.2);
+  background: #1d4e89;
+  box-shadow: 0 10px 22px rgba(29, 78, 137, 0.2);
 }
 
 .weights-config__accent {
@@ -57,7 +53,7 @@
 
 .weights-config__heading,
 .weights-config__section-title {
-  color: #102033;
+  color: #172033;
 }
 
 .weights-config__subheading,
@@ -75,20 +71,20 @@
 
 .weights-config__step-button[data-state='idle'] {
   background: #ffffff;
-  border-color: rgba(55, 125, 255, 0.14);
+  border-color: rgba(16, 24, 40, 0.14);
   color: #64748b;
 }
 
 .weights-config__step-button[data-state='active'] {
   background: #eef6ff;
-  border-color: rgba(35, 136, 255, 0.28);
-  box-shadow: 0 12px 28px rgba(35, 136, 255, 0.1);
-  color: #102033;
+  border-color: rgba(29, 78, 137, 0.28);
+  box-shadow: 0 12px 28px rgba(29, 78, 137, 0.1);
+  color: #172033;
 }
 
 .weights-config__step-button[data-state='done'] {
-  background: rgba(20, 184, 166, 0.1);
-  border-color: rgba(20, 184, 166, 0.24);
+  background: rgba(23, 145, 95, 0.1);
+  border-color: rgba(23, 145, 95, 0.24);
   color: #0f766e;
 }
 
@@ -103,57 +99,48 @@
 
 .weights-config__step-button[data-state='active'] .weights-config__step-index {
   background: #ffffff;
-  color: #2388ff;
+  color: #1d4e89;
 }
 
 .weights-config__step-button[data-state='done'] .weights-config__step-index {
   background: #ffffff;
-  color: #14b8a6;
+  color: #17915f;
 }
 
 .weights-config__step-connector[data-state='idle'] {
-  background: rgba(55, 125, 255, 0.14);
+  background: rgba(16, 24, 40, 0.14);
 }
 
 .weights-config__step-connector[data-state='done'] {
-  background: rgba(20, 184, 166, 0.34);
+  background: rgba(23, 145, 95, 0.34);
 }
 
 .weights-config__side-panel {
-  border-top: 1px solid rgba(55, 125, 255, 0.14);
+  border-top: 1px solid rgba(16, 24, 40, 0.14);
   background: rgba(255, 255, 255, 0.88);
-  box-shadow: 0 -14px 42px rgba(30, 64, 175, 0.06);
+  box-shadow: 0 -14px 42px rgba(16, 24, 40, 0.06);
 }
 
 .weights-config__card {
-  border: 1px solid rgba(55, 125, 255, 0.14);
+  border: 1px solid rgba(16, 24, 40, 0.14);
   border-radius: 18px;
   background:
-    radial-gradient(320px circle at 100% 0%, rgba(35, 136, 255, 0.08), transparent 44%),
+    radial-gradient(320px circle at 100% 0%, rgba(29, 78, 137, 0.08), transparent 44%),
     #ffffff;
-  box-shadow: 0 18px 48px rgba(30, 64, 175, 0.08);
+  box-shadow: 0 18px 48px rgba(16, 24, 40, 0.08);
 }
 
 .weights-config__card-title {
-  color: #102033;
+  color: #172033;
 }
 
 .weights-config__card-glow {
-  pointer-events: none;
-  position: absolute;
-  top: 0;
-  right: 0;
-  height: 10rem;
-  width: 10rem;
-  border-radius: 9999px;
-  filter: blur(52px);
-  transform: translate(25%, -50%);
-  transition: background 0.4s ease;
+  display: none;
 }
 
 .weights-config__card-glow--info,
 .weights-config__card-glow[data-status='balanced'] {
-  background: rgba(35, 136, 255, 0.14);
+  background: rgba(29, 78, 137, 0.14);
 }
 
 .weights-config__card-glow[data-status='over'] {
@@ -161,7 +148,7 @@
 }
 
 .weights-config__card-glow[data-status='under'] {
-  background: rgba(35, 136, 255, 0.1);
+  background: rgba(29, 78, 137, 0.1);
 }
 
 .weights-config__metric-card,
@@ -171,19 +158,19 @@
 }
 
 .weights-config__metric-card {
-  border: 1px solid rgba(55, 125, 255, 0.14);
+  border: 1px solid rgba(16, 24, 40, 0.14);
   background: #f6f9ff;
-  color: #102033;
+  color: #172033;
 }
 
 .weights-config__metric-card--success {
-  border-color: rgba(20, 184, 166, 0.2);
-  background: rgba(20, 184, 166, 0.08);
+  border-color: rgba(23, 145, 95, 0.2);
+  background: rgba(23, 145, 95, 0.08);
 }
 
 .weights-config__metric-value,
 .weights-config__metric-label {
-  color: #14b8a6;
+  color: #17915f;
 }
 
 .weights-config__metric-value {
@@ -191,17 +178,17 @@
 }
 
 .weights-config__progress-shell {
-  border: 1px solid rgba(55, 125, 255, 0.14);
+  border: 1px solid rgba(16, 24, 40, 0.14);
   border-radius: 12px;
   background: #f6f9ff;
 }
 
 .weights-config__progress-label {
-  color: #2388ff;
+  color: #1d4e89;
 }
 
 .weights-config__progress-value {
-  color: #102033;
+  color: #172033;
   text-shadow: none;
 }
 
@@ -213,8 +200,8 @@
 .weights-config__progress-fill {
   width: var(--weights-progress-width);
   border-radius: 999px;
-  background: linear-gradient(90deg, #2388ff, #14b8a6);
-  box-shadow: 0 8px 18px rgba(35, 136, 255, 0.18);
+  background: #1d4e89;
+  box-shadow: 0 8px 18px rgba(29, 78, 137, 0.18);
 }
 
 .weights-config__progress-shine {
@@ -223,18 +210,18 @@
 }
 
 .weights-config__note {
-  border: 1px solid rgba(55, 125, 255, 0.14);
+  border: 1px solid rgba(16, 24, 40, 0.14);
   border-radius: 14px;
   background: #ffffff;
 }
 
 .weights-config__note-copy,
 .weights-config__note-copy strong {
-  color: #102033 !important;
+  color: #172033 !important;
 }
 
 .weights-config__footer-actions {
-  border-top: 1px solid rgba(55, 125, 255, 0.12);
+  border-top: 1px solid rgba(16, 24, 40, 0.12);
   background: rgba(255, 255, 255, 0.84);
 }
 
@@ -246,15 +233,15 @@
 
 .weights-config__primary-cta,
 .weights-config__finish-cta[data-ready='true'] {
-  border: 1px solid rgba(35, 136, 255, 0.24);
-  background: linear-gradient(135deg, #2388ff, #14b8a6);
-  box-shadow: 0 16px 36px rgba(35, 136, 255, 0.16);
+  border: 1px solid rgba(29, 78, 137, 0.24);
+  background: #1d4e89;
+  box-shadow: 0 16px 36px rgba(29, 78, 137, 0.16);
   color: #ffffff !important;
 }
 
 .weights-config__finish-cta[data-ready='false'] {
   background: #eef4ff;
-  border: 1px solid rgba(55, 125, 255, 0.14);
+  border: 1px solid rgba(16, 24, 40, 0.14);
   color: #94a3b8;
   cursor: not-allowed;
 }
@@ -266,7 +253,7 @@
 
 .weights-config__back-button:hover {
   background: #eef6ff;
-  color: #2388ff;
+  color: #1d4e89;
 }
 
 .weights-config__error {
@@ -281,12 +268,12 @@
 }
 
 .weights-config__total-card {
-  border: 1px solid rgba(55, 125, 255, 0.14);
+  border: 1px solid rgba(16, 24, 40, 0.14);
   background: #ffffff;
 }
 
 .weights-config__total-value {
-  color: #102033;
+  color: #172033;
 }
 
 .weights-config__total-value[data-status='balanced'],
@@ -297,7 +284,7 @@
 
 .weights-config__total-suffix[data-status='balanced'],
 .weights-config__status-pill[data-status='balanced'] {
-  color: #14b8a6;
+  color: #17915f;
 }
 
 .weights-config__total-suffix[data-status='over'],
@@ -307,7 +294,7 @@
 
 .weights-config__total-suffix[data-status='under'],
 .weights-config__status-pill[data-status='under'] {
-  color: #0875ee;
+  color: #163a5f;
 }
 
 .weights-config__status-pill {
@@ -316,8 +303,8 @@
 }
 
 .weights-config__status-pill[data-status='balanced'] {
-  background: rgba(20, 184, 166, 0.08);
-  border-color: rgba(20, 184, 166, 0.2);
+  background: rgba(23, 145, 95, 0.08);
+  border-color: rgba(23, 145, 95, 0.2);
 }
 
 .weights-config__status-pill[data-status='over'] {
@@ -326,19 +313,19 @@
 }
 
 .weights-config__status-pill[data-status='under'] {
-  background: rgba(35, 136, 255, 0.08);
-  border-color: rgba(35, 136, 255, 0.18);
+  background: rgba(29, 78, 137, 0.08);
+  border-color: rgba(29, 78, 137, 0.18);
 }
 
 .weights-config__summary-row {
-  border: 1px solid rgba(55, 125, 255, 0.14);
+  border: 1px solid rgba(16, 24, 40, 0.14);
   background: #ffffff;
 }
 
 .weights-config__summary-accent[data-tone='high'],
 .weights-config__summary-accent[data-tone='medium'],
 .weights-config__summary-accent[data-tone='low'] {
-  background: linear-gradient(180deg, #2388ff, #14b8a6);
+  background: #1d4e89;
 }
 
 .weights-config__summary-label {
@@ -352,7 +339,7 @@
 @media (min-width: 1024px) {
   .weights-config__side-panel {
     border-top: 0;
-    border-left: 1px solid rgba(55, 125, 255, 0.14);
-    box-shadow: -14px 0 42px rgba(30, 64, 175, 0.06);
+    border-left: 1px solid rgba(16, 24, 40, 0.14);
+    box-shadow: -14px 0 42px rgba(16, 24, 40, 0.06);
   }
 }

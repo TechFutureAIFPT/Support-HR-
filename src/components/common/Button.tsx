@@ -38,24 +38,24 @@ const Button: React.FC<ButtonProps> = ({
 
   const variantStyles = {
     primary: {
-      base: 'border border-blue-500/20 bg-gradient-to-r from-blue-600 to-emerald-500 text-white shadow-[0_14px_34px_rgba(35,136,255,0.2)] hover:brightness-105',
-      focus: 'focus:ring-blue-400/40 focus:ring-offset-white',
+      base: 'border border-transparent bg-[#1d4e89] text-white shadow-sm hover:bg-[#163a5f]',
+      focus: 'focus:ring-[#1d4e89]/35 focus:ring-offset-white',
     },
     secondary: {
-      base: 'border border-blue-100 bg-white text-slate-700 shadow-sm hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700',
-      focus: 'focus:ring-blue-300/30 focus:ring-offset-white',
+      base: 'border border-[#d0d5dd] bg-white text-[#344054] shadow-sm hover:border-[#98a2b3] hover:bg-[#f8fafc]',
+      focus: 'focus:ring-[#1d4e89]/25 focus:ring-offset-white',
     },
     outline: {
-      base: 'bg-transparent border border-blue-200 hover:bg-blue-50 hover:border-blue-300 text-blue-700',
-      focus: 'focus:ring-blue-300/35 focus:ring-offset-white',
+      base: 'bg-transparent border border-[#1d4e89]/40 text-[#1d4e89] hover:bg-[#1d4e89]/[0.06] hover:border-[#1d4e89]/60',
+      focus: 'focus:ring-[#1d4e89]/30 focus:ring-offset-white',
     },
     ghost: {
-      base: 'bg-transparent hover:bg-blue-50 text-slate-600 hover:text-blue-700 border border-transparent',
-      focus: 'focus:ring-blue-300/30 focus:ring-offset-white',
+      base: 'bg-transparent border border-transparent text-[#475467] hover:bg-[#f2f4f7] hover:text-[#172033]',
+      focus: 'focus:ring-[#1d4e89]/25 focus:ring-offset-white',
     },
     danger: {
-      base: 'bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white shadow-[0_14px_30px_rgba(127,29,29,0.2)] hover:shadow-[0_18px_36px_rgba(239,68,68,0.22)]',
-      focus: 'focus:ring-red-500/35 focus:ring-offset-white',
+      base: 'border border-transparent bg-[#d92d20] text-white shadow-sm hover:bg-[#b42318]',
+      focus: 'focus:ring-[#d92d20]/35 focus:ring-offset-white',
     },
   };
 
@@ -79,11 +79,10 @@ const Button: React.FC<ButtonProps> = ({
         ${v.base}
         ${fullWidth ? 'w-full' : ''}
         flex items-center justify-center gap-2
-        font-medium rounded-xl
-        transition-all duration-200
+        font-medium rounded-[10px]
+        transition-colors duration-150
         focus:outline-none focus:ring-2 ${v.focus}
         disabled:opacity-50 disabled:cursor-not-allowed
-        hover:-translate-y-px active:translate-y-0
         ${className}
       `}
       aria-busy={loading}

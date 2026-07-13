@@ -30,16 +30,16 @@ const Card: React.FC<CardProps> = ({
 
   const variantStyles = {
     default: {
-      base: 'bg-white backdrop-blur-xl border border-blue-100 shadow-[0_18px_48px_rgba(30,64,175,0.08)]',
-      hover: 'hover:shadow-[0_22px_60px_rgba(30,64,175,0.12)] hover:-translate-y-0.5 hover:border-blue-200 hover:bg-blue-50/30',
+      base: 'bg-white border border-[#e4e7ec] shadow-[0_1px_2px_rgba(16,24,40,0.05)]',
+      hover: 'hover:border-[#d0d5dd] hover:shadow-[0_2px_8px_rgba(16,24,40,0.08)]',
     },
     elevated: {
-      base: 'bg-white backdrop-blur-xl border border-blue-100 shadow-[0_24px_64px_rgba(30,64,175,0.1)]',
-      hover: 'hover:shadow-[0_28px_72px_rgba(30,64,175,0.14)] hover:-translate-y-0.5 hover:border-blue-200',
+      base: 'bg-white border border-[#e4e7ec] shadow-[0_2px_8px_rgba(16,24,40,0.06)]',
+      hover: 'hover:border-[#d0d5dd] hover:shadow-[0_8px_24px_rgba(16,24,40,0.08)]',
     },
     bordered: {
-      base: 'bg-white backdrop-blur-lg border border-blue-200 shadow-[0_18px_40px_rgba(30,64,175,0.08)]',
-      hover: 'hover:border-blue-300 hover:shadow-[0_22px_54px_rgba(30,64,175,0.12)]',
+      base: 'bg-white border border-[#d0d5dd]',
+      hover: 'hover:border-[#98a2b3]',
     },
     ghost: {
       base: 'bg-transparent border border-transparent',
@@ -54,7 +54,7 @@ const Card: React.FC<CardProps> = ({
     <div
       className={`
         ${v.base} ${hoverClass}
-        rounded-[18px] transition-all duration-300
+        rounded-xl transition-[border-color,box-shadow] duration-150
         ${className}
       `}
       onClick={onClick}
@@ -66,10 +66,10 @@ const Card: React.FC<CardProps> = ({
         <div className={`
           flex items-center justify-between
           ${paddingConfig[padding]} ${padding !== 'none' && children ? 'pb-0' : ''}
-          border-b border-blue-100
+          border-b border-[#eaecf0]
         `}>
           {title && (
-            <h3 className="text-lg font-semibold text-slate-900">
+            <h3 className="text-base font-semibold text-[#172033]">
               {title}
             </h3>
           )}

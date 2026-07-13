@@ -35,7 +35,7 @@ const DEFAULT_TITLES = [
 
 export default function SupportHRLoading({
   mode = "panel",
-  label = "Support HR // Loading",
+  label = "SupportHR",
   title = "Đang tải dữ liệu",
   description = "Hệ thống đang đồng bộ giao diện và chuẩn bị trạng thái làm việc cho bạn.",
   minHeightClass,
@@ -78,14 +78,14 @@ export default function SupportHRLoading({
       : minHeightClass ?? (isCompact ? "min-h-[12rem]" : "min-h-[44vh]");
 
   // Theme tokens
-  const bg = isDarkMode ? "#0f1523" : "#f6f9ff";
+  const bg = isDarkMode ? "#0f1523" : "#f6f8fb";
   const gradientBg = isDarkMode
-    ? "radial-gradient(ellipse at 50% 0%,rgba(35,136,255,0.08),transparent 60%)"
-    : "radial-gradient(ellipse at 50% 0%,rgba(35,136,255,0.14),transparent 55%),linear-gradient(180deg,#f6f9ff 0%,#eef5ff 60%,#ffffff 100%)";
+    ? "radial-gradient(ellipse at 50% 0%,rgba(110,168,220,0.06),transparent 60%)"
+    : "linear-gradient(180deg,#ffffff 0%,#f6f8fb 100%)";
   const cardBg = isDarkMode ? "#1e2a3d" : "#ffffff";
-  const cardBorder = isDarkMode ? "rgba(255,255,255,0.09)" : "rgba(219,234,254,1)";
-  const textPrimary = isDarkMode ? "#e2e8f4" : "#0f172a";
-  const textMuted = isDarkMode ? "#94a3b8" : "#64748b";
+  const cardBorder = isDarkMode ? "rgba(255,255,255,0.09)" : "#e4e7ec";
+  const textPrimary = isDarkMode ? "#e2e8f4" : "#172033";
+  const textMuted = isDarkMode ? "#94a3b8" : "#667085";
   const stepperLine = isDarkMode ? "rgba(255,255,255,0.1)" : "rgba(148,163,184,0.3)";
   const stepperDotIdle = isDarkMode ? "#334155" : "#cbd5e1";
 
@@ -108,29 +108,29 @@ export default function SupportHRLoading({
               height: isCompact ? 52 : 64,
               background: cardBg,
               border: `1px solid ${cardBorder}`,
-              boxShadow: "0 4px 24px rgba(30,64,175,0.08)",
+              boxShadow: "0 1px 2px rgba(16,24,40,0.05)",
             }}
           >
             {/* Single clean spinning ring */}
             <div
               className="absolute inset-0 rounded-2xl border-[2px] border-transparent animate-spin"
               style={{
-                borderTopColor: "#3b82f6",
-                borderRightColor: "rgba(59,130,246,0.28)",
+                borderTopColor: "#1d4e89",
+                borderRightColor: "rgba(29,78,137,0.25)",
                 animationDuration: "1.1s",
                 animationTimingFunction: "linear",
               }}
             />
             {/* AI label + staggered dots */}
             <div className="relative flex flex-col items-center gap-1.5">
-              <span className="supporthr-mono text-[9px] font-bold uppercase tracking-[0.28em] text-blue-400">
+              <span className="supporthr-mono text-[9px] font-bold uppercase tracking-[0.28em] text-[#1d4e89]">
                 AI
               </span>
               <div className="flex items-center gap-1">
                 {[0, 1, 2].map((i) => (
                   <span
                     key={i}
-                    className="h-1 w-1 rounded-full bg-blue-400 animate-pulse"
+                    className="h-1 w-1 rounded-full bg-[#1d4e89] animate-pulse"
                     style={{ animationDelay: `${i * 0.22}s`, animationDuration: "1.3s" }}
                   />
                 ))}
@@ -140,7 +140,7 @@ export default function SupportHRLoading({
 
           {/* ── Text ── */}
           <div>
-            <p className="supporthr-mono mb-2 text-[10px] uppercase tracking-[0.28em] text-blue-400">
+            <p className="supporthr-mono mb-2 text-[10px] uppercase tracking-[0.28em] text-[#1d4e89]">
               {label}
             </p>
             <h2
@@ -176,13 +176,11 @@ export default function SupportHRLoading({
                         className={`rounded-full transition-all duration-500 ${isActive ? "h-2.5 w-2.5" : "h-2 w-2"}`}
                         style={{
                           background: isActive
-                            ? "#3b82f6"
+                            ? "#1d4e89"
                             : isDone
-                              ? "#22c55e"
+                              ? "#17915f"
                               : stepperDotIdle,
-                          boxShadow: isActive
-                            ? "0 0 10px rgba(59,130,246,0.45)"
-                            : "none",
+                          boxShadow: "none",
                         }}
                       />
                       <p
