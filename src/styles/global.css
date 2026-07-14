@@ -4102,6 +4102,89 @@ html.dark .supporthr-main--with-sidebar [class*="bg-[#f7f7f5]"] {
    transition 150-600ms). Tôn trọng prefers-reduced-motion.
    ============================================================ */
 
+/* Toàn trang chủ hiển thị ở mức zoom 110% theo yêu cầu thiết kế */
+.landing-zoom {
+  zoom: 1.1;
+}
+
+/* Ô icon đảo màu navy khi hover card */
+.landing-icon-tile {
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.landing-card-hover:hover .landing-icon-tile {
+  background-color: #1d4e89;
+  color: #ffffff;
+  transform: scale(1.08);
+}
+
+/* Lưới công cụ: từng card sáng lần lượt như hệ thống đang hoạt động */
+.landing-tool-card {
+  animation: landing-tool-cycle 9s ease-in-out infinite;
+  animation-delay: var(--tool-delay, 0s);
+}
+
+@keyframes landing-tool-cycle {
+  0%, 13%, 100% {
+    border-color: #e4e7ec;
+    box-shadow: none;
+  }
+  4%, 9% {
+    border-color: rgba(29, 78, 137, 0.45);
+    box-shadow: 0 6px 18px rgba(29, 78, 137, 0.1);
+  }
+}
+
+/* Card tính năng: vạch accent navy chạy ngang khi hover */
+.landing-feature-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.landing-feature-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 3px;
+  width: 0;
+  background: linear-gradient(90deg, #1d4e89, #4e5ba6);
+  transition: width 0.35s ease;
+}
+
+.landing-feature-card:hover::before {
+  width: 100%;
+}
+
+/* Mũi tên giải pháp nhích nhẹ liên tục — dẫn mắt từ vấn đề sang giải pháp */
+.landing-arrow-nudge {
+  animation: landing-arrow-nudge 1.6s ease-in-out infinite;
+}
+
+@keyframes landing-arrow-nudge {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(4px);
+  }
+}
+
+/* Bảng so sánh: dòng quét sáng lần lượt như đang rà từng tiêu chí */
+.landing-compare-row {
+  animation: landing-row-scan 7.2s ease-in-out infinite;
+  animation-delay: var(--row-delay, 0s);
+}
+
+@keyframes landing-row-scan {
+  0%, 15%, 100% {
+    background-color: transparent;
+  }
+  5%, 10% {
+    background-color: rgba(29, 78, 137, 0.055);
+  }
+}
+
 .landing-hero-bg {
   background-image:
     radial-gradient(48rem 24rem at 85% -10%, rgba(29, 78, 137, 0.07), transparent 70%),
@@ -4347,7 +4430,10 @@ html.dark .supporthr-main--with-sidebar [class*="bg-[#f7f7f5]"] {
   .landing-live-dot,
   .landing-flow-line,
   .landing-step-card,
-  .landing-step-card .landing-step-icon {
+  .landing-step-card .landing-step-icon,
+  .landing-tool-card,
+  .landing-arrow-nudge,
+  .landing-compare-row {
     animation: none;
   }
 

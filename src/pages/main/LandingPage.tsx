@@ -287,7 +287,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginRequest, isLoggedIn = 
   const primaryCtaLabel = isLoggedIn ? 'Vào không gian làm việc' : 'Dùng thử miễn phí';
 
   return (
-    <div ref={rootRef} className="min-h-screen bg-[#f6f8fb] text-[#172033]">
+    <div ref={rootRef} className="landing-zoom min-h-screen bg-[#f6f8fb] text-[#172033]">
       {/* Header */}
       <header className="sticky top-0 z-40 border-b border-[#e4e7ec] bg-white">
         <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
@@ -507,7 +507,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginRequest, isLoggedIn = 
             >
               <p className="text-[14px] font-medium leading-6 text-[#172033]">{item.problem}</p>
               <div className="mt-3 flex items-start gap-2 border-t border-[#eaecf0] pt-3">
-                <ArrowRight className="mt-0.5 h-4 w-4 shrink-0 text-[#17915f]" aria-hidden="true" />
+                <ArrowRight className="landing-arrow-nudge mt-0.5 h-4 w-4 shrink-0 text-[#17915f]" aria-hidden="true" />
                 <p className="text-[13px] leading-6 text-[#475467]">{item.solution}</p>
               </div>
             </div>
@@ -542,8 +542,12 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginRequest, isLoggedIn = 
                 </tr>
               </thead>
               <tbody>
-                {COMPARISON_ROWS.map((row) => (
-                  <tr key={row.label} className="border-b border-[#eaecf0] text-[13px] last:border-b-0">
+                {COMPARISON_ROWS.map((row, index) => (
+                  <tr
+                    key={row.label}
+                    className="landing-compare-row border-b border-[#eaecf0] text-[13px] last:border-b-0"
+                    style={{ '--row-delay': `${index * 1.2}s` } as React.CSSProperties}
+                  >
                     <td className="px-5 py-4 font-semibold text-[#172033]">{row.label}</td>
                     <td className="px-5 py-4 leading-6 text-[#667085]">{row.manual}</td>
                     <td className="bg-[#1d4e89]/[0.04] px-5 py-4 font-medium leading-6 text-[#344054]">{row.supporthr}</td>
@@ -568,10 +572,10 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginRequest, isLoggedIn = 
           {FEATURES.map((feature, index) => (
             <div
               key={feature.title}
-              className="landing-reveal landing-card-hover rounded-xl border border-[#e4e7ec] bg-white p-6 shadow-[0_1px_2px_rgba(16,24,40,0.05)]"
+              className="landing-reveal landing-card-hover landing-feature-card rounded-xl border border-[#e4e7ec] bg-white p-6 shadow-[0_1px_2px_rgba(16,24,40,0.05)]"
               style={{ '--reveal-delay': `${(index % 3) * 80}ms` } as React.CSSProperties}
             >
-              <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-[#1d4e89]/[0.08] text-[#1d4e89]">
+              <span className="landing-icon-tile inline-flex h-10 w-10 items-center justify-center rounded-lg bg-[#1d4e89]/[0.08] text-[#1d4e89]">
                 <feature.icon className="h-5 w-5" aria-hidden="true" />
               </span>
               <h3 className="mt-4 text-[16px] font-semibold leading-6">{feature.title}</h3>
@@ -638,10 +642,10 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginRequest, isLoggedIn = 
           {TOOLS.map((tool, index) => (
             <div
               key={tool.name}
-              className="landing-reveal landing-card-hover flex items-start gap-3.5 rounded-xl border border-[#e4e7ec] bg-white p-4"
-              style={{ '--reveal-delay': `${(index % 3) * 70}ms` } as React.CSSProperties}
+              className="landing-reveal landing-card-hover landing-tool-card flex items-start gap-3.5 rounded-xl border border-[#e4e7ec] bg-white p-4"
+              style={{ '--reveal-delay': `${(index % 3) * 70}ms`, '--tool-delay': `${index}s` } as React.CSSProperties}
             >
-              <span className="mt-0.5 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#1d4e89]/[0.08] text-[#1d4e89]">
+              <span className="landing-icon-tile mt-0.5 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#1d4e89]/[0.08] text-[#1d4e89]">
                 <tool.icon className="h-5 w-5" aria-hidden="true" />
               </span>
               <div>
