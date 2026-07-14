@@ -4096,3 +4096,277 @@ html.dark .supporthr-main--with-sidebar [class*="bg-[#f7f7f5]"] {
 .settings-theme-modal [class*="hover:border-slate-200"]:hover {
   border-color: var(--th-border) !important;
 }
+
+/* ============================================================
+   LANDING PAGE — hiệu ứng nhẹ, có mục đích (fade/slide 8-14px,
+   transition 150-600ms). Tôn trọng prefers-reduced-motion.
+   ============================================================ */
+
+.landing-hero-bg {
+  background-image:
+    radial-gradient(48rem 24rem at 85% -10%, rgba(29, 78, 137, 0.07), transparent 70%),
+    radial-gradient(rgba(29, 78, 137, 0.1) 1px, transparent 1.5px);
+  background-size: auto, 28px 28px;
+  background-position: center top, center;
+}
+
+/* Mặc định HIỂN THỊ (an toàn khi JS chưa chạy/bị treo). JS gắn [data-armed]
+   cho phần tử dưới viewport để kích hoạt hiệu ứng fade-up khi cuộn tới. */
+.landing-reveal {
+  transition: opacity 0.55s ease, transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+.landing-reveal[data-armed] {
+  opacity: 0;
+  transform: translateY(14px);
+  will-change: opacity, transform;
+}
+
+/* Đặt sau rule [data-armed] để thắng khi cùng độ ưu tiên. */
+.landing-reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+.landing-card-hover {
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+}
+
+.landing-card-hover:hover {
+  border-color: rgba(29, 78, 137, 0.35);
+  box-shadow: 0 8px 24px rgba(16, 24, 40, 0.08);
+  transform: translateY(-3px);
+}
+
+/* Thanh điểm chạy LẶP liên tục — mô phỏng phiên phân tích tuyển dụng đang chạy */
+.landing-score-bar {
+  width: 0;
+  animation: landing-score-loop 7s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+  animation-delay: var(--bar-delay, 400ms);
+}
+
+@keyframes landing-score-loop {
+  0% {
+    width: 0;
+    opacity: 0.55;
+  }
+  18% {
+    width: var(--bar-width, 60%);
+    opacity: 1;
+  }
+  82% {
+    width: var(--bar-width, 60%);
+    opacity: 1;
+  }
+  92% {
+    width: var(--bar-width, 60%);
+    opacity: 0.25;
+  }
+  100% {
+    width: 0;
+    opacity: 0.25;
+  }
+}
+
+/* Dòng trạng thái hoạt động tuyển dụng luân phiên trong hero mockup */
+.landing-ticker {
+  position: relative;
+  height: 18px;
+  overflow: hidden;
+}
+
+.landing-ticker span {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  animation: landing-ticker-cycle 9s ease-in-out infinite;
+  animation-delay: var(--tick-delay, 0s);
+}
+
+@keyframes landing-ticker-cycle {
+  0%, 33%, 100% {
+    opacity: 0;
+    transform: translateY(7px);
+  }
+  5%, 27% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ── Workflow kiểu agent tự động hóa ──────────────────────────
+   Dây nối giữa các bước: nét đứt chảy + chấm tín hiệu chạy dọc dây.
+   Card bước sáng lần lượt theo chu kỳ như pipeline đang chạy. */
+.landing-flow-line {
+  position: relative;
+  height: 2px;
+  background: repeating-linear-gradient(
+    90deg,
+    rgba(29, 78, 137, 0.4) 0 6px,
+    rgba(29, 78, 137, 0.08) 6px 12px
+  );
+  animation: landing-flow-dash 0.9s linear infinite;
+}
+
+@keyframes landing-flow-dash {
+  to {
+    background-position: 12px 0;
+  }
+}
+
+.landing-flow-line::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 7px;
+  height: 7px;
+  margin-top: -3.5px;
+  border-radius: 999px;
+  background: #1d4e89;
+  box-shadow: 0 0 0 3px rgba(29, 78, 137, 0.15);
+  animation: landing-flow-dot 2.4s ease-in-out infinite;
+  animation-delay: var(--flow-delay, 0s);
+}
+
+@keyframes landing-flow-dot {
+  0% {
+    left: -3px;
+    opacity: 0;
+  }
+  18% {
+    opacity: 1;
+  }
+  82% {
+    opacity: 1;
+  }
+  100% {
+    left: calc(100% - 4px);
+    opacity: 0;
+  }
+}
+
+.landing-step-card {
+  animation: landing-step-pulse 8s ease-in-out infinite;
+  animation-delay: var(--step-delay, 0s);
+}
+
+.landing-step-card .landing-step-icon {
+  transition: background-color 0.3s ease, color 0.3s ease;
+  animation: landing-step-icon-pulse 8s ease-in-out infinite;
+  animation-delay: var(--step-delay, 0s);
+}
+
+@keyframes landing-step-pulse {
+  0%, 22%, 100% {
+    border-color: #e4e7ec;
+    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
+    transform: none;
+  }
+  7%, 15% {
+    border-color: rgba(29, 78, 137, 0.5);
+    box-shadow: 0 10px 28px rgba(29, 78, 137, 0.14);
+    transform: translateY(-3px);
+  }
+}
+
+@keyframes landing-step-icon-pulse {
+  0%, 22%, 100% {
+    background-color: rgba(29, 78, 137, 0.08);
+    color: #1d4e89;
+  }
+  7%, 15% {
+    background-color: #1d4e89;
+    color: #ffffff;
+  }
+}
+
+.landing-live-dot {
+  animation: landing-live-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes landing-live-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(23, 145, 95, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 0 5px rgba(23, 145, 95, 0);
+  }
+}
+
+.landing-hero-card {
+  animation: landing-hero-in 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: 150ms;
+}
+
+@keyframes landing-hero-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.landing-faq-answer {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.25s ease;
+}
+
+.landing-faq-answer[data-open='true'] {
+  grid-template-rows: 1fr;
+}
+
+.landing-faq-answer > div {
+  overflow: hidden;
+}
+
+.landing-step-line {
+  background: linear-gradient(90deg, rgba(29, 78, 137, 0.25), rgba(29, 78, 137, 0.08));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-reveal,
+  .landing-hero-card {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .landing-score-bar {
+    width: var(--bar-width, 60%);
+    animation: none;
+  }
+
+  .landing-live-dot,
+  .landing-flow-line,
+  .landing-step-card,
+  .landing-step-card .landing-step-icon {
+    animation: none;
+  }
+
+  .landing-flow-line::after {
+    animation: none;
+    opacity: 0;
+  }
+
+  .landing-ticker span {
+    animation: none;
+  }
+
+  .landing-ticker span:first-child {
+    opacity: 1;
+    transform: none;
+  }
+
+  .landing-card-hover,
+  .landing-card-hover:hover {
+    transform: none;
+  }
+}

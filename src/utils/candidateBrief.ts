@@ -1,5 +1,5 @@
 import type { Candidate, CandidateBrief } from '@/types';
-import { isSystemDiagnosticText, normalizeVietnameseDisplay } from '@/utils/textDisplay';
+import { filterSystemDiagnosticText, isSystemDiagnosticText, normalizeVietnameseDisplay } from '@/utils/textDisplay';
 
 function candidateScore(candidate: Candidate): number {
   return candidate.status === 'SUCCESS' ? candidate.analysis?.['Tổng điểm'] || 0 : 0;
@@ -32,18 +32,18 @@ export function buildCandidateBrief(candidate: Candidate): CandidateBrief {
     score: candidateScore(candidate),
     rank: candidate.analysis?.['Hạng'] || 'C',
     headlineVerdict: candidateHeadlineVerdict(candidate),
-    topStrengths: (candidate.analysis?.['Điểm mạnh CV'] || []).slice(0, 4).map((item) => normalizeVietnameseDisplay(item)),
-    topRisks: (candidate.analysis?.['Điểm yếu CV'] || []).slice(0, 4).map((item) => normalizeVietnameseDisplay(item)),
-    matchedRequirements: matchedRequirements.slice(0, 6).map((item) => normalizeVietnameseDisplay(item)),
-    missingRequirements: missingRequirements.slice(0, 6).map((item) => normalizeVietnameseDisplay(item)),
-    redFlags: (candidate.hrSummary?.canh_bao_red_flag || []).slice(0, 4).map((item) => normalizeVietnameseDisplay(item)),
+    topStrengths: filterSystemDiagnosticText(candidate.analysis?.['Điểm mạnh CV']).slice(0, 4),
+    topRisks: filterSystemDiagnosticText(candidate.analysis?.['Điểm yếu CV']).slice(0, 4),
+    matchedRequirements: filterSystemDiagnosticText(matchedRequirements).slice(0, 6),
+    missingRequirements: filterSystemDiagnosticText(missingRequirements).slice(0, 6),
+    redFlags: filterSystemDiagnosticText(candidate.hrSummary?.canh_bao_red_flag).slice(0, 4),
     stageDecision: {
       status: candidate.stageDecision?.status || '',
       label: normalizeVietnameseDisplay(candidate.stageDecision?.label || ''),
       reason: normalizeVietnameseDisplay(candidate.stageDecision?.reason || ''),
-      blockingReasons: (candidate.stageDecision?.blockingReasons || []).map((item) => normalizeVietnameseDisplay(item)),
+      blockingReasons: filterSystemDiagnosticText(candidate.stageDecision?.blockingReasons),
     },
-    interviewQuestions: (candidate.analysis?.['Câu hỏi phỏng vấn'] || []).slice(0, 4).map((item) => normalizeVietnameseDisplay(item)),
+    interviewQuestions: filterSystemDiagnosticText(candidate.analysis?.['Câu hỏi phỏng vấn']).slice(0, 4),
   };
 }
 

@@ -42,7 +42,7 @@ export const workspaceNavigationSections: WorkspaceNavigationSection[] = [
     id: 'overview',
     labelKey: 'nav_section_overview',
     icon: LayoutDashboard,
-    items: [{ labelKey: 'nav_overview', path: '/', icon: LayoutDashboard }],
+    items: [{ labelKey: 'nav_overview', path: '/workspace', icon: LayoutDashboard }],
   },
   {
     id: 'screening',
@@ -83,6 +83,6 @@ export const workspaceNavigationItems = workspaceNavigationSections.flatMap((sec
 );
 
 export function getWorkspaceNavigationEntry(pathname: string) {
-  const normalizedPath = pathname === '/workspace' ? '/' : pathname;
+  const normalizedPath = pathname === '/' ? '/workspace' : pathname;
   return workspaceNavigationItems.find((item) => item.path === normalizedPath) ?? workspaceNavigationItems[0];
 }

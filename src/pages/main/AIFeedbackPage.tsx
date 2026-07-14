@@ -371,7 +371,7 @@ export default function AIFeedbackPage({
         </div>
         <h2 className="mb-2 text-[18px] font-bold">Chưa có dữ liệu ứng viên</h2>
         <p className="max-w-sm text-[13px] leading-relaxed" style={{ color: tc.textMuted }}>
-          Hãy chạy bước phân tích CV trước khi mở Decision Cockpit.
+          Hãy chạy bước phân tích CV trước khi mở bảng phản hồi kết quả AI.
         </p>
         <button
           onClick={() => navigate('/analysis')}
@@ -402,7 +402,7 @@ export default function AIFeedbackPage({
                     <Brain className="h-5 w-5 text-white" />
                   </div>
                   <div>
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-blue-600">Recruiter Decision Cockpit</p>
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#1d4e89]">Phản hồi kết quả AI</p>
                     <h1 className="text-[17px] font-bold leading-tight" style={{ color: tc.textPrimary }}>
                       {effectiveJobPosition || 'Phiên phân tích hiện tại'}
                     </h1>
@@ -524,7 +524,7 @@ export default function AIFeedbackPage({
 
                     <div className="mt-5 grid flex-1 gap-3 md:grid-cols-2">
                       <section className="rounded-lg border border-emerald-100 bg-emerald-50/70 p-4" aria-labelledby={`evidence-${candidate.id}`}>
-                        <h4 id={`evidence-${candidate.id}`} className="mb-3 text-sm font-semibold text-emerald-800">Top Evidence</h4>
+                        <h4 id={`evidence-${candidate.id}`} className="mb-3 text-sm font-semibold text-emerald-800">Bằng chứng chính</h4>
                         <ul className="space-y-2.5 text-sm leading-6 text-slate-700">
                           {reasons.map((item) => (
                             <li key={item} className="flex items-start gap-2">
@@ -535,7 +535,7 @@ export default function AIFeedbackPage({
                         </ul>
                       </section>
                       <section className="rounded-lg border border-red-100 bg-red-50/70 p-4" aria-labelledby={`risks-${candidate.id}`}>
-                        <h4 id={`risks-${candidate.id}`} className="mb-3 text-sm font-semibold text-red-800">Top Risks</h4>
+                        <h4 id={`risks-${candidate.id}`} className="mb-3 text-sm font-semibold text-red-800">Rủi ro cần xác minh</h4>
                         <ul className="space-y-2.5 text-sm leading-6 text-slate-700">
                           {risks.map((item) => (
                             <li key={item} className="flex items-start gap-2">

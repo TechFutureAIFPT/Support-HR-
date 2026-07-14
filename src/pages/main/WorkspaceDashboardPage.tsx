@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { CheckCircle2, ChevronRight, FileText, FolderOpen, Search, UserRoundCheck, Users, X } from 'lucide-react';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import type { AnalysisRunData, HistoryEntry } from '@/types';
 import type { WorkspaceSessionStatus, WorkspaceSessionViewModel } from '@/types/workspace';
 import { WorkspaceEmpty } from '@/components/workspace/WorkspacePrimitives';
@@ -77,6 +77,7 @@ function relativeTime(timestamp: number): string {
 
 const WorkspaceDashboardPage: React.FC<WorkspaceDashboardPageProps> = ({ userEmail, currentRun, onOpenSession }) => {
   const owner = (userEmail || 'local').toLowerCase();
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [sessions, setSessions] = useState<WorkspaceSessionViewModel[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -174,25 +175,34 @@ const WorkspaceDashboardPage: React.FC<WorkspaceDashboardPageProps> = ({ userEma
     <div className="flex h-full min-h-0 bg-white text-[#1d1d1f]">
       <main className="min-w-0 flex-1 overflow-y-auto px-5 py-8 sm:px-8 lg:px-10">
         <div className="supporthr-page-shell">
-          <h1 className="text-[28px] font-semibold tracking-[-0.025em]">Tổng quan tuyển dụng</h1>
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <h1 className="text-[28px] font-semibold tracking-[-0.025em]">Tổng quan tuyển dụng</h1>
+            <button
+              type="button"
+              onClick={() => navigate('/jd')}
+              className="inline-flex h-10 shrink-0 items-center justify-center rounded-[10px] bg-[#1d4e89] px-4 text-[13px] font-semibold text-white transition-colors hover:bg-[#163a5f] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1d4e89] focus-visible:ring-offset-2"
+            >
+              Bắt đầu phiên sàng lọc mới
+            </button>
+          </div>
 
-          <div className="mt-8 grid gap-5 border-b border-[#e5e5ea] pb-8 sm:grid-cols-3">
-            <div className="flex items-center gap-3">
-              <FolderOpen size={23} className="text-[#007aff]" strokeWidth={1.7} />
+          <div className="mt-8 grid gap-4 sm:grid-cols-3">
+            <div className="flex items-center gap-3 rounded-xl border border-[#e4e7ec] bg-white p-4 shadow-[0_1px_2px_rgba(16,24,40,0.05)]">
+              <FolderOpen size={23} className="text-[#1d4e89]" strokeWidth={1.7} />
               <p className="text-[15px]">
                 <strong className="mr-2 text-[22px] font-semibold">{openCount}</strong>
                 phiên đang mở
               </p>
             </div>
-            <div className="flex items-center gap-3">
-              <UserRoundCheck size={25} className="text-[#ff9f0a]" strokeWidth={1.7} />
+            <div className="flex items-center gap-3 rounded-xl border border-[#e4e7ec] bg-white p-4 shadow-[0_1px_2px_rgba(16,24,40,0.05)]">
+              <UserRoundCheck size={25} className="text-[#b54708]" strokeWidth={1.7} />
               <p className="text-[15px]">
                 <strong className="mr-2 text-[22px] font-semibold">{reviewCount}</strong>
                 phiên đang duyệt
               </p>
             </div>
-            <div className="flex items-center gap-3">
-              <CheckCircle2 size={25} className="text-[#24a148]" strokeWidth={1.7} />
+            <div className="flex items-center gap-3 rounded-xl border border-[#e4e7ec] bg-white p-4 shadow-[0_1px_2px_rgba(16,24,40,0.05)]">
+              <CheckCircle2 size={25} className="text-[#17915f]" strokeWidth={1.7} />
               <p className="text-[15px]">
                 <strong className="mr-2 text-[22px] font-semibold">{completedCount}</strong>
                 phiên hoàn thành
@@ -219,18 +229,28 @@ const WorkspaceDashboardPage: React.FC<WorkspaceDashboardPageProps> = ({ userEma
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder="Tìm kiếm phiên"
-                className="h-10 w-full rounded-lg border border-[#d2d2d7] bg-white pl-10 pr-3 text-[13px] outline-none focus:border-[#007aff] focus:ring-2 focus:ring-[#007aff]/15"
+                className="h-10 w-full rounded-lg border border-[#d0d5dd] bg-white pl-10 pr-3 text-[13px] outline-none focus:border-[#1d4e89]/60 focus:ring-2 focus:ring-[#1d4e89]/15"
               />
             </label>
           </div>
 
           <div className="mt-4 overflow-x-auto">
             {loading && sessions.length === 0 ? (
-              <p className="py-12 text-center text-sm text-[#86868b]">Đang tải dữ liệu phiên tuyển dụng...</p>
+              <div className="space-y-3 py-6" aria-label="Đang tải dữ liệu phiên tuyển dụng">
+                {[0, 1, 2, 3].map((index) => (
+                  <div key={index} className="flex items-center gap-4">
+                    <div className="h-4 w-1/3 animate-pulse rounded bg-[#eef2f6]" />
+                    <div className="h-4 w-16 animate-pulse rounded bg-[#eef2f6]" />
+                    <div className="h-4 w-16 animate-pulse rounded bg-[#eef2f6]" />
+                    <div className="h-4 w-24 animate-pulse rounded bg-[#eef2f6]" />
+                    <div className="h-5 w-20 animate-pulse rounded-full bg-[#eef2f6]" />
+                  </div>
+                ))}
+              </div>
             ) : visibleSessions.length ? (
               <table className="w-full min-w-[760px] border-collapse text-left">
-                <thead>
-                  <tr className="border-b border-[#d2d2d7] text-[12px] font-medium text-[#6e6e73]">
+                <thead className="sticky top-0 z-10 bg-white">
+                  <tr className="border-b border-[#d0d5dd] text-[12px] font-medium text-[#667085]">
                     <th className="px-3 py-3">Vị trí</th>
                     <th className="px-3 py-3">Ứng viên</th>
                     <th className="px-3 py-3">Cần duyệt</th>
@@ -253,7 +273,7 @@ const WorkspaceDashboardPage: React.FC<WorkspaceDashboardPageProps> = ({ userEma
                         onKeyDown={(event) => {
                           if (event.key === 'Enter') onOpenSession(session.history || null, session);
                         }}
-                        className={`cursor-pointer border-b border-[#e5e5ea] text-[14px] outline-none transition hover:bg-[#f7f9fc] focus:bg-[#eef5ff] ${active ? 'bg-[#eef5ff] shadow-[inset_3px_0_0_#007aff]' : ''}`}
+                        className={`cursor-pointer border-b border-[#eaecf0] text-[14px] outline-none transition hover:bg-[#f8fafc] focus:bg-[#eef4fb] ${active ? 'bg-[#eef4fb] shadow-[inset_3px_0_0_#1d4e89]' : ''}`}
                       >
                         <td className="px-3 py-4 font-medium">{session.title}</td>
                         <td className="px-3 py-4">{session.candidateCount}</td>
@@ -334,7 +354,7 @@ const WorkspaceDashboardPage: React.FC<WorkspaceDashboardPageProps> = ({ userEma
             <button
               type="button"
               onClick={() => onOpenSession(selected.history || null, selected)}
-              className="h-10 w-full rounded-lg border border-[#007aff] bg-white text-[13px] font-medium text-[#0066d6] hover:bg-[#eef5ff]"
+              className="h-10 w-full rounded-lg bg-[#1d4e89] text-[13px] font-semibold text-white transition-colors hover:bg-[#163a5f] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1d4e89] focus-visible:ring-offset-2"
             >
               Xem chi tiết phiên
             </button>

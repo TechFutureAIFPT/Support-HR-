@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   ArrowUp,
   Bot,
@@ -39,7 +40,7 @@ import '@/pages/analytics/styles/candidate-suggestions.css';
 
 const SELECTED_IDS_KEY = 'supporthr.selectedCandidateIds';
 const CHATBOT_VIEW_KEY = 'supporthr.view.chatbot';
-const WELCOME_MESSAGE = 'Tôi là Candidate Copilot của SupportHR. Hãy hỏi về một ứng viên cụ thể, hoặc yêu cầu tôi so sánh shortlist và gợi ý bước tiếp theo.';
+const WELCOME_MESSAGE = 'Tôi là Trợ lý tuyển dụng AI của SupportHR. Hãy hỏi về một ứng viên cụ thể, hoặc yêu cầu tôi so sánh danh sách nổi bật và gợi ý bước tiếp theo.';
 
 const QUICK_ACTIONS = [
   'Ai nên được mời phỏng vấn trước?',
@@ -133,6 +134,7 @@ function formatDate(timestamp?: number): string {
 
 export default function CandidateSuggestions({ candidates, jobPosition }: CandidateSuggestionsProps) {
   const tc = useThemeColors();
+  const navigate = useNavigate();
   const storedRun = useMemo(() => readLatestAnalysisRun(), []);
   const effectiveCandidates = useMemo(
     () => (candidates.length > 0 ? candidates : storedRun?.candidates || []).filter((candidate) => candidate.status === 'SUCCESS'),
@@ -353,7 +355,7 @@ export default function CandidateSuggestions({ candidates, jobPosition }: Candid
       });
       setSessionId(activeSessionId);
     } catch (error) {
-      const messageText = error instanceof Error ? error.message : 'Không thể lấy tư vấn từ copilot.';
+      const messageText = error instanceof Error ? error.message : 'Không thể lấy tư vấn từ trợ lý AI.';
       setMessages((previous) => [
         ...previous,
         {
@@ -378,13 +380,20 @@ export default function CandidateSuggestions({ candidates, jobPosition }: Candid
   if (effectiveCandidates.length === 0) {
     return (
       <div className="feature-page-shell flex h-full min-h-0 w-full flex-1 flex-col items-center justify-center px-4 text-center" style={{ background: tc.pageBg }}>
-        <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl" style={{ background: tc.cardBg }}>
+        <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl border border-[#e4e7ec]" style={{ background: tc.cardBg }}>
           <Bot className="h-8 w-8 text-slate-400" />
         </div>
         <h2 className="mb-2 text-[18px] font-bold" style={{ color: tc.textPrimary }}>Chưa có dữ liệu ứng viên</h2>
         <p className="max-w-xs text-[13px] leading-relaxed" style={{ color: tc.textMuted }}>
-          Hãy chạy phân tích CV trước khi dùng Candidate Copilot.
+          Hãy chạy phân tích CV trước khi dùng Trợ lý tuyển dụng AI.
         </p>
+        <button
+          type="button"
+          onClick={() => navigate('/jd')}
+          className="mt-6 inline-flex h-10 items-center justify-center rounded-[10px] bg-[#1d4e89] px-5 text-sm font-semibold text-white transition-colors hover:bg-[#163a5f] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1d4e89] focus-visible:ring-offset-2"
+        >
+          Bắt đầu phân tích CV
+        </button>
       </div>
     );
   }
@@ -402,7 +411,7 @@ export default function CandidateSuggestions({ candidates, jobPosition }: Candid
                 <div className="flex items-center justify-between border-b px-4 py-3.5" style={{ borderColor: tc.borderColor }}>
                   <div className="flex items-center gap-2">
                     <Clock className="h-4 w-4 text-blue-500" />
-                    <h4 className="text-[13px] font-bold" style={{ color: tc.textPrimary }}>Lịch sử copilot</h4>
+                    <h4 className="text-[13px] font-bold" style={{ color: tc.textPrimary }}>Lịch sử trò chuyện</h4>
                   </div>
                   <button onClick={() => setShowHistory(false)} className="flex h-7 w-7 items-center justify-center rounded-lg transition hover:bg-slate-100" style={{ color: tc.textMuted }}>
                     <X className="h-3.5 w-3.5" />
@@ -497,7 +506,7 @@ export default function CandidateSuggestions({ candidates, jobPosition }: Candid
                     <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-600 text-white shadow-sm shadow-blue-600/20">
                       <Bot className="h-8 w-8" />
                     </div>
-                    <h2 className="text-[22px] font-bold" style={{ color: tc.textPrimary }}>Candidate Copilot</h2>
+                    <h2 className="text-[22px] font-bold" style={{ color: tc.textPrimary }}>Trợ lý tuyển dụng AI</h2>
                     <p className="mt-2 max-w-xl text-[14px] leading-6" style={{ color: tc.textSecondary }}>
                       {WELCOME_MESSAGE}
                     </p>
@@ -538,7 +547,7 @@ export default function CandidateSuggestions({ candidates, jobPosition }: Candid
                                 {isAssistant ? <Bot className="h-4 w-4" /> : <User className="h-4 w-4" />}
                               </div>
                               <div>
-                                <p className="text-[12px] font-semibold">{isAssistant ? 'Candidate Copilot' : 'Bạn'}</p>
+                                <p className="text-[12px] font-semibold">{isAssistant ? 'Trợ lý tuyển dụng AI' : 'Bạn'}</p>
                                 <p className="text-[11px] opacity-70">{new Date(message.timestamp).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}</p>
                               </div>
                             </div>
@@ -678,7 +687,7 @@ export default function CandidateSuggestions({ candidates, jobPosition }: Candid
                     {isLoading && (
                       <div className="flex items-center gap-2 rounded-lg border px-4 py-3" style={{ background: tc.cardBg, borderColor: tc.borderSoft, color: tc.textSecondary }}>
                         <Loader2 className="h-4 w-4 animate-spin text-blue-500" />
-                        Candidate Copilot đang tổng hợp verdict và bằng chứng...
+                        Trợ lý AI đang tổng hợp nhận định và bằng chứng...
                       </div>
                     )}
                     <div ref={messagesEndRef} />
@@ -698,7 +707,7 @@ export default function CandidateSuggestions({ candidates, jobPosition }: Candid
                         void handleSend(input);
                       }
                     }}
-                    placeholder="Hỏi về một ứng viên, hoặc yêu cầu copilot so sánh shortlist..."
+                    placeholder="Hỏi về một ứng viên, hoặc yêu cầu trợ lý so sánh các ứng viên nổi bật..."
                     className="min-h-12 max-h-28 w-full resize-none bg-transparent px-4 py-3 text-sm focus:outline-none"
                     style={{ color: tc.textPrimary }}
                     disabled={isLoading}
@@ -719,12 +728,12 @@ export default function CandidateSuggestions({ candidates, jobPosition }: Candid
                         style={{ borderColor: tc.borderSoft, color: tc.textSecondary, background: tc.cardBg }}
                       >
                         <X className="h-3 w-3" />
-                        Clear
+                        Xóa hội thoại
                       </button>
                       <button
                         onClick={() => void handleSend(input)}
                         disabled={isLoading || !input.trim()}
-                        className="flex size-9 items-center justify-center rounded-lg bg-blue-600 text-white transition-colors hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-30"
+                        className="flex size-9 items-center justify-center rounded-lg bg-[#1d4e89] text-white transition-colors hover:bg-[#163a5f] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1d4e89] disabled:cursor-not-allowed disabled:opacity-30"
                         aria-label="Gửi câu hỏi"
                       >
                         {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowUp className="h-4 w-4" strokeWidth={2.5} />}

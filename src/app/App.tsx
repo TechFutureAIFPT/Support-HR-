@@ -50,6 +50,7 @@ const ContactCandidatesPage = lazy(() => import('@/pages/main/ContactCandidatesP
 const FilteredCvLibraryPage = lazy(() => import('@/pages/tools/FilteredCvLibraryPage'));
 const JDStandardizerPage = lazy(() => import('@/pages/tools/JDStandardizerPage'));
 const CandidateSuggestions = lazy(() => import('@/pages/analytics/CandidateSuggestions'));
+const LandingPage = lazy(() => import('@/pages/main/LandingPage'));
 const Analytics = TELEMETRY_ENABLED
   ? lazy(() => import('@vercel/analytics/react').then((module) => ({ default: module.Analytics })))
   : null;
@@ -163,6 +164,8 @@ const App = () => {
 };
 
 const publicMarketingPaths = new Set([
+  '/',
+  '/home',
   '/app-docs',
   '/process',
   '/contact-ready',
@@ -186,7 +189,6 @@ const publicMarketingPaths = new Set([
 const publicDocsPaths = new Set(publicMarketingPaths);
 
 const protectedWorkspacePaths = new Set([
-  '/',
   '/workspace',
   '/jd',
   '/upload',
@@ -303,7 +305,8 @@ const MainApp = () => {
   // tự xử lý currentUser=null tạm thời qua userEmail cache). Nếu auth sau đó xác nhận đã hết
   // phiên, effect showLoginModal (gate bằng !isInitializing) sẽ tự hiện lại màn đăng nhập.
   const hasCachedSession = typeof window !== 'undefined' && Boolean(window.localStorage.getItem('authEmail'));
-  const shouldBlockInitialRender = !hasCachedSession && !publicMarketingPaths.has(initialPath) && initialPath !== '/welcome';
+  // "/" hiển thị landing page cho khách mới — không chặn render chờ Firebase auth.
+  const shouldBlockInitialRender = !hasCachedSession && !publicMarketingPaths.has(initialPath) && initialPath !== '/welcome' && initialPath !== '/';
 
   // Initialize state
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
@@ -316,7 +319,7 @@ const MainApp = () => {
   const handleLogin = (user: AuthUser) => {
     setCurrentUser(user);
     setShowLoginModal(false);
-    navigate('/');
+    navigate('/workspace');
   };
 
   const handleFullReset = () => {
@@ -1341,20 +1344,26 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
           }>
             <Routes>
               <Route path="/welcome" element={<Navigate to="/" replace />} />
-              <Route path="/" element={isLoggedIn ? (
+              {/* "/" luôn là homepage; ứng dụng nằm ở /workspace */}
+              <Route path="/" element={
+                <LandingPage
+                  onLoginRequest={onLoginRequest}
+                  isLoggedIn={isLoggedIn || (typeof window !== 'undefined' && Boolean(window.localStorage.getItem('authEmail')))}
+                />
+              } />
+              <Route path="/workspace" element={isLoggedIn ? (
                 <WorkspaceDashboardPage
                   userEmail={userEmail}
                   currentRun={currentWorkspaceRun}
                   onOpenSession={handleOpenWorkspaceSession}
                 />
               ) : authFallback} />
-              <Route path="/workspace" element={<Navigate to="/" replace />} />
               <Route path="/jd" element={isLoggedIn ? <ScreenerPage {...screenerPageProps} /> : authFallback} />
               <Route path="/upload" element={isLoggedIn ? <ScreenerPage {...screenerPageProps} /> : authFallback} />
               <Route path="/weights" element={isLoggedIn ? <ScreenerPage {...screenerPageProps} /> : authFallback} />
               <Route path="/analysis" element={isLoggedIn ? <ScreenerPage {...screenerPageProps} /> : authFallback} />
 
-              <Route path="/dashboard" element={isLoggedIn ? <Navigate to="/" replace /> : authFallback} />
+              <Route path="/dashboard" element={isLoggedIn ? <Navigate to="/workspace" replace /> : authFallback} />
               <Route path="/detailed-analytics" element={isLoggedIn ? <DetailedAnalyticsPage candidates={analysisResults} jobPosition={jobPosition} onReset={onResetRequest} /> : authFallback} />
               <Route path="/chatbot" element={isLoggedIn ? <CandidateSuggestions candidates={analysisResults} jobPosition={jobPosition} /> : authFallback} />
               <Route path="/contact-candidates" element={isLoggedIn ? <ContactCandidatesPage candidates={analysisResults} jobPosition={jobPosition} onReset={onResetRequest} /> : authFallback} />
@@ -1371,6 +1380,7 @@ const MainLayout = ({ onResetRequest, className, isLoggedIn, onLoginRequest, cur
                   />
                 </div>
               ) : authFallback} />
+              <Route path="/home" element={<Navigate to="/" replace />} />
               <Route path="/app-docs" element={appDocumentationPage} />
               <Route path="/process" element={<ProcessPage />} />
               <Route path="/guide" element={<DemoPage />} />

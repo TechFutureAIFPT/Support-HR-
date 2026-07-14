@@ -4,7 +4,7 @@ import type {
   CandidateBrief,
   StageDecision,
 } from '@/types';
-import { isSystemDiagnosticText, normalizeVietnameseDisplay } from '@/utils/textDisplay';
+import { filterSystemDiagnosticText, isSystemDiagnosticText, normalizeVietnameseDisplay } from '@/utils/textDisplay';
 
 export function getCandidateScore(candidate: Candidate): number {
   return candidate.status === 'SUCCESS' ? candidate.analysis?.['Tổng điểm'] || 0 : 0;
@@ -41,7 +41,7 @@ export function buildTopReasons(candidate: Candidate, limit = 3): string[] {
   for (const item of [...strengths, ...matched, ...skillEvidence]) {
     const text = normalizeVietnameseDisplay(item);
     const key = text.toLowerCase().substring(0, 60);
-    if (!text || seen.has(key)) continue;
+    if (!text || seen.has(key) || isSystemDiagnosticText(text)) continue;
     seen.add(key);
     out.push(text);
     if (out.length >= limit) break;
@@ -87,23 +87,16 @@ export function buildCandidateBrief(candidate: Candidate): CandidateBrief {
     headlineVerdict: buildHeadlineVerdict(candidate),
     topStrengths: buildTopReasons(candidate, 4),
     topRisks: buildVerificationRisks(candidate, 4),
-    matchedRequirements: (candidate.jdCvMatchInsights?.matchedRequirements || candidate.jdCvMatchInsights?.matchedSkills || [])
-      .map((item) => normalizeVietnameseDisplay(item))
-      .filter(Boolean)
-      .slice(0, 6),
-    missingRequirements: (candidate.jdCvMatchInsights?.missingRequirements || [])
-      .map((item) => normalizeVietnameseDisplay(item))
-      .filter(Boolean)
-      .slice(0, 6),
-    redFlags: (candidate.hrSummary?.canh_bao_red_flag || [])
-      .map((item) => normalizeVietnameseDisplay(item))
-      .filter(Boolean)
-      .slice(0, 4),
+    matchedRequirements: filterSystemDiagnosticText(
+      candidate.jdCvMatchInsights?.matchedRequirements || candidate.jdCvMatchInsights?.matchedSkills,
+    ).slice(0, 6),
+    missingRequirements: filterSystemDiagnosticText(candidate.jdCvMatchInsights?.missingRequirements).slice(0, 6),
+    redFlags: filterSystemDiagnosticText(candidate.hrSummary?.canh_bao_red_flag).slice(0, 4),
     stageDecision: {
       status: stageDecision?.status || '',
       label: normalizeVietnameseDisplay(stageDecision?.label || ''),
       reason: normalizeVietnameseDisplay(stageDecision?.reason || ''),
-      blockingReasons: (stageDecision?.blockingReasons || []).map((item) => normalizeVietnameseDisplay(item)).filter(Boolean).slice(0, 4),
+      blockingReasons: filterSystemDiagnosticText(stageDecision?.blockingReasons).slice(0, 4),
     },
     interviewQuestions: (candidate.analysis?.['Câu hỏi phỏng vấn'] || [])
       .map((item) => normalizeVietnameseDisplay(item))

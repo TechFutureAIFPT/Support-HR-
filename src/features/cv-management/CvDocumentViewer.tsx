@@ -11,6 +11,8 @@ interface CvDocumentViewerProps {
 
 type ViewerKind = 'pdf' | 'docx' | 'image' | 'text' | 'unknown';
 
+const DEFAULT_ZOOM = 1.1;
+
 function getKind(document: StoredCvDocument | null, candidate: Candidate): ViewerKind {
   if (document) {
     const name = document.fileName.toLowerCase();
@@ -31,7 +33,7 @@ const CvDocumentViewer: React.FC<CvDocumentViewerProps> = ({ ownerKey, candidate
   const [error, setError] = useState('');
   const [pageNumber, setPageNumber] = useState(1);
   const [pageCount, setPageCount] = useState(1);
-  const [zoom, setZoom] = useState(1);
+  const [zoom, setZoom] = useState(DEFAULT_ZOOM);
   const [rotation, setRotation] = useState(0);
   const [objectUrl, setObjectUrl] = useState('');
   const kind = getKind(document, candidate);
@@ -41,7 +43,7 @@ const CvDocumentViewer: React.FC<CvDocumentViewerProps> = ({ ownerKey, candidate
     setLoading(true);
     setError('');
     setPageNumber(1);
-    setZoom(1);
+    setZoom(DEFAULT_ZOOM);
     void findCvDocument(ownerKey, candidate.fileName)
       .then((record) => { if (active) setDocument(record); })
       .catch(() => { if (active) setDocument(null); })
