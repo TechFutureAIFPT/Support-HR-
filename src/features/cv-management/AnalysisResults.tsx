@@ -209,7 +209,7 @@ const StatsPane: React.FC<{ candidate: Candidate }> = ({ candidate }) => {
             <p className="text-[22px] font-black tabular-nums text-[#007aff]">
               {jdMatchPct !== null ? `${jdMatchPct.toFixed(0)}%` : '--'}
             </p>
-            <p className="text-[9px] text-[#86868b]">Semantic similarity</p>
+            <p className="text-[9px] text-[#86868b]">Độ tương đồng với JD</p>
           </div>
           <div className="flex-1 rounded-2xl border border-[#d2d2d7] bg-white px-4 py-3 text-center">
             <p className="text-[9.5px] font-bold uppercase tracking-[0.12em] text-[#6e6e73] mb-1">Kinh nghiệm</p>
@@ -329,7 +329,7 @@ const CHAT_SUGGESTIONS = [
   'Tạo 5 câu hỏi phỏng vấn bám đúng điểm yếu và phần còn thiếu của ứng viên này.',
   'Tạo câu hỏi xác minh kinh nghiệm và kỹ năng quan trọng của ứng viên này.',
   'Tư vấn riêng về điểm mạnh, rủi ro và mức độ phù hợp của ứng viên này.',
-  'Tư vấn recruiter nên kiểm tra điều gì trước khi quyết định đưa ứng viên vào vòng tiếp theo.',
+  'Tư vấn nhà tuyển dụng nên kiểm tra điều gì trước khi quyết định đưa ứng viên vào vòng tiếp theo.',
 ];
 
 const CandidateAvatar: React.FC<{ candidate: Candidate; className: string }> = ({ candidate, className }) => {

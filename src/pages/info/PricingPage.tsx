@@ -284,10 +284,10 @@ function DocsReadinessPanel() {
             Tài liệu sẵn sàng cho mua sắm
           </p>
           <h2 className="mt-3 text-[clamp(1.8rem,3.4vw,2.8rem)] font-semibold leading-[1.02] tracking-normal text-slate-900">
-            Các mục giúp website nhìn đáng tin hơn khi gửi cho khách hàng doanh nghiệp.
+            Minh bạch về hiện trạng — sẵn sàng cho thẩm định doanh nghiệp.
           </h2>
           <p className="mt-4 text-base leading-8 text-slate-600">
-            Một vài nội dung có thể trình bày ngay, nhưng các cam kết pháp lý cần thông tin chính thức để tránh ghi quá tay trên website.
+            Các hạng mục bảo mật và vận hành dưới đây phản ánh đúng hiện trạng sản phẩm. Những mục đang hoàn thiện được ghi rõ — chúng tôi không cam kết quá những gì đã có.
           </p>
         </div>
 
@@ -433,8 +433,8 @@ const PricingPage: React.FC = () => {
                       Bảng giá, bảo mật và câu hỏi mua hàng
                     </h1>
                     <p className="mt-6 max-w-3xl break-words text-base leading-8 text-slate-600 sm:text-lg">
-                      Trang này tập trung riêng cho bảng giá và phần hỏi đáp thương mại. Các nội dung về đội ngũ, bảo mật dữ liệu và cách
-                      sử dụng đã được tách sang các trang riêng để việc tra cứu gọn gàng và dễ theo dõi hơn.
+                      Toàn bộ thông tin bạn cần trước khi quyết định: phạm vi từng gói triển khai, cách tính chi phí
+                      và giải đáp các câu hỏi thương mại thường gặp từ bộ phận mua sắm.
                     </p>
 
                     <div className="mt-5 flex flex-wrap items-center gap-3">

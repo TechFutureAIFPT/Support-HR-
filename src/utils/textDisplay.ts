@@ -103,20 +103,27 @@ function decodeLiteralUnicodeEscapes(value: string): string {
   );
 }
 
+/** G\u1ed9p d\u1ea5u ch\u1ea5m k\u00e9p cu\u1ed1i c\u00e2u ("v\u1ecb tr\u00ed..") th\u00e0nh m\u1ed9t d\u1ea5u ch\u1ea5m \u2014 gi\u1eef nguy\u00ean d\u1ea5u ba ch\u1ea5m "...". */
+function collapseTrailingDoubleDot(value: string): string {
+  return value.replace(/(?<!\.)\.\.$/, '.');
+}
+
 export function normalizeVietnameseDisplay(value: unknown): string {
   if (value === null || value === undefined) return '';
 
   let current = repairDamagedMojibake(decodeLiteralUnicodeEscapes(String(value)));
   for (let index = 0; index < 4; index += 1) {
-    if (!MOJIBAKE_PATTERN.test(current) && !DAMAGED_MOJIBAKE_PATTERN.test(current)) return current;
+    if (!MOJIBAKE_PATTERN.test(current) && !DAMAGED_MOJIBAKE_PATTERN.test(current)) {
+      return collapseTrailingDoubleDot(current);
+    }
 
     const decoded = decodeMojibake(current);
     if (!decoded || decoded.includes('\ufffd') || scoreDisplayText(decoded) <= scoreDisplayText(current)) {
-      return current;
+      return collapseTrailingDoubleDot(current);
     }
     current = repairDamagedMojibake(decoded);
   }
-  return current;
+  return collapseTrailingDoubleDot(current);
 }
 
 export function normalizeVietnameseList(values: unknown[] | undefined | null): string[] {

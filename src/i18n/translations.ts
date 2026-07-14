@@ -7,7 +7,7 @@ const vi = {
   nav_section_candidates: 'Quản lý ứng viên',
   nav_section_tools:      'Công cụ tuyển dụng',
   nav_overview:        'Tổng quan tuyển dụng',
-  nav_jd_input:        'Nhập mô tả công việc',
+  nav_jd_input:        'Nạp JD & CV',
   nav_upload:          'Nạp hồ sơ ứng viên',
   nav_weights:         'Thiết lập tiêu chí',
   nav_results:         'Kết quả phân tích',

@@ -218,7 +218,7 @@ const TermsPage: React.FC = () => {
     <LegalPageLayout
       pageLabel="Điều khoản"
       title="Điều khoản sử dụng dịch vụ"
-      subtitle="Bộ điều khoản được trình bày lại theo bố cục technical-document để đồng bộ với homepage, dễ rà soát khi doanh nghiệp đánh giá pháp lý và vận hành."
+      subtitle="Điều khoản sử dụng dịch vụ Support HR — trình bày theo từng mục rõ ràng để doanh nghiệp dễ rà soát khi đánh giá pháp lý và vận hành."
       meta="Phiên bản chính thức · Hiệu lực 2026"
       sections={sections}
       activeSection={activeSection}

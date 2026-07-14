@@ -283,21 +283,21 @@ export const pricingHeroHighlights = [
 
 export const docsTrustMetrics: DocsTrustMetric[] = [
   {
-    value: "4",
-    label: "trang tài liệu chính",
-    detail: "Đội ngũ, bảo mật, cách sử dụng và bảng giá được tách riêng để bên mua tra cứu nhanh.",
+    value: "3",
+    label: "gói triển khai",
+    detail: "Từ dùng thử nhanh đến rollout có kiểm soát — chọn theo giai đoạn vận hành của doanh nghiệp.",
     tone: "cyan",
   },
   {
-    value: "11",
-    label: "anchor nội dung",
-    detail: "Người xem có thể đi thẳng tới bảng giá, kiểm soát truy cập, dữ liệu Drive hoặc hỏi đáp.",
+    value: "20",
+    label: "CV mỗi lượt phân tích",
+    detail: "Nạp hàng loạt CV, AI chấm điểm theo tiêu chí bạn cấu hình và trả kết quả trong vài phút.",
     tone: "emerald",
   },
   {
-    value: "3",
-    label: "nhóm câu hỏi mua sắm",
-    detail: "Thương mại, bảo mật và vận hành được gom thành các khối dễ dùng trong buổi demo.",
+    value: "100%",
+    label: "kết quả có giải thích",
+    detail: "Mỗi điểm số kèm bằng chứng trích từ CV — sẵn sàng cho bộ phận mua sắm và pháp lý rà soát.",
     tone: "violet",
   },
 ];
