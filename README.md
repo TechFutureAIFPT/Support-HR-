@@ -7,9 +7,16 @@ Frontend hiện gọi trực tiếp Render backend cố định tại `https://b
 - `src/app/`: entrypoint, app shell, global styles
 - `src/pages/`: page-level screens
 - `src/features/`: feature modules
-- `src/shared/`: UI dùng chung, layout, types, config
-- `src/lib/services/`: auth, Render API client, screening, data-sync, Google Drive
+- `src/components/`: UI dùng chung và layout
+- `src/services/`: auth, Render API client, screening, data-sync, Firebase và Google Drive
+- `src/config/` và `src/types/`: cấu hình và type dùng chung
 - `public/`: static assets
+
+## Tài liệu liên quan
+
+- [Bản đồ dự án](../../../Document/01-Tai-Lieu-Du-An/00-BAN-DO-DU-AN.md)
+- [Frontend từ A-Z](../../../Document/01-Tai-Lieu-Du-An/05-frontend-fe-tu-a-z.md)
+- [Ma trận truy vết tài liệu-code](../../../Document/01-Tai-Lieu-Du-An/11-MA-TRAN-TRUY-VET.md)
 
 ## Chạy local
 
@@ -28,4 +35,4 @@ npm run preview
 ## Ghi chú
 
 - Frontend hiện không cần `.env` để biết API URL.
-- Nếu đổi domain backend, sửa trực tiếp [renderClient.ts](/D:/tin%20h%E1%BB%8Dc%20tr%E1%BA%BB%202026/website/main/src/lib/services/api/renderClient.ts).
+- Nếu đổi domain backend, sửa trực tiếp [renderClient.ts](src/services/api/renderClient.ts) và cập nhật tài liệu triển khai liên quan.

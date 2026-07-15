@@ -312,7 +312,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginRequest, isLoggedIn = 
               <button
                 type="button"
                 onClick={() => navigate('/workspace')}
-                className="inline-flex items-center gap-1.5 rounded-[10px] bg-[#1d4e89] px-4 py-2 text-[13px] font-semibold text-white transition-colors hover:bg-[#163a5f]"
+                className="inline-flex items-center gap-1.5 rounded-[10px] bg-[#1d4e89] px-4 py-2 text-[13px] font-semibold text-[#ffffff] transition-colors hover:bg-[#163a5f]"
               >
                 Vào không gian làm việc
                 <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
@@ -329,7 +329,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginRequest, isLoggedIn = 
                 <button
                   type="button"
                   onClick={onLoginRequest}
-                  className="rounded-[10px] bg-[#1d4e89] px-4 py-2 text-[13px] font-semibold text-white transition-colors hover:bg-[#163a5f]"
+                  className="rounded-[10px] bg-[#1d4e89] px-4 py-2 text-[13px] font-semibold text-[#ffffff] transition-colors hover:bg-[#163a5f]"
                 >
                   Dùng thử SupportHR
                 </button>
@@ -360,7 +360,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginRequest, isLoggedIn = 
               <button
                 type="button"
                 onClick={handlePrimaryAction}
-                className="inline-flex h-12 items-center gap-2 rounded-[10px] bg-[#1d4e89] px-6 text-[15px] font-semibold text-white transition-all hover:bg-[#163a5f] hover:shadow-[0_8px_24px_rgba(29,78,137,0.25)]"
+                className="inline-flex h-12 items-center gap-2 rounded-[10px] bg-[#1d4e89] px-6 text-[15px] font-semibold text-[#ffffff] transition-all hover:bg-[#163a5f] hover:shadow-[0_8px_24px_rgba(29,78,137,0.25)]"
               >
                 {primaryCtaLabel}
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />
@@ -694,7 +694,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginRequest, isLoggedIn = 
             <button
               type="button"
               onClick={() => navigate('/app-docs')}
-              className="mt-7 inline-flex h-11 items-center gap-2 rounded-[10px] bg-[#1d4e89] px-5 text-[14px] font-semibold text-white transition-colors hover:bg-[#163a5f]"
+              className="mt-7 inline-flex h-11 items-center gap-2 rounded-[10px] bg-[#1d4e89] px-5 text-[14px] font-semibold text-[#ffffff] transition-colors hover:bg-[#163a5f]"
             >
               Tìm hiểu cách cài đặt
               <ArrowRight className="h-4 w-4" aria-hidden="true" />

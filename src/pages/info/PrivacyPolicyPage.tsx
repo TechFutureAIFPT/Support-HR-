@@ -95,7 +95,7 @@ const PrivacyPolicyPage: React.FC = () => {
           <div className="space-y-4">
             <LegalCallout tone="cyan" icon="fa-scale-balanced" title="Khung xử lý dữ liệu minh bạch">
               Để đảm bảo tính minh bạch theo{" "}
-              <strong className="text-blue-700">Nghị định 13/2023/NĐ-CP</strong>,
+              <strong className="text-[#1d4e89]">Nghị định 13/2023/NĐ-CP</strong>,
               Support HR xác định rõ vai trò của các bên trong toàn bộ quá trình xử lý dữ liệu cá nhân.
             </LegalCallout>
 
@@ -219,7 +219,7 @@ const PrivacyPolicyPage: React.FC = () => {
               </p>
               <LegalCallout tone="cyan" icon="fa-trash-can" title="Cơ chế xóa dữ liệu khi chấm dứt dịch vụ">
                 Khi Khách hàng chấm dứt hợp đồng hoặc gửi yêu cầu xóa tài khoản, Support HR sẽ tiến hành{" "}
-                <strong className="text-blue-700">xóa vĩnh viễn toàn bộ dữ liệu trong vòng 30 ngày</strong>, trừ khi
+                <strong className="text-[#1d4e89]">xóa vĩnh viễn toàn bộ dữ liệu trong vòng 30 ngày</strong>, trừ khi
                 pháp luật yêu cầu thời hạn lưu trữ dài hơn.
               </LegalCallout>
             </LegalCard>
@@ -250,8 +250,8 @@ const PrivacyPolicyPage: React.FC = () => {
               </LegalCard>
             </div>
 
-            <div className="rounded-2xl border border-blue-100 bg-blue-50 px-5 py-4 text-sm leading-7 text-slate-600">
-              <i className="fa-solid fa-circle-info mr-2 text-blue-500" />
+            <div className="rounded-xl border border-[#1d4e89]/20 bg-[#1d4e89]/[0.06] px-5 py-4 text-sm leading-7 text-[#475467]">
+              <i className="fa-solid fa-circle-info mr-2 text-[#1d4e89]" />
               Tất cả các quyền này được thực hiện theo quy định về bảo vệ dữ liệu cá nhân và các văn bản pháp luật có
               liên quan, với mục tiêu cân bằng giữa vận hành tuyển dụng và quyền riêng tư của ứng viên.
             </div>

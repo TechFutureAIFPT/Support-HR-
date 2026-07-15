@@ -265,9 +265,9 @@ const integrationCards = [
 function SectionHeading({ label, title, description }: { label: string; title: string; description: string }) {
   return (
     <div className="mb-6">
-      <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-blue-600">{label}</p>
-      <h2 className="mt-2 text-2xl font-black tracking-[-0.03em] sm:text-3xl">{title}</h2>
-      <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600">{description}</p>
+      <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#1d4e89]">{label}</p>
+      <h2 className="mt-2 text-2xl font-bold tracking-[-0.025em] text-[#172033] sm:text-3xl">{title}</h2>
+      <p className="mt-3 max-w-2xl text-sm leading-7 text-[#475467]">{description}</p>
     </div>
   );
 }
@@ -275,40 +275,40 @@ function SectionHeading({ label, title, description }: { label: string; title: s
 function FeatureDocSection({ docKey, screenshot }: { docKey: string; screenshot?: string }) {
   const doc = featureDocs[docKey];
   return (
-    <div className="overflow-hidden rounded-[1.75rem] border border-blue-100 bg-white shadow-[0_16px_50px_rgba(30,64,175,0.06)]">
-      <div className="border-b border-blue-100 bg-[#f7fbff] px-8 py-7 sm:px-10">
+    <div className="overflow-hidden rounded-xl border border-[#e4e7ec] bg-white shadow-[0_8px_24px_rgba(16,24,40,0.05)]">
+      <div className="border-b border-[#e4e7ec] bg-[#f8fafc] px-6 py-6 sm:px-8">
         <div className="flex items-center gap-4">
-          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-blue-200 bg-blue-50 text-blue-600">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-[#1d4e89]/[0.08] text-[#1d4e89]">
             <i className={`fa-solid ${doc.icon} text-lg`} />
           </span>
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-blue-600">{doc.eyebrow}</p>
-            <h3 className="mt-0.5 text-xl font-black tracking-[-0.02em]">{doc.title}</h3>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#1d4e89]">{doc.eyebrow}</p>
+            <h3 className="mt-0.5 text-xl font-bold tracking-[-0.02em] text-[#172033]">{doc.title}</h3>
           </div>
         </div>
-        <p className="mt-4 text-sm leading-7 text-slate-600">{doc.summary}</p>
+        <p className="mt-4 text-sm leading-7 text-[#475467]">{doc.summary}</p>
       </div>
 
       <div className="p-6 sm:p-8">
         <div className="grid gap-4 sm:grid-cols-3">
           {doc.capabilities.map((cap) => (
-            <div key={cap.title} className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
-              <i className={`fa-solid ${cap.icon} text-blue-600`} />
-              <p className="mt-3 text-sm font-bold text-slate-900">{cap.title}</p>
-              <p className="mt-2 text-sm leading-6 text-slate-600">{cap.body}</p>
+            <div key={cap.title} className="rounded-xl border border-[#e4e7ec] bg-[#f8fafc] p-5">
+              <i className={`fa-solid ${cap.icon} text-[#1d4e89]`} />
+              <p className="mt-3 text-sm font-semibold text-[#172033]">{cap.title}</p>
+              <p className="mt-2 text-sm leading-6 text-[#475467]">{cap.body}</p>
             </div>
           ))}
         </div>
 
         {screenshot && (
-          <div className="mt-6 overflow-hidden rounded-2xl border border-blue-100 bg-slate-50">
-            <div className="flex items-center gap-2 border-b border-blue-100 bg-white px-4 py-2">
+          <div className="mt-6 overflow-hidden rounded-xl border border-[#e4e7ec] bg-[#f8fafc]">
+            <div className="flex items-center gap-2 border-b border-[#e4e7ec] bg-white px-4 py-2">
               <div className="flex gap-1.5">
                 <span className="h-3 w-3 rounded-full bg-red-400" />
                 <span className="h-3 w-3 rounded-full bg-amber-400" />
                 <span className="h-3 w-3 rounded-full bg-emerald-400" />
               </div>
-              <span className="ml-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">Trong tài liệu</span>
+              <span className="ml-2 text-[10px] font-semibold uppercase tracking-[0.1em] text-[#98a2b3]">Trong sản phẩm</span>
             </div>
             <img
               src={screenshot}
@@ -320,18 +320,18 @@ function FeatureDocSection({ docKey, screenshot }: { docKey: string; screenshot?
         )}
 
         <div className="mt-6 space-y-4">
-          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-blue-600">Cách sử dụng</p>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#1d4e89]">Cách sử dụng</p>
           {doc.steps.map((step, i) => (
             <div key={step} className="flex gap-4">
-              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-600 text-xs font-bold text-white">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#1d4e89] text-xs font-bold text-[#ffffff]">
                 {i + 1}
               </span>
-              <p className="pt-0.5 text-sm leading-7 text-slate-700">{step}</p>
+              <p className="pt-0.5 text-sm leading-7 text-[#344054]">{step}</p>
             </div>
           ))}
         </div>
 
-        <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm leading-7 text-amber-950">
+        <div className="mt-6 rounded-xl border border-[#b54708]/20 bg-[#b54708]/[0.06] p-5 text-sm leading-7 text-[#7a2e0e]">
           <i className="fa-solid fa-triangle-exclamation mr-2 text-amber-500" />
           <strong>Lưu ý vận hành:</strong> {doc.note}
         </div>
@@ -382,34 +382,72 @@ export default function DemoPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#f6f8fc] text-slate-950">
+    <div className="legal-page-shell min-h-screen bg-[#f6f8fb] text-[#172033]">
       <DocsTopBar brandContext="Hướng dẫn sử dụng" auxiliaryLink={{ label: "Tổng quan tài liệu", to: "/app-docs" }} />
 
-      <main className="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
+      <main id="main-content" className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:py-12">
         {/* Hero */}
-        <header className="relative overflow-hidden rounded-[2rem] border border-blue-100 bg-white px-6 py-10 shadow-[0_24px_70px_rgba(30,64,175,0.08)] sm:px-10 lg:px-14">
-          <div className="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full bg-blue-100/60 blur-3xl" />
-          <div className="relative max-w-3xl">
-            <p className="text-xs font-bold uppercase tracking-[0.24em] text-blue-600">Tài liệu đầy đủ</p>
-            <h1 className="mt-4 text-4xl font-black tracking-[-0.045em] sm:text-5xl lg:text-6xl">
-              Hướng dẫn sử dụng Support HR
-            </h1>
-            <p className="mt-5 max-w-2xl text-base leading-8 text-slate-600 sm:text-lg">
-              Toàn bộ tài liệu vận hành — từ bước đầu tiên trên Website, App mobile đến các công cụ hỗ trợ và tình huống sử dụng thực tế.
-            </p>
-            <div className="mt-6 flex flex-wrap gap-2">
-              {navSections.map(({ id, label, icon }) => (
-                <button
-                  key={id}
-                  type="button"
-                  onClick={() => scrollTo(id)}
-                  className="inline-flex items-center gap-2 rounded-xl border border-blue-100 bg-[#f6f9ff] px-4 py-2 text-xs font-semibold text-blue-700 hover:bg-blue-100 transition-colors"
-                >
-                  <i className={`fa-solid ${icon} text-[11px]`} />
-                  {label}
-                </button>
-              ))}
+        <header className="relative overflow-hidden rounded-2xl border border-[#e4e7ec] bg-white px-6 py-8 shadow-[0_8px_24px_rgba(16,24,40,0.05)] sm:px-10 sm:py-10">
+          <div className="pointer-events-none absolute -right-24 -top-28 h-72 w-72 rounded-full bg-[#1d4e89]/[0.08] blur-3xl" />
+          <div className="relative grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-end">
+            <div className="max-w-3xl">
+              <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#1d4e89]/20 bg-[#1d4e89]/[0.06] px-3 py-1 text-[12px] font-medium text-[#1d4e89]">
+                <i className="fa-solid fa-book-open text-[11px]" />
+                Trung tâm hướng dẫn SupportHR
+              </p>
+              <h1 className="text-balance text-4xl font-bold leading-[1.12] tracking-[-0.025em] text-[#172033] sm:text-[46px]">
+                Làm chủ quy trình tuyển dụng từ bước đầu tiên
+              </h1>
+              <p className="mt-5 max-w-2xl text-base leading-7 text-[#475467] sm:text-[17px]">
+                Chọn Website hoặc App mobile, làm theo từng bước bằng ảnh chụp thật và mở đúng tính năng khi cần thực hành.
+              </p>
+              <div className="mt-6 flex flex-wrap gap-2">
+                {navSections.slice(0, 4).map(({ id, label, icon }) => (
+                  <button
+                    key={id}
+                    type="button"
+                    onClick={() => scrollTo(id)}
+                    className="inline-flex min-h-11 items-center gap-2 rounded-[10px] border border-[#d0d5dd] bg-white px-4 py-2 text-xs font-semibold text-[#344054] transition-colors hover:bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#1d4e89]"
+                  >
+                    <i className={`fa-solid ${icon} text-[11px] text-[#1d4e89]`} />
+                    {label}
+                  </button>
+                ))}
+              </div>
             </div>
+
+            <aside className="rounded-xl border border-[#e4e7ec] bg-[#f8fafc] p-5" aria-label="Chọn nền tảng hướng dẫn">
+              <div className="flex items-center justify-between">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#98a2b3]">Bắt đầu nhanh</p>
+                <span className="text-xs font-semibold text-[#17915f]">{steps.length} bước</span>
+              </div>
+              <p className="mt-3 text-sm font-semibold text-[#172033]">Bạn đang sử dụng nền tảng nào?</p>
+              <div className="mt-4 grid grid-cols-2 gap-2">
+                {(["web", "mobile"] as Platform[]).map((item) => (
+                  <button
+                    key={item}
+                    type="button"
+                    onClick={() => selectPlatform(item)}
+                    aria-pressed={platform === item}
+                    className={`flex min-h-11 items-center justify-center gap-2 rounded-[10px] border text-sm font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-[#1d4e89] ${
+                      platform === item
+                        ? "border-[#1d4e89] bg-[#1d4e89] text-[#ffffff]"
+                        : "border-[#d0d5dd] bg-white text-[#475467] hover:bg-[#f2f4f7]"
+                    }`}
+                  >
+                    <i className={`fa-solid ${item === "web" ? "fa-display" : "fa-mobile-screen-button"}`} />
+                    {item === "web" ? "Website" : "Mobile"}
+                  </button>
+                ))}
+              </div>
+              <button
+                type="button"
+                onClick={() => scrollTo("huong-dan")}
+                className="mt-3 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-[10px] bg-[#1d4e89]/[0.08] px-4 text-sm font-semibold text-[#1d4e89] transition-colors hover:bg-[#1d4e89]/[0.12] focus:outline-none focus:ring-2 focus:ring-[#1d4e89]"
+              >
+                Xem từng bước <i className="fa-solid fa-arrow-down text-[10px]" />
+              </button>
+            </aside>
           </div>
         </header>
 
@@ -418,8 +456,8 @@ export default function DemoPage() {
 
           {/* Sidebar */}
           <aside className="hidden lg:block">
-            <nav className="sticky top-24 rounded-2xl border border-blue-100 bg-white p-3 shadow-sm">
-              <p className="px-3 pb-2 text-[10px] font-bold uppercase tracking-[0.22em] text-slate-400">Nội dung trang</p>
+            <nav className="sticky top-24 rounded-xl border border-[#e4e7ec] bg-white p-3 shadow-sm">
+              <p className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#98a2b3]">Nội dung trang</p>
               <div className="space-y-0.5">
                 {navSections.map(({ id, label, icon }) => {
                   const active = activeSection === id;
@@ -430,11 +468,11 @@ export default function DemoPage() {
                       onClick={() => scrollTo(id)}
                       className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors ${
                         active
-                          ? "bg-blue-50 font-semibold text-blue-700"
-                          : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                          ? "bg-[#1d4e89]/[0.06] font-semibold text-[#1d4e89]"
+                          : "text-[#667085] hover:bg-[#f8fafc] hover:text-[#172033]"
                       }`}
                     >
-                      <i className={`fa-solid ${icon} w-4 shrink-0 text-center text-[11px] ${active ? "text-blue-600" : "text-slate-400"}`} />
+                      <i className={`fa-solid ${icon} w-4 shrink-0 text-center text-[11px] ${active ? "text-[#1d4e89]" : "text-[#98a2b3]"}`} />
                       <span className="text-left">{label}</span>
                     </button>
                   );
@@ -455,7 +493,7 @@ export default function DemoPage() {
               />
 
               {/* Platform switcher */}
-              <div className="sticky top-[4.45rem] z-30 -mx-4 mb-6 border-y border-blue-100 bg-[#f6f8fc]/95 px-4 py-3 backdrop-blur-xl sm:mx-0 sm:rounded-2xl sm:border sm:px-3">
+              <div className="sticky top-16 z-30 -mx-4 mb-6 border-y border-[#e4e7ec] bg-[#f6f8fb]/95 px-4 py-3 backdrop-blur-xl sm:mx-0 sm:rounded-xl sm:border sm:px-3">
                 <div className="flex gap-2 overflow-x-auto">
                   {(["web", "mobile"] as Platform[]).map((item) => {
                     const active = platform === item;
@@ -465,7 +503,7 @@ export default function DemoPage() {
                         type="button"
                         onClick={() => selectPlatform(item)}
                         className={`inline-flex h-10 min-w-fit items-center gap-2 rounded-xl px-5 text-sm font-bold transition-colors ${
-                          active ? "bg-blue-600 text-white shadow-sm" : "bg-white text-slate-600 hover:text-blue-700"
+                          active ? "bg-[#1d4e89] text-[#ffffff] shadow-sm" : "bg-white text-[#667085] hover:text-[#1d4e89]"
                         }`}
                       >
                         <i className={`fa-solid ${item === "web" ? "fa-display" : "fa-mobile-screen-button"}`} />
@@ -482,35 +520,35 @@ export default function DemoPage() {
                   <article
                     id={`guide-step-${index + 1}`}
                     key={step.title}
-                    className="scroll-mt-40 overflow-hidden rounded-[1.75rem] border border-blue-100 bg-white shadow-[0_16px_50px_rgba(30,64,175,0.06)]"
+                    className="scroll-mt-40 overflow-hidden rounded-xl border border-[#e4e7ec] bg-white shadow-[0_8px_24px_rgba(16,24,40,0.05)]"
                   >
                     <div className={`grid ${platform === "mobile" ? "lg:grid-cols-[minmax(0,1fr)_25rem]" : "xl:grid-cols-[minmax(0,0.8fr)_minmax(30rem,1.2fr)]"}`}>
                       <div className="flex flex-col p-6 sm:p-8 lg:p-10">
-                        <span className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 text-sm font-black text-white">
+                        <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#1d4e89] text-sm font-bold text-[#ffffff]">
                           {index + 1}
                         </span>
-                        <h3 className="mt-6 text-2xl font-black tracking-[-0.03em] sm:text-3xl">{step.title}</h3>
-                        <p className="mt-4 text-base leading-7 text-slate-600">{step.body}</p>
+                        <h3 className="mt-6 text-2xl font-bold tracking-[-0.025em] text-[#172033] sm:text-3xl">{step.title}</h3>
+                        <p className="mt-4 text-base leading-7 text-[#475467]">{step.body}</p>
                         <div className="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm leading-6 text-emerald-900">
                           <i className="fa-solid fa-circle-check mr-2 text-emerald-600" />
                           <strong>Kết quả:</strong> {step.result}
                         </div>
                         <Link
                           to={step.targetRoute}
-                          className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-blue-700 hover:text-blue-800"
+                          className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-lg text-sm font-semibold text-[#1d4e89] hover:text-[#163a5f] focus:outline-none focus:ring-2 focus:ring-[#1d4e89]"
                         >
                           {step.targetLabel} <i className="fa-solid fa-arrow-right text-xs" />
                         </Link>
                       </div>
-                      <div className={`flex items-center justify-center border-t border-blue-100 bg-slate-50 p-4 sm:p-6 lg:border-l lg:border-t-0 ${platform === "mobile" ? "min-h-[34rem]" : "min-h-[22rem]"}`}>
+                      <div className={`flex items-center justify-center border-t border-[#e4e7ec] bg-[#f8fafc] p-4 sm:p-6 lg:border-l lg:border-t-0 ${platform === "mobile" ? "min-h-[34rem]" : "min-h-[22rem]"}`}>
                         <img
                           src={step.image}
                           alt={`${step.title} trên ${platform === "web" ? "Website Support HR" : "App mobile Hipo Tools"}`}
                           loading={index > 1 ? "lazy" : "eager"}
                           className={
                             platform === "mobile"
-                              ? "max-h-[46rem] w-auto max-w-full rounded-[1.5rem] border border-slate-200 bg-white shadow-xl"
-                              : "w-full rounded-2xl border border-slate-200 bg-white shadow-lg"
+                              ? "max-h-[46rem] w-auto max-w-full rounded-xl border border-[#d0d5dd] bg-white shadow-xl"
+                              : "w-full rounded-xl border border-[#d0d5dd] bg-white shadow-lg"
                           }
                         />
                       </div>
@@ -531,7 +569,7 @@ export default function DemoPage() {
                 {useCases.map((uc) => (
                   <div
                     key={uc.id}
-                    className="overflow-hidden rounded-[1.5rem] border border-blue-100 bg-white p-6 shadow-[0_8px_30px_rgba(30,64,175,0.05)]"
+                    className="overflow-hidden rounded-xl border border-[#e4e7ec] bg-white p-6 shadow-[0_8px_24px_rgba(16,24,40,0.05)]"
                   >
                     <div className="flex items-start gap-4">
                       <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border ${uc.iconStyle}`}>
@@ -539,17 +577,17 @@ export default function DemoPage() {
                       </span>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
-                          <h3 className="text-base font-black tracking-[-0.02em]">{uc.title}</h3>
+                          <h3 className="text-base font-semibold tracking-[-0.02em] text-[#172033]">{uc.title}</h3>
                           <span className={`shrink-0 rounded-lg px-2 py-0.5 text-[10px] font-bold ${uc.tagStyle}`}>{uc.tag}</span>
                         </div>
-                        <p className="mt-3 text-sm leading-7 text-slate-600">{uc.body}</p>
+                        <p className="mt-3 text-sm leading-7 text-[#475467]">{uc.body}</p>
                       </div>
                     </div>
                   </div>
                 ))}
               </div>
-              <div className="mt-5 overflow-hidden rounded-2xl border border-blue-100 bg-slate-50">
-                <div className="flex items-center gap-2 border-b border-blue-100 bg-white px-4 py-2">
+              <div className="mt-5 overflow-hidden rounded-xl border border-[#e4e7ec] bg-[#f8fafc]">
+                <div className="flex items-center gap-2 border-b border-[#e4e7ec] bg-white px-4 py-2">
                   <div className="flex gap-1.5">
                     <span className="h-3 w-3 rounded-full bg-red-400" />
                     <span className="h-3 w-3 rounded-full bg-amber-400" />
@@ -602,7 +640,7 @@ export default function DemoPage() {
                 {integrationCards.map((card) => (
                   <div
                     key={card.title}
-                    className="overflow-hidden rounded-[1.5rem] border border-blue-100 bg-white p-6 shadow-[0_8px_30px_rgba(30,64,175,0.05)]"
+                    className="overflow-hidden rounded-xl border border-[#e4e7ec] bg-white p-6 shadow-[0_8px_24px_rgba(16,24,40,0.05)]"
                   >
                     <div className="flex items-start gap-4">
                       <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border ${card.iconStyle}`}>
@@ -610,18 +648,18 @@ export default function DemoPage() {
                       </span>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
-                          <h3 className="text-base font-black tracking-[-0.02em]">{card.title}</h3>
+                          <h3 className="text-base font-semibold tracking-[-0.02em] text-[#172033]">{card.title}</h3>
                           <span className={`shrink-0 rounded-lg px-2 py-0.5 text-[10px] font-bold ${card.tagStyle}`}>{card.tag}</span>
                         </div>
-                        <p className="mt-3 text-sm leading-7 text-slate-600">{card.body}</p>
+                        <p className="mt-3 text-sm leading-7 text-[#475467]">{card.body}</p>
                       </div>
                     </div>
                   </div>
                 ))}
               </div>
 
-              <div className="mt-5 overflow-hidden rounded-2xl border border-blue-100 bg-slate-50">
-                <div className="flex items-center gap-2 border-b border-blue-100 bg-white px-4 py-2">
+              <div className="mt-5 overflow-hidden rounded-xl border border-[#e4e7ec] bg-[#f8fafc]">
+                <div className="flex items-center gap-2 border-b border-[#e4e7ec] bg-white px-4 py-2">
                   <div className="flex gap-1.5">
                     <span className="h-3 w-3 rounded-full bg-red-400" />
                     <span className="h-3 w-3 rounded-full bg-amber-400" />
@@ -636,25 +674,25 @@ export default function DemoPage() {
               <div className="mt-6 flex flex-wrap gap-3">
                 <Link
                   to="/security"
-                  className="inline-flex items-center gap-2 rounded-xl border border-blue-100 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm hover:border-blue-200 hover:text-blue-700 transition-colors"
+                  className="inline-flex min-h-11 items-center gap-2 rounded-[10px] border border-[#d0d5dd] bg-white px-4 py-2.5 text-sm font-semibold text-[#344054] transition-colors hover:bg-[#f8fafc] hover:text-[#172033] focus:outline-none focus:ring-2 focus:ring-[#1d4e89]"
                 >
-                  <i className="fa-solid fa-shield-halved text-blue-500 text-xs" />
+                  <i className="fa-solid fa-shield-halved text-xs text-[#1d4e89]" />
                   Bảo mật dữ liệu
                   <i className="fa-solid fa-arrow-right text-xs text-slate-400" />
                 </Link>
                 <Link
                   to="/faq"
-                  className="inline-flex items-center gap-2 rounded-xl border border-blue-100 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm hover:border-blue-200 hover:text-blue-700 transition-colors"
+                  className="inline-flex min-h-11 items-center gap-2 rounded-[10px] border border-[#d0d5dd] bg-white px-4 py-2.5 text-sm font-semibold text-[#344054] transition-colors hover:bg-[#f8fafc] hover:text-[#172033] focus:outline-none focus:ring-2 focus:ring-[#1d4e89]"
                 >
-                  <i className="fa-solid fa-circle-question text-blue-500 text-xs" />
+                  <i className="fa-solid fa-circle-question text-xs text-[#1d4e89]" />
                   Câu hỏi thường gặp
                   <i className="fa-solid fa-arrow-right text-xs text-slate-400" />
                 </Link>
                 <Link
                   to="/app-docs"
-                  className="inline-flex items-center gap-2 rounded-xl border border-blue-100 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm hover:border-blue-200 hover:text-blue-700 transition-colors"
+                  className="inline-flex min-h-11 items-center gap-2 rounded-[10px] border border-[#d0d5dd] bg-white px-4 py-2.5 text-sm font-semibold text-[#344054] transition-colors hover:bg-[#f8fafc] hover:text-[#172033] focus:outline-none focus:ring-2 focus:ring-[#1d4e89]"
                 >
-                  <i className="fa-solid fa-compass text-blue-500 text-xs" />
+                  <i className="fa-solid fa-compass text-xs text-[#1d4e89]" />
                   Tổng quan tài liệu
                   <i className="fa-solid fa-arrow-right text-xs text-slate-400" />
                 </Link>

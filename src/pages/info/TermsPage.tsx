@@ -161,7 +161,7 @@ const TermsPage: React.FC = () => {
                   thanh toán trong ba tháng gần nhất trước thời điểm phát sinh sự kiện.
                 </p>
                 <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-4 text-center">
-                  <p className="text-3xl font-black text-rose-600">03 THÁNG</p>
+                  <p className="text-3xl font-bold text-rose-600">03 THÁNG</p>
                   <p className="mt-1 text-sm text-rose-500">Khoảng thời gian tính trần trách nhiệm</p>
                 </div>
               </LegalCard>
@@ -176,7 +176,7 @@ const TermsPage: React.FC = () => {
               <div className="flex flex-col gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-4 sm:flex-row sm:items-end sm:justify-between">
                 <div>
                   <p className="supporthr-mono text-[10px] uppercase tracking-[0.2em] text-emerald-600">Mục tiêu SLA</p>
-                  <p className="mt-2 text-3xl font-black text-emerald-700">99.0%</p>
+                  <p className="mt-2 text-3xl font-bold text-emerald-700">99.0%</p>
                 </div>
                 <p className="max-w-xl text-sm leading-7 text-slate-600">
                   Support HR cam kết nỗ lực hợp lý về mặt thương mại để duy trì dịch vụ ổn định, ngoại trừ các khoảng
@@ -191,13 +191,13 @@ const TermsPage: React.FC = () => {
                 khả năng chuyển đổi khi cần.
               </p>
               <div className="grid gap-3 xl:grid-cols-2">
-                <div className="rounded-xl border border-blue-100 bg-slate-50 px-4 py-4">
+                <div className="rounded-xl border border-[#e4e7ec] bg-[#f8fafc] px-4 py-4">
                   <p className="text-sm font-semibold text-slate-900">Thông báo thay đổi</p>
                   <p className="mt-2 text-sm leading-7 text-slate-600">
                     Thông báo cho Khách hàng trước ít nhất 30 ngày, trừ trường hợp khẩn cấp hoặc phát sinh ngoài dự đoán.
                   </p>
                 </div>
-                <div className="rounded-xl border border-blue-100 bg-slate-50 px-4 py-4">
+                <div className="rounded-xl border border-[#e4e7ec] bg-[#f8fafc] px-4 py-4">
                   <p className="text-sm font-semibold text-slate-900">Chuyển đổi kỹ thuật</p>
                   <p className="mt-2 text-sm leading-7 text-slate-600">
                     Duy trì nỗ lực kỹ thuật hợp lý để chuyển sang giải pháp thay thế tương đương khi cần bảo toàn vận
